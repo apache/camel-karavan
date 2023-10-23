@@ -1936,6 +1936,9 @@ export class CamelDefinitionYamlStep {
     static readRouteConfigurationDefinition = (element: any): RouteConfigurationDefinition => {
         
         let def = element ? new RouteConfigurationDefinition({...element}) : new RouteConfigurationDefinition();
+        def.onCompletion = element && element?.onCompletion ? element?.onCompletion.map((x:any) => CamelDefinitionYamlStep.readOnCompletionDefinition(x.onCompletion)) :[]; 
+        def.interceptSendToEndpoint = element && element?.interceptSendToEndpoint ? element?.interceptSendToEndpoint.map((x:any) => CamelDefinitionYamlStep.readInterceptSendToEndpointDefinition(x.interceptSendToEndpoint)) :[]; 
+        def.intercept = element && element?.intercept ? element?.intercept.map((x:any) => CamelDefinitionYamlStep.readInterceptDefinition(x.intercept)) :[]; 
         if (element?.errorHandler !== undefined) { 
             if (Array.isArray(element.errorHandler)) { 
                def.errorHandler = CamelDefinitionYamlStep.readErrorHandlerDefinition(element.errorHandler[0]); 
@@ -1943,6 +1946,8 @@ export class CamelDefinitionYamlStep {
                def.errorHandler = CamelDefinitionYamlStep.readErrorHandlerDefinition(element.errorHandler); 
             } 
         } 
+        def.onException = element && element?.onException ? element?.onException.map((x:any) => CamelDefinitionYamlStep.readOnExceptionDefinition(x.onException)) :[]; 
+        def.interceptFrom = element && element?.interceptFrom ? element?.interceptFrom.map((x:any) => CamelDefinitionYamlStep.readInterceptFromDefinition(x.interceptFrom)) :[]; 
 
         return def;
     }

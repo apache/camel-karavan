@@ -1195,6 +1195,11 @@ export class CamelDefinitionApi {
         if (element?.errorHandler !== undefined) { 
             def.errorHandler = CamelDefinitionApi.createErrorHandlerDefinition(element.errorHandler); 
         }
+        def.intercept = element && element?.intercept ? element?.intercept.map((x:any) => CamelDefinitionApi.createInterceptDefinition(x)) :[];
+        def.interceptFrom = element && element?.interceptFrom ? element?.interceptFrom.map((x:any) => CamelDefinitionApi.createInterceptFromDefinition(x)) :[];
+        def.interceptSendToEndpoint = element && element?.interceptSendToEndpoint ? element?.interceptSendToEndpoint.map((x:any) => CamelDefinitionApi.createInterceptSendToEndpointDefinition(x)) :[];
+        def.onException = element && element?.onException ? element?.onException.map((x:any) => CamelDefinitionApi.createOnExceptionDefinition(x)) :[];
+        def.onCompletion = element && element?.onCompletion ? element?.onCompletion.map((x:any) => CamelDefinitionApi.createOnCompletionDefinition(x)) :[];
         return def;
     }
 

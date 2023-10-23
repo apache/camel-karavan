@@ -97,7 +97,7 @@ public final class CamelDefinitionYamlStepGenerator extends AbstractGenerator {
         String s1 = getStringToRequired(obj, className);
         AtomicReference<String> s3 = new AtomicReference<>("");
 
-        Map<String, JsonObject> properties = getClassProperties(obj);
+        Map<String, JsonObject> properties = getClassProperties(stepName, obj);
 
         Map<String, String> attrs = new HashMap<>();
         properties.keySet().stream().sorted(getComparator(stepName)).forEach(aName -> {
@@ -105,14 +105,16 @@ public final class CamelDefinitionYamlStepGenerator extends AbstractGenerator {
                 s3.set("\n        def = ComponentApi.parseElementUri(def);");
             }
             JsonObject aValue = properties.get(aName);
-            if (isAttributeRefArray(aValue) && aName.equals("steps") && ! className.equals("ChoiceDefinition") && ! className.equals("SwitchDefinition") && ! className.equals("KameletDefinition")) {
+            boolean attributeIsArray = isAttributeRefArray(aValue);
+            String attributeArrayClass = getAttributeArrayClass(aName, aValue);
+            if (attributeIsArray && aName.equals("steps") && ! className.equals("ChoiceDefinition") && ! className.equals("SwitchDefinition") && ! className.equals("KameletDefinition")) {
                 attrs.put(aName, "        def.steps = CamelDefinitionYamlStep.readSteps(element?.steps);\n");
-            } else if (isAttributeRefArray(aValue) && !aName.equals("steps")) {
+            } else if (attributeIsArray && !aName.equals("steps") && !attributeArrayClass.equals("string")) {
                 String format = Arrays.asList("intercept", "interceptFrom", "interceptSendToEndpoint", "onCompletion", "onException").contains(aName)
                         ? "        def.%1$s = element && element?.%1$s ? element?.%1$s.map((x:any) => CamelDefinitionYamlStep.read%2$s(x.%1$s)) :[]; \n"
                         : "        def.%1$s = element && element?.%1$s ? element?.%1$s.map((x:any) => CamelDefinitionYamlStep.read%2$s(x)) :[]; \n";
 
-                String code = String.format(format, aName, getAttributeArrayClass(aValue));
+                String code = String.format(format, aName, attributeArrayClass);
                 attrs.put(aName, code);
             } else if (isAttributeRef(aValue) && getAttributeClass(aValue).equals("ExpressionDefinition")) { // Expressions implicits
                 String code = String.format(
@@ -160,15 +162,6 @@ public final class CamelDefinitionYamlStepGenerator extends AbstractGenerator {
             return "if (element && typeof element === 'string') element = {" + list.get(0) + ": element};";
         } else {
             return "";
-        }
-    }
-
-    private boolean isAttributeRefArray(JsonObject attribute) {
-        if (attribute.containsKey("type") && attribute.getString("type").equals("array")) {
-            JsonObject items = attribute.getJsonObject("items");
-            return items.containsKey("$ref");
-        } else {
-            return false;
         }
     }
 }

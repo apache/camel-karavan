@@ -125,9 +125,10 @@ public final class CamelMetadataGenerator extends AbstractGenerator {
         definitions.getMap().forEach((s, o) -> {
             if (s.startsWith("org.apache.camel.model.") && s.endsWith("Definition")) {
                 String name = classSimple(s);
+                String stepName = getStepNameForClass(name);
                 JsonObject obj = getDefinition(definitions, s);
 //                JsonObject props = obj.containsKey("oneOf") ? obj.getJsonArray("oneOf").getJsonObject(1).getJsonObject("properties") : obj.getJsonObject("properties");
-                Map<String, JsonObject> properties = getClassProperties(obj);
+                Map<String, JsonObject> properties = getClassProperties(stepName, obj);
                 classProps.put(name, JsonObject.mapFrom(properties));
             }
         });
@@ -180,7 +181,7 @@ public final class CamelMetadataGenerator extends AbstractGenerator {
                     if ("inheritErrorHandler".equals(pname) && p == null) {
                     } else {
 
-                        PropertyMeta pm = getAttributeType(new JsonObject((Map) v));
+                        PropertyMeta pm = getAttributeType(pname, new JsonObject((Map) v));
                         String displayName = p != null && p.containsKey("displayName") ? p.getString("displayName") : pname;
                         String desc = p != null && p.containsKey("description") ? p.getString("description") : pname;
                         String en = p != null && p.containsKey("enum") ? p.getString("enum").replace("[", "").replace("]", "") : "";
@@ -219,7 +220,7 @@ public final class CamelMetadataGenerator extends AbstractGenerator {
         return "";
     }
 
-    private PropertyMeta getAttributeType(JsonObject attribute) {
+    private PropertyMeta getAttributeType(String pname, JsonObject attribute) {
         if (attribute.containsKey("$ref")) {
             String classFullName = attribute.getString("$ref");
             String className = classSimple(classFullName);
@@ -232,11 +233,22 @@ public final class CamelMetadataGenerator extends AbstractGenerator {
             return new PropertyMeta(className, false, true);
         } else if (attribute.containsKey("type") && attribute.getString("type").equals("array")) {
             JsonObject items = attribute.getJsonObject("items");
-            if (items.containsKey("$ref") && items.getString("$ref").equals("#/items/definitions/org.apache.camel.model.ProcessorDefinition")) {
-                return new PropertyMeta("CamelElement", true, true);
+            if (items.containsKey("properties") && items.getJsonObject("properties").containsKey(pname)) {
+                String t = items.getJsonObject("properties").getJsonObject(pname).getString("$ref");
+                if (t.equals("#/items/definitions/org.apache.camel.model.ProcessorDefinition")) {
+                    return new PropertyMeta("CamelElement", true, true);
+                } else {
+                    String className = classSimple(t);
+                    return new PropertyMeta(className, true, true);
+                }
             } else if (items.containsKey("$ref")) {
-                String className = classSimple(items.getString("$ref"));
-                return new PropertyMeta(className, true, true);
+                String t = items.getString("$ref");
+                if (t.equals("#/items/definitions/org.apache.camel.model.ProcessorDefinition")) {
+                    return new PropertyMeta("CamelElement", true, true);
+                } else {
+                    String className = classSimple(t);
+                    return new PropertyMeta(className, true, true);
+                }
             } else {
                 return new PropertyMeta(items.getString("type"), true, false);
             }

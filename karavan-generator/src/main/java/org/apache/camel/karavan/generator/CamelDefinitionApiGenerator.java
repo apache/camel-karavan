@@ -140,7 +140,9 @@ public final class CamelDefinitionApiGenerator extends AbstractGenerator {
         String className = classSimple(classFullName);
         String stepName = getStepNameForClass(className);
 
-        Map<String, JsonObject> properties = getClassProperties(obj);
+        print = (stepName.equalsIgnoreCase("RouteConfiguration"));
+
+        Map<String, JsonObject> properties = getClassProperties(stepName, obj);
 
         List<String> attrs = new ArrayList<>();
         AtomicBoolean hasId = new AtomicBoolean(false);
@@ -149,12 +151,14 @@ public final class CamelDefinitionApiGenerator extends AbstractGenerator {
             if ("id".equals(name)) {
                 hasId.set(true);
             }
-            if (isAttributeRefArray(aValue) && name.equals("steps") && ! className.equals("ChoiceDefinition") && ! className.equals("SwitchDefinition") && ! className.equals("KameletDefinition")) {
+            boolean attributeIsArray = isAttributeRefArray(aValue);
+            String attributeArrayClass = getAttributeArrayClass(name, aValue);
+            if (attributeIsArray && name.equals("steps") && ! className.equals("ChoiceDefinition") && ! className.equals("SwitchDefinition") && ! className.equals("KameletDefinition")) {
                 attrs.add("        def.steps = CamelDefinitionApi.createSteps(element?.steps);");
-            } else if (isAttributeRefArray(aValue) && !name.equals("steps")) {
+            } else if (attributeIsArray && !name.equals("steps") && !attributeArrayClass.equals("string")) {
                 String code = String.format(
                         "        def.%1$s = element && element?.%1$s ? element?.%1$s.map((x:any) => CamelDefinitionApi.create%2$s(x)) :[];"
-                        , name, getAttributeArrayClass(aValue));
+                        , name, attributeArrayClass);
                 attrs.add(code);
             } else if (isAttributeRef(aValue)
                     && !getAttributeClass(aValue).equals("SagaActionUriDefinition") // SagaActionUriDefinition is exception
@@ -192,15 +196,6 @@ public final class CamelDefinitionApiGenerator extends AbstractGenerator {
                     "        }";
         } else {
             return "";
-        }
-    }
-
-    private boolean isAttributeRefArray(JsonObject attribute) {
-        if (attribute.containsKey("type") && attribute.getString("type").equals("array")) {
-            JsonObject items = attribute.getJsonObject("items");
-            return items.containsKey("$ref");
-        } else {
-            return false;
         }
     }
 }

@@ -62,11 +62,11 @@ public final class CamelDefinitionGenerator extends AbstractGenerator {
 
     private String generateModel(String classFullName, JsonObject obj, JsonObject definitions, Map<String, JsonObject> dslMetadata) {
         String className = classSimple(classFullName);
-        Map<String, JsonObject> properties = getClassProperties(obj);
+        String stepName = getStepNameForClass(className);
+        Map<String, JsonObject> properties = getClassProperties(stepName, obj);
 
         List<String> required = obj.containsKey("required") ? obj.getJsonArray("required").getList() : List.of();
         List<String> attrs = new ArrayList<>();
-        String stepName = getStepNameForClass(className);
         if (className.endsWith("Definition")) {
             attrs.add("    stepName?: string = '" + stepName + "'");
         } else if (className.endsWith("Expression")) {

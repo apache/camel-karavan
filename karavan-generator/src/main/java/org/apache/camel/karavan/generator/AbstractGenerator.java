@@ -41,6 +41,7 @@ import java.util.stream.Collectors;
 public class AbstractGenerator {
 
     Logger LOGGER = Logger.getLogger(AbstractGenerator.class.getName());
+    protected static boolean print = false;
 
     protected Vertx vertx = Vertx.vertx();
 
@@ -117,9 +118,8 @@ public class AbstractGenerator {
         return properties;
     }
 
-    protected Map<String, JsonObject> getClassProperties (JsonObject obj) {
+    protected Map<String, JsonObject> getClassProperties (String stepName, JsonObject obj) {
         Map<String, JsonObject> properties = new LinkedHashMap<>();
-
         obj.getMap().keySet().forEach(key -> {
             if (key.equals("oneOf")) {
                 JsonObject val = obj.getJsonArray("oneOf").getJsonObject(1).getJsonObject("properties");
@@ -320,8 +320,19 @@ public class AbstractGenerator {
         return classSimple(attribute.getString("$ref"));
     }
 
-    protected String getAttributeArrayClass(JsonObject attribute) {
-        return classSimple(attribute.getJsonObject("items").getString("$ref"));
+    protected String getAttributeArrayClass(String stepName, JsonObject attribute) {
+        if (attribute.containsKey("items")) {
+            JsonObject items = attribute.getJsonObject("items");
+            if (items.containsKey("$ref")) {
+                return classSimple(items.getString("$ref"));
+            } else if (items.containsKey("properties")) {
+                JsonObject properties = items.getJsonObject("properties");
+                return classSimple(properties.getJsonObject(stepName).getString("$ref"));
+            } else {
+                return items.getString("type");
+            }
+        }
+        return "string";
     }
 
     protected String classSimple(String classFullName) {
@@ -399,5 +410,9 @@ public class AbstractGenerator {
 
     protected JsonObject getDefinition(JsonObject definitions, String className) {
         return definitions.getJsonObject(className.replace("#/items/definitions/", ""));
+    }
+
+    protected boolean isAttributeRefArray(JsonObject attribute) {
+        return attribute.containsKey("type") && attribute.getString("type").equals("array");
     }
 }
