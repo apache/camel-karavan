@@ -71,7 +71,6 @@ export function CreateFileModal (props: Props) {
             const integration = Integration.createNew(kameletName, 'kamelet');
             const meta:MetadataLabels = new MetadataLabels({"camel.apache.org/kamelet.type": kameletType});
             integration.metadata.labels = meta;
-            console.log(integration);
             return CamelDefinitionYaml.integrationToYaml(integration);
         } else {
             return '';

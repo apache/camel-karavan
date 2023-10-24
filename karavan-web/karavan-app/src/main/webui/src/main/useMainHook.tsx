@@ -23,6 +23,7 @@ import {AppConfig, ContainerStatus} from "../api/ProjectModels";
 import {useAppConfigStore, useStatusesStore} from "../api/ProjectStore";
 import {InfrastructureAPI} from "../designer/utils/InfrastructureAPI";
 import {shallow} from "zustand/shallow";
+import {ProjectService} from "../api/ProjectService";
 
 export function useMainHook () {
 
@@ -51,14 +52,7 @@ export function useMainHook () {
 
     async function updateKamelets(): Promise<void> {
         await new Promise(resolve => {
-            KaravanApi.getKamelets(yamls => {
-                const kamelets: string[] = [];
-                yamls.split("\n---\n").map(c => c.trim()).forEach(z => kamelets.push(z));
-                KameletApi.saveKamelets(kamelets, true);
-            })
-            KaravanApi.getCustomKameletNames(names => {
-                KameletApi.saveCustomKameletNames(names);
-            })
+            ProjectService.reloadKamelets();
         });
     }
 

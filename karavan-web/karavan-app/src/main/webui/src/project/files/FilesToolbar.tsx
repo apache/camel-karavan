@@ -18,7 +18,16 @@ import React, {useEffect, useState} from 'react';
 import {
     Button,
     Flex,
-    FlexItem, Form, FormGroup, FormHelperText, Label, Modal, ModalVariant, TextInput, Tooltip, TooltipPosition,
+    FlexItem,
+    Form,
+    FormGroup,
+    FormHelperText,
+    Label,
+    Modal,
+    ModalVariant,
+    TextInput,
+    Tooltip,
+    TooltipPosition,
 } from '@patternfly/react-core';
 import '../../designer/karavan.css';
 import UploadIcon from "@patternfly/react-icons/dist/esm/icons/upload-icon";
@@ -27,6 +36,7 @@ import {useFilesStore, useFileStore, useProjectStore} from "../../api/ProjectSto
 import {shallow} from "zustand/shallow";
 import {ProjectService} from "../../api/ProjectService";
 import PushIcon from "@patternfly/react-icons/dist/esm/icons/code-branch-icon";
+import RefreshIcon from "@patternfly/react-icons/dist/esm/icons/sync-alt-icon";
 
 export function FileToolbar () {
 
@@ -108,7 +118,24 @@ export function FileToolbar () {
         )
     }
 
+    function isKameletsProject(): boolean {
+        return project.projectId === 'kamelets';
+    }
+
     return <Flex className="toolbar" direction={{default: "row"}} justifyContent={{default: "justifyContentFlexEnd"}}>
+        {isKameletsProject() && <FlexItem align={{default: "alignLeft"}} flex={{default: "flex_3"}}>
+            <Tooltip content="Load Custom Kamelets to Library" position={TooltipPosition.right}>
+                <Button size="sm"
+                        variant={"secondary"}
+                        className="project-button"
+                        icon={<RefreshIcon/>}
+                        onClick={() => {
+                            ProjectService.reloadKamelets();
+                        }}>
+                    Load
+                </Button>
+            </Tooltip>
+        </FlexItem>}
         <FlexItem>{getLastUpdatePanel()}</FlexItem>
         <FlexItem>
             <Tooltip content="Commit and push to git" position={"bottom-end"}>

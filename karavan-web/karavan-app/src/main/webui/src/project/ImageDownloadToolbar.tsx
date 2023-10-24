@@ -55,10 +55,10 @@ export function ImageDownloadToolbar() {
             <ToolbarContent>
                 {isIntegration() &&
                     <FlexItem>
-                        <Tooltip content="Download image" position={"bottom-end"}>
-                            <Button size="sm" variant="control" icon={<DownloadImageIcon/>}
-                                    onClick={e => downloadImage()}/>
-                        </Tooltip>
+                        {/*<Tooltip content="Download image" position={"bottom-end"}>*/}
+                        {/*    <Button size="sm" variant="control" icon={<DownloadImageIcon/>}*/}
+                        {/*            onClick={e => downloadImage()}/>*/}
+                        {/*</Tooltip>*/}
                     </FlexItem>
                 }
             </ToolbarContent>

@@ -29,6 +29,7 @@ import {
 } from './ProjectStore';
 import {ProjectEventBus} from './ProjectEventBus';
 import {EventBus} from "../designer/utils/EventBus";
+import {KameletApi} from "karavan-core/lib/api/KameletApi";
 
 export class ProjectService {
 
@@ -133,6 +134,17 @@ export class ProjectService {
                 // Todo notification
             }
         });
+    }
+
+    public static reloadKamelets() {
+        KaravanApi.getKamelets(yamls => {
+            const kamelets: string[] = [];
+            yamls.split("\n---\n").map(c => c.trim()).forEach(z => kamelets.push(z));
+            KameletApi.saveKamelets(kamelets, true);
+        })
+        KaravanApi.getCustomKameletNames(names => {
+            KameletApi.saveCustomKameletNames(names);
+        })
     }
 
     public static saveFile(file: ProjectFile, active: boolean) {
