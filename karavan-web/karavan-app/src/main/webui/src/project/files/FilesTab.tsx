@@ -159,7 +159,7 @@ export function FilesTab () {
                 </Table>
             </div>
             <UploadFileModal projectId={project.projectId}/>
-            <CreateFileModal types={types}/>
+            <CreateFileModal types={types} isKameletsProject={isKameletsProject()}/>
             <DeleteFileModal />
         </PageSection>
     )

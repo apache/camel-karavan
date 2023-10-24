@@ -73,8 +73,10 @@ export class Spec {
     }
 }
 
+export type KameletTypes =  "sink" | "source" | "action";
+
 export class MetadataLabels {
-    "camel.apache.org/kamelet.type": "sink" | "source" | "action" = 'source'
+    "camel.apache.org/kamelet.type": KameletTypes = 'source'
 
     public constructor(init?: Partial<MetadataLabels>) {
         Object.assign(this, init);
@@ -82,10 +84,10 @@ export class MetadataLabels {
 }
 
 export class MetadataAnnotations {
-    "camel.apache.org/kamelet.support.level:": string = 'Preview';
+    "camel.apache.org/kamelet.support.level": string = 'Preview';
     "camel.apache.org/catalog.version": string = '';
-    "camel.apache.org/kamelet.icon": string = '';
-    "camel.apache.org/provider": string = '';
+    "camel.apache.org/kamelet.icon": string = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23000000' viewBox='0 0 32 32' id='icon'%3E%3Cdefs%3E%3Cstyle%3E.cls-1%7Bfill:none;%7D%3C/style%3E%3C/defs%3E%3Ctitle%3Eapplication%3C/title%3E%3Cpath d='M16,18H6a2,2,0,0,1-2-2V6A2,2,0,0,1,6,4H16a2,2,0,0,1,2,2V16A2,2,0,0,1,16,18ZM6,6V16H16V6Z' transform='translate(0 0)'/%3E%3Cpath d='M26,12v4H22V12h4m0-2H22a2,2,0,0,0-2,2v4a2,2,0,0,0,2,2h4a2,2,0,0,0,2-2V12a2,2,0,0,0-2-2Z' transform='translate(0 0)'/%3E%3Cpath d='M26,22v4H22V22h4m0-2H22a2,2,0,0,0-2,2v4a2,2,0,0,0,2,2h4a2,2,0,0,0,2-2V22a2,2,0,0,0-2-2Z' transform='translate(0 0)'/%3E%3Cpath d='M16,22v4H12V22h4m0-2H12a2,2,0,0,0-2,2v4a2,2,0,0,0,2,2h4a2,2,0,0,0,2-2V22a2,2,0,0,0-2-2Z' transform='translate(0 0)'/%3E%3Cg id='_Transparent_Rectangle_' data-name='&lt;Transparent Rectangle&gt;'%3E%3Crect class='cls-1' width='32' height='32'/%3E%3C/g%3E%3C/svg%3E";
+    "camel.apache.org/provider": string = 'Custom';
     "camel.apache.org/kamelet.group": string = '';
     "camel.apache.org/kamelet.namespace": string = '';
 

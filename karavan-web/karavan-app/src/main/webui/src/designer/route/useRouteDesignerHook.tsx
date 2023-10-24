@@ -19,7 +19,7 @@ import '../karavan.css';
 import {DslMetaModel} from "../utils/DslMetaModel";
 import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
 import {ChoiceDefinition, FromDefinition, LogDefinition, RouteConfigurationDefinition, RouteDefinition} from "karavan-core/lib/model/CamelDefinition";
-import {CamelElement} from "karavan-core/lib/model/IntegrationDefinition";
+import {CamelElement, MetadataLabels} from "karavan-core/lib/model/IntegrationDefinition";
 import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt";
 import {CamelDefinitionApi} from "karavan-core/lib/api/CamelDefinitionApi";
 import {Command, EventBus} from "../utils/EventBus";
@@ -27,6 +27,7 @@ import {CamelDisplayUtil} from "karavan-core/lib/api/CamelDisplayUtil";
 import {toPng} from 'html-to-image';
 import {useDesignerStore, useIntegrationStore, useSelectorStore} from "../DesignerStore";
 import {shallow} from "zustand/shallow";
+import {v4 as uuidv4} from 'uuid';
 
 export function useRouteDesignerHook () {
 
@@ -44,6 +45,34 @@ export function useRouteDesignerHook () {
         switch (command.command){
             case "downloadImage": integrationImageDownload(printerRef);
         }
+    }
+
+    function isKamelet(): boolean {
+        return integration.type === 'kamelet';
+    }
+
+    function isSourceKamelet(): boolean {
+        if (isKamelet()){
+            const m: MetadataLabels | undefined = integration.metadata.labels;
+            return m !== undefined && m["camel.apache.org/kamelet.type"] === 'source';
+        }
+        return false;
+    }
+
+    function isSinkKamelet(): boolean {
+        if (isKamelet()){
+            const m: MetadataLabels | undefined = integration.metadata.labels;
+            return m !== undefined && m["camel.apache.org/kamelet.type"] === 'sink';
+        }
+        return false;
+    }
+
+    function isActionKamelet(): boolean {
+        if (isKamelet()){
+            const m: MetadataLabels | undefined = integration.metadata.labels;
+            return m !== undefined && m["camel.apache.org/kamelet.type"] === 'action';
+        }
+        return false;
     }
 
     const onShowDeleteConfirmation = (id: string) => {
@@ -193,13 +222,17 @@ export function useRouteDesignerHook () {
         setSelectorTabIndex((parentId === undefined && parentDsl === undefined) ? 'kamelet' : 'eip');
     }
 
-    const onDslSelect = (dsl: DslMetaModel, parentId: string, position?: number | undefined) => {
+    function onDslSelect (dsl: DslMetaModel, parentId: string, position?: number | undefined) {
         switch (dsl.dsl) {
             case 'FromDefinition' :
-                const route = CamelDefinitionApi.createRouteDefinition({from: new FromDefinition({uri: dsl.uri})});
+                const nodePrefixId = isKamelet() ? integration.metadata.name : 'route-' + uuidv4().substring(0,3);
+                const route = CamelDefinitionApi.createRouteDefinition({from: new FromDefinition({uri: dsl.uri}), nodePrefixId: nodePrefixId});
                 addStep(route, parentId, position)
                 break;
             case 'ToDefinition' :
+                if (dsl.uri === undefined && isKamelet()) {
+                    dsl.uri = 'kamelet:sink';
+                }
                 const to = CamelDefinitionApi.createStep(dsl.dsl, {uri: dsl.uri});
                 addStep(to, parentId, position)
                 break;
@@ -291,5 +324,6 @@ export function useRouteDesignerHook () {
     }
 
     return { deleteElement, selectElement, moveElement, onShowDeleteConfirmation, onDslSelect, openSelector,
-        createRouteConfiguration, onCommand, handleKeyDown, handleKeyUp, unselectElement}
+        createRouteConfiguration, onCommand, handleKeyDown, handleKeyUp, unselectElement, isKamelet, isSourceKamelet,
+        isActionKamelet, isSinkKamelet}
 }

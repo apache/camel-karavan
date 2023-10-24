@@ -15,16 +15,9 @@
  * limitations under the License.
  */
 import React from 'react';
-import {
-    Button,
-    Modal,
-    ActionGroup,
-    Text,
-    CardHeader,
-    Badge, Flex, CardTitle,
-} from '@patternfly/react-core';
+import {ActionGroup, Badge, Button, CardHeader, CardTitle, Flex, Modal, Text,} from '@patternfly/react-core';
 import '../../designer/karavan.css';
-import {Table, Tbody, Td, Th, Thead, Tr} from "@patternfly/react-table";
+import {Table, TableText, Tbody, Td, Th, Thead, Tr, WrapModifier} from "@patternfly/react-table";
 import {CamelUi} from "../../designer/utils/CamelUi";
 import {PropertyMeta} from "karavan-core/lib/model/CamelMetadata";
 import {useKnowledgebaseStore} from "../KnowledgebaseStore";
@@ -45,7 +38,7 @@ export function EipModal() {
             isOpen={isModalOpen}
             onClose={() => setModalOpen(false)}
             actions={[
-                <div className="modal-footer">
+                <div className="modal-footer" key="buttons">
                     <ActionGroup className="deploy-buttons">
                         <Button key="cancel" variant="primary"
                                 onClick={e => setModalOpen(false)}>Close</Button>
@@ -53,8 +46,7 @@ export function EipModal() {
                 </div>
             ]}
         >
-            <Flex direction={{default: 'column'}} key={element?.name}
-                  className="kamelet-modal-card">
+            <Flex direction={{default: 'column'}} key={element?.name} className="kamelet-modal-card">
                 <CardHeader actions={{ actions: <><Badge className="badge"
                                                          isRead> {element?.labels}</Badge></>, hasNoOffset: false, className: undefined}} >
                     {element && CamelUi.getIconForDslName(element?.className)}
@@ -67,27 +59,30 @@ export function EipModal() {
                         <Table aria-label="Simple table" variant='compact'>
                             <Thead>
                                 <Tr>
-                                    <Th key='name'>Display Name / Name</Th>
+                                    <Th key='name' width={10}>Name</Th>
+                                    <Th key='label'>Label</Th>
+                                    <Th key='display' width={10}>Display Name</Th>
                                     <Th key='desc'>Description</Th>
                                     <Th key='type'>Type</Th>
-                                    <Th key='label'>Label</Th>
                                 </Tr>
                             </Thead>
                             <Tbody>
                                 {element?.properties.map((p: PropertyMeta, idx: number) => (
                                     <Tr key={idx}>
-                                        <Td key={`${idx}_name`}>
-                                            <div>
-                                                <b>{p.displayName}</b>
-                                                <div>{p.name}</div>
-                                            </div>
+                                        <Td modifier={"fitContent"}>
+                                            {p.name}
+                                        </Td>
+                                        <Td modifier={"fitContent"}>
+                                            <Badge className="badge" isRead>{p.label}</Badge>
+                                        </Td>
+                                        <Td modifier={"fitContent"}>
+                                            {p.displayName}
                                         </Td>
                                         <Td key={`${idx}_desc`}><div>
                                             <div>{p.description}</div>
                                             {p.defaultValue && p.defaultValue.toString().length > 0 && <div>{"Default value: " + p.defaultValue}</div>}
                                         </div></Td>
                                         <Td key={`${idx}_type`}>{p.type}</Td>
-                                        <Td key={`${idx}_label`}>{p.label}</Td>
                                     </Tr>
                                 ))}
                             </Tbody>

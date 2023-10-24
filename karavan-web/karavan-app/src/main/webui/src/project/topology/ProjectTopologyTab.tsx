@@ -49,7 +49,7 @@ export const ProjectTopologyTab: React.FC = () => {
                 onClickCreateButton={() => setFile('create')}
                 onSetFile={(fileName) => selectFile(fileName)}
             />
-            <CreateFileModal types={['INTEGRATION']}/>
+            <CreateFileModal types={['INTEGRATION']} isKameletsProject={false}/>
         </>
     );
 }

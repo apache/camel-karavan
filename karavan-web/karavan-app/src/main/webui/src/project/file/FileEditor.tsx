@@ -88,7 +88,7 @@ export function FileEditor (props: Props) {
     const isKameletYaml = file !== undefined && file.name.endsWith(".kamelet.yaml");
     const isIntegration = isCamelYaml && file?.code && CamelDefinitionYaml.yamlIsIntegration(file.code);
     const isProperties = file !== undefined && file.name.endsWith("properties");
-    const showDesigner = isCamelYaml && isIntegration;
+    const showDesigner = (isCamelYaml && isIntegration) || isKameletYaml;
     const showEditor = !showDesigner && !isProperties;
     return (
         <>

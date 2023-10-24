@@ -24,8 +24,6 @@ import {
     Tabs,
     TabTitleIcon,
     TabTitleText,
-    Tooltip,
-    TooltipPosition,
 } from '@patternfly/react-core';
 import './karavan.css';
 import {RouteDesigner} from "./route/RouteDesigner";

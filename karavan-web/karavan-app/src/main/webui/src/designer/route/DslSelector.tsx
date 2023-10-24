@@ -24,7 +24,7 @@ import {
 import '../karavan.css';
 import {CamelUi} from "../utils/CamelUi";
 import {DslMetaModel} from "../utils/DslMetaModel";
-import {useDesignerStore, useSelectorStore} from "../DesignerStore";
+import {useDesignerStore, useIntegrationStore, useSelectorStore} from "../DesignerStore";
 import {shallow} from "zustand/shallow";
 import {useRouteDesignerHook} from "./useRouteDesignerHook";
 
@@ -39,7 +39,6 @@ export function DslSelector (props: Props) {
         useSelectorStore((s) =>
             [s.showSelector, s.showSteps, s.parentId, s.parentDsl, s.selectorTabIndex, s.setShowSelector, s.setSelectorTabIndex,
                 s.selectedPosition, s.selectedLabels, s.addSelectedLabel, s.deleteSelectedLabel], shallow)
-
 
     const [dark] = useDesignerStore((s) => [s.dark], shallow)
 

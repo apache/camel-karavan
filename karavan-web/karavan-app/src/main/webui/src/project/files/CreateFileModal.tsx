@@ -25,16 +25,18 @@ import {
     ToggleGroupItem, ToggleGroup, FormHelperText, HelperText, HelperTextItem, TextInput
 } from '@patternfly/react-core';
 import '../../designer/karavan.css';
-import {Integration} from "karavan-core/lib/model/IntegrationDefinition";
+import {Integration, KameletTypes, MetadataLabels} from "karavan-core/lib/model/IntegrationDefinition";
 import {CamelDefinitionYaml} from "karavan-core/lib/api/CamelDefinitionYaml";
 import {useFileStore, useProjectStore} from "../../api/ProjectStore";
 import {ProjectFile, ProjectFileTypes} from "../../api/ProjectModels";
 import {CamelUi} from "../../designer/utils/CamelUi";
 import {ProjectService} from "../../api/ProjectService";
 import {shallow} from "zustand/shallow";
+import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
 
 interface Props {
-    types: string[]
+    types: string[],
+    isKameletsProject: boolean
 }
 
 export function CreateFileModal (props: Props) {
@@ -43,6 +45,7 @@ export function CreateFileModal (props: Props) {
     const [operation, setFile] = useFileStore((s) => [s.operation, s.setFile], shallow);
     const [name, setName] = useState<string>( '');
     const [fileType, setFileType] = useState<string>();
+    const [kameletType, setKameletType] = useState<KameletTypes>('source');
 
     useEffect(() => {
         if (props.types.length > 0) {
@@ -60,14 +63,28 @@ export function CreateFileModal (props: Props) {
         cleanValues();
     }
 
+    function getCode(): string {
+        if (fileType === 'INTEGRATION') {
+            return CamelDefinitionYaml.integrationToYaml(Integration.createNew(name, 'plain'));
+        } else if (fileType === 'KAMELET') {
+            const kameletName = name + (isKamelet ? '-'+kameletType : '');
+            const integration = Integration.createNew(kameletName, 'kamelet');
+            const meta:MetadataLabels = new MetadataLabels({"camel.apache.org/kamelet.type": kameletType});
+            integration.metadata.labels = meta;
+            console.log(integration);
+            return CamelDefinitionYaml.integrationToYaml(integration);
+        } else {
+            return '';
+        }
+    }
+
     function confirmAndCloseModal () {
         const extension = ProjectFileTypes.filter(value => value.name === fileType)[0].extension;
         const filename = (extension !== 'java') ? fileNameCheck(name) : CamelUi.javaNameFromTitle(name);
-        const code = fileType === 'INTEGRATION'
-            ? CamelDefinitionYaml.integrationToYaml(Integration.createNew(name, 'plain'))
-            : '';
+        const code = getCode();
         if (filename && extension) {
-            const file = new ProjectFile(filename + '.' + extension, project.projectId, code, Date.now());
+            const fullFileName = filename + (isKamelet ? '-'+kameletType : '') + '.' + extension;
+            const file = new ProjectFile(fullFileName, project.projectId, code, Date.now());
             ProjectService.createFile(file);
             cleanValues();
             if (code) {
@@ -82,10 +99,12 @@ export function CreateFileModal (props: Props) {
         return title.replace(/[^0-9a-zA-Z.]+/gi, "-").toLowerCase();
     }
 
+    const isKamelet = props.isKameletsProject;
     const extension = ProjectFileTypes.filter(value => value.name === fileType)[0]?.extension;
     const filename = (extension !== 'java')
         ? fileNameCheck(name)
-        : CamelUi.javaNameFromTitle(name)
+        : CamelUi.javaNameFromTitle(name);
+    const fullFileName = filename + (isKamelet ? '-'+kameletType : '') + '.' + extension;
     return (
         <Modal
             title="Create"
@@ -98,7 +117,7 @@ export function CreateFileModal (props: Props) {
             ]}
         >
             <Form autoComplete="off" isHorizontal className="create-file-form">
-                <FormGroup label="Type" fieldId="type" isRequired>
+                {!isKamelet && <FormGroup label="Type" fieldId="type" isRequired>
                     <ToggleGroup aria-label="Type" isCompact>
                         {ProjectFileTypes.filter(p => props.types.includes(p.name))
                             .map(p => {
@@ -110,12 +129,24 @@ export function CreateFileModal (props: Props) {
                                                         }}/>
                             })}
                     </ToggleGroup>
-                </FormGroup>
+                </FormGroup>}
+                {isKamelet && <FormGroup label="Kamelet Type" fieldId="kameletType" isRequired>
+                    <ToggleGroup aria-label="Kamelet Type">
+                        {['source', 'action', 'sink'].map((type) => {
+                            const title = CamelUtil.capitalizeName(type);
+                            return <ToggleGroupItem key={type} text={title} buttonId={type}
+                                                    isSelected={kameletType === type}
+                                                    onChange={(_, selected) => {
+                                                        setKameletType(type as KameletTypes);
+                                                    }}/>
+                        })}
+                    </ToggleGroup>
+                </FormGroup>}
                 <FormGroup label="Name" fieldId="name" isRequired>
                     <TextInput id="name" aria-label="name" value={name} onChange={(_, value) => setName(value)}/>
                     <FormHelperText  >
                         <HelperText id="helper-text1">
-                            <HelperTextItem variant={'default'}>{filename + '.' + extension}</HelperTextItem>
+                            <HelperTextItem variant={'default'}>{fullFileName}</HelperTextItem>
                         </HelperText>
                     </FormHelperText>
                 </FormGroup>
