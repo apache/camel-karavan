@@ -26,6 +26,10 @@ github:
     - camel
     - integration
     - java
+    - low-code
+    - vscode
+    - docker
+    - kubernetes
   enabled_merge_buttons:
     squash:  true
     merge:   false
