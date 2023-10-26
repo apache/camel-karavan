@@ -55,6 +55,13 @@ Karavan provides VS Code extension for local developer experience
 * [Openshift](docs/WEB_OPENSHIFT.md)
 
 ### Developer guide
-[How to build Karavan](docs/DEV.md)
+* [Architecture](docs/ARCHITECTURE.md)
+* [How to build](docs/DEV.md)
 
+
+### Feedback
 If you haven't done so yet, please be sure to download Karavan and give it a try. We're excited to receive your feedback and learn about your experiences!
+
+* [Ask questions](https://github.com/apache/camel-karavan/discussions)
+* [Open Issues](https://github.com/apache/camel-karavan/issues)
+
