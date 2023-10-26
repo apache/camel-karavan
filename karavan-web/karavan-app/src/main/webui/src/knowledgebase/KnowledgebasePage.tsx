@@ -16,21 +16,7 @@
  */
 import React, {useState} from 'react';
 import '../designer/karavan.css';
-import {
-    Button,
-    Flex,
-    FlexItem,
-    PageSection,
-    Switch,
-    Tab,
-    Tabs,
-    Text,
-    TextContent,
-    TextInput,
-    Toolbar,
-    ToolbarContent,
-    ToolbarItem
-} from "@patternfly/react-core";
+import {Flex, FlexItem, PageSection, Switch, Tab, Tabs, Text, TextContent, TextInput, Toolbar, ToolbarContent, ToolbarItem} from "@patternfly/react-core";
 import {MainToolbar} from "../designer/MainToolbar";
 import {KameletsTab} from "./kamelets/KameletsTab";
 import {EipTab} from "./eip/EipTab";
@@ -38,7 +24,6 @@ import {ComponentsTab} from "./components/ComponentsTab";
 
 interface Props {
     dark: boolean,
-    onKameletsReload? (): void;
 }
 
 export const KnowledgebasePage = (props: Props) => {
@@ -56,11 +41,6 @@ export const KnowledgebasePage = (props: Props) => {
     function getTools() {
         return <Toolbar id="toolbar-group-types">
             <ToolbarContent>
-                {tab === 'kamelets' && <ToolbarItem>
-                    <Button
-                        onClick={(_event) => props.onKameletsReload?.()}
-                    >Reload</Button>
-                </ToolbarItem>}
                 {tab === 'kamelets' && <ToolbarItem>
                     <Switch
                         label="Custom only"

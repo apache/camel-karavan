@@ -16,7 +16,7 @@
  */
 
 import {Navigate, Route, Routes} from 'react-router-dom';
-import React, {useEffect, useRef} from "react";
+import React, {useEffect, useMemo, useRef} from "react";
 import {KaravanApi} from "../api/KaravanApi";
 import {
     Bullseye,
@@ -131,6 +131,10 @@ export function Main() {
     function showMain() {
         return !showStepper() && !showSpinner() && (KaravanApi.isAuthorized || KaravanApi.authType === 'public');
     }
+
+    const projectPage = useMemo(() =>
+            <Route path="/projects/:projectId" element={<ProjectPage key={'project'}/>}/>
+        , []);
 
     return (
         <Page className="karavan">
