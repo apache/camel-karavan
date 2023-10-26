@@ -30,10 +30,14 @@ It simplifies the Apache Camel experience and accelerates developer performance 
 * Configuration (application.properties, docker-compose.yaml, deployment.yaml, etc)
 * Predefined customizable scripts for different platforms
 
+<img align="right" width="400" src="images/karavan-dashboard.png">
+
 ### Dashboards
 * Monitoring running integration microservices
 * View live logs during development
 * Tracing Exchange Data 
+
+
 
 ### Supported platforms
 * [Docker](docs/WEB_DOCKER.md)
