@@ -23,7 +23,7 @@ It simplifies the Apache Camel experience and accelerates developer performance 
 
 ### Designer
 
-<img align="right" width="300" src="images/karavan-vscode.png">
+<img align="right" width="320" src="images/karavan-vscode.png">
 
 * Enterprise Integration Patterns
 * 300+ Integration Components 
@@ -35,7 +35,7 @@ It simplifies the Apache Camel experience and accelerates developer performance 
 * Configuration 
 * Predefined customizable scripts for different platforms
 
-<img align="right" width="300" src="images/karavan-dashboard.png">
+<img align="right" width="320" src="images/karavan-dashboard.png">
 
 ### Dashboards
 * Monitoring running integration microservices
