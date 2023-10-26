@@ -6,9 +6,11 @@
 ![Typescript](https://img.shields.io/badge/-Typescript-blue.svg?style=for-the-badge&logo=typescript)
 ![License](https://img.shields.io/badge/License-Apache-blue.svg?style=for-the-badge&logo=apache)
 
-**Apache Camel Karavan** is an **Open-Source Low-code Data Integration Platform** 
+## Apache Camel Karavan 
 
-<img align="right" width="400" src="images/karavan-clouds-large.png">
+**Apache Camel Karavan** is a **Low-Code Data Integration Platform** 
+
+<img align="right" width="300" src="images/karavan-clouds-large.png">
 
 
 It simplifies the Apache Camel experience and accelerates developer performance by visually designing and rapidly deploying integration microservices.
@@ -17,9 +19,11 @@ It simplifies the Apache Camel experience and accelerates developer performance 
 * From Low-code use-cases to Pro-code projects
 * Powered by 10+ years of Community Intelligence
 
-
 ## Features
+
 ### Designer
+<img align="right" width="300" src="images/karavan-vscode.png">
+
 * Enterprise Integration Patterns
 * 300+ Integration Components 
 * REST API designer with OpenAPI to REST DSL generator
@@ -27,17 +31,15 @@ It simplifies the Apache Camel experience and accelerates developer performance 
 
 ### Deployer
 * Simple shell scripts for build and deploy
-* Configuration (application.properties, docker-compose.yaml, deployment.yaml, etc)
+* Configuration 
 * Predefined customizable scripts for different platforms
 
-<img align="right" width="400" src="images/karavan-dashboard.png">
+<img align="right" width="300" src="images/karavan-dashboard.png">
 
 ### Dashboards
 * Monitoring running integration microservices
 * View live logs during development
 * Tracing Exchange Data 
-
-
 
 ### Supported platforms
 * [Docker](docs/WEB_DOCKER.md)
