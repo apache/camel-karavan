@@ -41,12 +41,20 @@ It simplifies the Apache Camel experience and accelerates developer performance 
 * View live logs during development
 * Tracing Exchange Data 
 
-### Supported platforms
+### Local
+Karavan provides VS Code extension for local developer experience
+* Design, code and run integrations on your laptop or PC 
+* Deploy to Kubernetes or Openshift
+* Download from [Marketplace](https://marketplace.visualstudio.com/items?itemName=camel-karavan.karavan) or [Open VSX Registry](https://open-vsx.org/extension/camel-karavan/karavan)
+
+## Documentation
+
+### How to install on
 * [Docker](docs/WEB_DOCKER.md)
 * [Kubernetes](docs/WEB_KUBERNETES.md)
 * [Openshift](docs/WEB_OPENSHIFT.md)
 
-## Documentation
-[Karavan documentation](docs/README.md)
+### Developer guide
+[How to build Karavan](docs/DEV.md)
 
 If you haven't done so yet, please be sure to download Karavan and give it a try. We're excited to receive your feedback and learn about your experiences!
