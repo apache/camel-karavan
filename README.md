@@ -10,7 +10,7 @@
 
 **Apache Camel Karavan** is a **Low-Code Data Integration Platform** 
 
-<img align="right" width="300" src="images/karavan-clouds-large.png">
+<img align="right" width="320" src="images/karavan-clouds-large.png">
 
 
 It simplifies the Apache Camel experience and accelerates developer performance by visually designing and rapidly deploying integration microservices.
@@ -22,6 +22,7 @@ It simplifies the Apache Camel experience and accelerates developer performance 
 ## Features
 
 ### Designer
+
 <img align="right" width="300" src="images/karavan-vscode.png">
 
 * Enterprise Integration Patterns
