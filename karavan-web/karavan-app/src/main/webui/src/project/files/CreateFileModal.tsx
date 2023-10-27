@@ -22,9 +22,7 @@ import {
     FormGroup,
     ModalVariant,
     Form,
-    ToggleGroupItem, ToggleGroup, FormHelperText, HelperText, HelperTextItem, TextInput, Select,
-    SelectOption,
-    SelectList, MenuToggleElement, MenuToggle, TextInputGroup, TextInputGroupMain, TextInputGroupUtilities,
+    ToggleGroupItem, ToggleGroup, FormHelperText, HelperText, HelperTextItem, TextInput,
 } from '@patternfly/react-core';
 import '../../designer/karavan.css';
 import {Integration, KameletTypes, MetadataLabels} from "karavan-core/lib/model/IntegrationDefinition";
@@ -36,6 +34,7 @@ import {ProjectService} from "../../api/ProjectService";
 import {shallow} from "zustand/shallow";
 import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
 import {KameletApi} from "karavan-core/lib/api/KameletApi";
+import {TypeaheadSelect, Value} from "../../designer/ui/TypeaheadSelect";
 
 interface Props {
     types: string[],
@@ -49,9 +48,7 @@ export function CreateFileModal(props: Props) {
     const [name, setName] = useState<string>('');
     const [fileType, setFileType] = useState<string>();
     const [kameletType, setKameletType] = useState<KameletTypes>('source');
-    const [inputValue, setInputValue] = useState<string>();
-    const [selectIsOpen, setSelectIsOpen] = useState<boolean>(false);
-    const [selectedKamelet, setSelectedKamelet] = useState<[string, string]>(['', '']);
+    const [selectedKamelet, setSelectedKamelet] = useState<string>();
 
     useEffect(() => {
         if (props.types.length > 0) {
@@ -73,11 +70,20 @@ export function CreateFileModal(props: Props) {
         if (fileType === 'INTEGRATION') {
             return CamelDefinitionYaml.integrationToYaml(Integration.createNew(name, 'plain'));
         } else if (fileType === 'KAMELET') {
-            console.log(selectedKamelet, inputValue);
             const kameletName = name + (isKamelet ? '-' + kameletType : '');
             const integration = Integration.createNew(kameletName, 'kamelet');
             const meta: MetadataLabels = new MetadataLabels({"camel.apache.org/kamelet.type": kameletType});
             integration.metadata.labels = meta;
+            if (selectedKamelet !== undefined && selectedKamelet !== '') {
+                const kamelet= KameletApi.getKamelets().filter(k => k.metadata.name === selectedKamelet).at(0);
+                if (kamelet) {
+                    (integration as any).spec = kamelet.spec;
+                    (integration as any).metadata.labels = kamelet.metadata.labels;
+                    (integration as any).metadata.annotations = kamelet.metadata.annotations;
+                    const i = CamelUtil.cloneIntegration(integration);
+                    return CamelDefinitionYaml.integrationToYaml(i);
+                }
+            }
             return CamelDefinitionYaml.integrationToYaml(integration);
         } else {
             return '';
@@ -112,51 +118,12 @@ export function CreateFileModal(props: Props) {
         : CamelUi.javaNameFromTitle(name);
     const fullFileName = filename + (isKamelet ? '-' + kameletType : '') + '.' + extension;
 
-    const selectOptions: React.JSX.Element[] = []
-    KameletApi.getKamelets()
+    const listOfValues: Value[] = KameletApi.getKamelets()
         .filter(k => k.metadata.labels["camel.apache.org/kamelet.type"] === kameletType)
-        .filter(k => k.spec.definition.title.toLowerCase().includes(inputValue?.toLowerCase() || ''))
-        .forEach((kamelet) => {
-        const s = <SelectOption key={kamelet.metadata.name}
-                                value={kamelet.metadata.name}
-                                description={kamelet.spec.definition.title}
-                                isFocused={kamelet.metadata.name === selectedKamelet[0]}
-                                onClick={event => {
-                                    setSelectedKamelet([kamelet.metadata.name, kamelet.spec.definition.title]);
-                                    setSelectIsOpen(false);
-                                    setInputValue(kamelet.spec.definition.title)
-                                }}
-        />;
-        selectOptions.push(s);
-    })
-
-
-    const toggle = (toggleRef: React.Ref<MenuToggleElement>) => (
-        <MenuToggle variant={"typeahead"}
-            isFullWidth
-            ref={toggleRef}
-            onClick={() => setSelectIsOpen(!selectIsOpen)}
-            isExpanded={selectIsOpen}
-            isDisabled={false}>
-            <TextInputGroup isPlain>
-                <TextInputGroupMain
-                    value={inputValue}
-                    onClick={event => {}}
-                    onChange={(event, value) => {
-                        setInputValue(value);
-                        setSelectIsOpen(true)
-                    }}
-                    id="typeahead-select-input"
-                    autoComplete="off"
-                    // innerRef={textInputRef}
-                    placeholder="Select Kamelet"
-                    role="combobox"
-                    isExpanded={selectIsOpen}
-                    aria-controls="select-typeahead-listbox"
-                />
-            </TextInputGroup>
-        </MenuToggle>
-    );
+        .map(k => {
+            const v: Value = {value: k.metadata.name, children: k.spec.definition.title}
+            return v;
+        })
 
     return (
         <Modal
@@ -191,7 +158,7 @@ export function CreateFileModal(props: Props) {
                                                     isSelected={kameletType === type}
                                                     onChange={(_, selected) => {
                                                         setKameletType(type as KameletTypes);
-                                                        setSelectedKamelet(['', ''])
+                                                        setSelectedKamelet(undefined)
                                                     }}/>
                         })}
                     </ToggleGroup>
@@ -205,18 +172,9 @@ export function CreateFileModal(props: Props) {
                     </FormHelperText>
                 </FormGroup>
                 {isKamelet && <FormGroup label="Copy from" fieldId="kamelet">
-                    <Select
-                        aria-label={"Kamelet"}
-                        onOpenChange={isOpen => setSelectIsOpen(false)}
-                        isOpen={selectIsOpen}
-                        aria-labelledby={"Kamelets"}
-                        toggle={toggle}
-                        shouldFocusToggleOnSelect
-                    >
-                        <SelectList>
-                            {selectOptions}
-                        </SelectList>
-                    </Select>
+                    <TypeaheadSelect listOfValues={listOfValues} onSelect={value => {
+                        setSelectedKamelet(value)
+                    }}/>
                 </FormGroup>}
             </Form>
         </Modal>

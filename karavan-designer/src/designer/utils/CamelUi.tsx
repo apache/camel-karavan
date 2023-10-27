@@ -108,7 +108,7 @@ const StepElements: string[] = [
     // "ErrorHandlerDefinition",
     "FilterDefinition",
     "IdempotentConsumerDefinition",
-    "KameletDefinition",
+    // "KameletDefinition",
     "LogDefinition",
     "LoopDefinition",
     "MarshalDefinition",

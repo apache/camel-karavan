@@ -40,7 +40,8 @@ import {DslElementMoveModal} from "./DslElementMoveModal";
 
 export function RouteDesigner() {
 
-    const {openSelector, createRouteConfiguration, onCommand, handleKeyDown, handleKeyUp, unselectElement} = useRouteDesignerHook();
+    const {openSelector, createRouteConfiguration, onCommand, handleKeyDown, handleKeyUp, unselectElement, onDslSelect,
+        isSourceKamelet, isActionKamelet, isKamelet, isSinkKamelet} = useRouteDesignerHook();
 
     const [integration] = useIntegrationStore((state) => [state.integration], shallow)
     const [showDeleteConfirmation, setPosition, width, height, top, left, hideLogDSL, showMoveConfirmation, setShowMoveConfirmation] =
@@ -104,6 +105,37 @@ export function RouteDesigner() {
         )
     }
 
+    function getGraphButtons() {
+        const routes = CamelUi.getRoutes(integration);
+        const showNewRoute = (isKamelet() && routes.length === 0) || !isKamelet();
+        const showNewRouteConfiguration = !isKamelet();
+        return (
+            <div className="add-flow">
+                {showNewRoute && <Button
+                    variant={routes.length === 0 ? "primary" : "secondary"}
+                    icon={<PlusIcon/>}
+                    onClick={e => {
+                        if (isSinkKamelet() || isActionKamelet()) {
+                            const dsl = CamelUi.getDslMetaModel('FromDefinition');
+                            dsl.uri = 'kamelet:source';
+                            onDslSelect(dsl, '', undefined);
+                        } else {
+                            openSelector(undefined, undefined)
+                        }
+                    }}
+                >
+                    Create route
+                </Button>}
+                {showNewRouteConfiguration && <Button
+                    variant="secondary"
+                    icon={<PlusIcon/>}
+                    onClick={e => createRouteConfiguration()}
+                >
+                    Create configuration
+                </Button>}
+            </div>
+        )
+    }
     function getGraph() {
         const routes = CamelUi.getRoutes(integration);
         const routeConfigurations = CamelUi.getRouteConfigurations(integration);
@@ -129,24 +161,7 @@ export function RouteDesigner() {
                                     step={route}
                                     parent={undefined}/>
                     ))}
-                    <div className="add-flow">
-                        <Button
-                            variant={routes.length === 0 ? "primary" : "secondary"}
-                            icon={<PlusIcon/>}
-                            onClick={e => {
-                                openSelector(undefined, undefined)
-                            }}
-                        >
-                            Create route
-                        </Button>
-                        <Button
-                            variant="secondary"
-                            icon={<PlusIcon/>}
-                            onClick={e => createRouteConfiguration()}
-                        >
-                            Create configuration
-                        </Button>
-                    </div>
+                    {getGraphButtons()}
                 </div>
             </div>)
     }

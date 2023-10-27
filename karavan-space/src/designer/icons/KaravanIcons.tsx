@@ -260,7 +260,7 @@ export function CamelIcon(props?: (JSX.IntrinsicAttributes & React.SVGProps<SVGS
     );
 }
 
-export function getDesignerIcon(icon: string) {
+export function getDesignerIcon(icon: string): React.JSX.Element {
     if (icon === 'kamelet') return (
         <svg
             className="top-icon" id="icon"
@@ -429,6 +429,7 @@ export function getDesignerIcon(icon: string) {
             <rect id="_Transparent_Rectangle_" data-name="&lt;Transparent Rectangle&gt;" className="cls-1" width="32"
                   height="32" transform="translate(0 32) rotate(-90)"/>
         </svg>)
+    return <></>;
 }
 
 
