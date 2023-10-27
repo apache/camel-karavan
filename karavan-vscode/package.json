@@ -284,13 +284,16 @@
             "camel.karavan.target=$TARGET",
             "camel.jbang.gav=$GAV",
             "camel.jbang.version=4.1.0",
-            "camel.jbang.runtime=$RUNTIME",
+            "camel.jbang.runtime=camel-main",
+            "camel.jbang.dependencies=camel-console,camel-platform-http-main",
             "camel.jbang.exportDir=.export",
             "camel.health.enabled=true",
             "camel.health.exposure-level=full",
             "camel.server.enabled=true",
             "camel.server.healthCheckEnabled=true",
-            "camel.server.devConsoleEnabled=true"
+            "camel.server.devConsoleEnabled=true",
+            "camel.main.tracingStandby=true",
+            "camel.context.dev-console=true"
           ],
           "description": "Camel-main application.properties template",
           "scope": "machine",
