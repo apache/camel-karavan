@@ -67,8 +67,6 @@ public final class CamelDefinitionApiGenerator extends AbstractGenerator {
 
         // generate createStep function
         Map<String, String> stepNames = getProcessorStepNameMap();
-//        Map<String, String> stepNames  = getProcessorStepName(new JsonObject(camelYamlDSL).getJsonObject("items").getJsonObject("properties"));
-//        stepNames.putAll(getProcessorStepName(definitions.getJsonObject("org.apache.camel.model.ProcessorDefinition").getJsonObject("properties")));
         StringBuilder cs = new StringBuilder(
                 "    static createStep = (name: string, body: any, clone: boolean = false): CamelElement => {\n" +
                 "       const newBody = CamelUtil.camelizeBody(name, body, clone);\n" +
@@ -86,8 +84,6 @@ public final class CamelDefinitionApiGenerator extends AbstractGenerator {
         camelModel.append(cs);
 
         // generate createExpression function
-//        stepNames.clear();
-//        stepNames.putAll(getProcessorStepName(definitions.getJsonObject("org.apache.camel.model.language.ExpressionDefinition").getJsonObject("properties")));
         StringBuilder ce = new StringBuilder(
                 "    static createExpression = (name: string, body: any): CamelElement => {\n" +
                         "       const newBody = CamelUtil.camelizeBody(name, body, false);\n" +
@@ -108,8 +104,6 @@ public final class CamelDefinitionApiGenerator extends AbstractGenerator {
         camelModel.append(ce);
 
         // generate createDataFormat function
-//        stepNames.clear();
-//        stepNames.putAll(getProcessorStepName(definitions.getJsonObject("org.apache.camel.model.dataformat.DataFormatsDefinition").getJsonObject("properties")));
         StringBuilder df = new StringBuilder(
                 "    static createDataFormat = (name: string, body: any): CamelElement => {\n" +
                         "       const newBody = CamelUtil.camelizeBody(name, body, false);\n" +
@@ -120,7 +114,6 @@ public final class CamelDefinitionApiGenerator extends AbstractGenerator {
         stepNames.entrySet().stream().filter(e-> e.getKey().endsWith("DataFormat")).forEach(e -> {
             String className = e.getKey();
             String stepName = e.getValue();
-//        stepNames.forEach((className, stepName) -> {
             String code = String.format("            case '%1$s': return CamelDefinitionApi.create%1$s(newBody);\n", className);
             df.append(code);
         });
@@ -139,8 +132,6 @@ public final class CamelDefinitionApiGenerator extends AbstractGenerator {
     private String generateModelApi(String classFullName, JsonObject obj) {
         String className = classSimple(classFullName);
         String stepName = getStepNameForClass(className);
-
-        print = (stepName.equalsIgnoreCase("RouteConfiguration"));
 
         Map<String, JsonObject> properties = getClassProperties(stepName, obj);
 

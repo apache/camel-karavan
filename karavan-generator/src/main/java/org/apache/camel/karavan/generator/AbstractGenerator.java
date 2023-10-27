@@ -43,6 +43,12 @@ public class AbstractGenerator {
     Logger LOGGER = Logger.getLogger(AbstractGenerator.class.getName());
     protected static boolean print = false;
 
+    protected void print(String line){
+        if (print) {
+            System.out.println(line);
+        }
+    }
+
     protected Vertx vertx = Vertx.vertx();
 
     protected JsonObject getDefinitions(String source) {
