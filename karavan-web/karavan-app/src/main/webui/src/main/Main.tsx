@@ -132,10 +132,6 @@ export function Main() {
         return !showStepper() && !showSpinner() && (KaravanApi.isAuthorized || KaravanApi.authType === 'public');
     }
 
-    const projectPage = useMemo(() =>
-            <Route path="/projects/:projectId" element={<ProjectPage key={'project'}/>}/>
-        , []);
-
     return (
         <Page className="karavan">
             {showSpinner() &&

@@ -65,7 +65,6 @@ export function ProjectPage() {
     }
 
     const buildIn = isBuildIn();
-    console.log("Project refresh")
     const showFilePanel = file !== undefined && operation === 'select';
     return (
         <PageSection className="project-page" padding={{default: 'noPadding'}}>

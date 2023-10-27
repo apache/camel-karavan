@@ -48,8 +48,14 @@ export const useAppConfigStore = createWithEqualityFn<AppConfigState>((set) => (
         set({config: config})
     },
     readiness: undefined,
-    setReadiness: (readiness: any)  => {
-        set({readiness: readiness})
+    setReadiness: (r: any)  => {
+        set((state: AppConfigState) => {
+            if (JSON.stringify(r) !== JSON.stringify(state?.readiness)) {
+                return ({readiness: r})
+            } else {
+                return ({readiness: state.readiness})
+            }
+        });
     },
 }), shallow)
 
