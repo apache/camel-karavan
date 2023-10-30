@@ -321,7 +321,7 @@ public class DockerService extends DockerServiceUtils {
     }
 
     public void pauseContainer(String name) {
-        List<Container> containers = getDockerClient().listContainersCmd().withShowAll(true).withNameFilter(List.of(name)).exec();
+        List<Container> containers = findContainer(name);
         if (containers.size() == 1) {
             Container container = containers.get(0);
             if (container.getState().equals("running")) {
@@ -331,7 +331,7 @@ public class DockerService extends DockerServiceUtils {
     }
 
     public void stopContainer(String name) {
-        List<Container> containers = getDockerClient().listContainersCmd().withShowAll(true).withNameFilter(List.of(name)).exec();
+        List<Container> containers = findContainer(name);
         if (containers.size() == 1) {
             Container container = containers.get(0);
             if (container.getState().equals("running")) {
