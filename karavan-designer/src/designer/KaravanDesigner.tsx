@@ -96,7 +96,6 @@ export function KaravanDesigner(props: Props) {
             EventBus.sendAlert("Error parsing YAML", (e as Error).message, 'danger')
             return Integration.createNew(filename, 'plain');
         }
-
     }
 
     function save(integration: Integration, propertyOnly: boolean): void {
