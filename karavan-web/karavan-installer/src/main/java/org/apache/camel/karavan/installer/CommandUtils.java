@@ -117,7 +117,7 @@ public class CommandUtils {
 
         }
         System.out.println();
-        log("Karavan is ready");
+        log("Karavan is started");
     }
 
     public static boolean checkKaravanSecrets(KaravanCommand config, KubernetesClient client) {
