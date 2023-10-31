@@ -12,7 +12,6 @@
 
 <img align="right" width="400" src="images/karavan-clouds-large.png">
 
-
 It simplifies the Apache Camel experience and accelerates developer performance by visually designing and rapidly deploying integration microservices.
 
 * Full power of Apache Camel through Visual Tool
@@ -35,8 +34,7 @@ It simplifies the Apache Camel experience and accelerates developer performance 
 
 <img align="right" width="400" src="images/karavan-dashboard.png">
 
-### Dashboards
-
+### Dashboard
 * Monitoring running integration microservices
 * View live logs during development
 * Tracing Exchange Data 
