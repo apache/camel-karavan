@@ -41,10 +41,20 @@ export class CamelDefinitionYaml {
             const route: RouteDefinition = clone.spec.flows.filter((f: any) => f.dslName === 'RouteDefinition')?.[0];
             if (route) {
                 template.route = Object.assign(template.route, route);
+            } else if (clone.spec.template?.route) {
+                template.route = clone.spec.template.route;
+            } else if (clone.spec.template?.from) {
+                template.route = {from: clone.spec.template?.from};
+            }
+            const from: RouteDefinition = clone.spec.flows.filter((f: any) => f.dslName === 'FromDefinition')?.[0];
+            if (from) {
+                template.from = {from: from};
             }
             const beans = clone.spec.flows.filter((f: any) => f.dslName === 'Beans')?.at(0)?.beans;
             if (beans) {
                 template.beans = beans;
+            } else if (clone.spec.template?.beans){
+                template.beans = clone.spec.template.beans;
             }
             clone.spec.template = template;
             delete clone.spec.flows;

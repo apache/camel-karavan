@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Integration, CamelElement, Beans } from '../model/IntegrationDefinition';
+import { Integration, CamelElement, Beans, MetadataLabels, KameletTypes } from '../model/IntegrationDefinition';
 import { CamelDefinitionApi } from './CamelDefinitionApi';
 import {
     KameletDefinition,
@@ -29,9 +29,11 @@ import { ComponentApi } from './ComponentApi';
 import { CamelMetadataApi } from '../model/CamelMetadata';
 import { CamelDefinitionApiExt } from './CamelDefinitionApiExt';
 import { v4 as uuidv4 } from 'uuid';
+import { CamelDefinitionYaml } from './CamelDefinitionYaml';
 
 export class CamelUtil {
-    private constructor() {}
+    private constructor() {
+    }
 
     static cloneIntegration = (integration: Integration): Integration => {
         const clone = JSON.parse(JSON.stringify(integration));
@@ -161,7 +163,7 @@ export class CamelUtil {
 
     static getKameletProperties = (element: any, requiredOnly: boolean = false): Property[] => {
         const kamelet = CamelUtil.getKamelet(element);
-        const props:Property[] = kamelet ? KameletApi.getKameletProperties(kamelet?.metadata.name) : [];
+        const props: Property[] = kamelet ? KameletApi.getKameletProperties(kamelet?.metadata.name) : [];
         if (requiredOnly) {
             const required = kamelet?.spec.definition.required;
             return props.filter(value => required?.includes(value.id));
@@ -188,9 +190,9 @@ export class CamelUtil {
                 const component = ComponentApi.findByName(name);
                 return component
                     ? ComponentApi.getComponentProperties(
-                          component?.component.name,
-                          element.dslName === 'FromDefinition' ? 'consumer' : 'producer',
-                      )
+                        component?.component.name,
+                        element.dslName === 'FromDefinition' ? 'consumer' : 'producer',
+                    )
                     : [];
             } else {
                 return [];
@@ -215,7 +217,7 @@ export class CamelUtil {
                     result[1].push(`${property.displayName} is required`);
                 } else if (property.type === 'ExpressionDefinition') {
                     const expressionMeta = CamelMetadataApi.getCamelModelMetadataByClassName('ExpressionDefinition');
-                    const expressionCheck = expressionMeta && value!== undefined && expressionMeta?.properties.some(ep => {
+                    const expressionCheck = expressionMeta && value !== undefined && expressionMeta?.properties.some(ep => {
                         const expValue = value[ep.name];
                         if (expValue) {
                             const checkedExpression = CamelUtil.checkRequired(expValue);
@@ -311,5 +313,22 @@ export class CamelUtil {
         const end = val?.search('}}');
         const placeholder = val?.substring(start, end)?.trim();
         return [result, placeholder];
+    };
+
+    static createNewKameletCode = (kameletName: string, kameletType: KameletTypes, copyFromKameletName?: string): string => {
+        const integration = Integration.createNew(kameletName, 'kamelet');
+        const meta: MetadataLabels = new MetadataLabels({ 'camel.apache.org/kamelet.type': kameletType });
+        integration.metadata.labels = meta;
+        if (copyFromKameletName !== undefined && copyFromKameletName !== '') {
+            const kamelet = KameletApi.getKamelets().filter(k => k.metadata.name === copyFromKameletName).at(0);
+            if (kamelet) {
+                (integration as any).spec = kamelet.spec;
+                (integration as any).metadata.labels = kamelet.metadata.labels;
+                (integration as any).metadata.annotations = kamelet.metadata.annotations;
+                const i = CamelUtil.cloneIntegration(integration);
+                return CamelDefinitionYaml.integrationToYaml(i);
+            }
+        }
+        return CamelDefinitionYaml.integrationToYaml(integration);
     };
 }
