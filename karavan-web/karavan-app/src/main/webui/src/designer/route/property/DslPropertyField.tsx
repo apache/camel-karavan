@@ -120,8 +120,9 @@ export function DslPropertyField(props: Props) {
 
     function arrayChanged(fieldId: string, value: string) {
         setArrayValues(prevState => {
-            prevState.set(fieldId, value);
-            return prevState;
+            const map: Map<string,string> = new Map<string, string>(prevState);
+            map.set(fieldId, value);
+            return map;
         })
     }
 
@@ -598,13 +599,16 @@ export function DslPropertyField(props: Props) {
     }
 
     function getMultiValueField(property: PropertyMeta, value: any) {
+        console.log(property)
         return (
             <div>
                 <TextInputGroup className="input-group">
                     <TextInputGroupMain value={arrayValues.get(property.name)}
-                                        onChange={(e, v) => arrayChanged(property.name, v)} onKeyUp={e => {
-                        if (e.key === 'Enter') arraySave(property.name)
-                    }}>
+                                        onChange={(e, v) => arrayChanged(property.name, v)}
+                                        onKeyUp={e => {
+                                            if (e.key === 'Enter') arraySave(property.name)
+                                        }}
+                    >
                         <ChipGroup>
                             {value && Array.from(value).map((v: any, index: number) => (
                                 <Chip key={"chip-" + index} className="chip"
@@ -654,6 +658,7 @@ export function DslPropertyField(props: Props) {
             </div>
         )
     }
+
     function getExpandableComponentParameters(properties: ComponentProperty[], label: string) {
         const element = props.element;
 
@@ -665,7 +670,7 @@ export function DslPropertyField(props: Props) {
                         if (isExpanded && !isShowAdvanced.includes(label)) {
                             prevState = [...prevState, label]
                         } else {
-                            prevState = prevState.filter(s => s!== label);
+                            prevState = prevState.filter(s => s !== label);
                         }
                         return prevState;
                     })

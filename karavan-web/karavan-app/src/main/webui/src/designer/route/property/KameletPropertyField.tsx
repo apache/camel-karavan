@@ -34,7 +34,6 @@ import ShowIcon from "@patternfly/react-icons/dist/js/icons/eye-icon";
 import HideIcon from "@patternfly/react-icons/dist/js/icons/eye-slash-icon";
 import DockerIcon from "@patternfly/react-icons/dist/js/icons/docker-icon";
 import {usePropertiesHook} from "../usePropertiesHook";
-import {CamelUi} from "../../utils/CamelUi";
 import {Select, SelectDirection, SelectOption, SelectVariant} from "@patternfly/react-core/deprecated";
 
 interface Props {
