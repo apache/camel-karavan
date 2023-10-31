@@ -18,7 +18,7 @@ import {Uri, window, commands, WebviewPanel, ExtensionContext, ViewColumn, Webvi
 import * as path from "path";
 import * as utils from "./utils";
 import { CamelDefinitionYaml } from "core/api/CamelDefinitionYaml";
-import { Integration, KameletTypesArray, KameletTypes, Metadata, MetadataLabels } from "core/model/IntegrationDefinition";
+import { Integration, KameletTypes, Metadata, MetadataLabels } from "core/model/IntegrationDefinition";
 import { getWebviewContent } from "./webviewContent";
 
 const KARAVAN_LOADED = "karavan:loaded";
