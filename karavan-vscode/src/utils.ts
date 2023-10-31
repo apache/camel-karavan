@@ -17,7 +17,7 @@
 import * as path from "path";
 import { workspace, Uri, window, ExtensionContext, FileType } from "vscode";
 import { CamelDefinitionYaml } from "core/api/CamelDefinitionYaml";
-import { Integration } from "core/model/IntegrationDefinition";
+import { KameletTypes } from "webview/core/model/IntegrationDefinition";
 
 export function getRoot(): string | undefined {
     return (workspace.workspaceFolders && (workspace.workspaceFolders.length > 0))
@@ -152,8 +152,23 @@ export function toCliFilename(filename: string): string {
         : filename.replace(/\s/g, "\\ ");
 }
 
-export function nameFromTitle(title: string): string {
-    return title.replace(/[^a-z0-9+]+/gi, "-").toLowerCase();
+export function nameFromTitle(type: 'crd' | 'plain' | 'kamelet', title: string, kameletType?: KameletTypes): string {
+    title = title.replace(/[^a-z0-9+]+/gi, "-").toLowerCase();
+    if (type === 'kamelet') {
+        const suffix = '-' + kameletType;
+        return title.toLocaleLowerCase().endsWith(suffix) ? title : title + suffix;
+    } else {
+        return title;
+    }
+}
+
+export function fileNameFromName(type: 'crd' | 'plain' | 'kamelet', name: string, kameletType?: KameletTypes): string {
+    if (type === 'kamelet') {
+        const suffix = '.kamelet.yaml'
+        return name.toLocaleLowerCase().endsWith(suffix) ? name : name.split('.')[0] + suffix;
+    } else {
+        return name.toLocaleLowerCase().endsWith('.camel.yaml') ? name : name.split('.')[0] + '.camel.yaml';
+    }
 }
 
 export async function getAllFiles(dirPath, arrayOfFiles: string[]) {

@@ -18,7 +18,7 @@ import {Uri, window, commands, WebviewPanel, ExtensionContext, ViewColumn, Webvi
 import * as path from "path";
 import * as utils from "./utils";
 import { CamelDefinitionYaml } from "core/api/CamelDefinitionYaml";
-import { Integration } from "core/model/IntegrationDefinition";
+import { Integration, KameletTypesArray, KameletTypes, Metadata, MetadataLabels } from "core/model/IntegrationDefinition";
 import { getWebviewContent } from "./webviewContent";
 
 const KARAVAN_LOADED = "karavan:loaded";
@@ -58,11 +58,24 @@ export class DesignerView {
     }
 
     createIntegration(type: 'crd' | 'plain' | 'kamelet', rootPath?: string) {
+        if (type === 'kamelet') {
+            const kameletTypes = ["sink", "source", "action"];
+            window.showQuickPick(kameletTypes, { title: "Select Type", canPickMany: false }).then((kameletType) => {
+                if (kameletType) {
+                    this.inputIntegrationName(type, rootPath, (kameletType as KameletTypes));
+                }
+            })
+        } else {
+            this.inputIntegrationName(type, rootPath);
+        }
+    }
+
+    inputIntegrationName(type: 'crd' | 'plain' | 'kamelet', rootPath?: string, kameletType?: KameletTypes) {
         window
             .showInputBox({
-                title: type === 'crd' ? "Create Camel Integration CRD" : "Create Camel Integration YAML",
+                title: type === 'kamelet' ? 'Create Kamelet' : "Create Integration",
                 ignoreFocusOut: true,
-                prompt: "Integration name",
+                prompt: type === 'kamelet' ? 'Kamelet Name' : "Integration name", 
                 validateInput: (text: string): string | undefined => {
                     if (!text || text.length === 0) {
                         return 'Name should not be empty';
@@ -72,11 +85,14 @@ export class DesignerView {
                 }
             }).then(value => {
                 if (value) {
-                    const name = utils.nameFromTitle(value);
-                    const i = Integration.createNew(name);
+                    const name = utils.nameFromTitle(type, value, kameletType);
+                    const filename = utils.fileNameFromName(type, name, kameletType);
+                    const i:Integration = Integration.createNew(name, type);
+                    if (type === 'kamelet' && i.metadata && kameletType) {
+                        i.metadata.labels = new MetadataLabels({"camel.apache.org/kamelet.type": kameletType});
+                    }
                     i.type = type;
                     const yaml = CamelDefinitionYaml.integrationToYaml(i);
-                    const filename = name.toLocaleLowerCase().endsWith('.camel.yaml') ? name : name.split('.')[0] + '.camel.yaml';
                     const relativePath = (this.rootPath ? rootPath?.replace(this.rootPath, "") : rootPath) + path.sep + filename;
                     const fullPath = (rootPath ? rootPath : this.rootPath) + path.sep + filename;
                     utils.save(relativePath, yaml);

@@ -41,6 +41,7 @@
   ],
   "activationEvents": [
     "onCommand:karavan.create-yaml",
+    "onCommand:karavan.create-kamelet",
     "onCommand:karavan.create-application",
     "onCommand:karavan.deploy",
     "onCommand:karavan.open",
@@ -471,6 +472,11 @@
         "icon": "$(add)"
       },
       {
+        "command": "karavan.create-kamelet",
+        "title": "Karavan: Create Kamelet",
+        "icon": "$(add)"
+      },
+      {
         "command": "karavan.create-application",
         "title": "Karavan: Create Application",
         "icon": "$(symbol-property)"
@@ -536,6 +542,11 @@
       "explorer/context": [
         {
           "command": "karavan.create-yaml",
+          "when": "explorerResourceIsFolder || explorerResourceIsRoot",
+          "group": "karavan@2"
+        },
+        {
+          "command": "karavan.create-kamelet",
           "when": "explorerResourceIsFolder || explorerResourceIsRoot",
           "group": "karavan@2"
         },
@@ -610,6 +621,11 @@
         },
         {
           "command": "karavan.create-yaml",
+          "when": "view == integrations",
+          "group": "navigation@0"
+        },
+        {
+          "command": "karavan.create-kamelet",
           "when": "view == integrations",
           "group": "navigation@0"
         },

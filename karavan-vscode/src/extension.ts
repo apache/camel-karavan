@@ -53,11 +53,19 @@ export function activate(context: ExtensionContext) {
     });
     context.subscriptions.push(topologyCommand);
 
-    // Create new Integration YAML command
+    // Create new Integration command
     const createYaml = commands.registerCommand("karavan.create-yaml", (...args: any[]) => {
         designer.createIntegration("plain", args[0]?.fsPath)
     });
     context.subscriptions.push(createYaml);
+
+
+    // Create new Kamelet command
+    const createKamelet = commands.registerCommand("karavan.create-kamelet", (...args: any[]) => {
+        designer.createIntegration("kamelet", args[0]?.fsPath)
+    });
+    context.subscriptions.push(createKamelet);
+
 
     // Open integration in designer command
     const open = commands.registerCommand("karavan.open", (...args: any[]) => {

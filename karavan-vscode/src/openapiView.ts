@@ -141,7 +141,7 @@ export async function inputFileName(rootPath?: string, openApi?: OpenApiItem) {
 		}
 	}).then(value => {
 		if (value && openApi?.fsPath && rootPath) {
-			const name = utils.nameFromTitle(value);
+			const name = utils.nameFromTitle('plain', value);
 			const filename = name.toLocaleLowerCase().endsWith('.camel.yaml') ? name : name.split('.')[0] + '.camel.yaml';
 			const fullPath = rootPath + path.sep + filename;
 			selectRouteGeneration(rootPath, openApi.fsPath, fullPath, false);
