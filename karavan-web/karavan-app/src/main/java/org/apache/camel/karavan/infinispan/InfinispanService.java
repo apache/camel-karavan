@@ -174,12 +174,9 @@ public class InfinispanService implements HealthCheck {
         files.put(GroupedKey.create(file.getProjectId(), DEFAULT_ENVIRONMENT, file.getName()), file);
     }
 
-    public void saveProjectFiles(Map<GroupedKey, ProjectFile> f) {
-        Map<GroupedKey, ProjectFile> filesToSave = new HashMap<>(f.size());
-        f.forEach((groupedKey, projectFile) -> {
-            projectFile.setLastUpdate(Instant.now().toEpochMilli());
-            filesToSave.put(groupedKey, projectFile);
-        });
+    public void saveProjectFiles(Map<GroupedKey, ProjectFile> filesToSave) {
+        long lastUpdate = Instant.now().toEpochMilli();
+        filesToSave.forEach((groupedKey, projectFile) -> projectFile.setLastUpdate(lastUpdate));
         files.putAll(filesToSave);
     }
 
