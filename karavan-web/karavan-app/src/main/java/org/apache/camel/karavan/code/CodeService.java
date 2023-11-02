@@ -46,9 +46,6 @@ import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.SafeConstructor;
 
 import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -61,7 +58,8 @@ public class CodeService {
     public static final String BUILD_SCRIPT_FILENAME = "build.sh";
     public static final String DEV_SERVICES_FILENAME = "devservices.yaml";
     public static final String PROJECT_COMPOSE_FILENAME = "docker-compose.yaml";
-    public static final String PROJECT_DEPLOYMENT_JKUBE_FILENAME = "deployment.jkube.yaml";
+    public static final String PROJECT_JKUBE_EXTENSION = ".jkube.yaml";
+    public static final String PROJECT_DEPLOYMENT_JKUBE_FILENAME = "deployment" + PROJECT_JKUBE_EXTENSION;
     private static final String SNIPPETS_PATH = "/snippets/";
     private static final int INTERNAL_PORT = 8080;
 
@@ -90,9 +88,10 @@ public class CodeService {
             "limits.cpu", "2000m"
     );
 
-    public Map<String, String> getProjectFiles(String projectId, Boolean withKamelets) {
+    public Map<String, String> getProjectFilesForDevMode(String projectId, Boolean withKamelets) {
         Map<String, String> files = infinispanService.getProjectFiles(projectId).stream()
                 .filter(f -> !Objects.equals(f.getName(), PROJECT_COMPOSE_FILENAME))
+                .filter(f -> !f.getName().endsWith(PROJECT_JKUBE_EXTENSION))
                 .collect(Collectors.toMap(ProjectFile::getName, ProjectFile::getCode));
 
         if (withKamelets) {

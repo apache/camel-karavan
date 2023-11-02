@@ -23,7 +23,6 @@ import org.apache.camel.karavan.code.DockerComposeConverter;
 import org.apache.camel.karavan.docker.DockerForKaravan;
 import org.apache.camel.karavan.code.model.DockerComposeService;
 import org.apache.camel.karavan.git.GitService;
-import org.apache.camel.karavan.git.model.GitConfig;
 import org.apache.camel.karavan.git.model.GitRepo;
 import org.apache.camel.karavan.infinispan.InfinispanService;
 import org.apache.camel.karavan.infinispan.model.*;
@@ -40,7 +39,6 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Default;
 import jakarta.inject.Inject;
 
-import java.io.File;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -106,7 +104,7 @@ public class ProjectService implements HealthCheck {
             if (ConfigService.inKubernetes()) {
                 kubernetesService.runDevModeContainer(project, jBangOptions);
             } else {
-                Map<String, String> files = codeService.getProjectFiles(project.getProjectId(), true);
+                Map<String, String> files = codeService.getProjectFilesForDevMode(project.getProjectId(), true);
 
                 ProjectFile compose = infinispanService.getProjectFile(project.getProjectId(), PROJECT_COMPOSE_FILENAME);
                 DockerComposeService dcs = DockerComposeConverter.fromCode(compose.getCode(), project.getProjectId());

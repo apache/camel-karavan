@@ -29,11 +29,9 @@ import org.apache.camel.karavan.infinispan.InfinispanService;
 import org.apache.camel.karavan.infinispan.model.CamelStatus;
 import org.apache.camel.karavan.infinispan.model.CamelStatusValue;
 import org.apache.camel.karavan.infinispan.model.ContainerStatus;
-import org.apache.camel.karavan.infinispan.model.ProjectFile;
 import org.apache.camel.karavan.kubernetes.KubernetesService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.faulttolerance.CircuitBreaker;
-import org.eclipse.microprofile.faulttolerance.Retry;
 import org.jboss.logging.Logger;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -99,7 +97,7 @@ public class CamelService {
     public void reloadProjectCode(String projectId) {
         LOGGER.info("Reload project code " + projectId);
         try {
-            Map<String, String> files = codeService.getProjectFiles(projectId, true);
+            Map<String, String> files = codeService.getProjectFilesForDevMode(projectId, true);
             files.forEach((name, code) -> putRequest(projectId, name, code, 1000));
             reloadRequest(projectId);
             ContainerStatus containerStatus = infinispanService.getDevModeContainerStatus(projectId, environment);

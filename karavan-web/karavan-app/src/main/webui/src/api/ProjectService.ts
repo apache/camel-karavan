@@ -197,10 +197,10 @@ export class ProjectService {
     public static deleteProject(project: Project) {
         KaravanApi.deleteProject(project, res => {
             if (res.status === 204) {
-                // this.props.toast?.call(this, 'Success', 'Project deleted', 'success');
-                ProjectService.refreshProjectData(project.projectId);
+                EventBus.sendAlert( 'Success', 'Project deleted', 'success');
+                ProjectService.refreshProjects();
             } else {
-                // this.props.toast?.call(this, 'Error', res.statusText, 'danger');
+                EventBus.sendAlert( 'Warning', 'Error when deleting project:' + res.statusText, 'warning');
             }
         });
     }
