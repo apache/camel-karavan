@@ -216,6 +216,17 @@ export class ProjectService {
         });
     }
 
+    public static copyProject(sourceProject: string, project: Project) {
+        KaravanApi.copyProject(sourceProject, project, res => {
+            if (res.status === 200 || res.status === 201) {
+                ProjectService.refreshProjectData(project.projectId);
+                // this.props.toast?.call(this, 'Success', 'Project created', 'success');
+            } else {
+                // this.props.toast?.call(this, 'Error', res.status + ', ' + res.statusText, 'danger');
+            }
+        });
+    }
+
     public static createFile(file: ProjectFile) {
         KaravanApi.postProjectFile(file, res => {
             if (res.status === 200) {

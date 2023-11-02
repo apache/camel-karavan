@@ -47,7 +47,9 @@ export function CreateProjectModal () {
     }
 
     function confirmAndCloseModal() {
-        ProjectService.createProject(new Project({name: name, description: description, projectId: projectId}));
+        operation !== 'copy' ?
+            ProjectService.createProject(new Project({name: name, description: description, projectId: projectId})) :
+            ProjectService.copyProject(project?.projectId, new Project({name: name, description: description, projectId: projectId}));
         useProjectStore.setState({operation: "none"});
         cleanValues();
     }

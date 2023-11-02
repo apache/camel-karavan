@@ -160,7 +160,7 @@ public class InfinispanService implements HealthCheck {
                 .setParameter("name", filename)
                 .setParameter("projectId", projectId)
                 .execute().list();
-        return list.size() > 0 ? list.get(0) : null;
+        return !list.isEmpty() ? list.get(0) : null;
     }
 
     public List<ProjectFile> getProjectFilesByName(String filename) {
@@ -175,11 +175,12 @@ public class InfinispanService implements HealthCheck {
     }
 
     public void saveProjectFiles(Map<GroupedKey, ProjectFile> f) {
-        Map<GroupedKey, ProjectFile> files = new HashMap<>(f.size());
+        Map<GroupedKey, ProjectFile> filesToSave = new HashMap<>(f.size());
         f.forEach((groupedKey, projectFile) -> {
             projectFile.setLastUpdate(Instant.now().toEpochMilli());
+            filesToSave.put(groupedKey, projectFile);
         });
-        files.putAll(files);
+        files.putAll(filesToSave);
     }
 
     public void deleteProject(String projectId) {
