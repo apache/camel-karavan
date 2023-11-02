@@ -16,7 +16,7 @@
         -e KARAVAN_GIT_INSTALL_GITEA=true \
         -e KARAVAN_IMAGE_REGISTRY_INSTALL=true \
         -v /var/run/docker.sock:/var/run/docker.sock \
-        ghcr.io/apache/camel-karavan:4.0.0
+        ghcr.io/apache/camel-karavan:4.1.0
     ```
 3. Open http://localhost:8080
 

@@ -18,16 +18,16 @@
     ```
 4. Install Karavan using Maven
 
-    Download installer from Maven Central: https://repo1.maven.org/maven2/org/apache/camel/karavan/karavan-installer/4.0.0/karavan-installer-4.0.0.jar 
+    Download installer from Maven Central: https://repo1.maven.org/maven2/org/apache/camel/karavan/karavan-installer/4.1.0/karavan-installer-4.1.0.jar 
     
     ex. with following command:
     ```
-    mvn org.apache.maven.plugins:maven-dependency-plugin:3.0.2:copy -Dartifact=org.apache.camel.karavan:karavan-installer:4.0.0:jar -DoutputDirectory=.
+    mvn org.apache.maven.plugins:maven-dependency-plugin:3.0.2:copy -Dartifact=org.apache.camel.karavan:karavan-installer:4.1.0:jar -DoutputDirectory=.
     ```
 
     Install Karavan with Gitea (for demo purpose)
     ```
-    java -jar karavan-installer-4.0.0.jar --install-gitea
+    java -jar karavan-installer-4.1.0.jar --install-gitea
     
     ```
 
@@ -35,7 +35,7 @@
 
     Install Karavan with Gitea (for demo purpose)
     ```
-    jbang org.apache.camel.karavan:karavan-installer:4.0.0 --install-gitea
+    jbang org.apache.camel.karavan:karavan-installer:4.1.0 --install-gitea
     ```
 
 6. Get karavan route host
