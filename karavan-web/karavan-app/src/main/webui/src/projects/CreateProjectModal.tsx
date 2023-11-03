@@ -26,11 +26,11 @@ import {useProjectStore} from "../api/ProjectStore";
 import {ProjectService} from "../api/ProjectService";
 import {Project} from "../api/ProjectModels";
 import {CamelUi} from "../designer/utils/CamelUi";
-
+import {shallow} from "zustand/shallow";
 
 export function CreateProjectModal () {
 
-    const {project, operation} = useProjectStore();
+    const [operation, project, setOperation] = useProjectStore((s) => [s.operation, s.project, s.setOperation], shallow)
     const [name, setName] = useState('');
     const [description, setDescription] = useState('');
     const [projectId, setProjectId] = useState('');
@@ -42,13 +42,13 @@ export function CreateProjectModal () {
     }
 
     function closeModal() {
-        useProjectStore.setState({operation: "none"});
+        setOperation('none');
         cleanValues();
     }
 
     function confirmAndCloseModal() {
         ProjectService.createProject(new Project({name: name, description: description, projectId: projectId}));
-        useProjectStore.setState({operation: "none"});
+        setOperation('none');
         cleanValues();
     }
 

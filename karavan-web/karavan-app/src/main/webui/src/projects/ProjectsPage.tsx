@@ -50,16 +50,32 @@ import {useProjectsStore, useProjectStore} from "../api/ProjectStore";
 import {MainToolbar} from "../designer/MainToolbar";
 import {Project, ProjectType} from "../api/ProjectModels";
 import {shallow} from "zustand/shallow";
+import {KaravanApi} from "../api/KaravanApi";
+import RefreshIcon from "@patternfly/react-icons/dist/esm/icons/sync-alt-icon";
+import {ProjectService} from "../api/ProjectService";
 
 export function ProjectsPage () {
 
-    const [projects] = useProjectsStore((state) => [state.projects], shallow)
-    const [operation] = useProjectStore((state) => [state.operation], shallow)
+    const [projects, setProjects] = useProjectsStore((s) => [s.projects, s.setProjects], shallow)
+    const [operation, setProject] = useProjectStore((s) => [s.operation, s.setProject], shallow)
     const [filter, setFilter] = useState<string>('');
+
+    useEffect(() => {
+        console.log("ProjectsPage", "useEffect");
+        KaravanApi.getProjects((projects: Project[]) => {
+            setProjects(projects);
+        });
+    }, []);
 
     function getTools() {
         return <Toolbar id="toolbar-group-types">
             <ToolbarContent>
+                <ToolbarItem>
+                    <Button icon={<RefreshIcon/>}
+                            variant={"link"}
+                            onClick={e => ProjectService.refreshProjects()}
+                    />
+                </ToolbarItem>
                 <ToolbarItem>
                     <TextInput className="text-field" type="search" id="search" name="search"
                                autoComplete="off" placeholder="Search by name"
@@ -69,7 +85,7 @@ export function ProjectsPage () {
                 <ToolbarItem>
                     <Button icon={<PlusIcon/>}
                             onClick={e =>
-                                useProjectStore.setState({operation: "create", project: new Project()})}
+                                setProject(new Project(), 'create')}
                     >Create</Button>
                 </ToolbarItem>
             </ToolbarContent>

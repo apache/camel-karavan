@@ -16,7 +16,7 @@
  */
 
 import {KaravanApi} from './KaravanApi';
-import {DeploymentStatus, ContainerStatus, Project, ProjectFile} from './ProjectModels';
+import {DeploymentStatus, ContainerStatus, Project, ProjectFile, ServiceStatus, CamelStatus} from './ProjectModels';
 import {TemplateApi} from 'karavan-core/lib/api/TemplateApi';
 import {InfrastructureAPI} from '../designer/utils/InfrastructureAPI';
 import {unstable_batchedUpdates} from 'react-dom'
@@ -182,6 +182,44 @@ export class ProjectService {
         });
     }
 
+    public static refreshAllServicesStatuses() {
+        KaravanApi.getAllServiceStatuses((statuses: ServiceStatus[]) => {
+            useStatusesStore.setState({services: statuses});
+        });
+    }
+
+    public static refreshAllCamelStatuses() {
+        KaravanApi.getAllCamelContextStatuses( (statuses: CamelStatus[]) => {
+            useStatusesStore.setState({camels: statuses});
+        });
+    }
+
+    public static refreshCamelStatus(projectId: string, env: string) {
+        KaravanApi.getProjectCamelStatuses(projectId, env, (res) => {
+            if (res.status === 200) {
+                useProjectStore.setState({camelStatuses: res.data})
+            } else {
+                useProjectStore.setState({camelStatuses: []})
+            }
+        })
+    }
+
+    public static refreshCamelTraces(projectId: string, env: string) {
+        KaravanApi.getProjectCamelTraces(projectId, env, res => {
+            if (res.status === 200) {
+                useProjectStore.setState({camelTraces: res.data})
+            } else {
+                useProjectStore.setState({camelTraces: []})
+            }
+        })
+    }
+
+    public static refreshImages(projectId: string) {
+        KaravanApi.getImages(projectId, (res: any) => {
+            useProjectStore.setState({images: res});
+        });
+    }
+
     public static refreshAllDeploymentStatuses() {
         KaravanApi.getAllDeploymentStatuses( (statuses: DeploymentStatus[]) => {
             useStatusesStore.setState({deployments: statuses});
@@ -209,6 +247,7 @@ export class ProjectService {
         KaravanApi.postProject(project, res => {
             if (res.status === 200 || res.status === 201) {
                 ProjectService.refreshProjectData(project.projectId);
+                ProjectService.refreshProjects();
                 // this.props.toast?.call(this, 'Success', 'Project created', 'success');
             } else {
                 // this.props.toast?.call(this, 'Error', res.status + ', ' + res.statusText, 'danger');
@@ -234,6 +273,13 @@ export class ProjectService {
             } else {
             }
         });
+    }
+
+    public static getAllStatuses() {
+        ProjectService.refreshAllDeploymentStatuses();
+        ProjectService.refreshAllContainerStatuses();
+        ProjectService.refreshAllServicesStatuses();
+        ProjectService.refreshAllCamelStatuses();
     }
 
     public static refreshProjectData(projectId: string) {

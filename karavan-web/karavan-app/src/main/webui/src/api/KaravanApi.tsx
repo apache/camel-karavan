@@ -209,8 +209,8 @@ export class KaravanApi {
         });
     }
 
-    static async getAllCamelContextStatuses(env: string, after: (statuses: CamelStatus[]) => void) {
-        instance.get('/api/status/camel/context/' + env)
+    static async getAllCamelContextStatuses(after: (statuses: CamelStatus[]) => void) {
+        instance.get('/api/status/camel/context')
             .then(res => {
                 if (res.status === 200) {
                     after(res.data);

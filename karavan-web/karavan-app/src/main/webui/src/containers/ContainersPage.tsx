@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
     Bullseye,
     EmptyState, EmptyStateIcon, EmptyStateVariant,
@@ -28,7 +28,7 @@ import {
     ToolbarItem, EmptyStateHeader
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
-import {ContainerStatus} from "../api/ProjectModels";
+import {ContainerStatus, ProjectType} from "../api/ProjectModels";
 import {
 	TableVariant,
 	Tbody,
@@ -45,6 +45,9 @@ import {MainToolbar} from "../designer/MainToolbar";
 import {useAppConfigStore, useStatusesStore} from "../api/ProjectStore";
 import {shallow} from "zustand/shallow";
 import {ContainerTableRow} from "./ContainerTableRow";
+import {ProjectService} from "../api/ProjectService";
+import {KaravanApi} from "../api/KaravanApi";
+import {DockerCompose, ServicesYaml} from "../api/ServiceModels";
 
 export function ContainersPage () {
 
@@ -53,6 +56,13 @@ export function ContainersPage () {
     const [filter, setFilter] = useState<string>('');
     const [loading] = useState<boolean>(true);
     const [selectedEnv, setSelectedEnv] = useState<string[]>([config.environment]);
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            ProjectService.refreshAllContainerStatuses();
+        }, 1000)
+        return () => clearInterval(interval);
+    }, []);
 
     function selectEnvironment(name: string, selected: boolean) {
         if (selected && !selectedEnv.includes(name)) {
