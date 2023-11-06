@@ -25,7 +25,7 @@ import '../designer/karavan.css';
 import {ProjectToolbar} from "./ProjectToolbar";
 import {ProjectLogPanel} from "./log/ProjectLogPanel";
 import {Project} from "../api/ProjectModels";
-import {useFileStore, useProjectsStore, useProjectStore} from "../api/ProjectStore";
+import {useAppConfigStore, useFileStore, useProjectsStore, useProjectStore} from "../api/ProjectStore";
 import {MainToolbar} from "../designer/MainToolbar";
 import {ProjectTitle} from "./ProjectTitle";
 import {ProjectPanel} from "./ProjectPanel";
@@ -33,11 +33,12 @@ import {FileEditor} from "./file/FileEditor";
 import {shallow} from "zustand/shallow";
 import {useParams} from "react-router-dom";
 import {KaravanApi} from "../api/KaravanApi";
-import {ProjectDataPoller} from "./ProjectDataPoller";
 import {ImageDownloadToolbar} from "./ImageDownloadToolbar";
+import {ProjectService} from "../api/ProjectService";
 
 export function ProjectPage() {
 
+    const [config] = useAppConfigStore((state) => [state.config], shallow)
     const {file, operation} = useFileStore();
     const [projects] = useProjectsStore((state) => [state.projects], shallow)
     const [project, setProject, tab, setTab] = useProjectStore((s) => [s.project, s.setProject, s.tabIndex, s.setTabIndex], shallow);
@@ -51,10 +52,24 @@ export function ProjectPage() {
         } else if (projectId) {
             KaravanApi.getProject(projectId, project1 => setProject(project1, "select"));
         }
+        const interval = setInterval(() => onRefreshStatus(), 1000);
         return () => {
+            clearInterval(interval);
             setProject(new Project(), "none");
         }
     }, []);
+
+    function onRefreshStatus(){
+        if (tab === 'dashboard') {
+            ProjectService.refreshCamelStatus(project.projectId, config.environment);
+        } else if (tab === 'trace') {
+            ProjectService.refreshCamelTraces(project.projectId, config.environment);
+        } else if (tab === 'build') {
+            ProjectService.refreshImages(project.projectId);
+        } else if (tab === 'container') {
+
+        }
+    }
 
     function isBuildIn(): boolean {
         return ['kamelets', 'templates', 'services'].includes(project.projectId);
@@ -88,7 +103,6 @@ export function ProjectPage() {
             {showFilePanel && <FileEditor projectId={project.projectId}/>}
             {!showFilePanel && <ProjectPanel/>}
             <ProjectLogPanel/>
-            <ProjectDataPoller/>
         </PageSection>
     )
 }

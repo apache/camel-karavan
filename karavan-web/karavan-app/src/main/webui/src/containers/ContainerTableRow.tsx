@@ -63,7 +63,7 @@ export function ContainerTableRow (props: Props) {
                         setCommand(undefined);
                         setShowConfirmation(false);
                     }
-                }}>Delete
+                }}>Confirm
                 </Button>,
                 <Button key="cancel" variant="link"
                         onClick={e => {
@@ -72,7 +72,7 @@ export function ContainerTableRow (props: Props) {
                         }}>Cancel</Button>
             ]}
             onEscapePress={e => setShowConfirmation(false)}>
-            <div>{"Confirm " + commands + " container " + container.containerName + " ?"}</div>
+            <div>{"Confirm " + command + " container " + container.containerName + " ?"}</div>
         </Modal>)
     }
 

@@ -15,8 +15,19 @@
  * limitations under the License.
  */
 
-import React, {useState} from 'react';
-import {Badge, Button, Flex, FlexItem, Label, Spinner, Switch, Tooltip, TooltipPosition} from '@patternfly/react-core';
+import React, {useEffect, useState} from 'react';
+import {
+    Badge,
+    Button,
+    Flex,
+    FlexItem,
+    Label,
+    Spinner,
+    Switch,
+    ToolbarItem,
+    Tooltip,
+    TooltipPosition
+} from '@patternfly/react-core';
 import '../designer/karavan.css';
 import RocketIcon from "@patternfly/react-icons/dist/esm/icons/rocket-icon";
 import ReloadIcon from "@patternfly/react-icons/dist/esm/icons/bolt-icon";
@@ -26,12 +37,15 @@ import {ProjectService} from "../api/ProjectService";
 import {shallow} from "zustand/shallow";
 import UpIcon from "@patternfly/react-icons/dist/esm/icons/running-icon";
 import DownIcon from "@patternfly/react-icons/dist/esm/icons/error-circle-o-icon";
+import RefreshIcon from "@patternfly/react-icons/dist/esm/icons/sync-alt-icon";
+import {KaravanApi} from "../api/KaravanApi";
+import {ContainerStatus} from "../api/ProjectModels";
 
 interface Props {
     reloadOnly?: boolean
 }
 
-export function DevModeToolbar (props: Props) {
+export function DevModeToolbar(props: Props) {
 
     const [config] = useAppConfigStore((state) => [state.config], shallow)
     const [status] = useDevModeStore((state) => [state.status], shallow)
@@ -39,6 +53,8 @@ export function DevModeToolbar (props: Props) {
     const [containers] = useStatusesStore((state) => [state.containers], shallow);
     const [verbose, setVerbose] = useState(false);
     const [setShowLog] = useLogStore((s) => [s.setShowLog], shallow);
+    const [poll, setPoll] = useState(false);
+    const [currentContainerStatus, setCurrentContainerStatus] = useState<ContainerStatus>();
 
     const containerStatus = containers.filter(c => c.containerName === project.projectId).at(0);
     const commands = containerStatus?.commands || ['run'];
@@ -49,20 +65,40 @@ export function DevModeToolbar (props: Props) {
     const icon = isRunning ? <UpIcon/> : <DownIcon/>;
     const inDevMode = containerStatus?.type === 'devmode';
 
+    useEffect(() => {
+        const interval = setInterval(() => {
+            refreshContainer();
+        }, 1000)
+        return () => clearInterval(interval);
+    }, [poll, currentContainerStatus, containers]);
+
+    function refreshContainer(){
+        if (poll) {
+            ProjectService.refreshAllContainerStatuses();
+            if (currentContainerStatus && !containerStatus) {
+                setPoll(false);
+            }
+            setCurrentContainerStatus(containerStatus);
+        }
+    }
+
     return (<Flex className="toolbar" direction={{default: "row"}} alignItems={{default: "alignItemsCenter"}}>
         <FlexItem>
-            <Button style={{visibility:"hidden"}} size="sm" variant={"control"} icon={<DeleteIcon/>} onClick={() => {}}>
-            </Button>
+            <Button icon={<RefreshIcon/>}
+                    variant={"link"}
+                    onClick={e => ProjectService.refreshAllContainerStatuses()}/>
         </FlexItem>
-        <FlexItem>
-            {(inTransit || isLoading) && <Spinner size="lg" aria-label="spinner"/>}
-        </FlexItem>
+        {(inTransit || isLoading) &&
+            <FlexItem>
+                <Spinner size="lg" aria-label="spinner"/>
+            </FlexItem>
+        }
         {containerStatus?.containerId && <FlexItem>
             <Label icon={icon} color={color}>
                 <Tooltip content={"Show log"} position={TooltipPosition.bottom}>
                     <Button className='labeled-button' variant="link" isDisabled={!isRunning}
                             onClick={e =>
-                                setShowLog( true, 'container', containerStatus.containerName)}>
+                                setShowLog(true, 'container', containerStatus.containerName)}>
                         {containerStatus.containerName}
                     </Button>
                 </Tooltip>
@@ -74,17 +110,20 @@ export function DevModeToolbar (props: Props) {
                 <Switch aria-label="verbose"
                         id="verbose"
                         isChecked={verbose}
-                         onChange={(_, checked) => setVerbose(checked)}
+                        onChange={(_, checked) => setVerbose(checked)}
                 />
             </Tooltip>
         </FlexItem>}
         {!isRunning && <FlexItem>
-            <Tooltip content="Run in developer mode" position={TooltipPosition.bottom}>
+            <Tooltip content="Run in developer mode" position={TooltipPosition.bottomEnd}>
                 <Button size="sm"
                         isDisabled={(!(commands.length === 0) && !commands.includes('run')) || inTransit}
                         variant={"primary"}
                         icon={<RocketIcon/>}
-                        onClick={() => ProjectService.startDevModeContainer(project, verbose)}>
+                        onClick={() => {
+                            ProjectService.startDevModeContainer(project, verbose);
+                            setPoll(true);
+                        }}>
                     {"Run"}
                 </Button>
             </Tooltip>

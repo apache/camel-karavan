@@ -291,10 +291,9 @@ public class InfinispanService implements HealthCheck {
         return camelStatuses.get(key);
     }
 
-    public List<CamelStatus> getCamelStatusesByEnv(String env, CamelStatusValue.Name name) {
+    public List<CamelStatus> getCamelStatusesByEnv(CamelStatusValue.Name name) {
         QueryFactory queryFactory = Search.getQueryFactory(camelStatuses);
-        List<CamelStatus> statuses = queryFactory.<CamelStatus>create("FROM karavan.CamelStatus WHERE env = :env")
-                .setParameter("env", env)
+        List<CamelStatus> statuses = queryFactory.<CamelStatus>create("FROM karavan.CamelStatus")
                 .execute().list();
         return statuses.stream().map(cs -> {
             var values = cs.getStatuses();

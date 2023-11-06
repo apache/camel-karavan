@@ -52,10 +52,10 @@ public class StatusResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/camel/context/{env}")
-    public List<CamelStatus> getCamelContextStatusByEnv(@PathParam("env") String env) {
+    @Path("/camel/context")
+    public List<CamelStatus> getCamelContextStatusByEnv() {
         if (infinispanService.isReady()) {
-            return infinispanService.getCamelStatusesByEnv(env, CamelStatusValue.Name.context);
+            return infinispanService.getCamelStatusesByEnv(CamelStatusValue.Name.context);
         } else {
             return List.of();
         }

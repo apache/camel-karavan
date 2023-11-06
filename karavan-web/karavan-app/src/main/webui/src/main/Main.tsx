@@ -16,23 +16,13 @@
  */
 
 import {Navigate, Route, Routes} from 'react-router-dom';
-import React, {useEffect, useMemo, useRef} from "react";
+import React, {useEffect, useRef} from "react";
 import {KaravanApi} from "../api/KaravanApi";
 import {
-    Bullseye,
     Flex,
     FlexItem,
     Page,
-    ProgressStep,
-    ProgressStepper,
-    Spinner,
-    Text, TextContent, TextVariants,
-    Tooltip,
-    TooltipPosition
 } from "@patternfly/react-core";
-import Icon from "../Logo";
-import {MainLogin} from "./MainLogin";
-import {DashboardPage} from "../dashboard/DashboardPage";
 import {ProjectsPage} from "../projects/ProjectsPage";
 import {ProjectPage} from "../project/ProjectPage";
 import {ServicesPage} from "../services/ServicesPage";
@@ -43,27 +33,35 @@ import {useAppConfigStore} from "../api/ProjectStore";
 import {shallow} from "zustand/shallow";
 import {PageNavigation} from "./PageNavigation";
 import {useMainHook} from "./useMainHook";
-import {MainDataPoller} from "./MainDataPoller";
 import {TemplatesPage} from "../templates/TemplatesPage";
-import {EventBus} from "../designer/utils/EventBus";
 import {Notification} from "../designer/utils/Notification";
+import {MainLoader} from "./MainLoader";
 
 export function Main() {
 
-    const [readiness] = useAppConfigStore((s) => [s.readiness], shallow)
+    const [readiness, setReadiness] = useAppConfigStore((s) => [s.readiness, s.setReadiness], shallow)
     const {getData, getStatuses} = useMainHook();
 
     const initialized = useRef(false)
 
     useEffect(() => {
+        console.log("Main");
         if (!initialized.current) {
             initialized.current = true
             effect()
         }
+        const interval = setInterval(() => {
+            KaravanApi.getReadiness((r: any) => {
+                setReadiness(r);
+            })
+        }, 10000)
+        return () => {
+            clearInterval(interval);
+        };
     }, [])
 
     function effect() {
-        console.log("Main Start");
+        console.log("Main effect start");
         KaravanApi.getAuthType((authType: string) => {
             console.log("authType", authType);
             if (authType === 'oidc') {
@@ -76,13 +74,8 @@ export function Main() {
             getData();
         });
         return () => {
-            console.log("Main End");
+            console.log("Main effect end");
         };
-    }
-
-
-    function toast(title: string, text: string, variant: 'success' | 'danger' | 'warning' | 'info' | 'custom') {
-        EventBus.sendAlert(title, text, variant)
     }
 
     function showSpinner() {
@@ -93,56 +86,13 @@ export function Main() {
         return readiness !== undefined && readiness.status !== true;
     }
 
-    function getStepper() {
-        const steps: any[] = Array.isArray(readiness?.checks) ? readiness.checks : [];
-        return (
-            <Bullseye className="">
-                <Flex direction={{default:"column"}} justifyContent={{default: "justifyContentCenter"}}>
-                    <FlexItem style={{textAlign: "center"}}>
-                        {Icon()}
-                        <TextContent>
-                            <Text component={TextVariants.h2}>
-                                Waiting for services
-                            </Text>
-                        </TextContent>
-                    </FlexItem>
-                    <FlexItem>
-                        <ProgressStepper aria-label="Readiness progress" isCenterAligned isVertical >
-                            {steps.map(step => (
-                                <ProgressStep
-                                    key={step.name}
-                                    variant={step.status === 'UP' ? "success" : "info"}
-                                    isCurrent={step.status !== 'UP'}
-                                    icon={step.status !== 'UP' ? <Spinner isInline aria-label="Loading..."/> : undefined}
-                                    id={step.name}
-                                    titleId={step.name}
-                                    aria-label={step.name}
-                                >
-                                    {step.name}
-                                </ProgressStep>
-                            ))}
-                        </ProgressStepper>
-                    </FlexItem>
-                </Flex>
-            </Bullseye>
-        )
-    }
-
     function showMain() {
         return !showStepper() && !showSpinner() && (KaravanApi.isAuthorized || KaravanApi.authType === 'public');
     }
 
     return (
         <Page className="karavan">
-            {showSpinner() &&
-                <Bullseye className="loading-page">
-                    <Spinner className="spinner" diameter="140px" aria-label="Loading..."/>
-                    <Tooltip content="Connecting to server..." position={TooltipPosition.bottom}>
-                        <div className="logo-placeholder">{Icon()}</div>
-                    </Tooltip>
-                </Bullseye>
-            }
-            {showStepper() && getStepper()}
+            {!showMain() && <MainLoader/>}
             {showMain() &&
                 <Flex direction={{default: "row"}} style={{width: "100%", height: "100%"}}
                       alignItems={{default: "alignItemsStretch"}} spaceItems={{default: 'spaceItemsNone'}}>
@@ -163,10 +113,7 @@ export function Main() {
                     </FlexItem>
                 </Flex>
             }
-            {!KaravanApi.isAuthorized && KaravanApi.authType === 'basic' &&
-                <MainLogin/>}
             <Notification/>
-            <MainDataPoller/>
         </Page>
     );
 };
