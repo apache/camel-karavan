@@ -79,7 +79,7 @@ export function PageNavigation () {
         <FlexItem alignSelf={{default: "alignSelfCenter"}}>
             <Bullseye>
                 {loading && <Spinner style={{position: "absolute"}} diameter="40px" aria-label="Loading..."/>}
-                <Tooltip className="logo-tooltip" content={"Apache Camel Karavan " + config.version}
+                <Tooltip className="logo-tooltip" content={config.title + " " + config.version}
                          position={"right"}>
                     {Icon()}
                 </Tooltip>

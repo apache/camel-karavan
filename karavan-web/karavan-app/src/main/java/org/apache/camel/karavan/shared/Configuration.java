@@ -19,6 +19,7 @@ package org.apache.camel.karavan.shared;
 import java.util.List;
 
 public class Configuration {
+    private String title;
     private String version;
     private String infrastructure;
     private String environment;
@@ -28,11 +29,20 @@ public class Configuration {
     public Configuration() {
     }
 
-    public Configuration(String version, String infrastructure, String environment, List<String> environments) {
+    public Configuration(String title, String version, String infrastructure, String environment, List<String> environments) {
+        this.title = title;
         this.version = version;
         this.infrastructure = infrastructure;
         this.environment = environment;
         this.environments = environments;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public String getVersion() {
