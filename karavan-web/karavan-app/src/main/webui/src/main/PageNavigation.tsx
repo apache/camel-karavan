@@ -25,7 +25,7 @@ import {
 } from '@patternfly/react-core';
 import {KaravanApi} from "../api/KaravanApi";
 import '../designer/karavan.css';
-import Icon from "../Logo";
+import Icon from "./Logo";
 import UserIcon from "@patternfly/react-icons/dist/js/icons/user-icon";
 import ProjectsIcon from "@patternfly/react-icons/dist/js/icons/repository-icon";
 import TemplatesIcon from "@patternfly/react-icons/dist/js/icons/blueprint-icon";

@@ -36,6 +36,7 @@ import {useMainHook} from "./useMainHook";
 import {TemplatesPage} from "../templates/TemplatesPage";
 import {Notification} from "../designer/utils/Notification";
 import {MainLoader} from "./MainLoader";
+import {MainRoutes} from "./MainRoutes";
 
 export function Main() {
 
@@ -100,16 +101,7 @@ export function Main() {
                         {<PageNavigation/>}
                     </FlexItem>
                     <FlexItem flex={{default: "flex_2"}} style={{height: "100%"}}>
-                        <Routes>
-                            {/*<Route path="/dashboard" element={<DashboardPage key={'dashboard'}/>}/>*/}
-                            <Route path="/projects" element={<ProjectsPage key={'projects'}/>}/>
-                            <Route path="/projects/:projectId" element={<ProjectPage key={'project'}/>}/>
-                            <Route path="/templates" element={<TemplatesPage key={'templates'}/>}/>
-                            <Route path="/services" element={<ServicesPage key="services"/>}/>
-                            <Route path="/containers" element={<ContainersPage key="services"/>}/>
-                            <Route path="/knowledgebase" element={<KnowledgebasePage dark={false}/>}/>
-                            <Route path="*" element={<Navigate to="/projects" replace/>}/>
-                        </Routes>
+                        {<MainRoutes/>}
                     </FlexItem>
                 </Flex>
             }

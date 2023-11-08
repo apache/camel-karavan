@@ -50,7 +50,7 @@ import {
 	Table
 } from '@patternfly/react-table/deprecated';
 import {camelIcon, CamelUi} from "../designer/utils/CamelUi";
-import Icon from "../Logo";
+import Icon from "../main/Logo";
 import UpIcon from "@patternfly/react-icons/dist/esm/icons/check-circle-icon";
 import DownIcon from "@patternfly/react-icons/dist/esm/icons/error-circle-o-icon";
 import SearchIcon from "@patternfly/react-icons/dist/esm/icons/search-icon";
