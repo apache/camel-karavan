@@ -33,8 +33,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static org.apache.camel.karavan.shared.Constants.LABEL_PROJECT_ID;
-import static org.apache.camel.karavan.shared.Constants.LABEL_TYPE;
+import static org.apache.camel.karavan.shared.Constants.*;
 
 public class DockerServiceUtils {
 
@@ -50,7 +49,8 @@ public class DockerServiceUtils {
         ContainerStatus.ContainerType type = getContainerType(container.getLabels());
         String created = Instant.ofEpochSecond(container.getCreated()).toString();
         String projectId = container.getLabels().getOrDefault(LABEL_PROJECT_ID, name);
-        return ContainerStatus.createWithId(projectId, name, environment, container.getId(), container.getImage(), ports, type, commands, container.getState(), created);
+        String camelRuntime = container.getLabels().getOrDefault(LABEL_CAMEL_RUNTIME, "");
+        return ContainerStatus.createWithId(projectId, name, environment, container.getId(), container.getImage(), ports, type, commands, container.getState(), created, camelRuntime);
     }
 
     protected void updateStatistics(ContainerStatus containerStatus, Statistics stats) {

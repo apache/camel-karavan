@@ -23,6 +23,7 @@ public class Constants {
     public static final String LABEL_PART_OF = "app.kubernetes.io/part-of";
     public static final String LABEL_TYPE = "org.apache.camel.karavan/type";
     public static final String LABEL_PROJECT_ID = "org.apache.camel.karavan/projectId";
+    public static final String LABEL_CAMEL_RUNTIME = "org.apache.camel.karavan/runtime";
     public static final String LABEL_TAG = "org.apache.camel.karavan/tag";
 
     public static final String BUILDER_SUFFIX = "-builder";
@@ -34,5 +35,21 @@ public class Constants {
     public static final String JBANG_CACHE_SUFFIX = "jbang-cache";
     public static final String M2_CACHE_SUFFIX = "m2-cache";
     public static final String PVC_MAVEN_SETTINGS = "maven-settings";
+
+    public enum CamelRuntime {
+        CAMEL_MAIN("camel-main"),
+        QUARKUS("quarkus"),
+        SPRING_BOOT("spring-boot");
+
+        private final String value;
+
+        public String getValue() {
+            return value;
+        }
+
+        CamelRuntime(String value) {
+            this.value = value;
+        }
+    }
 
 }

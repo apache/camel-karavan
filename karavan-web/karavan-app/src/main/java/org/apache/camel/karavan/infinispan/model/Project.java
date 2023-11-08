@@ -66,7 +66,7 @@ public class Project {
         this.type = Type.normal;
     }
 
-    public Project(String projectId, String name, String description, String runtime) {
+    public Project(String projectId, String name, String description) {
         this.projectId = projectId;
         this.name = name;
         this.description = description;

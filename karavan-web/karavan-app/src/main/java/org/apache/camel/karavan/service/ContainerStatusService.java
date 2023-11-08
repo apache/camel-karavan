@@ -26,6 +26,7 @@ import jakarta.inject.Inject;
 import org.apache.camel.karavan.docker.DockerService;
 import org.apache.camel.karavan.infinispan.InfinispanService;
 import org.apache.camel.karavan.infinispan.model.ContainerStatus;
+import org.apache.camel.karavan.infinispan.model.Project;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
@@ -33,8 +34,6 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Objects;
-
-import static org.apache.camel.karavan.service.CamelService.RELOAD_PROJECT_CODE;
 
 @ApplicationScoped
 public class ContainerStatusService {
@@ -110,6 +109,20 @@ public class ContainerStatusService {
             } else if (Objects.equals(oldStatus.getInTransit(), Boolean.TRUE)) {
                 if (!Objects.equals(oldStatus.getState(), newStatus.getState()) || newStatus.getCpuInfo() == null || newStatus.getCpuInfo().isEmpty()) {
                     saveContainerStatus(newStatus, oldStatus);
+                }
+            }
+        }
+    }
+
+    @ConsumeEvent(value = CONTAINER_STATUS, blocking = true, ordered = true)
+    public void checkProjectExists(JsonObject data) {
+        if (infinispanService.isReady()) {
+            ContainerStatus status = data.mapTo(ContainerStatus.class);
+            if (status.getType().equals(ContainerStatus.ContainerType.project)) {
+                Project project = infinispanService.getProject(status.getProjectId());
+                if (project == null) {
+                    project = new Project(status.getProjectId(), status.getProjectId(), status.getProjectId());
+                    infinispanService.saveProject(project);
                 }
             }
         }
