@@ -16,18 +16,7 @@
  */
 
 import React, {useEffect, useState} from 'react';
-import {
-    Badge,
-    Button,
-    Flex,
-    FlexItem,
-    Label,
-    Spinner,
-    Switch,
-    ToolbarItem,
-    Tooltip,
-    TooltipPosition
-} from '@patternfly/react-core';
+import {Badge, Button, Flex, FlexItem, Label, Spinner, Switch, Tooltip, TooltipPosition} from '@patternfly/react-core';
 import '../designer/karavan.css';
 import RocketIcon from "@patternfly/react-icons/dist/esm/icons/rocket-icon";
 import ReloadIcon from "@patternfly/react-icons/dist/esm/icons/bolt-icon";
@@ -38,8 +27,9 @@ import {shallow} from "zustand/shallow";
 import UpIcon from "@patternfly/react-icons/dist/esm/icons/running-icon";
 import DownIcon from "@patternfly/react-icons/dist/esm/icons/error-circle-o-icon";
 import RefreshIcon from "@patternfly/react-icons/dist/esm/icons/sync-alt-icon";
-import {KaravanApi} from "../api/KaravanApi";
+import StopIcon from "@patternfly/react-icons/dist/esm/icons/stop-icon";
 import {ContainerStatus} from "../api/ProjectModels";
+import "./devmode.css"
 
 interface Props {
     reloadOnly?: boolean
@@ -49,7 +39,7 @@ export function DevModeToolbar(props: Props) {
 
     const [config] = useAppConfigStore((state) => [state.config], shallow)
     const [status] = useDevModeStore((state) => [state.status], shallow)
-    const [project] = useProjectStore((state) => [state.project], shallow)
+    const [project, refreshTrace] = useProjectStore((state) => [state.project, state.refreshTrace], shallow)
     const [containers] = useStatusesStore((state) => [state.containers], shallow);
     const [verbose, setVerbose] = useState(false);
     const [setShowLog] = useLogStore((s) => [s.setShowLog], shallow);
@@ -68,13 +58,18 @@ export function DevModeToolbar(props: Props) {
     useEffect(() => {
         const interval = setInterval(() => {
             refreshContainer();
-        }, 1000)
+        }, 1300)
         return () => clearInterval(interval);
     }, [poll, currentContainerStatus, containers]);
 
     function refreshContainer(){
         if (poll) {
             ProjectService.refreshAllContainerStatuses();
+            ProjectService.refreshCamelStatus(project.projectId, config.environment);
+            ProjectService.refreshImages(project.projectId);
+            if (refreshTrace) {
+                ProjectService.refreshCamelTraces(project.projectId, config.environment);
+            }
             if (currentContainerStatus && !containerStatus) {
                 setPoll(false);
             }
@@ -83,16 +78,21 @@ export function DevModeToolbar(props: Props) {
     }
 
     return (<Flex className="toolbar" direction={{default: "row"}} alignItems={{default: "alignItemsCenter"}}>
-        <FlexItem>
-            <Button icon={<RefreshIcon/>}
+        <FlexItem className="refresher">
+            {poll && <Spinner className="spinner" size="lg" aria-label="Refresh"/>}
+            <Tooltip content={poll ? "Stop refresh" : "Refresh auto"} position={TooltipPosition.bottom}>
+            <Button className="button"
+                    icon={poll ? <StopIcon/> : <RefreshIcon/>}
                     variant={"link"}
-                    onClick={e => ProjectService.refreshAllContainerStatuses()}/>
+                    onClick={e => setPoll(!poll)}/>
+            </Tooltip>
         </FlexItem>
-        {(inTransit || isLoading) &&
-            <FlexItem>
-                <Spinner size="lg" aria-label="spinner"/>
-            </FlexItem>
-        }
+        {/*Replace with something else because Spinner is used fo refresh*/}
+        {/*{(inTransit || isLoading) &&*/}
+        {/*    <FlexItem>*/}
+        {/*        <Spinner size="lg" aria-label="spinner"/>*/}
+        {/*    </FlexItem>*/}
+        {/*}*/}
         {containerStatus?.containerId && <FlexItem>
             <Label icon={icon} color={color}>
                 <Tooltip content={"Show log"} position={TooltipPosition.bottom}>
@@ -129,7 +129,7 @@ export function DevModeToolbar(props: Props) {
             </Tooltip>
         </FlexItem>}
         {isRunning && inDevMode && <FlexItem>
-            <Tooltip content="Reload" position={TooltipPosition.bottom}>
+            <Tooltip content="Reload" position={TooltipPosition.bottomEnd}>
                 <Button size="sm"
                         isDisabled={inTransit}
                         variant={"primary"}
@@ -140,7 +140,7 @@ export function DevModeToolbar(props: Props) {
             </Tooltip>
         </FlexItem>}
         {inDevMode && <FlexItem>
-            <Tooltip content="Delete container" position={TooltipPosition.bottom}>
+            <Tooltip content="Delete container" position={TooltipPosition.bottomEnd}>
                 <Button size="sm"
                         isDisabled={!commands.includes('delete') || inTransit}
                         variant={"control"}

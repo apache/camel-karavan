@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
     Button,
     DescriptionList,
@@ -34,6 +34,7 @@ import DeleteIcon from "@patternfly/react-icons/dist/esm/icons/times-circle-icon
 import {useAppConfigStore, useLogStore, useProjectStore, useStatusesStore} from "../../api/ProjectStore";
 import {shallow} from "zustand/shallow";
 import {EventBus} from "../../designer/utils/EventBus";
+import {ProjectService} from "../../api/ProjectService";
 
 export function BuildPanel () {
 

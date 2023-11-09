@@ -33,6 +33,7 @@ import jakarta.inject.Inject;
 import org.apache.camel.karavan.code.CodeService;
 import org.apache.camel.karavan.code.model.DockerComposeService;
 import org.apache.camel.karavan.infinispan.model.ContainerStatus;
+import org.apache.camel.karavan.shared.Constants;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
 import org.apache.commons.io.IOUtils;
@@ -45,8 +46,7 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.apache.camel.karavan.shared.Constants.LABEL_PROJECT_ID;
-import static org.apache.camel.karavan.shared.Constants.LABEL_TYPE;
+import static org.apache.camel.karavan.shared.Constants.*;
 
 @ApplicationScoped
 public class DockerService extends DockerServiceUtils {
@@ -147,6 +147,12 @@ public class DockerService extends DockerServiceUtils {
     }
 
     public Container createContainerFromCompose(DockerComposeService compose, ContainerStatus.ContainerType type) throws InterruptedException {
+        Map<String,String> labels = new HashMap<>();
+        labels.put(LABEL_TYPE, type.name());
+        return createContainerFromCompose(compose, labels);
+    }
+
+    public Container createContainerFromCompose(DockerComposeService compose, Map<String, String> labels) throws InterruptedException {
         List<Container> containers = findContainer(compose.getContainer_name());
         if (containers.isEmpty()) {
             LOGGER.infof("Compose Service starting for %s", compose.getContainer_name());
@@ -164,7 +170,7 @@ public class DockerService extends DockerServiceUtils {
             }
 
             return createContainer(compose.getContainer_name(), compose.getImage(),
-                    env, compose.getPortsMap(), healthCheck, Map.of(LABEL_TYPE, type.name()), Map.of(), NETWORK_NAME, restartPolicy);
+                    env, compose.getPortsMap(), healthCheck, labels, Map.of(), NETWORK_NAME, restartPolicy);
 
         } else {
             LOGGER.info("Compose Service already exists: " + containers.get(0).getId());

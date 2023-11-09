@@ -41,7 +41,8 @@ export function ProjectPage() {
     const [config] = useAppConfigStore((state) => [state.config], shallow)
     const {file, operation} = useFileStore();
     const [projects] = useProjectsStore((state) => [state.projects], shallow)
-    const [project, setProject, tab, setTab] = useProjectStore((s) => [s.project, s.setProject, s.tabIndex, s.setTabIndex], shallow);
+    const [project, setProject, tabIndex, setTabIndex, refreshTrace] =
+        useProjectStore((s) => [s.project, s.setProject, s.tabIndex, s.setTabIndex, s.refreshTrace], shallow);
 
     let {projectId} = useParams();
 
@@ -52,24 +53,20 @@ export function ProjectPage() {
         } else if (projectId) {
             KaravanApi.getProject(projectId, project1 => setProject(project1, "select"));
         }
-        const interval = setInterval(() => onRefreshStatus(), 1000);
         return () => {
-            clearInterval(interval);
             setProject(new Project(), "none");
         }
     }, []);
 
-    function onRefreshStatus(){
-        if (tab === 'dashboard') {
-            ProjectService.refreshCamelStatus(project.projectId, config.environment);
-        } else if (tab === 'trace') {
-            ProjectService.refreshCamelTraces(project.projectId, config.environment);
-        } else if (tab === 'build') {
-            ProjectService.refreshImages(project.projectId);
-        } else if (tab === 'container') {
-
-        }
-    }
+    useEffect(() => {
+        const interval = setInterval(() => {
+            if (tabIndex === 'build' || tabIndex === 'container') {
+                ProjectService.refreshAllContainerStatuses();
+                ProjectService.refreshImages(project.projectId);
+            }
+        }, 2000)
+        return () => clearInterval(interval);
+    }, [tabIndex]);
 
     function isBuildIn(): boolean {
         return ['kamelets', 'templates', 'services'].includes(project.projectId);
@@ -89,7 +86,7 @@ export function ProjectPage() {
             <PageSection className="tools-section" padding={{default: 'noPadding'}}>
                 <Flex direction={{default: "column"}} spaceItems={{default: "spaceItemsNone"}}>
                     <FlexItem className="project-tabs">
-                        {showTabs() && <Tabs activeKey={tab} onSelect={(event, tabIndex) => setTab(tabIndex)}>
+                        {showTabs() && <Tabs activeKey={tabIndex} onSelect={(event, tabIndex) => setTabIndex(tabIndex)}>
                             <Tab eventKey="files" title="Files"/>
                             <Tab eventKey="topology" title="Topology"/>
                             <Tab eventKey="dashboard" title="Dashboard"/>

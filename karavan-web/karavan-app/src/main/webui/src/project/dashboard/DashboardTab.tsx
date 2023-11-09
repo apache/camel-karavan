@@ -48,7 +48,7 @@ export function DashboardTab() {
     return (
         <PageSection className="project-tab-panel" padding={{default: "padding"}}>
             {camelContainers.map((containerStatus, index) =>
-                <Card className="dashboard-card">
+                <Card className="dashboard-card" key={containerStatus.containerId}>
                     <CardBody>
                         <Flex direction={{default: "row"}}
                               justifyContent={{default: "justifyContentSpaceBetween"}}>
