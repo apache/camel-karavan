@@ -31,6 +31,9 @@ import java.util.Objects;
 @ApplicationScoped
 public class ConfigService {
 
+    @ConfigProperty(name = "karavan.title")
+    String title;
+
     @ConfigProperty(name = "karavan.version")
     String version;
 
@@ -47,10 +50,11 @@ public class ConfigService {
 
     void onStart(@Observes StartupEvent ev) {
         configuration = new Configuration(
+                title,
                 version,
-                 inKubernetes() ? "kubernetes" : "docker",
-                 environment,
-                 environments
+                inKubernetes() ? "kubernetes" : "docker",
+                environment,
+                environments
         );
     }
 

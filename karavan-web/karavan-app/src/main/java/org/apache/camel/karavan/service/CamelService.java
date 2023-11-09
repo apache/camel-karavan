@@ -30,6 +30,7 @@ import org.apache.camel.karavan.infinispan.model.CamelStatus;
 import org.apache.camel.karavan.infinispan.model.CamelStatusValue;
 import org.apache.camel.karavan.infinispan.model.ContainerStatus;
 import org.apache.camel.karavan.kubernetes.KubernetesService;
+import org.apache.camel.karavan.shared.Constants;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.faulttolerance.CircuitBreaker;
 import org.jboss.logging.Logger;
@@ -84,7 +85,8 @@ public class CamelService {
                     .filter(cs ->
                             cs.getType() == ContainerStatus.ContainerType.project
                                     || cs.getType() == ContainerStatus.ContainerType.devmode
-                    ).forEach(cs -> {
+                    ).filter(cs -> Objects.equals(cs.getCamelRuntime(), Constants.CamelRuntime.CAMEL_MAIN.getValue()))
+                    .forEach(cs -> {
                         CamelStatusRequest csr = new CamelStatusRequest(cs.getProjectId(), cs.getContainerName());
                         eventBus.publish(CMD_COLLECT_CAMEL_STATUS,
                                 JsonObject.mapFrom(Map.of("containerStatus", cs, "camelStatusRequest", csr))

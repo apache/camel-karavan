@@ -89,9 +89,11 @@ public class ContainerStatus {
     String initDate;
     @ProtoField(number = 18)
     String podIP;
+    @ProtoField(number = 19)
+    String camelRuntime;
 
     @ProtoFactory
-    public ContainerStatus(String projectId, String containerName, String containerId, String image, List<Integer> ports, String env, ContainerType type, String memoryInfo, String cpuInfo, String created, String finished, List<Command> commands, String state, String phase, Boolean codeLoaded, Boolean inTransit, String initDate, String podIP) {
+    public ContainerStatus(String projectId, String containerName, String containerId, String image, List<Integer> ports, String env, ContainerType type, String memoryInfo, String cpuInfo, String created, String finished, List<Command> commands, String state, String phase, Boolean codeLoaded, Boolean inTransit, String initDate, String podIP, String camelRuntime) {
         this.projectId = projectId;
         this.containerName = containerName;
         this.containerId = containerId;
@@ -110,6 +112,7 @@ public class ContainerStatus {
         this.inTransit = inTransit;
         this.initDate = initDate;
         this.podIP = podIP;
+        this.camelRuntime = camelRuntime;
     }
 
     public ContainerStatus(String projectId, String containerName, String containerId, String image, List<Integer> ports, String env, ContainerType type, String memoryInfo, String cpuInfo, String created, String finished, List<Command> commands, String state, String phase, Boolean codeLoaded, Boolean inTransit, String initDate) {
@@ -132,7 +135,7 @@ public class ContainerStatus {
         this.initDate = initDate;
     }
 
-    public ContainerStatus(String projectId, String containerName, String containerId, String image, List<Integer> ports, String env, ContainerType type, String memoryInfo, String cpuInfo, String created, String finished, List<Command> commands, String state, Boolean codeLoaded, Boolean inTransit) {
+    public ContainerStatus(String projectId, String containerName, String containerId, String image, List<Integer> ports, String env, ContainerType type, String memoryInfo, String cpuInfo, String created, String finished, List<Command> commands, String state, Boolean codeLoaded, Boolean inTransit, String camelRuntime) {
         this.projectId = projectId;
         this.containerName = containerName;
         this.containerId = containerId;
@@ -147,6 +150,7 @@ public class ContainerStatus {
         this.commands = commands;
         this.state = state;
         this.codeLoaded = codeLoaded;
+        this.camelRuntime = camelRuntime;
         this.inTransit = inTransit;
         this.initDate = Instant.now().toString();
     }
@@ -174,16 +178,16 @@ public class ContainerStatus {
     }
 
     public static ContainerStatus createDevMode(String projectId, String env) {
-        return new ContainerStatus(projectId, projectId, null, null, null, env, ContainerType.devmode, null, null, null, null, List.of(Command.run), null, false, false);
+        return new ContainerStatus(projectId, projectId, null, null, null, env, ContainerType.devmode, null, null, null, null, List.of(Command.run), null, false, false, "");
     }
 
     public static ContainerStatus createByType(String name, String env, ContainerType type) {
-        return new ContainerStatus(name, name, null, null, null, env, type, null, null, null, null, List.of(Command.run), null, false, false);
+        return new ContainerStatus(name, name, null, null, null, env, type, null, null, null, null, List.of(Command.run), null, false, false, "");
     }
 
-    public static ContainerStatus createWithId(String projectId, String containerName, String env, String containerId, String image, List<Integer> ports, ContainerType type, List<Command> commands, String status, String created) {
+    public static ContainerStatus createWithId(String projectId, String containerName, String env, String containerId, String image, List<Integer> ports, ContainerType type, List<Command> commands, String status, String created, String camelRuntime) {
         return new ContainerStatus(projectId, containerName, containerId, image, ports, env, type,
-                null, null, created, null,  commands, status, false, false);
+                null, null, created, null,  commands, status, false, false, camelRuntime);
     }
 
     public ContainerStatus() {
@@ -331,6 +335,14 @@ public class ContainerStatus {
 
     public void setPhase(String phase) {
         this.phase = phase;
+    }
+
+    public String getCamelRuntime() {
+        return camelRuntime;
+    }
+
+    public void setCamelRuntime(String camelRuntime) {
+        this.camelRuntime = camelRuntime;
     }
 
     @Override

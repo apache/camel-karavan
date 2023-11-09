@@ -25,7 +25,7 @@ import {
 } from '@patternfly/react-core';
 import {KaravanApi} from "../api/KaravanApi";
 import '../designer/karavan.css';
-import Icon from "../Logo";
+import Icon from "./Logo";
 import UserIcon from "@patternfly/react-icons/dist/js/icons/user-icon";
 import ProjectsIcon from "@patternfly/react-icons/dist/js/icons/repository-icon";
 import TemplatesIcon from "@patternfly/react-icons/dist/js/icons/blueprint-icon";
@@ -79,7 +79,7 @@ export function PageNavigation () {
         <FlexItem alignSelf={{default: "alignSelfCenter"}}>
             <Bullseye>
                 {loading && <Spinner style={{position: "absolute"}} diameter="40px" aria-label="Loading..."/>}
-                <Tooltip className="logo-tooltip" content={"Apache Camel Karavan " + config.version}
+                <Tooltip className="logo-tooltip" content={config.title + " " + config.version}
                          position={"right"}>
                     {Icon()}
                 </Tooltip>

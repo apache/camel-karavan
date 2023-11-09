@@ -29,7 +29,7 @@ import {
     Tooltip,
     TooltipPosition
 } from "@patternfly/react-core";
-import Icon from "../Logo";
+import Icon from "./Logo";
 import {useAppConfigStore} from "../api/ProjectStore";
 import {shallow} from "zustand/shallow";
 

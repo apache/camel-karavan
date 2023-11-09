@@ -70,7 +70,10 @@ public class DockerForKaravan {
 
         return dockerService.createContainer(projectId, devmodeImage,
                 env, ports, healthCheck,
-                Map.of(LABEL_TYPE, ContainerStatus.ContainerType.devmode.name(), LABEL_PROJECT_ID, projectId),
+                Map.of(LABEL_TYPE, ContainerStatus.ContainerType.devmode.name(),
+                        LABEL_PROJECT_ID, projectId,
+                        LABEL_CAMEL_RUNTIME, CamelRuntime.CAMEL_MAIN.getValue()
+                ),
                 volumes, null, RestartPolicy.noRestart());
 
     }

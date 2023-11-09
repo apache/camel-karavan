@@ -16,6 +16,7 @@
  */
 
 export class AppConfig {
+    title: string = '';
     version: string = '';
     infrastructure: 'kubernetes' | 'docker' | 'local' = 'local';
     environment: string = '';
