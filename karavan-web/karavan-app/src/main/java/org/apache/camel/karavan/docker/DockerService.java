@@ -80,6 +80,10 @@ public class DockerService extends DockerServiceUtils {
         }
     }
 
+    public Info getInfo(){
+        return getDockerClient().infoCmd().exec();
+    }
+
     public List<ContainerStatus> collectContainersStatuses() {
         List<ContainerStatus> result = new ArrayList<>();
         getDockerClient().listContainersCmd().withShowAll(true).exec().forEach(container -> {
