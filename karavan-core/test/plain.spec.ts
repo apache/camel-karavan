@@ -51,6 +51,15 @@ describe('Plain YAML to integration', () => {
         }
     });
 
+    it('Boolean Properties', () => {
+        const yaml1 = fs.readFileSync('test/plain3.yaml',{encoding:'utf8', flag:'r'});
+        const yaml2 = fs.readFileSync('test/plain4.yaml',{encoding:'utf8', flag:'r'});
+        const i = CamelDefinitionYaml.yamlToIntegration("test1.yaml", yaml1);
+        (i.spec.flows?.at(0)).autoStartup = false;
+        const y = CamelDefinitionYaml.integrationToYaml(i);
+        expect(y).to.equal(yaml2);
+    });
+
     it('YAML <-> Integration', () => {
         const yaml = fs.readFileSync('test/plain-try-catch.yaml',{encoding:'utf8', flag:'r'});
         const i = CamelDefinitionYaml.yamlToIntegration("try-catch.yaml", yaml);

@@ -1,0 +1,5 @@
+- route:
+    autoStartup: false
+    id: route-1
+    from:
+      id: from-f6d9
