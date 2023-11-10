@@ -174,7 +174,7 @@ export class KaravanApi {
         });
     }
 
-    static async getInfrastructureInfo(after: (config: AppConfig) => void) {
+    static async getInfrastructureInfo(after: (info: any) => void) {
         instance.get('/api/configuration/info')
             .then(res => {
                 if (res.status === 200) {
