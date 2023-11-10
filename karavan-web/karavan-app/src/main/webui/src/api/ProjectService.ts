@@ -255,6 +255,17 @@ export class ProjectService {
         });
     }
 
+    public static copyProject(sourceProject: string, project: Project) {
+        KaravanApi.copyProject(sourceProject, project, res => {
+            if (res.status === 200 || res.status === 201) {
+                EventBus.sendAlert( 'Success', 'Project copied', 'success');
+                ProjectService.refreshProjects();
+            } else {
+                EventBus.sendAlert( 'Warning', 'Error when copying project:' + res.statusText, 'warning');
+            }
+        });
+    }
+
     public static createFile(file: ProjectFile) {
         KaravanApi.postProjectFile(file, res => {
             if (res.status === 200) {
