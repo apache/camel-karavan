@@ -32,15 +32,15 @@ import org.apache.camel.karavan.infinispan.model.ContainerStatus;
 import org.apache.camel.karavan.kubernetes.KubernetesService;
 import org.apache.camel.karavan.service.ConfigService;
 import org.apache.camel.karavan.service.ProjectService;
+import org.apache.camel.karavan.shared.Constants;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.apache.camel.karavan.service.ContainerStatusService.CONTAINER_STATUS;
+import static org.apache.camel.karavan.shared.Constants.*;
 
 @Path("/api/container")
 public class ContainerResource {
@@ -98,13 +98,21 @@ public class ContainerResource {
                             String code = projectService.getDevServiceCode();
                             DockerComposeService dockerComposeService = DockerComposeConverter.fromCode(code, name);
                             if (dockerComposeService != null) {
-                                dockerService.createContainerFromCompose(dockerComposeService, ContainerStatus.ContainerType.devservice);
+                                Map<String,String> labels = new HashMap<>();
+                                labels.put(LABEL_TYPE, ContainerStatus.ContainerType.devservice.name());
+                                labels.put(LABEL_CAMEL_RUNTIME, Constants.CamelRuntime.CAMEL_MAIN.getValue());
+                                labels.put(LABEL_PROJECT_ID, name);
+                                dockerService.createContainerFromCompose(dockerComposeService, labels);
                                 dockerService.runContainer(dockerComposeService.getContainer_name());
                             }
                         } else if (Objects.equals(type, ContainerStatus.ContainerType.project.name())) {
                             DockerComposeService dockerComposeService = projectService.getProjectDockerComposeService(name);
                             if (dockerComposeService != null) {
-                                dockerService.createContainerFromCompose(dockerComposeService, ContainerStatus.ContainerType.project);
+                                Map<String,String> labels = new HashMap<>();
+                                labels.put(LABEL_TYPE, ContainerStatus.ContainerType.project.name());
+                                labels.put(LABEL_CAMEL_RUNTIME, Constants.CamelRuntime.CAMEL_MAIN.getValue());
+                                labels.put(LABEL_PROJECT_ID, name);
+                                dockerService.createContainerFromCompose(dockerComposeService, labels);
                                 dockerService.runContainer(dockerComposeService.getContainer_name());
                             }
                         } else if (Objects.equals(type, ContainerStatus.ContainerType.devmode.name())) {

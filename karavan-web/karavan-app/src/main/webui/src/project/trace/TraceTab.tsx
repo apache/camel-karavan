@@ -59,7 +59,6 @@ import {InfoMemory} from "../dashboard/InfoMemory";
 import {InfoContext} from "../dashboard/InfoContext";
 import {TraceTable} from "./TraceTable";
 
-
 export function TraceTab() {
 
     const [project, refreshTrace, setRefreshTrace, camelStatuses] = useProjectStore((state) =>

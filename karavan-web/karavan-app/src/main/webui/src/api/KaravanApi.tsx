@@ -174,6 +174,17 @@ export class KaravanApi {
         });
     }
 
+    static async getInfrastructureInfo(after: (info: any) => void) {
+        instance.get('/api/configuration/info')
+            .then(res => {
+                if (res.status === 200) {
+                    after(res.data);
+                }
+            }).catch(err => {
+            console.log(err);
+        });
+    }
+
     static async getProject(projectId: string, after: (project: Project) => void) {
         instance.get('/api/project/' + projectId)
             .then(res => {
@@ -659,4 +670,3 @@ export class KaravanApi {
         return fetchData();
     }
 }
-
