@@ -19,7 +19,6 @@ package org.apache.camel.karavan.infinispan.model;
 
 import org.infinispan.protostream.annotations.ProtoFactory;
 import org.infinispan.protostream.annotations.ProtoField;
-//import org.infinispan.distribution.group.Group;
 
 
 public class GroupedKey {

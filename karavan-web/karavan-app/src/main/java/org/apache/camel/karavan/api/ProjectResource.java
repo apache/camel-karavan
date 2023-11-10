@@ -154,20 +154,6 @@ public class ProjectResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/copy/{sourceProject}")
     public Project copy(@PathParam("sourceProject") String sourceProject, Project project) throws Exception {
-//        Save project
-        Project s = infinispanService.getProject(sourceProject);
-        infinispanService.saveProject(project);
-//        Copy files
-        Map<GroupedKey, ProjectFile> map = infinispanService.getProjectFilesMap(sourceProject).entrySet().stream()
-                .collect(Collectors.toMap(
-                        e -> new GroupedKey(project.getProjectId(), e.getKey().getEnv(), e.getKey().getKey()),
-                        e -> {
-                            ProjectFile file = e.getValue();
-                            file.setProjectId(project.getProjectId());
-                            return file;
-                        })
-                );
-        infinispanService.saveProjectFiles(map);
-        return project;
+        return projectService.copy(sourceProject, project);
     }
 }

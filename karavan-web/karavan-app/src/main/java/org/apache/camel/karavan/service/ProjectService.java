@@ -28,6 +28,8 @@ import org.apache.camel.karavan.infinispan.InfinispanService;
 import org.apache.camel.karavan.infinispan.model.*;
 import org.apache.camel.karavan.kubernetes.KubernetesService;
 import org.apache.camel.karavan.registry.RegistryService;
+import org.apache.camel.karavan.shared.Property;
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.health.HealthCheck;
@@ -182,6 +184,62 @@ public class ProjectService implements HealthCheck {
             }
         }
         return project;
+    }
+
+    public Project copy(String sourceProjectId, Project project) throws Exception {
+        Project sourceProject = infinispanService.getProject(sourceProjectId);
+        // Save project
+        infinispanService.saveProject(project);
+
+        // Copy files from the source and make necessary modifications
+        Map<GroupedKey, ProjectFile> filesMap = infinispanService.getProjectFilesMap(sourceProjectId).entrySet().stream()
+                .filter(e -> !Objects.equals(e.getValue().getName(), PROJECT_COMPOSE_FILENAME) &&
+                        !Objects.equals(e.getValue().getName(), PROJECT_DEPLOYMENT_JKUBE_FILENAME)
+                )
+                .collect(Collectors.toMap(
+                        e -> new GroupedKey(project.getProjectId(), e.getKey().getEnv(), e.getKey().getKey()),
+                        e -> {
+                            ProjectFile file = e.getValue();
+                            file.setProjectId(project.getProjectId());
+                            if(Objects.equals(file.getName(), APPLICATION_PROPERTIES_FILENAME)) {
+                                modifyPropertyFileOnProjectCopy(file, sourceProject, project);
+                            }
+                            return file;
+                        })
+                );
+        infinispanService.saveProjectFiles(filesMap);
+
+        if (!ConfigService.inKubernetes()) {
+            ProjectFile projectCompose = codeService.createInitialProjectCompose(project);
+            infinispanService.saveProjectFile(projectCompose);
+        } else if (kubernetesService.isOpenshift()){
+            ProjectFile projectCompose = codeService.createInitialDeployment(project);
+            infinispanService.saveProjectFile(projectCompose);
+        }
+
+        return project;
+    }
+
+    private void modifyPropertyFileOnProjectCopy(ProjectFile propertyFile, Project sourceProject, Project project) {
+        String fileContent = propertyFile.getCode();
+
+        String sourceProjectIdProperty = String.format(Property.PROJECT_ID.getKeyValueFormatter(), sourceProject.getProjectId());
+        String sourceProjectNameProperty = String.format(Property.PROJECT_NAME.getKeyValueFormatter(), sourceProject.getName());
+        String sourceProjectDescriptionProperty = String.format(Property.PROJECT_DESCRIPTION.getKeyValueFormatter(), sourceProject.getDescription());
+        String sourceGavProperty = String.format(Property.GAV.getKeyValueFormatter(), sourceProject.getProjectId());
+
+        String[] searchValues = {sourceProjectIdProperty, sourceProjectNameProperty, sourceProjectDescriptionProperty, sourceGavProperty};
+
+        String updatedProjectIdProperty = String.format(Property.PROJECT_ID.getKeyValueFormatter(), project.getProjectId());
+        String updatedProjectNameProperty = String.format(Property.PROJECT_NAME.getKeyValueFormatter(), project.getName());
+        String updatedProjectDescriptionProperty = String.format(Property.PROJECT_DESCRIPTION.getKeyValueFormatter(), project.getDescription());
+        String updatedGavProperty = String.format(Property.GAV.getKeyValueFormatter(), project.getProjectId());
+
+        String[] replacementValues = {updatedProjectIdProperty, updatedProjectNameProperty, updatedProjectDescriptionProperty, updatedGavProperty};
+
+        String updatedCode = StringUtils.replaceEach(fileContent, searchValues, replacementValues);
+
+        propertyFile.setCode(updatedCode);
     }
 
     public Integer getProjectPort(String projectId) {
