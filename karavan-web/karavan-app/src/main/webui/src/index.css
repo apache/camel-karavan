@@ -339,38 +339,6 @@
   overflow-wrap: anywhere;
 }
 
-/*Dashboard*/
-.karavan .dashboard-page .pf-m-link {
-  font-size: 14px;
-}
-
-.karavan .dashboard-page .icon {
-  height: 28px;
-  width: 28px;
-  margin: auto;
-}
-
-.karavan .dashboard-page .badge {
-  font-size: 14px;
-  font-weight: 400;
-  padding: 4px 8px 4px 8px;
-}
-
-.karavan .dashboard-page .table-label {
-  font-size: 14px;
-  padding: 2px 6px 2px 4px;
-}
-
-.karavan .dashboard-page .badge-flex-item {
-  margin-bottom: 3px;
-  margin-top: 3px;
-}
-
-.karavan .dashboard-page .camel-label-group .pf-v5-c-label-group__list {
-    flex-wrap: nowrap;
-}
-
-
 .karavan .loading-page .spinner {
   position: absolute;
 }
