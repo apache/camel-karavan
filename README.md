@@ -35,7 +35,7 @@ It simplifies the Apache Camel experience and accelerates developer performance 
 <img align="right" width="400" src="images/karavan-dashboard.png">
 
 ### Developer Dashboard
-* Hot Reaload
+* Hot Reload
 * View live logs during development
 * Tracing Exchange Data 
 
