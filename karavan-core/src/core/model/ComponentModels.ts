@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export class Header {
+export class ComponentTitle {
     kind: string = '';
     name: string = '';
     title: string = '';
@@ -38,14 +38,35 @@ export class Header {
     lenientProperties: boolean = false;
     componentProperties: any;
 
-    public constructor(init?: Partial<Header>) {
+    public constructor(init?: Partial<ComponentTitle>) {
+        Object.assign(this, init);
+    }
+}
+export class ComponentHeader {
+    name: string = '';
+    index: number = 0;
+    kind: string = '';
+    displayName: string = '';
+    group: string = '';
+    label: boolean = false;
+    javaType: string = '';
+    deprecated: boolean = false;
+    deprecationNote: string = '';
+    defaultValue: string = '';
+    secret: boolean = false;
+    autowired: boolean = false;
+    description: string = '';
+    constantName: string = '';
+
+    public constructor(init?: Partial<ComponentHeader>) {
         Object.assign(this, init);
     }
 }
 
 export class Component {
-    component: Header = new Header();
+    component: ComponentTitle = new ComponentTitle();
     properties: any;
+    headers: any;
 
     public constructor(init?: Partial<Component>) {
         Object.assign(this, init);
