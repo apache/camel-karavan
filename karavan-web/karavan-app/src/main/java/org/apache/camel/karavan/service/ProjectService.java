@@ -187,34 +187,38 @@ public class ProjectService implements HealthCheck {
     }
 
     public Project copy(String sourceProjectId, Project project) throws Exception {
+        boolean isNew = infinispanService.getProject(project.getProjectId()) == null;
         Project sourceProject = infinispanService.getProject(sourceProjectId);
+
         // Save project
         infinispanService.saveProject(project);
 
-        // Copy files from the source and make necessary modifications
-        Map<GroupedKey, ProjectFile> filesMap = infinispanService.getProjectFilesMap(sourceProjectId).entrySet().stream()
-                .filter(e -> !Objects.equals(e.getValue().getName(), PROJECT_COMPOSE_FILENAME) &&
-                        !Objects.equals(e.getValue().getName(), PROJECT_DEPLOYMENT_JKUBE_FILENAME)
-                )
-                .collect(Collectors.toMap(
-                        e -> new GroupedKey(project.getProjectId(), e.getKey().getEnv(), e.getKey().getKey()),
-                        e -> {
-                            ProjectFile file = e.getValue();
-                            file.setProjectId(project.getProjectId());
-                            if(Objects.equals(file.getName(), APPLICATION_PROPERTIES_FILENAME)) {
-                                modifyPropertyFileOnProjectCopy(file, sourceProject, project);
-                            }
-                            return file;
-                        })
-                );
-        infinispanService.saveProjectFiles(filesMap);
+        if(isNew) {
+            // Copy files from the source and make necessary modifications
+            Map<GroupedKey, ProjectFile> filesMap = infinispanService.getProjectFilesMap(sourceProjectId).entrySet().stream()
+                    .filter(e -> !Objects.equals(e.getValue().getName(), PROJECT_COMPOSE_FILENAME) &&
+                            !Objects.equals(e.getValue().getName(), PROJECT_DEPLOYMENT_JKUBE_FILENAME)
+                    )
+                    .collect(Collectors.toMap(
+                            e -> new GroupedKey(project.getProjectId(), e.getKey().getEnv(), e.getKey().getKey()),
+                            e -> {
+                                ProjectFile file = e.getValue();
+                                file.setProjectId(project.getProjectId());
+                                if(Objects.equals(file.getName(), APPLICATION_PROPERTIES_FILENAME)) {
+                                    modifyPropertyFileOnProjectCopy(file, sourceProject, project);
+                                }
+                                return file;
+                            })
+                    );
+            infinispanService.saveProjectFiles(filesMap);
 
-        if (!ConfigService.inKubernetes()) {
-            ProjectFile projectCompose = codeService.createInitialProjectCompose(project);
-            infinispanService.saveProjectFile(projectCompose);
-        } else if (kubernetesService.isOpenshift()){
-            ProjectFile projectCompose = codeService.createInitialDeployment(project);
-            infinispanService.saveProjectFile(projectCompose);
+            if (!ConfigService.inKubernetes()) {
+                ProjectFile projectCompose = codeService.createInitialProjectCompose(project);
+                infinispanService.saveProjectFile(projectCompose);
+            } else if (kubernetesService.isOpenshift()){
+                ProjectFile projectCompose = codeService.createInitialDeployment(project);
+                infinispanService.saveProjectFile(projectCompose);
+            }
         }
 
         return project;
