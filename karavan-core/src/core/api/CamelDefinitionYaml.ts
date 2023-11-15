@@ -69,7 +69,7 @@ export class CamelDefinitionYaml {
     };
 
     static isEmpty = (value?: string): boolean => {
-        return !value || (value.trim && value.trim().length === 0);
+        return value === undefined || (value.trim && value.trim().length === 0);
     };
 
     static cleanupElement = (element: CamelElement, inArray?: boolean, inSteps?: boolean): CamelElement => {

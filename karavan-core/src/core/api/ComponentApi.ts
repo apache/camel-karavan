@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Component, ComponentProperty, SupportedComponent } from '../model/ComponentModels';
+import { Component, ComponentHeader, ComponentProperty, SupportedComponent } from '../model/ComponentModels';
 import { CamelElement } from '../model/IntegrationDefinition';
 
 const Components: Component[] = [];
@@ -292,5 +292,34 @@ export class ComponentApi {
             ),
         );
         return Array.from(new Map(result.map(item => [item.name, item])).values());
+    };
+
+
+    static getComponentHeaders = (componentName: string, type: 'consumer' | 'producer'): ComponentHeader[] => {
+        const invertedType = type === 'consumer' ? 'producer' : 'consumer';
+        const component: Component | undefined = ComponentApi.findByName(componentName);
+        const properties: ComponentHeader[] = [];
+        if (component !== undefined && component.headers) {
+            for (const [key, value] of Object.entries(component.headers) as [string, any][]) {
+                const prop = new ComponentHeader();
+                prop.name = key;
+                prop.label = value.label;
+                prop.description = value.description;
+                prop.index = value.index;
+                prop.displayName = value.displayName;
+                prop.group = value.group;
+                prop.deprecated = value.deprecated;
+                prop.secret = value.secret;
+                prop.kind = value.kind;
+                prop.constantName = value.constantName;
+                prop.defaultValue = value.defaultValue;
+                prop.javaType = value.javaType;
+                prop.autowired = value.autowired;
+                if (!value.deprecated) {
+                    properties.push(prop);
+                }
+            }
+        }
+        return Array.from(new Map(properties.map(item => [item.name, item])).values());
     };
 }

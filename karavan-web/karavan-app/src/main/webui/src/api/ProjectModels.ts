@@ -96,6 +96,7 @@ export class ContainerStatus {
     ports: [] = [];
     commands: string [] = [];
     inTransit: boolean = false;
+    camelRuntime: string = ''
 
     public constructor(init?: Partial<ContainerStatus>) {
         Object.assign(this, init);

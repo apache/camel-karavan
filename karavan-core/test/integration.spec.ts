@@ -20,7 +20,6 @@ import 'mocha';
 import {CamelDefinitionYaml} from "../src/core/api/CamelDefinitionYaml";
 import {FilterDefinition, ToDefinition} from "../src/core/model/CamelDefinition";
 import { RouteDefinition} from "../src/core/model/CamelDefinition";
-import {Integration} from "../src/core/model/IntegrationDefinition";
 
 describe('CRD YAML to Integration', () => {
 

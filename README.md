@@ -34,8 +34,8 @@ It simplifies the Apache Camel experience and accelerates developer performance 
 
 <img align="right" width="400" src="images/karavan-dashboard.png">
 
-### Dashboard
-* Monitoring running integration microservices
+### Developer Dashboard
+* Hot Reload
 * View live logs during development
 * Tracing Exchange Data 
 
