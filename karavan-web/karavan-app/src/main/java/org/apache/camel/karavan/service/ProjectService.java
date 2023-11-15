@@ -193,7 +193,7 @@ public class ProjectService implements HealthCheck {
         // Save project
         infinispanService.saveProject(project);
 
-        if(isNew) {
+        if (isNew) {
             // Copy files from the source and make necessary modifications
             Map<GroupedKey, ProjectFile> filesMap = infinispanService.getProjectFilesMap(sourceProjectId).entrySet().stream()
                     .filter(e -> !Objects.equals(e.getValue().getName(), PROJECT_COMPOSE_FILENAME) &&
