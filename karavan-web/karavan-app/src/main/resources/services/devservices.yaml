@@ -4,7 +4,7 @@ services:
 
   artemis:
     container_name: artemis
-    image: quay.io/artemiscloud/activemq-artemis-broker:artemis.2.29.0
+    image: quay.io/artemiscloud/activemq-artemis-broker:artemis.2.31.2
     ports:
       - "8161:8161"
       - "61616:61616"
