@@ -18,9 +18,11 @@ package org.apache.camel.karavan.docker;
 
 import com.github.dockerjava.api.model.*;
 import io.smallrye.mutiny.tuples.Tuple2;
+import io.vertx.core.json.JsonArray;
 import org.apache.camel.karavan.api.KameletResources;
 import org.apache.camel.karavan.code.model.DockerComposeHealthCheck;
 import org.apache.camel.karavan.infinispan.model.ContainerStatus;
+import org.apache.camel.karavan.infinispan.model.ContainerPort;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -44,7 +46,9 @@ public class DockerServiceUtils {
 
     protected ContainerStatus getContainerStatus(Container container, String environment) {
         String name = container.getNames()[0].replace("/", "");
-        List<Integer> ports = Arrays.stream(container.getPorts()).map(ContainerPort::getPrivatePort).filter(Objects::nonNull).collect(Collectors.toList());
+        List<ContainerPort> ports = Arrays.stream(container.getPorts())
+                .map(p -> new ContainerPort(p.getPrivatePort(), p.getPublicPort(), p.getType()))
+                .collect(Collectors.toList());
         List<ContainerStatus.Command> commands = getContainerCommand(container.getState());
         ContainerStatus.ContainerType type = getContainerType(container.getLabels());
         String created = Instant.ofEpochSecond(container.getCreated()).toString();
