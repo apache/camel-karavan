@@ -79,6 +79,12 @@ export class ServiceStatus {
     type: string = '';
 }
 
+export class ContainerPort {
+    privatePort?: number;
+    publicPort?: number;
+    type: string = '';
+}
+
 export class ContainerStatus {
     containerName: string = '';
     containerId: string = '';
@@ -93,7 +99,7 @@ export class ContainerStatus {
     created: string = '';
     finished: string = '';
     image: string = '';
-    ports: [] = [];
+    ports: ContainerPort [] = [];
     commands: string [] = [];
     inTransit: boolean = false;
     camelRuntime: string = ''

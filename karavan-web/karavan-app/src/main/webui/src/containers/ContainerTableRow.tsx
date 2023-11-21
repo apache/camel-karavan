@@ -35,7 +35,7 @@ interface Props {
     container: ContainerStatus
 }
 
-export function ContainerTableRow (props: Props) {
+export function ContainerTableRow(props: Props) {
 
     const [isExpanded, setIsExpanded] = useState<boolean>(false);
     const [showConfirmation, setShowConfirmation] = useState<boolean>(false);
@@ -59,7 +59,8 @@ export function ContainerTableRow (props: Props) {
             actions={[
                 <Button key="confirm" variant="primary" onClick={e => {
                     if (command) {
-                        KaravanApi.manageContainer(container.env, container.type, container.containerName, command, res => {});
+                        KaravanApi.manageContainer(container.env, container.type, container.containerName, command, res => {
+                        });
                         setCommand(undefined);
                         setShowConfirmation(false);
                     }
@@ -114,7 +115,8 @@ export function ContainerTableRow (props: Props) {
                               spaceItems={{default: 'spaceItemsNone'}}>
                             <FlexItem>
                                 <Tooltip content={"Start container"} position={"bottom"}>
-                                    <Button variant={"plain"} icon={<PlayIcon/>} isDisabled={!commands.includes('run') || inTransit}
+                                    <Button variant={"plain"} icon={<PlayIcon/>}
+                                            isDisabled={!commands.includes('run') || inTransit}
                                             onClick={e => {
                                                 setCommand('run');
                                                 setShowConfirmation(true);
@@ -123,7 +125,8 @@ export function ContainerTableRow (props: Props) {
                             </FlexItem>
                             <FlexItem>
                                 <Tooltip content={"Pause container"} position={"bottom"}>
-                                    <Button variant={"plain"} icon={<PauseIcon/>} isDisabled={!commands.includes('pause') || inTransit}
+                                    <Button variant={"plain"} icon={<PauseIcon/>}
+                                            isDisabled={!commands.includes('pause') || inTransit}
                                             onClick={e => {
                                                 setCommand('pause');
                                                 setShowConfirmation(true);
@@ -132,7 +135,8 @@ export function ContainerTableRow (props: Props) {
                             </FlexItem>
                             <FlexItem>
                                 <Tooltip content={"Stop container"} position={"bottom"}>
-                                    <Button variant={"plain"} icon={<StopIcon/>} isDisabled={!commands.includes('stop') || inTransit}
+                                    <Button variant={"plain"} icon={<StopIcon/>}
+                                            isDisabled={!commands.includes('stop') || inTransit}
                                             onClick={e => {
                                                 setCommand('stop');
                                                 setShowConfirmation(true);
@@ -141,7 +145,8 @@ export function ContainerTableRow (props: Props) {
                             </FlexItem>
                             <FlexItem>
                                 <Tooltip content={"Delete container"} position={"bottom"}>
-                                    <Button variant={"plain"} icon={<DeleteIcon/>} isDisabled={!commands.includes('delete') || inTransit}
+                                    <Button variant={"plain"} icon={<DeleteIcon/>}
+                                            isDisabled={!commands.includes('delete') || inTransit}
                                             onClick={e => {
                                                 setCommand('delete');
                                                 setShowConfirmation(true);
@@ -157,7 +162,7 @@ export function ContainerTableRow (props: Props) {
                 <Td colSpan={2}>
                     <ExpandableRowContent>
                         <Flex direction={{default: "column"}} cellPadding={"0px"}>
-                            {container.containerId?.substring(0, 10)+"..."}
+                            {container.containerId?.substring(0, 10) + "..."}
                         </Flex>
                     </ExpandableRowContent>
                 </Td>
@@ -168,7 +173,16 @@ export function ContainerTableRow (props: Props) {
                 <Td colSpan={2}>
                     <ExpandableRowContent>
                         <Flex direction={{default: "row"}} cellPadding={"0px"}>
-                            {ports.map((port, index) => <FlexItem key={index}>{port}</FlexItem>)}
+                            {ports.sort((a, b) => a.privatePort && b.privatePort && (a.privatePort > b.privatePort) ? 1 : -1)
+                                .map((port, index) => {
+                                const start = port.publicPort ? port.publicPort + "->" : "";
+                                const end = port.privatePort + "/" + port.type;
+                                return (
+                                    <FlexItem key={index}>
+                                        {start + end}
+                                    </FlexItem>
+                                )
+                            })}
                         </Flex>
                     </ExpandableRowContent>
                 </Td>

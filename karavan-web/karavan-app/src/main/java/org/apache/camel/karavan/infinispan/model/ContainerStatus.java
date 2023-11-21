@@ -62,7 +62,7 @@ public class ContainerStatus {
     @ProtoField(number = 4)
     String image;
     @ProtoField(number = 5, collectionImplementation = ArrayList.class)
-    List<Integer> ports;
+    List<ContainerPort> ports;
     @ProtoField(number = 6)
     String env;
     @ProtoField(number = 7)
@@ -93,7 +93,7 @@ public class ContainerStatus {
     String camelRuntime;
 
     @ProtoFactory
-    public ContainerStatus(String projectId, String containerName, String containerId, String image, List<Integer> ports, String env, ContainerType type, String memoryInfo, String cpuInfo, String created, String finished, List<Command> commands, String state, String phase, Boolean codeLoaded, Boolean inTransit, String initDate, String podIP, String camelRuntime) {
+    public ContainerStatus(String projectId, String containerName, String containerId, String image, List<ContainerPort> ports, String env, ContainerType type, String memoryInfo, String cpuInfo, String created, String finished, List<Command> commands, String state, String phase, Boolean codeLoaded, Boolean inTransit, String initDate, String podIP, String camelRuntime) {
         this.projectId = projectId;
         this.containerName = containerName;
         this.containerId = containerId;
@@ -115,7 +115,7 @@ public class ContainerStatus {
         this.camelRuntime = camelRuntime;
     }
 
-    public ContainerStatus(String projectId, String containerName, String containerId, String image, List<Integer> ports, String env, ContainerType type, String memoryInfo, String cpuInfo, String created, String finished, List<Command> commands, String state, String phase, Boolean codeLoaded, Boolean inTransit, String initDate) {
+    public ContainerStatus(String projectId, String containerName, String containerId, String image, List<ContainerPort> ports, String env, ContainerType type, String memoryInfo, String cpuInfo, String created, String finished, List<Command> commands, String state, String phase, Boolean codeLoaded, Boolean inTransit, String initDate) {
         this.projectId = projectId;
         this.containerName = containerName;
         this.containerId = containerId;
@@ -135,7 +135,7 @@ public class ContainerStatus {
         this.initDate = initDate;
     }
 
-    public ContainerStatus(String projectId, String containerName, String containerId, String image, List<Integer> ports, String env, ContainerType type, String memoryInfo, String cpuInfo, String created, String finished, List<Command> commands, String state, Boolean codeLoaded, Boolean inTransit, String camelRuntime) {
+    public ContainerStatus(String projectId, String containerName, String containerId, String image, List<ContainerPort> ports, String env, ContainerType type, String memoryInfo, String cpuInfo, String created, String finished, List<Command> commands, String state, Boolean codeLoaded, Boolean inTransit, String camelRuntime) {
         this.projectId = projectId;
         this.containerName = containerName;
         this.containerId = containerId;
@@ -185,7 +185,7 @@ public class ContainerStatus {
         return new ContainerStatus(name, name, null, null, null, env, type, null, null, null, null, List.of(Command.run), null, false, false, "");
     }
 
-    public static ContainerStatus createWithId(String projectId, String containerName, String env, String containerId, String image, List<Integer> ports, ContainerType type, List<Command> commands, String status, String created, String camelRuntime) {
+    public static ContainerStatus createWithId(String projectId, String containerName, String env, String containerId, String image, List<ContainerPort> ports, ContainerType type, List<Command> commands, String status, String created, String camelRuntime) {
         return new ContainerStatus(projectId, containerName, containerId, image, ports, env, type,
                 null, null, created, null,  commands, status, false, false, camelRuntime);
     }
@@ -233,11 +233,11 @@ public class ContainerStatus {
         this.image = image;
     }
 
-    public List<Integer> getPorts() {
+    public List<ContainerPort> getPorts() {
         return ports;
     }
 
-    public void setPorts(List<Integer> ports) {
+    public void setPorts(List<ContainerPort> ports) {
         this.ports = ports;
     }
 
