@@ -25,10 +25,10 @@ import {FilesTab} from "./files/FilesTab";
 import {useAppConfigStore, useProjectStore} from "../api/ProjectStore";
 import {DashboardTab} from "./dashboard/DashboardTab";
 import {TraceTab} from "./trace/TraceTab";
-import {ProjectBuildTab} from "./build/ProjectBuildTab";
+import {ProjectBuildTab} from "./builder/ProjectBuildTab";
 import {ProjectService} from "../api/ProjectService";
 import {shallow} from "zustand/shallow";
-import {ImagesPanel} from "./build/ImagesPanel";
+import {ImagesPanel} from "./builder/ImagesPanel";
 import {ProjectContainerTab} from "./container/ProjectContainerTab";
 import {ProjectTopologyTab} from "./topology/ProjectTopologyTab";
 
