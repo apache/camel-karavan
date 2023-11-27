@@ -17,11 +17,10 @@
 package org.apache.camel.karavan.service;
 
 import io.quarkus.runtime.StartupEvent;
-import org.apache.camel.karavan.shared.Configuration;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
+import org.apache.camel.karavan.shared.Configuration;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;

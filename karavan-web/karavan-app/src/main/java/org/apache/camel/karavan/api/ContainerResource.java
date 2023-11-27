@@ -32,7 +32,6 @@ import org.apache.camel.karavan.infinispan.model.ContainerStatus;
 import org.apache.camel.karavan.kubernetes.KubernetesService;
 import org.apache.camel.karavan.service.ConfigService;
 import org.apache.camel.karavan.service.ProjectService;
-import org.apache.camel.karavan.shared.Constants;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
@@ -100,7 +99,7 @@ public class ContainerResource {
                             if (dockerComposeService != null) {
                                 Map<String,String> labels = new HashMap<>();
                                 labels.put(LABEL_TYPE, ContainerStatus.ContainerType.devservice.name());
-                                labels.put(LABEL_CAMEL_RUNTIME, Constants.CamelRuntime.CAMEL_MAIN.getValue());
+                                labels.put(LABEL_CAMEL_RUNTIME, CamelRuntime.CAMEL_MAIN.getValue());
                                 labels.put(LABEL_PROJECT_ID, name);
                                 dockerService.createContainerFromCompose(dockerComposeService, labels);
                                 dockerService.runContainer(dockerComposeService.getContainer_name());
@@ -110,7 +109,7 @@ public class ContainerResource {
                             if (dockerComposeService != null) {
                                 Map<String,String> labels = new HashMap<>();
                                 labels.put(LABEL_TYPE, ContainerStatus.ContainerType.project.name());
-                                labels.put(LABEL_CAMEL_RUNTIME, Constants.CamelRuntime.CAMEL_MAIN.getValue());
+                                labels.put(LABEL_CAMEL_RUNTIME, CamelRuntime.CAMEL_MAIN.getValue());
                                 labels.put(LABEL_PROJECT_ID, name);
                                 dockerService.createContainerFromCompose(dockerComposeService, labels);
                                 dockerService.runContainer(dockerComposeService.getContainer_name());

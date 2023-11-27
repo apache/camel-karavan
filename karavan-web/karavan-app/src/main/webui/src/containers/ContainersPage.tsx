@@ -137,7 +137,7 @@ export function ContainersPage () {
 
     const conts = containers.filter(d => d.containerName.toLowerCase().includes(filter));
     return (
-        <PageSection className="kamelet-section dashboard-page" padding={{default: 'noPadding'}}>
+        <PageSection className="kamelet-section" padding={{default: 'noPadding'}}>
             <PageSection className="tools-section" padding={{default: 'noPadding'}}>
                 <MainToolbar title={title()} tools={tools()}/>
             </PageSection>

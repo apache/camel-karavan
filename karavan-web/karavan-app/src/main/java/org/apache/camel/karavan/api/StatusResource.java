@@ -16,11 +16,6 @@
  */
 package org.apache.camel.karavan.api;
 
-import io.vertx.core.eventbus.EventBus;
-import org.apache.camel.karavan.infinispan.InfinispanService;
-import org.apache.camel.karavan.infinispan.model.*;
-import org.jboss.logging.Logger;
-
 import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
@@ -28,8 +23,13 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import org.apache.camel.karavan.infinispan.InfinispanService;
+import org.apache.camel.karavan.infinispan.model.CamelStatus;
+import org.apache.camel.karavan.infinispan.model.CamelStatusValue;
+import org.apache.camel.karavan.infinispan.model.DeploymentStatus;
+import org.jboss.logging.Logger;
+
 import java.util.List;
-import java.util.Optional;
 
 @Path("/api/status")
 public class StatusResource {

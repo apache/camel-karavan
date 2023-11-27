@@ -16,10 +16,10 @@
  */
 package org.apache.camel.karavan.service;
 
+import jakarta.enterprise.context.ApplicationScoped;
 import org.eclipse.microprofile.config.ConfigProvider;
 import org.jboss.logging.Logger;
 
-import jakarta.enterprise.context.ApplicationScoped;
 import java.net.MalformedURLException;
 import java.util.Map;
 

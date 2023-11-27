@@ -33,20 +33,23 @@ import jakarta.inject.Inject;
 import org.apache.camel.karavan.code.CodeService;
 import org.apache.camel.karavan.code.model.DockerComposeService;
 import org.apache.camel.karavan.infinispan.model.ContainerStatus;
-import org.apache.camel.karavan.shared.Constants;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
 import org.apache.commons.io.IOUtils;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.apache.camel.karavan.shared.Constants.*;
+import static org.apache.camel.karavan.shared.Constants.LABEL_PROJECT_ID;
+import static org.apache.camel.karavan.shared.Constants.LABEL_TYPE;
 
 @ApplicationScoped
 public class DockerService extends DockerServiceUtils {
@@ -280,7 +283,6 @@ public class DockerService extends DockerServiceUtils {
 
     public void copyFiles(String containerId, String containerPath, Map<String, String> files) throws IOException {
         String temp = codeService.saveProjectFilesInTemp(files);
-        System.out.println(temp);
         dockerClient.copyArchiveToContainerCmd(containerId).withRemotePath(containerPath)
                 .withDirChildrenOnly(true).withHostResource(temp).exec();
     }
@@ -321,7 +323,7 @@ public class DockerService extends DockerServiceUtils {
                         .withStdErr(true)
                         .withTimestamps(false)
                         .withFollowStream(true)
-                        .withTailAll()
+                        .withTail(100)
                         .exec(callback);
                 callback.awaitCompletion();
             }
@@ -395,7 +397,7 @@ public class DockerService extends DockerServiceUtils {
     public int getMaxPortMapped(int port) {
         return getDockerClient().listContainersCmd().withShowAll(true).exec().stream()
                 .map(c -> List.of(c.ports))
-                .flatMap(java.util.List::stream)
+                .flatMap(List::stream)
                 .filter(p -> Objects.equals(p.getPrivatePort(), port))
                 .map(ContainerPort::getPublicPort).filter(Objects::nonNull)
                 .mapToInt(Integer::intValue)

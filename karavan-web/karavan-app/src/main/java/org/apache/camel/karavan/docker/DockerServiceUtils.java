@@ -18,11 +18,10 @@ package org.apache.camel.karavan.docker;
 
 import com.github.dockerjava.api.model.*;
 import io.smallrye.mutiny.tuples.Tuple2;
-import io.vertx.core.json.JsonArray;
 import org.apache.camel.karavan.api.KameletResources;
 import org.apache.camel.karavan.code.model.DockerComposeHealthCheck;
-import org.apache.camel.karavan.infinispan.model.ContainerStatus;
 import org.apache.camel.karavan.infinispan.model.ContainerPort;
+import org.apache.camel.karavan.infinispan.model.ContainerStatus;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -59,10 +58,13 @@ public class DockerServiceUtils {
 
     protected void updateStatistics(ContainerStatus containerStatus, Statistics stats) {
         if (stats != null && stats.getMemoryStats() != null) {
-            String memoryUsage = formatMemory(stats.getMemoryStats().getUsage());
-            String memoryLimit = formatMemory(stats.getMemoryStats().getLimit());
-            containerStatus.setMemoryInfo(memoryUsage + " / " + memoryLimit);
+            String memoryUsageString = formatMemory(stats.getMemoryStats().getUsage());
+            String memoryLimitString = formatMemory(stats.getMemoryStats().getLimit());
+            containerStatus.setMemoryInfo(memoryUsageString + " / " + memoryLimitString);
             containerStatus.setCpuInfo(formatCpu(containerStatus.getContainerName(), stats));
+        } else {
+            containerStatus.setMemoryInfo("0MiB/0MiB");
+            containerStatus.setCpuInfo("0%");
         }
     }
 

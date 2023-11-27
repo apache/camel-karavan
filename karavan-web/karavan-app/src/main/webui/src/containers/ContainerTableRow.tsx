@@ -98,7 +98,9 @@ export function ContainerTableRow(props: Props) {
                 <Td>
                     <Label color={color}>{container.containerName}</Label>
                 </Td>
-                <Td>{image}</Td>
+                <Td>
+                    <p style={{wordWrap:"break-word"}}>{image}</p>
+                </Td>
                 <Td>
                     {isRunning && container.cpuInfo && <Label color={color}>{container.cpuInfo}</Label>}
                 </Td>

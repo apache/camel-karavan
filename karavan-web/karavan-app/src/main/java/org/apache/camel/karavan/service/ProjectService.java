@@ -18,14 +18,20 @@ package org.apache.camel.karavan.service;
 
 import io.vertx.core.json.JsonObject;
 import io.vertx.mutiny.core.eventbus.EventBus;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.Default;
+import jakarta.inject.Inject;
 import org.apache.camel.karavan.code.CodeService;
 import org.apache.camel.karavan.code.DockerComposeConverter;
-import org.apache.camel.karavan.docker.DockerForKaravan;
 import org.apache.camel.karavan.code.model.DockerComposeService;
+import org.apache.camel.karavan.docker.DockerForKaravan;
 import org.apache.camel.karavan.git.GitService;
 import org.apache.camel.karavan.git.model.GitRepo;
 import org.apache.camel.karavan.infinispan.InfinispanService;
-import org.apache.camel.karavan.infinispan.model.*;
+import org.apache.camel.karavan.infinispan.model.ContainerStatus;
+import org.apache.camel.karavan.infinispan.model.GroupedKey;
+import org.apache.camel.karavan.infinispan.model.Project;
+import org.apache.camel.karavan.infinispan.model.ProjectFile;
 import org.apache.camel.karavan.kubernetes.KubernetesService;
 import org.apache.camel.karavan.registry.RegistryService;
 import org.apache.camel.karavan.shared.Property;
@@ -36,10 +42,6 @@ import org.eclipse.microprofile.health.HealthCheck;
 import org.eclipse.microprofile.health.HealthCheckResponse;
 import org.eclipse.microprofile.health.Readiness;
 import org.jboss.logging.Logger;
-
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.enterprise.inject.Default;
-import jakarta.inject.Inject;
 
 import java.time.Instant;
 import java.util.*;
