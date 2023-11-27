@@ -56,10 +56,11 @@ public class DockerService extends DockerServiceUtils {
 
     private static final Logger LOGGER = Logger.getLogger(DockerService.class.getName());
 
-    protected static final String NETWORK_NAME = "karavan";
-
     @ConfigProperty(name = "karavan.environment")
     String environment;
+
+    @ConfigProperty(name = "karavan.docker.network")
+    String networkName;
 
     @Inject
     DockerEventListener dockerEventListener;
@@ -117,16 +118,16 @@ public class DockerService extends DockerServiceUtils {
 
     public void createNetwork() {
         if (!getDockerClient().listNetworksCmd().exec().stream()
-                .filter(n -> n.getName().equals(NETWORK_NAME))
+                .filter(n -> n.getName().equals(networkName))
                 .findFirst().isPresent()) {
             CreateNetworkResponse res = getDockerClient().createNetworkCmd()
-                    .withName(NETWORK_NAME)
+                    .withName(networkName)
                     .withDriver("bridge")
                     .withInternal(false)
                     .withAttachable(true).exec();
-            LOGGER.info("Network created: " + NETWORK_NAME);
+            LOGGER.info("Network created: " + networkName);
         } else {
-            LOGGER.info("Network already exists with name: " + NETWORK_NAME);
+            LOGGER.info("Network already exists with name: " + networkName);
         }
     }
 
@@ -177,7 +178,7 @@ public class DockerService extends DockerServiceUtils {
             }
 
             return createContainer(compose.getContainer_name(), compose.getImage(),
-                    env, compose.getPortsMap(), healthCheck, labels, Map.of(), NETWORK_NAME, restartPolicy);
+                    env, compose.getPortsMap(), healthCheck, labels, Map.of(), networkName, restartPolicy);
 
         } else {
             LOGGER.info("Compose Service already exists: " + containers.get(0).getId());
@@ -219,7 +220,7 @@ public class DockerService extends DockerServiceUtils {
                             .withRestartPolicy(restartPolicy)
                     .withPortBindings(portBindings)
                     .withMounts(mounts)
-                    .withNetworkMode(network != null ? network : NETWORK_NAME));
+                    .withNetworkMode(network != null ? network : networkName));
 
             CreateContainerResponse response = createContainerCmd.exec();
             LOGGER.info("Container created: " + response.getId());
