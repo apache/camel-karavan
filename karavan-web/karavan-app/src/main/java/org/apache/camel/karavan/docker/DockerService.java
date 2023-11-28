@@ -138,7 +138,7 @@ public class DockerService extends DockerServiceUtils {
 
     public Container getContainerByName(String name) {
         List<Container> containers = findContainer(name);
-        return containers.size() > 0 ? containers.get(0) : null;
+        return !containers.isEmpty() ? containers.get(0) : null;
     }
 
     public Statistics getContainerStats(String containerId) {
@@ -163,12 +163,10 @@ public class DockerService extends DockerServiceUtils {
     public Container createContainerFromCompose(DockerComposeService compose, Map<String, String> labels) throws InterruptedException {
         List<Container> containers = findContainer(compose.getContainer_name());
         if (containers.isEmpty()) {
-            LOGGER.infof("Compose Service starting for %s", compose.getContainer_name());
-
             HealthCheck healthCheck = getHealthCheck(compose.getHealthcheck());
             List<String> env = compose.getEnvironment() != null ? compose.getEnvironmentList() : List.of();
 
-            LOGGER.infof("Compose Service started for %s", compose.getContainer_name());
+            LOGGER.infof("Compose Service started for %s in network:%s", compose.getContainer_name(), networkName);
 
             RestartPolicy restartPolicy = RestartPolicy.noRestart();
             if (Objects.equals(compose.getRestart(), RestartPolicy.onFailureRestart(10).getName())) {
@@ -196,7 +194,7 @@ public class DockerService extends DockerServiceUtils {
                                      Map<String, String> volumes, String network, RestartPolicy restartPolicy,
                                      String... command) throws InterruptedException {
         List<Container> containers = findContainer(name);
-        if (containers.size() == 0) {
+        if (containers.isEmpty()) {
             pullImage(image);
 
             CreateContainerCmd createContainerCmd = getDockerClient().createContainerCmd(image)
@@ -217,7 +215,7 @@ public class DockerService extends DockerServiceUtils {
                 mounts.add(new Mount().withType(MountType.BIND).withSource("/var/run/docker.sock").withTarget("/var/run/docker.sock"));
             }
             createContainerCmd.withHostConfig(new HostConfig()
-                            .withRestartPolicy(restartPolicy)
+                    .withRestartPolicy(restartPolicy)
                     .withPortBindings(portBindings)
                     .withMounts(mounts)
                     .withNetworkMode(network != null ? network : networkName));
