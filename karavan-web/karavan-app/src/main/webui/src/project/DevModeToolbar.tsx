@@ -81,10 +81,10 @@ export function DevModeToolbar(props: Props) {
         <FlexItem className="refresher">
             {poll && <Spinner className="spinner" size="lg" aria-label="Refresh"/>}
             <Tooltip content={poll ? "Stop refresh" : "Refresh auto"} position={TooltipPosition.bottom}>
-            <Button className="button"
-                    icon={poll ? <StopIcon/> : <RefreshIcon/>}
-                    variant={"link"}
-                    onClick={e => setPoll(!poll)}/>
+                <Button className="button"
+                        icon={poll ? <StopIcon/> : <RefreshIcon/>}
+                        variant={"link"}
+                        onClick={e => setPoll(!poll)}/>
             </Tooltip>
         </FlexItem>
         {/*Replace with something else because Spinner is used fo refresh*/}
@@ -145,7 +145,10 @@ export function DevModeToolbar(props: Props) {
                         isDisabled={!commands.includes('delete') || inTransit}
                         variant={"control"}
                         icon={<DeleteIcon/>}
-                        onClick={() => ProjectService.deleteDevModeContainer(project)}>
+                        onClick={() => {
+                            setPoll(true);
+                            ProjectService.deleteDevModeContainer(project);
+                        }}>
                 </Button>
             </Tooltip>
         </FlexItem>}
