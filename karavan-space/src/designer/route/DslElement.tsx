@@ -19,6 +19,7 @@ import {
     Text, Tooltip,
 } from '@patternfly/react-core';
 import '../karavan.css';
+import './DslElement.css';
 import AddIcon from "@patternfly/react-icons/dist/js/icons/plus-circle-icon";
 import DeleteIcon from "@patternfly/react-icons/dist/js/icons/times-circle-icon";
 import InsertIcon from "@patternfly/react-icons/dist/js/icons/arrow-alt-circle-right-icon";
@@ -413,7 +414,9 @@ export function DslElement(props: Props) {
     }
 
     const element: CamelElement = props.step;
-    const className = "step-element" + (isElementSelected() ? " step-element-selected" : "") + (!props.step.showChildren ? " hidden-step" : "");
+    const className = "step-element"
+        + (isElementSelected() ? " step-element-selected" : "") + (!props.step.showChildren ? " hidden-step" : "")
+        + ((element as any).disabled ? " disabled " : "");
     return (
         <div key={"root" + element.uuid}
              className={className}
