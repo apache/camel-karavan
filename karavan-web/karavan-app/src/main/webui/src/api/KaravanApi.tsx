@@ -36,9 +36,12 @@ const instance = axios.create();
 export class KaravanApi {
 
     static me?: any;
-    static basicToken: string = '';
     static authType?: string = undefined;
     static isAuthorized: boolean = false;
+
+    static getInstance() {
+        return instance;
+    }
 
     static setAuthType(authType: string) {
         KaravanApi.authType = authType;
@@ -51,24 +54,12 @@ export class KaravanApi {
                 KaravanApi.setOidcAuthentication();
                 break;
             }
-            case "basic": {
-                KaravanApi.setBasicAuthentication();
-                break;
-            }
         }
     }
     static setPublicAuthentication() {
 
     }
-    static setBasicAuthentication() {
-        instance.interceptors.request.use(async config => {
-                config.headers.Authorization = 'Basic ' + KaravanApi.basicToken;
-                return config;
-            },
-            error => {
-                Promise.reject(error)
-            });
-    }
+
     static setOidcAuthentication() {
         instance.interceptors.request.use(async config => {
                 config.headers.Authorization = 'Bearer ' + SsoApi.keycloak?.token;
@@ -131,20 +122,6 @@ export class KaravanApi {
                 if (res.status === 200) {
                     KaravanApi.setAuthType(res.data);
                     after(res.data);
-                }
-            }).catch(err => {
-            console.log(err);
-        });
-    }
-
-    static async auth(username: string, password: string, after: (res: any) => void) {
-        KaravanApi.basicToken = Buffer.from(username + ":" + password).toString('base64');
-        instance.get('/api/users/me')
-            .then(res => {
-                if (res.status === 200) {
-                    KaravanApi.isAuthorized = true;
-                    KaravanApi.me = res.data;
-                    after(res);
                 }
             }).catch(err => {
             console.log(err);
@@ -640,11 +617,13 @@ export class KaravanApi {
 
     static async fetchData(type: 'container' | 'build' | 'none', podName: string, controller: AbortController) {
         const fetchData = async () => {
+            const headers: any = { Accept: "text/event-stream" };
+            if (KaravanApi.authType === 'oidc') {
+                headers.Authorization = "Bearer " + SsoApi.keycloak?.token
+            }
             await fetchEventSource("/api/logwatch/" + type + "/" + podName, {
                 method: "GET",
-                headers: {
-                    Accept: "text/event-stream",
-                },
+                headers: headers,
                 signal: controller.signal,
                 async onopen(response) {
                     if (response.ok && response.headers.get('content-type') === EventStreamContentType) {

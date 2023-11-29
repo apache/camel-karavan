@@ -55,7 +55,7 @@ public class DockerForKaravan {
         Map<String, String> volumes = getMavenVolumes();
         Container c = createDevmodeContainer(projectId, jBangOptions, ports, volumes);
         dockerService.runContainer(projectId);
-        dockerService.copyFiles(c.getId(), "/karavan/code", files);
+        dockerService.copyFiles(c.getId(), "/karavan/code", files, true);
     }
 
     protected Container createDevmodeContainer(String projectId, String jBangOptions, Map<Integer, Integer> ports, Map<String, String> volumes) throws InterruptedException {

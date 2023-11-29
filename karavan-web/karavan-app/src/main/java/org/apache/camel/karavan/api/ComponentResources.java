@@ -16,13 +16,12 @@
  */
 package org.apache.camel.karavan.api;
 
-import org.apache.camel.karavan.code.CodeService;
-
 import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
+import org.apache.camel.karavan.code.CodeService;
 
 @Path("/api/component")
 public class ComponentResources {
