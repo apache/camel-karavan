@@ -29,8 +29,13 @@ export function CodeEditor () {
     const [code, setCode] = useState<string>('');
 
     useEffect(() => {
-        const c = CamelDefinitionYaml.integrationToYaml(integration);
-        setCode(c);
+        try {
+            const c = CamelDefinitionYaml.integrationToYaml(integration);
+            setCode(c);
+        } catch (e: any) {
+            const message: string = e?.message ? e.message : e.reason;
+            setNotification(true, ['Error in YAML, Integration can not be saved!', message]);
+        }
         return () => {
             setNotification(false, ['', '']);
         }
