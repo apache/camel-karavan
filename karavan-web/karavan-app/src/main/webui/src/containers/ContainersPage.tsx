@@ -145,14 +145,13 @@ export function ContainersPage () {
                 <Table aria-label="Projects" variant={TableVariant.compact}>
                     <Thead>
                         <Tr>
-                            <Th />
-                            <Th key='type'>Type</Th>
-                            <Th key='name'>Name</Th>
-                            <Th key='image'>Image</Th>
-                            <Th key='cpuInfo'>CPU</Th>
-                            <Th key='memoryInfo'>Memory</Th>
-                            <Th key='state'>State</Th>
-                            <Th  key='action'></Th>
+                            <Th modifier="fitContent" textCenter={true} />
+                            <Th modifier="fitContent" textCenter={true} key='type'>Type</Th>
+                            <Th  key='name'>Name</Th>
+                            <Th modifier="fitContent" textCenter={true} key='cpuInfo'>CPU</Th>
+                            <Th modifier="fitContent" textCenter={true} key='memoryInfo'>Memory</Th>
+                            <Th modifier="fitContent" textCenter={true} key='state'>State</Th>
+                            <Th modifier="fitContent" textCenter={true} key='action'>Actions</Th>
                         </Tr>
                     </Thead>
                     {conts?.map((container: ContainerStatus, index: number) => (

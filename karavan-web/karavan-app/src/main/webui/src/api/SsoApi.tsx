@@ -24,7 +24,6 @@ export class SsoApi {
 
     static auth(after: () => void) {
         KaravanApi.getConfig((config: any) => {
-            console.log(config)
             SsoApi.keycloak = new Keycloak({url: config.url, realm: config.realm, clientId: config.clientId});
             SsoApi.keycloak.init({onLoad: 'login-required', flow: 'hybrid', checkLoginIframe: false}).then(value => {
                 console.log('SsoApi', 'User is now authenticated.');
