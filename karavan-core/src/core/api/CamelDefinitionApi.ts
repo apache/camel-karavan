@@ -2374,6 +2374,7 @@ export class CamelDefinitionApi {
     static createExpressionDefinition = (element: any): ExpressionDefinition => { 
         const def = element ? new ExpressionDefinition({...element}) : new ExpressionDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
+        element = element !== undefined ? element : {simple: CamelDefinitionApi.createSimpleExpression({expression: ""})}
         if (element?.constant !== undefined) { 
             def.constant = CamelDefinitionApi.createConstantExpression(element.constant); 
         }

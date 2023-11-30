@@ -24,13 +24,12 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.apache.camel.karavan.docker.DockerService;
 import org.apache.camel.karavan.infinispan.InfinispanService;
-import org.apache.camel.karavan.infinispan.model.CamelStatus;
 import org.apache.camel.karavan.infinispan.model.ContainerStatus;
 import org.apache.camel.karavan.infinispan.model.Project;
 import org.apache.camel.karavan.kubernetes.KubernetesService;
 import org.apache.camel.karavan.service.CamelService;
-import org.apache.camel.karavan.service.ProjectService;
 import org.apache.camel.karavan.service.ConfigService;
+import org.apache.camel.karavan.service.ProjectService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import static org.apache.camel.karavan.service.ContainerStatusService.CONTAINER_STATUS;

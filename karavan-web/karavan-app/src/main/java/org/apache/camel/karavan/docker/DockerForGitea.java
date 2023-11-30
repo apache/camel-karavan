@@ -20,11 +20,11 @@ import com.github.dockerjava.api.command.ExecCreateCmdResponse;
 import com.github.dockerjava.api.model.Container;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import org.apache.camel.karavan.infinispan.model.ContainerStatus;
-import org.apache.camel.karavan.git.model.GitConfig;
 import org.apache.camel.karavan.code.CodeService;
 import org.apache.camel.karavan.git.GitService;
 import org.apache.camel.karavan.git.GiteaService;
+import org.apache.camel.karavan.git.model.GitConfig;
+import org.apache.camel.karavan.infinispan.model.ContainerStatus;
 import org.jboss.logging.Logger;
 
 @ApplicationScoped

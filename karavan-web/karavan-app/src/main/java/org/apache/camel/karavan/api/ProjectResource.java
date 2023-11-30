@@ -16,17 +16,19 @@
  */
 package org.apache.camel.karavan.api;
 
-import jakarta.ws.rs.core.Response;
-import org.apache.camel.karavan.docker.DockerService;
-import org.apache.camel.karavan.infinispan.InfinispanService;
-import org.apache.camel.karavan.infinispan.model.*;
-import org.apache.camel.karavan.kubernetes.KubernetesService;
-import org.apache.camel.karavan.git.GitService;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
-import org.apache.camel.karavan.service.ProjectService;
+import jakarta.ws.rs.core.Response;
+import org.apache.camel.karavan.docker.DockerService;
+import org.apache.camel.karavan.git.GitService;
+import org.apache.camel.karavan.infinispan.InfinispanService;
+import org.apache.camel.karavan.infinispan.model.CamelStatus;
+import org.apache.camel.karavan.infinispan.model.CamelStatusValue;
+import org.apache.camel.karavan.infinispan.model.Project;
+import org.apache.camel.karavan.kubernetes.KubernetesService;
 import org.apache.camel.karavan.service.ConfigService;
+import org.apache.camel.karavan.service.ProjectService;
 import org.jboss.logging.Logger;
 
 import java.net.URLDecoder;

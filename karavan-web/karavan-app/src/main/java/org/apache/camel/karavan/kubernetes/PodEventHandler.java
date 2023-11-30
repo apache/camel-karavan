@@ -26,15 +26,14 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.mutiny.core.eventbus.EventBus;
 import org.apache.camel.karavan.infinispan.InfinispanService;
 import org.apache.camel.karavan.infinispan.model.ContainerStatus;
-import org.apache.camel.karavan.infinispan.model.ProjectFile;
 import org.jboss.logging.Logger;
 
 import java.util.List;
 import java.util.Objects;
 
 import static org.apache.camel.karavan.code.CodeService.DEFAULT_CONTAINER_RESOURCES;
-import static org.apache.camel.karavan.shared.Constants.LABEL_PROJECT_ID;
 import static org.apache.camel.karavan.service.ContainerStatusService.CONTAINER_STATUS;
+import static org.apache.camel.karavan.shared.Constants.LABEL_PROJECT_ID;
 import static org.apache.camel.karavan.shared.Constants.LABEL_TYPE;
 
 public class PodEventHandler implements ResourceEventHandler<Pod> {

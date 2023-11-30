@@ -22,6 +22,8 @@ import io.quarkus.runtime.Startup;
 import io.quarkus.runtime.StartupEvent;
 import io.quarkus.vertx.ConsumeEvent;
 import io.vertx.core.eventbus.EventBus;
+import jakarta.enterprise.event.Observes;
+import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import org.apache.camel.karavan.docker.DockerForGitea;
 import org.apache.camel.karavan.docker.DockerForInfinispan;
@@ -36,8 +38,6 @@ import org.eclipse.microprofile.health.HealthCheckResponse;
 import org.eclipse.microprofile.health.Liveness;
 import org.jboss.logging.Logger;
 
-import jakarta.enterprise.event.Observes;
-import jakarta.inject.Inject;
 import java.io.IOException;
 
 @Startup
@@ -82,7 +82,7 @@ public class KaravanService implements HealthCheck {
 
     private static final String START_KUBERNETES_SERVICES = "START_KUBERNETES_LISTENERS";
     private static final String START_INTERNAL_DOCKER_SERVICES = "START_INTERNAL_DOCKER_SERVICES";
-    private static final String START_SERVICES = "START_SERVICES";
+    public static final String START_SERVICES = "START_SERVICES";
 
     @Override
     public HealthCheckResponse call() {

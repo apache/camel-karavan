@@ -102,8 +102,8 @@ class App extends React.Component<Props, State> {
             TemplateApi.saveTemplate("org.apache.camel.Processor", data[3]);
 
             if (data[4]) {
-                // this.setState({yaml: data[4], name: "demo.camel.yaml"})
-                this.setState({yaml: data[4], name: "aws-s3-cdc-source.kamelet.yaml"})
+                this.setState({yaml: data[4], name: "demo.camel.yaml"})
+                // this.setState({yaml: data[4], name: "aws-s3-cdc-source.kamelet.yaml"})
             }
 
             if (data[5]) {

@@ -21,13 +21,6 @@ import io.fabric8.kubernetes.client.dsl.LogWatch;
 import io.smallrye.context.api.ManagedExecutorConfig;
 import io.smallrye.context.api.NamedInstance;
 import io.smallrye.mutiny.tuples.Tuple2;
-import org.apache.camel.karavan.docker.DockerService;
-import org.apache.camel.karavan.docker.LogCallback;
-import org.apache.camel.karavan.kubernetes.KubernetesService;
-import org.apache.camel.karavan.service.ConfigService;
-import org.eclipse.microprofile.context.ManagedExecutor;
-import org.jboss.logging.Logger;
-
 import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
@@ -38,6 +31,13 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.SecurityContext;
 import jakarta.ws.rs.sse.Sse;
 import jakarta.ws.rs.sse.SseEventSink;
+import org.apache.camel.karavan.docker.DockerService;
+import org.apache.camel.karavan.docker.LogCallback;
+import org.apache.camel.karavan.kubernetes.KubernetesService;
+import org.apache.camel.karavan.service.ConfigService;
+import org.eclipse.microprofile.context.ManagedExecutor;
+import org.jboss.logging.Logger;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;

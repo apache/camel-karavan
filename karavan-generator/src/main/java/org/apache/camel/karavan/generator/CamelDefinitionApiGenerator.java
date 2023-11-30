@@ -137,6 +137,9 @@ public final class CamelDefinitionApiGenerator extends AbstractGenerator {
 
         List<String> attrs = new ArrayList<>();
         AtomicBoolean hasId = new AtomicBoolean(false);
+        if (className.equals("ExpressionDefinition")) {
+            attrs.add("        element = element !== undefined ? element : {simple: CamelDefinitionApi.createSimpleExpression({expression: \"\"})}");
+        }
         properties.keySet().stream().sorted(getComparator(stepName)).forEach(name -> {
             JsonObject aValue = properties.get(name);
             if ("id".equals(name)) {
@@ -164,13 +167,11 @@ public final class CamelDefinitionApiGenerator extends AbstractGenerator {
                         "        }";
                 String code = String.format(template, name, getAttributeClass(aValue));
                 attrs.add(code);
-            } else {
-
             }
         });
         String stringToRequired = getStringToRequired(obj, className);
         String s2 = stringToRequired.isEmpty() ? "" : "\n" + stringToRequired;
-        String s3 = attrs.size() > 0 ? "\n" + attrs.stream().collect(Collectors.joining("\n")) : "";
+        String s3 = !attrs.isEmpty() ? "\n" + String.join("\n", attrs) : "";
         return String.format(readFileText(modelTemplate), className, s2, s3);
     }
 

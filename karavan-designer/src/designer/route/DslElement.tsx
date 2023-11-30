@@ -15,12 +15,13 @@
  * limitations under the License.
  */
 import React, {CSSProperties, useMemo, useState} from 'react';
-import {
-    Text, Tooltip,
-} from '@patternfly/react-core';
+import {Menu, MenuContent, MenuItem, MenuList, Popover, Text, Tooltip,} from '@patternfly/react-core';
 import '../karavan.css';
+import './DslElement.css';
 import AddIcon from "@patternfly/react-icons/dist/js/icons/plus-circle-icon";
 import DeleteIcon from "@patternfly/react-icons/dist/js/icons/times-circle-icon";
+import SyncIcon from "@patternfly/react-icons/dist/js/icons/sync-icon";
+import TurnIcon from "@patternfly/react-icons/dist/js/icons/chevron-circle-right-icon";
 import InsertIcon from "@patternfly/react-icons/dist/js/icons/arrow-alt-circle-right-icon";
 import {CamelElement} from "karavan-core/lib/model/IntegrationDefinition";
 import {CamelUi} from "../utils/CamelUi";
@@ -221,7 +222,7 @@ export function DslElement(props: Props) {
         const headerClass = ['RouteConfigurationDefinition', 'RouteDefinition'].includes(step.dslName) ? "header-route" : "header"
         const headerClasses = isElementSelected() ? headerClass + " selected" : headerClass;
         return (
-            <div className={headerClasses} style={getHeaderStyle()} ref={headerRef}>
+            <div className={"dsl-element " + headerClasses} style={getHeaderStyle()} ref={headerRef}>
                 {!['RouteConfigurationDefinition', 'RouteDefinition'].includes(props.step.dslName) &&
                     <div
                         ref={el => sendPosition(el)}
@@ -236,6 +237,7 @@ export function DslElement(props: Props) {
                 </div>
                 {showInsertButton && getInsertElementButton()}
                 {getDeleteButton()}
+                {/*{getMenuButton()}*/}
                 {showAddButton && getAddElementButton()}
             </div>
         )
@@ -407,13 +409,43 @@ export function DslElement(props: Props) {
         return (
             <Tooltip position={"right"} content={<div>{"Delete element"}</div>}>
                 <button type="button" aria-label="Delete" onClick={e => onDeleteElement(e)} className="delete-button">
-                    <DeleteIcon/></button>
+                    <DeleteIcon/>
+                </button>
             </Tooltip>
         )
     }
 
+    function getMenuButton() {
+        return (
+            <Popover
+                aria-label="Convert Popover"
+                hasNoPadding
+                position={"right"}
+                hideOnOutsideClick={true}
+                showClose={false}
+                bodyContent={
+                    <Menu activeItemId={''} onSelect={event => {}} isPlain>
+                        <MenuContent>
+                            <MenuList>
+                                <MenuItem itemId={0} icon={<SyncIcon aria-hidden />}>Convert to SetHeader</MenuItem>
+                                {/*<MenuItem itemId={1}>Action</MenuItem>*/}
+                                {/*<MenuItem itemId={2}>Action</MenuItem>*/}
+                            </MenuList>
+                        </MenuContent>
+                    </Menu>
+                }
+            >
+                <button type="button" aria-label="Menu" onClick={e => {}} className="menu-button">
+                    <TurnIcon/>
+                </button>
+            </Popover>
+        )
+    }
+
     const element: CamelElement = props.step;
-    const className = "step-element" + (isElementSelected() ? " step-element-selected" : "") + (!props.step.showChildren ? " hidden-step" : "");
+    const className = "step-element"
+        + (isElementSelected() ? " step-element-selected" : "") + (!props.step.showChildren ? " hidden-step" : "")
+        + ((element as any).disabled ? " disabled " : "");
     return (
         <div key={"root" + element.uuid}
              className={className}

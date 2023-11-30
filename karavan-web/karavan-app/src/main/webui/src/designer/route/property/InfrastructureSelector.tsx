@@ -34,7 +34,8 @@ interface Props {
 
 export function InfrastructureSelector(props: Props) {
 
-    const [tabIndex, setTabIndex] = useState<string | number>("configMap");
+    const tabs = InfrastructureAPI.infrastructure === 'kubernetes' ? ['configMap', 'secret', 'services'] : ['services'];
+    const [tabIndex, setTabIndex] = useState<string | number>(tabs[0]);
     const [filter, setFilter] = useState<string>();
 
     function checkFilter  (name: string): boolean {
@@ -49,9 +50,9 @@ export function InfrastructureSelector(props: Props) {
         return (
             <Form isHorizontal className="search" autoComplete="off">
                 <FormGroup fieldId="search">
-                    <TextInput className="text-field" type="text" id="search" name="search" 
-                            value={filter}
-                            onChange={(_, value) => setFilter(value)}/>
+                    <TextInput className="text-field" type="text" id="search" name="search"
+                               value={filter}
+                               onChange={(_, value) => setFilter(value)}/>
                 </FormGroup>
             </Form>
         )
@@ -190,7 +191,7 @@ export function InfrastructureSelector(props: Props) {
         )
     }
 
-    const tabs = InfrastructureAPI.infrastructure === 'kubernetes' ? ['configMap', 'secret', 'services'] : ['services'];
+
     return (
         <Modal
             aria-label="Select from Infrastructure"

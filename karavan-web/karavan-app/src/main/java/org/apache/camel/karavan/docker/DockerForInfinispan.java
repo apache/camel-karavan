@@ -18,8 +18,8 @@ package org.apache.camel.karavan.docker;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import org.apache.camel.karavan.infinispan.model.ContainerStatus;
 import org.apache.camel.karavan.code.CodeService;
+import org.apache.camel.karavan.infinispan.model.ContainerStatus;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 

@@ -40,7 +40,7 @@
     "@types/js-yaml": "4.0.7",
     "@types/node": "18.16.3",
     "@types/uuid": "9.0.1",
-    "axios": "1.5.1",
+    "axios": "1.6.2",
     "buffer": "6.0.3",
     "dagre": "0.8.5",
     "file-saver": "2.0.5",
