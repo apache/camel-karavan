@@ -27,7 +27,7 @@ import {ProjectService} from "../api/ProjectService";
 import {Project} from "../api/ProjectModels";
 import {CamelUi} from "../designer/utils/CamelUi";
 import {shallow} from "zustand/shallow";
-import {isEmpty} from "../../../java/org/apache/camel/karavan/util/StringUtils";
+import {isEmpty} from "../util/StringUtils";
 
 export function CreateProjectModal () {
 
