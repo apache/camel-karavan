@@ -27,6 +27,7 @@ import {ProjectService} from "../api/ProjectService";
 import {Project} from "../api/ProjectModels";
 import {CamelUi} from "../designer/utils/CamelUi";
 import {shallow} from "zustand/shallow";
+import {isEmpty} from "../util/StringUtils";
 
 export function CreateProjectModal () {
 
@@ -55,7 +56,7 @@ export function CreateProjectModal () {
     }
 
     function onKeyDown(event: React.KeyboardEvent<HTMLDivElement>): void {
-        if (event.key === 'Enter' && name !== undefined && description !== undefined && projectId !== undefined) {
+        if (event.key === 'Enter' && !isEmpty(name) && !isEmpty(description) && !isEmpty(projectId)) {
             confirmAndCloseModal();
         }
     }

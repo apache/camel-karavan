@@ -16,18 +16,16 @@
  */
 package org.apache.camel.karavan.api;
 
-import org.apache.camel.karavan.infinispan.InfinispanService;
-import org.apache.camel.karavan.kubernetes.KubernetesService;
-import org.apache.camel.karavan.service.AuthService;
-
 import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import org.apache.camel.karavan.infinispan.InfinispanService;
+import org.apache.camel.karavan.kubernetes.KubernetesService;
+import org.apache.camel.karavan.service.AuthService;
 import org.apache.camel.karavan.service.ProjectService;
-import org.apache.camel.karavan.shared.Configuration;
 import org.eclipse.microprofile.health.HealthCheckResponse;
 
 import java.util.List;

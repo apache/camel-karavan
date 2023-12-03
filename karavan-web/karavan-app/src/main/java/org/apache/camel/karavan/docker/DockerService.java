@@ -154,13 +154,21 @@ public class DockerService extends DockerServiceUtils {
         return stats;
     }
 
-    public Container createContainerFromCompose(DockerComposeService compose, ContainerStatus.ContainerType type) throws InterruptedException {
-        Map<String,String> labels = new HashMap<>();
-        labels.put(LABEL_TYPE, type.name());
-        return createContainerFromCompose(compose, labels);
+    public Container createContainerFromCompose(DockerComposeService compose, ContainerStatus.ContainerType type, String... command) throws InterruptedException {
+        return createContainerFromCompose(compose, type, Map.of(), command);
     }
 
-    public Container createContainerFromCompose(DockerComposeService compose, Map<String, String> labels) throws InterruptedException {
+    public Container createContainerFromCompose(DockerComposeService compose, ContainerStatus.ContainerType type, Map<String, String> volumes, String... command) throws InterruptedException {
+        Map<String,String> labels = new HashMap<>();
+        labels.put(LABEL_TYPE, type.name());
+        return createContainerFromCompose(compose, labels, volumes, command);
+    }
+
+    public Container createContainerFromCompose(DockerComposeService compose, Map<String, String> labels, String... command) throws InterruptedException {
+        return createContainerFromCompose(compose, labels, Map.of(), command);
+    }
+
+    public Container createContainerFromCompose(DockerComposeService compose, Map<String, String> labels, Map<String, String> volumes, String... command) throws InterruptedException {
         List<Container> containers = findContainer(compose.getContainer_name());
         if (containers.isEmpty()) {
             HealthCheck healthCheck = getHealthCheck(compose.getHealthcheck());
@@ -176,7 +184,7 @@ public class DockerService extends DockerServiceUtils {
             }
 
             return createContainer(compose.getContainer_name(), compose.getImage(),
-                    env, compose.getPortsMap(), healthCheck, labels, Map.of(), networkName, restartPolicy);
+                    env, compose.getPortsMap(), healthCheck, labels, volumes, networkName, restartPolicy, command);
 
         } else {
             LOGGER.info("Compose Service already exists: " + containers.get(0).getId());
@@ -215,7 +223,7 @@ public class DockerService extends DockerServiceUtils {
                 mounts.add(new Mount().withType(MountType.BIND).withSource("/var/run/docker.sock").withTarget("/var/run/docker.sock"));
             }
             createContainerCmd.withHostConfig(new HostConfig()
-                    .withRestartPolicy(restartPolicy)
+                            .withRestartPolicy(restartPolicy)
                     .withPortBindings(portBindings)
                     .withMounts(mounts)
                     .withNetworkMode(network != null ? network : networkName));
@@ -246,7 +254,9 @@ public class DockerService extends DockerServiceUtils {
     }
 
     public void execCommandInContainer(Container container, String... cmd) {
-        getDockerClient().execCreateCmd(container.getId()).withCmd(cmd).exec();
+        ExecCreateCmdResponse res = getDockerClient().execCreateCmd(container.getId())
+                .withAttachStdout(true)
+                .withAttachStdout(true).withCmd(cmd).exec();
     }
 
     public List<Container> listContainers(Boolean showAll) {
@@ -280,10 +290,10 @@ public class DockerService extends DockerServiceUtils {
         dockerClient.execStartCmd(id).exec(callBack).awaitCompletion();
     }
 
-    public void copyFiles(String containerId, String containerPath, Map<String, String> files) throws IOException {
+    public void copyFiles(String containerId, String containerPath, Map<String, String> files, boolean dirChildrenOnly) throws IOException {
         String temp = codeService.saveProjectFilesInTemp(files);
         dockerClient.copyArchiveToContainerCmd(containerId).withRemotePath(containerPath)
-                .withDirChildrenOnly(true).withHostResource(temp).exec();
+                .withDirChildrenOnly(dirChildrenOnly).withHostResource(temp).exec();
     }
 
     public void copyExecFile(String containerId, String containerPath, String filename, String script) {

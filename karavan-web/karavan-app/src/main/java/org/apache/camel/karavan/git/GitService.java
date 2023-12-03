@@ -17,6 +17,8 @@
 package org.apache.camel.karavan.git;
 
 import io.fabric8.kubernetes.api.model.Secret;
+import io.quarkus.oidc.UserInfo;
+import io.quarkus.security.identity.SecurityIdentity;
 import io.smallrye.mutiny.tuples.Tuple2;
 import io.vertx.core.Vertx;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -34,6 +36,7 @@ import org.eclipse.jgit.api.errors.RefNotFoundException;
 import org.eclipse.jgit.api.errors.TransportException;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.lib.ObjectId;
+import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.transport.*;
 import org.eclipse.jgit.treewalk.TreeWalk;
@@ -58,6 +61,9 @@ public class GitService {
 
     @Inject
     KubernetesService kubernetesService;
+
+    @Inject
+    SecurityIdentity securityIdentity;
 
     private Git gitForImport;
 
@@ -305,11 +311,19 @@ public class GitService {
     public RevCommit commitAddedAndPush(Git git, String branch, CredentialsProvider cred, String message) throws GitAPIException {
         LOGGER.info("Commit and push changes");
         LOGGER.info("Git add: " + git.add().addFilepattern(".").call());
-        RevCommit commit = git.commit().setMessage(message).call();
+        RevCommit commit = git.commit().setMessage(message).setAuthor(getPersonIdent()).call();
         LOGGER.info("Git commit: " + commit);
         Iterable<PushResult> result = git.push().add(branch).setRemote("origin").setCredentialsProvider(cred).call();
         LOGGER.info("Git push: " + result);
         return commit;
+    }
+
+    private PersonIdent getPersonIdent() {
+        if (securityIdentity != null && securityIdentity.getAttributes().get("userinfo") != null) {
+            UserInfo userInfo = (UserInfo) securityIdentity.getAttributes().get("userinfo");
+            return new PersonIdent(securityIdentity.getPrincipal().getName(), userInfo.getEmail());
+        }
+        return new PersonIdent("karavan", "karavan@test.org");
     }
 
     public Git init(String dir, String uri, String branch) throws GitAPIException, IOException, URISyntaxException {

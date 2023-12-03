@@ -80,8 +80,8 @@ public class KaravanService implements HealthCheck {
     @Inject
     ProjectService projectService;
 
-    private static final String START_KUBERNETES_SERVICES = "START_KUBERNETES_LISTENERS";
-    private static final String START_INTERNAL_DOCKER_SERVICES = "START_INTERNAL_DOCKER_SERVICES";
+    public static final String START_KUBERNETES_SERVICES = "START_KUBERNETES_LISTENERS";
+    public static final String START_INTERNAL_DOCKER_SERVICES = "START_INTERNAL_DOCKER_SERVICES";
     public static final String START_SERVICES = "START_SERVICES";
 
     @Override

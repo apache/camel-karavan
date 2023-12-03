@@ -64,9 +64,9 @@ public class InfrastructureResource {
     @Path("/deployment/{env}")
     public List<DeploymentStatus> getDeploymentStatusesByEnv(@PathParam("env") String env) throws Exception {
         if (infinispanService.isReady()) {
-            return infinispanService.getDeploymentStatuses(env).stream()
-                    .sorted(Comparator.comparing(DeploymentStatus::getProjectId))
-                    .collect(Collectors.toList());
+        return infinispanService.getDeploymentStatuses(env).stream()
+                .sorted(Comparator.comparing(DeploymentStatus::getProjectId))
+                .collect(Collectors.toList());
         } else {
             return List.of();
         }

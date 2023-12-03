@@ -43,8 +43,6 @@ export function ContainerTableRow(props: Props) {
 
     const container = props.container;
     const commands = container.commands;
-    const imageParts = container.image?.split("@");
-    const image = imageParts?.length > -1 ? imageParts[0] : "";
     const ports = container.ports;
     const isRunning = container.state === 'running';
     const inTransit = container.inTransit;
@@ -97,9 +95,6 @@ export function ContainerTableRow(props: Props) {
                 </Td>
                 <Td>
                     <Label color={color}>{container.containerName}</Label>
-                </Td>
-                <Td>
-                    <p style={{wordWrap:"break-word"}}>{image}</p>
                 </Td>
                 <Td>
                     {isRunning && container.cpuInfo && <Label color={color}>{container.cpuInfo}</Label>}
@@ -160,19 +155,26 @@ export function ContainerTableRow(props: Props) {
             </Tr>
             {<Tr isExpanded={isExpanded}>
                 <Td></Td>
-                <Td colSpan={2}>Container ID</Td>
-                <Td colSpan={2}>
+                <Td colSpan={1}>ID</Td>
+                <Td colSpan={4}>
                     <ExpandableRowContent>
-                        <Flex direction={{default: "column"}} cellPadding={"0px"}>
-                            {container.containerId?.substring(0, 10) + "..."}
-                        </Flex>
+                        {container.containerId}
+                    </ExpandableRowContent>
+                </Td>
+            </Tr>}
+            {<Tr isExpanded={isExpanded}>
+                <Td></Td>
+                <Td colSpan={1}>Image</Td>
+                <Td colSpan={4}>
+                    <ExpandableRowContent>
+                        {container.image}
                     </ExpandableRowContent>
                 </Td>
             </Tr>}
             {ports !== undefined && ports.length > 0 && <Tr isExpanded={isExpanded}>
                 <Td></Td>
-                <Td colSpan={2}>Ports</Td>
-                <Td colSpan={2}>
+                <Td colSpan={1}>Ports</Td>
+                <Td colSpan={5}>
                     <ExpandableRowContent>
                         <Flex direction={{default: "row"}} cellPadding={"0px"}>
                             {ports.sort((a, b) => a.privatePort && b.privatePort && (a.privatePort > b.privatePort) ? 1 : -1)

@@ -33,6 +33,10 @@ public class AuthService {
     }
 
     public Map<String, String> getSsoConfig() throws MalformedURLException {
-        return Map.of("url", ConfigProvider.getConfig().getValue("karavan.frontend.auth-server-url", String.class));
+        return Map.of(
+                "url", ConfigProvider.getConfig().getValue("karavan.keycloak.url", String.class),
+                "realm", ConfigProvider.getConfig().getValue("karavan.keycloak.realm", String.class),
+                "clientId", ConfigProvider.getConfig().getValue("karavan.keycloak.frontend.clientId", String.class)
+        );
     }
 }

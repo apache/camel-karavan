@@ -16,17 +16,17 @@
  */
 package org.apache.camel.karavan.api;
 
-import org.apache.camel.karavan.infinispan.InfinispanService;
-import org.apache.camel.karavan.infinispan.model.Project;
-import org.apache.camel.karavan.infinispan.model.ProjectFile;
-import org.apache.camel.karavan.code.CodeService;
-import org.yaml.snakeyaml.Yaml;
-
 import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
+import org.apache.camel.karavan.code.CodeService;
+import org.apache.camel.karavan.infinispan.InfinispanService;
+import org.apache.camel.karavan.infinispan.model.Project;
+import org.apache.camel.karavan.infinispan.model.ProjectFile;
+import org.yaml.snakeyaml.Yaml;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
