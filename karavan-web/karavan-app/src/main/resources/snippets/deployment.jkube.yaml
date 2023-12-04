@@ -3,6 +3,10 @@ spec:
   template:
     spec:
       containers:
+        - volumeMounts:
+            - name: config
+              mountPath: /app/config
         - env:
             - name: _JAVA_OPTIONS
               value: "-Duser.home=/tmp"
+      serviceAccount: karavan
