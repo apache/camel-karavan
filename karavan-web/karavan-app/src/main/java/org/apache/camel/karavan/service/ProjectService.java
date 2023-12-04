@@ -288,15 +288,10 @@ public class ProjectService implements HealthCheck {
         }
     }
 
-    public Project importProject(String projectId) {
+    public Project importProject(String projectId) throws Exception {
         LOGGER.info("Import project from Git " + projectId);
-        try {
-            GitRepo repo = gitService.readProjectFromRepository(projectId);
-            return importProjectFromRepo(repo);
-        } catch (Exception e) {
-            LOGGER.error("Error during project import", e);
-            return null;
-        }
+        GitRepo repo = gitService.readProjectFromRepository(projectId);
+        return importProjectFromRepo(repo);
     }
 
     private Project importProjectFromRepo(GitRepo repo) {
@@ -318,9 +313,14 @@ public class ProjectService implements HealthCheck {
     public Project getProjectFromRepo(GitRepo repo) {
         String folderName = repo.getName();
         String propertiesFile = codeService.getPropertiesFile(repo);
-        String projectName = codeService.getProjectName(propertiesFile);
-        String projectDescription = codeService.getProjectDescription(propertiesFile);
-        return new Project(folderName, projectName, projectDescription, repo.getCommitId(), repo.getLastCommitTimestamp());
+        if (propertiesFile != null) {
+            String projectName = codeService.getProjectName(propertiesFile);
+            String projectDescription = codeService.getProjectDescription(propertiesFile);
+            return new Project(folderName, projectName, projectDescription, repo.getCommitId(), repo.getLastCommitTimestamp());
+        } else {
+            return new Project(folderName, folderName, folderName, repo.getCommitId(), repo.getLastCommitTimestamp());
+        }
+
     }
 
     public Project commitAndPushProject(String projectId, String message) throws Exception {

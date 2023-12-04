@@ -294,14 +294,12 @@ export class KaravanApi {
         });
     }
 
-    static async pull(projectId: string, after: (res: AxiosResponse<any>) => void) {
-        instance.get('/api/git/' + projectId)
+    static async pull(projectId: string, after: (res: AxiosResponse<any> | any) => void) {
+        instance.put('/api/git/' + projectId)
             .then(res => {
-                if (res.status === 200) {
-                    after(res.data);
-                }
+                after(res);
             }).catch(err => {
-            console.log(err);
+            after(err);
         });
     }
 

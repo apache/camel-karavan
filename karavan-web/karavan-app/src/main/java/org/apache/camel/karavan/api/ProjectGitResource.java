@@ -19,13 +19,17 @@ package org.apache.camel.karavan.api;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import org.apache.camel.karavan.infinispan.model.Project;
 import org.apache.camel.karavan.service.ProjectService;
+import org.jboss.logging.Logger;
 
 import java.util.HashMap;
 
 @Path("/api/git")
 public class ProjectGitResource {
+
+    private static final Logger LOGGER = Logger.getLogger(ProjectGitResource.class.getName());
 
     @Inject
     ProjectService projectService;
@@ -37,11 +41,18 @@ public class ProjectGitResource {
         return projectService.commitAndPushProject(params.get("projectId"), params.get("message"));
     }
 
-    @GET
+    @PUT
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/{projectId}")
-    public Project pull(@PathParam("projectId") String projectId) throws Exception {
-        return projectService.importProject(projectId);
+    public Response pull(@PathParam("projectId") String projectId) {
+        try {
+            projectService.importProject(projectId);
+            return Response.ok().build();
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage());
+            return Response.serverError().entity(e.getMessage()).build();
+        }
+
     }
 }

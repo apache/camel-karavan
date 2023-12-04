@@ -166,13 +166,8 @@ public class GitService {
         return new ArrayList<>(0);
     }
 
-    public GitRepo readProjectFromRepository(String projectId) {
-        Git git = null;
-        try {
-            git = getGit(true, vertx.fileSystem().createTempDirectoryBlocking(UUID.randomUUID().toString()));
-        } catch (Exception e) {
-            LOGGER.error("Error", e);
-        }
+    public GitRepo readProjectFromRepository(String projectId) throws GitAPIException, IOException, URISyntaxException {
+        Git git = getGit(true, vertx.fileSystem().createTempDirectoryBlocking(UUID.randomUUID().toString()));
         return readProjectsFromRepository(git, projectId).get(0);
     }
 

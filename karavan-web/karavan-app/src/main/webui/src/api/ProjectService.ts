@@ -127,14 +127,29 @@ export class ProjectService {
         };
         KaravanApi.push(params, res => {
             if (res.status === 200 || res.status === 201) {
-                useProjectStore.setState({isPushing: false})
                 ProjectService.refreshProject(project.projectId);
                 ProjectService.refreshProjectData(project.projectId);
             } else {
-                // Todo notification
+                EventBus.sendAlert("Error pushing", (res as any)?.response?.data, 'danger')
             }
+            useProjectStore.setState({isPushing: false})
         });
     }
+
+    public static pullProject(projectId: string) {
+            useProjectStore.setState({isPulling: true})
+            KaravanApi.pull(projectId, res => {
+                console.log(res);
+                if (res.status === 200 || res.status === 201) {
+                    useProjectStore.setState({isPulling: false})
+                    ProjectService.refreshProject(projectId);
+                    ProjectService.refreshProjectData(projectId);
+                } else {
+                    EventBus.sendAlert("Error pulling", (res as any)?.response?.data, 'danger')
+                }
+                useProjectStore.setState({isPulling: false})
+            });
+        }
 
     public static reloadKamelets() {
         KaravanApi.getKamelets(yamls => {
