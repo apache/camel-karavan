@@ -54,7 +54,7 @@ export function BuildPanel () {
     function deleteEntity() {
         const buildName = getBuildName();
         if (buildName) {
-            KaravanApi.manageContainer(config.environment, 'build', buildName, 'delete', res => {
+            KaravanApi.manageContainer(project.projectId, 'build', buildName, 'delete', false,res => {
                 EventBus.sendAlert("Container deleted", "Container " + buildName + " deleted", 'info')
                 setShowLog(false, 'container', undefined)
             });

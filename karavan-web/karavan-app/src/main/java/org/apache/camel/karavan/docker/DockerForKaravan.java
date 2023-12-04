@@ -23,7 +23,6 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.apache.camel.karavan.infinispan.model.ContainerStatus;
 import org.apache.camel.karavan.infinispan.model.Project;
-import org.apache.camel.karavan.registry.RegistryService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
@@ -46,9 +45,6 @@ public class DockerForKaravan {
 
     @Inject
     DockerService dockerService;
-
-    @Inject
-    RegistryService registryService;
 
     public void runProjectInDevMode(String projectId, String jBangOptions, Map<Integer, Integer> ports,
                                     Map<String, String> files) throws Exception {
@@ -74,7 +70,7 @@ public class DockerForKaravan {
                         LABEL_PROJECT_ID, projectId,
                         LABEL_CAMEL_RUNTIME, CamelRuntime.CAMEL_MAIN.getValue()
                 ),
-                volumes, null, RestartPolicy.noRestart());
+                volumes, null, RestartPolicy.noRestart(), false);
 
     }
 
@@ -97,15 +93,11 @@ public class DockerForKaravan {
                         LABEL_PROJECT_ID, project.getProjectId(),
                         LABEL_TAG, tag
                 ),
-                volumes, null,RestartPolicy.noRestart(), "/karavan/builder/build.sh");
+                volumes, null,RestartPolicy.noRestart(), false, "/karavan/builder/build.sh");
     }
 
     private Map<String,String> getMavenVolumes(){
         return mavenCache.map(s -> Map.of(s, "/karavan/.m2")).orElseGet(Map::of);
     }
 
-    public void syncImage(String projectId, String tag) throws InterruptedException {
-        String image = registryService.getRegistryWithGroupForSync() + "/" + projectId + ":" + tag;
-        dockerService.pullImage(image);
-    }
 }

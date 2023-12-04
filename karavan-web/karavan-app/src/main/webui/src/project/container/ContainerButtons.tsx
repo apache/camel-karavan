@@ -16,15 +16,16 @@
  */
 
 import React, {useState} from 'react';
-import {Button, Flex, FlexItem, Modal, Spinner, Tooltip, TooltipPosition} from '@patternfly/react-core';
+import {Button, Flex, FlexItem, Modal, Spinner, Switch, Tooltip, TooltipPosition} from '@patternfly/react-core';
 import '../../designer/karavan.css';
 import DeleteIcon from "@patternfly/react-icons/dist/esm/icons/trash-icon";
+import StopIcon from "@patternfly/react-icons/dist/esm/icons/stop-icon";
+import DeployIcon from "@patternfly/react-icons/dist/esm/icons/upload-icon";
 import {useAppConfigStore, useDevModeStore, useLogStore, useProjectStore, useStatusesStore} from "../../api/ProjectStore";
 import {shallow} from "zustand/shallow";
 import RunIcon from "@patternfly/react-icons/dist/esm/icons/play-icon";
 import {KaravanApi} from "../../api/KaravanApi";
-import StopIcon from "@patternfly/react-icons/dist/js/icons/stop-icon";
-
+import {EventBus} from "../../designer/utils/EventBus";
 
 interface Props {
     env: string,
@@ -38,33 +39,25 @@ export function ContainerButtons (props: Props) {
     const [containers] = useStatusesStore((state) => [state.containers], shallow);
     const [setShowLog] = useLogStore((s) => [s.setShowLog], shallow);
 
+    const [pullImage, setPullImage] = useState<boolean>(false);
     const [showConfirmation, setShowConfirmation] = useState<boolean>(false);
-    const [actionType, setActionType] = useState<'run' | 'stop' | 'delete'>('run');
+    const [actionType, setActionType] = useState<'deploy' | 'run' | 'stop' | 'delete'>('run');
 
     const containerStatus = containers.filter(c => c.containerName === project.projectId).at(0);
-    const commands = containerStatus?.commands || ['run'];
+    const commands = containerStatus?.commands || ['deploy'];
+    const exists = containerStatus != undefined;
     const isRunning = containerStatus?.state === 'running';
     const inTransit = containerStatus?.inTransit;
     const isLoading = status === 'wip';
 
     function act() {
-        switch (actionType) {
-            case "run":
-                KaravanApi.manageContainer(props.env, 'project', project.projectId, 'run', res => {
-                    setShowLog(false, 'container', undefined)
-                });
-                break;
-            case "stop":
-                KaravanApi.manageContainer(props.env, 'project', project.projectId, 'stop', res => {
-                    setShowLog(false, 'container', undefined)
-                });
-                break;
-            case "delete":
-                KaravanApi.manageContainer(props.env, 'project', project.projectId, 'delete', res => {
-                    setShowLog(false, 'container', undefined)
-                });
-                break;
-        }
+        KaravanApi.manageContainer(project.projectId, 'project', project.projectId, actionType, pullImage,res => {
+            const response = res?.response;
+            if (response?.status === 500) {
+                EventBus.sendAlert('Error', response.data !== undefined && response.data.length > 0 ? response.data : response.statusText, 'warning')
+            }
+            setShowLog(false, 'container', undefined)
+        });
     }
 
     function getConfirmationModal() {
@@ -86,6 +79,14 @@ export function ContainerButtons (props: Props) {
             ]}
             onEscapePress={e => setShowConfirmation(false)}>
             <div>{"Confirm " + actionType + " container?"}</div>
+            {actionType === 'deploy' && <div>
+                <Switch
+                    label="Pull image"
+                    isChecked={pullImage}
+                    onChange={(_, checked) => setPullImage(checked)}
+                    isReversed
+                />
+            </div>}
         </Modal>)
     }
 
@@ -93,6 +94,18 @@ export function ContainerButtons (props: Props) {
         <FlexItem>
             {(inTransit || isLoading) && <Spinner size="lg" aria-label="spinner"/>}
         </FlexItem>
+        {!isRunning && config.infrastructure !== 'kubernetes' && commands.includes('deploy') && <FlexItem>
+            <Tooltip content="Deploy container" position={TooltipPosition.bottom}>
+                <Button size="sm"
+                        isDisabled={(!(commands.length === 0) && !commands.includes('deploy')) || inTransit}
+                        variant={"primary"}
+                        icon={<DeployIcon/>}
+                        onClick={() => {
+                            setActionType('deploy');
+                            setShowConfirmation(true);
+                        }}>Deploy</Button>
+            </Tooltip>
+        </FlexItem>}
         {!isRunning && config.infrastructure !== 'kubernetes' && <FlexItem>
             <Tooltip content="Run container" position={TooltipPosition.bottom}>
                 <Button size="sm"

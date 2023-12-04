@@ -60,8 +60,6 @@ public class ProjectService implements HealthCheck {
     @ConfigProperty(name = "karavan.environment")
     String environment;
 
-
-
     @Inject
     InfinispanService infinispanService;
 
@@ -110,8 +108,7 @@ public class ProjectService implements HealthCheck {
             } else {
                 Map<String, String> files = codeService.getProjectFilesForDevMode(project.getProjectId(), true);
 
-                ProjectFile compose = infinispanService.getProjectFile(project.getProjectId(), PROJECT_COMPOSE_FILENAME);
-                DockerComposeService dcs = DockerComposeConverter.fromCode(compose.getCode(), project.getProjectId());
+                DockerComposeService dcs = codeService.getDockerComposeService(project.getProjectId());
                 dockerForKaravan.runProjectInDevMode(project.getProjectId(), jBangOptions, dcs.getPortsMap(), files);
             }
             return containerName;
@@ -150,7 +147,6 @@ public class ProjectService implements HealthCheck {
 
     public List<Project> getAllProjects(String type) {
         if (infinispanService.isReady()) {
-            List<ProjectFile> files = infinispanService.getProjectFilesByName(PROJECT_COMPOSE_FILENAME);
             return infinispanService.getProjects().stream()
                     .filter(p -> type == null || Objects.equals(p.getType().name(), type))
                     .sorted(Comparator.comparing(Project::getProjectId))
@@ -245,8 +241,7 @@ public class ProjectService implements HealthCheck {
     }
 
     public Integer getProjectPort(String projectId) {
-        ProjectFile composeFile = infinispanService.getProjectFile(projectId, PROJECT_COMPOSE_FILENAME);
-        return codeService.getProjectPort(composeFile);
+        return codeService.getProjectPort(projectId);
     }
 
     //    @Retry(maxRetries = 100, delay = 2000)
@@ -399,24 +394,13 @@ public class ProjectService implements HealthCheck {
     }
 
     public void setProjectImage(String projectId, String imageName, boolean commit, String message) throws Exception {
-        ProjectFile file = infinispanService.getProjectFile(projectId, PROJECT_COMPOSE_FILENAME);
-        if (file != null) {
-            DockerComposeService service = DockerComposeConverter.fromCode(file.getCode(), projectId);
-            service.setImage(imageName);
-            String code = DockerComposeConverter.toCode(service);
-            file.setCode(code);
-            infinispanService.saveProjectFile(file);
-            if (commit) {
-                commitAndPushProject(projectId, message);
-            }
+        codeService.updateDockerComposeImage(projectId, imageName);
+        if (commit) {
+            commitAndPushProject(projectId, message);
         }
     }
 
     public DockerComposeService getProjectDockerComposeService(String projectId) {
-        ProjectFile file = infinispanService.getProjectFile(projectId, PROJECT_COMPOSE_FILENAME);
-        if (file != null) {
-            return DockerComposeConverter.fromCode(file.getCode(), projectId);
-        }
-        return null;
+        return codeService.getDockerComposeService(projectId);
     }
 }

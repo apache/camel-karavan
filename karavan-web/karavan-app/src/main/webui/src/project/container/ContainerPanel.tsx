@@ -19,18 +19,10 @@ import React, {useState} from 'react';
 import {
     Badge,
     Button,
-    Card,
-    CardBody,
-    DescriptionList,
-    DescriptionListDescription,
-    DescriptionListGroup,
-    DescriptionListTerm,
     Flex,
     FlexItem,
     Label,
     LabelGroup, Modal,
-    Tooltip,
-    TooltipPosition
 } from '@patternfly/react-core';
 import '../../designer/karavan.css';
 import UpIcon from "@patternfly/react-icons/dist/esm/icons/running-icon";
@@ -95,7 +87,9 @@ export function ContainerPanel (props: Props) {
     }
 
     const env = props.env;
-    const conts = containers.filter(d => d.projectId === project?.projectId && d.type === 'project');
+    const conts = containers
+        .filter(c => c.env == env)
+        .filter(d => d.projectId === project?.projectId && d.type === 'project');
     return (
         <Flex justifyContent={{default: "justifyContentSpaceBetween"}}
               alignItems={{default: "alignItemsFlexStart"}}>

@@ -59,7 +59,7 @@ export function ServicesTableRow (props: Props) {
                         <Tooltip content={"Start container"} position={"bottom"}>
                             <Button variant={"plain"} icon={<PlayIcon/>} isDisabled={!commands.includes('run') || inTransit}
                                     onClick={e => {
-                                        KaravanApi.manageContainer(config.environment, 'devservice', service.container_name, 'run', res => {});
+                                        KaravanApi.manageContainer(service.container_name, 'devservice', service.container_name, 'run', false,res => {});
                                     }}></Button>
                         </Tooltip>
                     </FlexItem>
@@ -75,7 +75,7 @@ export function ServicesTableRow (props: Props) {
                         <Tooltip content={"Stop container"} position={"bottom"}>
                             <Button variant={"plain"} icon={<StopIcon/>} isDisabled={!commands.includes('stop') || inTransit}
                                     onClick={e => {
-                                        KaravanApi.manageContainer(config.environment, 'devservice', service.container_name, 'stop', res => {});
+                                        KaravanApi.manageContainer(service.container_name, 'devservice', service.container_name, 'stop', false,res => {});
                                     }}></Button>
                         </Tooltip>
                     </FlexItem>
@@ -83,7 +83,7 @@ export function ServicesTableRow (props: Props) {
                         <Tooltip content={"Delete container"} position={"bottom"}>
                             <Button variant={"plain"} icon={<DeleteIcon/>} isDisabled={!commands.includes('delete') || inTransit}
                                     onClick={e => {
-                                        KaravanApi.deleteContainer(config.environment, 'devservice', service.container_name, res => {});
+                                        KaravanApi.deleteContainer(service.container_name, 'devservice', service.container_name, res => {});
                                     }}></Button>
                         </Tooltip>
                     </FlexItem>

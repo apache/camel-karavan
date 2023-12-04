@@ -62,6 +62,15 @@ public class DockerService extends DockerServiceUtils {
     @ConfigProperty(name = "karavan.docker.network")
     String networkName;
 
+    @ConfigProperty(name = "karavan.image-registry")
+    String registry;
+    @ConfigProperty(name = "karavan.image-group")
+    String group;
+    @ConfigProperty(name = "karavan.image-registry-username")
+    Optional<String> username;
+    @ConfigProperty(name = "karavan.image-registry-password")
+    Optional<String> password;
+
     @Inject
     DockerEventListener dockerEventListener;
 
@@ -154,25 +163,31 @@ public class DockerService extends DockerServiceUtils {
         return stats;
     }
 
-    public Container createContainerFromCompose(DockerComposeService compose, ContainerStatus.ContainerType type, String... command) throws InterruptedException {
-        return createContainerFromCompose(compose, type, Map.of(), command);
+    public Container createContainerFromCompose(DockerComposeService compose, ContainerStatus.ContainerType type, Boolean pull, String... command) throws InterruptedException {
+        return createContainerFromCompose(compose, type, Map.of(), pull, command);
     }
 
-    public Container createContainerFromCompose(DockerComposeService compose, ContainerStatus.ContainerType type, Map<String, String> volumes, String... command) throws InterruptedException {
+    public Container createContainerFromCompose(DockerComposeService compose, ContainerStatus.ContainerType type, Map<String, String> volumes, Boolean pullAlways, String... command) throws InterruptedException {
         Map<String,String> labels = new HashMap<>();
         labels.put(LABEL_TYPE, type.name());
-        return createContainerFromCompose(compose, labels, volumes, command);
+        return createContainerFromCompose(compose, labels, volumes, pullAlways, command);
     }
 
-    public Container createContainerFromCompose(DockerComposeService compose, Map<String, String> labels, String... command) throws InterruptedException {
-        return createContainerFromCompose(compose, labels, Map.of(), command);
+    public Container createContainerFromCompose(DockerComposeService compose, Map<String, String> labels, Boolean pullAlways, String... command) throws InterruptedException {
+        return createContainerFromCompose(compose, labels, Map.of(), pullAlways, command);
     }
 
-    public Container createContainerFromCompose(DockerComposeService compose, Map<String, String> labels, Map<String, String> volumes, String... command) throws InterruptedException {
+    public Container createContainerFromCompose(DockerComposeService compose, Map<String, String> labels, Map<String, String> volumes, Boolean pullAlways, String... command) throws InterruptedException {
         List<Container> containers = findContainer(compose.getContainer_name());
         if (containers.isEmpty()) {
             HealthCheck healthCheck = getHealthCheck(compose.getHealthcheck());
-            List<String> env = compose.getEnvironment() != null ? compose.getEnvironmentList() : List.of();
+
+            List<String> env = new ArrayList<>();
+            if (compose.getEnv_file() != null) {
+                env.addAll(codeService.getComposeEnvironmentVariables(compose));
+            } else {
+                env.addAll(compose.getEnvironmentList());
+            }
 
             LOGGER.infof("Compose Service started for %s in network:%s", compose.getContainer_name(), networkName);
 
@@ -184,7 +199,7 @@ public class DockerService extends DockerServiceUtils {
             }
 
             return createContainer(compose.getContainer_name(), compose.getImage(),
-                    env, compose.getPortsMap(), healthCheck, labels, volumes, networkName, restartPolicy, command);
+                    env, compose.getPortsMap(), healthCheck, labels, volumes, networkName, restartPolicy, pullAlways, command);
 
         } else {
             LOGGER.info("Compose Service already exists: " + containers.get(0).getId());
@@ -200,10 +215,11 @@ public class DockerService extends DockerServiceUtils {
     public Container createContainer(String name, String image, List<String> env, Map<Integer, Integer> ports,
                                      HealthCheck healthCheck, Map<String, String> labels,
                                      Map<String, String> volumes, String network, RestartPolicy restartPolicy,
+                                     boolean pullAlways,
                                      String... command) throws InterruptedException {
         List<Container> containers = findContainer(name);
         if (containers.isEmpty()) {
-            pullImage(image);
+            pullImage(image, pullAlways);
 
             CreateContainerCmd createContainerCmd = getDockerClient().createContainerCmd(image)
                     .withName(name).withLabels(labels).withEnv(env).withHostName(name).withHealthcheck(healthCheck);
@@ -290,7 +306,7 @@ public class DockerService extends DockerServiceUtils {
         dockerClient.execStartCmd(id).exec(callBack).awaitCompletion();
     }
 
-    public void copyFiles(String containerId, String containerPath, Map<String, String> files, boolean dirChildrenOnly) throws IOException {
+    protected void copyFiles(String containerId, String containerPath, Map<String, String> files, boolean dirChildrenOnly) throws IOException {
         String temp = codeService.saveProjectFilesInTemp(files);
         dockerClient.copyArchiveToContainerCmd(containerId).withRemotePath(containerPath)
                 .withDirChildrenOnly(dirChildrenOnly).withHostResource(temp).exec();
@@ -355,7 +371,7 @@ public class DockerService extends DockerServiceUtils {
         List<Container> containers = findContainer(name);
         if (containers.size() == 1) {
             Container container = containers.get(0);
-            if (container.getState().equals("running")) {
+            if (container.getState().equals("running") || container.getState().equals("paused")) {
                 getDockerClient().stopContainerCmd(container.getId()).exec();
             }
         }
@@ -369,20 +385,31 @@ public class DockerService extends DockerServiceUtils {
         }
     }
 
-    public void pullImage(String image) throws InterruptedException {
+    public void pullImage(String image, boolean pullAlways) throws InterruptedException {
         List<Image> images = getDockerClient().listImagesCmd().withShowAll(true).exec();
         List<String> tags = images.stream()
                 .map(i -> Arrays.stream(i.getRepoTags()).collect(Collectors.toList()))
                 .flatMap(Collection::stream)
                 .toList();
 
-        if (!images.stream().anyMatch(i -> tags.contains(image))) {
-            ResultCallback.Adapter<PullResponseItem> pull = getDockerClient().pullImageCmd(image).start().awaitCompletion();
+        if (pullAlways || !images.stream().anyMatch(i -> tags.contains(image))) {
+            var callback = new PullCallback(LOGGER::info);
+            getDockerClient().pullImageCmd(image).exec(callback);
+            callback.awaitCompletion();
         }
     }
 
     private DockerClientConfig getDockerClientConfig() {
+        LOGGER.info("Docker Client Configuring....");
+        LOGGER.info("Docker Client Registry " + registry);
+        LOGGER.info("Docker Client Username " + (username.isPresent() ? "is not empty " : "is empty"));
+        LOGGER.info("Docker Client Password " + (password.isPresent() ? "is not empty " : "is empty"));
         DefaultDockerClientConfig.Builder builder =  DefaultDockerClientConfig.createDefaultConfigBuilder();
+        if (!Objects.equals(registry, "registry:5000") && username.isPresent() && password.isPresent()) {
+            builder.withRegistryUrl(registry);
+            builder.withRegistryUsername(username.get());
+            builder.withRegistryPassword(password.get());
+        }
         return builder.build();
     }
 

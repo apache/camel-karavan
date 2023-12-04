@@ -17,11 +17,14 @@
 
 package org.apache.camel.karavan.code.model;
 
+
 import java.util.HashMap;
 import java.util.Map;
 
 public class DockerCompose {
+    private String version;
     private Map<String, DockerComposeService> services;
+    private Map<String, DockerComposeNetwork> networks;
 
     public DockerCompose() {
     }
@@ -42,5 +45,21 @@ public class DockerCompose {
 
     public void setServices(Map<String, DockerComposeService> services) {
         this.services = services;
+    }
+
+    public String getVersion() {
+        return version;
+    }
+
+    public void setVersion(String version) {
+        this.version = version;
+    }
+
+    public Map<String, DockerComposeNetwork> getNetworks() {
+        return networks;
+    }
+
+    public void setNetworks(Map<String, DockerComposeNetwork> networks) {
+        this.networks = networks;
     }
 }

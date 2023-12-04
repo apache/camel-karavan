@@ -29,6 +29,8 @@ import {ContainerStatus} from "../api/ProjectModels";
 import PauseIcon from "@patternfly/react-icons/dist/esm/icons/pause-icon";
 import DeleteIcon from "@patternfly/react-icons/dist/js/icons/times-icon";
 import {KaravanApi} from "../api/KaravanApi";
+import {useAppConfigStore} from "../api/ProjectStore";
+import {shallow} from "zustand/shallow";
 
 interface Props {
     index: number
@@ -37,6 +39,7 @@ interface Props {
 
 export function ContainerTableRow(props: Props) {
 
+    const [config] = useAppConfigStore((state) => [state.config], shallow);
     const [isExpanded, setIsExpanded] = useState<boolean>(false);
     const [showConfirmation, setShowConfirmation] = useState<boolean>(false);
     const [command, setCommand] = useState<'run' | 'pause' | 'stop' | 'delete'>();
@@ -50,14 +53,15 @@ export function ContainerTableRow(props: Props) {
 
     function getConfirmation() {
         return (<Modal
-            className="modal-delete"
+            className="modal-confirm"
             title="Confirmation"
+            variant={"small"}
             isOpen={showConfirmation}
             onClose={() => setShowConfirmation(false)}
             actions={[
                 <Button key="confirm" variant="primary" onClick={e => {
                     if (command) {
-                        KaravanApi.manageContainer(container.env, container.type, container.containerName, command, res => {
+                        KaravanApi.manageContainer(container.projectId, container.type, container.containerName, command, false,res => {
                         });
                         setCommand(undefined);
                         setShowConfirmation(false);
@@ -90,6 +94,9 @@ export function ContainerTableRow(props: Props) {
                         : undefined}
                     modifier={"fitContent"}>
                 </Td>
+                <Td>
+                    {container.env}
+                </Td>
                 <Td style={{verticalAlign: "middle"}} modifier={"fitContent"}>
                     <Badge className="badge">{container.type}</Badge>
                 </Td>
@@ -107,7 +114,7 @@ export function ContainerTableRow(props: Props) {
                     {inTransit && <Spinner size="lg" aria-label="spinner"/>}
                 </Td>
                 <Td>
-                    {container.type !== 'internal' &&
+                    {container.type !== 'internal' && container.env === config.environment &&
                         <Flex direction={{default: "row"}} flexWrap={{default: "nowrap"}}
                               spaceItems={{default: 'spaceItemsNone'}}>
                             <FlexItem>
