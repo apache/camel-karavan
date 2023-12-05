@@ -192,9 +192,6 @@ public final class CamelMetadataGenerator extends AbstractGenerator {
                         String labels = p != null && p.containsKey("label") ? p.getString("label") : "";
                         String javaType = getJavaType(p);
                         Boolean placeholder = Objects.equals(typeInCatalog, "string") && !Objects.equals(typeInCatalog, pm.type);
-                        if (placeholder) {
-                            System.out.println(name + " " + pname  + " " + typeInCatalog);
-                        }
                         if (name.equals("ProcessDefinition") && pname.equals("ref")) javaType = "org.apache.camel.Processor"; // exception for processor
                         code.append(String.format(
                                 "        new PropertyMeta('%s', '%s', \"%s\", '%s', '%s', '%s', %b, %b, %b, %b, '%s', '%s', %b),\n",
@@ -206,16 +203,6 @@ public final class CamelMetadataGenerator extends AbstractGenerator {
         });
         code.append("]\n\n");
         return code.toString();
-    }
-
-    private String getPropertyTypeInCatalog(String model, String property) {
-        String json = getMetaModel(model);
-        if (json != null) {
-            JsonObject props = new JsonObject(json).getJsonObject("properties");
-            JsonObject values = props.getJsonObject(property);
-            return values != null ? values.getString("type") : null;
-        }
-        return null;
     }
 
     private String getJavaType(JsonObject p) {

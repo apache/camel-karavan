@@ -273,6 +273,22 @@ public class AbstractGenerator {
         return Arrays.stream(name.split(separator)).map(s -> capitalize(s)).collect(Collectors.joining());
     }
 
+    protected boolean excludeProperty(String stepName, String name, String attributeType) {
+        var hasModelInCatalog = hasModelInCatalog(stepName);
+        var hasInCatalog = hasPropertyInCatalogIgnoreCase(stepName, name);
+        if (hasModelInCatalog
+                && !hasInCatalog
+                && !attributeType.contains("[]")
+                && !attributeType.contains("{}")
+                && !attributeType.contains("Definition")
+                && !attributeType.contains("DataFormat")
+                && !attributeType.contains("FilterConfiguration")
+                && !attributeType.contains("Expression")) {
+            return true;
+        }
+        return false;
+    }
+
     protected String capitalize(String str) {
         return str.length() == 0 ? str
                 : str.length() == 1 ? str.toUpperCase()
@@ -294,6 +310,39 @@ public class AbstractGenerator {
         } catch (Exception e) {
             return null;
         }
+    }
+
+    protected String getPropertyTypeInCatalog(String model, String property) {
+        String json = getMetaModel(model);
+        if (json != null) {
+            JsonObject props = new JsonObject(json).getJsonObject("properties");
+            JsonObject values = props.getJsonObject(property);
+            return values != null ? values.getString("type") : null;
+        }
+        return null;
+    }
+
+    protected boolean hasPropertyInCatalog(String model, String property) {
+        String json = getMetaModel(model);
+        if (json != null) {
+            JsonObject props = new JsonObject(json).getJsonObject("properties");
+            return props.containsKey(property);
+        }
+        return false;
+    }
+
+    protected boolean hasPropertyInCatalogIgnoreCase(String model, String property) {
+        String json = getMetaModel(model);
+        if (json != null) {
+            JsonObject props = new JsonObject(json).getJsonObject("properties");
+            return props.getMap().keySet().stream().map(String::toLowerCase).anyMatch(k -> Objects.equals(k, property.toLowerCase()));
+        }
+        return false;
+    }
+
+    protected boolean hasModelInCatalog(String model) {
+        String json = getMetaModel(model);
+        return json != null;
     }
 
     protected String getMetaDataFormat(String name) {
