@@ -90,6 +90,7 @@ public final class CamelDefinitionGenerator extends AbstractGenerator {
                 attrs.add("    " + name + r + ": " + attributeType);
             }
         });
+
         String s2 = String.join(";\n", attrs) + ((attrs.isEmpty()) ? "" : ";");
         return String.format(readFileText(modelTemplate), className, s2);
     }

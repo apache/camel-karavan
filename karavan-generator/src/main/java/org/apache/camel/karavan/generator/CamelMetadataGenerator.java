@@ -164,7 +164,7 @@ public final class CamelMetadataGenerator extends AbstractGenerator {
             if (json != null) {
                 JsonObject model = new JsonObject(json).getJsonObject("model");
                 JsonObject props = new JsonObject(json).getJsonObject("properties");
-                List propsLowerCase = props.getMap().keySet().stream().map(s -> s.toLowerCase()).collect(Collectors.toList());
+                List<String> propsLowerCase = props.getMap().keySet().stream().map(String::toLowerCase).collect(Collectors.toList());
 
                 Comparator<String> comparator = Comparator.comparing(e -> {
                     if (propsLowerCase.contains(e.toLowerCase())) return propsLowerCase.indexOf(e.toLowerCase());
@@ -180,7 +180,7 @@ public final class CamelMetadataGenerator extends AbstractGenerator {
                     JsonObject p = props.getJsonObject(pname);
                     if ("inheritErrorHandler".equals(pname) && p == null) {
                     } else {
-
+                        String typeInCatalog = getPropertyTypeInCatalog(stepName, pname);
                         PropertyMeta pm = getAttributeType(pname, new JsonObject((Map) v));
                         String displayName = p != null && p.containsKey("displayName") ? p.getString("displayName") : pname;
                         String desc = p != null && p.containsKey("description") ? p.getString("description") : pname;
@@ -191,10 +191,14 @@ public final class CamelMetadataGenerator extends AbstractGenerator {
                         defaultValue = defaultValue.length() == 1 && defaultValue.toCharArray()[0] == '\\' ? "\\\\" : defaultValue;
                         String labels = p != null && p.containsKey("label") ? p.getString("label") : "";
                         String javaType = getJavaType(p);
+                        Boolean placeholder = Objects.equals(typeInCatalog, "string") && !Objects.equals(typeInCatalog, pm.type);
+                        if (placeholder) {
+                            System.out.println(name + " " + pname  + " " + typeInCatalog);
+                        }
                         if (name.equals("ProcessDefinition") && pname.equals("ref")) javaType = "org.apache.camel.Processor"; // exception for processor
                         code.append(String.format(
-                                "        new PropertyMeta('%s', '%s', \"%s\", '%s', '%s', '%s', %b, %b, %b, %b, '%s', '%s'),\n",
-                                pname, displayName, desc, pm.type, en, defaultValue, required, secret, pm.isArray, (pm.isArray ? pm.type : pm.isObject), labels, javaType));
+                                "        new PropertyMeta('%s', '%s', \"%s\", '%s', '%s', '%s', %b, %b, %b, %b, '%s', '%s', %b),\n",
+                                pname, displayName, desc, pm.type, en, defaultValue, required, secret, pm.isArray, (pm.isArray ? pm.type : pm.isObject), labels, javaType, placeholder));
                     }
                 });
                 code.append("    ]),\n");
@@ -202,6 +206,16 @@ public final class CamelMetadataGenerator extends AbstractGenerator {
         });
         code.append("]\n\n");
         return code.toString();
+    }
+
+    private String getPropertyTypeInCatalog(String model, String property) {
+        String json = getMetaModel(model);
+        if (json != null) {
+            JsonObject props = new JsonObject(json).getJsonObject("properties");
+            JsonObject values = props.getJsonObject(property);
+            return values != null ? values.getString("type") : null;
+        }
+        return null;
     }
 
     private String getJavaType(JsonObject p) {

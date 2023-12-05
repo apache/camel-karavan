@@ -1,4 +1,6 @@
-- routeConfiguration:
-    onException:
-      - onException:
-          id: onException-78ab
+- route:
+    nodePrefixId: route-1e7
+    id: route-3f85
+    from:
+      uri: timer
+      id: from-cfa5

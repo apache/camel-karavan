@@ -41,6 +41,7 @@ import {
     SelectOption
 } from '@patternfly/react-core/deprecated';
 import '../../karavan.css';
+import './DslPropertyField.css';
 import "@patternfly/patternfly/patternfly.css";
 import HelpIcon from "@patternfly/react-icons/dist/js/icons/help-icon";
 import DeleteIcon from "@patternfly/react-icons/dist/js/icons/times-circle-icon";
@@ -376,14 +377,39 @@ export function DslPropertyField(props: Props) {
     }
 
     function getSwitch(property: PropertyMeta, value: any) {
-        const isChecked = value !== undefined ? Boolean(value) : Boolean(property.defaultValue !== undefined && property.defaultValue === 'true');
+        const isValueBoolean = (value === true || value === false);
+        const isDisabled = value !== undefined && !isValueBoolean;
+        let isChecked = false;
+        if (value !== undefined && isValueBoolean) {
+            isChecked = Boolean(value);
+        } else if ((value === undefined || value.toString().length > 0) && property.defaultValue !== undefined) {
+            isChecked = property.defaultValue === 'true';
+        }
         return (
-            <Switch
-                id={property.name} name={property.name}
-                value={value?.toString()}
-                aria-label={property.name}
-                isChecked={isChecked}
-                onChange={(_, v) => propertyChanged(property.name, v)}/>
+            <TextInputGroup className="input-group">
+                <InputGroupItem>
+                    <Switch
+                        isDisabled={isDisabled}
+                        id={property.name + "-switch"}
+                        name={property.name + "-switch"}
+                        className="switch-placeholder"
+                        value={value?.toString()}
+                        aria-label={property.name}
+                        isChecked={isChecked}
+                        onChange={(_, v) => propertyChanged(property.name, v)}/>
+                </InputGroupItem>
+                {property.placeholder && <InputGroupItem isFill>
+                    <TextInput
+                        id={property.name + "-placeholder"}
+                        name={property.name + "-placeholder"}
+                        type="text"
+                        aria-label="placeholder"
+                        placeholder="Property placeholder"
+                        value={!isValueBoolean ? value?.toString() : undefined}
+                        onChange={(_, v) => propertyChanged(property.name, v)}
+                    />
+                </InputGroupItem>}
+            </TextInputGroup>
         )
     }
 
@@ -599,7 +625,6 @@ export function DslPropertyField(props: Props) {
     }
 
     function getMultiValueField(property: PropertyMeta, value: any) {
-        console.log(property)
         return (
             <div>
                 <TextInputGroup className="input-group">
