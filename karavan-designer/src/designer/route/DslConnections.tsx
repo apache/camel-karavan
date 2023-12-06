@@ -283,7 +283,7 @@ export function DslConnections() {
             if (parent) {
             const rect1 = parent.headerRect;
             const rect2 = pos.headerRect;
-            return getComplexArrow(pos.step.uuid, rect1, rect2);
+            return getComplexArrow(pos.step.uuid + ":" + pos.parent.uuid, rect1, rect2);
             }
         }
     }
@@ -294,7 +294,7 @@ export function DslConnections() {
         const nextStep = steps.get(uuid);
         const rect2 = nextStep?.rect;
         if (rect1 && rect2) {
-            return getComplexArrow(uuid, rect1, rect2);
+            return getComplexArrow(uuid + "-" + btn.nextstep.uuid, rect1, rect2);
         }
     }
 

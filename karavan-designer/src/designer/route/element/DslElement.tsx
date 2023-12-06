@@ -14,20 +14,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import React, {CSSProperties, useMemo, useState} from 'react';
-import {Text, Tooltip,} from '@patternfly/react-core';
+import React, {CSSProperties, useState} from 'react';
+import {Tooltip,} from '@patternfly/react-core';
 import '../../karavan.css';
 import './DslElement.css';
 import {CamelElement} from "karavan-core/lib/model/IntegrationDefinition";
-import {CamelUi} from "../../utils/CamelUi";
 import {EventBus} from "../../utils/EventBus";
 import {ChildElement, CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt";
-import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
 import {CamelDisplayUtil} from "karavan-core/lib/api/CamelDisplayUtil";
 import {useDesignerStore, useIntegrationStore} from "../../DesignerStore";
 import {shallow} from "zustand/shallow";
 import {useRouteDesignerHook} from "../useRouteDesignerHook";
-import {AddElementIcon, DeleteElementIcon, InsertElementIcon} from "./DslElementIcons";
+import {AddElementIcon} from "./DslElementIcons";
+import {DslElementHeader} from "./DslElementHeader";
 
 interface Props {
     step: CamelElement,
@@ -70,11 +69,6 @@ export function DslElement(props: Props) {
         }
     }
 
-    function onDeleteElement(evt: React.MouseEvent) {
-        evt.stopPropagation();
-        onShowDeleteConfirmation(props.step.uuid);
-    }
-
     function onSelectElement(evt: React.MouseEvent) {
         evt.stopPropagation();
         selectElement(props.step);
@@ -106,11 +100,11 @@ export function DslElement(props: Props) {
 
     function hasBorder(): boolean {
         const step = props.step;
-        if (['FilterDefinition'].includes(step.dslName)) {
+        if (['FilterDefinition', 'RouteDefinition', 'RouteConfigurationDefinition'].includes(step.dslName)) {
             return true;
         }
-        if (['FromDefinition',
-            'RouteDefinition',
+        if ([
+            'FromDefinition',
             'TryDefinition',
             'CatchDefinition', 'FinallyDefinition',
             'ChoiceDefinition',
@@ -125,9 +119,8 @@ export function DslElement(props: Props) {
         return ['FromDefinition', 'RouteConfigurationDefinition', 'RouteDefinition', 'WhenDefinition', 'OtherwiseDefinition'].includes(props.step.dslName);
     }
 
-    function isWide(): boolean {
-        return ['RouteConfigurationDefinition', 'RouteDefinition', 'ChoiceDefinition', 'SwitchDefinition', 'MulticastDefinition', 'TryDefinition', 'CircuitBreakerDefinition']
-            .includes(props.step.dslName);
+    function isRoute(): boolean {
+        return ['RouteDefinition'].includes(props.step.dslName);
     }
 
     function isAddStepButtonLeft(): boolean {
@@ -139,57 +132,11 @@ export function DslElement(props: Props) {
         return ['MulticastDefinition'].includes(props.step.dslName);
     }
 
-    function isRoot(): boolean {
-        return ['RouteConfigurationDefinition', 'RouteDefinition'].includes(props.step?.dslName);
-    }
 
     function isInStepWithChildren() {
         const step: CamelElement = props.step;
         const children = CamelDefinitionApiExt.getElementChildrenDefinition(step.dslName);
         return children.filter((c: ChildElement) => c.name === 'steps' || c.multiple).length > 0 && props.inSteps;
-    }
-
-    function getChildrenInfo(step: CamelElement): [boolean, number, boolean, number, number] {
-        const children = CamelDefinitionApiExt.getElementChildrenDefinition(step.dslName);
-        const hasStepsField = children.filter((c: ChildElement) => c.name === 'steps').length === 1;
-        const stepsChildrenCount = children
-            .filter(c => c.name === 'steps')
-            .map((child: ChildElement, index: number) => {
-                const children: CamelElement[] = CamelDefinitionApiExt.getElementChildren(step, child);
-                return children.length;
-            }).reduce((a, b) => a + b, 0);
-
-        const hasNonStepsFields = children.filter(c => c.name !== 'steps' && c.name !== 'expression' && c.name !== 'onWhen').length > 0;
-        const childrenCount = children
-            .map((child: ChildElement, index: number) => {
-                const children: CamelElement[] = CamelDefinitionApiExt.getElementChildren(step, child);
-                return children.length;
-            }).reduce((a, b) => a + b, 0);
-        const nonStepChildrenCount = childrenCount - stepsChildrenCount;
-        return [hasStepsField, stepsChildrenCount, hasNonStepsFields, nonStepChildrenCount, childrenCount]
-    }
-
-    function hasWideChildrenElement() {
-        const [hasStepsField, stepsChildrenCount, hasNonStepsFields, nonStepChildrenCount, childrenCount] = getChildrenInfo(props.step);
-        if (isHorizontal() && stepsChildrenCount > 1) return true;
-        else if (hasStepsField && stepsChildrenCount > 0 && hasNonStepsFields && nonStepChildrenCount > 0) return true;
-        else if (!hasStepsField && hasNonStepsFields && childrenCount > 1) return true;
-        else if (hasStepsField && stepsChildrenCount > 0 && hasNonStepsFields && childrenCount > 1) return true;
-        else return false;
-    }
-
-    function hasBorderOverSteps(step: CamelElement) {
-        const [hasStepsField, stepsChildrenCount, hasNonStepsFields, nonStepChildrenCount] = getChildrenInfo(step);
-        if (hasStepsField && stepsChildrenCount > 0 && hasNonStepsFields && nonStepChildrenCount > 0) return true;
-        else return false;
-    }
-
-    function getHeaderStyle() {
-        const style: CSSProperties = {
-            width: isWide() ? "100%" : "",
-            fontWeight: isElementSelected() ? "bold" : "normal",
-        };
-        return style;
     }
 
     function sendButtonPosition(el: HTMLButtonElement | null) {
@@ -233,97 +180,6 @@ export function DslElement(props: Props) {
         }
     }
 
-    function getAvailableModels() { // TODO: make static list-of-values instead
-        const step: CamelElement = props.step
-        return CamelUi.getSelectorModelsForParent(step.dslName, false);
-    }
-
-    const availableModels = useMemo(
-        () => getAvailableModels(),
-        [props.step.dslName]
-    );
-
-
-    function getHeader() {
-        const step: CamelElement = props.step;
-        const parent = props.parent;
-        const inRouteConfiguration = parent !== undefined && parent.dslName === 'RouteConfigurationDefinition';
-        const showAddButton = !['CatchDefinition', 'RouteDefinition'].includes(step.dslName) && availableModels.length > 0;
-        const showInsertButton =
-            !['FromDefinition', 'RouteConfigurationDefinition', 'RouteDefinition', 'CatchDefinition', 'FinallyDefinition', 'WhenDefinition', 'OtherwiseDefinition'].includes(step.dslName)
-            && !inRouteConfiguration;
-        const headerClass = ['RouteConfigurationDefinition', 'RouteDefinition'].includes(step.dslName) ? "header-route" : "header"
-        const headerClasses = isElementSelected() ? headerClass + " selected" : headerClass;
-        return (
-            <div className={"dsl-element " + headerClasses} style={getHeaderStyle()} ref={headerRef}>
-                {!['RouteConfigurationDefinition', 'RouteDefinition'].includes(props.step.dslName) &&
-                    <div
-                        ref={el => sendPosition(el)}
-                        className={"header-icon"}
-                        style={isWide() ? {width: ""} : {}}>
-                        {CamelUi.getIconForElement(step)}
-                    </div>
-                }
-                <div className={hasWideChildrenElement() ? "header-text" : ""}>
-                    {hasWideChildrenElement() && <div className="spacer"/>}
-                    {getHeaderTextWithTooltip(step)}
-                </div>
-                {showInsertButton && getInsertElementButton()}
-                {getDeleteButton()}
-                {showAddButton && getAddElementButton()}
-            </div>
-        )
-    }
-
-    function getHeaderText(step: CamelElement): string {
-        if (isKamelet() && step.dslName === 'ToDefinition' && (step as any).uri === 'kamelet:sink') {
-            return "Sink";
-        } else if (isKamelet() && step.dslName === 'FromDefinition' && (step as any).uri === 'kamelet:source') {
-            return "Source";
-        } else {
-            return (step as any).description ? (step as any).description : CamelUi.getElementTitle(props.step);
-        }
-    }
-
-    function getHeaderTextWithTooltip(step: CamelElement) {
-        const checkRequired = CamelUtil.checkRequired(step);
-        const title = getHeaderText(step);
-        let className = hasWideChildrenElement() ? "text text-right" : "text text-bottom";
-        if (!checkRequired[0]) className = className + " header-text-required";
-        if (checkRequired[0]) {
-            return <Text className={className}>{title}</Text>
-        } else return (
-            <Tooltip position={"right"} className="tooltip-required-field"
-                     content={checkRequired[1].map((text, i) => (<div key={i}>{text}</div>))}>
-                <Text className={className}>{title}</Text>
-            </Tooltip>
-        )
-    }
-
-    function getHeaderWithTooltip(tooltip: string | undefined) {
-        return (
-            <>
-                {getHeader()}
-                <Tooltip triggerRef={headerRef} position={"left"} content={<div>{tooltip}</div>}/>
-            </>
-
-        )
-    }
-
-    function getHeaderTooltip(): string | undefined {
-        if (CamelUi.isShowExpressionTooltip(props.step)) return CamelUi.getExpressionTooltip(props.step);
-        if (CamelUi.isShowUriTooltip(props.step)) return CamelUi.getUriTooltip(props.step);
-        return undefined;
-    }
-
-    function getElementHeader() {
-        const tooltip = getHeaderTooltip();
-        if (tooltip !== undefined && !isDragging) {
-            return getHeaderWithTooltip(tooltip);
-        }
-        return getHeader();
-    }
-
     function getChildrenStyle() {
         const style: CSSProperties = {
             display: "flex",
@@ -333,8 +189,6 @@ export function DslElement(props: Props) {
     }
 
     function getChildrenElementsStyle(child: ChildElement, notOnlySteps: boolean) {
-        const step = props.step;
-        const isBorder = child.name === 'steps' && hasBorderOverSteps(step);
         const style: CSSProperties = {
             // borderStyle: isBorder ? "dotted" : "none",
             borderColor: "var(--step-border-color)",
@@ -408,7 +262,7 @@ export function DslElement(props: Props) {
     }
 
     function getAddStepButton() {
-        const {step, nextStep} = props;
+        const {step} = props;
         const hideAddButton = step.dslName === 'StepDefinition' && !CamelDisplayUtil.isStepDefinitionExpanded(integration, step.uuid, selectedUuids.at(0));
         if (hideAddButton) return (<></>)
         else return (
@@ -426,44 +280,6 @@ export function DslElement(props: Props) {
 
                 </Tooltip>
             </div>
-        )
-    }
-
-    function getAddElementButton() {
-        return (
-            <Tooltip position={"bottom"}
-                     content={<div>{"Add DSL element to " + CamelDisplayUtil.getTitle(props.step)}</div>}>
-                <button
-                    type="button"
-                    aria-label="Add"
-                    onClick={e => onOpenSelector(e, false)}
-                    className={"add-element-button"}>
-                    <AddElementIcon/>
-                </button>
-            </Tooltip>
-        )
-    }
-
-    function getInsertElementButton() {
-        return (
-            <Tooltip position={"left"} content={<div>{"Insert element before"}</div>}>
-                <button type="button"
-                        aria-label="Insert"
-                        onClick={e => onOpenSelector(e, true, true)}
-                        className={"insert-element-button"}>
-                    <InsertElementIcon/>
-                </button>
-            </Tooltip>
-        )
-    }
-
-    function getDeleteButton() {
-        return (
-            <Tooltip position={"right"} content={<div>{"Delete element"}</div>}>
-                <button type="button" aria-label="Delete" onClick={e => onDeleteElement(e)} className="delete-button">
-                    <DeleteElementIcon/>
-                </button>
-            </Tooltip>
         )
     }
 
@@ -516,7 +332,14 @@ export function DslElement(props: Props) {
              onDrop={event => dragElement(event, element)}
              draggable={!isNotDraggable()}
         >
-            {getElementHeader()}
+            <DslElementHeader headerRef={headerRef}
+                              step={props.step}
+                              parent={props.parent}
+                              nextStep={props.nextStep}
+                              prevStep={props.prevStep}
+                              inSteps={props.inSteps}
+                              isDragging={isDragging}
+                              position={props.position}/>
             {getChildElements()}
         </div>
     )

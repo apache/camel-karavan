@@ -32,6 +32,25 @@
                     message: ${body}
                     id: log-6831
             id: choice-c1db
+        - saga:
+            id: saga-8f2c
+            steps:
+              - to:
+                  uri: kamelet:azure-cosmosdb-sink
+                  id: to-1394
+- route:
+    nodePrefixId: route-d10
+    id: route-3ad9
+    from:
+      uri: kamelet:azure-storage-datalake-source
+      id: from-1516
+- route:
+    nodePrefixId: route-171
+    id: route-99f9
+    from:
+      uri: kamelet:azure-storage-blob-source
+      id: from-f8e9
+      steps:
         - multicast:
             id: multicast-6a53
             steps:

@@ -17,12 +17,19 @@
 
 .karavan .dsl-page .flows .step-element .header-route {
     display: block;
-    border: none;
     background: transparent;
-    padding: 0;
-    margin: 3px 24px 10px 24px;
-    /*min-width: 260px;*/
+    padding: 10px;
+    margin: 0;
     z-index: 101;
+    min-width: 260px;
+}
+
+.karavan .dsl-page .flows .step-element .header-bottom-line {
+    border-bottom: 1px dashed;
+}
+
+.karavan .dsl-page .flows .step-element .header-route:hover {
+    cursor: pointer;
 }
 
 .karavan .step-element .header-route .delete-button {
