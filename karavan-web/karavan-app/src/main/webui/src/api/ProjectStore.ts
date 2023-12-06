@@ -36,6 +36,9 @@ interface AppConfigState {
     setConfig: (config: AppConfig) => void;
     readiness: any;
     setReadiness: (readiness: any) => void;
+    selectedEnv: string[];
+    setSelectedEnv: (selectedEnv: string[]) => void;
+    selectEnvironment: (name: string, selected: boolean) => void;
 }
 
 export const useAppConfigStore = createWithEqualityFn<AppConfigState>((set) => ({
@@ -57,6 +60,27 @@ export const useAppConfigStore = createWithEqualityFn<AppConfigState>((set) => (
             }
         });
     },
+    selectedEnv: [],
+    setSelectedEnv: (selectedEnv: string[])   => {
+        set((state: AppConfigState) => {
+            state.selectedEnv.length = 0;
+            state.selectedEnv.push(...selectedEnv);
+            return {selectedEnv: state.selectedEnv};
+        });
+    },
+    selectEnvironment(name: string, selected: boolean) {
+        console.log(name, selected)
+        set((state: AppConfigState) => {
+            if (selected && !state.selectedEnv.includes(name)) {
+                state.selectedEnv.push(name);
+            } else if (!selected && state.selectedEnv.includes(name)) {
+                const filtered = state.selectedEnv.filter(e => e !== name);
+                state.selectedEnv.length = 0;
+                state.selectedEnv.push(...filtered);
+            }
+            return {selectedEnv: state.selectedEnv};
+        });
+    }
 }), shallow)
 
 
@@ -83,6 +107,7 @@ export const useProjectsStore = createWithEqualityFn<ProjectsState>((set) => ({
 }), shallow)
 
 interface ProjectState {
+    isPulling: boolean,
     isPushing: boolean,
     isRunning: boolean,
     images: string [],
@@ -107,6 +132,7 @@ export const useProjectStore = createWithEqualityFn<ProjectState>((set) => ({
     operation: 'none',
     tabIndex: 'files',
     isPushing: false,
+    isPulling: false,
     isRunning: false,
     setProject: (project: Project, operation:  "create" | "select" | "delete"| "none" | "copy") => {
         set((state: ProjectState) => ({

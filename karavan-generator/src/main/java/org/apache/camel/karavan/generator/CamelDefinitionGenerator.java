@@ -81,15 +81,20 @@ public final class CamelDefinitionGenerator extends AbstractGenerator {
             String generatedValue = ("id".equals(name) && stepName != null && !"routeConfiguration".equals(stepName)) ? "'" + stepName + "-' + uuidv4().substring(0,4)" : null;
             String attributeType = getAttributeType(name, attributeValue, req, definitions, generatedValue);
 
+            var excludeProperty  = excludeProperty(stepName, name, attributeType);
+
             String r = req ? "" : "?";
             name = name.equals("constructor") ? "_constructor" : name; // exception for YAMLDataFormat
             if (className.equals("ChoiceDefinition") && name.equals("steps")) { // exception for ChoiceDefinition
             } else if (className.equals("SwitchDefinition") && name.equals("steps")) { // exception for SwitchDefinition
             } else if (className.equals("KameletDefinition") && name.equals("steps")) { // exception for KameletDefinition
+            } else if (excludeProperty) {
+
             } else if (!Objects.equals(attributeType, "null")) {
                 attrs.add("    " + name + r + ": " + attributeType);
             }
         });
+
         String s2 = String.join(";\n", attrs) + ((attrs.isEmpty()) ? "" : ";");
         return String.format(readFileText(modelTemplate), className, s2);
     }

@@ -47,7 +47,7 @@ public class DockerForInfinispan {
             var compose = codeService.getInternalDockerComposeService(INFINISPAN_CONTAINER_NAME);
             compose.addEnvironment("USER", infinispanUsername);
             compose.addEnvironment("PASS", infinispanPassword);
-            dockerService.createContainerFromCompose(compose, ContainerStatus.ContainerType.internal);
+            dockerService.createContainerFromCompose(compose, ContainerStatus.ContainerType.internal, false);
             dockerService.runContainer(INFINISPAN_CONTAINER_NAME);
             LOGGER.info("Infinispan is started");
         } catch (Exception e) {

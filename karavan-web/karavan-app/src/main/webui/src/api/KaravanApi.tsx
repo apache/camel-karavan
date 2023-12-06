@@ -294,14 +294,12 @@ export class KaravanApi {
         });
     }
 
-    static async pull(projectId: string, after: (res: AxiosResponse<any>) => void) {
-        instance.get('/api/git/' + projectId)
+    static async pull(projectId: string, after: (res: AxiosResponse<any> | any) => void) {
+        instance.put('/api/git/' + projectId)
             .then(res => {
-                if (res.status === 200) {
-                    after(res.data);
-                }
+                after(res);
             }).catch(err => {
-            console.log(err);
+            after(err);
         });
     }
 
@@ -463,12 +461,13 @@ export class KaravanApi {
         });
     }
 
-    static async manageContainer(environment: string,
+    static async manageContainer(projectId: string,
                                  type: 'devmode' | 'devservice' | 'project' | 'internal' | 'build' | 'unknown',
                                  name: string,
-                                 command: 'run' | 'pause' | 'stop' | 'delete',
-                                 after: (res: AxiosResponse<any>) => void) {
-        instance.post('/api/container/' + environment + '/' + type + "/" + name, {command: command})
+                                 command: 'deploy' | 'run' | 'pause' | 'stop' | 'delete',
+                                 pullImage: boolean,
+                                 after: (res: AxiosResponse<any> | any) => void) {
+        instance.post('/api/container/' + projectId + '/' + type + "/" + name, {command: command, pullImage: pullImage})
             .then(res => {
                 after(res);
             }).catch(err => {
@@ -476,8 +475,8 @@ export class KaravanApi {
         });
     }
 
-    static async deleteContainer(environment: string, type: 'devmode' | 'devservice' | 'project' | 'internal' | 'build' | 'unknown', name: string, after: (res: AxiosResponse<any>) => void) {
-        instance.delete('/api/container/' + environment + '/' + type + "/" + name)
+    static async deleteContainer(projectId: string, type: 'devmode' | 'devservice' | 'project' | 'internal' | 'build' | 'unknown', name: string, after: (res: AxiosResponse<any>) => void) {
+        instance.delete('/api/container/' + projectId + '/' + type + "/" + name)
             .then(res => {
                 after(res);
             }).catch(err => {

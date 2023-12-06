@@ -22,6 +22,7 @@ import {
     TextVariants, ExpandableSection, Button, Tooltip,
 } from '@patternfly/react-core';
 import '../karavan.css';
+import './DslProperties.css';
 import "@patternfly/patternfly/patternfly.css";
 import {DataFormatField} from "./property/DataFormatField";
 import {DslPropertyField} from "./property/DslPropertyField";
@@ -30,6 +31,7 @@ import {CamelUi} from "../utils/CamelUi";
 import {CamelMetadataApi, DataFormats, PropertyMeta} from "karavan-core/lib/model/CamelMetadata";
 import {IntegrationHeader} from "../utils/IntegrationHeader";
 import CloneIcon from "@patternfly/react-icons/dist/esm/icons/clone-icon";
+import ConvertIcon from "@patternfly/react-icons/dist/esm/icons/optimize-icon";
 import {useDesignerStore, useIntegrationStore} from "../DesignerStore";
 import {shallow} from "zustand/shallow";
 import {usePropertiesHook} from "./usePropertiesHook";
@@ -43,7 +45,8 @@ export function DslProperties(props: Props) {
 
     const [integration] = useIntegrationStore((state) => [state.integration], shallow)
 
-    const {cloneElement, onDataFormatChange, onPropertyChange, onParametersChange, onExpressionChange} = usePropertiesHook(props.isRouteDesigner);
+    const {convertStep, cloneElement, onDataFormatChange, onPropertyChange, onParametersChange, onExpressionChange} =
+        usePropertiesHook(props.isRouteDesigner);
 
     const [selectedStep, dark] = useDesignerStore((s) => [s.selectedStep, s.dark], shallow)
 
@@ -54,10 +57,26 @@ export function DslProperties(props: Props) {
         const title = selectedStep && CamelDisplayUtil.getTitle(selectedStep)
         const description = selectedStep && CamelUi.getDescription(selectedStep);
         const descriptionLines: string [] = description ? description?.split("\n") : [""];
+        const targetDsl = CamelUi.getConvertTargetDsl(selectedStep?.dslName);
+        const targetDslTitle = targetDsl?.replace("Definition", "");
         return (
             <div className="headers">
                 <div className="top">
                     <Title headingLevel="h1" size="md">{title}</Title>
+                    {targetDsl &&
+                        <Button
+                            variant={"link"}
+                            icon={<ConvertIcon/>}
+                            iconPosition={"right"}
+                            onClick={event => {
+                                if (selectedStep) {
+                                    convertStep(selectedStep, targetDsl);
+                                }
+                            }}
+                        >
+                            Convert to {targetDslTitle}
+                        </Button>
+                    }
                 </div>
                 <Text component={TextVariants.p}>{descriptionLines.at(0)}</Text>
                 {descriptionLines.length > 1 &&

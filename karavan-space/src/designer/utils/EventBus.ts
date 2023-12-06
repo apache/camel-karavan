@@ -18,10 +18,26 @@ import {Subject} from 'rxjs';
 import {CamelElement, Integration} from "karavan-core/lib/model/IntegrationDefinition";
 import {v4 as uuidv4} from "uuid";
 
-const positions = new Subject<DslPosition>();
+export class ButtonPosition {
+    uuid: string = '';
+    nextstep: CamelElement = new CamelElement("");
+    rect: DOMRect = new DOMRect();
+    command: "add" | "delete" | "clean" = "add";
+
+    constructor(command: "add" | "delete" | "clean",
+                uuid: string,
+                nextstep: CamelElement,
+                rect: DOMRect) {
+        this.uuid = uuid;
+        this.command = command;
+        this.nextstep = nextstep;
+        this.rect = rect;
+    }
+}
 
 export class DslPosition {
     step: CamelElement = new CamelElement("");
+    prevStep: CamelElement | undefined;
     parent: CamelElement | undefined;
     inSteps: boolean = false;
     isSelected: boolean = false;
@@ -32,6 +48,7 @@ export class DslPosition {
 
     constructor(command: "add" | "delete" | "clean",
                 step: CamelElement,
+                prevStep: CamelElement | undefined,
                 parent:CamelElement | undefined,
                 rect: DOMRect,
                 headerRect:DOMRect,
@@ -40,6 +57,7 @@ export class DslPosition {
                 isSelected: boolean = false) {
         this.command = command;
         this.step = step;
+        this.prevStep = prevStep;
         this.parent = parent;
         this.rect = rect;
         this.headerRect = headerRect;
@@ -85,17 +103,25 @@ export class ToastMessage {
         this.variant = variant;
     }
 }
+const dslPositions = new Subject<DslPosition>();
+const buttonPositions = new Subject<ButtonPosition>();
 
 export const EventBus = {
     sendPosition: (command: "add" | "delete" | "clean",
                    step: CamelElement,
+                   prevStep: CamelElement | undefined,
                    parent: CamelElement | undefined,
                    rect: DOMRect,
                    headerRect: DOMRect,
                    position: number,
                    inSteps: boolean = false,
-                   isSelected: boolean = false) => positions.next(new DslPosition(command, step, parent, rect, headerRect, position, inSteps, isSelected)),
-    onPosition: () => positions.asObservable(),
+                   isSelected: boolean = false) => dslPositions.next(new DslPosition(command, step, prevStep, parent, rect, headerRect, position, inSteps, isSelected)),
+    onPosition: () => dslPositions.asObservable(),
+
+    sendButtonPosition: (command: "add" | "delete" | "clean", uuid: string,
+                   nextStep: CamelElement,
+                   rect: DOMRect) => buttonPositions.next(new ButtonPosition(command, uuid, nextStep, rect)),
+    onButtonPosition: () => buttonPositions.asObservable(),
 
     sendIntegrationUpdate: (i: Integration, propertyOnly: boolean) => updates.next(new IntegrationUpdate(i, propertyOnly)),
     onIntegrationUpdate: () => updates.asObservable(),

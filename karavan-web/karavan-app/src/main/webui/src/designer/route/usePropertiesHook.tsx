@@ -126,5 +126,14 @@ export function usePropertiesHook (isRouteDesigner: boolean = true) {
         // TODO:
     }
 
-    return {cloneElement, onPropertyChange, onParametersChange, onDataFormatChange, onExpressionChange, getInternalComponentName}
+    const convertStep = (step: CamelElement, targetDslName: string ) => {
+        // const clone = CamelUtil.cloneIntegration(integration);
+        // const i = CamelDefinitionApiExt.addStepToIntegration(clone, step, parentId, position);
+        // const selectedStep = step.dslName === 'RouteDefinition' ? (step as RouteDefinition).from  : step;
+        // setIntegration(i, false);
+        // setSelectedStep(selectedStep);
+        // setSelectedUuids([selectedStep.uuid]);
+    }
+
+    return {convertStep, cloneElement, onPropertyChange, onParametersChange, onDataFormatChange, onExpressionChange, getInternalComponentName}
 }

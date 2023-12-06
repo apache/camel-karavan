@@ -17,7 +17,6 @@
 
 package org.apache.camel.karavan.api;
 
-import io.quarkus.oidc.UserInfo;
 import io.quarkus.security.identity.SecurityIdentity;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;

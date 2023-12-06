@@ -31,6 +31,8 @@ public class DockerComposeService {
     private List<String> ports;
     private List<String> expose;
     private List<String> depends_on;
+    private List<String> env_file;
+    private List<String> networks;
     private Map<String,String> environment;
     private DockerComposeHealthCheck healthcheck;
 
@@ -124,6 +126,22 @@ public class DockerComposeService {
         this.healthcheck = healthcheck;
     }
 
+    public List<String> getEnv_file() {
+        return env_file;
+    }
+
+    public void setEnv_file(List<String> env_file) {
+        this.env_file = env_file;
+    }
+
+    public List<String> getNetworks() {
+        return networks;
+    }
+
+    public void setNetworks(List<String> networks) {
+        this.networks = networks;
+    }
+
     @Override
     public String toString() {
         return "DockerComposeService {" +
@@ -131,6 +149,8 @@ public class DockerComposeService {
                 ", image='" + image + '\'' +
                 ", restart='" + restart + '\'' +
                 ", ports=" + ports +
+                ", env_file=" + env_file +
+                ", networks=" + networks +
                 ", expose=" + expose +
                 ", depends_on='" + depends_on + '\'' +
                 ", environment=" + environment +

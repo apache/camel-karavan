@@ -16,6 +16,7 @@
  */
 import React, {useEffect, useState} from 'react';
 import {
+    Alert,
     Button,
     Flex,
     FlexItem,
@@ -41,8 +42,9 @@ import RefreshIcon from "@patternfly/react-icons/dist/esm/icons/sync-alt-icon";
 export function FileToolbar () {
 
     const [commitMessageIsOpen, setCommitMessageIsOpen] = useState(false);
+    const [pullIsOpen, setPullIsOpen] = useState(false);
     const [commitMessage, setCommitMessage] = useState('');
-    const [project, isPushing] = useProjectStore((state) => [state.project, state.isPushing], shallow )
+    const [project, isPushing, isPulling] = useProjectStore((s) => [s.project, s.isPushing, s.isPulling], shallow )
     const {files} = useFilesStore();
     const [file, editAdvancedProperties, setEditAdvancedProperties, setAddProperty, setFile] = useFileStore((s) =>
         [s.file, s.editAdvancedProperties, s.setEditAdvancedProperties, s.setAddProperty, s.setFile], shallow )
@@ -56,6 +58,11 @@ export function FileToolbar () {
         ProjectService.pushProject(project, commitMessage);
     }
 
+    function pull () {
+        setPullIsOpen(false);
+        ProjectService.pullProject(project.projectId);
+    }
+
     function canAddFiles(): boolean {
         return !['templates', 'services'].includes(project.projectId);
     }
@@ -63,12 +70,12 @@ export function FileToolbar () {
     function getCommitModal() {
         return (
             <Modal
-                title="Commit"
+                title="Commit and push"
                 variant={ModalVariant.small}
                 isOpen={commitMessageIsOpen}
                 onClose={() => setCommitMessageIsOpen(false)}
                 actions={[
-                    <Button key="confirm" variant="primary" onClick={() => push()}>Save</Button>,
+                    <Button key="confirm" variant="primary" onClick={() => push()}>Commit and push</Button>,
                     <Button key="cancel" variant="secondary" onClick={() => setCommitMessageIsOpen(false)}>Cancel</Button>
                 ]}
             >
@@ -78,6 +85,30 @@ export function FileToolbar () {
                         <FormHelperText  />
                     </FormGroup>
                 </Form>
+            </Modal>
+        )
+    }
+
+    function getPullModal() {
+        return (
+            <Modal
+                title="Pull"
+                titleIconVariant={"danger"}
+                variant={ModalVariant.small}
+                isOpen={pullIsOpen}
+                onClose={() => setPullIsOpen(false)}
+                actions={[
+                    <Button key="confirm" variant="danger" isDanger onClick={() => pull()}>Pull</Button>,
+                    <Button key="cancel" variant="primary" onClick={() => setPullIsOpen(false)}>Cancel</Button>
+                ]}
+            >
+                <div>
+                    <Alert customIcon={<PushIcon />}
+                           isInline
+                           variant="danger"
+                           title="Pulling code from git rewrites all non-commited code in the project!"
+                    />
+                </div>
             </Modal>
         )
     }
@@ -138,6 +169,21 @@ export function FileToolbar () {
         </FlexItem>}
         <FlexItem>{getLastUpdatePanel()}</FlexItem>
         <FlexItem>
+            <Tooltip content="Pull from git" position={"bottom-end"}>
+                <Button isLoading={isPulling ? true : undefined}
+                        size="sm"
+                        variant={"secondary"}
+                        isDanger
+                        className="project-button"
+                        icon={!isPulling ? <PushIcon/> : <div></div>}
+                        onClick={() => {
+                            setPullIsOpen(true);
+                        }}>
+                    {isPulling ? "..." : "Pull"}
+                </Button>
+            </Tooltip>
+        </FlexItem>
+        <FlexItem>
             <Tooltip content="Commit and push to git" position={"bottom-end"}>
                 <Button isLoading={isPushing ? true : undefined}
                         size="sm"
@@ -161,5 +207,6 @@ export function FileToolbar () {
                     onClick={e => setFile("upload")}>Upload</Button>
         </FlexItem>}
         {getCommitModal()}
+        {getPullModal()}
     </Flex>
 }

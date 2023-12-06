@@ -15,27 +15,25 @@
  * limitations under the License.
  */
 import React, {CSSProperties, useMemo, useState} from 'react';
-import {Menu, MenuContent, MenuItem, MenuList, Popover, Text, Tooltip,} from '@patternfly/react-core';
-import '../karavan.css';
+import {Text, Tooltip,} from '@patternfly/react-core';
+import '../../karavan.css';
 import './DslElement.css';
-import AddIcon from "@patternfly/react-icons/dist/js/icons/plus-circle-icon";
-import DeleteIcon from "@patternfly/react-icons/dist/js/icons/times-circle-icon";
-import SyncIcon from "@patternfly/react-icons/dist/js/icons/sync-icon";
-import TurnIcon from "@patternfly/react-icons/dist/js/icons/chevron-circle-right-icon";
-import InsertIcon from "@patternfly/react-icons/dist/js/icons/arrow-alt-circle-right-icon";
 import {CamelElement} from "karavan-core/lib/model/IntegrationDefinition";
-import {CamelUi} from "../utils/CamelUi";
-import {EventBus} from "../utils/EventBus";
+import {CamelUi} from "../../utils/CamelUi";
+import {EventBus} from "../../utils/EventBus";
 import {ChildElement, CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt";
 import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
 import {CamelDisplayUtil} from "karavan-core/lib/api/CamelDisplayUtil";
-import {useDesignerStore, useIntegrationStore} from "../DesignerStore";
+import {useDesignerStore, useIntegrationStore} from "../../DesignerStore";
 import {shallow} from "zustand/shallow";
-import {useRouteDesignerHook} from "./useRouteDesignerHook";
+import {useRouteDesignerHook} from "../useRouteDesignerHook";
+import {AddElementIcon, DeleteElementIcon, InsertElementIcon} from "./DslElementIcons";
 
 interface Props {
     step: CamelElement,
     parent: CamelElement | undefined,
+    nextStep: CamelElement | undefined,
+    prevStep: CamelElement | undefined,
     inSteps: boolean
     position: number
 }
@@ -43,7 +41,16 @@ interface Props {
 export function DslElement(props: Props) {
 
     const headerRef = React.useRef<HTMLDivElement>(null);
-    const {selectElement, moveElement, onShowDeleteConfirmation, openSelector, isKamelet, isSourceKamelet, isActionKamelet} = useRouteDesignerHook();
+    const addButtonRef = React.useRef<HTMLDivElement>(null);
+    const {
+        selectElement,
+        moveElement,
+        onShowDeleteConfirmation,
+        openSelector,
+        isKamelet,
+        isSourceKamelet,
+        isActionKamelet
+    } = useRouteDesignerHook();
 
     const [integration] = useIntegrationStore((s) => [s.integration, s.setIntegration], shallow)
 
@@ -98,12 +105,20 @@ export function DslElement(props: Props) {
     }
 
     function hasBorder(): boolean {
-        return (props.step?.hasSteps() && !['FromDefinition'].includes(props.step.dslName))
-            || ['RouteConfigurationDefinition',
-                'RouteDefinition',
-                'TryDefinition',
-                'ChoiceDefinition',
-                'SwitchDefinition'].includes(props.step.dslName);
+        const step = props.step;
+        if (['FilterDefinition'].includes(step.dslName)) {
+            return true;
+        }
+        if (['FromDefinition',
+            'RouteDefinition',
+            'TryDefinition',
+            'CatchDefinition', 'FinallyDefinition',
+            'ChoiceDefinition',
+            'SwitchDefinition', 'WhenDefinition', 'OtherwiseDefinition'
+        ].includes(step.dslName)) {
+            return false;
+        }
+        return props.step?.hasSteps();
     }
 
     function isNotDraggable(): boolean {
@@ -177,7 +192,26 @@ export function DslElement(props: Props) {
         return style;
     }
 
+    function sendButtonPosition(el: HTMLButtonElement | null) {
+        const {nextStep, step, parent} = props;
+        let needArrow = !hasBorder() && !['ChoiceDefinition', 'MulticastDefinition', 'TryDefinition'].includes(step.dslName);
+
+        if (parent
+            && ['TryDefinition'].includes(parent.dslName)
+            && !['CatchDefinition', 'FinallyDefinition'].includes(step.dslName)) {
+            needArrow = true;
+        }
+
+        if (el && nextStep && needArrow) {
+            const rect = headerRef.current?.getBoundingClientRect();
+
+            if (rect)
+                EventBus.sendButtonPosition("add", step.uuid, nextStep, rect);
+        }
+    }
+
     function sendPosition(el: HTMLDivElement | null) {
+        const {step, prevStep, parent} = props;
         const isSelected = isElementSelected();
         const isHidden = isElementHidden();
         if (el) {
@@ -186,15 +220,14 @@ export function DslElement(props: Props) {
                 const headerIcon: any = Array.from(header.childNodes.values()).filter((n: any) => n.classList.contains("header-icon"))[0];
                 const headerRect = headerIcon.getBoundingClientRect();
                 const rect = el.getBoundingClientRect();
-                if (props.step.showChildren) {
+                if (step.showChildren) {
                     if (isHidden) {
-                        // EventBus.sendPosition("delete", props.step, props.parent, new DOMRect(), new DOMRect(), 0);
-                        EventBus.sendPosition("add", props.step, props.parent, rect, headerRect, props.position, props.inSteps, isSelected);
+                        EventBus.sendPosition("add", step, prevStep, parent, rect, headerRect, props.position, props.inSteps, isSelected);
                     } else {
-                        EventBus.sendPosition("add", props.step, props.parent, rect, headerRect, props.position, props.inSteps, isSelected);
+                        EventBus.sendPosition("add", step, prevStep, parent, rect, headerRect, props.position, props.inSteps, isSelected);
                     }
                 } else {
-                    EventBus.sendPosition("delete", props.step, props.parent, new DOMRect(), new DOMRect(), 0);
+                    EventBus.sendPosition("delete", step, prevStep, parent, new DOMRect(), new DOMRect(), 0);
                 }
             }
         }
@@ -237,7 +270,6 @@ export function DslElement(props: Props) {
                 </div>
                 {showInsertButton && getInsertElementButton()}
                 {getDeleteButton()}
-                {/*{getMenuButton()}*/}
                 {showAddButton && getAddElementButton()}
             </div>
         )
@@ -304,7 +336,7 @@ export function DslElement(props: Props) {
         const step = props.step;
         const isBorder = child.name === 'steps' && hasBorderOverSteps(step);
         const style: CSSProperties = {
-            borderStyle: isBorder ? "dotted" : "none",
+            // borderStyle: isBorder ? "dotted" : "none",
             borderColor: "var(--step-border-color)",
             borderWidth: "1px",
             borderRadius: "16px",
@@ -343,15 +375,25 @@ export function DslElement(props: Props) {
             return (
                 <div className={child.name + " has-child"} style={getChildrenElementsStyle(child, notOnlySteps)}
                      key={step.uuid + "-child-" + index}>
-                    {children.map((element, index) => (
-                        <div key={step.uuid + child.className + index}>
-                            <DslElement
-                                inSteps={child.name === 'steps'}
-                                position={index}
-                                step={element}
-                                parent={step}/>
-                        </div>
-                    ))}
+                    {children.map((element, index) => {
+                            let prevStep = children.at(index - 1);
+                            let nextStep: CamelElement | undefined = undefined;
+                            if (['TryDefinition', 'ChoiceDefinition'].includes(step.dslName)) {
+                                nextStep = props.nextStep;
+                            } else {
+                                nextStep = children.at(index + 1);
+                            }
+                            return (<div key={step.uuid + child.className + index}>
+                                <DslElement
+                                    inSteps={child.name === 'steps'}
+                                    position={index}
+                                    step={element}
+                                    nextStep={nextStep}
+                                    prevStep={prevStep}
+                                    parent={step}/>
+                            </div>)
+                        }
+                    )}
                     {child.name === 'steps' && getAddStepButton()}
                 </div>
             )
@@ -366,17 +408,24 @@ export function DslElement(props: Props) {
     }
 
     function getAddStepButton() {
-        const {step} = props;
+        const {step, nextStep} = props;
         const hideAddButton = step.dslName === 'StepDefinition' && !CamelDisplayUtil.isStepDefinitionExpanded(integration, step.uuid, selectedUuids.at(0));
         if (hideAddButton) return (<></>)
         else return (
-            <Tooltip position={"bottom"}
-                     content={<div>{"Add step to " + CamelDisplayUtil.getTitle(step)}</div>}>
-                <button type="button" aria-label="Add" onClick={e => onOpenSelector(e)}
-                        className={isAddStepButtonLeft() ? "add-button add-button-left" : "add-button add-button-bottom"}>
-                    <AddIcon/>
-                </button>
-            </Tooltip>
+            <div ref={addButtonRef}>
+                <Tooltip position={"bottom"}
+                         content={<div>{"Add step to " + CamelDisplayUtil.getTitle(step)}</div>}
+                >
+                    <button type="button"
+                            ref={el => sendButtonPosition(el)}
+                            aria-label="Add"
+                            onClick={e => onOpenSelector(e)}
+                            className={isAddStepButtonLeft() ? "add-button add-button-left" : "add-button add-button-bottom"}>
+                        <AddElementIcon/>
+                    </button>
+
+                </Tooltip>
+            </div>
         )
     }
 
@@ -389,7 +438,7 @@ export function DslElement(props: Props) {
                     aria-label="Add"
                     onClick={e => onOpenSelector(e, false)}
                     className={"add-element-button"}>
-                    <AddIcon/>
+                    <AddElementIcon/>
                 </button>
             </Tooltip>
         )
@@ -398,8 +447,11 @@ export function DslElement(props: Props) {
     function getInsertElementButton() {
         return (
             <Tooltip position={"left"} content={<div>{"Insert element before"}</div>}>
-                <button type="button" aria-label="Insert" onClick={e => onOpenSelector(e, true, true)}
-                        className={"insert-element-button"}><InsertIcon/>
+                <button type="button"
+                        aria-label="Insert"
+                        onClick={e => onOpenSelector(e, true, true)}
+                        className={"insert-element-button"}>
+                    <InsertElementIcon/>
                 </button>
             </Tooltip>
         )
@@ -409,36 +461,9 @@ export function DslElement(props: Props) {
         return (
             <Tooltip position={"right"} content={<div>{"Delete element"}</div>}>
                 <button type="button" aria-label="Delete" onClick={e => onDeleteElement(e)} className="delete-button">
-                    <DeleteIcon/>
+                    <DeleteElementIcon/>
                 </button>
             </Tooltip>
-        )
-    }
-
-    function getMenuButton() {
-        return (
-            <Popover
-                aria-label="Convert Popover"
-                hasNoPadding
-                position={"right"}
-                hideOnOutsideClick={true}
-                showClose={false}
-                bodyContent={
-                    <Menu activeItemId={''} onSelect={event => {}} isPlain>
-                        <MenuContent>
-                            <MenuList>
-                                <MenuItem itemId={0} icon={<SyncIcon aria-hidden />}>Convert to SetHeader</MenuItem>
-                                {/*<MenuItem itemId={1}>Action</MenuItem>*/}
-                                {/*<MenuItem itemId={2}>Action</MenuItem>*/}
-                            </MenuList>
-                        </MenuContent>
-                    </Menu>
-                }
-            >
-                <button type="button" aria-label="Menu" onClick={e => {}} className="menu-button">
-                    <TurnIcon/>
-                </button>
-            </Popover>
         )
     }
 
@@ -451,7 +476,7 @@ export function DslElement(props: Props) {
              className={className}
              ref={el => sendPosition(el)}
              style={{
-                 borderStyle: hasBorder() ? "dotted" : "none",
+                 borderStyle: hasBorder() ? "dashed" : "none",
                  borderColor: isElementSelected() ? "var(--step-border-color-selected)" : "var(--step-border-color)",
                  marginTop: isInStepWithChildren() ? "16px" : "8px",
                  zIndex: element.dslName === 'ToDefinition' ? 20 : 10,

@@ -34,7 +34,7 @@ export function ProjectContainerTab() {
         <PageSection className="project-tab-panel project-build-panel" padding={{default: "padding"}}>
             <div>
                 {config.environments.map(env =>
-                    <Card className="project-status">
+                    <Card key={env} className="project-status">
                         <CardBody>
                             <DescriptionList isHorizontal horizontalTermWidthModifier={{default: '20ch'}}>
                                 <DescriptionListGroup>
@@ -47,14 +47,14 @@ export function ProjectContainerTab() {
                                     <DescriptionListGroup>
                                         <DescriptionListTerm>Deployment</DescriptionListTerm>
                                         <DescriptionListDescription>
-                                            <DeploymentPanel key={env} env={env}/>
+                                            <DeploymentPanel env={env}/>
                                         </DescriptionListDescription>
                                     </DescriptionListGroup>
                                 }
                                 <DescriptionListGroup>
                                     <DescriptionListTerm>Containers</DescriptionListTerm>
                                     <DescriptionListDescription>
-                                        <ContainerPanel key={env} env={env}/>
+                                        <ContainerPanel env={env}/>
                                     </DescriptionListDescription>
                                 </DescriptionListGroup>
                             </DescriptionList>

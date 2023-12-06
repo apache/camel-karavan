@@ -124,8 +124,8 @@ export function ProjectsPage () {
                         <Th key='projectId'>Project ID</Th>
                         <Th key='name'>Name</Th>
                         <Th key='description'>Description</Th>
-                        <Th key='commit'>Commit</Th>
-                        <Th key='deployment'>Environment</Th>
+                        <Th key='commit' modifier={"fitContent"}>Commit</Th>
+                        <Th key='deployment' modifier={"fitContent"}>Environment</Th>
                         <Th key='action'></Th>
                     </Tr>
                 </Thead>

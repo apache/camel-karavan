@@ -46,7 +46,7 @@ public class DockerForGitea {
         try {
             LOGGER.info("Gitea container is starting...");
             var compose = codeService.getInternalDockerComposeService(GITEA_CONTAINER_NAME);
-            Container c = dockerService.createContainerFromCompose(compose, ContainerStatus.ContainerType.internal);
+            Container c = dockerService.createContainerFromCompose(compose, ContainerStatus.ContainerType.internal, false);
             dockerService.runContainer(GITEA_CONTAINER_NAME);
             LOGGER.info("Gitea container is started");
         } catch (Exception e) {

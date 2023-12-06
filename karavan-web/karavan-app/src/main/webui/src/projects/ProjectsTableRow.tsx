@@ -16,22 +16,13 @@
  */
 
 import React from 'react';
-import {
-    Button,
-    Badge,
-    Tooltip,
-    Flex, FlexItem, Label
-} from '@patternfly/react-core';
+import {Badge, Button, Flex, FlexItem, Label, Tooltip} from '@patternfly/react-core';
 import '../designer/karavan.css';
-import { Td, Tr} from "@patternfly/react-table";
+import {Td, Tr} from "@patternfly/react-table";
 import DeleteIcon from "@patternfly/react-icons/dist/js/icons/times-icon";
 import CopyIcon from "@patternfly/react-icons/dist/esm/icons/copy-icon";
 import {Project} from '../api/ProjectModels';
-import {
-    useAppConfigStore,
-    useLogStore,
-    useProjectStore, useStatusesStore,
-} from "../api/ProjectStore";
+import {useAppConfigStore, useLogStore, useProjectStore, useStatusesStore,} from "../api/ProjectStore";
 import {shallow} from "zustand/shallow";
 import {useNavigate} from "react-router-dom";
 
@@ -56,14 +47,14 @@ export function ProjectsTableRow (props: Props) {
             const env: string = e as string;
             const status = config.infrastructure === 'kubernetes'
                 ? deployments.find(d => d.projectId === name && d.env === env)
-                : containers.find(d => d.containerName === name && d.env === env);
-            return [env, status];
+                : containers.find(d => d.projectId === name && d.env === env);
+            return [env, status != null];
         });
     }
 
     const project = props.project;
     const isBuildIn = ['kamelets', 'templates'].includes(project.projectId);
-    const commit = project.lastCommit ? project.lastCommit?.substr(0, 7) : "...";
+    const commit = project.lastCommit ? project.lastCommit?.substr(0, 7) : undefined;
     return (
         <Tr key={project.projectId}>
             <Td>
@@ -79,22 +70,20 @@ export function ProjectsTableRow (props: Props) {
             <Td>{project.name}</Td>
             <Td>{project.description}</Td>
             <Td isActionCell>
-                <Tooltip content={project.lastCommit} position={"bottom"}>
+                {commit && <Tooltip content={project.lastCommit} position={"bottom"}>
                     <Badge className="badge">{commit}</Badge>
-                </Tooltip>
+                </Tooltip>}
             </Td>
-            <Td noPadding style={{width: "180px"}}>
+            <Td noPadding>
                 {!isBuildIn &&
-                    <Flex direction={{default: "row"}}>
+                    <div style={{display: "flex", gap:"2px"}}>
                         {getStatusByEnvironments(project.projectId).map(value => {
                             const active = value[1];
                             const color = active ? "green" : "grey"
                             const style = active ? {fontWeight: "bold"} : {}
-                            return <FlexItem className="badge-flex-item" key={value[0]}>
-                                <Label style={style} color={color} >{value[0]}</Label>
-                            </FlexItem>
+                            return <Label style={style} color={color} >{value[0]}</Label>
                         })}
-                    </Flex>
+                    </div>
                 }
             </Td>
             <Td className="project-action-buttons">

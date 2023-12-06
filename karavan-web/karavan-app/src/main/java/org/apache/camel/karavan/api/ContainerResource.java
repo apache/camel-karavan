@@ -79,67 +79,81 @@ public class ContainerResource {
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    @Path("/{env}/{type}/{name}")
-    public Response manageContainer(@PathParam("env") String env, @PathParam("type") String type, @PathParam("name") String name, JsonObject command) throws Exception {
-        if (infinispanService.isReady()) {
-            if (ConfigService.inKubernetes()) {
-                if (command.getString("command").equalsIgnoreCase("delete")) {
-                    kubernetesService.deletePod(name);
-                    return Response.ok().build();
-                }
-            } else {
-                // set container statuses
-                setContainerStatusTransit(name, type);
-                // exec docker commands
-                if (command.containsKey("command")) {
-                    if (command.getString("command").equalsIgnoreCase("run")) {
-                        if (Objects.equals(type, ContainerStatus.ContainerType.devservice.name())) {
-                            String code = projectService.getDevServiceCode();
-                            DockerComposeService dockerComposeService = DockerComposeConverter.fromCode(code, name);
-                            if (dockerComposeService != null) {
-                                Map<String,String> labels = new HashMap<>();
-                                labels.put(LABEL_TYPE, ContainerStatus.ContainerType.devservice.name());
-                                labels.put(LABEL_CAMEL_RUNTIME, CamelRuntime.CAMEL_MAIN.getValue());
-                                labels.put(LABEL_PROJECT_ID, name);
-                                dockerService.createContainerFromCompose(dockerComposeService, labels);
-                                dockerService.runContainer(dockerComposeService.getContainer_name());
-                            }
-                        } else if (Objects.equals(type, ContainerStatus.ContainerType.project.name())) {
-                            DockerComposeService dockerComposeService = projectService.getProjectDockerComposeService(name);
-                            if (dockerComposeService != null) {
-                                Map<String,String> labels = new HashMap<>();
-                                labels.put(LABEL_TYPE, ContainerStatus.ContainerType.project.name());
-                                labels.put(LABEL_CAMEL_RUNTIME, CamelRuntime.CAMEL_MAIN.getValue());
-                                labels.put(LABEL_PROJECT_ID, name);
-                                dockerService.createContainerFromCompose(dockerComposeService, labels);
-                                dockerService.runContainer(dockerComposeService.getContainer_name());
-                            }
-                        } else if (Objects.equals(type, ContainerStatus.ContainerType.devmode.name())) {
-//                        TODO: merge with DevMode service
-//                        dockerForKaravan.createDevmodeContainer(name, "");
-//                        dockerService.runContainer(name);
+    @Path("/{projectId}/{type}/{name}")
+    public Response manageContainer(@PathParam("projectId") String projectId, @PathParam("type") String type, @PathParam("name") String name, JsonObject command) {
+        try {
+            if (infinispanService.isReady()) {
+                if (ConfigService.inKubernetes()) {
+                    if (command.getString("command").equalsIgnoreCase("delete")) {
+                        kubernetesService.deletePod(name);
+                        return Response.ok().build();
+                    }
+                } else {
+                    // set container statuses
+                    setContainerStatusTransit(projectId, name, type);
+                    // exec docker commands
+                    if (command.containsKey("command")) {
+                        if (command.getString("command").equalsIgnoreCase("deploy")) {
+                            deployContainer(projectId, type, command);
+                        } else if (command.getString("command").equalsIgnoreCase("run")) {
+                            dockerService.runContainer(name);
+                        } else if (command.getString("command").equalsIgnoreCase("stop")) {
+                            dockerService.stopContainer(name);
+                        } else if (command.getString("command").equalsIgnoreCase("pause")) {
+                            dockerService.pauseContainer(name);
+                        } else if (command.getString("command").equalsIgnoreCase("delete")) {
+                            dockerService.deleteContainer(name);
                         }
-                        return Response.ok().build();
-                    } else if (command.getString("command").equalsIgnoreCase("stop")) {
-                        dockerService.stopContainer(name);
-                        return Response.ok().build();
-                    } else if (command.getString("command").equalsIgnoreCase("pause")) {
-                        dockerService.pauseContainer(name);
-                        return Response.ok().build();
-                    } else if (command.getString("command").equalsIgnoreCase("delete")) {
-                        dockerService.deleteContainer(name);
                         return Response.ok().build();
                     }
                 }
             }
+            return Response.notModified().build();
+        } catch (Exception e) {
+            return Response.serverError().entity(e.getMessage()).build();
         }
-        return Response.notModified().build();
     }
 
-    private void setContainerStatusTransit(String name, String type){
-        ContainerStatus status = infinispanService.getContainerStatus(name, environment, name);
+    private void deployContainer(String projectId, String type, JsonObject command) throws InterruptedException {
+        if (Objects.equals(type, ContainerStatus.ContainerType.devservice.name())) {
+            String code = projectService.getDevServiceCode();
+            DockerComposeService dockerComposeService = DockerComposeConverter.fromCode(code, projectId);
+            if (dockerComposeService != null) {
+                Map<String, String> labels = new HashMap<>();
+                labels.put(LABEL_TYPE, ContainerStatus.ContainerType.devservice.name());
+                labels.put(LABEL_CAMEL_RUNTIME, CamelRuntime.CAMEL_MAIN.getValue());
+                labels.put(LABEL_PROJECT_ID, projectId);
+                dockerService.createContainerFromCompose(dockerComposeService, labels, needPull(command));
+                dockerService.runContainer(dockerComposeService.getContainer_name());
+            }
+        } else if (Objects.equals(type, ContainerStatus.ContainerType.project.name())) {
+            DockerComposeService dockerComposeService = projectService.getProjectDockerComposeService(projectId);
+            if (dockerComposeService != null) {
+                Map<String, String> labels = new HashMap<>();
+                labels.put(LABEL_TYPE, ContainerStatus.ContainerType.project.name());
+                labels.put(LABEL_CAMEL_RUNTIME, CamelRuntime.CAMEL_MAIN.getValue());
+                labels.put(LABEL_PROJECT_ID, projectId);
+                dockerService.createContainerFromCompose(dockerComposeService, labels, needPull(command));
+                dockerService.runContainer(dockerComposeService.getContainer_name());
+            }
+        } else if (Objects.equals(type, ContainerStatus.ContainerType.devmode.name())) {
+//                        TODO: merge with DevMode service
+//                        dockerForKaravan.createDevmodeContainer(name, "");
+//                        dockerService.runContainer(name);
+        }
+    }
+
+    private boolean needPull(JsonObject command) {
+        if (command != null && command.containsKey("pullImage")) {
+            return command.getBoolean("pullImage");
+        }
+        return false;
+    }
+
+    private void setContainerStatusTransit(String projectId, String name, String type) {
+        ContainerStatus status = infinispanService.getContainerStatus(projectId, environment, name);
         if (status == null) {
-            status = ContainerStatus.createByType(name, environment, ContainerStatus.ContainerType.valueOf(type));
+            status = ContainerStatus.createByType(projectId, environment, ContainerStatus.ContainerType.valueOf(type));
         }
         status.setInTransit(true);
         eventBus.send(CONTAINER_STATUS, JsonObject.mapFrom(status));
@@ -167,11 +181,11 @@ public class ContainerResource {
     @DELETE
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    @Path("/{env}/{type}/{name}")
-    public Response deleteContainer(@PathParam("env") String env, @PathParam("type") String type, @PathParam("name") String name) {
+    @Path("/{projectId}/{type}/{name}")
+    public Response deleteContainer(@PathParam("projectId") String projectId, @PathParam("type") String type, @PathParam("name") String name) {
         if (infinispanService.isReady()) {
             // set container statuses
-            setContainerStatusTransit(name, type);
+            setContainerStatusTransit(projectId, name, type);
             try {
                 if (ConfigService.inKubernetes()) {
                     kubernetesService.deletePod(name);

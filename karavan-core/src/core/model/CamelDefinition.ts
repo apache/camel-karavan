@@ -154,7 +154,6 @@ export class AggregateDefinition extends CamelElement {
     disabled?: boolean;
     id?: string = 'aggregate-' + uuidv4().substring(0,4);
     description?: string;
-    inheritErrorHandler?: boolean;
     steps?: CamelElement[] = [];
     public constructor(init?: Partial<AggregateDefinition>) {
         super('AggregateDefinition');
@@ -171,7 +170,6 @@ export class BeanDefinition extends CamelElement {
     disabled?: boolean;
     id?: string = 'bean-' + uuidv4().substring(0,4);
     description?: string;
-    inheritErrorHandler?: boolean;
     public constructor(init?: Partial<BeanDefinition>) {
         super('BeanDefinition');
         Object.assign(this, init);
@@ -185,7 +183,6 @@ export class CatchDefinition extends CamelElement {
     disabled?: boolean;
     id?: string = 'doCatch-' + uuidv4().substring(0,4);
     description?: string;
-    inheritErrorHandler?: boolean;
     steps?: CamelElement[] = [];
     public constructor(init?: Partial<CatchDefinition>) {
         super('CatchDefinition');
@@ -201,7 +198,6 @@ export class ChoiceDefinition extends CamelElement {
     disabled?: boolean;
     id?: string = 'choice-' + uuidv4().substring(0,4);
     description?: string;
-    inheritErrorHandler?: boolean;
     public constructor(init?: Partial<ChoiceDefinition>) {
         super('ChoiceDefinition');
         Object.assign(this, init);
@@ -217,7 +213,6 @@ export class CircuitBreakerDefinition extends CamelElement {
     disabled?: boolean;
     id?: string = 'circuitBreaker-' + uuidv4().substring(0,4);
     description?: string;
-    inheritErrorHandler?: boolean;
     steps?: CamelElement[] = [];
     public constructor(init?: Partial<CircuitBreakerDefinition>) {
         super('CircuitBreakerDefinition');
@@ -235,7 +230,6 @@ export class ClaimCheckDefinition extends CamelElement {
     disabled?: boolean;
     id?: string = 'claimCheck-' + uuidv4().substring(0,4);
     description?: string;
-    inheritErrorHandler?: boolean;
     public constructor(init?: Partial<ClaimCheckDefinition>) {
         super('ClaimCheckDefinition');
         Object.assign(this, init);
@@ -261,7 +255,6 @@ export class ConvertBodyDefinition extends CamelElement {
     disabled?: boolean;
     id?: string = 'convertBodyTo-' + uuidv4().substring(0,4);
     description?: string;
-    inheritErrorHandler?: boolean;
     public constructor(init?: Partial<ConvertBodyDefinition>) {
         super('ConvertBodyDefinition');
         Object.assign(this, init);
@@ -286,7 +279,6 @@ export class DelayDefinition extends CamelElement {
     disabled?: boolean;
     id?: string = 'delay-' + uuidv4().substring(0,4);
     description?: string;
-    inheritErrorHandler?: boolean;
     public constructor(init?: Partial<DelayDefinition>) {
         super('DelayDefinition');
         Object.assign(this, init);
@@ -302,7 +294,6 @@ export class DynamicRouterDefinition extends CamelElement {
     disabled?: boolean;
     id?: string = 'dynamicRouter-' + uuidv4().substring(0,4);
     description?: string;
-    inheritErrorHandler?: boolean;
     public constructor(init?: Partial<DynamicRouterDefinition>) {
         super('DynamicRouterDefinition');
         Object.assign(this, init);
@@ -323,7 +314,6 @@ export class EnrichDefinition extends CamelElement {
     disabled?: boolean;
     id?: string = 'enrich-' + uuidv4().substring(0,4);
     description?: string;
-    inheritErrorHandler?: boolean;
     public constructor(init?: Partial<EnrichDefinition>) {
         super('EnrichDefinition');
         Object.assign(this, init);
@@ -404,7 +394,6 @@ export class FilterDefinition extends CamelElement {
     disabled?: boolean;
     id?: string = 'filter-' + uuidv4().substring(0,4);
     description?: string;
-    inheritErrorHandler?: boolean;
     steps?: CamelElement[] = [];
     public constructor(init?: Partial<FilterDefinition>) {
         super('FilterDefinition');
@@ -417,7 +406,6 @@ export class FinallyDefinition extends CamelElement {
     disabled?: boolean;
     id?: string = 'doFinally-' + uuidv4().substring(0,4);
     description?: string;
-    inheritErrorHandler?: boolean;
     steps?: CamelElement[] = [];
     public constructor(init?: Partial<FinallyDefinition>) {
         super('FinallyDefinition');
@@ -468,7 +456,6 @@ export class IdempotentConsumerDefinition extends CamelElement {
     disabled?: boolean;
     id?: string = 'idempotentConsumer-' + uuidv4().substring(0,4);
     description?: string;
-    inheritErrorHandler?: boolean;
     steps?: CamelElement[] = [];
     public constructor(init?: Partial<IdempotentConsumerDefinition>) {
         super('IdempotentConsumerDefinition');
@@ -493,7 +480,6 @@ export class InterceptDefinition extends CamelElement {
     disabled?: boolean;
     id?: string = 'intercept-' + uuidv4().substring(0,4);
     description?: string;
-    inheritErrorHandler?: boolean;
     steps?: CamelElement[] = [];
     public constructor(init?: Partial<InterceptDefinition>) {
         super('InterceptDefinition');
@@ -507,7 +493,6 @@ export class InterceptFromDefinition extends CamelElement {
     disabled?: boolean;
     id?: string = 'interceptFrom-' + uuidv4().substring(0,4);
     description?: string;
-    inheritErrorHandler?: boolean;
     steps?: CamelElement[] = [];
     public constructor(init?: Partial<InterceptFromDefinition>) {
         super('InterceptFromDefinition');
@@ -523,7 +508,6 @@ export class InterceptSendToEndpointDefinition extends CamelElement {
     disabled?: boolean;
     id?: string = 'interceptSendToEndpoint-' + uuidv4().substring(0,4);
     description?: string;
-    inheritErrorHandler?: boolean;
     steps?: CamelElement[] = [];
     public constructor(init?: Partial<InterceptSendToEndpointDefinition>) {
         super('InterceptSendToEndpointDefinition');
@@ -534,7 +518,6 @@ export class InterceptSendToEndpointDefinition extends CamelElement {
 export class KameletDefinition extends CamelElement {
     stepName?: string = 'kamelet';
     name: string = '';
-    inheritErrorHandler?: boolean;
     parameters?: any = {};
     public constructor(init?: Partial<KameletDefinition>) {
         super('KameletDefinition');
@@ -572,7 +555,6 @@ export class LogDefinition extends CamelElement {
     disabled?: boolean;
     id?: string = 'log-' + uuidv4().substring(0,4);
     description?: string;
-    inheritErrorHandler?: boolean;
     public constructor(init?: Partial<LogDefinition>) {
         super('LogDefinition');
         Object.assign(this, init);
@@ -588,7 +570,6 @@ export class LoopDefinition extends CamelElement {
     disabled?: boolean;
     id?: string = 'loop-' + uuidv4().substring(0,4);
     description?: string;
-    inheritErrorHandler?: boolean;
     steps?: CamelElement[] = [];
     public constructor(init?: Partial<LoopDefinition>) {
         super('LoopDefinition');
@@ -641,7 +622,6 @@ export class MarshalDefinition extends CamelElement {
     yaml?: YAMLDataFormat;
     zipDeflater?: ZipDeflaterDataFormat;
     zipFile?: ZipFileDataFormat;
-    inheritErrorHandler?: boolean;
     public constructor(init?: Partial<MarshalDefinition>) {
         super('MarshalDefinition');
         Object.assign(this, init);
@@ -665,7 +645,6 @@ export class MulticastDefinition extends CamelElement {
     disabled?: boolean;
     id?: string = 'multicast-' + uuidv4().substring(0,4);
     description?: string;
-    inheritErrorHandler?: boolean;
     steps?: CamelElement[] = [];
     public constructor(init?: Partial<MulticastDefinition>) {
         super('MulticastDefinition');
@@ -685,7 +664,6 @@ export class OnCompletionDefinition extends CamelElement {
     disabled?: boolean;
     id?: string = 'onCompletion-' + uuidv4().substring(0,4);
     description?: string;
-    inheritErrorHandler?: boolean;
     steps?: CamelElement[] = [];
     public constructor(init?: Partial<OnCompletionDefinition>) {
         super('OnCompletionDefinition');
@@ -709,7 +687,6 @@ export class OnExceptionDefinition extends CamelElement {
     disabled?: boolean;
     id?: string = 'onException-' + uuidv4().substring(0,4);
     description?: string;
-    inheritErrorHandler?: boolean;
     steps?: CamelElement[] = [];
     public constructor(init?: Partial<OnExceptionDefinition>) {
         super('OnExceptionDefinition');
@@ -723,7 +700,6 @@ export class OnFallbackDefinition extends CamelElement {
     disabled?: boolean;
     id?: string = 'onFallback-' + uuidv4().substring(0,4);
     description?: string;
-    inheritErrorHandler?: boolean;
     steps?: CamelElement[] = [];
     public constructor(init?: Partial<OnFallbackDefinition>) {
         super('OnFallbackDefinition');
@@ -749,7 +725,6 @@ export class OtherwiseDefinition extends CamelElement {
     disabled?: boolean;
     id?: string = 'otherwise-' + uuidv4().substring(0,4);
     description?: string;
-    inheritErrorHandler?: boolean;
     steps?: CamelElement[] = [];
     public constructor(init?: Partial<OtherwiseDefinition>) {
         super('OtherwiseDefinition');
@@ -800,7 +775,6 @@ export class PausableDefinition extends CamelElement {
     disabled?: boolean;
     id?: string = 'pausable-' + uuidv4().substring(0,4);
     description?: string;
-    inheritErrorHandler?: boolean;
     public constructor(init?: Partial<PausableDefinition>) {
         super('PausableDefinition');
         Object.assign(this, init);
@@ -812,7 +786,6 @@ export class PipelineDefinition extends CamelElement {
     disabled?: boolean;
     id?: string = 'pipeline-' + uuidv4().substring(0,4);
     description?: string;
-    inheritErrorHandler?: boolean;
     steps?: CamelElement[] = [];
     public constructor(init?: Partial<PipelineDefinition>) {
         super('PipelineDefinition');
@@ -826,7 +799,6 @@ export class PolicyDefinition extends CamelElement {
     disabled?: boolean;
     id?: string = 'policy-' + uuidv4().substring(0,4);
     description?: string;
-    inheritErrorHandler?: boolean;
     steps?: CamelElement[] = [];
     public constructor(init?: Partial<PolicyDefinition>) {
         super('PolicyDefinition');
@@ -847,7 +819,6 @@ export class PollEnrichDefinition extends CamelElement {
     disabled?: boolean;
     id?: string = 'pollEnrich-' + uuidv4().substring(0,4);
     description?: string;
-    inheritErrorHandler?: boolean;
     public constructor(init?: Partial<PollEnrichDefinition>) {
         super('PollEnrichDefinition');
         Object.assign(this, init);
@@ -860,7 +831,6 @@ export class ProcessDefinition extends CamelElement {
     disabled?: boolean;
     id?: string = 'process-' + uuidv4().substring(0,4);
     description?: string;
-    inheritErrorHandler?: boolean;
     public constructor(init?: Partial<ProcessDefinition>) {
         super('ProcessDefinition');
         Object.assign(this, init);
@@ -908,7 +878,6 @@ export class RecipientListDefinition extends CamelElement {
     disabled?: boolean;
     id?: string = 'recipientList-' + uuidv4().substring(0,4);
     description?: string;
-    inheritErrorHandler?: boolean;
     public constructor(init?: Partial<RecipientListDefinition>) {
         super('RecipientListDefinition');
         Object.assign(this, init);
@@ -954,7 +923,6 @@ export class RemoveHeaderDefinition extends CamelElement {
     disabled?: boolean;
     id?: string = 'removeHeader-' + uuidv4().substring(0,4);
     description?: string;
-    inheritErrorHandler?: boolean;
     public constructor(init?: Partial<RemoveHeaderDefinition>) {
         super('RemoveHeaderDefinition');
         Object.assign(this, init);
@@ -968,7 +936,6 @@ export class RemoveHeadersDefinition extends CamelElement {
     disabled?: boolean;
     id?: string = 'removeHeaders-' + uuidv4().substring(0,4);
     description?: string;
-    inheritErrorHandler?: boolean;
     public constructor(init?: Partial<RemoveHeadersDefinition>) {
         super('RemoveHeadersDefinition');
         Object.assign(this, init);
@@ -982,7 +949,6 @@ export class RemovePropertiesDefinition extends CamelElement {
     disabled?: boolean;
     id?: string = 'removeProperties-' + uuidv4().substring(0,4);
     description?: string;
-    inheritErrorHandler?: boolean;
     public constructor(init?: Partial<RemovePropertiesDefinition>) {
         super('RemovePropertiesDefinition');
         Object.assign(this, init);
@@ -995,7 +961,6 @@ export class RemovePropertyDefinition extends CamelElement {
     disabled?: boolean;
     id?: string = 'removeProperty-' + uuidv4().substring(0,4);
     description?: string;
-    inheritErrorHandler?: boolean;
     public constructor(init?: Partial<RemovePropertyDefinition>) {
         super('RemovePropertyDefinition');
         Object.assign(this, init);
@@ -1008,7 +973,6 @@ export class ResequenceDefinition extends CamelElement {
     disabled?: boolean;
     id?: string = 'resequence-' + uuidv4().substring(0,4);
     description?: string;
-    inheritErrorHandler?: boolean;
     steps?: CamelElement[] = [];
     public constructor(init?: Partial<ResequenceDefinition>) {
         super('ResequenceDefinition');
@@ -1062,7 +1026,6 @@ export class ResumableDefinition extends CamelElement {
     disabled?: boolean;
     id?: string = 'resumable-' + uuidv4().substring(0,4);
     description?: string;
-    inheritErrorHandler?: boolean;
     public constructor(init?: Partial<ResumableDefinition>) {
         super('ResumableDefinition');
         Object.assign(this, init);
@@ -1077,7 +1040,6 @@ export class RollbackDefinition extends CamelElement {
     disabled?: boolean;
     id?: string = 'rollback-' + uuidv4().substring(0,4);
     description?: string;
-    inheritErrorHandler?: boolean;
     public constructor(init?: Partial<RollbackDefinition>) {
         super('RollbackDefinition');
         Object.assign(this, init);
@@ -1144,8 +1106,6 @@ export class RouteDefinition extends CamelElement {
     from: FromDefinition = new FromDefinition();
     inputType?: InputTypeDefinition;
     outputType?: OutputTypeDefinition;
-    routePolicy?: string;
-    streamCaching?: boolean;
     public constructor(init?: Partial<RouteDefinition>) {
         super('RouteDefinition');
         Object.assign(this, init);
@@ -1201,7 +1161,6 @@ export class RoutingSlipDefinition extends CamelElement {
     disabled?: boolean;
     id?: string = 'routingSlip-' + uuidv4().substring(0,4);
     description?: string;
-    inheritErrorHandler?: boolean;
     public constructor(init?: Partial<RoutingSlipDefinition>) {
         super('RoutingSlipDefinition');
         Object.assign(this, init);
@@ -1234,7 +1193,6 @@ export class SagaDefinition extends CamelElement {
     disabled?: boolean;
     id?: string = 'saga-' + uuidv4().substring(0,4);
     description?: string;
-    inheritErrorHandler?: boolean;
     steps?: CamelElement[] = [];
     public constructor(init?: Partial<SagaDefinition>) {
         super('SagaDefinition');
@@ -1249,7 +1207,6 @@ export class SamplingDefinition extends CamelElement {
     disabled?: boolean;
     id?: string = 'sample-' + uuidv4().substring(0,4);
     description?: string;
-    inheritErrorHandler?: boolean;
     public constructor(init?: Partial<SamplingDefinition>) {
         super('SamplingDefinition');
         Object.assign(this, init);
@@ -1262,7 +1219,6 @@ export class ScriptDefinition extends CamelElement {
     disabled?: boolean;
     id?: string = 'script-' + uuidv4().substring(0,4);
     description?: string;
-    inheritErrorHandler?: boolean;
     public constructor(init?: Partial<ScriptDefinition>) {
         super('ScriptDefinition');
         Object.assign(this, init);
@@ -1275,7 +1231,6 @@ export class SetBodyDefinition extends CamelElement {
     disabled?: boolean;
     id?: string = 'setBody-' + uuidv4().substring(0,4);
     description?: string;
-    inheritErrorHandler?: boolean;
     public constructor(init?: Partial<SetBodyDefinition>) {
         super('SetBodyDefinition');
         Object.assign(this, init);
@@ -1288,7 +1243,6 @@ export class SetExchangePatternDefinition extends CamelElement {
     disabled?: boolean;
     id?: string = 'setExchangePattern-' + uuidv4().substring(0,4);
     description?: string;
-    inheritErrorHandler?: boolean;
     public constructor(init?: Partial<SetExchangePatternDefinition>) {
         super('SetExchangePatternDefinition');
         Object.assign(this, init);
@@ -1302,7 +1256,6 @@ export class SetHeaderDefinition extends CamelElement {
     disabled?: boolean;
     id?: string = 'setHeader-' + uuidv4().substring(0,4);
     description?: string;
-    inheritErrorHandler?: boolean;
     public constructor(init?: Partial<SetHeaderDefinition>) {
         super('SetHeaderDefinition');
         Object.assign(this, init);
@@ -1316,7 +1269,6 @@ export class SetPropertyDefinition extends CamelElement {
     disabled?: boolean;
     id?: string = 'setProperty-' + uuidv4().substring(0,4);
     description?: string;
-    inheritErrorHandler?: boolean;
     public constructor(init?: Partial<SetPropertyDefinition>) {
         super('SetPropertyDefinition');
         Object.assign(this, init);
@@ -1330,7 +1282,6 @@ export class SortDefinition extends CamelElement {
     disabled?: boolean;
     id?: string = 'sort-' + uuidv4().substring(0,4);
     description?: string;
-    inheritErrorHandler?: boolean;
     public constructor(init?: Partial<SortDefinition>) {
         super('SortDefinition');
         Object.assign(this, init);
@@ -1356,7 +1307,6 @@ export class SplitDefinition extends CamelElement {
     disabled?: boolean;
     id?: string = 'split-' + uuidv4().substring(0,4);
     description?: string;
-    inheritErrorHandler?: boolean;
     steps?: CamelElement[] = [];
     public constructor(init?: Partial<SplitDefinition>) {
         super('SplitDefinition');
@@ -1369,7 +1319,6 @@ export class StepDefinition extends CamelElement {
     disabled?: boolean;
     id?: string = 'step-' + uuidv4().substring(0,4);
     description?: string;
-    inheritErrorHandler?: boolean;
     steps?: CamelElement[] = [];
     public constructor(init?: Partial<StepDefinition>) {
         super('StepDefinition');
@@ -1382,7 +1331,6 @@ export class StopDefinition extends CamelElement {
     disabled?: boolean;
     id?: string = 'stop-' + uuidv4().substring(0,4);
     description?: string;
-    inheritErrorHandler?: boolean;
     public constructor(init?: Partial<StopDefinition>) {
         super('StopDefinition');
         Object.assign(this, init);
@@ -1459,7 +1407,6 @@ export class ThreadsDefinition extends CamelElement {
     disabled?: boolean;
     id?: string = 'threads-' + uuidv4().substring(0,4);
     description?: string;
-    inheritErrorHandler?: boolean;
     public constructor(init?: Partial<ThreadsDefinition>) {
         super('ThreadsDefinition');
         Object.assign(this, init);
@@ -1478,7 +1425,6 @@ export class ThrottleDefinition extends CamelElement {
     disabled?: boolean;
     id?: string = 'throttle-' + uuidv4().substring(0,4);
     description?: string;
-    inheritErrorHandler?: boolean;
     public constructor(init?: Partial<ThrottleDefinition>) {
         super('ThrottleDefinition');
         Object.assign(this, init);
@@ -1493,7 +1439,6 @@ export class ThrowExceptionDefinition extends CamelElement {
     disabled?: boolean;
     id?: string = 'throwException-' + uuidv4().substring(0,4);
     description?: string;
-    inheritErrorHandler?: boolean;
     public constructor(init?: Partial<ThrowExceptionDefinition>) {
         super('ThrowExceptionDefinition');
         Object.assign(this, init);
@@ -1507,7 +1452,6 @@ export class ToDefinition extends CamelElement {
     pattern?: string;
     id?: string = 'to-' + uuidv4().substring(0,4);
     description?: string;
-    inheritErrorHandler?: boolean;
     parameters?: any = {};
     public constructor(init?: Partial<ToDefinition>) {
         super('ToDefinition');
@@ -1526,7 +1470,6 @@ export class ToDynamicDefinition extends CamelElement {
     disabled?: boolean;
     id?: string = 'toD-' + uuidv4().substring(0,4);
     description?: string;
-    inheritErrorHandler?: boolean;
     parameters?: any = {};
     public constructor(init?: Partial<ToDynamicDefinition>) {
         super('ToDynamicDefinition');
@@ -1540,7 +1483,6 @@ export class TransactedDefinition extends CamelElement {
     disabled?: boolean;
     id?: string = 'transacted-' + uuidv4().substring(0,4);
     description?: string;
-    inheritErrorHandler?: boolean;
     steps?: CamelElement[] = [];
     public constructor(init?: Partial<TransactedDefinition>) {
         super('TransactedDefinition');
@@ -1556,7 +1498,6 @@ export class TransformDefinition extends CamelElement {
     disabled?: boolean;
     id?: string = 'transform-' + uuidv4().substring(0,4);
     description?: string;
-    inheritErrorHandler?: boolean;
     public constructor(init?: Partial<TransformDefinition>) {
         super('TransformDefinition');
         Object.assign(this, init);
@@ -1570,7 +1511,6 @@ export class TryDefinition extends CamelElement {
     description?: string;
     doCatch?: CatchDefinition[] = [];
     doFinally?: FinallyDefinition;
-    inheritErrorHandler?: boolean;
     steps?: CamelElement[] = [];
     public constructor(init?: Partial<TryDefinition>) {
         super('TryDefinition');
@@ -1584,7 +1524,6 @@ export class UnmarshalDefinition extends CamelElement {
     disabled?: boolean;
     id?: string = 'unmarshal-' + uuidv4().substring(0,4);
     description?: string;
-    inheritErrorHandler?: boolean;
     asn1?: ASN1DataFormat | string;
     avro?: AvroDataFormat | string;
     barcode?: BarcodeDataFormat;
@@ -1638,7 +1577,6 @@ export class ValidateDefinition extends CamelElement {
     disabled?: boolean;
     id?: string = 'validate-' + uuidv4().substring(0,4);
     description?: string;
-    inheritErrorHandler?: boolean;
     public constructor(init?: Partial<ValidateDefinition>) {
         super('ValidateDefinition');
         Object.assign(this, init);
@@ -1660,7 +1598,6 @@ export class WhenDefinition extends CamelElement {
     disabled?: boolean;
     id?: string = 'when-' + uuidv4().substring(0,4);
     description?: string;
-    inheritErrorHandler?: boolean;
     steps?: CamelElement[] = [];
     public constructor(init?: Partial<WhenDefinition>) {
         super('WhenDefinition');
@@ -1674,7 +1611,6 @@ export class WhenSkipSendToEndpointDefinition extends CamelElement {
     disabled?: boolean;
     id?: string = 'whenSkipSendToEndpoint-' + uuidv4().substring(0,4);
     description?: string;
-    inheritErrorHandler?: boolean;
     steps?: CamelElement[] = [];
     public constructor(init?: Partial<WhenSkipSendToEndpointDefinition>) {
         super('WhenSkipSendToEndpointDefinition');
@@ -1697,7 +1633,6 @@ export class WireTapDefinition extends CamelElement {
     disabled?: boolean;
     id?: string = 'wireTap-' + uuidv4().substring(0,4);
     description?: string;
-    inheritErrorHandler?: boolean;
     parameters?: any = {};
     public constructor(init?: Partial<WireTapDefinition>) {
         super('WireTapDefinition');
@@ -1989,7 +1924,6 @@ export class ServiceCallDefinition extends CamelElement {
     disabled?: boolean;
     id?: string = 'serviceCall-' + uuidv4().substring(0,4);
     description?: string;
-    inheritErrorHandler?: boolean;
     public constructor(init?: Partial<ServiceCallDefinition>) {
         super('ServiceCallDefinition');
         Object.assign(this, init);
