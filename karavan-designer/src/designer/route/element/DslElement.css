@@ -19,16 +19,16 @@
     display: block;
     border: none;
     background: transparent;
-    padding: 0px 0px 0px 0px;
-    margin-bottom: 10px;
-    min-width: 160px;
+    padding: 0;
+    margin: 3px 24px 10px 24px;
+    /*min-width: 260px;*/
     z-index: 101;
 }
 
 .karavan .step-element .header-route .delete-button {
     position: absolute;
-    top: 4px;
-    right: 4px;
+    top: 5px;
+    right: 5px;
     line-height: 1;
     border: 0;
     padding: 0;
@@ -51,8 +51,6 @@
     visibility: hidden;
 }
 
-/*.karavan .step-element:hover .delete-button,*/
-/*.karavan .step-element:hover .delete-button,*/
 .karavan .step-element .header:hover .delete-button,
 .karavan .step-element .header-route:hover .delete-button,
 .element-builder .header:hover .delete-button {
@@ -135,7 +133,6 @@
     top: 5px;
     left: 5px;
     font-size: 15px;
-    height: 24px;
     line-height: 1;
     border: 0;
     padding: 0;

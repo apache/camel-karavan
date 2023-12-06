@@ -337,7 +337,7 @@ export class CamelUi {
     static getElementTitle = (element: CamelElement): string => {
         if (element.dslName === 'RouteDefinition') {
             const routeId = (element as RouteDefinition).id
-            return routeId ? routeId : CamelUtil.capitalizeName((element as any).stepName);
+            return routeId ? "Route: " + routeId : CamelUtil.capitalizeName((element as any).stepName);
         } else if (['ToDefinition', 'ToDynamicDefinition', 'FromDefinition', 'KameletDefinition'].includes(element.dslName) && (element as any).uri) {
             const uri = (element as any).uri;
             const kameletTitle = uri && uri.startsWith("kamelet:") ? KameletApi.findKameletByUri(uri)?.title() : undefined;
