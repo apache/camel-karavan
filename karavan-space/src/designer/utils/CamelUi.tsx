@@ -166,7 +166,16 @@ export class RouteToCreate {
 const INTEGRATION_PATTERNS = 'Integration Patterns';
 const connectorNavs = ['routing', "transformation", "error", "configuration", "endpoint", "kamelet", "component"];
 
+const stepConvertMap = new Map<string, string>([
+    ["SetBodyDefinition", "SetHeaderDefinition"],
+    ["SetHeaderDefinition", "SetBodyDefinition"],
+]);
+
 export class CamelUi {
+
+    static getConvertTargetDsl = (sourceDsl?: string): string | undefined => {
+        return sourceDsl ? stepConvertMap.get(sourceDsl) : undefined;
+    }
 
     static createNewInternalRoute = (uri: string): RouteToCreate | undefined => {
         const uris = uri.toString().split(":");
@@ -328,7 +337,7 @@ export class CamelUi {
     static getElementTitle = (element: CamelElement): string => {
         if (element.dslName === 'RouteDefinition') {
             const routeId = (element as RouteDefinition).id
-            return routeId ? routeId : CamelUtil.capitalizeName((element as any).stepName);
+            return routeId ? "Route: " + routeId : CamelUtil.capitalizeName((element as any).stepName);
         } else if (['ToDefinition', 'ToDynamicDefinition', 'FromDefinition', 'KameletDefinition'].includes(element.dslName) && (element as any).uri) {
             const uri = (element as any).uri;
             const kameletTitle = uri && uri.startsWith("kamelet:") ? KameletApi.findKameletByUri(uri)?.title() : undefined;

@@ -1,0 +1,217 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+.karavan .dsl-page .flows .step-element .header-route {
+    display: block;
+    border: none;
+    background: transparent;
+    padding: 0;
+    margin: 3px 24px 10px 24px;
+    /*min-width: 260px;*/
+    z-index: 101;
+}
+
+.karavan .step-element .header-route .delete-button {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    line-height: 1;
+    border: 0;
+    padding: 0;
+    margin: 0;
+    background: transparent;
+    color: #909090;
+    visibility: hidden;
+}
+
+.karavan .step-element .header .delete-button,
+.element-builder .header .delete-button {
+    position: absolute;
+    top: -7px;
+    line-height: 1;
+    border: 0;
+    padding: 0;
+    margin: 0 0 0 10px;
+    background: transparent;
+    color: #909090;
+    visibility: hidden;
+}
+
+.karavan .step-element .header:hover .delete-button,
+.karavan .step-element .header-route:hover .delete-button,
+.element-builder .header:hover .delete-button {
+    visibility: visible;
+}
+
+.modal-delete {
+    width: 350px !important;
+}
+
+.karavan .step-element .header {
+    height: 50px;
+}
+
+.karavan .step-element-selected {
+    background-color: rgba(var(--pf-v5-global--palette--blue-50), 1);
+}
+
+.karavan .step-element .selected .header-icon {
+    border-color: var(--pf-v5-global--primary-color--100);
+    background-color: var(--pf-v5-global--palette--blue-50);
+    border-width: 2px;
+}
+
+.karavan .step-element .header .header-text {
+    position: absolute;
+    top: 8px;
+    left: 0;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+}
+
+.karavan .step-element .header .spacer {
+    width: 50%
+}
+
+.karavan .step-element .header .text-bottom {
+    background-color: rgba(255, 255, 255, 0.5);
+}
+
+.karavan .step-element .header .text-right {
+    padding-left: 17px;
+    width: 50%;
+    text-align: start;
+}
+
+.karavan .step-element .header .header-text-required {
+    color: var(--pf-v5-global--danger-color--100);
+    font-weight: bold;
+}
+
+.karavan .step-element .header-icon {
+    border-color: var(--pf-v5-global--Color--200);
+    border-style: solid;
+    border-radius: 30px;
+    border-width: 1px;
+    background: white;
+    width: 30px;
+    height: 30px;
+    margin: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.karavan .step-element .header .icon,
+.element-builder .header .icon {
+    height: 20px;
+    width: auto;
+    border: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -o-user-select: none;
+    user-select: none;
+}
+
+.karavan .step-element .add-element-button {
+    top: 5px;
+    left: 5px;
+    font-size: 15px;
+    line-height: 1;
+    border: 0;
+    padding: 0;
+    background: transparent;
+    color: var(--pf-v5-global--primary-color--100);
+    visibility: hidden;
+    z-index: 100;
+    position: absolute;
+}
+
+.karavan .step-element .insert-element-button {
+    position: absolute;
+    top: -7px;
+    line-height: 1;
+    border: 0;
+    padding: 0;
+    margin: 0 0 0 -30px;
+    background: transparent;
+    color: var(--pf-v5-global--primary-color--100);
+    visibility: hidden;
+    z-index: 100;
+}
+
+.karavan .step-element .header:hover .insert-element-button {
+    visibility: visible;
+}
+
+.karavan .step-element .add-button-bottom {
+    position: relative;
+}
+
+.karavan .step-element .add-button-left {
+    position: absolute;
+    top: 4px;
+    left: 4px;
+}
+
+.karavan .step-element .add-button {
+    font-size: 15px;
+    height: 15px;
+    line-height: 1;
+    border: 0;
+    padding: 0;
+    margin: 0;
+    background: transparent;
+    color: var(--pf-v5-global--primary-color--100);
+    visibility: hidden;
+    z-index: 100;
+}
+
+.disabled {
+    opacity: 0.5;
+}
+.menu-button {
+    position: absolute;
+    top: 26px;
+    line-height: 1;
+    border: 0;
+    padding: 0;
+    margin: 0 0 0 10px;
+    background: transparent;
+    color: var(--pf-v5-global--primary-color--100);
+    visibility: hidden;
+}
+
+.dsl-element:hover .menu-button {
+    visibility: visible;
+}
+
+.add-button-icon, .insert-button-icon {
+    fill: var(--pf-v5-global--primary-color--100);
+    width: 20px;
+    height: 20px;
+    background: white;
+}
+
+.delete-button-icon {
+    fill: var(--pf-v5-global--danger-color--100);
+    width: 20px;
+    height: 20px;
+    background: white;
+}

@@ -27,7 +27,7 @@ import {DslSelector} from "./DslSelector";
 import {DslProperties} from "./DslProperties";
 import {DslConnections} from "./DslConnections";
 import PlusIcon from "@patternfly/react-icons/dist/esm/icons/plus-icon";
-import {DslElement} from "./DslElement";
+import {DslElement} from "./element/DslElement";
 import {CamelUi} from "../utils/CamelUi";
 import {useRouteDesignerHook} from "./useRouteDesignerHook";
 import {useConnectionsStore, useDesignerStore, useIntegrationStore, useSelectorStore} from "../DesignerStore";
@@ -36,7 +36,7 @@ import useResizeObserver from "./useResizeObserver";
 import {Command, EventBus} from "../utils/EventBus";
 import useMutationsObserver from "./useDrawerMutationsObserver";
 import {DeleteConfirmation} from "./DeleteConfirmation";
-import {DslElementMoveModal} from "./DslElementMoveModal";
+import {DslElementMoveModal} from "./element/DslElementMoveModal";
 
 export function RouteDesigner() {
 
@@ -152,15 +152,21 @@ export function RouteDesigner() {
                                     inSteps={false}
                                     position={index}
                                     step={routeConfiguration}
+                                    nextStep={undefined}
+                                    prevStep={undefined}
                                     parent={undefined}/>
                     ))}
-                    {routes?.map((route: any, index: number) => (
-                        <DslElement key={route.uuid}
-                                    inSteps={false}
-                                    position={index}
-                                    step={route}
-                                    parent={undefined}/>
-                    ))}
+                    {routes?.map((route: any, index: number) => {
+                        return (
+                            <DslElement key={route.uuid}
+                                        inSteps={false}
+                                        position={index}
+                                        step={route}
+                                        nextStep={undefined}
+                                        prevStep={undefined}
+                                        parent={undefined}/>
+                        )
+                    })}
                     {getGraphButtons()}
                 </div>
             </div>)

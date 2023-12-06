@@ -377,7 +377,7 @@ export function DslElement(props: Props) {
                      key={step.uuid + "-child-" + index}>
                     {children.map((element, index) => {
                             let prevStep = children.at(index - 1);
-                            let nextStep = undefined;
+                            let nextStep: CamelElement | undefined = undefined;
                             if (['TryDefinition', 'ChoiceDefinition'].includes(step.dslName)) {
                                 nextStep = props.nextStep;
                             } else {
