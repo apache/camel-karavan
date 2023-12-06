@@ -20,10 +20,10 @@ import {
     Flex,
     Modal, ModalVariant,
 } from '@patternfly/react-core';
-import '../karavan.css';
-import {useDesignerStore, useIntegrationStore} from "../DesignerStore";
+import '../../karavan.css';
+import {useDesignerStore, useIntegrationStore} from "../../DesignerStore";
 import {shallow} from "zustand/shallow";
-import {useRouteDesignerHook} from "./useRouteDesignerHook";
+import {useRouteDesignerHook} from "../useRouteDesignerHook";
 import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt";
 
 export function DslElementMoveModal() {

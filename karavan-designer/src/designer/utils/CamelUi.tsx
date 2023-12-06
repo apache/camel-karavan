@@ -166,7 +166,16 @@ export class RouteToCreate {
 const INTEGRATION_PATTERNS = 'Integration Patterns';
 const connectorNavs = ['routing', "transformation", "error", "configuration", "endpoint", "kamelet", "component"];
 
+const stepConvertMap = new Map<string, string>([
+    ["SetBodyDefinition", "SetHeaderDefinition"],
+    ["SetHeaderDefinition", "SetBodyDefinition"],
+]);
+
 export class CamelUi {
+
+    static getConvertTargetDsl = (sourceDsl?: string): string | undefined => {
+        return sourceDsl ? stepConvertMap.get(sourceDsl) : undefined;
+    }
 
     static createNewInternalRoute = (uri: string): RouteToCreate | undefined => {
         const uris = uri.toString().split(":");
