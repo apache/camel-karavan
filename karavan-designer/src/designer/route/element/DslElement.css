@@ -41,7 +41,7 @@
 .karavan .step-element .header .delete-button,
 .element-builder .header .delete-button {
     position: absolute;
-    top: -8px;
+    top: -7px;
     line-height: 1;
     border: 0;
     padding: 0;
@@ -135,7 +135,7 @@
     top: 5px;
     left: 5px;
     font-size: 15px;
-    height: 15px;
+    height: 24px;
     line-height: 1;
     border: 0;
     padding: 0;
@@ -148,7 +148,7 @@
 
 .karavan .step-element .insert-element-button {
     position: absolute;
-    top: -8px;
+    top: -7px;
     line-height: 1;
     border: 0;
     padding: 0;

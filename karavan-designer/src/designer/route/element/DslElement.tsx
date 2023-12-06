@@ -412,11 +412,10 @@ export function DslElement(props: Props) {
         const hideAddButton = step.dslName === 'StepDefinition' && !CamelDisplayUtil.isStepDefinitionExpanded(integration, step.uuid, selectedUuids.at(0));
         if (hideAddButton) return (<></>)
         else return (
-            <Tooltip position={"bottom"}
-                     content={<div>{nextStep?.dslName.replace("Definition", "")}</div>}
-                // content={<div>{"Add step to " + CamelDisplayUtil.getTitle(step)}</div>}
-            >
-                <div ref={addButtonRef}>
+            <div ref={addButtonRef}>
+                <Tooltip position={"bottom"}
+                         content={<div>{"Add step to " + CamelDisplayUtil.getTitle(step)}</div>}
+                >
                     <button type="button"
                             ref={el => sendButtonPosition(el)}
                             aria-label="Add"
@@ -424,8 +423,9 @@ export function DslElement(props: Props) {
                             className={isAddStepButtonLeft() ? "add-button add-button-left" : "add-button add-button-bottom"}>
                         <AddElementIcon/>
                     </button>
-                </div>
-            </Tooltip>
+
+                </Tooltip>
+            </div>
         )
     }
 

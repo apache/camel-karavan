@@ -246,19 +246,10 @@ export function DslConnections() {
             const showArrow = pos.prevStep !== undefined && !['TryDefinition', 'ChoiceDefinition'].includes(pos.prevStep.dslName);
             const name = pos.prevStep?.dslName;
             if (parent && showArrow) {
-                const startX = parent.headerRect.x + parent.headerRect.width / 2 - left;
-                const startY = parent.headerRect.y + parent.headerRect.height - top;
                 if ((!pos.inSteps || (pos.inSteps && pos.position === 0)) && parent.step.dslName !== 'MulticastDefinition') {
-                    return (
-                        <path name={pos.step.dslName}
-                              d={`M ${startX},${startY} C ${startX},${endY} ${endX},${startY}   ${endX},${endY}`}
-                              className="path" key={pos.step.uuid} markerEnd="url(#arrowhead)"/>
-                    )
+                    return getArrows(pos);
                 } else if (parent.step.dslName === 'MulticastDefinition' && pos.inSteps) {
-                    return (
-                        <path d={`M ${startX},${startY} C ${startX},${endY} ${endX},${startY}   ${endX},${endY}`}
-                              name={name} className="path" key={pos.step.uuid} markerEnd="url(#arrowhead)"/>
-                    )
+                    return getArrows(pos)
                 } else if (pos.inSteps && pos.position > 0 && !hasSteps(pos.step)) {
                     const prev = getPreviousStep(pos);
                     if (prev) {
@@ -286,12 +277,28 @@ export function DslConnections() {
         }
     }
 
+    function getArrows(pos: DslPosition) {
+        if (pos.parent) {
+            const parent = steps.get(pos?.parent.uuid);
+            if (parent) {
+            const rect1 = parent.headerRect;
+            const rect2 = pos.headerRect;
+            return getComplexArrow(pos.step.uuid, rect1, rect2);
+            }
+        }
+    }
+
     function getButtonArrow(btn: ButtonPosition) {
         const rect1 = btn.rect;
         const uuid = btn.nextstep.uuid;
         const nextStep = steps.get(uuid);
         const rect2 = nextStep?.rect;
         if (rect1 && rect2) {
+            return getComplexArrow(uuid, rect1, rect2);
+        }
+    }
+
+    function getComplexArrow(key: string, rect1: DOMRect, rect2: DOMRect) {
             const startX = rect1.x + rect1.width / 2 - left;
             const startY = rect1.y + rect1.height - top - 2;
             const endX = rect2.x + rect2.width / 2 - left;
@@ -328,11 +335,9 @@ export function DslConnections() {
                 + ` Q ${Q1_X1} ${Q1_Y1} ${Q1_X2} ${Q1_Y2}`
                 + ` L ${LX2} ${LY2}`
                 + ` Q ${Q2_X1} ${Q2_Y1} ${Q2_X2} ${Q2_Y2}`
-                // + ` L ${endX} ${endY}`;
             return (
-                <path key={btn.uuid} d={path} className="path" markerEnd="url(#arrowhead)"/>
+                <path key={key} d={path} className="path" markerEnd="url(#arrowhead)"/>
             )
-        }
     }
 
     function getSvg() {
