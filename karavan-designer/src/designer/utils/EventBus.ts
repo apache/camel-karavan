@@ -18,23 +18,6 @@ import {Subject} from 'rxjs';
 import {CamelElement, Integration} from "karavan-core/lib/model/IntegrationDefinition";
 import {v4 as uuidv4} from "uuid";
 
-export class ButtonPosition {
-    uuid: string = '';
-    nextstep: CamelElement = new CamelElement("");
-    rect: DOMRect = new DOMRect();
-    command: "add" | "delete" | "clean" = "add";
-
-    constructor(command: "add" | "delete" | "clean",
-                uuid: string,
-                nextstep: CamelElement,
-                rect: DOMRect) {
-        this.uuid = uuid;
-        this.command = command;
-        this.nextstep = nextstep;
-        this.rect = rect;
-    }
-}
-
 export class DslPosition {
     step: CamelElement = new CamelElement("");
     prevStep: CamelElement | undefined;
@@ -110,7 +93,6 @@ export class ToastMessage {
     }
 }
 const dslPositions = new Subject<DslPosition>();
-const buttonPositions = new Subject<ButtonPosition>();
 
 export const EventBus = {
     sendPosition: (command: "add" | "delete" | "clean",
@@ -126,11 +108,6 @@ export const EventBus = {
                    isSelected: boolean = false) => dslPositions.next(
                        new DslPosition(command, step, prevStep, nextstep, parent, rect, headerRect, position, inStepsLength, inSteps, isSelected)),
     onPosition: () => dslPositions.asObservable(),
-
-    sendButtonPosition: (command: "add" | "delete" | "clean", uuid: string,
-                   nextStep: CamelElement,
-                   rect: DOMRect) => buttonPositions.next(new ButtonPosition(command, uuid, nextStep, rect)),
-    onButtonPosition: () => buttonPositions.asObservable(),
 
     sendIntegrationUpdate: (i: Integration, propertyOnly: boolean) => updates.next(new IntegrationUpdate(i, propertyOnly)),
     onIntegrationUpdate: () => updates.asObservable(),

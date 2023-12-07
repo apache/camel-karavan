@@ -27,7 +27,6 @@ import {shallow} from "zustand/shallow";
 import {useRouteDesignerHook} from "../useRouteDesignerHook";
 import {AddElementIcon} from "./DslElementIcons";
 import {DslElementHeader} from "./DslElementHeader";
-import {TryDefinition} from "karavan-core/lib/model/CamelDefinition";
 
 interface Props {
     step: CamelElement,
@@ -145,10 +144,10 @@ export function DslElement(props: Props) {
                 const rect = el.getBoundingClientRect();
                 if (step.showChildren) {
                     EventBus.sendPosition("add", step, prevStep, nextStep, parent, rect, headerRect, props.position, inStepsLength, inSteps, isSelected);
-                } else {
-                    EventBus.sendPosition("delete", step, prevStep, nextStep, parent, new DOMRect(), new DOMRect(), 0, 0);
                 }
             }
+        } else {
+            EventBus.sendPosition("delete", step, prevStep, nextStep, parent, new DOMRect(), new DOMRect(), 0, 0);
         }
     }
 

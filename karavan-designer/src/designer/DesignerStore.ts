@@ -16,7 +16,7 @@
  */
 
 import {CamelElement, Integration} from "karavan-core/lib/model/IntegrationDefinition";
-import {ButtonPosition, DslPosition, EventBus} from "./utils/EventBus";
+import {DslPosition, EventBus} from "./utils/EventBus";
 import {createWithEqualityFn} from "zustand/traditional";
 import {shallow} from "zustand/shallow";
 
@@ -120,10 +120,6 @@ interface ConnectionsState {
     deleteStep: (uuid: string) => void;
     clearSteps: () => void;
     setSteps: (steps: Map<string, DslPosition>) => void;
-    buttons: Map<string, ButtonPosition>;
-    addButton: (uuid: string, button: ButtonPosition) => void;
-    deleteButton: (uuid: string) => void;
-    clearButtons: () => void;
 }
 
 export const useConnectionsStore = createWithEqualityFn<ConnectionsState>((set) => ({
@@ -138,6 +134,8 @@ export const useConnectionsStore = createWithEqualityFn<ConnectionsState>((set) 
             // state.steps.clear();
             Array.from(state.steps.entries())
                 .filter(value => value[1]?.parent?.uuid !== uuid)
+                .filter(value => value[1]?.prevStep?.uuid !== uuid)
+                .filter(value => value[1]?.nextstep?.uuid !== uuid)
                 .forEach(value => state.steps.set(value[0], value[1]));
             state.steps.delete(uuid)
             return state;
@@ -151,28 +149,7 @@ export const useConnectionsStore = createWithEqualityFn<ConnectionsState>((set) 
     },
     setSteps: (steps: Map<string, DslPosition>) => {
         set({steps: steps})
-    },
-    buttons: new Map<string, ButtonPosition>(),
-    addButton: (uuid: string, button: ButtonPosition) => {
-        set(state => ({
-            buttons: new Map(state.buttons).set(uuid, button),
-        }))
-    },
-    clearButtons: () => {
-        set((state: ConnectionsState) => {
-            state.buttons.clear();
-            return state;
-        })
-    },
-    deleteButton: (uuid: string) => {
-        set((state: ConnectionsState) => {
-            Array.from(state.buttons.entries())
-                .filter(value => value[1].uuid !== uuid)
-                .forEach(value => state.buttons.set(value[0], value[1]));
-            state.buttons.delete(uuid)
-            return state;
-        })
-    },
+    }
 }), shallow)
 
 type DesignerState = {
