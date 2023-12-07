@@ -24,7 +24,7 @@ import {
 import '../designer/karavan.css';
 import {ProjectToolbar} from "./ProjectToolbar";
 import {ProjectLogPanel} from "./log/ProjectLogPanel";
-import {Project} from "../api/ProjectModels";
+import {Project, ProjectType} from "../api/ProjectModels";
 import {useAppConfigStore, useFilesStore, useFileStore, useProjectsStore, useProjectStore} from "../api/ProjectStore";
 import {MainToolbar} from "../designer/MainToolbar";
 import {ProjectTitle} from "./ProjectTitle";
@@ -38,9 +38,7 @@ import {ProjectService} from "../api/ProjectService";
 
 export function ProjectPage() {
 
-    const [config] = useAppConfigStore((state) => [state.config], shallow)
     const {file, operation} = useFileStore();
-    const [files] = useFilesStore((s) => [s.files], shallow);
     const [projects] = useProjectsStore((state) => [state.projects], shallow)
     const [project, setProject, tabIndex, setTabIndex, refreshTrace] =
         useProjectStore((s) => [s.project, s.setProject, s.tabIndex, s.setTabIndex, s.refreshTrace], shallow);
@@ -73,16 +71,11 @@ export function ProjectPage() {
         return ['kamelets', 'templates', 'services'].includes(project.projectId);
     }
 
-    function isEphemeral(): boolean {
-        return files.filter(f => f.name.endsWith(".camel.yaml") || f.name === 'application.properties').length === 0;
-    }
-
     function showTabs(): boolean {
         return !isBuildIn() && !showFilePanel;
     }
 
-    const buildIn = isBuildIn();
-    const ephemeral = isEphemeral();
+    const ephemeral = project.type === ProjectType.ephemeral
     const showFilePanel = file !== undefined && operation === 'select';
     return (
         <PageSection className="project-page" padding={{default: 'noPadding'}}>
@@ -93,8 +86,8 @@ export function ProjectPage() {
                 <Flex direction={{default: "column"}} spaceItems={{default: "spaceItemsNone"}}>
                     <FlexItem className="project-tabs">
                         {showTabs() && <Tabs activeKey={tabIndex} onSelect={(event, tabIndex) => setTabIndex(tabIndex)}>
-                            <Tab eventKey="files" title="Files"/>
                             {!ephemeral && <Tab eventKey="topology" title="Topology"/>}
+                            <Tab eventKey="files" title="Files"/>
                             {!ephemeral && <Tab eventKey="dashboard" title="Dashboard"/>}
                             {!ephemeral && <Tab eventKey="trace" title="Trace"/>}
                             {!ephemeral && <Tab eventKey="build" title="Build"/>}

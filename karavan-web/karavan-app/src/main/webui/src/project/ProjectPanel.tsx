@@ -22,7 +22,7 @@ import {
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
 import {FilesTab} from "./files/FilesTab";
-import {useAppConfigStore, useProjectStore} from "../api/ProjectStore";
+import {useAppConfigStore, useFilesStore, useFileStore, useProjectStore} from "../api/ProjectStore";
 import {DashboardTab} from "./dashboard/DashboardTab";
 import {TraceTab} from "./trace/TraceTab";
 import {ProjectBuildTab} from "./builder/ProjectBuildTab";
@@ -30,12 +30,17 @@ import {ProjectService} from "../api/ProjectService";
 import {shallow} from "zustand/shallow";
 import {ImagesPanel} from "./builder/ImagesPanel";
 import {ProjectContainerTab} from "./container/ProjectContainerTab";
-import {ProjectTopologyTab} from "./topology/ProjectTopologyTab";
+import {IntegrationFile} from "../topology/TopologyStore";
+import {TopologyTab} from "../topology/TopologyTab";
+import {Buffer} from "buffer";
+import {CreateFileModal} from "./files/CreateFileModal";
 
 export function ProjectPanel() {
 
     const [config] = useAppConfigStore((state) => [state.config], shallow)
     const [project, tab, setTab] = useProjectStore((s) => [s.project, s.tabIndex, s.setTabIndex], shallow);
+    const [setFile] = useFileStore((s) => [s.setFile], shallow);
+    const [files] = useFilesStore((s) => [s.files], shallow);
 
     useEffect(() => {
         onRefresh();
@@ -44,7 +49,8 @@ export function ProjectPanel() {
     function onRefresh() {
         if (project.projectId) {
             ProjectService.refreshProjectData(project.projectId);
-            setTab('files')
+            // setTab(project.type === ProjectType.normal ? 'topology' : 'files')
+            setTab('topology')
         }
     }
 
@@ -52,10 +58,34 @@ export function ProjectPanel() {
         return ['kamelets', 'templates', 'services'].includes(project.projectId);
     }
 
+    function selectFile(fileName: string) {
+        const file = files.filter(f => f.name === fileName)?.at(0);
+        if (file) {
+            setFile('select', file);
+        }
+    }
+
     const buildIn = isBuildIn();
     const isTopology = tab === 'topology';
+
+    const iFiles = files.map(f => new IntegrationFile(f.name, f.code));
+    const codes = iFiles.map(f=>f.code).join("");
+    const key = Buffer.from(codes).toString('base64')
+
     return isTopology
-        ? (<ProjectTopologyTab/>)
+        ? (
+            <>
+            <TopologyTab key={key}
+                         hideToolbar={false}
+                         files={files.map(f => new IntegrationFile(f.name, f.code))}
+                         onClickAddRoute={() => setFile('create', undefined, 'routes')}
+                         onClickAddREST={() => setFile('create', undefined, 'rest')}
+                         onClickAddBean={() => setFile('create', undefined, 'beans')}
+                         onSetFile={(fileName) => selectFile(fileName)}
+            />
+                <CreateFileModal types={['INTEGRATION']} isKameletsProject={false}/>
+            </>
+        )
         : (<PageSection padding={{default: 'noPadding'}} className="scrollable-out">
             <PageSection isFilled padding={{default: 'noPadding'}} className="scrollable-in">
                 <Flex direction={{default: "column"}} spaceItems={{default: "spaceItemsNone"}}>

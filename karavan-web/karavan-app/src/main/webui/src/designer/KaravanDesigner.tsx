@@ -50,8 +50,8 @@ interface Props {
     yaml: string
     dark: boolean
     hideLogDSL?: boolean
-    tab?: string
     showCodeTab: boolean
+    tab?: "routes" | "rest" | "beans"
 }
 
 export function KaravanDesigner(props: Props) {
@@ -72,7 +72,14 @@ export function KaravanDesigner(props: Props) {
         setSelectedStep(undefined);
         const i = makeIntegration(props.yaml, props.filename);
         setIntegration(i, false);
-        setTab(i.kind === 'Kamelet' ? 'kamelet' : 'routes')
+        let designerTab = i.kind === 'Kamelet' ? 'kamelet' : props.tab;
+        if (designerTab === undefined) {
+            const counts = CamelUi.getFlowCounts(i);
+            designerTab = (counts.get('routes') || 0) > 0 ? 'routes' : designerTab;
+            designerTab = (counts.get('rest') || 0) > 0 ? 'rest' : designerTab;
+            designerTab = (counts.get('beans') || 0) > 0 ? 'beans' : designerTab;
+        }
+        setTab(designerTab || 'routes')
         reset();
         setDark(props.dark);
         setHideLogDSL(props.hideLogDSL === true);

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import React from 'react';
+import React, {useEffect} from 'react';
 import {
     Badge,
     Bullseye,
@@ -115,7 +115,7 @@ export function FilesTab () {
                                 <Td>
                                     <Button style={{padding: '6px'}} variant={"link"}
                                             onClick={e => {
-                                                setFile('select', file);
+                                                setFile('select', file, undefined);
                                             }}>
                                         {file.name}
                                     </Button>

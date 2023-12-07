@@ -29,6 +29,7 @@ export enum ProjectType {
     kamelets ='kamelets',
     services ='services',
     normal ='normal',
+    ephemeral ='ephemeral',
 }
 
 export class Project {
