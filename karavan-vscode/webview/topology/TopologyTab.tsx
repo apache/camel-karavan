@@ -36,12 +36,13 @@ import {TopologyPropertiesPanel} from "./TopologyPropertiesPanel";
 import {TopologyToolbar} from "./TopologyToolbar";
 import {useDesignerStore} from "../designer/DesignerStore";
 
-
 interface Props {
     files: IntegrationFile[],
-    onClickCreateButton: () => void
     onSetFile: (fileName: string) => void
     hideToolbar: boolean
+    onClickAddRoute: () => void
+    onClickAddREST: () => void
+    onClickAddBean: () => void
 }
 
 export function TopologyTab (props: Props) {
@@ -94,7 +95,11 @@ export function TopologyTab (props: Props) {
     return (
         <TopologyView
             className="topology-panel"
-            contextToolbar={!props.hideToolbar? <TopologyToolbar onClickCreateButton={props.onClickCreateButton}/> : undefined}
+            contextToolbar={!props.hideToolbar
+                ? <TopologyToolbar onClickAddRoute={props.onClickAddRoute}
+                                   onClickAddBean={props.onClickAddBean}
+                                   onClickAddREST={props.onClickAddREST}/>
+                : undefined}
             sideBar={<TopologyPropertiesPanel onSetFile={props.onSetFile}/>}
             controlBar={
                 <TopologyControlBar
