@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import React, {useEffect} from 'react';
+import React from 'react';
 import {
     Badge,
     Bullseye,
@@ -86,7 +86,7 @@ export function FilesTab () {
 
     const types = isBuildIn()
         ? (isKameletsProject() ? ['KAMELET'] : ['CODE', 'PROPERTIES'])
-        : ProjectFileTypes.filter(p => !['PROPERTIES', 'LOG', 'KAMELET'].includes(p.name)).map(p => p.name);
+        : ProjectFileTypes.filter(p => !['PROPERTIES', 'KAMELET'].includes(p.name)).map(p => p.name);
 
     return (
         <PageSection className="project-tab-panel" padding={{default: "padding"}}>

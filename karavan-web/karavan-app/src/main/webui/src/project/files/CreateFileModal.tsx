@@ -93,19 +93,15 @@ export function CreateFileModal(props: Props) {
     }
 
     function confirmAndCloseModal() {
-        const extension = ProjectFileTypes.filter(value => value.name === fileType)[0].extension;
-        const filename = (extension !== 'java') ? fileNameCheck(name) : CamelUi.javaNameFromTitle(name);
         const code = getCode();
-        if (filename && extension) {
-            const fullFileName = filename + (isKamelet ? '-' + kameletType : '') + '.' + extension;
-            const file = new ProjectFile(fullFileName, project.projectId, code, Date.now());
-            ProjectService.createFile(file);
-            cleanValues();
-            if (code) {
-                setFile('select', file, designerTab);
-            } else {
-                setFile("none");
-            }
+        const fullFileName = getFullFileName(name, fileType);
+        const file = new ProjectFile(fullFileName, project.projectId, code, Date.now());
+        ProjectService.createFile(file);
+        cleanValues();
+        if (code) {
+            setFile('select', file, designerTab);
+        } else {
+            setFile("none");
         }
     }
 
@@ -118,7 +114,6 @@ export function CreateFileModal(props: Props) {
     }
 
     const isKamelet = props.isKameletsProject;
-    const extension = ProjectFileTypes.filter(value => value.name === fileType)[0]?.extension;
 
     const listOfValues: Value[] = KameletApi.getKamelets()
         .filter(k => k.metadata.labels["camel.apache.org/kamelet.type"] === kameletType)
@@ -127,11 +122,20 @@ export function CreateFileModal(props: Props) {
             return v;
         })
 
-    function getFullFileName(name: string) {
+    function getFullFileName(name: string, type?: string) {
+        let extension = ProjectFileTypes.filter(value => value.name === type)[0]?.extension;
+        extension = extension === '*' ? '' : '.' + extension;
         const filename = (extension !== 'java')
             ? fileNameCheck(name)
             : CamelUi.javaNameFromTitle(name);
-        return filename + (isKamelet ? '-' + kameletType : '') + '.' + extension;
+        return filename + (isKamelet ? '-' + kameletType : '') + extension;
+    }
+
+    function update(value: string, type?: string) {
+        setName(value);
+        const exists = getExistingFilenames().findIndex(f => f === getFullFileName(value, type)) === -1;
+        setNameAvailable(exists);
+        setFileType(type);
     }
 
     return (
@@ -155,7 +159,7 @@ export function CreateFileModal(props: Props) {
                                 return <ToggleGroupItem key={title} text={title} buttonId={p.name}
                                                         isSelected={fileType === p.name}
                                                         onChange={(_, selected) => {
-                                                            setFileType(p.name);
+                                                            update(name, p.name);
                                                         }}/>
                             })}
                     </ToggleGroup>
@@ -177,15 +181,11 @@ export function CreateFileModal(props: Props) {
                     <TextInput id="name"
                                aria-label="name"
                                value={name}
-                               onChange={(_, value) => {
-                                   setName(value);
-                                   const exists = getExistingFilenames().findIndex(f => f === getFullFileName(value)) === -1;
-                                   setNameAvailable(exists);
-                               }}/>
+                               onChange={(_, value) => update(value, fileType)}/>
                     <FormHelperText>
                         <HelperText id="helper-text1">
                             <HelperTextItem variant={nameAvailable ? 'default' : 'error'}>
-                                {!nameAvailable ? 'File ': ''}{getFullFileName(name)}{!nameAvailable ? ' already exists': ''}
+                                {!nameAvailable ? 'File ': ''}{getFullFileName(name, fileType)}{!nameAvailable ? ' already exists': ''}
                             </HelperTextItem>
                         </HelperText>
                     </FormHelperText>
