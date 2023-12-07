@@ -143,6 +143,7 @@ export const useProjectStore = createWithEqualityFn<ProjectState>((set) => ({
             context: {},
             trace: {},
             memory: {},
+            tabIndex: state.tabIndex
         }));
     },
     setOperation: (o: "create" | "select" | "delete"| "none" | "copy") => {

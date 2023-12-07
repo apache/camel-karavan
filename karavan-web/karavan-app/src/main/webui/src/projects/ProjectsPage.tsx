@@ -61,7 +61,6 @@ export function ProjectsPage () {
     const [filter, setFilter] = useState<string>('');
 
     useEffect(() => {
-        console.log("ProjectsPage", "useEffect");
         KaravanApi.getProjects((projects: Project[]) => {
             setProjects(projects);
         });

@@ -46,7 +46,7 @@ export function ProjectPanel() {
 
     useEffect(() => {
         onRefresh();
-    }, [project]);
+    }, [project.projectId]);
 
     function onRefresh() {
         if (project.projectId) {

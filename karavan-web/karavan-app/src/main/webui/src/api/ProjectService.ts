@@ -30,6 +30,7 @@ import {
 import {ProjectEventBus} from './ProjectEventBus';
 import {EventBus} from "../designer/utils/EventBus";
 import {KameletApi} from "karavan-core/lib/api/KameletApi";
+import {AxiosResponse} from "axios";
 
 export class ProjectService {
 
@@ -95,29 +96,6 @@ export class ProjectService {
             }
         });
     }
-
-    // public static getDevModeStatus(project: Project) {
-    //     const projectId = project.projectId;
-    //     KaravanApi.getDevModePodStatus(projectId, res => {
-    //         if (res.status === 200) {
-    //             unstable_batchedUpdates(() => {
-    //                 const containerStatus = res.data;
-    //                 if (useDevModeStore.getState().podName !== containerStatus.containerName){
-    //                     useDevModeStore.setState({podName: containerStatus.containerName})
-    //                 }
-    //                 if (useDevModeStore.getState().status !== 'wip'){
-    //                     useLogStore.setState({isRunning: true})
-    //                 }
-    //                 useStatusesStore.setState({containerStatus: containerStatus});
-    //             })
-    //         } else {
-    //             unstable_batchedUpdates(() => {
-    //                 useDevModeStore.setState({status: 'none', podName: undefined})
-    //                 useStatusesStore.setState({containerStatus: new ContainerStatus({})});
-    //             })
-    //         }
-    //     });
-    // }
 
     public static pushProject(project: Project, commitMessage: string) {
         useProjectStore.setState({isPushing: true})
