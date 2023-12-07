@@ -14,15 +14,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import React, {useEffect} from 'react';
+import React, {JSX, useEffect, useState} from 'react';
 import '../karavan.css';
-import {CamelElement} from "karavan-core/lib/model/IntegrationDefinition";
-import {ButtonPosition, DslPosition, EventBus} from "../utils/EventBus";
+import {DslPosition, EventBus} from "../utils/EventBus";
 import {CamelUi} from "../utils/CamelUi";
 import {useConnectionsStore, useDesignerStore, useIntegrationStore} from "../DesignerStore";
 import {shallow} from "zustand/shallow";
 import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt";
 import {TopologyUtils} from "karavan-core/lib/api/TopologyUtils";
+import {CamelElement} from "karavan-core/lib/model/IntegrationDefinition";
+import {v4 as uuidv4} from "uuid";
 
 const overlapGap: number = 40;
 
@@ -31,33 +32,23 @@ export function DslConnections() {
     const [integration] = useIntegrationStore((state) => [state.integration], shallow)
     const [width, height, top, left, hideLogDSL] = useDesignerStore((s) =>
         [s.width, s.height, s.top, s.left, s.hideLogDSL], shallow)
-    const [steps, addStep, deleteStep, clearSteps, buttons, addButton, clearButtons, deleteButton] =
-        useConnectionsStore((s) => [s.steps, s.addStep, s.deleteStep, s.clearSteps,
-            s.buttons, s.addButton, s.clearButtons, s.deleteButton], shallow)
+    const [steps, addStep, deleteStep, clearSteps] =
+        useConnectionsStore((s) => [s.steps, s.addStep, s.deleteStep, s.clearSteps], shallow)
+
+    const [svgKey, setSvgKey] = useState<string>('svgKey');
 
     useEffect(() => {
         const sub1 = EventBus.onPosition()?.subscribe((evt: DslPosition) => setPosition(evt));
-        const sub2 = EventBus.onButtonPosition()?.subscribe((btn: ButtonPosition) => setButtonPosition(btn));
         return () => {
             sub1?.unsubscribe();
-            sub2?.unsubscribe();
         };
     });
 
     useEffect(() => {
-        const toDelete: string[] = Array.from(steps.keys()).filter(k => CamelDefinitionApiExt.findElementInIntegration(integration, k) === undefined);
-        toDelete.forEach(key => deleteStep(key));
+        const toDelete1: string[] = Array.from(steps.keys()).filter(k => CamelDefinitionApiExt.findElementInIntegration(integration, k) === undefined);
+        toDelete1.forEach(key => deleteStep(key));
+        setSvgKey(uuidv4())
     }, [integration]);
-
-    function setButtonPosition(btn: ButtonPosition) {
-        if (btn.command === "add") {
-            addButton(btn);
-        } else if (btn.command === "delete") {
-            deleteButton(btn);
-        } else if (btn.command === "clean") {
-            clearButtons();
-        }
-    }
 
     function setPosition(evt: DslPosition) {
         if (evt.command === "add") {
@@ -103,8 +94,6 @@ export function DslConnections() {
             return (
                 <g key={pos.step.uuid + "-incoming"}>
                     <circle cx={incomingX} cy={fromY} r={r} className="circle-incoming"/>
-                    {/*<image x={imageX} y={imageY} href={CamelUi.getConnectionIconString(pos.step)} className="icon"/>*/}
-                    {/*<text x={imageX - 5} y={imageY + 40} className="caption" textAnchor="start">{CamelUi.getTitle(pos.step)}</text>*/}
                     <path d={`M ${lineX1},${lineY1} C ${lineX1},${lineY2} ${lineX2},${lineY1}  ${lineX2},${lineY2}`}
                           className="path-incoming" markerEnd="url(#arrowhead)"/>
                 </g>
@@ -189,8 +178,6 @@ export function DslConnections() {
             return (
                 <g key={pos.step.uuid + "-outgoing"}>
                     <circle cx={outgoingX} cy={outgoingY} r={r} className="circle-outgoing"/>
-                    {/*<image x={imageX} y={imageY} href={image} className="icon"/>*/}
-                    {/*<text x={imageX + 25} y={imageY + 40}  className="caption" textAnchor="end">{CamelUi.getOutgoingTitle(pos.step)}</text>*/}
                     <path
                         d={`M ${lineX1},${lineY1} C ${lineXi - 20}, ${lineY1} ${lineX1 - 15},${lineYi} ${lineXi},${lineYi} L ${lineX2},${lineY2}`}
                         className="path-incoming" markerEnd="url(#arrowhead)"/>
@@ -226,79 +213,113 @@ export function DslConnections() {
         )
     }
 
-    function hasSteps(step: CamelElement): boolean {
-        return (step.hasSteps() && !['FromDefinition'].includes(step.dslName))
-            || ['RouteDefinition', 'TryDefinition', 'ChoiceDefinition', 'SwitchDefinition'].includes(step.dslName);
-    }
-
-    function getPreviousStep(pos: DslPosition) {
-        return Array.from(steps.values())
-            .filter(p => pos.parent?.uuid === p.parent?.uuid)
-            .filter(p => p.inSteps)
-            .filter(p => p.position === pos.position - 1)[0];
-    }
-
-    function getArrow(pos: DslPosition) {
-        const endX = pos.headerRect.x + pos.headerRect.width / 2 - left;
-        const endY = pos.headerRect.y - 9 - top;
-        if (pos.parent) {
+    function getNext(pos: DslPosition): CamelElement | undefined {
+        if (pos.nextstep) {
+            return pos.nextstep;
+        } else if (pos.parent) {
             const parent = steps.get(pos.parent.uuid);
-            const showArrow = pos.prevStep !== undefined && !['TryDefinition', 'ChoiceDefinition'].includes(pos.prevStep.dslName);
-            const name = pos.prevStep?.dslName;
-            if (parent && showArrow) {
-                if ((!pos.inSteps || (pos.inSteps && pos.position === 0)) && parent.step.dslName !== 'MulticastDefinition') {
-                    return getArrows(pos);
-                } else if (parent.step.dslName === 'MulticastDefinition' && pos.inSteps) {
-                    return getArrows(pos)
-                } else if (pos.inSteps && pos.position > 0 && !hasSteps(pos.step)) {
-                    const prev = getPreviousStep(pos);
-                    if (prev) {
-                        const r = hasSteps(prev.step) ? prev.rect : prev.headerRect;
-                        const prevX = r.x + r.width / 2 - left;
-                        const prevY = r.y + r.height - top;
-                        return (
-                            <line name={name} x1={prevX} y1={prevY} x2={endX} y2={endY} className="path"
-                                  key={pos.step.uuid} markerEnd="url(#arrowhead)"/>
-                        )
-                    }
-                } else if (pos.inSteps && pos.position > 0 && hasSteps(pos.step)) {
-                    const prev = getPreviousStep(pos);
-                    if (prev) {
-                        const r = hasSteps(prev.step) ? prev.rect : prev.headerRect;
-                        const prevX = r.x + r.width / 2 - left;
-                        const prevY = r.y + r.height - top;
-                        return (
-                            <line name={name} x1={prevX} y1={prevY} x2={endX} y2={endY} className="path"
-                                  key={pos.step.uuid} markerEnd="url(#arrowhead)"/>
-                        )
-                    }
+            if (parent) return getNext(parent);
+        }
+    }
+
+    function isSpecial(pos: DslPosition): boolean {
+        return ['ChoiceDefinition', 'MulticastDefinition', 'TryDefinition'].includes(pos.step.dslName);
+    }
+
+    function addArrowToList(list: JSX.Element[], from?: DslPosition, to?: DslPosition, fromHeader?: boolean, toHeader?: boolean): JSX.Element[]  {
+        const result: JSX.Element[] = [...list];
+        if (from && to) {
+            const rect1 = fromHeader === true ? from.headerRect : from.rect;
+            const rect2 = toHeader === true ? to.headerRect : to.rect;
+            const key = from.step.uuid + "->" + to.step.uuid;
+            result.push(getComplexArrow(key, rect1, rect2, toHeader === true));
+        }
+        return result;
+    }
+
+    function getArrow(pos: DslPosition): JSX.Element[] {
+        const list: JSX.Element[] = [];
+
+         if (pos.parent && pos.parent.dslName === 'TryDefinition' && pos.position === 0) {
+            const parent = steps.get(pos.parent.uuid);
+            list.push(...addArrowToList(list, parent, pos, true, false))
+        } else if (pos.parent && pos.parent.dslName === 'MulticastDefinition') {
+            const parent = steps.get(pos.parent.uuid);
+            list.push(...addArrowToList(list, parent, pos, true, false))
+            if (parent?.nextstep) {
+                const to = steps.get(parent.nextstep.uuid);
+                list.push(...addArrowToList(list, pos, to, true, true))
+            }
+        } else if (pos.parent && pos.parent.dslName === 'ChoiceDefinition') {
+            const parent = steps.get(pos.parent.uuid);
+            list.push(...addArrowToList(list, parent, pos, true, false))
+        } else if (pos.parent && ['WhenDefinition', 'OtherwiseDefinition', 'CatchDefinition', 'FinallyDefinition'].includes(pos.parent.dslName)) {
+            if (pos.position === 0) {
+                const parent = steps.get(pos.parent.uuid);
+                list.push(...addArrowToList(list, parent, pos, true, false))
+            }
+            if (pos.position === (pos.inStepsLength - 1) && !isSpecial(pos)) {
+                const nextElement = getNext(pos);
+                if (nextElement) {
+                    const next = steps.get(nextElement.uuid);
+                    list.push(...addArrowToList(list, pos, next, true, true))
+                }
+            }
+        } else if (pos.step && !isSpecial(pos)) {
+            if (pos.nextstep) {
+                const next = steps.get(pos.nextstep.uuid);
+                const fromHeader = !pos.step.hasSteps();
+                list.push(...addArrowToList(list, pos, next, fromHeader, true))
+            }
+            if (pos.step.hasSteps() && (pos.step as any).steps.length > 0) {
+                const firstStep = (pos.step as any).steps[0];
+                const next = steps.get(firstStep.uuid);
+                list.push(...addArrowToList(list, pos, next, true, true))
+            }
+        }
+
+        if (['WhenDefinition', 'OtherwiseDefinition'].includes(pos.step.dslName) && pos.step.hasSteps() && (pos.step as any).steps.length === 0) {
+            if (pos.nextstep) {
+                const to = steps.get(pos.nextstep.uuid);
+                list.push(...addArrowToList(list, pos, to, true, true))
+            } else {
+                const next = getNext(pos);
+                if (next) {
+                    const to = steps.get(next.uuid);
+                    list.push(...addArrowToList(list, pos, to, true, true))
                 }
             }
         }
-    }
 
-    function getArrows(pos: DslPosition) {
-        if (pos.parent) {
-            const parent = steps.get(pos?.parent.uuid);
-            if (parent) {
-            const rect1 = parent.headerRect;
-            const rect2 = pos.headerRect;
-            return getComplexArrow(pos.step.uuid, rect1, rect2);
+        if (pos.parent?.dslName === 'TryDefinition' && pos.inSteps && pos.position === (pos.inStepsLength - 1)) {
+            const parent = steps.get(pos.parent.uuid);
+            if (parent && parent.nextstep) {
+                const to = steps.get(parent.nextstep.uuid);
+                list.push(...addArrowToList(list, pos, to, true, true))
             }
         }
-    }
 
-    function getButtonArrow(btn: ButtonPosition) {
-        const rect1 = btn.rect;
-        const uuid = btn.nextstep.uuid;
-        const nextStep = steps.get(uuid);
-        const rect2 = nextStep?.rect;
-        if (rect1 && rect2) {
-            return getComplexArrow(uuid, rect1, rect2);
+        if (!isSpecial(pos) && pos.inSteps && pos.nextstep && pos.parent?.dslName !== 'MulticastDefinition') {
+            const next = steps.get(pos.nextstep.uuid);
+            if (pos.step.hasSteps() && pos.prevStep) {
+            } else {
+                list.push(...addArrowToList(list, pos, next, true, true))
+            }
         }
+
+        if (!isSpecial(pos) && pos.inSteps && pos.nextstep && pos.parent?.dslName !== 'MulticastDefinition') {
+            const next = steps.get(pos.nextstep.uuid);
+            if (next && !isSpecial(next) && next.inSteps) {
+                // console.log(pos)
+                // const to = steps.get(parent.nextstep.uuid);
+                // list.push(...addArrowToList(list, pos, to, true, true))
+            }
+        }
+
+        return list;
     }
 
-    function getComplexArrow(key: string, rect1: DOMRect, rect2: DOMRect) {
+    function getComplexArrow(key: string, rect1: DOMRect, rect2: DOMRect, toHeader: boolean) {
             const startX = rect1.x + rect1.width / 2 - left;
             const startY = rect1.y + rect1.height - top - 2;
             const endX = rect2.x + rect2.width / 2 - left;
@@ -309,7 +330,7 @@ export function DslConnections() {
 
             const radX = gapX > 30 ? 20 : gapX/2;
             const radY = gapY > 30 ? 20 : gapY/2;
-            const endY = rect2.y - top - 9 - radY;
+            const endY = rect2.y - top - radY - (toHeader ? 9 : 6);
 
             const iRadX = startX > endX ? -1 * radX : radX;
             const iRadY = startY > endY ? -1 * radY : radY;
@@ -336,28 +357,27 @@ export function DslConnections() {
                 + ` L ${LX2} ${LY2}`
                 + ` Q ${Q2_X1} ${Q2_Y1} ${Q2_X2} ${Q2_Y2}`
             return (
-                <path key={key} d={path} className="path" markerEnd="url(#arrowhead)"/>
+                <path key={uuidv4()} name={key} d={path} className="path" markerEnd="url(#arrowhead)"/>
             )
     }
 
     function getSvg() {
         const stepsArray = Array.from(steps.values());
+        const arrows = stepsArray.map(pos => getArrow(pos)).flat(1);
+        const uniqueArrows = [...new Map(arrows.map(item =>  [(item as any).key, item])).values()]
         return (
-            <svg
+            <svg key={svgKey}
                 style={{width: width, height: height, position: "absolute", left: 0, top: 0}}
                 viewBox={"0 0 " + (width) + " " + (height)}>
                 <defs>
-                    <marker id="arrowhead" markerWidth="9" markerHeight="6" refX="0" refY="3" orient="auto"
-                            className="arrow">
+                    <marker id="arrowhead" markerWidth="9" markerHeight="6" refX="0" refY="3" orient="auto" className="arrow">
                         <polygon points="0 0, 9 3, 0 6"/>
                     </marker>
                 </defs>
                 {stepsArray.map(pos => getCircle(pos))}
-                {stepsArray.map(pos => getArrow(pos))}
-                {buttons.map(btn => getButtonArrow(btn)).filter(b => b !== undefined)}
+                {uniqueArrows}
                 {getIncomings().map(p => getIncoming(p))}
                 {getOutgoings().map(p => getOutgoing(p))}
-                {/*{getInternals().map((p) => getInternalLines(p)).flat()}*/}
             </svg>
         )
     }

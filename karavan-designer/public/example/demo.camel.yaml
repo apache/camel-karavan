@@ -25,6 +25,15 @@
                   - to:
                       uri: amqp
                       id: to-fbfe
+                  - choice:
+                      when:
+                        - expression:
+                            simple:
+                              id: simple-e78b
+                          id: when-b7d0
+                      otherwise:
+                        id: otherwise-40d0
+                      id: choice-8f6b
             otherwise:
               id: otherwise-382c
               steps:
@@ -32,6 +41,19 @@
                     message: ${body}
                     id: log-6831
             id: choice-c1db
+        - saga:
+            id: saga-8f2c
+            steps:
+              - to:
+                  uri: kamelet:azure-cosmosdb-sink
+                  id: to-1394
+- route:
+    nodePrefixId: route-171
+    id: route-99f9
+    from:
+      uri: kamelet:azure-storage-blob-source
+      id: from-f8e9
+      steps:
         - multicast:
             id: multicast-6a53
             steps:
@@ -66,6 +88,15 @@
                   - log:
                       message: ${body}
                       id: log-77df
+                  - choice:
+                      when:
+                        - expression:
+                            simple:
+                              id: simple-c7db
+                          id: when-f058
+                      otherwise:
+                        id: otherwise-1e11
+                      id: choice-8374
                   - wireTap:
                       id: wireTap-a25e
             doFinally:
@@ -94,5 +125,7 @@
                           simple:
                             id: simple-f0dc
                         id: setBody-3c0c
+              - process:
+                  id: process-6d06
         - circuitBreaker:
             id: circuitBreaker-4af8

@@ -16,7 +16,7 @@
  */
 
 import {CamelElement, Integration} from "karavan-core/lib/model/IntegrationDefinition";
-import {ButtonPosition, DslPosition, EventBus} from "./utils/EventBus";
+import {DslPosition, EventBus} from "./utils/EventBus";
 import {createWithEqualityFn} from "zustand/traditional";
 import {shallow} from "zustand/shallow";
 
@@ -120,10 +120,6 @@ interface ConnectionsState {
     deleteStep: (uuid: string) => void;
     clearSteps: () => void;
     setSteps: (steps: Map<string, DslPosition>) => void;
-    buttons: ButtonPosition[];
-    addButton: (button: ButtonPosition) => void;
-    deleteButton: (button: ButtonPosition) => void;
-    clearButtons: () => void;
 }
 
 export const useConnectionsStore = createWithEqualityFn<ConnectionsState>((set) => ({
@@ -138,6 +134,8 @@ export const useConnectionsStore = createWithEqualityFn<ConnectionsState>((set) 
             // state.steps.clear();
             Array.from(state.steps.entries())
                 .filter(value => value[1]?.parent?.uuid !== uuid)
+                .filter(value => value[1]?.prevStep?.uuid !== uuid)
+                .filter(value => value[1]?.nextstep?.uuid !== uuid)
                 .forEach(value => state.steps.set(value[0], value[1]));
             state.steps.delete(uuid)
             return state;
@@ -151,31 +149,7 @@ export const useConnectionsStore = createWithEqualityFn<ConnectionsState>((set) 
     },
     setSteps: (steps: Map<string, DslPosition>) => {
         set({steps: steps})
-    },
-    buttons: [],
-    addButton: (button: ButtonPosition) => {
-        set((state: ConnectionsState) => {
-            const index = state.buttons.findIndex(b => b.uuid === button.uuid);
-            if (index !== -1) {
-                state.buttons.splice(index, 1);
-            }
-            state.buttons.push(button);
-            return state;
-        })
-    },
-    clearButtons: () => {
-        set((state: ConnectionsState) => {
-            state.buttons.length = 0;
-            return state;
-        })
-    },
-    deleteButton: (button: ButtonPosition) => {
-        set((state: ConnectionsState) => {
-            const index = state.buttons.findIndex(b => b.uuid === button.uuid);
-            state.buttons.splice(index, 1);
-            return state;
-        })
-    },
+    }
 }), shallow)
 
 type DesignerState = {
