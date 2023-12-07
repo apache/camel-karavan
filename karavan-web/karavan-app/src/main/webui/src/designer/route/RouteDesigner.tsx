@@ -147,16 +147,17 @@ export function RouteDesigner() {
                      data-click="FLOWS"
                      onClick={event => {unselectElement(event)}}
                      ref={flowRef}>
-                    {routeConfigurations?.map((routeConfiguration, index: number) => (
+                    {routeConfigurations?.map((routeConfiguration, index: number, array) => (
                         <DslElement key={routeConfiguration.uuid}
                                     inSteps={false}
                                     position={index}
                                     step={routeConfiguration}
                                     nextStep={undefined}
                                     prevStep={undefined}
+                                    inStepsLength={array.length}
                                     parent={undefined}/>
                     ))}
-                    {routes?.map((route: any, index: number) => {
+                    {routes?.map((route: any, index: number, array) => {
                         return (
                             <DslElement key={route.uuid}
                                         inSteps={false}
@@ -164,6 +165,7 @@ export function RouteDesigner() {
                                         step={route}
                                         nextStep={undefined}
                                         prevStep={undefined}
+                                        inStepsLength={array.length}
                                         parent={undefined}/>
                         )
                     })}
