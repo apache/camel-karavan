@@ -20,7 +20,6 @@ import '../../karavan.css';
 import './DslElement.css';
 import {CamelElement} from "karavan-core/lib/model/IntegrationDefinition";
 import {CamelUi} from "../../utils/CamelUi";
-import {EventBus} from "../../utils/EventBus";
 import {ChildElement, CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt";
 import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
 import {CamelDisplayUtil} from "karavan-core/lib/api/CamelDisplayUtil";
@@ -28,11 +27,7 @@ import {useDesignerStore} from "../../DesignerStore";
 import {shallow} from "zustand/shallow";
 import {useRouteDesignerHook} from "../useRouteDesignerHook";
 import {AddElementIcon, DeleteElementIcon, InsertElementIcon} from "./DslElementIcons";
-import {
-    InterceptDefinition,
-    InterceptFromDefinition,
-    InterceptSendToEndpointDefinition, OnCompletionDefinition, OnExceptionDefinition, RouteConfigurationDefinition
-} from "karavan-core/lib/model/CamelDefinition";
+import { RouteConfigurationDefinition} from "karavan-core/lib/model/CamelDefinition";
 
 interface Props {
     headerRef: React.RefObject<HTMLDivElement>
@@ -79,12 +74,8 @@ export function DslElementHeader(props: Props) {
         return selectedUuids.includes(props.step.uuid);
     }
 
-    function isElementHidden(): boolean {
-        return props.step.dslName === 'LogDefinition' && hideLogDSL;
-    }
-
     function isWide(): boolean {
-        return ['RouteConfigurationDefinition', 'RouteDefinition', 'ChoiceDefinition', 'SwitchDefinition', 'MulticastDefinition', 'TryDefinition', 'CircuitBreakerDefinition']
+        return ['RouteConfigurationDefinition', 'RouteDefinition', 'ChoiceDefinition', 'MulticastDefinition', 'TryDefinition', 'CircuitBreakerDefinition']
             .includes(props.step.dslName);
     }
 
@@ -129,29 +120,6 @@ export function DslElementHeader(props: Props) {
         return style;
     }
 
-    function sendPosition(el: HTMLDivElement | null) {
-        const {step, prevStep, parent} = props;
-        const isSelected = isElementSelected();
-        const isHidden = isElementHidden();
-        if (el) {
-            const header = Array.from(el.childNodes.values()).filter((n: any) => n.classList.contains("header"))[0];
-            if (header) {
-                const headerIcon: any = Array.from(header.childNodes.values()).filter((n: any) => n.classList.contains("header-icon"))[0];
-                const headerRect = headerIcon.getBoundingClientRect();
-                const rect = el.getBoundingClientRect();
-                if (step.showChildren) {
-                    if (isHidden) {
-                        EventBus.sendPosition("add", step, prevStep, parent, rect, headerRect, props.position, props.inSteps, isSelected);
-                    } else {
-                        EventBus.sendPosition("add", step, prevStep, parent, rect, headerRect, props.position, props.inSteps, isSelected);
-                    }
-                } else {
-                    EventBus.sendPosition("delete", step, prevStep, parent, new DOMRect(), new DOMRect(), 0);
-                }
-            }
-        }
-    }
-
     function getAvailableModels() { // TODO: make static list-of-values instead
         const step: CamelElement = props.step
         return CamelUi.getSelectorModelsForParent(step.dslName, false);
@@ -174,10 +142,13 @@ export function DslElementHeader(props: Props) {
         const classes: string[] = [];
         const step: CamelElement = props.step;
         if (step.dslName === 'RouteDefinition') {
-            classes.push(...'header-route', 'header-bottom-line')
+            classes.push('header-route')
+            classes.push('header-bottom-line')
+            classes.push(isElementSelected() ? 'header-bottom-selected' : 'header-bottom-not-selected')
         } else if (step.dslName === 'RouteConfigurationDefinition') {
             classes.push('header-route')
             if (hasElements(step)) classes.push('header-bottom-line')
+            classes.push(isElementSelected() ? 'header-bottom-selected' : 'header-bottom-not-selected')
         } else {
             classes.push('header')
         }
@@ -200,7 +171,6 @@ export function DslElementHeader(props: Props) {
             <div className={"dsl-element " + headerClasses} style={getHeaderStyle()} ref={props.headerRef}>
                 {!['RouteConfigurationDefinition', 'RouteDefinition'].includes(props.step.dslName) &&
                     <div
-                        ref={el => sendPosition(el)}
                         className={"header-icon"}
                         style={isWide() ? {width: ""} : {}}>
                         {CamelUi.getIconForElement(step)}

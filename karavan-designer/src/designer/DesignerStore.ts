@@ -120,9 +120,9 @@ interface ConnectionsState {
     deleteStep: (uuid: string) => void;
     clearSteps: () => void;
     setSteps: (steps: Map<string, DslPosition>) => void;
-    buttons: ButtonPosition[];
-    addButton: (button: ButtonPosition) => void;
-    deleteButton: (button: ButtonPosition) => void;
+    buttons: Map<string, ButtonPosition>;
+    addButton: (uuid: string, button: ButtonPosition) => void;
+    deleteButton: (uuid: string) => void;
     clearButtons: () => void;
 }
 
@@ -152,27 +152,24 @@ export const useConnectionsStore = createWithEqualityFn<ConnectionsState>((set) 
     setSteps: (steps: Map<string, DslPosition>) => {
         set({steps: steps})
     },
-    buttons: [],
-    addButton: (button: ButtonPosition) => {
-        set((state: ConnectionsState) => {
-            const index = state.buttons.findIndex(b => b.uuid === button.uuid);
-            if (index !== -1) {
-                state.buttons.splice(index, 1);
-            }
-            state.buttons.push(button);
-            return state;
-        })
+    buttons: new Map<string, ButtonPosition>(),
+    addButton: (uuid: string, button: ButtonPosition) => {
+        set(state => ({
+            buttons: new Map(state.buttons).set(uuid, button),
+        }))
     },
     clearButtons: () => {
         set((state: ConnectionsState) => {
-            state.buttons.length = 0;
+            state.buttons.clear();
             return state;
         })
     },
-    deleteButton: (button: ButtonPosition) => {
+    deleteButton: (uuid: string) => {
         set((state: ConnectionsState) => {
-            const index = state.buttons.findIndex(b => b.uuid === button.uuid);
-            state.buttons.splice(index, 1);
+            Array.from(state.buttons.entries())
+                .filter(value => value[1].uuid !== uuid)
+                .forEach(value => state.buttons.set(value[0], value[1]));
+            state.buttons.delete(uuid)
             return state;
         })
     },

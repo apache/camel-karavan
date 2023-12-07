@@ -18,14 +18,19 @@
 .karavan .dsl-page .flows .step-element .header-route {
     display: block;
     background: transparent;
-    padding: 10px;
+    border-radius: 42px;
+    padding: 20px;
     margin: 0;
     z-index: 101;
     min-width: 260px;
 }
 
-.karavan .dsl-page .flows .step-element .header-bottom-line {
-    border-bottom: 1px dashed;
+.karavan .dsl-page .flows .step-element .header-bottom-selected {
+    border-bottom: 1px dashed var(--step-border-color-selected);
+}
+
+.karavan .dsl-page .flows .step-element .header-bottom-not-selected {
+    border-bottom: 1px dashed var(--pf-v5-global--Color--200);
 }
 
 .karavan .dsl-page .flows .step-element .header-route:hover {
@@ -48,7 +53,7 @@
 .karavan .step-element .header .delete-button,
 .element-builder .header .delete-button {
     position: absolute;
-    top: -7px;
+    top: -11px;
     line-height: 1;
     border: 0;
     padding: 0;
@@ -70,10 +75,6 @@
 
 .karavan .step-element .header {
     height: 50px;
-}
-
-.karavan .step-element-selected {
-    background-color: rgba(var(--pf-v5-global--palette--blue-50), 1);
 }
 
 .karavan .step-element .selected .header-icon {
@@ -152,7 +153,7 @@
 
 .karavan .step-element .insert-element-button {
     position: absolute;
-    top: -7px;
+    top: -11px;
     line-height: 1;
     border: 0;
     padding: 0;

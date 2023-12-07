@@ -27,6 +27,7 @@ import {shallow} from "zustand/shallow";
 import {useRouteDesignerHook} from "../useRouteDesignerHook";
 import {AddElementIcon} from "./DslElementIcons";
 import {DslElementHeader} from "./DslElementHeader";
+import {TryDefinition} from "karavan-core/lib/model/CamelDefinition";
 
 interface Props {
     step: CamelElement,
@@ -35,12 +36,12 @@ interface Props {
     prevStep: CamelElement | undefined,
     inSteps: boolean
     position: number
+    inStepsLength: number
 }
 
 export function DslElement(props: Props) {
 
     const headerRef = React.useRef<HTMLDivElement>(null);
-    const addButtonRef = React.useRef<HTMLDivElement>(null);
     const {
         selectElement,
         moveElement,
@@ -94,10 +95,6 @@ export function DslElement(props: Props) {
         return selectedUuids.includes(props.step.uuid);
     }
 
-    function isElementHidden(): boolean {
-        return props.step.dslName === 'LogDefinition' && hideLogDSL;
-    }
-
     function hasBorder(): boolean {
         const step = props.step;
         if (['FilterDefinition', 'RouteDefinition', 'RouteConfigurationDefinition'].includes(step.dslName)) {
@@ -106,6 +103,7 @@ export function DslElement(props: Props) {
         if ([
             'FromDefinition',
             'TryDefinition',
+            'MulticastDefinition',
             'CatchDefinition', 'FinallyDefinition',
             'ChoiceDefinition',
             'SwitchDefinition', 'WhenDefinition', 'OtherwiseDefinition'
@@ -117,10 +115,6 @@ export function DslElement(props: Props) {
 
     function isNotDraggable(): boolean {
         return ['FromDefinition', 'RouteConfigurationDefinition', 'RouteDefinition', 'WhenDefinition', 'OtherwiseDefinition'].includes(props.step.dslName);
-    }
-
-    function isRoute(): boolean {
-        return ['RouteDefinition'].includes(props.step.dslName);
     }
 
     function isAddStepButtonLeft(): boolean {
@@ -139,28 +133,10 @@ export function DslElement(props: Props) {
         return children.filter((c: ChildElement) => c.name === 'steps' || c.multiple).length > 0 && props.inSteps;
     }
 
-    function sendButtonPosition(el: HTMLButtonElement | null) {
-        const {nextStep, step, parent} = props;
-        let needArrow = !hasBorder() && !['ChoiceDefinition', 'MulticastDefinition', 'TryDefinition'].includes(step.dslName);
-
-        if (parent
-            && ['TryDefinition'].includes(parent.dslName)
-            && !['CatchDefinition', 'FinallyDefinition'].includes(step.dslName)) {
-            needArrow = true;
-        }
-
-        if (el && nextStep && needArrow) {
-            const rect = headerRef.current?.getBoundingClientRect();
-
-            if (rect)
-                EventBus.sendButtonPosition("add", step.uuid, nextStep, rect);
-        }
-    }
 
     function sendPosition(el: HTMLDivElement | null) {
-        const {step, prevStep, parent} = props;
+        const {step, prevStep, nextStep, parent, inSteps, inStepsLength} = props;
         const isSelected = isElementSelected();
-        const isHidden = isElementHidden();
         if (el) {
             const header = Array.from(el.childNodes.values()).filter((n: any) => n.classList.contains("header"))[0];
             if (header) {
@@ -168,13 +144,9 @@ export function DslElement(props: Props) {
                 const headerRect = headerIcon.getBoundingClientRect();
                 const rect = el.getBoundingClientRect();
                 if (step.showChildren) {
-                    if (isHidden) {
-                        EventBus.sendPosition("add", step, prevStep, parent, rect, headerRect, props.position, props.inSteps, isSelected);
-                    } else {
-                        EventBus.sendPosition("add", step, prevStep, parent, rect, headerRect, props.position, props.inSteps, isSelected);
-                    }
+                    EventBus.sendPosition("add", step, prevStep, nextStep, parent, rect, headerRect, props.position, inStepsLength, inSteps, isSelected);
                 } else {
-                    EventBus.sendPosition("delete", step, prevStep, parent, new DOMRect(), new DOMRect(), 0);
+                    EventBus.sendPosition("delete", step, prevStep, nextStep, parent, new DOMRect(), new DOMRect(), 0, 0);
                 }
             }
         }
@@ -190,7 +162,6 @@ export function DslElement(props: Props) {
 
     function getChildrenElementsStyle(child: ChildElement, notOnlySteps: boolean) {
         const style: CSSProperties = {
-            // borderStyle: isBorder ? "dotted" : "none",
             borderColor: "var(--step-border-color)",
             borderWidth: "1px",
             borderRadius: "16px",
@@ -229,10 +200,12 @@ export function DslElement(props: Props) {
             return (
                 <div className={child.name + " has-child"} style={getChildrenElementsStyle(child, notOnlySteps)}
                      key={step.uuid + "-child-" + index}>
-                    {children.map((element, index) => {
+                    {children.map((element, index, array) => {
                             let prevStep = children.at(index - 1);
                             let nextStep: CamelElement | undefined = undefined;
-                            if (['TryDefinition', 'ChoiceDefinition'].includes(step.dslName)) {
+                            if ('ChoiceDefinition' === step.dslName) {
+                                nextStep = props.nextStep;
+                            } else if ('TryDefinition' === step.dslName && ['CatchDefinition', 'FinallyDefinition'].includes(element.dslName)) {
                                 nextStep = props.nextStep;
                             } else {
                                 nextStep = children.at(index + 1);
@@ -244,6 +217,7 @@ export function DslElement(props: Props) {
                                     step={element}
                                     nextStep={nextStep}
                                     prevStep={prevStep}
+                                    inStepsLength={array.length}
                                     parent={step}/>
                             </div>)
                         }
@@ -266,12 +240,10 @@ export function DslElement(props: Props) {
         const hideAddButton = step.dslName === 'StepDefinition' && !CamelDisplayUtil.isStepDefinitionExpanded(integration, step.uuid, selectedUuids.at(0));
         if (hideAddButton) return (<></>)
         else return (
-            <div ref={addButtonRef}>
-                <Tooltip position={"bottom"}
+                <Tooltip position={"left"}
                          content={<div>{"Add step to " + CamelDisplayUtil.getTitle(step)}</div>}
                 >
                     <button type="button"
-                            ref={el => sendButtonPosition(el)}
                             aria-label="Add"
                             onClick={e => onOpenSelector(e)}
                             className={isAddStepButtonLeft() ? "add-button add-button-left" : "add-button add-button-bottom"}>
@@ -279,13 +251,12 @@ export function DslElement(props: Props) {
                     </button>
 
                 </Tooltip>
-            </div>
         )
     }
 
     const element: CamelElement = props.step;
     const className = "step-element"
-        + (isElementSelected() ? " step-element-selected" : "") + (!props.step.showChildren ? " hidden-step" : "")
+        + (!props.step.showChildren ? " hidden-step" : "")
         + ((element as any).disabled ? " disabled " : "");
     return (
         <div key={"root" + element.uuid}

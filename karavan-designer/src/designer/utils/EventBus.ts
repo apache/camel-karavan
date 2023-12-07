@@ -38,10 +38,12 @@ export class ButtonPosition {
 export class DslPosition {
     step: CamelElement = new CamelElement("");
     prevStep: CamelElement | undefined;
+    nextstep: CamelElement | undefined;
     parent: CamelElement | undefined;
     inSteps: boolean = false;
     isSelected: boolean = false;
     position: number = 0;
+    inStepsLength: number = 0;
     rect: DOMRect = new DOMRect();
     headerRect: DOMRect = new DOMRect();
     command: "add" | "delete" | "clean" = "add";
@@ -49,20 +51,24 @@ export class DslPosition {
     constructor(command: "add" | "delete" | "clean",
                 step: CamelElement,
                 prevStep: CamelElement | undefined,
+                nextstep: CamelElement | undefined,
                 parent:CamelElement | undefined,
                 rect: DOMRect,
                 headerRect:DOMRect,
                 position: number,
+                inStepsLength: number,
                 inSteps: boolean = false,
                 isSelected: boolean = false) {
         this.command = command;
         this.step = step;
+        this.nextstep = nextstep;
         this.prevStep = prevStep;
         this.parent = parent;
         this.rect = rect;
         this.headerRect = headerRect;
         this.inSteps = inSteps;
         this.position = position;
+        this.inStepsLength = inStepsLength;
         this.isSelected = isSelected;
     }
 }
@@ -110,12 +116,15 @@ export const EventBus = {
     sendPosition: (command: "add" | "delete" | "clean",
                    step: CamelElement,
                    prevStep: CamelElement | undefined,
+                   nextstep: CamelElement | undefined,
                    parent: CamelElement | undefined,
                    rect: DOMRect,
                    headerRect: DOMRect,
                    position: number,
+                   inStepsLength: number,
                    inSteps: boolean = false,
-                   isSelected: boolean = false) => dslPositions.next(new DslPosition(command, step, prevStep, parent, rect, headerRect, position, inSteps, isSelected)),
+                   isSelected: boolean = false) => dslPositions.next(
+                       new DslPosition(command, step, prevStep, nextstep, parent, rect, headerRect, position, inStepsLength, inSteps, isSelected)),
     onPosition: () => dslPositions.asObservable(),
 
     sendButtonPosition: (command: "add" | "delete" | "clean", uuid: string,

@@ -105,7 +105,7 @@ export function useRouteDesignerHook () {
     }
 
     const deleteElement = () =>  {
-        EventBus.sendPosition("clean", new CamelElement(""), undefined, undefined, new DOMRect(), new DOMRect(), 0);
+        EventBus.sendPosition("clean", new CamelElement(""), undefined,undefined, undefined, new DOMRect(), new DOMRect(), 0, 0);
         EventBus.sendButtonPosition("clean", '',  new CamelElement(""), new DOMRect());
         let i = integration;
         selectedUuids.forEach(uuidToDelete => {
