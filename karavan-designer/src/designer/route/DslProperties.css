@@ -82,7 +82,7 @@
 }
 
 .karavan .properties .input-group .pf-v5-c-text-input-group__utilities {
-    align-items: end;
+    align-items: flex-end;
     margin-top: auto;
 }
 
