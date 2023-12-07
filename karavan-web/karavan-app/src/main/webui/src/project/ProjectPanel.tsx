@@ -34,6 +34,8 @@ import {IntegrationFile} from "../topology/TopologyStore";
 import {TopologyTab} from "../topology/TopologyTab";
 import {Buffer} from "buffer";
 import {CreateFileModal} from "./files/CreateFileModal";
+import {ProjectType} from "../api/ProjectModels";
+import {ReadmeTab} from "./readme/ReadmeTab";
 
 export function ProjectPanel() {
 
@@ -49,8 +51,7 @@ export function ProjectPanel() {
     function onRefresh() {
         if (project.projectId) {
             ProjectService.refreshProjectData(project.projectId);
-            // setTab(project.type === ProjectType.normal ? 'topology' : 'files')
-            setTab('topology')
+            setTab(project.type === ProjectType.normal ? 'topology' : 'files')
         }
     }
 
@@ -98,6 +99,7 @@ export function ProjectPanel() {
                     {!buildIn && tab === 'container' && <FlexItem><ProjectContainerTab/></FlexItem>}
                     {!buildIn && tab === 'container' && config.infrastructure !== 'kubernetes' &&
                         <FlexItem><ImagesPanel/></FlexItem>}
+                    {!buildIn && tab === 'readme' && <FlexItem><ReadmeTab/></FlexItem>}
                 </Flex>
             </PageSection>
         </PageSection>)

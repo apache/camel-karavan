@@ -32,6 +32,11 @@ interface Props {
     projectId: string
 }
 
+const languages = new Map<string, string>([
+    ['sh', 'shell'],
+    ['md', 'markdown']
+])
+
 export function FileEditor (props: Props) {
 
     const [file, designerTab] = useFileStore((s) => [s.file, s.designerTab], shallow )
@@ -67,7 +72,7 @@ export function FileEditor (props: Props) {
 
     function getEditor () {
         const extension = file?.name.split('.').pop();
-        const language = extension === 'sh' ? 'shell' : extension;
+        const language = extension && languages.has(extension) ? languages.get(extension) : extension;
         return (
             file !== undefined &&
             <Editor

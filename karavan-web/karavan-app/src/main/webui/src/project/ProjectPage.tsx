@@ -39,6 +39,7 @@ import {ProjectService} from "../api/ProjectService";
 export function ProjectPage() {
 
     const {file, operation} = useFileStore();
+    const [files] = useFilesStore((s) => [s.files], shallow);
     const [projects] = useProjectsStore((state) => [state.projects], shallow)
     const [project, setProject, tabIndex, setTabIndex, refreshTrace] =
         useProjectStore((s) => [s.project, s.setProject, s.tabIndex, s.setTabIndex, s.refreshTrace], shallow);
@@ -75,6 +76,10 @@ export function ProjectPage() {
         return !isBuildIn() && !showFilePanel;
     }
 
+    function hasReadme(): boolean {
+        return files.map(f => f.name).findIndex(f => f.toLowerCase() === 'readme.md') !== -1;
+    }
+
     const ephemeral = project.type === ProjectType.ephemeral
     const showFilePanel = file !== undefined && operation === 'select';
     return (
@@ -92,6 +97,7 @@ export function ProjectPage() {
                             {!ephemeral && <Tab eventKey="trace" title="Trace"/>}
                             {!ephemeral && <Tab eventKey="build" title="Build"/>}
                             <Tab eventKey="container" title="Container"/>
+                            {hasReadme() && <Tab eventKey="readme" title="Readme"/>}
                         </Tabs>}
                     </FlexItem>
                 </Flex>
