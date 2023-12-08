@@ -303,7 +303,7 @@ export class CamelUi {
     }
 
     static nameFromTitle = (title: string): string => {
-        return title.replace(/[^a-z0-9+]+/gi, "-").toLowerCase();
+        return title.trim().replace(/[^a-z0-9+]+/gi, "-").toLowerCase();
     }
 
     static javaNameFromTitle = (title: string): string => {

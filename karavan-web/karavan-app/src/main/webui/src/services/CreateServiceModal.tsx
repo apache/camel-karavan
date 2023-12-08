@@ -19,14 +19,15 @@ import React, {useState} from 'react';
 import {
     Button, Form, FormGroup, FormHelperText, HelperText, HelperTextItem,
     Modal,
-    ModalVariant, Radio, TextInput,
+    ModalVariant, TextInput, Text
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
-import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
 import {useAppConfigStore, useProjectStore} from "../api/ProjectStore";
 import {ProjectService} from "../api/ProjectService";
 import {Project} from "../api/ProjectModels";
 import {CamelUi} from "../designer/utils/CamelUi";
+import {EventBus} from "../designer/utils/EventBus";
+import {ProjectExistsError} from "../shared/error/ProjectExistsError";
 
 
 export function CreateServiceModal () {
@@ -37,6 +38,7 @@ export function CreateServiceModal () {
     const [runtime, setRuntime] = useState('');
     const [projectId, setProjectId] = useState('');
     const {config} = useAppConfigStore();
+    const [isValidationError, setIsValidationError] = useState(false);
 
     function cleanValues()  {
         setName("");
@@ -50,15 +52,26 @@ export function CreateServiceModal () {
         cleanValues();
     }
 
-    function confirmAndCloseModal () {
-        ProjectService.createProject(new Project({name: name, description: description, projectId: projectId}));
-        useProjectStore.setState({operation: "none"});
-        cleanValues();
+    async function handleFormSubmit () {
+        setIsValidationError(false);
+        const [ err, createdProject ] = await ProjectService.createProject(new Project({name: name, description: description, projectId: projectId}));
+
+        if (createdProject !== null) {
+            EventBus.sendAlert( 'Success', 'Project created', 'success');
+            ProjectService.refreshProjectData(project.projectId);
+            ProjectService.refreshProjects();
+            useProjectStore.setState({operation: "none"});
+            cleanValues();
+        } else if (err !== null && err instanceof ProjectExistsError) {
+            setIsValidationError(true);
+        } else {
+            EventBus.sendAlert( 'Warning', 'Error when creating project:' + err?.message, 'warning');
+        }
     }
 
     function onKeyDown (event: React.KeyboardEvent<HTMLDivElement>): void {
         if (event.key === 'Enter' && name !== undefined && description !== undefined && projectId !== undefined) {
-            confirmAndCloseModal();
+            handleFormSubmit();
         }
     }
 
@@ -72,7 +85,7 @@ export function CreateServiceModal () {
             onKeyDown={onKeyDown}
             actions={[
                 <Button key="confirm" variant="primary" isDisabled={!isReady}
-                        onClick={confirmAndCloseModal}>Save</Button>,
+                        onClick={handleFormSubmit}>Save</Button>,
                 <Button key="cancel" variant="secondary" onClick={closeModal}>Cancel</Button>
             ]}
             className="new-project"
@@ -92,7 +105,10 @@ export function CreateServiceModal () {
                     <TextInput className="text-field" type="text" id="projectId" name="projectId"
                                value={projectId}
                                onFocus={e => setProjectId(projectId === '' ? CamelUi.nameFromTitle(name) : projectId)}
-                               onChange={(_, e) => setProjectId(CamelUi.nameFromTitle(e))}/>
+                               onChange={(_, e) => setProjectId(CamelUi.nameFromTitle(e))}
+                               validated={isValidationError ? 'error' : 'default'}
+                    />
+                    {isValidationError && <Text  style={{ color: 'red', fontStyle: 'italic'}}>Project ID must be unique</Text>}
                     <FormHelperText>
                         <HelperText>
                             <HelperTextItem>Unique service name</HelperTextItem>
