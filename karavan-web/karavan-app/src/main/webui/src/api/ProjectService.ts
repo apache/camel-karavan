@@ -236,27 +236,12 @@ export class ProjectService {
         });
     }
 
-    public static createProject(project: Project) {
-        KaravanApi.postProject(project, res => {
-            if (res.status === 200 || res.status === 201) {
-                ProjectService.refreshProjectData(project.projectId);
-                ProjectService.refreshProjects();
-                // this.props.toast?.call(this, 'Success', 'Project created', 'success');
-            } else {
-                // this.props.toast?.call(this, 'Error', res.status + ', ' + res.statusText, 'danger');
-            }
-        });
+    public static async createProject(project: Project) {
+        return KaravanApi.postProject(project);
     }
 
-    public static copyProject(sourceProject: string, project: Project) {
-        KaravanApi.copyProject(sourceProject, project, res => {
-            if (res.status === 200 || res.status === 201) {
-                EventBus.sendAlert( 'Success', 'Project copied', 'success');
-                ProjectService.refreshProjects();
-            } else {
-                EventBus.sendAlert( 'Warning', 'Error when copying project:' + res.statusText, 'warning');
-            }
-        });
+    public static async copyProject(sourceProject: string, project: Project) {
+        return KaravanApi.copyProject(sourceProject, project);
     }
 
     public static createFile(file: ProjectFile) {

@@ -35,6 +35,7 @@ import org.apache.camel.karavan.infinispan.model.ProjectFile;
 import org.apache.camel.karavan.kubernetes.KubernetesService;
 import org.apache.camel.karavan.registry.RegistryService;
 import org.apache.camel.karavan.shared.Property;
+import org.apache.camel.karavan.shared.exception.ProjectExistsException;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -168,24 +169,33 @@ public class ProjectService implements HealthCheck {
     }
 
     public Project save(Project project) throws Exception {
-        boolean isNew = infinispanService.getProject(project.getProjectId()) == null;
-        infinispanService.saveProject(project);
-        if (isNew) {
-            ProjectFile appProp = codeService.getApplicationProperties(project);
-            infinispanService.saveProjectFile(appProp);
-            if (!ConfigService.inKubernetes()) {
-                ProjectFile projectCompose = codeService.createInitialProjectCompose(project);
-                infinispanService.saveProjectFile(projectCompose);
-            } else if (kubernetesService.isOpenshift()){
-                ProjectFile projectCompose = codeService.createInitialDeployment(project);
-                infinispanService.saveProjectFile(projectCompose);
-            }
+        boolean projectExists = infinispanService.getProject(project.getProjectId()) != null;
+        if(projectExists) {
+            throw new ProjectExistsException("Project with project id [" + project.getProjectId() + "] already exists");
         }
+
+        infinispanService.saveProject(project);
+
+        ProjectFile appProp = codeService.getApplicationProperties(project);
+        infinispanService.saveProjectFile(appProp);
+        if (!ConfigService.inKubernetes()) {
+            ProjectFile projectCompose = codeService.createInitialProjectCompose(project);
+            infinispanService.saveProjectFile(projectCompose);
+        } else if (kubernetesService.isOpenshift()){
+            ProjectFile projectCompose = codeService.createInitialDeployment(project);
+            infinispanService.saveProjectFile(projectCompose);
+        }
+
         return project;
     }
 
     public Project copy(String sourceProjectId, Project project) throws Exception {
+        boolean projectExists = infinispanService.getProject(project.getProjectId()) != null;
+        if(projectExists) {
+            throw new ProjectExistsException("Project with project id [" + project.getProjectId() + "] already exists");
+        }
         Project sourceProject = infinispanService.getProject(sourceProjectId);
+
         // Save project
         infinispanService.saveProject(project);
 
