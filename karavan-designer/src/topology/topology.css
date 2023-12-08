@@ -16,7 +16,20 @@
  */
 
 .karavan .topology-panel .pf-v5-c-toolbar {
-    padding-bottom: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    height: fit-content;
+    row-gap: 0;
+}
+
+.karavan .topology-panel .pf-v5-c-toolbar .pf-v5-c-toolbar__content {
+    padding: 0 6px 0 0;
+}
+
+.karavan .topology-panel .pf-v5-c-toolbar .pf-v5-c-toolbar__content-section {
+    margin: 6px 0 6px 0;
 }
 
 .karavan .topology-panel .pf-v5-c-toolbar .pf-v5-c-toolbar__group{

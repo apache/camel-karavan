@@ -29,6 +29,7 @@ export enum ProjectType {
     kamelets ='kamelets',
     services ='services',
     normal ='normal',
+    ephemeral ='ephemeral',
 }
 
 export class Project {
@@ -155,9 +156,7 @@ export const ProjectFileTypes: ProjectFileType[] = [
     new ProjectFileType("PROPERTIES", "Properties", "properties"),
     new ProjectFileType("JSON", "JSON", "json"),
     new ProjectFileType("YAML", "YAML", "yaml"),
-    new ProjectFileType("LOG", "Log", "log"),
     new ProjectFileType("SH", "Script", "sh"),
-    new ProjectFileType("SQL", "SQL", "sql"),
     new ProjectFileType("OTHER", "Other", "*"),
 ];
 

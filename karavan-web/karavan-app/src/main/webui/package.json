@@ -8,7 +8,7 @@
     "copy-topology": "cp -r ../../../../../karavan-designer/src/topology src",
     "copy-code": " npm run copy-designer &&  npm run copy-knowledgebase &&  npm run copy-topology",
     "start": "export PORT=3003 && npm run copy-code && react-scripts start",
-    "build": "npm run copy-designer && DISABLE_ESLINT_PLUGIN=true react-scripts build"
+    "build": "npm run copy-code && DISABLE_ESLINT_PLUGIN=true react-scripts build"
   },
   "proxy": "http://127.0.0.1:8080/",
   "eslintConfig": {
@@ -40,6 +40,7 @@
     "@types/js-yaml": "4.0.7",
     "@types/node": "18.16.3",
     "@types/uuid": "9.0.1",
+    "@uiw/react-markdown-preview": "^5.0.3",
     "axios": "1.6.2",
     "buffer": "6.0.3",
     "dagre": "0.8.5",

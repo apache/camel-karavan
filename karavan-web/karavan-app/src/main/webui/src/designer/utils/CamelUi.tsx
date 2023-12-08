@@ -781,6 +781,13 @@ export class CamelUi {
         return result;
     }
 
+    static getRests = (integration: Integration): CamelElement[] => {
+        const result: CamelElement[] = [];
+        integration.spec.flows?.filter((e: any) => e.dslName === 'RestDefinition')
+            .forEach((f: any) => result.push(f));
+        return result;
+    }
+
     static getRouteConfigurations = (integration: Integration): RouteConfigurationDefinition[] | undefined => {
         const result: CamelElement[] = [];
         integration.spec.flows?.filter((e: any) => e.dslName === 'RouteConfigurationDefinition')

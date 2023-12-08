@@ -17,28 +17,54 @@
 
 import * as React from 'react';
 import {
-    Button,
+    Button, ToolbarContent,
     ToolbarItem, Tooltip
 } from '@patternfly/react-core';
 import PlusIcon from "@patternfly/react-icons/dist/esm/icons/plus-icon";
 
 interface Props {
-    onClickCreateButton: () => void
+    onClickAddRoute: () => void
+    onClickAddREST: () => void
+    onClickAddBean: () => void
 }
 
 export function TopologyToolbar (props: Props) {
 
     return (
-        <ToolbarItem align={{default: "alignRight"}}>
-            <Tooltip content={"Add new integration"}>
-                <Button size="sm"
-                        variant={"primary"}
-                        icon={<PlusIcon/>}
-                        onClick={e => props.onClickCreateButton()}
-                >
-                    Create
-                </Button>
-            </Tooltip>
-        </ToolbarItem>
+        <ToolbarContent>
+            <ToolbarItem align={{default:"alignRight"}}>
+                <Tooltip content={"Add Integration Route"} position={"bottom"}>
+                    <Button size="sm"
+                            variant={"primary"}
+                            icon={<PlusIcon/>}
+                            onClick={e => props.onClickAddRoute()}
+                    >
+                        Route
+                    </Button>
+                </Tooltip>
+            </ToolbarItem>
+            <ToolbarItem align={{default:"alignRight"}}>
+                <Tooltip content={"Add REST API"} position={"bottom"}>
+                    <Button size="sm"
+                            variant={"primary"}
+                            icon={<PlusIcon/>}
+                            onClick={e => props.onClickAddREST()}
+                    >
+                        REST
+                    </Button>
+                </Tooltip>
+            </ToolbarItem>
+            <ToolbarItem align={{default:"alignRight"}}>
+                <Tooltip content={"Add Bean"} position={"bottom"}>
+                    <Button size="sm"
+                            variant={"primary"}
+                            icon={<PlusIcon/>}
+                            onClick={e => props.onClickAddBean()}
+                    >
+                        Bean
+                    </Button>
+                </Tooltip>
+            </ToolbarItem>
+        </ToolbarContent>
     )
 }

@@ -32,9 +32,14 @@ interface Props {
     projectId: string
 }
 
+const languages = new Map<string, string>([
+    ['sh', 'shell'],
+    ['md', 'markdown']
+])
+
 export function FileEditor (props: Props) {
 
-    const [file, operation] = useFileStore((state) => [state.file, state.operation], shallow )
+    const [file, designerTab] = useFileStore((s) => [s.file, s.designerTab], shallow )
 
     function save (name: string, code: string) {
         if (file) {
@@ -56,6 +61,7 @@ export function FileEditor (props: Props) {
                 dark={false}
                 filename={file.name}
                 yaml={file.code}
+                tab={designerTab}
                 onSave={(name, yaml) => save(name, yaml)}
                 onSaveCustomCode={(name, code) =>
                     ProjectService.saveFile(new ProjectFile(name + ".java", props.projectId, code, Date.now()), false)}
@@ -66,7 +72,7 @@ export function FileEditor (props: Props) {
 
     function getEditor () {
         const extension = file?.name.split('.').pop();
-        const language = extension === 'sh' ? 'shell' : extension;
+        const language = extension && languages.has(extension) ? languages.get(extension) : extension;
         return (
             file !== undefined &&
             <Editor

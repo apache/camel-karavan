@@ -174,7 +174,9 @@ class App extends React.Component<Props, State> {
                     <TopologyTab
                         files={this.getIntegrationFiles()}
                         onSetFile={fileName => this.setState({pageId: 'designer'})}
-                        onClickCreateButton={() => {}}
+                        onClickAddRoute={() => {}}
+                        onClickAddREST={() => {}}
+                        onClickAddBean={() => {}}
                         hideToolbar={true}
                     />
                 )

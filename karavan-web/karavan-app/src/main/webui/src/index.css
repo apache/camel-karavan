@@ -88,7 +88,7 @@
 }
 
 .karavan .integration-card .pf-v5-c-card__footer {
-  text-align: end;
+  text-align: flex-end;
 }
 
 .karavan .integration-card .running{

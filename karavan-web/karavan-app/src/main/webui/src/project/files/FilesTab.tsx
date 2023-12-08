@@ -36,7 +36,7 @@ import {Table} from '@patternfly/react-table/deprecated';
 import DeleteIcon from "@patternfly/react-icons/dist/js/icons/times-icon";
 import SearchIcon from '@patternfly/react-icons/dist/esm/icons/search-icon';
 import {useFilesStore, useFileStore, useProjectStore} from "../../api/ProjectStore";
-import {getProjectFileType, ProjectFile, ProjectFileTypes} from "../../api/ProjectModels";
+import {getProjectFileType, Project, ProjectFile, ProjectFileTypes} from "../../api/ProjectModels";
 import {FileToolbar} from "./FilesToolbar";
 import DownloadIcon from "@patternfly/react-icons/dist/esm/icons/download-icon";
 import FileSaver from "file-saver";
@@ -86,7 +86,7 @@ export function FilesTab () {
 
     const types = isBuildIn()
         ? (isKameletsProject() ? ['KAMELET'] : ['CODE', 'PROPERTIES'])
-        : ProjectFileTypes.filter(p => !['PROPERTIES', 'LOG', 'KAMELET'].includes(p.name)).map(p => p.name);
+        : ProjectFileTypes.filter(p => !['PROPERTIES', 'KAMELET'].includes(p.name)).map(p => p.name);
 
     return (
         <PageSection className="project-tab-panel" padding={{default: "padding"}}>
@@ -115,7 +115,7 @@ export function FilesTab () {
                                 <Td>
                                     <Button style={{padding: '6px'}} variant={"link"}
                                             onClick={e => {
-                                                setFile('select', file);
+                                                setFile('select', file, undefined);
                                             }}>
                                         {file.name}
                                     </Button>

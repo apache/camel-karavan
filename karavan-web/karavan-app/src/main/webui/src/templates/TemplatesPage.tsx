@@ -94,7 +94,7 @@ export function TemplatesPage () {
 
     function getProjectsTable() {
         const projs = projects
-            .filter(p => p.type !== ProjectType.normal)
+            .filter(p => p.type !== ProjectType.normal && p.type !== ProjectType.ephemeral)
             .filter(p => p.name.toLowerCase().includes(filter) || p.description.toLowerCase().includes(filter));
         return (
             <Table aria-label="Templates" variant={"compact"}>

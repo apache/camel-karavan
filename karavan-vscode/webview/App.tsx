@@ -45,7 +45,7 @@ interface State {
   hasChanges: boolean
   page: "designer" | "knowledgebase" | 'topology'
   active: boolean
-  tab?: string
+  tab?: "routes" | "rest" | "beans"
   files: IntegrationFile[]
 }
 
@@ -226,7 +226,9 @@ class App extends React.Component<Props, State> {
           <TopologyTab
             hideToolbar={true}
             files={this.state.files}
-            onClickCreateButton={() => vscode.postMessage({ command: 'createIntegration' })}
+            onClickAddRoute={() => vscode.postMessage({ command: 'createIntegration' })}
+            onClickAddREST={() => vscode.postMessage({ command: 'createIntegration' })}
+            onClickAddBean={() => vscode.postMessage({ command: 'createIntegration' })}
             onSetFile={(fileName) => vscode.postMessage({ command: 'openFile', fileName: fileName })}
           />
         }
