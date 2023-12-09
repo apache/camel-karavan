@@ -297,13 +297,14 @@ export function ComponentParameterField(props: Props) {
     }
 
     function getSwitch(property: ComponentProperty, value: any) {
+        const isChecked = value !== undefined ? Boolean(value) : (property.defaultValue !== undefined && ['true', true].includes(property.defaultValue))
         return (
             <Switch
                 id={id} name={id}
                 value={value?.toString()}
                 aria-label={id}
-                isChecked={value !== undefined ? Boolean(value) : property.defaultValue !== undefined && property.defaultValue === 'true'}
-                onChange={e => parametersChanged(property.name, !Boolean(value))}/>
+                isChecked={isChecked}
+                onChange={(e, checked) => parametersChanged(property.name, checked)}/>
         )
     }
 
