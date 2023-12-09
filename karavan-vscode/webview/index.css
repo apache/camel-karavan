@@ -22,6 +22,10 @@ body,
   height: 100%;
 }
 
+:root {
+  --pf-v5-c-tooltip__content--FontSize: 8px;
+}
+
 body, :root, #root, .karavan {
   --pf-v5-global--primary-color--100: var(--vscode-focusBorder) !important;
   --pf-v5-global--primary-color--200: var(--vscode-focusBorder) !important;
@@ -36,8 +40,10 @@ body, :root, #root, .karavan {
 
   --step-border-color: var(--pf-v5-global--active-color--200);
   --step-border-color-selected:var(--vscode-focusBorder);
+
   padding: 0;
 }
+
 .karavan .properties .pf-v5-c-form-control > :is(input, select, textarea):focus {
   outline-color: var(--vscode-focusBorder);
 }
@@ -180,6 +186,12 @@ body, :root, #root, .karavan {
 .vscode-dark .karavan .step-element .add-button {
   color: var(--vscode-focusBorder); 
 }
+.vscode-dark .karavan .step-element .add-button-icon, 
+.vscode-dark .karavan .step-element .insert-button-icon, 
+.vscode-dark .karavan .step-element .delete-button-icon {
+  background:  var(--vscode-editor-background);
+}
+
 
 /* Connections */
 .vscode-dark .karavan .dsl-page .graph .connections .arrow {
