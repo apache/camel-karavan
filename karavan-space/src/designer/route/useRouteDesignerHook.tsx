@@ -18,7 +18,14 @@ import React from 'react';
 import '../karavan.css';
 import {DslMetaModel} from "../utils/DslMetaModel";
 import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
-import {ChoiceDefinition, FromDefinition, LogDefinition, RouteConfigurationDefinition, RouteDefinition} from "karavan-core/lib/model/CamelDefinition";
+import {
+    ChoiceDefinition,
+    FromDefinition, JsonDataFormat,
+    LogDefinition,
+    MarshalDefinition,
+    RouteConfigurationDefinition,
+    RouteDefinition, UnmarshalDefinition
+} from "karavan-core/lib/model/CamelDefinition";
 import {CamelElement, MetadataLabels} from "karavan-core/lib/model/IntegrationDefinition";
 import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt";
 import {CamelDefinitionApi} from "karavan-core/lib/api/CamelDefinitionApi";
@@ -247,6 +254,7 @@ export function useRouteDesignerHook () {
             default:
                 const step = CamelDefinitionApi.createStep(dsl.dsl, undefined);
                 const augmentedStep = setDslDefaults(step);
+                console.log(step, augmentedStep)
                 addStep(augmentedStep, parentId, position)
                 break;
         }
@@ -260,6 +268,16 @@ export function useRouteDesignerHook () {
         if (step.dslName === 'ChoiceDefinition') {
             (step as ChoiceDefinition).when?.push(CamelDefinitionApi.createStep('WhenDefinition', undefined));
             (step as ChoiceDefinition).otherwise = CamelDefinitionApi.createStep('OtherwiseDefinition', undefined);
+        }
+        if (step.dslName === 'MarshalDefinition') {
+            if (CamelDefinitionApiExt.getDataFormat(step) === undefined) {
+                (step as MarshalDefinition).json = new JsonDataFormat()
+            }
+        }
+        if (step.dslName === 'UnmarshalDefinition') {
+            if (CamelDefinitionApiExt.getDataFormat(step) === undefined) {
+                (step as UnmarshalDefinition).json = new JsonDataFormat()
+            }
         }
         return step;
     }

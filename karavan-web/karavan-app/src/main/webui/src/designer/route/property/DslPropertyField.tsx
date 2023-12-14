@@ -529,7 +529,6 @@ export function DslPropertyField(props: Props) {
     }
 
     function getInternalUriSelect(property: PropertyMeta, value: any) {
-        console.log("getInternalUriSelect", property, value)
         const selectOptions: JSX.Element[] = [];
         const urls = CamelUi.getInternalRouteUris(integration, "direct");
         urls.push(...CamelUi.getInternalRouteUris(integration, "seda"));
@@ -591,7 +590,8 @@ export function DslPropertyField(props: Props) {
     function getMultiObjectFieldProps(property: PropertyMeta, value: any, v: any, index: number, hideLabel: boolean = false) {
         return (<>
             <div className="object">
-                {value && <ObjectField property={property}
+                {v && <ObjectField property={property}
+                                   value={v}
                                        hideLabel={hideLabel}
                                        onPropertyUpdate={(f, v) => onMultiValueObjectUpdate(index, f, v)}
                 />}
@@ -619,7 +619,13 @@ export function DslPropertyField(props: Props) {
                         </Card>
                 })}
                 <Button variant="link" className="add-button"
-                        onClick={e => propertyChanged(property.name, [...value, CamelDefinitionApi.createStep(property.type, {})])}><AddIcon/>{"Add " + property.displayName}
+                        onClick={e => {
+                            const valArray = value !== null ? [...value] : [];
+                            valArray.push(CamelDefinitionApi.createStep(property.type, {}));
+                            propertyChanged(property.name, valArray);
+                        }}>
+                    <AddIcon/>
+                    {"Add " + property.displayName}
                 </Button>
             </div>
         )
