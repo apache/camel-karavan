@@ -18,8 +18,8 @@ package org.apache.camel.karavan.kubernetes;
 
 import io.fabric8.kubernetes.api.model.*;
 import io.fabric8.kubernetes.api.model.apps.Deployment;
-import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
+import io.fabric8.kubernetes.client.KubernetesClientBuilder;
 import io.fabric8.kubernetes.client.dsl.LogWatch;
 import io.fabric8.kubernetes.client.informers.SharedIndexInformer;
 import io.fabric8.openshift.api.model.ImageStream;
@@ -43,6 +43,7 @@ import org.eclipse.microprofile.health.Readiness;
 import org.jboss.logging.Logger;
 
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -62,11 +63,14 @@ public class KubernetesService implements HealthCheck {
     @Inject
     InfinispanService infinispanService;
 
+    @Inject
+    CodeService codeService;
+
     private String namespace;
 
     @Produces
     public KubernetesClient kubernetesClient() {
-        return new DefaultKubernetesClient();
+        return new KubernetesClientBuilder().build();
     }
 
     @Produces
@@ -76,6 +80,12 @@ public class KubernetesService implements HealthCheck {
 
     @ConfigProperty(name = "karavan.environment")
     public String environment;
+
+    @ConfigProperty(name = "karavan.devmode.image")
+    public String devmodeImage;
+
+    @ConfigProperty(name = "karavan.devmode.create-pvc")
+    public Boolean devmodePVC;
 
     @ConfigProperty(name = "karavan.version")
     String version;
@@ -131,19 +141,27 @@ public class KubernetesService implements HealthCheck {
         informers.clear();
     }
 
+    public void createBuildScriptConfigmap(String script, boolean overwrite) {
+        try (KubernetesClient client = kubernetesClient()) {
+            ConfigMap configMap = client.configMaps().inNamespace(getNamespace()).withName(BUILD_CONFIG_MAP).get();
+            if (configMap == null) {
+                configMap = getConfigMapForBuilder(BUILD_CONFIG_MAP, getPartOfLabels());
+                configMap.setData(Map.of("build.sh", script));
+                client.resource(configMap).create();
+            } else if (overwrite) {
+                configMap.setData(Map.of("build.sh", script));
+                client.resource(configMap).patch();
+            }
+        } catch (Exception e) {
+            LOGGER.error("Error starting informers: " + e.getMessage());
+        }
+    }
     public void runBuildProject(Project project, String script, List<String> env, String tag) {
         try (KubernetesClient client = kubernetesClient()) {
             String containerName = project.getProjectId() + BUILDER_SUFFIX;
             Map<String, String> labels = getLabels(containerName, project, ContainerStatus.ContainerType.build);
 //        createPVC(containerName, labels);
-
-            // create script configMap
-            ConfigMap configMap = client.configMaps().inNamespace(getNamespace()).withName(containerName).get();
-            if (configMap == null) {
-                configMap = getConfigMapForBuilder(containerName, labels);
-            }
-            configMap.setData(Map.of("build.sh", script));
-            client.resource(configMap).serverSideApply();
+            createBuildScriptConfigmap(script, false);
 
 //        Delete old build pod
             Pod old = client.pods().inNamespace(getNamespace()).withName(containerName).get();
@@ -151,9 +169,11 @@ public class KubernetesService implements HealthCheck {
                 client.resource(old).delete();
             }
             Pod pod = getBuilderPod(containerName, env, labels);
-            Pod result = client.resource(pod).serverSideApply();
+            Pod result = client.resource(pod).create();
 
             LOGGER.info("Created pod " + result.getMetadata().getName());
+        } catch (Exception e) {
+            LOGGER.error("Error creating build container: " + e.getMessage());
         }
     }
 
@@ -165,6 +185,9 @@ public class KubernetesService implements HealthCheck {
         labels.put(LABEL_PROJECT_ID, project.getProjectId());
         if (type != null) {
             labels.put(LABEL_TYPE, type.name());
+        }
+        if (Objects.equals(type, ContainerStatus.ContainerType.devmode)) {
+            labels.put(LABEL_CAMEL_RUNTIME, CamelRuntime.CAMEL_MAIN.getValue());
         }
         return labels;
     }
@@ -238,13 +261,13 @@ public class KubernetesService implements HealthCheck {
 
         Container container = new ContainerBuilder()
                 .withName(name)
-                .withImage("ghcr.io/apache/camel-karavan-devmode:" + version)
+                .withImage(devmodeImage)
                 .withPorts(port)
                 .withImagePullPolicy("Always")
                 .withEnv(envVars)
                 .withCommand("/bin/sh", "-c", "/karavan/builder/build.sh")
                 .withVolumeMounts(
-                        new VolumeMountBuilder().withName("builder").withMountPath("/karavan/builder").withReadOnly(true).build()
+                        new VolumeMountBuilder().withName(BUILD_CONFIG_MAP).withMountPath("/karavan/builder").withReadOnly(true).build()
                 )
                 .build();
 
@@ -254,14 +277,15 @@ public class KubernetesService implements HealthCheck {
                 .withRestartPolicy("Never")
                 .withServiceAccount(KARAVAN_SERVICE_ACCOUNT)
                 .withVolumes(
-                        new VolumeBuilder().withName("builder")
-                                .withConfigMap(new ConfigMapVolumeSourceBuilder().withName(name).withItems(
+                        new VolumeBuilder().withName(BUILD_CONFIG_MAP)
+                                .withConfigMap(new ConfigMapVolumeSourceBuilder().withName(BUILD_CONFIG_MAP).withItems(
                                         new KeyToPathBuilder().withKey("build.sh").withPath("build.sh").build()
                                 ).withDefaultMode(511).build()).build()
 //                        new VolumeBuilder().withName("maven-settings")
 //                                .withConfigMap(new ConfigMapVolumeSourceBuilder()
 //                                        .withName("karavan").build()).build()
-                ).build();
+                )
+                .build();
 
         return new PodBuilder()
                 .withMetadata(meta)
@@ -363,20 +387,36 @@ public class KubernetesService implements HealthCheck {
         return result;
     }
 
-    public void runDevModeContainer(Project project, String jBangOptions) {
+    public void runDevModeContainer(Project project, String jBangOptions, Map<String, String> files) {
         String name = project.getProjectId();
         Map<String, String> labels = getLabels(name, project, ContainerStatus.ContainerType.devmode);
+
         try (KubernetesClient client = kubernetesClient()) {
-            createPVC(name, labels);
+            if (devmodePVC) {
+                createPVC(name, labels);
+            }
             Pod old = client.pods().inNamespace(getNamespace()).withName(name).get();
             if (old == null) {
                 Map<String, String> containerResources = CodeService.DEFAULT_CONTAINER_RESOURCES;
                 Pod pod = getDevModePod(name, jBangOptions, containerResources, labels);
                 Pod result = client.resource(pod).createOrReplace();
+                copyFilesToContainer(result, files, "/karavan/code");
                 LOGGER.info("Created pod " + result.getMetadata().getName());
             }
         }
         createService(name, labels);
+    }
+
+    private void copyFilesToContainer(Pod pod, Map<String, String> files, String dirName) {
+        try (KubernetesClient client = kubernetesClient()) {
+            String temp = codeService.saveProjectFilesInTemp(files);
+            client.pods().inNamespace(getNamespace())
+                    .withName(pod.getMetadata().getName())
+                    .dir(dirName)
+                    .upload(Paths.get(temp));
+        } catch (Exception e) {
+            LOGGER.info("Error copying filed to devmode pod: " + (e.getCause() != null ? e.getCause().getMessage() : e.getMessage()));
+        }
     }
 
     public void deleteDevModePod(String name, boolean deletePVC) {
@@ -418,27 +458,29 @@ public class KubernetesService implements HealthCheck {
 
         Container container = new ContainerBuilder()
                 .withName(name)
-                .withImage("ghcr.io/apache/camel-karavan-devmode:" + version)
+                .withImage(devmodeImage)
                 .withPorts(port)
                 .withResources(resources)
                 .withImagePullPolicy("Always")
                 .withEnv(new EnvVarBuilder().withName(ENV_VAR_JBANG_OPTIONS).withValue(jbangOptions).build())
-//                .withVolumeMounts(
-//                        new VolumeMountBuilder().withName("maven-settings").withSubPath("maven-settings.xml")
-//                                .withMountPath("/karavan-config-map/maven-settings.xml").build()
-//                )
                 .build();
+
+
+        List<Volume> volumes = new ArrayList<>();
+        volumes.add(new VolumeBuilder().withName("maven-settings")
+                .withConfigMap(new ConfigMapVolumeSourceBuilder()
+                        .withName("karavan").build()).build());
+
+        if (devmodePVC) {
+            volumes.add(new VolumeBuilder().withName(name)
+                    .withNewPersistentVolumeClaim(name, false).build());
+        }
 
         PodSpec spec = new PodSpecBuilder()
                 .withTerminationGracePeriodSeconds(0L)
                 .withContainers(container)
                 .withRestartPolicy("Never")
-                .withVolumes(
-                        new VolumeBuilder().withName(name)
-                                .withNewPersistentVolumeClaim(name, false).build(),
-                        new VolumeBuilder().withName("maven-settings")
-                                .withConfigMap(new ConfigMapVolumeSourceBuilder()
-                                        .withName("karavan").build()).build())
+                .withVolumes(volumes)
                 .build();
 
         return new PodBuilder()

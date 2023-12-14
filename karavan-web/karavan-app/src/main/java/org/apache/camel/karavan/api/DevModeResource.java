@@ -114,7 +114,7 @@ public class DevModeResource {
             status = ContainerStatus.createByType(name, environment, ContainerStatus.ContainerType.valueOf(type));
         }
         status.setInTransit(true);
-        eventBus.send(CONTAINER_STATUS, JsonObject.mapFrom(status));
+        eventBus.publish(CONTAINER_STATUS, JsonObject.mapFrom(status));
     }
 
     @GET

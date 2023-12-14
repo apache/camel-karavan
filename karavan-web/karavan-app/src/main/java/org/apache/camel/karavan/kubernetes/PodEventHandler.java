@@ -33,8 +33,7 @@ import java.util.Objects;
 
 import static org.apache.camel.karavan.code.CodeService.DEFAULT_CONTAINER_RESOURCES;
 import static org.apache.camel.karavan.service.ContainerStatusService.CONTAINER_STATUS;
-import static org.apache.camel.karavan.shared.Constants.LABEL_PROJECT_ID;
-import static org.apache.camel.karavan.shared.Constants.LABEL_TYPE;
+import static org.apache.camel.karavan.shared.Constants.*;
 
 public class PodEventHandler implements ResourceEventHandler<Pod> {
 
@@ -55,7 +54,7 @@ public class PodEventHandler implements ResourceEventHandler<Pod> {
             LOGGER.info("onAdd " + pod.getMetadata().getName());
             ContainerStatus ps = getPodStatus(pod);
             if (ps != null) {
-                eventBus.send(CONTAINER_STATUS, JsonObject.mapFrom(ps));
+                eventBus.publish(CONTAINER_STATUS, JsonObject.mapFrom(ps));
             }
         } catch (Exception e) {
             LOGGER.error(e.getMessage(), e.getCause());
@@ -69,7 +68,7 @@ public class PodEventHandler implements ResourceEventHandler<Pod> {
             if (!newPod.isMarkedForDeletion() && newPod.getMetadata().getDeletionTimestamp() == null) {
                 ContainerStatus ps = getPodStatus(newPod);
                 if (ps != null) {
-                    eventBus.send(CONTAINER_STATUS, JsonObject.mapFrom(ps));
+                    eventBus.publish(CONTAINER_STATUS, JsonObject.mapFrom(ps));
                 }
             }
         } catch (Exception e) {
@@ -94,6 +93,8 @@ public class PodEventHandler implements ResourceEventHandler<Pod> {
     public ContainerStatus getPodStatus(Pod pod) {
         String deployment = pod.getMetadata().getLabels().get("app");
         String projectId = deployment != null ? deployment : pod.getMetadata().getLabels().get(LABEL_PROJECT_ID);
+        String camel = deployment != null ? deployment : pod.getMetadata().getLabels().get(LABEL_KUBERNETES_RUNTIME);
+        String runtime = deployment != null ? deployment : pod.getMetadata().getLabels().get(LABEL_CAMEL_RUNTIME);
         String type = pod.getMetadata().getLabels().get(LABEL_TYPE);
         ContainerStatus.ContainerType containerType = deployment != null
                 ? ContainerStatus.ContainerType.project
@@ -125,7 +126,8 @@ public class PodEventHandler implements ResourceEventHandler<Pod> {
             status.setContainerId(pod.getMetadata().getName());
             status.setPhase(pod.getStatus().getPhase());
             status.setPodIP(pod.getStatus().getPodIP());
-            if (ready) {
+            status.setCamelRuntime(runtime != null ? runtime : (camel != null ? CamelRuntime.CAMEL_MAIN.getValue() : ""));
+            if (running) {
                 status.setState(ContainerStatus.State.running.name());
             } else if (failed) {
                 status.setState(ContainerStatus.State.dead.name());
@@ -136,6 +138,7 @@ public class PodEventHandler implements ResourceEventHandler<Pod> {
             }
             return status;
         } catch (Exception ex) {
+            ex.printStackTrace();
             LOGGER.error(ex.getMessage(), ex.getCause());
             return null;
         }

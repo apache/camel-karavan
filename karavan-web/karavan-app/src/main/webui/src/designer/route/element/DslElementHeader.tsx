@@ -147,8 +147,9 @@ export function DslElementHeader(props: Props) {
             classes.push(isElementSelected() ? 'header-bottom-selected' : 'header-bottom-not-selected')
         } else if (step.dslName === 'RouteConfigurationDefinition') {
             classes.push('header-route')
-            if (hasElements(step)) classes.push('header-bottom-line')
-            classes.push(isElementSelected() ? 'header-bottom-selected' : 'header-bottom-not-selected')
+            if (hasElements(step)) {
+                classes.push(isElementSelected() ? 'header-bottom-selected' : 'header-bottom-not-selected')
+            }
         } else {
             classes.push('header')
         }

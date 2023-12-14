@@ -15,18 +15,14 @@
  * limitations under the License.
  */
 import React from 'react';
-import '../../designer/karavan.css';
+import '../designer/karavan.css';
 import Editor from "@monaco-editor/react";
 import {CamelDefinitionYaml} from "karavan-core/lib/api/CamelDefinitionYaml";
-import {ProjectFile} from "../../api/ProjectModels";
-import {useFilesStore, useFileStore} from "../../api/ProjectStore";
-import {KaravanDesigner} from "../../designer/KaravanDesigner";
-import {ProjectService} from "../../api/ProjectService";
-import {PropertiesTable} from "./PropertiesTable";
+import {ProjectFile} from "../api/ProjectModels";
+import {useFilesStore, useFileStore} from "../api/ProjectStore";
+import {KaravanDesigner} from "../designer/KaravanDesigner";
+import {ProjectService} from "../api/ProjectService";
 import {shallow} from "zustand/shallow";
-import {PropertiesToolbar} from "./PropertiesToolbar";
-import {Card, Panel} from "@patternfly/react-core";
-import {PropertiesPanel} from "./PropertiesPanel";
 
 interface Props {
     projectId: string
@@ -34,7 +30,8 @@ interface Props {
 
 const languages = new Map<string, string>([
     ['sh', 'shell'],
-    ['md', 'markdown']
+    ['md', 'markdown'],
+    ['properties', 'ini']
 ])
 
 export function FileEditor (props: Props) {
@@ -93,14 +90,12 @@ export function FileEditor (props: Props) {
     const isCamelYaml = file !== undefined && file.name.endsWith(".camel.yaml");
     const isKameletYaml = file !== undefined && file.name.endsWith(".kamelet.yaml");
     const isIntegration = isCamelYaml && file?.code && CamelDefinitionYaml.yamlIsIntegration(file.code);
-    const isProperties = file !== undefined && file.name.endsWith("properties");
     const showDesigner = (isCamelYaml && isIntegration) || isKameletYaml;
-    const showEditor = !showDesigner && !isProperties;
+    const showEditor = !showDesigner;
     return (
         <>
             {showDesigner && getDesigner()}
             {showEditor && getEditor()}
-            {isProperties && file !== undefined && <PropertiesPanel/>}
         </>
     )
 }

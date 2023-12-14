@@ -255,7 +255,11 @@ public class InfinispanService implements HealthCheck {
     }
 
     public ContainerStatus getContainerStatus(String projectId, String env, String containerName) {
-        return containerStatuses.get(GroupedKey.create(projectId, env, containerName));
+        return getContainerStatus(GroupedKey.create(projectId, env, containerName));
+    }
+
+    public ContainerStatus getContainerStatus(GroupedKey key) {
+        return containerStatuses.get(key);
     }
 
     public ContainerStatus getDevModeContainerStatus(String projectId, String env) {

@@ -34,6 +34,7 @@ import org.apache.camel.karavan.infinispan.model.Project;
 import org.apache.camel.karavan.infinispan.model.ProjectFile;
 import org.apache.camel.karavan.kubernetes.KubernetesService;
 import org.apache.camel.karavan.registry.RegistryService;
+import org.apache.camel.karavan.shared.Constants;
 import org.apache.camel.karavan.shared.Property;
 import org.apache.camel.karavan.shared.exception.ProjectExistsException;
 import org.apache.commons.lang3.StringUtils;
@@ -99,16 +100,14 @@ public class ProjectService implements HealthCheck {
         if (status == null) {
             status = ContainerStatus.createDevMode(project.getProjectId(), environment);
         }
-
         if (!Objects.equals(status.getState(), ContainerStatus.State.running.name())) {
             status.setInTransit(true);
-            eventBus.send(ContainerStatusService.CONTAINER_STATUS, JsonObject.mapFrom(status));
+            eventBus.publish(ContainerStatusService.CONTAINER_STATUS, JsonObject.mapFrom(status));
 
+            Map<String, String> files = codeService.getProjectFilesForDevMode(project.getProjectId(), true);
             if (ConfigService.inKubernetes()) {
-                kubernetesService.runDevModeContainer(project, jBangOptions);
+                kubernetesService.runDevModeContainer(project, jBangOptions, files);
             } else {
-                Map<String, String> files = codeService.getProjectFilesForDevMode(project.getProjectId(), true);
-
                 DockerComposeService dcs = codeService.getDockerComposeService(project.getProjectId());
                 dockerForKaravan.runProjectInDevMode(project.getProjectId(), jBangOptions, dcs.getPortsMap(), files);
             }
@@ -260,9 +259,11 @@ public class ProjectService implements HealthCheck {
             if (infinispanService.getProjects().isEmpty()) {
                 importAllProjects();
             }
-            addKameletsProject();
-            addTemplatesProject();
-            addServicesProject();
+            if (Objects.equals(environment, Constants.DEV_ENV)) {
+                addKameletsProject();
+                addTemplatesProject();
+                addServicesProject();
+            }
             ready.set(true);
         } else {
             LOGGER.info("Projects are not ready");

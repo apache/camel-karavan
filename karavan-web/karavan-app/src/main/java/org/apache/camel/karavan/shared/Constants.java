@@ -18,12 +18,14 @@ package org.apache.camel.karavan.shared;
 
 public class Constants {
 
+    public static final String DEV_ENV = "dev";
     public static final String ENV_VAR_JBANG_OPTIONS = "JBANG_OPTIONS";
 
     public static final String LABEL_PART_OF = "app.kubernetes.io/part-of";
     public static final String LABEL_TYPE = "org.apache.camel.karavan/type";
     public static final String LABEL_PROJECT_ID = "org.apache.camel.karavan/projectId";
     public static final String LABEL_CAMEL_RUNTIME = "org.apache.camel.karavan/runtime";
+    public static final String LABEL_KUBERNETES_RUNTIME = "app.kubernetes.io/runtime";
     public static final String LABEL_TAG = "org.apache.camel.karavan/tag";
 
     public static final String BUILDER_SUFFIX = "-builder";
@@ -35,6 +37,9 @@ public class Constants {
     public static final String JBANG_CACHE_SUFFIX = "jbang-cache";
     public static final String M2_CACHE_SUFFIX = "m2-cache";
     public static final String PVC_MAVEN_SETTINGS = "maven-settings";
+
+    public static final String BUILD_CONFIG_MAP = "build-config-map";
+    public static final String BUILD_SCRIPT_FILENAME_SUFFIX = "-build.sh";
 
     public enum CamelRuntime {
         CAMEL_MAIN("camel-main"),
