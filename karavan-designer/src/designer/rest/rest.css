@@ -38,6 +38,7 @@
 .karavan .rest-designer .method-card {
     padding: 0 0 0 6px;
     margin-bottom: 6px;
+    position: relative;
 }
 
 .karavan .rest-card-unselected {
@@ -65,8 +66,8 @@
 
 .karavan .rest-card .delete-button {
     position: absolute;
-    top: 3px;
-    right: 3px;
+    top: -7px;
+    right: -7px;
     line-height: 1;
     border: 0;
     padding: 0;
@@ -170,7 +171,6 @@
     color: var(--pf-v5-global--primary-color--100);
 }
 
-.karavan .rest-designer .rest-config-card,
 .karavan .rest-designer .rest-card {
     display: flex;
     flex-direction: column;
@@ -190,6 +190,7 @@
 
 .karavan .rest-designer .rest-config-card,
 .karavan .rest-designer .method-card {
+    position: relative;
     display: flex;
     flex-direction: row;
     gap: 16px;
@@ -236,11 +237,10 @@
 }
 
 .karavan .rest-designer .rest-config-card .delete-button,
-.karavan .rest-designer .rest-card .delete-button,
 .karavan .rest-designer .method-card .delete-button {
     position: absolute;
-    top: -7px;
-    right: -7px;
+    top: 1px;
+    right: 1px;
     line-height: 1;
     border: 0;
     padding: 0;
