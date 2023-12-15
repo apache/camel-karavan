@@ -29,10 +29,11 @@ public class KaravanSecret {
     public static Secret getSecret(KaravanCommand config) {
 
         Map<String, String> secretData = new HashMap<>();
-        secretData.put("master-password", (config.isAuthBasic() ? config.getMasterPassword() : "karavan"));
-        secretData.put("oidc-secret", (config.isAuthOidc() ? config.getOidcSecret() : "xxx"));
-        secretData.put("oidc-server-url", (config.isAuthOidc() ? config.getOidcServerUrl() : "https://localhost/auth/realms/karavan"));
-        secretData.put("oidc-frontend-url", (config.isAuthOidc() ? config.getOidcFrontendUrl() : "https://localhost/auth"));
+        secretData.put("karavan.keycloak.url", (config.isAuthOidc() ? config.getKeycloakUrl() : "https://localhost"));
+        secretData.put("karavan.keycloak.realm", (config.isAuthOidc() ? config.getKeycloakRealm() : "karavan"));
+        secretData.put("karavan.keycloak.frontend.clientId", (config.isAuthOidc() ? config.getKeycloakFrontendClientId() : "karavan"));
+        secretData.put("karavan.keycloak.backend.clientId", (config.isAuthOidc() ? config.getKeycloakBackendClientId() : "karavan"));
+        secretData.put("karavan.keycloak.backend.secret", (config.isAuthOidc() ? config.getKeycloakBackendSecret() : "secret"));
         secretData.put("git-repository", config.getGitRepository());
         secretData.put("git-password", config.getGitPassword());
         secretData.put("git-username", config.getGitUsername());
