@@ -75,9 +75,9 @@ export function KaravanDesigner(props: Props) {
         let designerTab = i.kind === 'Kamelet' ? 'kamelet' : props.tab;
         if (designerTab === undefined) {
             const counts = CamelUi.getFlowCounts(i);
-            designerTab = (counts.get('routes') || 0) > 0 ? 'routes' : designerTab;
             designerTab = (counts.get('rest') || 0) > 0 ? 'rest' : designerTab;
             designerTab = (counts.get('beans') || 0) > 0 ? 'beans' : designerTab;
+            designerTab = (counts.get('routes') || 0) > 0 ? 'routes' : designerTab;
         }
         setTab(designerTab || 'routes')
         reset();
