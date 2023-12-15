@@ -141,7 +141,6 @@ public class CommandUtils {
                 }
             }
             if ((config.isAuthOidc() && config.oidcConfigured())
-                    || (config.isAuthBasic() && config.getMasterPassword() != null && config.getMasterPassword().isEmpty())
                     || (config.getAuth().equals("public"))) {
                 Secret secret = KaravanSecret.getSecret(config);
                 client.resource(secret).createOrReplace();
