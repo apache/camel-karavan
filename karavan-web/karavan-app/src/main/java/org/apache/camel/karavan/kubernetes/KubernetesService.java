@@ -84,8 +84,14 @@ public class KubernetesService implements HealthCheck {
     @ConfigProperty(name = "karavan.devmode.image")
     public String devmodeImage;
 
+    @ConfigProperty(name = "karavan.devmode.service.account")
+    public String devModeServiceAccount;
+
     @ConfigProperty(name = "karavan.devmode.create-pvc")
     public Boolean devmodePVC;
+
+    @ConfigProperty(name = "karavan.builder.service.account")
+    public String builderServiceAccount;
 
     @ConfigProperty(name = "karavan.version")
     String version;
@@ -223,28 +229,28 @@ public class KubernetesService implements HealthCheck {
         });
 
         envVars.add(
-                new EnvVar("IMAGE_REGISTRY", null, new EnvVarSourceBuilder().withSecretKeyRef(new SecretKeySelector("image-registry", KARAVAN_SECRET_NAME, false)).build())
+                new EnvVar("IMAGE_REGISTRY", null, new EnvVarSourceBuilder().withSecretKeyRef(new SecretKeySelector("image-registry", SECRET_NAME, false)).build())
         );
         envVars.add(
-                new EnvVar("IMAGE_REGISTRY_USERNAME", null, new EnvVarSourceBuilder().withSecretKeyRef(new SecretKeySelector("image-registry-username", KARAVAN_SECRET_NAME, false)).build())
+                new EnvVar("IMAGE_REGISTRY_USERNAME", null, new EnvVarSourceBuilder().withSecretKeyRef(new SecretKeySelector("image-registry-username", SECRET_NAME, false)).build())
         );
         envVars.add(
-                new EnvVar("IMAGE_REGISTRY_PASSWORD", null, new EnvVarSourceBuilder().withSecretKeyRef(new SecretKeySelector("image-registry-password", KARAVAN_SECRET_NAME, false)).build())
+                new EnvVar("IMAGE_REGISTRY_PASSWORD", null, new EnvVarSourceBuilder().withSecretKeyRef(new SecretKeySelector("image-registry-password", SECRET_NAME, false)).build())
         );
         envVars.add(
-                new EnvVar("IMAGE_GROUP", null, new EnvVarSourceBuilder().withSecretKeyRef(new SecretKeySelector("image-group", KARAVAN_SECRET_NAME, false)).build())
+                new EnvVar("IMAGE_GROUP", null, new EnvVarSourceBuilder().withSecretKeyRef(new SecretKeySelector("image-group", SECRET_NAME, false)).build())
         );
         envVars.add(
-                new EnvVar("GIT_REPOSITORY", null, new EnvVarSourceBuilder().withSecretKeyRef(new SecretKeySelector("git-repository", KARAVAN_SECRET_NAME, false)).build())
+                new EnvVar("GIT_REPOSITORY", null, new EnvVarSourceBuilder().withSecretKeyRef(new SecretKeySelector("git-repository", SECRET_NAME, false)).build())
         );
         envVars.add(
-                new EnvVar("GIT_USERNAME", null, new EnvVarSourceBuilder().withSecretKeyRef(new SecretKeySelector("git-username", KARAVAN_SECRET_NAME, false)).build())
+                new EnvVar("GIT_USERNAME", null, new EnvVarSourceBuilder().withSecretKeyRef(new SecretKeySelector("git-username", SECRET_NAME, false)).build())
         );
         envVars.add(
-                new EnvVar("GIT_PASSWORD", null, new EnvVarSourceBuilder().withSecretKeyRef(new SecretKeySelector("git-password", KARAVAN_SECRET_NAME, false)).build())
+                new EnvVar("GIT_PASSWORD", null, new EnvVarSourceBuilder().withSecretKeyRef(new SecretKeySelector("git-password", SECRET_NAME, false)).build())
         );
         envVars.add(
-                new EnvVar("GIT_BRANCH", null, new EnvVarSourceBuilder().withSecretKeyRef(new SecretKeySelector("git-branch", KARAVAN_SECRET_NAME, false)).build())
+                new EnvVar("GIT_BRANCH", null, new EnvVarSourceBuilder().withSecretKeyRef(new SecretKeySelector("git-branch", SECRET_NAME, false)).build())
         );
 
         ObjectMeta meta = new ObjectMetaBuilder()
@@ -275,7 +281,7 @@ public class KubernetesService implements HealthCheck {
                 .withTerminationGracePeriodSeconds(0L)
                 .withContainers(container)
                 .withRestartPolicy("Never")
-                .withServiceAccount(KARAVAN_SERVICE_ACCOUNT)
+                .withServiceAccount(builderServiceAccount)
                 .withVolumes(
                         new VolumeBuilder().withName(BUILD_CONFIG_MAP)
                                 .withConfigMap(new ConfigMapVolumeSourceBuilder().withName(BUILD_CONFIG_MAP).withItems(
@@ -481,6 +487,7 @@ public class KubernetesService implements HealthCheck {
                 .withContainers(container)
                 .withRestartPolicy("Never")
                 .withVolumes(volumes)
+                .withServiceAccount(devModeServiceAccount)
                 .build();
 
         return new PodBuilder()
