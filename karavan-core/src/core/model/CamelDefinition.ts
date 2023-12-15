@@ -3700,7 +3700,7 @@ export class RestPropertyDefinition extends CamelElement {
 }
 
 export class RestSecuritiesDefinition extends CamelElement {
-    stepName?: string = 'restSecurities';
+    stepName?: string = 'securityDefinitions';
     apiKey?: ApiKeyDefinition;
     basicAuth?: BasicAuthDefinition;
     bearer?: BearerTokenDefinition;

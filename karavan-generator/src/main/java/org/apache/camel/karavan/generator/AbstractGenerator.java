@@ -76,6 +76,8 @@ public class AbstractGenerator {
             className = "sample";
         } else if (className.equals("BeanPropertiesDefinition")) {
             className = "properties";
+        } else if (className.equals("RestSecuritiesDefinition")) {
+            className = "securityDefinitions";
         } else if (className.endsWith("Definition")) {
             className = className.substring(0, className.length() - 10);
         } else if (className.endsWith("DataFormat")){
@@ -237,7 +239,7 @@ public class AbstractGenerator {
                 Files.createDirectories(path);
             }
             File targetFile = Paths.get(folder, fileName).toFile();
-            LOGGER.info("Saving file " + targetFile.getAbsolutePath());
+//            LOGGER.info("Saving file " + targetFile.getAbsolutePath());
             Files.copy(new ByteArrayInputStream(text.getBytes()), targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
             e.printStackTrace();

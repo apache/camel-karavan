@@ -182,6 +182,13 @@ export class CamelDefinitionYaml {
                 stepName === 'noErrorHandler' ||
                 stepName === 'springTransactionErrorHandler' ||
                 stepName === 'redeliveryPolicy' ||
+                stepName === 'securityDefinitions' ||
+                stepName === 'apiKey' ||
+                stepName === 'basicAuth' ||
+                stepName === 'bearer' ||
+                stepName === 'mutualTls' ||
+                stepName === 'oauth2' ||
+                stepName === 'openIdConnect' ||
                 key === 'from'
             ) {
                 delete newValue.inArray;

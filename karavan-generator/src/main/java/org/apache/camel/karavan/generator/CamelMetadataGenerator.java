@@ -151,7 +151,6 @@ public final class CamelMetadataGenerator extends AbstractGenerator {
         code.append(String.format("export const %s: ElementMeta[] = [\n", className));
         classProps.entrySet().stream().filter(entry -> {
             if (entry.getValue() == null) {
-//                System.out.println(entry.getKey());
                 return false;
             } else {
                 return true;
@@ -199,6 +198,8 @@ public final class CamelMetadataGenerator extends AbstractGenerator {
                     }
                 });
                 code.append("    ]),\n");
+            } else {
+                System.out.println("Empty JSON for class: " + name + " as a stepName " + stepName);
             }
         });
         code.append("]\n\n");

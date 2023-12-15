@@ -2214,6 +2214,14 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('key', 'Key', "Property key", 'string', '', '', true, false, false, false, '', '', false),
         new PropertyMeta('value', 'Value', "Property value", 'string', '', '', true, false, false, false, '', '', false),
     ]),
+    new ElementMeta('securityDefinitions', 'RestSecuritiesDefinition', 'Rest Security Definitions', "To configure rest security definitions.", 'rest,security,configuration', [
+        new PropertyMeta('apiKey', 'apiKey', "apiKey", 'ApiKeyDefinition', '', '', false, false, false, true, '', '', false),
+        new PropertyMeta('basicAuth', 'basicAuth', "basicAuth", 'BasicAuthDefinition', '', '', false, false, false, true, '', '', false),
+        new PropertyMeta('bearer', 'bearer', "bearer", 'BearerTokenDefinition', '', '', false, false, false, true, '', '', false),
+        new PropertyMeta('mutualTls', 'mutualTls', "mutualTls", 'MutualTLSDefinition', '', '', false, false, false, true, '', '', false),
+        new PropertyMeta('oauth2', 'oauth2', "oauth2", 'OAuth2Definition', '', '', false, false, false, true, '', '', false),
+        new PropertyMeta('openIdConnect', 'openIdConnect', "openIdConnect", 'OpenIdConnectDefinition', '', '', false, false, false, true, '', '', false),
+    ]),
     new ElementMeta('rests', 'RestsDefinition', 'Rests', "A series of rest services defined using the rest-dsl", 'rest', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', '', false),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', '', false),
