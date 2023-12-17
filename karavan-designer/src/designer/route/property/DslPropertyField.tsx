@@ -61,7 +61,6 @@ import {MediaTypes} from "../../utils/MediaTypes";
 import {ComponentProperty} from "karavan-core/lib/model/ComponentModels";
 import CompressIcon from "@patternfly/react-icons/dist/js/icons/compress-icon";
 import ExpandIcon from "@patternfly/react-icons/dist/js/icons/expand-icon";
-import KubernetesIcon from "@patternfly/react-icons/dist/js/icons/openshift-icon";
 import {InfrastructureSelector} from "./InfrastructureSelector";
 import {InfrastructureAPI} from "../../utils/InfrastructureAPI";
 import EditorIcon from "@patternfly/react-icons/dist/js/icons/code-icon";
@@ -71,6 +70,7 @@ import {useDesignerStore, useIntegrationStore} from "../../DesignerStore";
 import {shallow} from "zustand/shallow";
 import {DataFormatDefinition, ExpressionDefinition} from "karavan-core/lib/model/CamelDefinition";
 import {TemplateApi} from "karavan-core/lib/api/TemplateApi";
+import {KubernetesIcon} from "../../icons/ComponentIcons";
 
 interface Props {
     property: PropertyMeta,
@@ -217,7 +217,7 @@ export function DslPropertyField(props: Props) {
     function getStringInput(property: PropertyMeta, value: any) {
         const inInfrastructure = InfrastructureAPI.infrastructure !== 'local';
         const noInfraSelectorButton = ["uri", "id", "description", "group"].includes(property.name);
-        const icon = InfrastructureAPI.infrastructure === 'kubernetes' ? <KubernetesIcon/> : <DockerIcon/>
+        const icon = InfrastructureAPI.infrastructure === 'kubernetes' ? KubernetesIcon("infra-button") : <DockerIcon/>
         return (<InputGroup>
             {inInfrastructure && !showEditor && !noInfraSelectorButton &&
                 <InputGroupItem>
