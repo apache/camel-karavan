@@ -14,13 +14,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-.switch-placeholder {
-    margin: auto;
-    padding-right: 12px;
+
+
+.add-button-icon, .insert-button-icon {
+    fill: var(--pf-v5-global--primary-color--100);
+    width: 20px;
+    height: 20px;
+    background: white;
+    vertical-align: text-bottom;
 }
 
-.karavan .designer-page .properties .infra-button {
-    width: 1em;
-    height: 1em;
-    vertical-align: -0.125em;
+.delete-button-icon {
+    fill: var(--pf-v5-global--danger-color--100);
+    width: 20px;
+    height: 20px;
+    background: white;
+    vertical-align: text-bottom;
 }

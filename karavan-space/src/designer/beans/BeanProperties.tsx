@@ -18,7 +18,7 @@ import React, {useEffect, useState} from 'react';
 import {
     Form,
     FormGroup,
-    TextInput, Button, Title, Tooltip, Popover, InputGroup, InputGroupItem,
+    TextInput, Button, Title, Tooltip, Popover, InputGroup, InputGroupItem, capitalize,
 } from '@patternfly/react-core';
 import '../karavan.css';
 import "@patternfly/patternfly/patternfly.css";
@@ -34,7 +34,6 @@ import AddIcon from "@patternfly/react-icons/dist/js/icons/plus-circle-icon";
 import CloneIcon from '@patternfly/react-icons/dist/esm/icons/clone-icon'
 import HelpIcon from "@patternfly/react-icons/dist/js/icons/help-icon";
 import {InfrastructureSelector} from "../route/property/InfrastructureSelector";
-import KubernetesIcon from "@patternfly/react-icons/dist/js/icons/openshift-icon";
 import {InfrastructureAPI} from "../utils/InfrastructureAPI";
 import ShowIcon from "@patternfly/react-icons/dist/js/icons/eye-icon";
 import HideIcon from "@patternfly/react-icons/dist/js/icons/eye-slash-icon";
@@ -42,6 +41,7 @@ import DockerIcon from "@patternfly/react-icons/dist/js/icons/docker-icon";
 import {useDesignerStore} from "../DesignerStore";
 import {shallow} from "zustand/shallow";
 import {IntegrationHeader} from "../utils/IntegrationHeader";
+import {KubernetesIcon} from "../icons/ComponentIcons";
 
 
 interface Props {
@@ -258,7 +258,7 @@ export function BeanProperties (props: Props) {
                         const showPassword = v[1][2];
                         const isSecret = key !== undefined && SensitiveKeys.includes(key.toLowerCase());
                         const inInfrastructure = InfrastructureAPI.infrastructure !== 'local';
-                        const icon = InfrastructureAPI.infrastructure === 'kubernetes' ? <KubernetesIcon/> : <DockerIcon/>
+                        const icon = InfrastructureAPI.infrastructure === 'kubernetes' ? KubernetesIcon("infra-button"): <DockerIcon/>
                         return (
                             <div key={"key-" + i} className="bean-property">
                                 <TextInput placeholder="Bean Field Name" className="text-field" isRequired type="text" id={"key-" + i}
@@ -268,7 +268,7 @@ export function BeanProperties (props: Props) {
                                            }}/>
                                 <InputGroup>
                                     {inInfrastructure &&
-                                        <Tooltip position="bottom-end" content="Select value from Infrastructure">
+                                        <Tooltip position="bottom-end" content={"Select from " + capitalize(InfrastructureAPI.infrastructure)}>
                                             <Button variant="control" onClick={e => openInfrastructureSelector(i, key)}>
                                                 {icon}
                                             </Button>

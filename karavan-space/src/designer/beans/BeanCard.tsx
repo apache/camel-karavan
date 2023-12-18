@@ -20,9 +20,9 @@ import {
 } from '@patternfly/react-core';
 import './bean.css';
 import {RegistryBeanDefinition} from "karavan-core/lib/model/CamelDefinition";
-import DeleteIcon from "@patternfly/react-icons/dist/js/icons/times-circle-icon";
 import {useDesignerStore} from "../DesignerStore";
 import {shallow} from "zustand/shallow";
+import {DeleteElementIcon} from "../utils/ElementIcons";
 
 interface Props {
     bean: RegistryBeanDefinition
@@ -55,7 +55,7 @@ export function BeanCard (props: Props) {
             <FlexItem flex={{default:"flex_3"}} align={{default: "alignRight"}} className="description">{bean.type}</FlexItem>
             <FlexItem>
                 <Button variant="link" className="delete-button" onClick={e => onDelete(e)}>
-                    <DeleteIcon/>
+                    {DeleteElementIcon()}
                 </Button>
             </FlexItem>
         </Flex>

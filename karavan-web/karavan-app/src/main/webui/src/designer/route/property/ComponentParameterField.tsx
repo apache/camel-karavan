@@ -43,7 +43,6 @@ import CompressIcon from "@patternfly/react-icons/dist/js/icons/compress-icon";
 import ExpandIcon from "@patternfly/react-icons/dist/js/icons/expand-icon";
 import {InfrastructureSelector} from "./InfrastructureSelector";
 import {InfrastructureAPI} from "../../utils/InfrastructureAPI";
-import KubernetesIcon from "@patternfly/react-icons/dist/js/icons/openshift-icon";
 import DockerIcon from "@patternfly/react-icons/dist/js/icons/docker-icon";
 import ShowIcon from "@patternfly/react-icons/dist/js/icons/eye-icon";
 import HideIcon from "@patternfly/react-icons/dist/js/icons/eye-slash-icon";
@@ -51,6 +50,7 @@ import PlusIcon from "@patternfly/react-icons/dist/esm/icons/plus-icon";
 import {usePropertiesHook} from "../usePropertiesHook";
 import {useIntegrationStore} from "../../DesignerStore";
 import {shallow} from "zustand/shallow";
+import {KubernetesIcon} from "../../icons/ComponentIcons";
 
 const prefix = "parameters";
 const beanPrefix = "#bean:";
@@ -219,7 +219,7 @@ export function ComponentParameterField(props: Props) {
     function getStringInput(property: ComponentProperty, value: any) {
         const inInfrastructure = InfrastructureAPI.infrastructure !== 'local';
         const noInfraSelectorButton = ["uri", "id", "description", "group"].includes(property.name);
-        const icon = InfrastructureAPI.infrastructure === 'kubernetes' ? <KubernetesIcon/> : <DockerIcon/>
+        const icon = InfrastructureAPI.infrastructure === 'kubernetes' ? KubernetesIcon("infra-button") : <DockerIcon/>
         return <InputGroup>
             {inInfrastructure && !showEditor && !noInfraSelectorButton &&
                 <Tooltip position="bottom-end"

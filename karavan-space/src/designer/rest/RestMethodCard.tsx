@@ -18,9 +18,9 @@ import React from 'react';
 import {Button} from '@patternfly/react-core';
 import '../karavan.css';
 import {CamelElement} from "karavan-core/lib/model/IntegrationDefinition";
-import DeleteIcon from "@patternfly/react-icons/dist/js/icons/times-circle-icon";
 import {useDesignerStore} from "../DesignerStore";
 import {shallow} from "zustand/shallow";
+import {DeleteElementIcon} from "../utils/ElementIcons";
 
 interface Props<T extends CamelElement> {
     method: T
@@ -50,7 +50,7 @@ export function RestMethodCard<T extends CamelElement> (props: Props<T>) {
                 <div className="title">{method.path}</div>
                 <div className="description">{method.description}</div>
             </div>
-            <Button variant="link" className="delete-button" onClick={e => onDelete(e)}><DeleteIcon/></Button>
+            <Button variant="link" className="delete-button" onClick={e => onDelete(e)}>{DeleteElementIcon()}</Button>
         </div>
     )
 }

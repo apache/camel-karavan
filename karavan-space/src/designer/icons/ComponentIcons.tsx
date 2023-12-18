@@ -1248,12 +1248,13 @@ export function HealthIcon() {
     );
 }
 
-export function KubernetesIcon() {
+export function KubernetesIcon(className?: string) {
     return (
         <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 -10.44 722.846 722.846"
-            className="icon" width="32px" height="32px">
+            className={className ? className  + " icon" : "icon"}
+            width="32px" height="32px">
             <path
                 fill="#326ce5"
                 d="M358.986 10.06a46.725 46.342 0 0 0-17.906 4.531L96.736 131.341a46.725 46.342 0 0 0-25.28 31.438l-60.282 262.25a46.725 46.342 0 0 0 6.344 35.531 46.725 46.342 0 0 0 2.656 3.688l169.125 210.28a46.725 46.342 0 0 0 36.531 17.438l271.219-.062a46.725 46.342 0 0 0 36.531-17.406l169.063-210.313a46.725 46.342 0 0 0 9.03-39.219L651.3 162.716a46.725 46.342 0 0 0-25.281-31.437L381.643 14.59a46.725 46.342 0 0 0-22.657-4.53z"

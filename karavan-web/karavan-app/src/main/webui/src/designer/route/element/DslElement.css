@@ -209,17 +209,3 @@
 .dsl-element:hover .menu-button {
     visibility: visible;
 }
-
-.add-button-icon, .insert-button-icon {
-    fill: var(--pf-v5-global--primary-color--100);
-    width: 20px;
-    height: 20px;
-    background: white;
-}
-
-.delete-button-icon {
-    fill: var(--pf-v5-global--danger-color--100);
-    width: 20px;
-    height: 20px;
-    background: white;
-}

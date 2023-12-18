@@ -105,7 +105,8 @@ export function DslElementHeader(props: Props) {
 
     function hasWideChildrenElement() {
         const [hasStepsField, stepsChildrenCount, hasNonStepsFields, nonStepChildrenCount, childrenCount] = getChildrenInfo(props.step);
-        if (isHorizontal() && stepsChildrenCount > 1) return true;
+        if (props.step.dslName === 'SetHeadersDefinition') return false;
+        else if (isHorizontal() && stepsChildrenCount > 1) return true;
         else if (hasStepsField && stepsChildrenCount > 0 && hasNonStepsFields && nonStepChildrenCount > 0) return true;
         else if (!hasStepsField && hasNonStepsFields && childrenCount > 1) return true;
         else if (hasStepsField && stepsChildrenCount > 0 && hasNonStepsFields && childrenCount > 1) return true;

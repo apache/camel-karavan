@@ -1,27 +1,27 @@
 - route:
     id: route-1
     from:
-      uri: kamelet:timer-source
       id: from-1
+      uri: kamelet:timer-source
       parameters:
         period: 1000
         message: '1'
       steps:
         - setBody:
+            id: setBody-1
             expression:
               groovy:
-                expression: 1000 / 0
                 id: groovy-10a6
-            id: setBody-1
+                expression: 1000 / 0
         - log:
-            message: $[body}
             id: log-1
+            message: $[body}
 - routeConfiguration:
+    id: routeConfiguration-1
     errorHandler:
       id: errorHandler-1
       deadLetterChannel:
+        id: deadLetterChannel-1
         deadLetterUri: log:dlq
         useOriginalMessage: true
         level: TRACE
-        id: deadLetterChannel-1
-    id: routeConfiguration-1

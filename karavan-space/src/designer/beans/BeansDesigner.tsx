@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import React from 'react';
+import React, {useEffect} from 'react';
 import {
     Button,
     Drawer,
@@ -39,9 +39,15 @@ import {shallow} from "zustand/shallow";
 export function BeansDesigner() {
 
     const [integration, setIntegration] = useIntegrationStore((s) => [s.integration, s.setIntegration], shallow)
-    const [dark, selectedStep, showDeleteConfirmation, setShowDeleteConfirmation, setSelectedStep] = useDesignerStore((s) =>
-        [s.dark, s.selectedStep, s.showDeleteConfirmation, s.setShowDeleteConfirmation, s.setSelectedStep], shallow)
+    const [dark, selectedStep, showDeleteConfirmation, setShowDeleteConfirmation, setSelectedStep, setNotification]
+        = useDesignerStore((s) =>
+        [s.dark, s.selectedStep, s.showDeleteConfirmation, s.setShowDeleteConfirmation, s.setSelectedStep, s.setNotification], shallow)
 
+    useEffect(() => {
+        return () => {
+            setNotification(false, ['', '']);
+        }
+    }, []);
 
     function onShowDeleteConfirmation(bean: RegistryBeanDefinition) {
         setSelectedStep(bean);

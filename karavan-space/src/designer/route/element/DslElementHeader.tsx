@@ -26,7 +26,7 @@ import {CamelDisplayUtil} from "karavan-core/lib/api/CamelDisplayUtil";
 import {useDesignerStore} from "../../DesignerStore";
 import {shallow} from "zustand/shallow";
 import {useRouteDesignerHook} from "../useRouteDesignerHook";
-import {AddElementIcon, DeleteElementIcon, InsertElementIcon} from "./DslElementIcons";
+import {AddElementIcon, DeleteElementIcon, InsertElementIcon} from "../../utils/ElementIcons";
 import { RouteConfigurationDefinition} from "karavan-core/lib/model/CamelDefinition";
 
 interface Props {
@@ -105,7 +105,8 @@ export function DslElementHeader(props: Props) {
 
     function hasWideChildrenElement() {
         const [hasStepsField, stepsChildrenCount, hasNonStepsFields, nonStepChildrenCount, childrenCount] = getChildrenInfo(props.step);
-        if (isHorizontal() && stepsChildrenCount > 1) return true;
+        if (props.step.dslName === 'SetHeadersDefinition') return false;
+        else if (isHorizontal() && stepsChildrenCount > 1) return true;
         else if (hasStepsField && stepsChildrenCount > 0 && hasNonStepsFields && nonStepChildrenCount > 0) return true;
         else if (!hasStepsField && hasNonStepsFields && childrenCount > 1) return true;
         else if (hasStepsField && stepsChildrenCount > 0 && hasNonStepsFields && childrenCount > 1) return true;

@@ -23,8 +23,7 @@ import '../karavan.css';
 import {CamelElement, Integration} from "karavan-core/lib/model/IntegrationDefinition";
 import {GetDefinition, RestDefinition} from "karavan-core/lib/model/CamelDefinition";
 import {RestMethodCard} from "./RestMethodCard";
-import DeleteIcon from "@patternfly/react-icons/dist/js/icons/times-circle-icon";
-import AddIcon from "@patternfly/react-icons/dist/js/icons/plus-circle-icon";
+import {AddElementIcon, DeleteElementIcon} from "../utils/ElementIcons";
 
 interface Props {
     rest: RestDefinition
@@ -62,10 +61,10 @@ export function RestCard(props: Props) {
                 <div className="title">{rest.path}</div>
                 <div className="description">{rest.description}</div>
                 <Tooltip position={"bottom"} content={<div>Add REST method</div>}>
-                    <Button variant={"link"} icon={<AddIcon/>} aria-label="Add" onClick={e => selectMethod(e)}
+                    <Button variant={"link"} icon={AddElementIcon()} aria-label="Add" onClick={e => selectMethod(e)}
                             className="add-button">Add method</Button>
                 </Tooltip>
-                <Button variant="link" className="delete-button" onClick={e => onDelete(e)}><DeleteIcon/></Button>
+                <Button variant="link" className="delete-button" onClick={e => onDelete(e)}>{DeleteElementIcon()}</Button>
             </div>
             <div className="rest-content" key={Math.random().toString()}>
                 {rest.get?.map((get: GetDefinition) =>
