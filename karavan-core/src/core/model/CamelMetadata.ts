@@ -1873,6 +1873,20 @@ export const CamelModelMetadata: ElementMeta[] = [
     new ElementMeta('value', 'ValueDefinition', 'Value', "A single value", 'configuration', [
         new PropertyMeta('value', 'Value', "Property value", 'string', '', '', true, false, false, false, '', '', false),
     ]),
+    new ElementMeta('registryBean', 'RegistryBeanDefinition', 'Bean', "Define custom beans that can be used in your Camel routes and in general.", 'configuration', [
+        new PropertyMeta('name', 'Name', "The name of the bean (bean id)", 'string', '', '', true, false, false, false, '', '', false),
+        new PropertyMeta('type', 'Type', "The class name (fully qualified) of the bean", 'string', '', '', true, false, false, false, '', '', false),
+        new PropertyMeta('initMethod', 'Init Method', "The name of the custom initialization method to invoke after setting bean properties. The method must have no arguments, but may throw any exception.", 'string', '', '', false, false, false, false, '', '', false),
+        new PropertyMeta('destroyMethod', 'Destroy Method', "The name of the custom destroy method to invoke on bean shutdown, such as when Camel is shutting down. The method must have no arguments, but may throw any exception.", 'string', '', '', false, false, false, false, '', '', false),
+        new PropertyMeta('factoryMethod', 'Factory Method', "Name of method to invoke when creating the bean via a factory bean.", 'string', '', '', false, false, false, false, '', '', false),
+        new PropertyMeta('factoryBean', 'Factory Bean', "Name of factory bean (bean id) to use for creating the bean.", 'string', '', '', false, false, false, false, '', '', false),
+        new PropertyMeta('builderClass', 'Builder Class', "Fully qualified class name of builder class to use for creating and configuring the bean. The builder will use the properties values to configure the bean.", 'string', '', '', false, false, false, false, '', '', false),
+        new PropertyMeta('builderMethod', 'Builder Method', "Name of method when using builder class. This method is invoked after configuring to create the actual bean. This method is often named build (used by default).", 'string', '', 'build', false, false, false, false, '', '', false),
+        new PropertyMeta('scriptLanguage', 'Script Language', "The script language to use when using inlined script for creating the bean, such as groovy, java, javascript etc.", 'string', '', '', false, false, false, false, 'advanced', '', false),
+        new PropertyMeta('constructors', 'Constructors', "Optional constructor arguments for creating the bean. Arguments correspond to specific index of the constructor argument list, starting from zero.", 'object', '', '', false, false, false, false, '', '', false),
+        new PropertyMeta('properties', 'Properties', "Optional properties to set on the created bean.", 'object', '', '', false, false, false, false, '', '', false),
+        new PropertyMeta('script', 'Script', "The script to execute that creates the bean when using scripting languages. If the script use the prefix resource: such as resource:classpath:com/foo/myscript.groovy, resource:file:/var/myscript.groovy, then its loaded from the external resource.", 'string', '', '', false, false, false, false, 'advanced', '', false),
+    ]),
     new ElementMeta('serviceCallConfiguration', 'ServiceCallConfigurationDefinition', 'Service Call Configuration', "Remote service call configuration", 'routing,cloud', [
         new PropertyMeta('id', 'Id', "The id of this node", 'string', '', '', false, false, false, false, '', '', false),
         new PropertyMeta('expression', 'Expression', "Configures the Expression using the given configuration.", 'ExpressionDefinition', '', '', false, false, false, true, '', '', false),

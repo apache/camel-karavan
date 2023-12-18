@@ -159,7 +159,20 @@ public final class CamelMetadataGenerator extends AbstractGenerator {
             String name = entry.getKey();
             JsonObject properties = entry.getValue();
             String stepName = getStepNameForClass(name);
-            String json = folder.equals("model") ? getMetaModel(stepName) : (folder.equals("language") ? getMetaLanguage(stepName) : getMetaDataFormat(stepName));
+//            String json = folder.equals("model") ? getMetaModel(stepName) : (folder.equals("language") ? getMetaLanguage(stepName) : getMetaDataFormat(stepName));
+            String json = null;
+            if (Objects.equals(name, "RegistryBeanDefinition")) {
+                json = getMetaModelApp("bean");
+            } else if (folder.equals("model")) {
+                json = getMetaModel(stepName);
+            } else {
+                if (folder.equals("language")) {
+                    json = getMetaLanguage(stepName);
+                } else {
+                    json = getMetaDataFormat(stepName);
+                }
+            }
+
             if (json != null) {
                 JsonObject model = new JsonObject(json).getJsonObject("model");
                 JsonObject props = new JsonObject(json).getJsonObject("properties");
@@ -189,7 +202,7 @@ public final class CamelMetadataGenerator extends AbstractGenerator {
                         String defaultValue = p != null && p.containsKey("defaultValue") ? p.getString("defaultValue") : "";
                         defaultValue = defaultValue.length() == 1 && defaultValue.toCharArray()[0] == '\\' ? "\\\\" : defaultValue;
                         String labels = p != null && p.containsKey("label") ? p.getString("label") : "";
-                        String javaType = getJavaType(p);
+                        String javaType = getJavaType(name, p);
                         Boolean placeholder = Objects.equals(typeInCatalog, "string") && !Objects.equals(typeInCatalog, pm.type);
                         if (name.equals("ProcessDefinition") && pname.equals("ref")) javaType = "org.apache.camel.Processor"; // exception for processor
                         code.append(String.format(
@@ -199,18 +212,19 @@ public final class CamelMetadataGenerator extends AbstractGenerator {
                 });
                 code.append("    ]),\n");
             } else {
-                System.out.println("Empty JSON for class: " + name + " as a stepName " + stepName);
+//                System.out.println("Empty JSON for class: " + name + " as a stepName " + stepName);
             }
         });
         code.append("]\n\n");
         return code.toString();
     }
 
-    private String getJavaType(JsonObject p) {
+    private String getJavaType(String dslName, JsonObject p) {
         if (p != null
                 && p.containsKey("type")
                 && p.getString("type").equals("object")
-                && (p.getString("javaType").equals("org.apache.camel.AggregationStrategy") || p.getString("javaType").equals("org.apache.camel.Processor")) ) {
+                && (p.getString("javaType").equals("org.apache.camel.AggregationStrategy") || p.getString("javaType").equals("org.apache.camel.Processor"))
+        ) {
             String javaName = p.getString("javaType");
             try {
                 Class clazz = Class.forName(javaName);

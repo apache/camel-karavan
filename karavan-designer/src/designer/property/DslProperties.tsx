@@ -38,17 +38,18 @@ import {usePropertiesHook} from "./usePropertiesHook";
 import {CamelDisplayUtil} from "karavan-core/lib/api/CamelDisplayUtil";
 
 interface Props {
-    isRouteDesigner: boolean
+    designerType: 'routes' | 'rest' | 'beans'
 }
 
 export function DslProperties(props: Props) {
 
-    const [integration] = useIntegrationStore((state) => [state.integration], shallow)
+    const [integration] = useIntegrationStore((s) => [s.integration], shallow)
 
     const {convertStep, cloneElement, onDataFormatChange, onPropertyChange, onParametersChange, onExpressionChange} =
-        usePropertiesHook(props.isRouteDesigner);
+        usePropertiesHook(props.designerType);
 
-    const [selectedStep, dark] = useDesignerStore((s) => [s.selectedStep, s.dark], shallow)
+    const [selectedStep, dark]
+        = useDesignerStore((s) => [s.selectedStep, s.dark], shallow)
 
     const [showAdvanced, setShowAdvanced] = useState<boolean>(false);
     const [isDescriptionExpanded, setIsDescriptionExpanded] = useState<boolean>(false);
@@ -109,7 +110,7 @@ export function DslProperties(props: Props) {
     }
 
     function getComponentHeader(): JSX.Element {
-        if (props.isRouteDesigner) return getRouteHeader()
+        if (props.designerType === 'routes') return getRouteHeader()
         else return getClonableElementHeader();
     }
 

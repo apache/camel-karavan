@@ -68,9 +68,14 @@ import {ModalEditor} from "./ModalEditor";
 import DockerIcon from "@patternfly/react-icons/dist/js/icons/docker-icon";
 import {useDesignerStore, useIntegrationStore} from "../../DesignerStore";
 import {shallow} from "zustand/shallow";
-import {DataFormatDefinition, ExpressionDefinition} from "karavan-core/lib/model/CamelDefinition";
+import {
+    DataFormatDefinition,
+    ExpressionDefinition,
+    RegistryBeanDefinition
+} from "karavan-core/lib/model/CamelDefinition";
 import {TemplateApi} from "karavan-core/lib/api/TemplateApi";
 import {KubernetesIcon} from "../../icons/ComponentIcons";
+import {BeanProperties} from "./BeanProperties";
 
 interface Props {
     property: PropertyMeta,
@@ -86,8 +91,8 @@ interface Props {
 
 export function DslPropertyField(props: Props) {
 
-    const [integration] = useIntegrationStore((state) => [state.integration], shallow)
-    const [dark] = useDesignerStore((s) => [s.dark], shallow)
+    const [integration, setIntegration] = useIntegrationStore((s) => [s.integration, s.setIntegration], shallow)
+    const [dark, setSelectedStep] = useDesignerStore((s) => [s.dark, s.setSelectedStep], shallow)
 
     const [isShowAdvanced, setIsShowAdvanced] = useState<string[]>([]);
     const [arrayValues, setArrayValues] = useState<Map<string, string>>(new Map<string, string>());
@@ -748,6 +753,17 @@ export function DslPropertyField(props: Props) {
     }
 
 
+    function changeBean(bean: RegistryBeanDefinition) {
+        const clone = CamelUtil.cloneIntegration(integration);
+        const i = CamelDefinitionApiExt.addBeanToIntegration(clone, bean);
+        setIntegration(i, false);
+        setSelectedStep(bean);
+    }
+
+    function getBeanProperties(type: 'constructors' | 'properties') {
+        return <BeanProperties type={type} onChange={changeBean} onClone={changeBean}/>
+    }
+
     function isMultiValueField(property: PropertyMeta): boolean {
         return ['string'].includes(property.type) && property.name !== 'expression' && property.isArray && !property.enumVals;
     }
@@ -776,6 +792,8 @@ export function DslPropertyField(props: Props) {
     const isKamelet = CamelUtil.isKameletComponent(element);
     const property: PropertyMeta = props.property;
     const value = props.value;
+    const beanConstructors = element?.dslName === 'RegistryBeanDefinition' && property.name === 'constructors'
+    const beanProperties = element?.dslName === 'RegistryBeanDefinition' && property.name === 'properties'
     return (
         <div>
             <FormGroup
@@ -812,6 +830,8 @@ export function DslPropertyField(props: Props) {
                     && getSelect(property, value)}
                 {isKamelet && property.name === 'parameters' && getKameletParameters()}
                 {!isKamelet && property.name === 'parameters' && getComponentParameters(property)}
+                {beanConstructors && getBeanProperties('constructors')}
+                {beanProperties && getBeanProperties('properties')}
             </FormGroup>
             {getInfrastructureSelectorModal()}
         </div>

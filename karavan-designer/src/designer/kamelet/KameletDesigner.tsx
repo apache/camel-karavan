@@ -33,7 +33,7 @@ import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt"
 import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
 import {useDesignerStore, useIntegrationStore} from "../DesignerStore";
 import {shallow} from "zustand/shallow";
-import {BeanProperties} from "../beans/BeanProperties";
+import {BeanProperties} from "../property/property/BeanProperties";
 import {BeanCard} from "../beans/BeanCard";
 import {KameletAnnotationsPanel} from "./KameletAnnotationsPanel";
 import {KameletDefinitionsPanel} from "./KameletDefinitionsPanel";

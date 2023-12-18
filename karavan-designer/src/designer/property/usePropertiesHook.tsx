@@ -26,17 +26,19 @@ import {RouteToCreate} from "../utils/CamelUi";
 import {useDesignerStore, useIntegrationStore} from "../DesignerStore";
 import {shallow} from "zustand/shallow";
 
-export function usePropertiesHook (isRouteDesigner: boolean = true) {
+export function usePropertiesHook (designerType: 'routes' | 'rest' | 'beans' = 'routes') {
 
     const [integration, setIntegration] = useIntegrationStore((state) => [state.integration, state.setIntegration], shallow)
     const [ selectedStep, setSelectedStep, setSelectedUuids] = useDesignerStore((s) =>
         [s.selectedStep, s.setSelectedStep, s.setSelectedUuids], shallow)
 
     function onPropertyUpdate (element: CamelElement, newRoute?: RouteToCreate) {
-        if (isRouteDesigner) {
+        if (designerType === 'routes') {
             onRoutePropertyUpdate(element, newRoute);
-        } else {
+        } else if (designerType === 'rest') {
             onRestPropertyUpdate(element, newRoute);
+        } else if (designerType === 'beans') {
+            onBeanPropertyUpdate(element, newRoute);
         }
     }
 
@@ -69,6 +71,23 @@ export function usePropertiesHook (isRouteDesigner: boolean = true) {
         } else {
             const clone = CamelUtil.cloneIntegration(integration);
             const i = CamelDefinitionApiExt.updateIntegrationRestElement(clone, element);
+            setIntegration(i, true);
+            // setSelectedStep(element);
+        }
+    }
+
+    function onBeanPropertyUpdate (element: CamelElement, newRoute?: RouteToCreate) {
+        if (newRoute) {
+            let i = CamelDefinitionApiExt.updateIntegrationBeanElement(integration, element);
+            const f = CamelDefinitionApi.createFromDefinition({uri: newRoute.componentName, parameters: {name: newRoute.name}});
+            const r = CamelDefinitionApi.createRouteDefinition({from: f, id: newRoute.name})
+            i = CamelDefinitionApiExt.addStepToIntegration(i, r, '');
+            const clone = CamelUtil.cloneIntegration(i);
+            setIntegration(clone, false);
+            setSelectedStep(element);
+        } else {
+            const clone = CamelUtil.cloneIntegration(integration);
+            const i = CamelDefinitionApiExt.updateIntegrationBeanElement(clone, element);
             setIntegration(i, true);
             // setSelectedStep(element);
         }

@@ -22,7 +22,7 @@ import {
 import './rest.css';
 import '../karavan.css';
 import {CamelElement} from "karavan-core/lib/model/IntegrationDefinition";
-import {DslProperties} from "../route/DslProperties";
+import {DslProperties} from "../property/DslProperties";
 import {RestCard} from "./RestCard";
 import PlusIcon from "@patternfly/react-icons/dist/esm/icons/plus-icon";
 import {
@@ -201,7 +201,7 @@ export function RestDesigner() {
     function getPropertiesPanel() {
         return (
             <DrawerPanelContent isResizable hasNoBorder defaultSize={'400px'} maxSize={'800px'} minSize={'100px'}>
-                <DslProperties isRouteDesigner={false}/>
+                <DslProperties designerType={'rest'}/>
             </DrawerPanelContent>
         )
     }

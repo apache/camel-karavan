@@ -305,6 +305,17 @@ public class AbstractGenerator {
                 : str.substring(0, 1).toLowerCase() + str.substring(1);
     }
 
+    protected String getMetaModelApp(String name) {
+        try {
+            InputStream inputStream = CamelCatalog.class.getResourceAsStream("/org/apache/camel/catalog/models-app/" + name + ".json");
+            String data = new BufferedReader(new InputStreamReader(inputStream))
+                    .lines().collect(Collectors.joining(System.getProperty("line.separator")));
+            return data;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
     protected String getMetaModel(String name) {
         try {
             InputStream inputStream = CamelCatalog.class.getResourceAsStream("/org/apache/camel/catalog/models/" + name + ".json");

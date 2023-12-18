@@ -19,7 +19,7 @@ import '../designer/karavan.css';
 import {shallow} from "zustand/shallow";
 import {TopologySideBar} from "@patternfly/react-topology";
 import {useTopologyStore} from "./TopologyStore";
-import {DslProperties} from "../designer/route/DslProperties";
+import {DslProperties} from "../designer/property/DslProperties";
 import {Button, Flex, FlexItem, Text, Tooltip, TooltipPosition} from "@patternfly/react-core";
 import CloseIcon from "@patternfly/react-icons/dist/esm/icons/times-icon";
 
@@ -62,7 +62,7 @@ export function TopologyPropertiesPanel (props: Props) {
         show={selectedIds.length > 0}
         header={getHeader()}
     >
-        <DslProperties isRouteDesigner={false}/>
+        <DslProperties designerType={'routes'}/>
     </TopologySideBar>
     )
 }
