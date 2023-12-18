@@ -41,6 +41,7 @@ import {BeansDesigner} from "./beans/BeansDesigner";
 import {CodeEditor} from "./editor/CodeEditor";
 import BellIcon from '@patternfly/react-icons/dist/esm/icons/bell-icon';
 import {KameletDesigner} from "./kamelet/KameletDesigner";
+import {v4 as uuidv4} from "uuid";
 
 interface Props {
     onSave: (filename: string, yaml: string, propertyOnly: boolean) => void
@@ -75,9 +76,9 @@ export function KaravanDesigner(props: Props) {
         let designerTab = i.kind === 'Kamelet' ? 'kamelet' : props.tab;
         if (designerTab === undefined) {
             const counts = CamelUi.getFlowCounts(i);
+            designerTab = (counts.get('routes') || 0) > 0 ? 'routes' : designerTab;
             designerTab = (counts.get('rest') || 0) > 0 ? 'rest' : designerTab;
             designerTab = (counts.get('beans') || 0) > 0 ? 'beans' : designerTab;
-            designerTab = (counts.get('routes') || 0) > 0 ? 'routes' : designerTab;
         }
         setTab(designerTab || 'routes')
         reset();

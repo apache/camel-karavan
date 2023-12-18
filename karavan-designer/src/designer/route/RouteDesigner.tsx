@@ -60,7 +60,9 @@ export function RouteDesigner() {
         if (flowRef && flowRef.current) {
             const el = flowRef.current;
             const rect = el.getBoundingClientRect();
-            setPosition(rect.width, rect.height, rect.top, rect.left)
+            if (width !== rect.width || height !== rect.height || top !== rect.top || left !== rect.left) {
+                setPosition(rect.width, rect.height, rect.top, rect.left)
+            }
         }
     }
 

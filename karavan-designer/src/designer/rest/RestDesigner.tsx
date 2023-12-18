@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import React from 'react';
+import React, {useEffect} from 'react';
 import {
     Button, Drawer, DrawerContent, DrawerContentBody, DrawerPanelContent, Flex, FlexItem, Gallery, GalleryItem, Modal,
     PageSection
@@ -43,10 +43,17 @@ import {shallow} from "zustand/shallow";
 export function RestDesigner() {
 
     const [integration, setIntegration] = useIntegrationStore((state) => [state.integration, state.setIntegration], shallow)
-    const [dark, selectedStep, showDeleteConfirmation, setShowDeleteConfirmation, setPosition, width, height, top, left, hideLogDSL, setSelectedStep] = useDesignerStore((s) =>
-        [s.dark, s.selectedStep, s.showDeleteConfirmation, s.setShowDeleteConfirmation, s.setPosition, s.width, s.height, s.top, s.left, s.hideLogDSL, s.setSelectedStep], shallow)
+    const [selectedStep, showDeleteConfirmation, setShowDeleteConfirmation, setSelectedStep, setNotification]
+        = useDesignerStore((s) =>
+        [s.selectedStep, s.showDeleteConfirmation, s.setShowDeleteConfirmation, s.setSelectedStep, s.setNotification], shallow)
 
     const [showSelector, setShowSelector] = useSelectorStore((s) => [s.showSelector, s.setShowSelector], shallow)
+
+    useEffect(() => {
+        return () => {
+            setNotification(false, ['', '']);
+        }
+    }, []);
 
     function selectElement(element: CamelElement) {
         setSelectedStep(element);
