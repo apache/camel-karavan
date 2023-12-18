@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import "./DslElement.css"
+import "./ElementIcon.css"
 import React from 'react'
 
 export function DeleteElementIcon() {

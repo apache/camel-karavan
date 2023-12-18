@@ -19,8 +19,8 @@ import {Button} from '@patternfly/react-core';
 import './rest.css';
 import '../karavan.css';
 import {CamelElement} from "karavan-core/lib/model/IntegrationDefinition";
-import DeleteIcon from "@patternfly/react-icons/dist/js/icons/times-circle-icon";
 import {RestConfigurationDefinition} from "karavan-core/lib/model/CamelDefinition";
+import {DeleteElementIcon} from "../utils/ElementIcons";
 
 interface Props {
     restConfig: RestConfigurationDefinition
@@ -53,7 +53,7 @@ export function RestConfigurationCard (props: Props) {
             <div className="description">{desc}</div>
             <Button variant="link" className="delete-button"
                     onClick={e => onDelete(e)}>
-                <DeleteIcon/>
+                {DeleteElementIcon()}
             </Button>
         </div>
     )
