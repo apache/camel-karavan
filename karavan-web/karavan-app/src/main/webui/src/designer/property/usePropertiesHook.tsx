@@ -25,6 +25,7 @@ import {CamelDefinitionApi} from "karavan-core/lib/api/CamelDefinitionApi";
 import {RouteToCreate} from "../utils/CamelUi";
 import {useDesignerStore, useIntegrationStore} from "../DesignerStore";
 import {shallow} from "zustand/shallow";
+import {CamelMetadataApi} from "karavan-core/lib/model/CamelMetadata";
 
 export function usePropertiesHook (designerType: 'routes' | 'rest' | 'beans' = 'routes') {
 
@@ -146,12 +147,18 @@ export function usePropertiesHook (designerType: 'routes' | 'rest' | 'beans' = '
     }
 
     const convertStep = (step: CamelElement, targetDslName: string ) => {
-        // const clone = CamelUtil.cloneIntegration(integration);
-        // const i = CamelDefinitionApiExt.addStepToIntegration(clone, step, parentId, position);
-        // const selectedStep = step.dslName === 'RouteDefinition' ? (step as RouteDefinition).from  : step;
-        // setIntegration(i, false);
-        // setSelectedStep(selectedStep);
-        // setSelectedUuids([selectedStep.uuid]);
+        const metaSource = CamelMetadataApi.getCamelModelMetadataByClassName(step.dslName);
+        const metaTarget = CamelMetadataApi.getCamelModelMetadataByClassName(targetDslName);
+        metaSource?.properties.forEach(pro => {
+            const toDelete = metaTarget?.properties.findIndex(x => x.name === pro.name) === -1;
+            if (toDelete) {
+                delete (step as any)[pro.name];
+            }
+        })
+        delete (step as any).dslName;
+        const converted = CamelDefinitionApi.createStep(targetDslName, step, true);
+        onPropertyUpdate(converted);
+        setSelectedStep(converted)
     }
 
     return {convertStep, cloneElement, onPropertyChange, onParametersChange, onDataFormatChange, onExpressionChange, getInternalComponentName}

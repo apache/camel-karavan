@@ -1,27 +1,19 @@
-#- route:
-#    nodePrefixId: route-1e7
-#    id: route-3f85
-#    from:
-#      uri: timer
-#      id: from-cfa5
-#      steps:
-#        - choice:
-#            when:
-#              - expression:
-#                  simple:
-#                    id: simple-d546
-#                id: when-f549
-#            otherwise:
-#              id: otherwise-cda7
-#            id: choice-50fe
-#- rest:
-#    id: rest-2333
-#    put:
-#      - id: put-5a13
 - beans:
-    - constructors: {}
-    - constructors: {}
-
+      - constructors: {}
+      - constructors: {}
+- route:
+      id: route-a947
+      nodePrefixId: route-a32
+      from:
+          id: from-c489
+          uri: kamelet:aws-ddb-streams-source
+          steps:
+              - setBody:
+                    id: setBody-4434
+                    expression:
+                        simple:
+                            id: simple-abd8
+                            expression: dddddd
 #      steps:
 #        - marshal:
 #            id: marshal-b68c
