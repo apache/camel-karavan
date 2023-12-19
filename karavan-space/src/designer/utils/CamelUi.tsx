@@ -169,6 +169,7 @@ const INTEGRATION_PATTERNS = 'Integration Patterns';
 const stepConvertMap = new Map<string, string>([
     ["SetBodyDefinition", "SetHeaderDefinition"],
     ["SetHeaderDefinition", "SetBodyDefinition"],
+    ["FilterDefinition", "ChoiceDefinition"],
 ]);
 
 export class CamelUi {

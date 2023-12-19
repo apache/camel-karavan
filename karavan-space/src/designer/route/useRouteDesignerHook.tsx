@@ -254,7 +254,6 @@ export function useRouteDesignerHook () {
             default:
                 const step = CamelDefinitionApi.createStep(dsl.dsl, undefined);
                 const augmentedStep = setDslDefaults(step);
-                console.log(step, augmentedStep)
                 addStep(augmentedStep, parentId, position)
                 break;
         }

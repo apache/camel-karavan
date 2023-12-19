@@ -26,6 +26,7 @@ import {RouteToCreate} from "../utils/CamelUi";
 import {useDesignerStore, useIntegrationStore} from "../DesignerStore";
 import {shallow} from "zustand/shallow";
 import {CamelMetadataApi} from "karavan-core/lib/model/CamelMetadata";
+import {EventBus} from "../utils/EventBus";
 
 export function usePropertiesHook (designerType: 'routes' | 'rest' | 'beans' = 'routes') {
 
@@ -147,18 +148,36 @@ export function usePropertiesHook (designerType: 'routes' | 'rest' | 'beans' = '
     }
 
     const convertStep = (step: CamelElement, targetDslName: string ) => {
-        const metaSource = CamelMetadataApi.getCamelModelMetadataByClassName(step.dslName);
-        const metaTarget = CamelMetadataApi.getCamelModelMetadataByClassName(targetDslName);
-        metaSource?.properties.forEach(pro => {
-            const toDelete = metaTarget?.properties.findIndex(x => x.name === pro.name) === -1;
-            if (toDelete) {
-                delete (step as any)[pro.name];
+        try {
+            // setSelectedStep(undefined);
+            if (targetDslName === 'ChoiceDefinition' && step.dslName === 'FilterDefinition') {
+                const clone = CamelUtil.cloneStep(step, true);
+                delete (clone as any).dslName;
+                delete (clone as any).stepName;
+                const when = CamelDefinitionApi.createWhenDefinition(clone);
+                const otherwise = CamelDefinitionApi.createOtherwiseDefinition(undefined);
+                const choice = CamelDefinitionApi.createChoiceDefinition({uuid: step.uuid, when: [when], otherwise: otherwise});
+                onPropertyUpdate(choice);
+                setSelectedStep(choice);
+            } else {
+                const clone = CamelUtil.cloneStep(step, false);
+                const metaSource = CamelMetadataApi.getCamelModelMetadataByClassName(clone.dslName);
+                const metaTarget = CamelMetadataApi.getCamelModelMetadataByClassName(targetDslName);
+                metaSource?.properties.forEach(pro => {
+                    const toDelete = metaTarget?.properties.findIndex(x => x.name === pro.name) === -1;
+                    if (toDelete) {
+                        delete (clone as any)[pro.name];
+                    }
+                })
+                delete (clone as any).dslName;
+                delete (clone as any).stepName;
+                const converted= CamelDefinitionApi.createStep(targetDslName, clone, true);
+                onPropertyUpdate(converted);
+                setSelectedStep(converted);
             }
-        })
-        delete (step as any).dslName;
-        const converted = CamelDefinitionApi.createStep(targetDslName, step, true);
-        onPropertyUpdate(converted);
-        setSelectedStep(converted)
+        } catch (e: any) {
+            EventBus.sendAlert('Error converting step', e.message, 'danger')
+        }
     }
 
     return {convertStep, cloneElement, onPropertyChange, onParametersChange, onDataFormatChange, onExpressionChange, getInternalComponentName}

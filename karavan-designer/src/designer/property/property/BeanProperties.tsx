@@ -16,7 +16,6 @@
  */
 import React, {useEffect, useState} from 'react';
 import {
-    FormGroup,
     TextInput, Button, Tooltip, Popover, InputGroup, InputGroupItem, capitalize,
 } from '@patternfly/react-core';
 import '../../karavan.css';

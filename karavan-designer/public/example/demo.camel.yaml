@@ -1,19 +1,30 @@
-- beans:
-      - constructors: {}
-      - constructors: {}
 - route:
-      id: route-a947
-      nodePrefixId: route-a32
-      from:
-          id: from-c489
-          uri: kamelet:aws-ddb-streams-source
-          steps:
-              - setBody:
-                    id: setBody-4434
-                    expression:
-                        simple:
-                            id: simple-abd8
-                            expression: dddddd
+    id: route-a947
+    nodePrefixId: route-a32
+    from:
+      id: from-c489
+      uri: kamelet:aws-ddb-streams-source
+      steps:
+        - setHeader:
+            id: setBody-4434
+            expression:
+              simple:
+                id: simple-abd8
+                expression: dddddd
+        - filter:
+            id: filter-929b
+            expression:
+              simple:
+                id: simple-d932
+                expression: Hello
+            steps:
+              - bean:
+                  id: bean-120b
+                  ref: xxx
+              - log:
+                  id: log-d86e
+                  message: ${body}!!!
+
 #      steps:
 #        - marshal:
 #            id: marshal-b68c
