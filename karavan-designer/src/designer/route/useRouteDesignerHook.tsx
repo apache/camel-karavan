@@ -220,7 +220,7 @@ export function useRouteDesignerHook () {
         }
     }
 
-    const openSelector = (parentId: string | undefined, parentDsl: string | undefined, showSteps: boolean = true, position?: number | undefined, selectorTabIndex?: string | number) => {
+    const openSelector = (parentId: string | undefined, parentDsl: string | undefined, showSteps: boolean = true, position?: number | undefined) => {
         setShowSelector(true);
         setParentId(parentId || '');
         setParentDsl(parentDsl);
