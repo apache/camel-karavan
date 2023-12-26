@@ -30,6 +30,7 @@ public class ResourceUtils {
     public static Map<String, String> generateResourcesMap(KaravanCommand config) {
         Map<String, String> result = new HashMap<>();
 
+        result.put("secret", toYAML(KaravanSecret.getSecret(config)));
         result.put("sa-karavan", toYAML(KaravanServiceAccount.getServiceAccount(config)));
 
         result.put("role-karavan", toYAML(KaravanRole.getRole(config)));

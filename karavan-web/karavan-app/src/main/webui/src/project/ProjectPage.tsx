@@ -29,7 +29,7 @@ import {useAppConfigStore, useFilesStore, useFileStore, useProjectsStore, usePro
 import {MainToolbar} from "../designer/MainToolbar";
 import {ProjectTitle} from "./ProjectTitle";
 import {ProjectPanel} from "./ProjectPanel";
-import {FileEditor} from "./file/FileEditor";
+import {FileEditor} from "./FileEditor";
 import {shallow} from "zustand/shallow";
 import {useParams} from "react-router-dom";
 import {KaravanApi} from "../api/KaravanApi";

@@ -16,37 +16,31 @@
  */
 import React, {useEffect, useState} from 'react';
 import {
-    Form,
-    FormGroup,
-    TextInput, Button, Title, Tooltip, Popover, InputGroup, InputGroupItem,
+    TextInput, Button, Tooltip, Popover, InputGroup, InputGroupItem, capitalize,
 } from '@patternfly/react-core';
-import '../karavan.css';
+import '../../karavan.css';
 import "@patternfly/patternfly/patternfly.css";
 import {
     RegistryBeanDefinition,
 } from "karavan-core/lib/model/CamelDefinition";
-import {Integration} from "karavan-core/lib/model/IntegrationDefinition";
 import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
 import {SensitiveKeys} from "karavan-core/lib/model/CamelMetadata";
 import {v4 as uuidv4} from "uuid";
 import DeleteIcon from "@patternfly/react-icons/dist/js/icons/times-icon";
 import AddIcon from "@patternfly/react-icons/dist/js/icons/plus-circle-icon";
-import CloneIcon from '@patternfly/react-icons/dist/esm/icons/clone-icon'
 import HelpIcon from "@patternfly/react-icons/dist/js/icons/help-icon";
-import {InfrastructureSelector} from "../route/property/InfrastructureSelector";
-import KubernetesIcon from "@patternfly/react-icons/dist/js/icons/openshift-icon";
-import {InfrastructureAPI} from "../utils/InfrastructureAPI";
+import {InfrastructureSelector} from "./InfrastructureSelector";
+import {InfrastructureAPI} from "../../utils/InfrastructureAPI";
 import ShowIcon from "@patternfly/react-icons/dist/js/icons/eye-icon";
 import HideIcon from "@patternfly/react-icons/dist/js/icons/eye-slash-icon";
 import DockerIcon from "@patternfly/react-icons/dist/js/icons/docker-icon";
-import {useDesignerStore} from "../DesignerStore";
+import {useDesignerStore} from "../../DesignerStore";
 import {shallow} from "zustand/shallow";
-import {IntegrationHeader} from "../utils/IntegrationHeader";
+import {KubernetesIcon} from "../../icons/ComponentIcons";
 
 
 interface Props {
-    integration: Integration
-    dark: boolean
+    type: 'constructors' | 'properties'
     onChange: (bean: RegistryBeanDefinition) => void
     onClone: (bean: RegistryBeanDefinition) => void
 }
@@ -202,7 +196,7 @@ export function BeanProperties (props: Props) {
 
     function getBeanConstructors() {
         return (
-            <FormGroup label="Constructors" fieldId="constructors" className="bean-properties">
+            <>
                 {Array.from(constructors.entries()).map((v, index, array) => {
                     const i = v[0];
                     const key = v[1][0];
@@ -244,13 +238,13 @@ export function BeanProperties (props: Props) {
                 })}
                 <Button variant="link" className="add-button" onClick={e => constructorChanged(uuidv4(), constructors.size, '', false)}>
                     <AddIcon/>Add argument</Button>
-            </FormGroup>
+            </>
         )
     }
 
     function getBeanProperties() {
         return (
-                <FormGroup label="Properties" fieldId="properties" className="bean-properties">
+                <>
                     {Array.from(properties.entries()).map((v, index, array) => {
                         const i = v[0];
                         const key = v[1][0];
@@ -258,7 +252,7 @@ export function BeanProperties (props: Props) {
                         const showPassword = v[1][2];
                         const isSecret = key !== undefined && SensitiveKeys.includes(key.toLowerCase());
                         const inInfrastructure = InfrastructureAPI.infrastructure !== 'local';
-                        const icon = InfrastructureAPI.infrastructure === 'kubernetes' ? <KubernetesIcon/> : <DockerIcon/>
+                        const icon = InfrastructureAPI.infrastructure === 'kubernetes' ? KubernetesIcon("infra-button"): <DockerIcon/>
                         return (
                             <div key={"key-" + i} className="bean-property">
                                 <TextInput placeholder="Bean Field Name" className="text-field" isRequired type="text" id={"key-" + i}
@@ -268,7 +262,7 @@ export function BeanProperties (props: Props) {
                                            }}/>
                                 <InputGroup>
                                     {inInfrastructure &&
-                                        <Tooltip position="bottom-end" content="Select value from Infrastructure">
+                                        <Tooltip position="bottom-end" content={"Select from " + capitalize(InfrastructureAPI.infrastructure)}>
                                             <Button variant="control" onClick={e => openInfrastructureSelector(i, key)}>
                                                 {icon}
                                             </Button>
@@ -298,44 +292,15 @@ export function BeanProperties (props: Props) {
                     })}
                     <Button variant="link" className="add-button" onClick={e => propertyChanged(uuidv4(), '', '', false)}>
                         <AddIcon/>Add property</Button>
-                </FormGroup>
-        )
-    }
-
-
-    function getBeanForm() {
-        const bean = (selectedStep as RegistryBeanDefinition);
-        return (
-            <>
-                <div className="headers">
-                    <div className="top">
-                        <Title headingLevel="h1" size="md">Bean</Title>
-                        <Tooltip content="Clone bean" position="bottom">
-                            <Button variant="link" onClick={() => cloneBean()} icon={<CloneIcon/>}/>
-                        </Tooltip>
-                    </div>
-                </div>
-                <FormGroup label="Name" fieldId="name" isRequired labelIcon={getLabelIcon("Name", "Bean name used as a reference ex: myBean")}>
-                    <TextInput className="text-field" isRequired type="text" id="name" name="name" value={bean?.name}
-                                onChange={(_, value)=> beanFieldChanged("name", value)}/>
-                </FormGroup>
-                <FormGroup label="Type" fieldId="type" isRequired labelIcon={getLabelIcon("Type", "Bean class Canonical Name ex: org.demo.MyBean")}>
-                    <TextInput className="text-field" isRequired type="text" id="type" name="type" value={bean?.type}
-                        onChange={(_, value) => beanFieldChanged("type", value)}/>
-                </FormGroup>
-                {getBeanConstructors()}
-                {getBeanProperties()}
-            </>
+                </>
         )
     }
 
     const bean = (selectedStep as RegistryBeanDefinition);
     return (
         <div className='properties' key={bean ? bean.uuid : 'integration'}>
-            <Form autoComplete="off" onSubmit={event => event.preventDefault()}>
-                {bean === undefined && <IntegrationHeader/>}
-                {bean !== undefined && getBeanForm()}
-            </Form>
+            {props.type === 'constructors' && getBeanConstructors()}
+            {props.type === 'properties' && getBeanProperties()}
             {getInfrastructureSelectorModal()}
         </div>
     )

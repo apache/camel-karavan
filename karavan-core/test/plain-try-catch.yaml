@@ -1,31 +1,31 @@
 - route:
     id: route-1
     from:
-      uri: timer
       id: from-1
+      uri: timer
       parameters:
         name: info
       steps:
         - doTry:
             id: doTry-1
             doCatch:
-              - exception:
+              - id: doCatch-1
+                exception:
                   - java.lang.ArithmeticException
-                id: doCatch-1
                 steps:
                   - log:
-                      message: Exception
                       id: log-1
+                      message: Exception
             doFinally:
               id: doFinally-1
               steps:
                 - log:
-                    message: ${body}
                     id: log-2
+                    message: ${body}
             steps:
               - setBody:
+                  id: setBody-1
                   expression:
                     groovy:
-                      expression: 1000 / 0
                       id: groovy-1
-                  id: setBody-1
+                      expression: 1000 / 0

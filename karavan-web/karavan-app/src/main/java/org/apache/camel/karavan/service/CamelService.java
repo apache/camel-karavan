@@ -79,6 +79,7 @@ public class CamelService {
 
     @Scheduled(every = "{karavan.camel.status.interval}", concurrentExecution = Scheduled.ConcurrentExecution.SKIP)
     public void collectCamelStatuses() {
+        LOGGER.info("Collect Camel Statuses");
         if (infinispanService.isReady()) {
             infinispanService.getContainerStatuses(environment).stream()
                     .filter(cs ->
@@ -98,12 +99,13 @@ public class CamelService {
     public void reloadProjectCode(String projectId) {
         LOGGER.info("Reload project code " + projectId);
         try {
+            deleteRequest(projectId);
             Map<String, String> files = codeService.getProjectFilesForDevMode(projectId, true);
             files.forEach((name, code) -> putRequest(projectId, name, code, 1000));
             reloadRequest(projectId);
             ContainerStatus containerStatus = infinispanService.getDevModeContainerStatus(projectId, environment);
             containerStatus.setCodeLoaded(true);
-            eventBus.send(ContainerStatusService.CONTAINER_STATUS, JsonObject.mapFrom(containerStatus));
+            eventBus.publish(ContainerStatusService.CONTAINER_STATUS, JsonObject.mapFrom(containerStatus));
         } catch (Exception ex) {
             LOGGER.error(ex.getMessage());
         }
@@ -122,10 +124,20 @@ public class CamelService {
         return false;
     }
 
+    public String deleteRequest(String containerName) {
+        String url = getContainerAddressForReload(containerName) + "/q/upload/*";
+        try {
+            return deleteResult(url, 1000);
+        } catch (InterruptedException | ExecutionException e) {
+            LOGGER.error(e.getMessage());
+        }
+        return null;
+    }
+
     public String reloadRequest(String containerName) {
         String url = getContainerAddressForReload(containerName) + "/q/dev/reload?reload=true";
         try {
-            return result(url, 1000);
+            return getResult(url, 1000);
         } catch (InterruptedException | ExecutionException e) {
             LOGGER.error(e.getMessage());
         }
@@ -158,7 +170,7 @@ public class CamelService {
     public String getCamelStatus(ContainerStatus containerStatus, CamelStatusValue.Name statusName) {
         String url = getContainerAddressForStatus(containerStatus) + "/q/dev/" + statusName.name();
         try {
-            return result(url, 500);
+            return getResult(url, 500);
         } catch (InterruptedException | ExecutionException e) {
             LOGGER.error(e.getMessage());
         }
@@ -169,6 +181,7 @@ public class CamelService {
     public void collectCamelStatuses(JsonObject data) {
         CamelStatusRequest dms = data.getJsonObject("camelStatusRequest").mapTo(CamelStatusRequest.class);
         ContainerStatus containerStatus = data.getJsonObject("containerStatus").mapTo(ContainerStatus.class);
+        LOGGER.info("Collect Camel Status for " + containerStatus.getContainerName());
         String projectId = dms.getProjectId();
         String containerName = dms.getContainerName();
         List<CamelStatusValue> statuses = new ArrayList<>();
@@ -176,27 +189,14 @@ public class CamelService {
             String status = getCamelStatus(containerStatus, statusName);
             if (status != null) {
                 statuses.add(new CamelStatusValue(statusName, status));
-                if (ConfigService.inKubernetes() && Objects.equals(statusName, CamelStatusValue.Name.context)) {
-                    checkReloadRequired(containerStatus);
-                }
             }
         });
         CamelStatus cs = new CamelStatus(projectId, containerName, statuses, environment);
         infinispanService.saveCamelStatus(cs);
     }
 
-    private void checkReloadRequired(ContainerStatus cs) {
-        if (ConfigService.inKubernetes()) {
-            if (!Objects.equals(cs.getCodeLoaded(), true)
-                    && Objects.equals(cs.getState(), ContainerStatus.State.running.name())
-                    && Objects.equals(cs.getType(), ContainerStatus.ContainerType.devmode)) {
-                eventBus.publish(RELOAD_PROJECT_CODE, cs.getProjectId());
-            }
-        }
-    }
-
     @CircuitBreaker(requestVolumeThreshold = 10, failureRatio = 0.5, delay = 1000)
-    public String result(String url, int timeout) throws InterruptedException, ExecutionException {
+    public String getResult(String url, int timeout) throws InterruptedException, ExecutionException {
         try {
             HttpResponse<Buffer> result = getWebClient().getAbs(url).putHeader("Accept", "application/json")
                     .timeout(timeout).send().subscribeAsCompletionStage().toCompletableFuture().get();
@@ -204,6 +204,18 @@ public class CamelService {
                 JsonObject res = result.bodyAsJsonObject();
                 return res.encodePrettily();
             }
+        } catch (Exception e) {
+            LOGGER.info(e.getMessage());
+        }
+        return null;
+    }
+
+    public String deleteResult(String url, int timeout) throws InterruptedException, ExecutionException {
+        try {
+            HttpResponse<Buffer> result = getWebClient().deleteAbs(url)
+                    .timeout(timeout).send().subscribeAsCompletionStage().toCompletableFuture().get();
+                JsonObject res = result.bodyAsJsonObject();
+                return res.encodePrettily();
         } catch (Exception e) {
             LOGGER.info(e.getMessage());
         }

@@ -61,7 +61,6 @@ import {MediaTypes} from "../../utils/MediaTypes";
 import {ComponentProperty} from "karavan-core/lib/model/ComponentModels";
 import CompressIcon from "@patternfly/react-icons/dist/js/icons/compress-icon";
 import ExpandIcon from "@patternfly/react-icons/dist/js/icons/expand-icon";
-import KubernetesIcon from "@patternfly/react-icons/dist/js/icons/openshift-icon";
 import {InfrastructureSelector} from "./InfrastructureSelector";
 import {InfrastructureAPI} from "../../utils/InfrastructureAPI";
 import EditorIcon from "@patternfly/react-icons/dist/js/icons/code-icon";
@@ -71,6 +70,7 @@ import {useDesignerStore, useIntegrationStore} from "../../DesignerStore";
 import {shallow} from "zustand/shallow";
 import {DataFormatDefinition, ExpressionDefinition} from "karavan-core/lib/model/CamelDefinition";
 import {TemplateApi} from "karavan-core/lib/api/TemplateApi";
+import {KubernetesIcon} from "../../icons/ComponentIcons";
 
 interface Props {
     property: PropertyMeta,
@@ -171,7 +171,8 @@ export function DslPropertyField(props: Props) {
 
     function isUriReadOnly(property: PropertyMeta): boolean {
         const dslName: string = props.element?.dslName || '';
-        return property.name === 'uri' && !['ToDynamicDefinition', 'WireTapDefinition', 'InterceptFromDefinition'].includes(dslName)
+        return property.name === 'uri'
+            && !['ToDynamicDefinition', 'WireTapDefinition', 'InterceptFromDefinition', 'InterceptSendToEndpointDefinition'].includes(dslName)
     }
 
     function selectInfrastructure(value: string) {
@@ -216,7 +217,7 @@ export function DslPropertyField(props: Props) {
     function getStringInput(property: PropertyMeta, value: any) {
         const inInfrastructure = InfrastructureAPI.infrastructure !== 'local';
         const noInfraSelectorButton = ["uri", "id", "description", "group"].includes(property.name);
-        const icon = InfrastructureAPI.infrastructure === 'kubernetes' ? <KubernetesIcon/> : <DockerIcon/>
+        const icon = InfrastructureAPI.infrastructure === 'kubernetes' ? KubernetesIcon("infra-button") : <DockerIcon/>
         return (<InputGroup>
             {inInfrastructure && !showEditor && !noInfraSelectorButton &&
                 <InputGroupItem>
@@ -528,7 +529,6 @@ export function DslPropertyField(props: Props) {
     }
 
     function getInternalUriSelect(property: PropertyMeta, value: any) {
-        console.log("getInternalUriSelect", property, value)
         const selectOptions: JSX.Element[] = [];
         const urls = CamelUi.getInternalRouteUris(integration, "direct");
         urls.push(...CamelUi.getInternalRouteUris(integration, "seda"));
@@ -590,7 +590,8 @@ export function DslPropertyField(props: Props) {
     function getMultiObjectFieldProps(property: PropertyMeta, value: any, v: any, index: number, hideLabel: boolean = false) {
         return (<>
             <div className="object">
-                {value && <ObjectField property={property}
+                {v && <ObjectField property={property}
+                                   value={v}
                                        hideLabel={hideLabel}
                                        onPropertyUpdate={(f, v) => onMultiValueObjectUpdate(index, f, v)}
                 />}
@@ -618,7 +619,13 @@ export function DslPropertyField(props: Props) {
                         </Card>
                 })}
                 <Button variant="link" className="add-button"
-                        onClick={e => propertyChanged(property.name, [...value, CamelDefinitionApi.createStep(property.type, {})])}><AddIcon/>{"Add " + property.displayName}
+                        onClick={e => {
+                            const valArray = value !== null ? [...value] : [];
+                            valArray.push(CamelDefinitionApi.createStep(property.type, {}));
+                            propertyChanged(property.name, valArray);
+                        }}>
+                    <AddIcon/>
+                    {"Add " + property.displayName}
                 </Button>
             </div>
         )

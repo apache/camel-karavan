@@ -61,7 +61,6 @@ import {MediaTypes} from "../../utils/MediaTypes";
 import {ComponentProperty} from "karavan-core/lib/model/ComponentModels";
 import CompressIcon from "@patternfly/react-icons/dist/js/icons/compress-icon";
 import ExpandIcon from "@patternfly/react-icons/dist/js/icons/expand-icon";
-import KubernetesIcon from "@patternfly/react-icons/dist/js/icons/openshift-icon";
 import {InfrastructureSelector} from "./InfrastructureSelector";
 import {InfrastructureAPI} from "../../utils/InfrastructureAPI";
 import EditorIcon from "@patternfly/react-icons/dist/js/icons/code-icon";
@@ -69,8 +68,14 @@ import {ModalEditor} from "./ModalEditor";
 import DockerIcon from "@patternfly/react-icons/dist/js/icons/docker-icon";
 import {useDesignerStore, useIntegrationStore} from "../../DesignerStore";
 import {shallow} from "zustand/shallow";
-import {DataFormatDefinition, ExpressionDefinition} from "karavan-core/lib/model/CamelDefinition";
+import {
+    DataFormatDefinition,
+    ExpressionDefinition,
+    RegistryBeanDefinition
+} from "karavan-core/lib/model/CamelDefinition";
 import {TemplateApi} from "karavan-core/lib/api/TemplateApi";
+import {KubernetesIcon} from "../../icons/ComponentIcons";
+import {BeanProperties} from "./BeanProperties";
 
 interface Props {
     property: PropertyMeta,
@@ -86,8 +91,8 @@ interface Props {
 
 export function DslPropertyField(props: Props) {
 
-    const [integration] = useIntegrationStore((state) => [state.integration], shallow)
-    const [dark] = useDesignerStore((s) => [s.dark], shallow)
+    const [integration, setIntegration] = useIntegrationStore((s) => [s.integration, s.setIntegration], shallow)
+    const [dark, setSelectedStep] = useDesignerStore((s) => [s.dark, s.setSelectedStep], shallow)
 
     const [isShowAdvanced, setIsShowAdvanced] = useState<string[]>([]);
     const [arrayValues, setArrayValues] = useState<Map<string, string>>(new Map<string, string>());
@@ -171,7 +176,8 @@ export function DslPropertyField(props: Props) {
 
     function isUriReadOnly(property: PropertyMeta): boolean {
         const dslName: string = props.element?.dslName || '';
-        return property.name === 'uri' && !['ToDynamicDefinition', 'WireTapDefinition', 'InterceptFromDefinition'].includes(dslName)
+        return property.name === 'uri'
+            && !['ToDynamicDefinition', 'WireTapDefinition', 'InterceptFromDefinition', 'InterceptSendToEndpointDefinition'].includes(dslName)
     }
 
     function selectInfrastructure(value: string) {
@@ -216,7 +222,7 @@ export function DslPropertyField(props: Props) {
     function getStringInput(property: PropertyMeta, value: any) {
         const inInfrastructure = InfrastructureAPI.infrastructure !== 'local';
         const noInfraSelectorButton = ["uri", "id", "description", "group"].includes(property.name);
-        const icon = InfrastructureAPI.infrastructure === 'kubernetes' ? <KubernetesIcon/> : <DockerIcon/>
+        const icon = InfrastructureAPI.infrastructure === 'kubernetes' ? KubernetesIcon("infra-button") : <DockerIcon/>
         return (<InputGroup>
             {inInfrastructure && !showEditor && !noInfraSelectorButton &&
                 <InputGroupItem>
@@ -528,7 +534,6 @@ export function DslPropertyField(props: Props) {
     }
 
     function getInternalUriSelect(property: PropertyMeta, value: any) {
-        console.log("getInternalUriSelect", property, value)
         const selectOptions: JSX.Element[] = [];
         const urls = CamelUi.getInternalRouteUris(integration, "direct");
         urls.push(...CamelUi.getInternalRouteUris(integration, "seda"));
@@ -590,7 +595,8 @@ export function DslPropertyField(props: Props) {
     function getMultiObjectFieldProps(property: PropertyMeta, value: any, v: any, index: number, hideLabel: boolean = false) {
         return (<>
             <div className="object">
-                {value && <ObjectField property={property}
+                {v && <ObjectField property={property}
+                                   value={v}
                                        hideLabel={hideLabel}
                                        onPropertyUpdate={(f, v) => onMultiValueObjectUpdate(index, f, v)}
                 />}
@@ -618,7 +624,13 @@ export function DslPropertyField(props: Props) {
                         </Card>
                 })}
                 <Button variant="link" className="add-button"
-                        onClick={e => propertyChanged(property.name, [...value, CamelDefinitionApi.createStep(property.type, {})])}><AddIcon/>{"Add " + property.displayName}
+                        onClick={e => {
+                            const valArray = value !== null ? [...value] : [];
+                            valArray.push(CamelDefinitionApi.createStep(property.type, {}));
+                            propertyChanged(property.name, valArray);
+                        }}>
+                    <AddIcon/>
+                    {"Add " + property.displayName}
                 </Button>
             </div>
         )
@@ -741,6 +753,17 @@ export function DslPropertyField(props: Props) {
     }
 
 
+    function changeBean(bean: RegistryBeanDefinition) {
+        const clone = CamelUtil.cloneIntegration(integration);
+        const i = CamelDefinitionApiExt.addBeanToIntegration(clone, bean);
+        setIntegration(i, false);
+        setSelectedStep(bean);
+    }
+
+    function getBeanProperties(type: 'constructors' | 'properties') {
+        return <BeanProperties type={type} onChange={changeBean} onClone={changeBean}/>
+    }
+
     function isMultiValueField(property: PropertyMeta): boolean {
         return ['string'].includes(property.type) && property.name !== 'expression' && property.isArray && !property.enumVals;
     }
@@ -769,6 +792,8 @@ export function DslPropertyField(props: Props) {
     const isKamelet = CamelUtil.isKameletComponent(element);
     const property: PropertyMeta = props.property;
     const value = props.value;
+    const beanConstructors = element?.dslName === 'RegistryBeanDefinition' && property.name === 'constructors'
+    const beanProperties = element?.dslName === 'RegistryBeanDefinition' && property.name === 'properties'
     return (
         <div>
             <FormGroup
@@ -805,6 +830,8 @@ export function DslPropertyField(props: Props) {
                     && getSelect(property, value)}
                 {isKamelet && property.name === 'parameters' && getKameletParameters()}
                 {!isKamelet && property.name === 'parameters' && getComponentParameters(property)}
+                {beanConstructors && getBeanProperties('constructors')}
+                {beanProperties && getBeanProperties('properties')}
             </FormGroup>
             {getInfrastructureSelectorModal()}
         </div>

@@ -103,6 +103,7 @@ public class ContainerStatusService {
         if (infinispanService.isReady()) {
             ContainerStatus newStatus = data.mapTo(ContainerStatus.class);
             ContainerStatus oldStatus = infinispanService.getContainerStatus(newStatus.getProjectId(), newStatus.getEnv(), newStatus.getContainerName());
+
             if (oldStatus == null) {
                 infinispanService.saveContainerStatus(newStatus);
             } else if (Objects.equals(oldStatus.getInTransit(), Boolean.FALSE)) {

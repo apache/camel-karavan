@@ -457,6 +457,8 @@ public class GitService {
         String folder = vertx.fileSystem().createTempDirectoryBlocking(uuid);
         try (Git git = clone(folder, gitConfig.getUri(), gitConfig.getBranch(), cred)) {
             LOGGER.info("Git is ready");
+        } catch (Exception e) {
+            LOGGER.info("Error connecting git: " + (e.getCause() != null ? e.getCause().getMessage() : e.getMessage()));
         }
         return true;
     }

@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import React from 'react';
+import React, {useEffect} from 'react';
 import {
     Button,
     Drawer,
@@ -30,18 +30,24 @@ import {RegistryBeanDefinition} from "karavan-core/lib/model/CamelDefinition";
 import {CamelUi} from "../utils/CamelUi";
 import PlusIcon from "@patternfly/react-icons/dist/esm/icons/plus-icon";
 import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt";
-import {BeanProperties} from "./BeanProperties";
 import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
 import {BeanCard} from "./BeanCard";
 import {useDesignerStore, useIntegrationStore} from "../DesignerStore";
 import {shallow} from "zustand/shallow";
+import {DslProperties} from "../property/DslProperties";
 
 export function BeansDesigner() {
 
     const [integration, setIntegration] = useIntegrationStore((s) => [s.integration, s.setIntegration], shallow)
-    const [dark, selectedStep, showDeleteConfirmation, setShowDeleteConfirmation, setSelectedStep] = useDesignerStore((s) =>
-        [s.dark, s.selectedStep, s.showDeleteConfirmation, s.setShowDeleteConfirmation, s.setSelectedStep], shallow)
+    const [selectedStep, showDeleteConfirmation, setShowDeleteConfirmation, setSelectedStep, setNotification]
+        = useDesignerStore((s) =>
+        [s.selectedStep, s.showDeleteConfirmation, s.setShowDeleteConfirmation, s.setSelectedStep, s.setNotification], shallow)
 
+    useEffect(() => {
+        return () => {
+            setNotification(false, ['', '']);
+        }
+    }, []);
 
     function onShowDeleteConfirmation(bean: RegistryBeanDefinition) {
         setSelectedStep(bean);
@@ -55,12 +61,7 @@ export function BeansDesigner() {
         setSelectedStep(undefined);
     }
 
-    function changeBean(bean: RegistryBeanDefinition) {
-        const clone = CamelUtil.cloneIntegration(integration);
-        const i = CamelDefinitionApiExt.addBeanToIntegration(clone, bean);
-        setIntegration(i, false);
-        setSelectedStep(bean);
-    }
+
 
     function getDeleteConfirmation() {
         return (<Modal
@@ -92,7 +93,11 @@ export function BeansDesigner() {
     };
 
     function createBean() {
-        changeBean(new RegistryBeanDefinition());
+        const bean = new RegistryBeanDefinition();
+        const clone = CamelUtil.cloneIntegration(integration);
+        const i = CamelDefinitionApiExt.addBeanToIntegration(clone, bean);
+        setIntegration(i, false);
+        setSelectedStep(bean);
     }
 
     function getPropertiesPanel() {
@@ -102,10 +107,7 @@ export function BeansDesigner() {
                                 defaultSize={'400px'}
                                 maxSize={'800px'}
                                 minSize={'400px'}>
-                <BeanProperties integration={integration}
-                                dark={dark}
-                                onChange={changeBean}
-                                onClone={changeBean}/>
+                <DslProperties designerType={'beans'}/>
             </DrawerPanelContent>
         )
     }
@@ -125,6 +127,7 @@ export function BeansDesigner() {
                             {beans?.map((bean, index) => (
                                 <GalleryItem key={bean.uuid + index}>
                                     <BeanCard bean={bean}
+                                              selectedStep={selectedStep}
                                               selectElement={selectBean}
                                               deleteElement={onShowDeleteConfirmation}
                                     />

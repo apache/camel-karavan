@@ -600,6 +600,24 @@ export class CamelDefinitionApiExt {
         return int;
     };
 
+    static updateIntegrationBeanElement = (integration: Integration, e: CamelElement): Integration => {
+        const elementClone = CamelUtil.cloneStep(e);
+        const int: Integration = CamelUtil.cloneIntegration(integration);
+        const flows: CamelElement[] = [];
+
+        for (const flow of integration.spec.flows ?? []) {
+            if (flow.dslName === 'Beans') {
+                const route = CamelDefinitionApiExt.updateElement(flow, elementClone) as RegistryBeanDefinition;
+                flows.push(CamelDefinitionApi.createRegistryBeanDefinition(route));
+            } else {
+                flows.push(flow);
+            }
+        }
+
+        int.spec.flows = flows;
+        return int;
+    };
+
     static updateElement = (element: CamelElement, e: CamelElement): CamelElement => {
         if (element.uuid === e.uuid) {
             return e;

@@ -1,131 +1,159 @@
 - route:
-    nodePrefixId: route-1e7
-    id: route-3f85
+    id: route-a947
+    nodePrefixId: route-a32
     from:
-      uri: timer
-      id: from-cfa5
+      id: from-c489
+      uri: kamelet:aws-ddb-streams-source
       steps:
-        - choice:
-            when:
-              - expression:
-                  simple:
-                    id: simple-99bf
-                id: when-ab5e
-                steps:
-                  - to:
-                      uri: arangodb
-                      id: to-f70a
-                  - removeProperties:
-                      id: removeProperties-344a
-              - expression:
-                  simple:
-                    id: simple-d199
-                id: when-37cd
-                steps:
-                  - to:
-                      uri: amqp
-                      id: to-fbfe
-                  - choice:
-                      when:
-                        - expression:
-                            simple:
-                              id: simple-e78b
-                          id: when-b7d0
-                      otherwise:
-                        id: otherwise-40d0
-                      id: choice-8f6b
-            otherwise:
-              id: otherwise-382c
-              steps:
-                - log:
-                    message: ${body}
-                    id: log-6831
-            id: choice-c1db
-        - saga:
-            id: saga-8f2c
-            steps:
-              - to:
-                  uri: kamelet:azure-cosmosdb-sink
-                  id: to-1394
-- route:
-    nodePrefixId: route-171
-    id: route-99f9
-    from:
-      uri: kamelet:azure-storage-blob-source
-      id: from-f8e9
-      steps:
-        - multicast:
-            id: multicast-6a53
-            steps:
-              - log:
-                  message: ${body}
-                  id: log-799d
-              - log:
-                  message: ${body}
-                  id: log-fc8e
-              - log:
-                  message: ${body}
-                  id: log-1e42
-        - filter:
+        - setHeader:
+            id: setBody-4434
             expression:
               simple:
-                id: simple-7ff9
-            id: filter-8c99
+                id: simple-abd8
+                expression: dddddd
+        - filter:
+            id: filter-929b
+            expression:
+              simple:
+                id: simple-d932
+                expression: Hello
             steps:
-              - process:
-                  id: process-e1c1
-                  description: Call cutom java bean
-              - delay:
-                  expression:
-                    simple:
-                      id: simple-64a6
-                  id: delay-b1ec
-        - doTry:
-            id: doTry-46cd
-            doCatch:
-              - id: doCatch-c6e7
-                steps:
-                  - log:
-                      message: ${body}
-                      id: log-77df
-                  - choice:
-                      when:
-                        - expression:
-                            simple:
-                              id: simple-c7db
-                          id: when-f058
-                      otherwise:
-                        id: otherwise-1e11
-                      id: choice-8374
-                  - wireTap:
-                      id: wireTap-a25e
-            doFinally:
-              id: doFinally-0a65
-              steps:
-                - log:
-                    message: ${body}
-                    id: log-f4fa
-                - log:
-                    message: ${body}
-                    id: log-cd30
-            steps:
-              - pollEnrich:
-                  expression:
-                    simple:
-                      id: simple-6181
-                  id: pollEnrich-a41b
-              - filter:
-                  expression:
-                    simple:
-                      id: simple-a69b
-                  id: filter-07cf
-                  steps:
-                    - setBody:
-                        expression:
-                          simple:
-                            id: simple-f0dc
-                        id: setBody-3c0c
-              - process:
-                  id: process-6d06
-        - circuitBreaker:
-            id: circuitBreaker-4af8
+              - bean:
+                  id: bean-120b
+                  ref: xxx
+              - log:
+                  id: log-d86e
+                  message: ${body}!!!
+
+#      steps:
+#        - marshal:
+#            id: marshal-b68c
+#        - filter:
+#            expression:
+#              simple:
+#                id: simple-1465
+#            id: filter-b351
+#        - choice:
+#            when:
+#              - expression:
+#                  simple:
+#                    id: simple-99bf
+#                id: when-ab5e
+#                steps:
+#                  - to:
+#                      uri: arangodb
+#                      id: to-f70a
+#                  - removeProperties:
+#                      id: removeProperties-344a
+#              - expression:
+#                  simple:
+#                    id: simple-d199
+#                id: when-37cd
+#                steps:
+#                  - to:
+#                      uri: amqp
+#                      id: to-fbfe
+#                  - choice:
+#                      when:
+#                        - expression:
+#                            simple:
+#                              id: simple-e78b
+#                          id: when-b7d0
+#                      otherwise:
+#                        id: otherwise-40d0
+#                      id: choice-8f6b
+#            otherwise:
+#              id: otherwise-382c
+#              steps:
+#                - log:
+#                    message: ${body}
+#                    id: log-6831
+#            id: choice-c1db
+#        - saga:
+#            id: saga-8f2c
+#            steps:
+#              - to:
+#                  uri: kamelet:azure-cosmosdb-sink
+#                  id: to-1394
+#- route:
+#    nodePrefixId: route-171
+#    id: route-99f9
+#    from:
+#      uri: kamelet:azure-storage-blob-source
+#      id: from-f8e9
+#      steps:
+#        - multicast:
+#            id: multicast-6a53
+#            steps:
+#              - log:
+#                  message: ${body}
+#                  id: log-799d
+#              - log:
+#                  message: ${body}
+#                  id: log-fc8e
+#              - log:
+#                  message: ${body}
+#                  id: log-1e42
+#        - filter:
+#            expression:
+#              simple:
+#                id: simple-7ff9
+#            id: filter-8c99
+#            steps:
+#              - process:
+#                  id: process-e1c1
+#                  description: Call cutom java bean
+#              - delay:
+#                  expression:
+#                    simple:
+#                      id: simple-64a6
+#                  id: delay-b1ec
+#        - doTry:
+#            id: doTry-46cd
+#            doCatch:
+#              - id: doCatch-c6e7
+#                steps:
+#                  - log:
+#                      message: ${body}
+#                      id: log-77df
+#                  - choice:
+#                      when:
+#                        - expression:
+#                            simple:
+#                              id: simple-c7db
+#                          id: when-f058
+#                      otherwise:
+#                        id: otherwise-1e11
+#                      id: choice-8374
+#                  - wireTap:
+#                      id: wireTap-a25e
+#            doFinally:
+#              id: doFinally-0a65
+#              steps:
+#                - log:
+#                    message: ${body}
+#                    id: log-f4fa
+#                - log:
+#                    message: ${body}
+#                    id: log-cd30
+#            steps:
+#              - pollEnrich:
+#                  expression:
+#                    simple:
+#                      id: simple-6181
+#                  id: pollEnrich-a41b
+#              - filter:
+#                  expression:
+#                    simple:
+#                      id: simple-a69b
+#                  id: filter-07cf
+#                  steps:
+#                    - setBody:
+#                        expression:
+#                          simple:
+#                            id: simple-f0dc
+#                        id: setBody-3c0c
+#              - process:
+#                  id: process-6d06
+#        - circuitBreaker:
+#            id: circuitBreaker-4af8

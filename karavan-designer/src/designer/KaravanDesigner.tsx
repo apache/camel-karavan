@@ -41,6 +41,7 @@ import {BeansDesigner} from "./beans/BeansDesigner";
 import {CodeEditor} from "./editor/CodeEditor";
 import BellIcon from '@patternfly/react-icons/dist/esm/icons/bell-icon';
 import {KameletDesigner} from "./kamelet/KameletDesigner";
+import {v4 as uuidv4} from "uuid";
 
 interface Props {
     onSave: (filename: string, yaml: string, propertyOnly: boolean) => void

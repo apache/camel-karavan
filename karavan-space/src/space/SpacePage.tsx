@@ -66,7 +66,7 @@ export class SpacePage extends React.Component<Props, State> {
         const {name, yaml} = this.props;
         if (name && yaml) {
             const a = document.createElement('a');
-            a.setAttribute('download', 'example.yaml');
+            a.setAttribute('download', 'example.camel.yaml');
             a.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(yaml));
             a.click();
         }

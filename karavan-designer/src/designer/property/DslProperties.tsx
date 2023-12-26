@@ -14,12 +14,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
     Form,
     Text,
     Title,
-    TextVariants, ExpandableSection, Button, Tooltip,
+    TextVariants,
+    ExpandableSection,
+    Button,
+    Tooltip,
+    Dropdown,
+    MenuToggleElement,
+    MenuToggle,
+    DropdownList,
+    DropdownItem,
 } from '@patternfly/react-core';
 import '../karavan.css';
 import './DslProperties.css';
@@ -31,52 +39,105 @@ import {CamelUi} from "../utils/CamelUi";
 import {CamelMetadataApi, DataFormats, PropertyMeta} from "karavan-core/lib/model/CamelMetadata";
 import {IntegrationHeader} from "../utils/IntegrationHeader";
 import CloneIcon from "@patternfly/react-icons/dist/esm/icons/clone-icon";
-import ConvertIcon from "@patternfly/react-icons/dist/esm/icons/optimize-icon";
 import {useDesignerStore, useIntegrationStore} from "../DesignerStore";
 import {shallow} from "zustand/shallow";
 import {usePropertiesHook} from "./usePropertiesHook";
 import {CamelDisplayUtil} from "karavan-core/lib/api/CamelDisplayUtil";
+import EllipsisVIcon from '@patternfly/react-icons/dist/esm/icons/ellipsis-v-icon';
 
 interface Props {
-    isRouteDesigner: boolean
+    designerType: 'routes' | 'rest' | 'beans'
 }
 
 export function DslProperties(props: Props) {
 
-    const [integration] = useIntegrationStore((state) => [state.integration], shallow)
+    const [integration] = useIntegrationStore((s) => [s.integration], shallow)
 
-    const {convertStep, cloneElement, onDataFormatChange, onPropertyChange, onParametersChange, onExpressionChange} =
-        usePropertiesHook(props.isRouteDesigner);
+    const {saveAsRoute, convertStep, cloneElement, onDataFormatChange, onPropertyChange, onParametersChange, onExpressionChange} =
+        usePropertiesHook(props.designerType);
 
-    const [selectedStep, dark] = useDesignerStore((s) => [s.selectedStep, s.dark], shallow)
+    const [selectedStep, dark]
+        = useDesignerStore((s) => [s.selectedStep, s.dark], shallow)
 
     const [showAdvanced, setShowAdvanced] = useState<boolean>(false);
     const [isDescriptionExpanded, setIsDescriptionExpanded] = useState<boolean>(false);
+    const [isMenuOpen, setMenuOpen] = useState<boolean>(false);
+
+    useEffect(()=> {
+        setMenuOpen(false)
+    }, [selectedStep])
+
+    function getHeaderMenu(): JSX.Element {
+        const hasSteps = selectedStep?.hasSteps();
+        const targetDsl = CamelUi.getConvertTargetDsl(selectedStep?.dslName);
+        const targetDslTitle = targetDsl?.replace("Definition", "");
+        const showMenu = hasSteps || targetDsl !== undefined;
+        return showMenu ?
+            <Dropdown
+                style={{inset: "0px auto auto -70px important!"}}
+                className={"xxx"}
+                isOpen={isMenuOpen}
+                onSelect={() => {}}
+                onOpenChange={(isOpen: boolean) => setMenuOpen(isOpen)}
+                toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
+                    <MenuToggle
+                        style={{width: "240px", display: "flex", flexDirection: "row", justifyContent: "end"}}
+                        className={"zzzz"}
+                        ref={toggleRef}
+                        aria-label="kebab dropdown toggle"
+                        variant="plain"
+                        onClick={() => setMenuOpen(!isMenuOpen)}
+                        isExpanded={isMenuOpen}
+                    >
+                        <EllipsisVIcon />
+                    </MenuToggle>
+                )}
+            >
+                <DropdownList >
+                    {hasSteps &&
+                        <DropdownItem key="saveRoute" onClick={(ev) => {
+                            ev.preventDefault()
+                            if (selectedStep) {
+                                saveAsRoute(selectedStep, true);
+                                setMenuOpen(false);
+                            }
+                        }}>
+                        Save Steps to Route
+                    </DropdownItem>}
+                    {hasSteps &&
+                        <DropdownItem key="saveRoute" onClick={(ev) => {
+                            ev.preventDefault()
+                            if (selectedStep) {
+                                saveAsRoute(selectedStep, false);
+                                setMenuOpen(false);
+                            }
+                        }}>
+                        Save Element to Route
+                        </DropdownItem>}
+                    {targetDsl &&
+                        <DropdownItem key="convert"
+                                   onClick={(ev) => {
+                                       ev.preventDefault()
+                                       if (selectedStep) {
+                                           convertStep(selectedStep, targetDsl);
+                                           setMenuOpen(false);
+                                       }
+                                   }}>
+                        Convert to {targetDslTitle}
+                    </DropdownItem>}
+                </DropdownList>
+            </Dropdown> : <></>;
+    }
 
     function getRouteHeader(): JSX.Element {
         const title = selectedStep && CamelDisplayUtil.getTitle(selectedStep)
         const description = selectedStep && CamelUi.getDescription(selectedStep);
         const descriptionLines: string [] = description ? description?.split("\n") : [""];
-        const targetDsl = CamelUi.getConvertTargetDsl(selectedStep?.dslName);
-        const targetDslTitle = targetDsl?.replace("Definition", "");
         return (
             <div className="headers">
                 <div className="top">
                     <Title headingLevel="h1" size="md">{title}</Title>
-                    {targetDsl &&
-                        <Button
-                            variant={"link"}
-                            icon={<ConvertIcon/>}
-                            iconPosition={"right"}
-                            onClick={event => {
-                                if (selectedStep) {
-                                    convertStep(selectedStep, targetDsl);
-                                }
-                            }}
-                        >
-                            Convert to {targetDslTitle}
-                        </Button>
-                    }
+                    {getHeaderMenu()}
                 </div>
                 <Text component={TextVariants.p}>{descriptionLines.at(0)}</Text>
                 {descriptionLines.length > 1 &&
@@ -109,7 +170,7 @@ export function DslProperties(props: Props) {
     }
 
     function getComponentHeader(): JSX.Element {
-        if (props.isRouteDesigner) return getRouteHeader()
+        if (props.designerType === 'routes') return getRouteHeader()
         else return getClonableElementHeader();
     }
 

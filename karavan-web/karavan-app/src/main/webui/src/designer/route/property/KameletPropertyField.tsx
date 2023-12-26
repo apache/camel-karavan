@@ -29,12 +29,12 @@ import CompressIcon from "@patternfly/react-icons/dist/js/icons/compress-icon";
 import {Property} from "karavan-core/lib/model/KameletModels";
 import {InfrastructureSelector} from "./InfrastructureSelector";
 import {InfrastructureAPI} from "../../utils/InfrastructureAPI";
-import KubernetesIcon from "@patternfly/react-icons/dist/js/icons/openshift-icon";
 import ShowIcon from "@patternfly/react-icons/dist/js/icons/eye-icon";
 import HideIcon from "@patternfly/react-icons/dist/js/icons/eye-slash-icon";
 import DockerIcon from "@patternfly/react-icons/dist/js/icons/docker-icon";
 import {usePropertiesHook} from "../usePropertiesHook";
 import {Select, SelectDirection, SelectOption, SelectVariant} from "@patternfly/react-core/deprecated";
+import {KubernetesIcon} from "../../icons/ComponentIcons";
 
 interface Props {
     property: Property,
@@ -108,7 +108,7 @@ export function KameletPropertyField(props: Props) {
         const id = prefix + "-" + property.id;
         const inInfrastructure = InfrastructureAPI.infrastructure !== 'local';
         const noInfraSelectorButton = ["uri", "id", "description", "group"].includes(property.id);
-        const icon = InfrastructureAPI.infrastructure === 'kubernetes' ? <KubernetesIcon/> : <DockerIcon/>
+        const icon = InfrastructureAPI.infrastructure === 'kubernetes' ? KubernetesIcon("infra-button") : <DockerIcon/>
         const showInfraSelectorButton = inInfrastructure && !showEditor && !noInfraSelectorButton;
         const selectFromList: boolean = property.enum !== undefined && property?.enum?.length > 0;
         const selectOptions: JSX.Element[] = [];

@@ -40,6 +40,7 @@ import org.apache.camel.karavan.infinispan.model.Project;
 import org.apache.camel.karavan.infinispan.model.ProjectFile;
 import org.apache.camel.karavan.kubernetes.KubernetesService;
 import org.apache.camel.karavan.service.ConfigService;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
@@ -58,11 +59,15 @@ public class CodeService {
     public static final String BUILD_SCRIPT_FILENAME = "build.sh";
     public static final String DEV_SERVICES_FILENAME = "devservices.yaml";
     public static final String PROJECT_COMPOSE_FILENAME = "docker-compose.yaml";
+    public static final String MARKDOWN_EXTENSION = ".md";
     public static final String PROJECT_JKUBE_EXTENSION = ".jkube.yaml";
     public static final String PROJECT_DEPLOYMENT_JKUBE_FILENAME = "deployment" + PROJECT_JKUBE_EXTENSION;
     private static final String SNIPPETS_PATH = "/snippets/";
     private static final String DATA_FOLDER = System.getProperty("user.dir") + File.separator + "data";
     private static final int INTERNAL_PORT = 8080;
+
+    @ConfigProperty(name = "karavan.environment")
+    String environment;
 
     @Inject
     KubernetesService kubernetesService;
@@ -91,6 +96,7 @@ public class CodeService {
 
     public Map<String, String> getProjectFilesForDevMode(String projectId, Boolean withKamelets) {
         Map<String, String> files = infinispanService.getProjectFiles(projectId).stream()
+                .filter(f -> !f.getName().endsWith(MARKDOWN_EXTENSION))
                 .filter(f -> !Objects.equals(f.getName(), PROJECT_COMPOSE_FILENAME))
                 .filter(f -> !f.getName().endsWith(PROJECT_JKUBE_EXTENSION))
                 .collect(Collectors.toMap(ProjectFile::getName, ProjectFile::getCode));
@@ -142,7 +148,8 @@ public class CodeService {
                 ? (kubernetesService.isOpenshift() ? "openshift" : "kubernetes")
                 : "docker";
         String templateName = target + "-" + BUILD_SCRIPT_FILENAME;
-        return getTemplateText(templateName);
+        String envTemplate = getTemplateText(environment + "." + templateName);
+        return envTemplate != null ? envTemplate : getTemplateText(templateName);
     }
 
     public String getTemplateText(String fileName) {

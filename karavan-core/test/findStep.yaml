@@ -6,8 +6,8 @@
 - route:
     id: route-66bd
     from:
-      uri: kamelet:timer-source
       id: from-6c72
+      uri: kamelet:timer-source
       parameters:
         period: 2000
         message: Hello World
@@ -20,14 +20,15 @@
               - log:
                   id: log-7d33
         - log:
-            message: ${body}
             id: log-0023
+            message: ${body}
         - aggregate:
             id: aggregate-6615
         - choice:
+            id: choice-9b86
             when:
-              - expression: {}
-                id: when-2521
+              - id: when-2521
+                expression: {}
                 steps:
                   - log:
                       id: log-8bc9
@@ -35,22 +36,21 @@
               id: otherwise-4843
               steps:
                 - to:
-                    uri: arangodb
                     id: to-3d1c
-            id: choice-9b86
+                    uri: arangodb
         - split:
-            expression: {}
             id: split-fe40
+            expression: {}
         - saga:
             id: saga-0075
         - to:
-            uri: direct
             id: to-6a8b
+            uri: direct
             parameters:
               sObjectId: hello-world
         - to:
-            uri: salesforce
             id: to-6f22
+            uri: salesforce
             parameters:
               sObjectId: xxx
               sObjectClass: Account
@@ -58,8 +58,8 @@
 - route:
     id: hello-world
     from:
-      uri: direct
       id: from-5a9f
+      uri: direct
       parameters:
         name: hello-world
 - routeConfiguration: {}

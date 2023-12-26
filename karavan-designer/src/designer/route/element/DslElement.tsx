@@ -25,7 +25,7 @@ import {CamelDisplayUtil} from "karavan-core/lib/api/CamelDisplayUtil";
 import {useDesignerStore, useIntegrationStore} from "../../DesignerStore";
 import {shallow} from "zustand/shallow";
 import {useRouteDesignerHook} from "../useRouteDesignerHook";
-import {AddElementIcon} from "./DslElementIcons";
+import {AddElementIcon} from "../../utils/ElementIcons";
 import {DslElementHeader} from "./DslElementHeader";
 
 interface Props {

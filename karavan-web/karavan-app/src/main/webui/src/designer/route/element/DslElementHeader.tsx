@@ -26,7 +26,7 @@ import {CamelDisplayUtil} from "karavan-core/lib/api/CamelDisplayUtil";
 import {useDesignerStore} from "../../DesignerStore";
 import {shallow} from "zustand/shallow";
 import {useRouteDesignerHook} from "../useRouteDesignerHook";
-import {AddElementIcon, DeleteElementIcon, InsertElementIcon} from "./DslElementIcons";
+import {AddElementIcon, DeleteElementIcon, InsertElementIcon} from "../../utils/ElementIcons";
 import { RouteConfigurationDefinition} from "karavan-core/lib/model/CamelDefinition";
 
 interface Props {
@@ -105,7 +105,8 @@ export function DslElementHeader(props: Props) {
 
     function hasWideChildrenElement() {
         const [hasStepsField, stepsChildrenCount, hasNonStepsFields, nonStepChildrenCount, childrenCount] = getChildrenInfo(props.step);
-        if (isHorizontal() && stepsChildrenCount > 1) return true;
+        if (props.step.dslName === 'SetHeadersDefinition') return false;
+        else if (isHorizontal() && stepsChildrenCount > 1) return true;
         else if (hasStepsField && stepsChildrenCount > 0 && hasNonStepsFields && nonStepChildrenCount > 0) return true;
         else if (!hasStepsField && hasNonStepsFields && childrenCount > 1) return true;
         else if (hasStepsField && stepsChildrenCount > 0 && hasNonStepsFields && childrenCount > 1) return true;
@@ -147,8 +148,9 @@ export function DslElementHeader(props: Props) {
             classes.push(isElementSelected() ? 'header-bottom-selected' : 'header-bottom-not-selected')
         } else if (step.dslName === 'RouteConfigurationDefinition') {
             classes.push('header-route')
-            if (hasElements(step)) classes.push('header-bottom-line')
-            classes.push(isElementSelected() ? 'header-bottom-selected' : 'header-bottom-not-selected')
+            if (hasElements(step)) {
+                classes.push(isElementSelected() ? 'header-bottom-selected' : 'header-bottom-not-selected')
+            }
         } else {
             classes.push('header')
         }

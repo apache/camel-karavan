@@ -32,6 +32,7 @@ import {
     ClaimCheckDefinition,
     ContextScanDefinition,
     ConvertBodyDefinition,
+    ConvertHeaderDefinition,
     DataFormatDefinition,
     DelayDefinition,
     DynamicRouterDefinition,
@@ -97,6 +98,7 @@ import {
     SetBodyDefinition,
     SetExchangePatternDefinition,
     SetHeaderDefinition,
+    SetHeadersDefinition,
     SetPropertyDefinition,
     SortDefinition,
     SplitDefinition,
@@ -120,12 +122,10 @@ import {
     WhenDefinition,
     WhenSkipSendToEndpointDefinition,
     WireTapDefinition,
-    ApplicationDefinition,
     BeanConstructorDefinition,
     BeanConstructorsDefinition,
     BeanPropertiesDefinition,
     BeanPropertyDefinition,
-    BeansDefinition,
     ComponentScanDefinition,
     RegistryBeanDefinition,
     BlacklistServiceCallServiceFilterConfiguration,
@@ -207,6 +207,7 @@ import {
     GroovyExpression,
     HeaderExpression,
     Hl7TerserExpression,
+    JavaExpression,
     JavaScriptExpression,
     JoorExpression,
     JqExpression,
@@ -289,6 +290,9 @@ export class CamelDefinitionApi {
         }
         if (element?.convertBodyTo !== undefined) { 
             def.convertBodyTo = CamelDefinitionApi.createConvertBodyDefinition(element.convertBodyTo); 
+        }
+        if (element?.convertHeaderTo !== undefined) { 
+            def.convertHeaderTo = CamelDefinitionApi.createConvertHeaderDefinition(element.convertHeaderTo); 
         }
         if (element?.delay !== undefined) { 
             def.delay = CamelDefinitionApi.createDelayDefinition(element.delay); 
@@ -391,6 +395,9 @@ export class CamelDefinitionApi {
         }
         if (element?.setHeader !== undefined) { 
             def.setHeader = CamelDefinitionApi.createSetHeaderDefinition(element.setHeader); 
+        }
+        if (element?.setHeaders !== undefined) { 
+            def.setHeaders = CamelDefinitionApi.createSetHeadersDefinition(element.setHeaders); 
         }
         if (element?.setProperty !== undefined) { 
             def.setProperty = CamelDefinitionApi.createSetPropertyDefinition(element.setProperty); 
@@ -568,6 +575,12 @@ export class CamelDefinitionApi {
         return def;
     }
 
+    static createConvertHeaderDefinition = (element: any): ConvertHeaderDefinition => { 
+        const def = element ? new ConvertHeaderDefinition({...element}) : new ConvertHeaderDefinition();
+        def.uuid = element?.uuid ? element.uuid : def.uuid; 
+        return def;
+    }
+
     static createDataFormatDefinition = (element: any): DataFormatDefinition => { 
         const def = element ? new DataFormatDefinition({...element}) : new DataFormatDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
@@ -642,6 +655,9 @@ export class CamelDefinitionApi {
         }
         if (element?.hl7terser !== undefined) { 
             def.hl7terser = CamelDefinitionApi.createHl7TerserExpression(element.hl7terser); 
+        }
+        if (element?.java !== undefined) { 
+            def.java = CamelDefinitionApi.createJavaExpression(element.java); 
         }
         if (element?.joor !== undefined) { 
             def.joor = CamelDefinitionApi.createJoorExpression(element.joor); 
@@ -1215,14 +1231,14 @@ export class CamelDefinitionApi {
     static createRouteDefinition = (element: any): RouteDefinition => { 
         const def = element ? new RouteDefinition({...element}) : new RouteDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
-        if (element?.from !== undefined) { 
-            def.from = CamelDefinitionApi.createFromDefinition(element.from); 
-        }
         if (element?.inputType !== undefined) { 
             def.inputType = CamelDefinitionApi.createInputTypeDefinition(element.inputType); 
         }
         if (element?.outputType !== undefined) { 
             def.outputType = CamelDefinitionApi.createOutputTypeDefinition(element.outputType); 
+        }
+        if (element?.from !== undefined) { 
+            def.from = CamelDefinitionApi.createFromDefinition(element.from); 
         }
         return def;
     }
@@ -1312,6 +1328,13 @@ export class CamelDefinitionApi {
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
         def.expression = CamelDefinitionApi.createExpressionDefinition(element.expression); 
 
+        return def;
+    }
+
+    static createSetHeadersDefinition = (element: any): SetHeadersDefinition => { 
+        const def = element ? new SetHeadersDefinition({...element}) : new SetHeadersDefinition();
+        def.uuid = element?.uuid ? element.uuid : def.uuid; 
+        def.headers = element && element?.headers ? element?.headers.map((x:any) => CamelDefinitionApi.createSetHeaderDefinition(x)) :[];
         return def;
     }
 
@@ -1611,20 +1634,6 @@ export class CamelDefinitionApi {
         return def;
     }
 
-    static createApplicationDefinition = (element: any): ApplicationDefinition => { 
-        const def = element ? new ApplicationDefinition({...element}) : new ApplicationDefinition();
-        def.uuid = element?.uuid ? element.uuid : def.uuid; 
-        def.bean = element && element?.bean ? element?.bean.map((x:any) => CamelDefinitionApi.createRegistryBeanDefinition(x)) :[];
-        def.componentScan = element && element?.componentScan ? element?.componentScan.map((x:any) => CamelDefinitionApi.createComponentScanDefinition(x)) :[];
-        def.rest = element && element?.rest ? element?.rest.map((x:any) => CamelDefinitionApi.createRestDefinition(x)) :[];
-        def.restConfiguration = element && element?.restConfiguration ? element?.restConfiguration.map((x:any) => CamelDefinitionApi.createRestConfigurationDefinition(x)) :[];
-        def.route = element && element?.route ? element?.route.map((x:any) => CamelDefinitionApi.createRouteDefinition(x)) :[];
-        def.routeConfiguration = element && element?.routeConfiguration ? element?.routeConfiguration.map((x:any) => CamelDefinitionApi.createRouteConfigurationDefinition(x)) :[];
-        def.routeTemplate = element && element?.routeTemplate ? element?.routeTemplate.map((x:any) => CamelDefinitionApi.createRouteTemplateDefinition(x)) :[];
-        def.templatedRoute = element && element?.templatedRoute ? element?.templatedRoute.map((x:any) => CamelDefinitionApi.createTemplatedRouteDefinition(x)) :[];
-        return def;
-    }
-
     static createBeanConstructorDefinition = (element: any): BeanConstructorDefinition => { 
         const def = element ? new BeanConstructorDefinition({...element}) : new BeanConstructorDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
@@ -1651,20 +1660,6 @@ export class CamelDefinitionApi {
         if (element?.properties !== undefined) { 
             def.properties = CamelDefinitionApi.createBeanPropertiesDefinition(element.properties); 
         }
-        return def;
-    }
-
-    static createBeansDefinition = (element: any): BeansDefinition => { 
-        const def = element ? new BeansDefinition({...element}) : new BeansDefinition();
-        def.uuid = element?.uuid ? element.uuid : def.uuid; 
-        def.bean = element && element?.bean ? element?.bean.map((x:any) => CamelDefinitionApi.createRegistryBeanDefinition(x)) :[];
-        def.restConfiguration = element && element?.restConfiguration ? element?.restConfiguration.map((x:any) => CamelDefinitionApi.createRestConfigurationDefinition(x)) :[];
-        def.rest = element && element?.rest ? element?.rest.map((x:any) => CamelDefinitionApi.createRestDefinition(x)) :[];
-        def.routeConfiguration = element && element?.routeConfiguration ? element?.routeConfiguration.map((x:any) => CamelDefinitionApi.createRouteConfigurationDefinition(x)) :[];
-        def.routeTemplate = element && element?.routeTemplate ? element?.routeTemplate.map((x:any) => CamelDefinitionApi.createRouteTemplateDefinition(x)) :[];
-        def.templatedRoute = element && element?.templatedRoute ? element?.templatedRoute.map((x:any) => CamelDefinitionApi.createTemplatedRouteDefinition(x)) :[];
-        def.route = element && element?.route ? element?.route.map((x:any) => CamelDefinitionApi.createRouteDefinition(x)) :[];
-        def.componentScan = element && element?.componentScan ? element?.componentScan.map((x:any) => CamelDefinitionApi.createComponentScanDefinition(x)) :[];
         return def;
     }
 
@@ -2396,6 +2391,9 @@ export class CamelDefinitionApi {
         if (element?.hl7terser !== undefined) { 
             def.hl7terser = CamelDefinitionApi.createHl7TerserExpression(element.hl7terser); 
         }
+        if (element?.java !== undefined) { 
+            def.java = CamelDefinitionApi.createJavaExpression(element.java); 
+        }
         if (element?.joor !== undefined) { 
             def.joor = CamelDefinitionApi.createJoorExpression(element.joor); 
         }
@@ -2470,6 +2468,15 @@ export class CamelDefinitionApi {
             element = {expression: element};
         }
         const def = element ? new Hl7TerserExpression({...element}) : new Hl7TerserExpression();
+        def.uuid = element?.uuid ? element.uuid : def.uuid; 
+        return def;
+    }
+
+    static createJavaExpression = (element: any): JavaExpression => { 
+        if (element && typeof element === 'string') {
+            element = {expression: element};
+        }
+        const def = element ? new JavaExpression({...element}) : new JavaExpression();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
         return def;
     }
@@ -2829,8 +2836,8 @@ export class CamelDefinitionApi {
         if (element?.bearer !== undefined) { 
             def.bearer = CamelDefinitionApi.createBearerTokenDefinition(element.bearer); 
         }
-        if (element?.mutualTls !== undefined) { 
-            def.mutualTls = CamelDefinitionApi.createMutualTLSDefinition(element.mutualTls); 
+        if (element?.mutualTLS !== undefined) { 
+            def.mutualTLS = CamelDefinitionApi.createMutualTLSDefinition(element.mutualTLS); 
         }
         if (element?.oauth2 !== undefined) { 
             def.oauth2 = CamelDefinitionApi.createOAuth2Definition(element.oauth2); 
@@ -3066,6 +3073,7 @@ export class CamelDefinitionApi {
             case 'ClaimCheckDefinition': return CamelDefinitionApi.createClaimCheckDefinition(newBody);
             case 'ContextScanDefinition': return CamelDefinitionApi.createContextScanDefinition(newBody);
             case 'ConvertBodyDefinition': return CamelDefinitionApi.createConvertBodyDefinition(newBody);
+            case 'ConvertHeaderDefinition': return CamelDefinitionApi.createConvertHeaderDefinition(newBody);
             case 'DataFormatDefinition': return CamelDefinitionApi.createDataFormatDefinition(newBody);
             case 'DelayDefinition': return CamelDefinitionApi.createDelayDefinition(newBody);
             case 'DynamicRouterDefinition': return CamelDefinitionApi.createDynamicRouterDefinition(newBody);
@@ -3131,6 +3139,7 @@ export class CamelDefinitionApi {
             case 'SetBodyDefinition': return CamelDefinitionApi.createSetBodyDefinition(newBody);
             case 'SetExchangePatternDefinition': return CamelDefinitionApi.createSetExchangePatternDefinition(newBody);
             case 'SetHeaderDefinition': return CamelDefinitionApi.createSetHeaderDefinition(newBody);
+            case 'SetHeadersDefinition': return CamelDefinitionApi.createSetHeadersDefinition(newBody);
             case 'SetPropertyDefinition': return CamelDefinitionApi.createSetPropertyDefinition(newBody);
             case 'SortDefinition': return CamelDefinitionApi.createSortDefinition(newBody);
             case 'SplitDefinition': return CamelDefinitionApi.createSplitDefinition(newBody);
@@ -3154,12 +3163,10 @@ export class CamelDefinitionApi {
             case 'WhenDefinition': return CamelDefinitionApi.createWhenDefinition(newBody);
             case 'WhenSkipSendToEndpointDefinition': return CamelDefinitionApi.createWhenSkipSendToEndpointDefinition(newBody);
             case 'WireTapDefinition': return CamelDefinitionApi.createWireTapDefinition(newBody);
-            case 'ApplicationDefinition': return CamelDefinitionApi.createApplicationDefinition(newBody);
             case 'BeanConstructorDefinition': return CamelDefinitionApi.createBeanConstructorDefinition(newBody);
             case 'BeanConstructorsDefinition': return CamelDefinitionApi.createBeanConstructorsDefinition(newBody);
             case 'BeanPropertiesDefinition': return CamelDefinitionApi.createBeanPropertiesDefinition(newBody);
             case 'BeanPropertyDefinition': return CamelDefinitionApi.createBeanPropertyDefinition(newBody);
-            case 'BeansDefinition': return CamelDefinitionApi.createBeansDefinition(newBody);
             case 'ComponentScanDefinition': return CamelDefinitionApi.createComponentScanDefinition(newBody);
             case 'RegistryBeanDefinition': return CamelDefinitionApi.createRegistryBeanDefinition(newBody);
             case 'BlacklistServiceCallServiceFilterConfiguration': return CamelDefinitionApi.createBlacklistServiceCallServiceFilterConfiguration(newBody);
@@ -3241,6 +3248,7 @@ export class CamelDefinitionApi {
             case 'GroovyExpression': return CamelDefinitionApi.createGroovyExpression(newBody);
             case 'HeaderExpression': return CamelDefinitionApi.createHeaderExpression(newBody);
             case 'Hl7TerserExpression': return CamelDefinitionApi.createHl7TerserExpression(newBody);
+            case 'JavaExpression': return CamelDefinitionApi.createJavaExpression(newBody);
             case 'JavaScriptExpression': return CamelDefinitionApi.createJavaScriptExpression(newBody);
             case 'JoorExpression': return CamelDefinitionApi.createJoorExpression(newBody);
             case 'JqExpression': return CamelDefinitionApi.createJqExpression(newBody);
@@ -3311,6 +3319,7 @@ export class CamelDefinitionApi {
             case 'GroovyExpression': return CamelDefinitionApi.createGroovyExpression(newBody);
             case 'HeaderExpression': return CamelDefinitionApi.createHeaderExpression(newBody);
             case 'Hl7TerserExpression': return CamelDefinitionApi.createHl7TerserExpression(newBody);
+            case 'JavaExpression': return CamelDefinitionApi.createJavaExpression(newBody);
             case 'JoorExpression': return CamelDefinitionApi.createJoorExpression(newBody);
             case 'JqExpression': return CamelDefinitionApi.createJqExpression(newBody);
             case 'JavaScriptExpression': return CamelDefinitionApi.createJavaScriptExpression(newBody);

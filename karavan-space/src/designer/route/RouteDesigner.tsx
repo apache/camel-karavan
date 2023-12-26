@@ -24,7 +24,7 @@ import {
 } from '@patternfly/react-core';
 import '../karavan.css';
 import {DslSelector} from "./DslSelector";
-import {DslProperties} from "./DslProperties";
+import {DslProperties} from "../property/DslProperties";
 import {DslConnections} from "./DslConnections";
 import PlusIcon from "@patternfly/react-icons/dist/esm/icons/plus-icon";
 import {DslElement} from "./element/DslElement";
@@ -60,7 +60,9 @@ export function RouteDesigner() {
         if (flowRef && flowRef.current) {
             const el = flowRef.current;
             const rect = el.getBoundingClientRect();
-            setPosition(rect.width, rect.height, rect.top, rect.left)
+            if (width !== rect.width || height !== rect.height || top !== rect.top || left !== rect.left) {
+                setPosition(rect.width, rect.height, rect.top, rect.left)
+            }
         }
     }
 
@@ -100,7 +102,7 @@ export function RouteDesigner() {
                                 maxSize={'800px'}
                                 minSize={'400px'}
             >
-                <DslProperties isRouteDesigner={true}/>
+                <DslProperties designerType={'routes'}/>
             </DrawerPanelContent>
         )
     }

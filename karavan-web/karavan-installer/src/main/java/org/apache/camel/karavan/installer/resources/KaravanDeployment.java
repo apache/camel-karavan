@@ -27,8 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import static org.apache.camel.karavan.installer.Constants.INFINISPAN_SECRET_NAME;
-import static org.apache.camel.karavan.installer.Constants.NAME;
+import static org.apache.camel.karavan.installer.Constants.*;
 
 public class KaravanDeployment {
 
@@ -64,22 +63,13 @@ public class KaravanDeployment {
                 new EnvVar("KUBERNETES_NAMESPACE", null, new EnvVarSourceBuilder().withFieldRef(new ObjectFieldSelector("", "metadata.namespace")).build())
         );
         String auth = config.getAuth();
-        if (Objects.equals(auth, "basic")) {
-            image = baseImage + "-basic:" + config.getVersion();
-            envVarList.add(
-                    new EnvVar("MASTER_PASSWORD", null, new EnvVarSourceBuilder().withSecretKeyRef(new SecretKeySelector("master-password", NAME, false)).build())
-            );
-        } else if (Objects.equals(auth, "oidc")) {
-            image = baseImage + "-oidc:" + config.getVersion();
-            envVarList.add(
-                    new EnvVar("OIDC_FRONTEND_URL", null, new EnvVarSourceBuilder().withSecretKeyRef(new SecretKeySelector("oidc-frontend-url", "karavan", false)).build())
-            );
-            envVarList.add(
-                    new EnvVar("OIDC_SERVER_URL", null, new EnvVarSourceBuilder().withSecretKeyRef(new SecretKeySelector("oidc-server-url", "karavan", false)).build())
-            );
-            envVarList.add(
-                    new EnvVar("OIDC_SECRET", null, new EnvVarSourceBuilder().withSecretKeyRef(new SecretKeySelector("oidc-secret", "karavan", false)).build())
-            );
+        if (Objects.equals(auth, "oidc")) {
+            image = baseImage + ":" + config.getVersion() + "-oidc";
+            envVarList.add(new EnvVar(KEYCLOAK_URL, null, new EnvVarSourceBuilder().withSecretKeyRef(new SecretKeySelector(KEYCLOAK_URL, NAME, false)).build()));
+            envVarList.add(new EnvVar(KEYCLOAK_REALM, null, new EnvVarSourceBuilder().withSecretKeyRef(new SecretKeySelector(KEYCLOAK_REALM, NAME, false)).build()));
+            envVarList.add(new EnvVar(KEYCLOAK_FRONTEND_CLIENT_ID, null, new EnvVarSourceBuilder().withSecretKeyRef(new SecretKeySelector(KEYCLOAK_FRONTEND_CLIENT_ID, NAME, false)).build()));
+            envVarList.add(new EnvVar(KEYCLOAK_BACKEND_CLIENT_ID, null, new EnvVarSourceBuilder().withSecretKeyRef(new SecretKeySelector(KEYCLOAK_BACKEND_CLIENT_ID, NAME, false)).build()));
+            envVarList.add(new EnvVar(KEYCLOAK_BACKEND_SECRET, null, new EnvVarSourceBuilder().withSecretKeyRef(new SecretKeySelector(KEYCLOAK_BACKEND_SECRET, NAME, false)).build()));
         }
 
         if (config.isInstallGitea()) {

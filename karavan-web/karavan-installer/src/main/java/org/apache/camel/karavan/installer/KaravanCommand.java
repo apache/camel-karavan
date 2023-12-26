@@ -51,15 +51,17 @@ public class KaravanCommand implements Callable<Integer> {
     private boolean yaml;
     @CommandLine.Option(names = {"--openshift"}, description = "Create files for OpenShift")
     private boolean isOpenShift;
+    @CommandLine.Option(names = {"--keycloak-url"}, description = "Keycloak URL")
+    private String keycloakUrl;
+    @CommandLine.Option(names = {"--keycloak-realm"}, description = "Keycloak Realm")
+    private String keycloakRealm;
+    @CommandLine.Option(names = {"--keycloak-frontend-clientId"}, description = "Keycloak frontend clientId")
+    private String keycloakFrontendClientId;
+    @CommandLine.Option(names = {"--keycloak-backend-clientId"}, description = "Keycloak backend clientId")
+    private String keycloakBackendClientId;
+    @CommandLine.Option(names = {"--keycloak-backend-secret"}, description = "Keycloak backend secret")
+    private String keycloakBackendSecret;
 
-    @CommandLine.Option(names = {"--master-password"}, description = "Master password", defaultValue = "karavan")
-    private String masterPassword;
-    @CommandLine.Option(names = {"--oidc-secret"}, description = "OIDC secret")
-    private String oidcSecret;
-    @CommandLine.Option(names = {"--oidc-server-url"}, description = "OIDC server URL")
-    private String oidcServerUrl;
-    @CommandLine.Option(names = {"--oidc-frontend-url"}, description = "OIDC frontend URL")
-    private String oidcFrontendUrl;
     @CommandLine.Option(names = {"--git-repository"}, description = "Git repository", defaultValue = Constants.DEFAULT_GIT_REPOSITORY)
     private String gitRepository;
     @CommandLine.Option(names = {"--git-username"}, description = "Git username", defaultValue = Constants.DEFAULT_GIT_USERNAME)
@@ -132,9 +134,9 @@ public class KaravanCommand implements Callable<Integer> {
     }
 
     public boolean oidcConfigured() {
-        return oidcSecret != null
-                && oidcServerUrl != null
-                && oidcFrontendUrl != null;
+        return keycloakBackendSecret != null
+                && keycloakUrl != null
+                && keycloakFrontendClientId != null;
     }
 
     public boolean isInstallGitea() {
@@ -233,36 +235,28 @@ public class KaravanCommand implements Callable<Integer> {
         isOpenShift = openShift;
     }
 
-    public String getMasterPassword() {
-        return masterPassword;
+    public String getKeycloakBackendSecret() {
+        return keycloakBackendSecret;
     }
 
-    public void setMasterPassword(String masterPassword) {
-        this.masterPassword = masterPassword;
+    public void setKeycloakBackendSecret(String keycloakBackendSecret) {
+        this.keycloakBackendSecret = keycloakBackendSecret;
     }
 
-    public String getOidcSecret() {
-        return oidcSecret;
+    public String getKeycloakUrl() {
+        return keycloakUrl;
     }
 
-    public void setOidcSecret(String oidcSecret) {
-        this.oidcSecret = oidcSecret;
+    public void setKeycloakUrl(String keycloakUrl) {
+        this.keycloakUrl = keycloakUrl;
     }
 
-    public String getOidcServerUrl() {
-        return oidcServerUrl;
+    public String getKeycloakFrontendClientId() {
+        return keycloakFrontendClientId;
     }
 
-    public void setOidcServerUrl(String oidcServerUrl) {
-        this.oidcServerUrl = oidcServerUrl;
-    }
-
-    public String getOidcFrontendUrl() {
-        return oidcFrontendUrl;
-    }
-
-    public void setOidcFrontendUrl(String oidcFrontendUrl) {
-        this.oidcFrontendUrl = oidcFrontendUrl;
+    public void setKeycloakFrontendClientId(String keycloakFrontendClientId) {
+        this.keycloakFrontendClientId = keycloakFrontendClientId;
     }
 
     public String getGitRepository() {
@@ -375,5 +369,29 @@ public class KaravanCommand implements Callable<Integer> {
 
     public void setLabels(Map<String, String> labels) {
         this.labels = labels;
+    }
+
+    public String getKeycloakRealm() {
+        return keycloakRealm;
+    }
+
+    public void setKeycloakRealm(String keycloakRealm) {
+        this.keycloakRealm = keycloakRealm;
+    }
+
+    public String getKeycloakBackendClientId() {
+        return keycloakBackendClientId;
+    }
+
+    public void setKeycloakBackendClientId(String keycloakBackendClientId) {
+        this.keycloakBackendClientId = keycloakBackendClientId;
+    }
+
+    public void setInstallGitea(boolean installGitea) {
+        this.installGitea = installGitea;
+    }
+
+    public void setInstallInfinispan(boolean installInfinispan) {
+        this.installInfinispan = installInfinispan;
     }
 }

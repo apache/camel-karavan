@@ -20,19 +20,17 @@ import {
 } from '@patternfly/react-core';
 import './bean.css';
 import {RegistryBeanDefinition} from "karavan-core/lib/model/CamelDefinition";
-import DeleteIcon from "@patternfly/react-icons/dist/js/icons/times-circle-icon";
-import {useDesignerStore} from "../DesignerStore";
-import {shallow} from "zustand/shallow";
+import {DeleteElementIcon} from "../utils/ElementIcons";
+import {CamelElement} from "karavan-core/lib/model/IntegrationDefinition";
 
 interface Props {
     bean: RegistryBeanDefinition
+    selectedStep?: CamelElement
     selectElement: (element: RegistryBeanDefinition) => void
     deleteElement: (element: RegistryBeanDefinition) => void
 }
 
 export function BeanCard (props: Props) {
-
-    const [ selectedStep] = useDesignerStore((s) => [s.selectedStep], shallow)
 
     function selectElement (evt: React.MouseEvent) {
         evt.stopPropagation();
@@ -47,7 +45,7 @@ export function BeanCard (props: Props) {
     const bean = props.bean;
     return (
         <Flex direction={{default: "row"}}
-              className={selectedStep?.uuid === bean.uuid ? "bean-card bean-card-selected" : "bean-card bean-card-unselected"}
+              className={props.selectedStep?.uuid === bean.uuid ? "bean-card bean-card-selected" : "bean-card bean-card-unselected"}
               onClick={e => selectElement(e)}
         >
             <FlexItem flex={{default:"flex_1"}} className="title">Bean</FlexItem>
@@ -55,7 +53,7 @@ export function BeanCard (props: Props) {
             <FlexItem flex={{default:"flex_3"}} align={{default: "alignRight"}} className="description">{bean.type}</FlexItem>
             <FlexItem>
                 <Button variant="link" className="delete-button" onClick={e => onDelete(e)}>
-                    <DeleteIcon/>
+                    {DeleteElementIcon()}
                 </Button>
             </FlexItem>
         </Flex>

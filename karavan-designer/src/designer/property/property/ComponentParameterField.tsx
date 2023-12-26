@@ -43,7 +43,6 @@ import CompressIcon from "@patternfly/react-icons/dist/js/icons/compress-icon";
 import ExpandIcon from "@patternfly/react-icons/dist/js/icons/expand-icon";
 import {InfrastructureSelector} from "./InfrastructureSelector";
 import {InfrastructureAPI} from "../../utils/InfrastructureAPI";
-import KubernetesIcon from "@patternfly/react-icons/dist/js/icons/openshift-icon";
 import DockerIcon from "@patternfly/react-icons/dist/js/icons/docker-icon";
 import ShowIcon from "@patternfly/react-icons/dist/js/icons/eye-icon";
 import HideIcon from "@patternfly/react-icons/dist/js/icons/eye-slash-icon";
@@ -51,6 +50,7 @@ import PlusIcon from "@patternfly/react-icons/dist/esm/icons/plus-icon";
 import {usePropertiesHook} from "../usePropertiesHook";
 import {useIntegrationStore} from "../../DesignerStore";
 import {shallow} from "zustand/shallow";
+import {KubernetesIcon} from "../../icons/ComponentIcons";
 
 const prefix = "parameters";
 const beanPrefix = "#bean:";
@@ -219,7 +219,7 @@ export function ComponentParameterField(props: Props) {
     function getStringInput(property: ComponentProperty, value: any) {
         const inInfrastructure = InfrastructureAPI.infrastructure !== 'local';
         const noInfraSelectorButton = ["uri", "id", "description", "group"].includes(property.name);
-        const icon = InfrastructureAPI.infrastructure === 'kubernetes' ? <KubernetesIcon/> : <DockerIcon/>
+        const icon = InfrastructureAPI.infrastructure === 'kubernetes' ? KubernetesIcon("infra-button") : <DockerIcon/>
         return <InputGroup>
             {inInfrastructure && !showEditor && !noInfraSelectorButton &&
                 <Tooltip position="bottom-end"
@@ -297,13 +297,14 @@ export function ComponentParameterField(props: Props) {
     }
 
     function getSwitch(property: ComponentProperty, value: any) {
+        const isChecked = value !== undefined ? Boolean(value) : (property.defaultValue !== undefined && ['true', true].includes(property.defaultValue))
         return (
             <Switch
                 id={id} name={id}
                 value={value?.toString()}
                 aria-label={id}
-                isChecked={value !== undefined ? Boolean(value) : property.defaultValue !== undefined && property.defaultValue === 'true'}
-                onChange={e => parametersChanged(property.name, !Boolean(value))}/>
+                isChecked={isChecked}
+                onChange={(e, checked) => parametersChanged(property.name, checked)}/>
         )
     }
 

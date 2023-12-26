@@ -43,7 +43,7 @@ public class AbstractGenerator {
     Logger LOGGER = Logger.getLogger(AbstractGenerator.class.getName());
     protected static boolean print = false;
 
-    protected void print(String line){
+    protected void print(String line) {
         if (print) {
             System.out.println(line);
         }
@@ -56,17 +56,19 @@ public class AbstractGenerator {
         return new JsonObject(buffer).getJsonObject("items").getJsonObject("definitions");
     }
 
-    protected JsonObject getDefinitions(){
+    protected JsonObject getDefinitions() {
         String camelYamlDSL = getCamelYamlDSL();
         return new JsonObject(camelYamlDSL).getJsonObject("items").getJsonObject("definitions");
     }
 
-    protected String getStepNameForClass (String className) {
+    protected String getStepNameForClass(String className) {
         if (className.equals("CatchDefinition")) {
             className = "doCatch";
         } else if (className.equals("ConvertBodyDefinition")) {
             className = "convertBodyTo";
-         } else if (className.equals("TryDefinition")) {
+        } else if (className.equals("ConvertHeaderDefinition")) {
+            className = "convertHeaderTo";
+        } else if (className.equals("TryDefinition")) {
             className = "doTry";
         } else if (className.equals("FinallyDefinition")) {
             className = "doFinally";
@@ -76,17 +78,19 @@ public class AbstractGenerator {
             className = "sample";
         } else if (className.equals("BeanPropertiesDefinition")) {
             className = "properties";
+        } else if (className.equals("RestSecuritiesDefinition")) {
+            className = "securityDefinitions";
         } else if (className.endsWith("Definition")) {
             className = className.substring(0, className.length() - 10);
-        } else if (className.endsWith("DataFormat")){
+        } else if (className.endsWith("DataFormat")) {
             return getDataFormatStepNameForClass().get(className);
-        } else if (className.endsWith("Expression")){
+        } else if (className.endsWith("Expression")) {
             return getExpressionStepNameForClass().get(className);
         }
         return deCapitalize(className);
     }
 
-    protected Map<String, String> getDataFormatStepNameForClass(){
+    protected Map<String, String> getDataFormatStepNameForClass() {
         Map<String, String> stepNames = new LinkedHashMap<>();
         JsonObject definitions = getDefinitions();
         JsonObject props = definitions.getJsonObject("org.apache.camel.model.dataformat.DataFormatsDefinition").getJsonObject("properties");
@@ -97,11 +101,11 @@ public class AbstractGenerator {
         return stepNames;
     }
 
-    protected Map<String, String> getExpressionStepNameForClass(){
+    protected Map<String, String> getExpressionStepNameForClass() {
         Map<String, String> stepNames = new LinkedHashMap<>();
         JsonObject definitions = getDefinitions();
         JsonArray props = definitions.getJsonObject("org.apache.camel.model.language.ExpressionDefinition").getJsonArray("anyOf").getJsonObject(0).getJsonArray("oneOf");
-        for (int i =0; i < props.size(); i++) {
+        for (int i = 0; i < props.size(); i++) {
             JsonObject prop = props.getJsonObject(i);
             String key = prop.getJsonObject("properties").getMap().keySet().iterator().next();
             String fullClassName = prop.getJsonObject("properties").getJsonObject(key).getString("$ref");
@@ -111,20 +115,20 @@ public class AbstractGenerator {
         return stepNames;
     }
 
-    private Map<String, JsonObject> getJsonObjectProperties (JsonObject val) {
+    private Map<String, JsonObject> getJsonObjectProperties(JsonObject val) {
         Map<String, JsonObject> properties = new LinkedHashMap<>();
         val.getMap().keySet().forEach(s -> {
             JsonObject value = val.getJsonObject(s);
             if (!value.getMap().isEmpty()) {
                 properties.put(s, val.getJsonObject(s));
-            } else if (s.equals("expression")){
+            } else if (s.equals("expression")) {
                 properties.put(s, JsonObject.of("$ref", "#/items/definitions/org.apache.camel.model.language.ExpressionDefinition"));
             }
         });
         return properties;
     }
 
-    protected Map<String, JsonObject> getClassProperties (String stepName, JsonObject obj) {
+    protected Map<String, JsonObject> getClassProperties(String stepName, JsonObject obj) {
         Map<String, JsonObject> properties = new LinkedHashMap<>();
         obj.getMap().keySet().forEach(key -> {
             if (key.equals("oneOf")) {
@@ -135,7 +139,7 @@ public class AbstractGenerator {
                 properties.putAll(getJsonObjectProperties(val));
             } else if (key.equals("anyOf")) {
                 JsonArray vals = obj.getJsonArray("anyOf").getJsonObject(0).getJsonArray("oneOf");
-                for (int i = 0; i < vals.size(); i++){
+                for (int i = 0; i < vals.size(); i++) {
                     JsonObject data = vals.getJsonObject(i);
                     if (!data.containsKey("not") && data.containsKey("type")) {
                         JsonObject val = data.getJsonObject("properties");
@@ -171,7 +175,7 @@ public class AbstractGenerator {
 //        return stepNames;
 //    }
 
-    protected Map<String, JsonObject> getDslMetadata(){
+    protected Map<String, JsonObject> getDslMetadata() {
         // Generate DSL Metadata
         String camelYamlDSL = getCamelYamlDSL();
         JsonObject definitions = new JsonObject(camelYamlDSL).getJsonObject("items").getJsonObject("definitions");
@@ -237,7 +241,7 @@ public class AbstractGenerator {
                 Files.createDirectories(path);
             }
             File targetFile = Paths.get(folder, fileName).toFile();
-            LOGGER.info("Saving file " + targetFile.getAbsolutePath());
+//            LOGGER.info("Saving file " + targetFile.getAbsolutePath());
             Files.copy(new ByteArrayInputStream(text.getBytes()), targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
             e.printStackTrace();
@@ -299,6 +303,17 @@ public class AbstractGenerator {
         return str.length() == 0 ? str
                 : str.length() == 1 ? str.toLowerCase()
                 : str.substring(0, 1).toLowerCase() + str.substring(1);
+    }
+
+    protected String getMetaModelApp(String name) {
+        try {
+            InputStream inputStream = CamelCatalog.class.getResourceAsStream("/org/apache/camel/catalog/models-app/" + name + ".json");
+            String data = new BufferedReader(new InputStreamReader(inputStream))
+                    .lines().collect(Collectors.joining(System.getProperty("line.separator")));
+            return data;
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     protected String getMetaModel(String name) {
@@ -456,7 +471,7 @@ public class AbstractGenerator {
                 .getJsonObject("properties");
 
         properties.getMap().forEach((key, o) -> {
-            String ref = ((Map)o).get("$ref").toString();
+            String ref = ((Map) o).get("$ref").toString();
             String className = classSimple(ref);
             result.put(className, key);
         });

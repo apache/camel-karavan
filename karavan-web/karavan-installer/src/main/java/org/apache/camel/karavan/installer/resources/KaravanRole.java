@@ -31,7 +31,7 @@ public class KaravanRole {
                 .withRules(
                         new PolicyRuleBuilder().withApiGroups("").withResources("secrets", "configmaps").withVerbs("*").build(),
                         new PolicyRuleBuilder().withApiGroups("").withResources("persistentvolumes", "persistentvolumeclaims").withVerbs("*").build(),
-                        new PolicyRuleBuilder().withApiGroups("").withResources("pods", "services", "replicationcontrollers").withVerbs("*").build(),
+                        new PolicyRuleBuilder().withApiGroups("").withResources("pods", "services", "replicationcontrollers", "pods/exec").withVerbs("*").build(),
                         new PolicyRuleBuilder().withApiGroups("").withResources("endpoints", "ingresses", "ingressclasses", "endpointslices").withVerbs("*").build(),
                         new PolicyRuleBuilder().withApiGroups("apps").withResources("deployments").withVerbs("*").build(),
                         new PolicyRuleBuilder().withApiGroups("route.openshift.io").withResources("routes").withVerbs("*").build(),

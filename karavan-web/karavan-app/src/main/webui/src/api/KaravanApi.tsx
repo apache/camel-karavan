@@ -273,6 +273,17 @@ export class KaravanApi {
         });
     }
 
+    static async updateBuildConfigMap(after: (res: AxiosResponse<any>) => void) {
+        instance.post('/api/build/update-config-map', "{}")
+            .then(res => {
+                if (res.status === 200) {
+                    after(res.data);
+                }
+            }).catch(err => {
+            console.log(err);
+        });
+    }
+
     static async getFiles(projectId: string, after: (files: ProjectFile[]) => void) {
         instance.get('/api/file/' + projectId)
             .then(res => {
