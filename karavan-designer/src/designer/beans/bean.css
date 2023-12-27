@@ -18,7 +18,7 @@
 .karavan .bean-card {
     /*max-width: 800px;*/
     border-style: dotted;
-    border-radius: 4px;
+    border-radius: 42px;
     border-width: 1px;
     padding: 16px 6px 16px 16px;
     margin-right: 80px;
@@ -50,9 +50,8 @@
 }
 
 .karavan .bean-card .delete-button {
-    position: absolute;
-    top: 3px;
-    right: 3px;
+    position: relative;
+    right: 6px;
     line-height: 1;
     border: 0;
     padding: 0;
