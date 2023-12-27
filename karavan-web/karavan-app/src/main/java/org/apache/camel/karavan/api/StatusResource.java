@@ -17,10 +17,7 @@
 package org.apache.camel.karavan.api;
 
 import jakarta.inject.Inject;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.PathParam;
-import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.apache.camel.karavan.infinispan.InfinispanService;
@@ -58,6 +55,54 @@ public class StatusResource {
             return infinispanService.getCamelStatusesByEnv(CamelStatusValue.Name.context);
         } else {
             return List.of();
+        }
+    }
+
+    @DELETE
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/deployment")
+    public Response deleteDeploymentStatuses() {
+        if (infinispanService.isReady()) {
+            infinispanService.deleteAllDeploymentsStatuses();
+            return Response.ok().build();
+        } else {
+            return Response.noContent().build();
+        }
+    }
+
+    @DELETE
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/container")
+    public Response deleteContainerStatuses() {
+        if (infinispanService.isReady()) {
+            infinispanService.deleteAllContainersStatuses();
+            return Response.ok().build();
+        } else {
+            return Response.noContent().build();
+        }
+    }
+
+    @DELETE
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/camel")
+    public Response deleteCamelStatuses() {
+        if (infinispanService.isReady()) {
+            infinispanService.deleteAllCamelStatuses();
+            return Response.ok().build();
+        } else {
+            return Response.noContent().build();
+        }
+    }
+
+    @DELETE
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/all")
+    public Response deleteAllStatuses() {
+        if (infinispanService.isReady()) {
+            infinispanService.clearAllStatuses();
+            return Response.ok().build();
+        } else {
+            return Response.noContent().build();
         }
     }
 }

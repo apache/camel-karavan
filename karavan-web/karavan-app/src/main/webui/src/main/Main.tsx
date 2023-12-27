@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 
-import {Navigate, Route, Routes} from 'react-router-dom';
 import React, {useEffect, useRef} from "react";
 import {KaravanApi} from "../api/KaravanApi";
 import {
@@ -23,17 +22,11 @@ import {
     FlexItem,
     Page,
 } from "@patternfly/react-core";
-import {ProjectsPage} from "../projects/ProjectsPage";
-import {ProjectPage} from "../project/ProjectPage";
-import {ServicesPage} from "../services/ServicesPage";
-import {ContainersPage} from "../containers/ContainersPage";
-import {KnowledgebasePage} from "../knowledgebase/KnowledgebasePage";
 import {SsoApi} from "../api/SsoApi";
 import {useAppConfigStore} from "../api/ProjectStore";
 import {shallow} from "zustand/shallow";
 import {PageNavigation} from "./PageNavigation";
 import {useMainHook} from "./useMainHook";
-import {TemplatesPage} from "../templates/TemplatesPage";
 import {Notification} from "../designer/utils/Notification";
 import {MainLoader} from "./MainLoader";
 import {MainRoutes} from "./MainRoutes";
