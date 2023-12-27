@@ -186,9 +186,9 @@ body, :root, #root, .karavan {
 .vscode-dark .karavan .step-element .add-button {
   color: var(--vscode-focusBorder); 
 }
-.vscode-dark .karavan .step-element .add-button-icon, 
-.vscode-dark .karavan .step-element .insert-button-icon, 
-.vscode-dark .karavan .step-element .delete-button-icon {
+.vscode-dark .karavan .add-button-icon, 
+.vscode-dark .karavan .insert-button-icon, 
+.vscode-dark .karavan .delete-button-icon {
   background:  var(--vscode-editor-background);
 }
 
