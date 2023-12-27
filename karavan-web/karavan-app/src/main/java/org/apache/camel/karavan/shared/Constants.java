@@ -38,6 +38,7 @@ public class Constants {
     public static final String PVC_MAVEN_SETTINGS = "maven-settings";
 
     public static final String BUILD_CONFIG_MAP = "build-config-map";
+    public static final String BUILD_DOCKER_CONFIG_SECRET = "dockerconfigjson";
     public static final String BUILD_SCRIPT_FILENAME_SUFFIX = "-build.sh";
 
     public enum CamelRuntime {

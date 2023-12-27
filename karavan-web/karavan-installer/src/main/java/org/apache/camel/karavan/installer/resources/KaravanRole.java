@@ -30,6 +30,7 @@ public class KaravanRole {
                 .endMetadata()
                 .withRules(
                         new PolicyRuleBuilder().withApiGroups("").withResources("secrets", "configmaps").withVerbs("*").build(),
+                        new PolicyRuleBuilder().withApiGroups("").withResources("serviceaccounts").withVerbs("*").build(),
                         new PolicyRuleBuilder().withApiGroups("").withResources("persistentvolumes", "persistentvolumeclaims").withVerbs("*").build(),
                         new PolicyRuleBuilder().withApiGroups("").withResources("pods", "services", "replicationcontrollers", "pods/exec").withVerbs("*").build(),
                         new PolicyRuleBuilder().withApiGroups("").withResources("endpoints", "ingresses", "ingressclasses", "endpointslices").withVerbs("*").build(),

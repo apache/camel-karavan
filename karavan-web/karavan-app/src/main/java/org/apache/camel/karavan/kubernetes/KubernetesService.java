@@ -174,7 +174,8 @@ public class KubernetesService implements HealthCheck {
             if (old != null) {
                 client.resource(old).delete();
             }
-            Pod pod = getBuilderPod(containerName, env, labels);
+            boolean hasDockerConfigSecret = hasDockerConfigSecret();
+            Pod pod = getBuilderPod(containerName, env, labels, hasDockerConfigSecret);
             Pod result = client.resource(pod).create();
 
             LOGGER.info("Created pod " + result.getMetadata().getName());
@@ -220,7 +221,7 @@ public class KubernetesService implements HealthCheck {
                 .build();
     }
 
-    private Pod getBuilderPod(String name, List<String> env, Map<String, String> labels) {
+    private Pod getBuilderPod(String name, List<String> env, Map<String, String> labels, boolean hasDockerConfigSecret) {
         List<EnvVar> envVars = new ArrayList<>();
         env.stream().map(s -> s.split("=")).filter(s -> s.length > 0).forEach(parts -> {
             String varName = parts[0];
@@ -265,6 +266,12 @@ public class KubernetesService implements HealthCheck {
                 .withProtocol("TCP")
                 .build();
 
+        List<VolumeMount> volumeMounts = new ArrayList<>();
+        volumeMounts.add(new VolumeMountBuilder().withName(BUILD_CONFIG_MAP).withMountPath("/karavan/builder").withReadOnly(true).build());
+        if (hasDockerConfigSecret) {
+            volumeMounts.add(new VolumeMountBuilder().withName(BUILD_DOCKER_CONFIG_SECRET).withMountPath("/karavan/.docker").withReadOnly(true).build());
+        }
+
         Container container = new ContainerBuilder()
                 .withName(name)
                 .withImage(devmodeImage)
@@ -272,31 +279,42 @@ public class KubernetesService implements HealthCheck {
                 .withImagePullPolicy("Always")
                 .withEnv(envVars)
                 .withCommand("/bin/sh", "-c", "/karavan/builder/build.sh")
-                .withVolumeMounts(
-                        new VolumeMountBuilder().withName(BUILD_CONFIG_MAP).withMountPath("/karavan/builder").withReadOnly(true).build()
-                )
+                .withVolumeMounts(volumeMounts)
                 .build();
+
+        List<Volume> volumes = new ArrayList<>();
+        volumes.add(new VolumeBuilder().withName(BUILD_CONFIG_MAP)
+                .withConfigMap(new ConfigMapVolumeSourceBuilder().withName(BUILD_CONFIG_MAP).withItems(
+                        new KeyToPathBuilder().withKey("build.sh").withPath("build.sh").build()
+                ).withDefaultMode(511).build()).build());
+        if (hasDockerConfigSecret) {
+            volumes.add(new VolumeBuilder().withName(BUILD_DOCKER_CONFIG_SECRET)
+                    .withSecret(new SecretVolumeSourceBuilder().withSecretName(BUILD_DOCKER_CONFIG_SECRET).withItems(
+                            new KeyToPathBuilder().withKey(".dockerconfigjson").withPath("config.json").build()
+                    ).withDefaultMode(511).build()).build());
+        }
 
         PodSpec spec = new PodSpecBuilder()
                 .withTerminationGracePeriodSeconds(0L)
                 .withContainers(container)
                 .withRestartPolicy("Never")
                 .withServiceAccount(builderServiceAccount)
-                .withVolumes(
-                        new VolumeBuilder().withName(BUILD_CONFIG_MAP)
-                                .withConfigMap(new ConfigMapVolumeSourceBuilder().withName(BUILD_CONFIG_MAP).withItems(
-                                        new KeyToPathBuilder().withKey("build.sh").withPath("build.sh").build()
-                                ).withDefaultMode(511).build()).build()
-//                        new VolumeBuilder().withName("maven-settings")
-//                                .withConfigMap(new ConfigMapVolumeSourceBuilder()
-//                                        .withName("karavan").build()).build()
-                )
+                .withVolumes(volumes)
                 .build();
 
         return new PodBuilder()
                 .withMetadata(meta)
                 .withSpec(spec)
                 .build();
+    }
+
+    public boolean hasDockerConfigSecret() {
+        try (KubernetesClient client = kubernetesClient()) {
+            return client.secrets().inNamespace(namespace).withName(BUILD_DOCKER_CONFIG_SECRET).get() != null;
+        } catch (Exception ex) {
+            LOGGER.error(ex.getMessage());
+            return false;
+        }
     }
 
     public Tuple2<LogWatch, KubernetesClient> getContainerLogWatch(String podName) {

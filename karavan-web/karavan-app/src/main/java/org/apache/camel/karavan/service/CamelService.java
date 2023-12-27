@@ -157,8 +157,7 @@ public class CamelService {
 
     public String getContainerAddressForStatus(ContainerStatus containerStatus) {
         if (ConfigService.inKubernetes()) {
-            String podIP = containerStatus.getPodIP().replace(".", "-");
-            return "http://" + podIP + "." + kubernetesService.getNamespace() + ".pod.cluster.local:8080";
+            return "http://" + containerStatus.getPodIP() + ":8080";
         } else if (ConfigService.inDocker()) {
             return "http://" + containerStatus.getContainerName() + ":8080";
         } else {
