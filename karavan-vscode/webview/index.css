@@ -38,7 +38,7 @@ body, :root, #root, .karavan {
 
   --pf-v5-global--Color--100: var(--vscode-foreground) !important;
 
-  --step-border-color: var(--pf-v5-global--active-color--200);
+  /* --step-border-color: var(--pf-v5-global--active-color--200); */
   --step-border-color-selected:var(--vscode-focusBorder);
 
   padding: 0;
