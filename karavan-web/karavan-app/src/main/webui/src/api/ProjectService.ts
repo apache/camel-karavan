@@ -225,8 +225,8 @@ export class ProjectService {
         });
     }
 
-    public static deleteProject(project: Project) {
-        KaravanApi.deleteProject(project, res => {
+    public static deleteProject(project: Project, deleteContainers?: boolean) {
+        KaravanApi.deleteProject(project, deleteContainers === true, res => {
             if (res.status === 204) {
                 EventBus.sendAlert( 'Success', 'Project deleted', 'success');
                 ProjectService.refreshProjects();

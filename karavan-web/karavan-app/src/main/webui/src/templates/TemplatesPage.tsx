@@ -45,17 +45,14 @@ import {
 } from '@patternfly/react-table/deprecated';
 import SearchIcon from '@patternfly/react-icons/dist/esm/icons/search-icon';
 import {TemplatesTableRow} from "./TemplatesTableRow";
-import {DeleteProjectModal} from "./DeleteProjectModal";
-import {CreateProjectModal} from "./CreateProjectModal";
-import {useProjectsStore, useProjectStore} from "../api/ProjectStore";
+import {useProjectsStore} from "../api/ProjectStore";
 import {MainToolbar} from "../designer/MainToolbar";
-import {Project, ProjectType} from "../api/ProjectModels";
+import {ProjectType} from "../api/ProjectModels";
 import {shallow} from "zustand/shallow";
 
 export function TemplatesPage () {
 
     const [projects] = useProjectsStore((state) => [state.projects], shallow)
-    const [operation] = useProjectStore((state) => [state.operation], shallow)
     const [filter, setFilter] = useState<string>('');
 
     function getTools() {
@@ -126,8 +123,6 @@ export function TemplatesPage () {
             <PageSection isFilled className="kamelets-page">
                 {getProjectsTable()}
             </PageSection>
-            {["create", "copy"].includes(operation) && <CreateProjectModal/>}
-            {["delete"].includes(operation) && <DeleteProjectModal/>}
         </PageSection>
 
     )
