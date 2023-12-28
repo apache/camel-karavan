@@ -25,6 +25,7 @@ import org.apache.camel.karavan.git.GitService;
 import org.apache.camel.karavan.infinispan.InfinispanService;
 import org.apache.camel.karavan.infinispan.model.CamelStatus;
 import org.apache.camel.karavan.infinispan.model.CamelStatusValue;
+import org.apache.camel.karavan.infinispan.model.ContainerStatus;
 import org.apache.camel.karavan.infinispan.model.Project;
 import org.apache.camel.karavan.kubernetes.KubernetesService;
 import org.apache.camel.karavan.service.ConfigService;
@@ -52,6 +53,15 @@ public class ProjectResource {
 
     @Inject
     GitService gitService;
+
+    @Inject
+    DevModeResource devModeResource;
+
+    @Inject
+    ContainerResource containerResource;
+
+    @Inject
+    InfrastructureResource infrastructureResource;
 
     @Inject
     ProjectService projectService;
@@ -88,12 +98,20 @@ public class ProjectResource {
     @DELETE
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/{project}")
-    public void delete(@HeaderParam("username") String username,
-                          @PathParam("project") String project) throws Exception {
+    public void delete(@PathParam("project") String project, @QueryParam("deleteContainers") boolean deleteContainers) throws Exception {
         String projectId = URLDecoder.decode(project, StandardCharsets.UTF_8);
+        if (deleteContainers) {
+            LOGGER.info("Deleting containers");
+            Response res1 = devModeResource.deleteDevMode(projectId, true);
+            Response res2 = containerResource.deleteContainer(projectId, ContainerStatus.ContainerType.devmode.name(), projectId);
+            Response res3 = containerResource.deleteContainer(projectId, ContainerStatus.ContainerType.project.name(), projectId);
+            LOGGER.info("Deleting deployments");
+            Response res4 = infrastructureResource.deleteDeployment(null, projectId);
+        }
         gitService.deleteProject(projectId, infinispanService.getProjectFiles(projectId));
         infinispanService.getProjectFiles(projectId).forEach(file -> infinispanService.deleteProjectFile(projectId, file.getName()));
         infinispanService.deleteProject(projectId);
+        LOGGER.info("Project deleted");
     }
 
     @POST
@@ -113,8 +131,7 @@ public class ProjectResource {
     @DELETE
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/build/{env}/{buildName}")
-    public Response deleteBuild(@HeaderParam("username") String username,
-                       @PathParam("env") String env, @PathParam("buildName") String buildName) {
+    public Response deleteBuild(@PathParam("env") String env, @PathParam("buildName") String buildName) {
         buildName = URLDecoder.decode(buildName, StandardCharsets.UTF_8);
         if (ConfigService.inKubernetes()) {
             kubernetesService.deletePod(buildName);

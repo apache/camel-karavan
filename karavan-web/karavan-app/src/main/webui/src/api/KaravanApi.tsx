@@ -254,9 +254,8 @@ export class KaravanApi {
             });
     }
 
-    static async deleteProject(project: Project, after: (res: AxiosResponse<any>) => void) {
-        instance.delete('/api/project/' + encodeURI(project.projectId),
-            {headers: {'username': 'cameleer'}})
+    static async deleteProject(project: Project, deleteContainers: boolean, after: (res: AxiosResponse<any>) => void) {
+        instance.delete('/api/project/' + encodeURI(project.projectId) + (deleteContainers ? '?deleteContainers=true' : ''))
             .then(res => {
                 after(res);
             }).catch(err => {
@@ -567,6 +566,23 @@ export class KaravanApi {
         });
     }
 
+    static async deleteAllStatuses(after: (res: AxiosResponse<any>) => void) {
+        instance.delete('/api/status/all/')
+            .then(res => {
+                after(res);
+            }).catch(err => {
+            after(err);
+        });
+    }
+
+    static async restartInformers(after: (res: AxiosResponse<any>) => void) {
+        instance.put('/api/infrastructure/informers/')
+            .then(res => {
+                after(res);
+            }).catch(err => {
+            after(err);
+        });
+    }
 
     static async getKamelets(after: (yaml: string) => void) {
         instance.get('/api/kamelet', {headers: {'Accept': 'text/plain'}})

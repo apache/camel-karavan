@@ -31,7 +31,7 @@ import ProjectsIcon from "@patternfly/react-icons/dist/js/icons/repository-icon"
 import TemplatesIcon from "@patternfly/react-icons/dist/js/icons/blueprint-icon";
 import KnowledgebaseIcon from "@patternfly/react-icons/dist/js/icons/book-open-icon";
 import ContainersIcon from "@patternfly/react-icons/dist/js/icons/cubes-icon";
-import DashboardIcon from "@patternfly/react-icons/dist/js/icons/tachometer-alt-icon";
+import ConfigIcon from "@patternfly/react-icons/dist/js/icons/cogs-icon";
 import ServicesIcon from "@patternfly/react-icons/dist/js/icons/services-icon";
 import {useAppConfigStore, useDevModeStore, useFileStore} from "../api/ProjectStore";
 import {shallow} from "zustand/shallow";
@@ -71,6 +71,7 @@ export function PageNavigation () {
             )
         }
         pages.push(new MenuItem("knowledgebase", "Knowledgebase", <KnowledgebaseIcon/>));
+        pages.push(new MenuItem("configuration", "Configuration", <ConfigIcon/>));
         return pages;
     }
 

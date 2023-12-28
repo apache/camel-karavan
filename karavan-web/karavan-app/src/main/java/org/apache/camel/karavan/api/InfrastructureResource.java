@@ -149,4 +149,16 @@ public class InfrastructureResource {
             return Response.ok(List.of()).build();
         }
     }
+
+    @PUT
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/informers")
+    public Response restartInformers() {
+        if (ConfigService.inKubernetes()) {
+            kubernetesService.startInformers(null);
+            return Response.ok().build();
+        } else {
+            return Response.noContent().build();
+        }
+    }
 }

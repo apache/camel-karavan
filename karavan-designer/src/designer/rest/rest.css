@@ -18,8 +18,8 @@
 .karavan .rest-designer .rest-card,
 .karavan .rest-designer .rest-config-card,
 .karavan .rest-designer .method-card {
-    border-style: dotted;
-    border-radius: 4px;
+    border-style: dashed;
+    border-radius: 42px;
     border-width: 1px;
 }
 
@@ -36,9 +36,16 @@
 }
 
 .karavan .rest-designer .method-card {
-    padding: 0 0 0 6px;
+    padding: 0 0 0 16px;
     margin-bottom: 6px;
     position: relative;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    height: 44px;
+    cursor: pointer;
 }
 
 .karavan .rest-card-unselected {
@@ -152,6 +159,7 @@
 .karavan .rest-designer .method-card .rest-method-desc {
     display: flex;
     flex-direction: column;
+    flex: auto;
 }
 
 .karavan .rest-designer .rest-card-unselected,
@@ -188,8 +196,7 @@
     position: relative;
 }
 
-.karavan .rest-designer .rest-config-card,
-.karavan .rest-designer .method-card {
+.karavan .rest-designer .rest-config-card {
     position: relative;
     display: flex;
     flex-direction: row;
@@ -236,12 +243,25 @@
     text-overflow: ellipsis;
 }
 
-.karavan .rest-designer .rest-config-card .delete-button,
-.karavan .rest-designer .method-card .delete-button {
+.karavan .rest-designer .rest-config-card .delete-button {
     position: absolute;
     top: 1px;
     right: 1px;
     line-height: 1;
+    border: 0;
+    padding: 0;
+    margin: 0;
+    background: transparent;
+    color: #909090;
+    visibility: hidden;
+    z-index: 100;
+}
+
+.karavan .rest-designer .method-card .delete-button {
+    position: relative;
+    top: unset;
+    right: 6px;
+    line-height: unset;
     border: 0;
     padding: 0;
     margin: 0;

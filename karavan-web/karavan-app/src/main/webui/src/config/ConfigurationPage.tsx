@@ -15,71 +15,82 @@
  * limitations under the License.
  */
 
-import React from 'react';
-import {Button, PageSection, Tab, Tabs, TabTitleText, Text, TextContent, Toolbar, ToolbarContent, ToolbarItem
+import React, {useState} from 'react';
+import {
+    Button, Flex, FlexItem,
+    PageSection, Switch, Tab, Tabs, Text,
+    TextContent,
+    Toolbar,
+    ToolbarContent,
+    ToolbarItem
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
 import {MainToolbar} from "../designer/MainToolbar";
-import RefreshIcon from "@patternfly/react-icons/dist/esm/icons/sync-alt-icon";
+import {KaravanApi} from "../api/KaravanApi";
+import {EventBus} from "../designer/utils/EventBus";
 
 interface Props {
+    dark: boolean,
 }
 
-interface State {
-    templates: [],
-}
+export const ConfigurationPage = (props: Props) => {
 
-export class ConfigurationPage extends React.Component<Props, State> {
+    const [tab, setTab] = useState<string | number>("statuses");
 
-    public state: State = {
-        templates: []
-    };
-
-    componentDidMount() {
-        this.onGetTemplates();
+    function tools() {
+        return (<Toolbar id="toolbar-group-types">
+            <ToolbarContent>
+                {tab === 'statuses' && <ToolbarItem>
+                    <Button onClick={event => {
+                        KaravanApi.deleteAllStatuses(res => {
+                            if (res.status === 200) {
+                                EventBus.sendAlert('Success', 'Statuses deleted', "info");
+                                KaravanApi.restartInformers(res1 => {
+                                    if (res1.status === 200) {
+                                        EventBus.sendAlert('Success', 'Informers restarted', "info");
+                                    }
+                                })
+                            }
+                        })
+                    }}>
+                        Cleanup statuses
+                    </Button>
+                </ToolbarItem>}
+                {tab === 'secrets' && <ToolbarItem>
+                    <Button>Add Secret</Button>
+                </ToolbarItem>}
+                {tab === 'configMaps' && <ToolbarItem>
+                    <Button>Add ConfigMap</Button>
+                </ToolbarItem>}
+            </ToolbarContent>
+        </Toolbar>);
     }
 
-    onGetTemplates () {
-        // KaravanApi.getTemplates((templates: []) => {
-        //     console.log(templates)
-        //     this.setState({templates: templates})
-        // });
+    function title() {
+        return (<TextContent>
+            <Text component="h2">Configuration</Text>
+        </TextContent>);
     }
 
-    tools = () => (<Toolbar id="toolbar-group-types">
-        <ToolbarContent>
-            <ToolbarItem>
-                <Button variant="link" icon={<RefreshIcon/>} onClick={e => this.onGetTemplates()}/>
-            </ToolbarItem>
-        </ToolbarContent>
-    </Toolbar>);
-
-    title = () => (<TextContent>
-        <Text component="h2">Configuration</Text>
-    </TextContent>);
-
-    render() {
-        return (
-            <PageSection className="kamelet-section projects-page" padding={{default: 'noPadding'}}>
-                <PageSection className="tools-section" padding={{default: 'noPadding'}}>
-                    <MainToolbar title={this.title()} tools={this.tools()}/>
-                </PageSection>
-                <PageSection isFilled className="kamelets-page">
-                    <Tabs
-                        // activeKey={activeTabKey}
-                        // onSelect={handleTabClick}
-                        aria-label="Configurations"
-                        role="tabs"
-                    >
-                        <Tab eventKey={0} title={<TabTitleText>Templates</TabTitleText>} aria-label="Templates">
-                            Templates
-                        </Tab>
-                        <Tab eventKey={11} title={<TabTitleText>Environments</TabTitleText>}>
-                            Environments
-                        </Tab>
-                    </Tabs>
-                </PageSection>
+    return (
+        <PageSection className="container-page" padding={{default: 'noPadding'}}>
+            <PageSection className="tools-section" padding={{default: 'noPadding'}}>
+                <MainToolbar title={title()} tools={tools()}/>
             </PageSection>
-        );
-    }
-};
+            <PageSection className="tools-section" padding={{default: 'noPadding'}}>
+                <Flex direction={{default: "column"}} spaceItems={{default: "spaceItemsNone"}}>
+                    <FlexItem className="knowledge-tabs">
+                        <Tabs activeKey={tab} onSelect={(event, tabIndex) => setTab(tabIndex)}>
+                            <Tab eventKey="statuses" title="Statuses"/>
+                            <Tab eventKey="secrets" title="Secrets" isDisabled/>
+                            <Tab eventKey="configMaps" title="ConfigMaps" isDisabled/>
+                        </Tabs>
+                    </FlexItem>
+                </Flex>
+            </PageSection>
+            <PageSection isFilled className="container-page-section">
+
+            </PageSection>
+        </PageSection>
+    )
+}

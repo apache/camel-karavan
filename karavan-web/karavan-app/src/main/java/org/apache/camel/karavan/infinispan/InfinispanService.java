@@ -218,6 +218,10 @@ public class InfinispanService implements HealthCheck {
                 .execute().list();
     }
 
+    public void deleteAllDeploymentsStatuses() {
+        deploymentStatuses.clearAsync();
+    }
+
     public void saveServiceStatus(ServiceStatus status) {
         serviceStatuses.put(GroupedKey.create(status.getProjectId(), status.getEnv(), status.getProjectId()), status);
     }
@@ -285,6 +289,10 @@ public class InfinispanService implements HealthCheck {
         containerStatuses.remove(GroupedKey.create(status.getProjectId(), status.getEnv(), status.getContainerName()));
     }
 
+    public void deleteAllContainersStatuses() {
+        containerStatuses.clearAsync();
+    }
+
     public void deleteContainerStatus(String projectId, String env, String containerName) {
         containerStatuses.remove(GroupedKey.create(projectId, env, containerName));
     }
@@ -337,6 +345,10 @@ public class InfinispanService implements HealthCheck {
             GroupedKey key = GroupedKey.create(projectId, env, s.getContainerName());
             camelStatuses.remove(key);
         });
+    }
+
+    public void deleteAllCamelStatuses() {
+        camelStatuses.clearAsync();
     }
 
     public List<ContainerStatus> getLoadedDevModeStatuses() {

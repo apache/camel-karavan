@@ -15,11 +15,11 @@
  * limitations under the License.
  */
 
-import React from 'react';
+import React, {useState} from 'react';
 import {
     Button,
     Modal,
-    ModalVariant,
+    ModalVariant, Switch,
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
 import {useProjectStore} from "../api/ProjectStore";
@@ -28,20 +28,21 @@ import {ProjectService} from "../api/ProjectService";
 export function DeleteProjectModal () {
 
     const {project, operation} = useProjectStore();
+    const [deleteContainers, setDeleteContainers] = useState(false);
 
     function closeModal () {
         useProjectStore.setState({operation: "none"})
     }
 
     function confirmAndCloseModal () {
-        ProjectService.deleteProject(project);
+        ProjectService.deleteProject(project, deleteContainers);
         useProjectStore.setState({operation: "none"});
     }
 
     const isOpen= operation === "delete";
     return (
             <Modal
-                title="Confirmation"
+                title="Project delete confirmation"
                 variant={ModalVariant.small}
                 isOpen={isOpen}
                 onClose={() => closeModal()}
@@ -51,20 +52,13 @@ export function DeleteProjectModal () {
                             onClick={e => closeModal()}>Cancel</Button>
                 ]}
                 onEscapePress={e => closeModal()}>
-                <div>{"Are you sure you want to delete the project " + project?.projectId + "?"}</div>
+                {/*<div>{"Are you sure you want to delete the project " + project?.projectId + "?"}</div>*/}
+                <Switch
+                    label={"Delete container and/or deployments?"}
+                    isChecked={deleteContainers}
+                    onChange={(_, checked) => setDeleteContainers(checked)}
+                    isReversed
+                />
             </Modal>
-            // }
-            // {(this.state.isProjectDeploymentModalOpen === true) && <Modal
-            //     variant={ModalVariant.small}
-            //     isOpen={this.state.isProjectDeploymentModalOpen}
-            //     onClose={() => this.setState({ isProjectDeploymentModalOpen: false })}
-            //     onEscapePress={e => this.setState({ isProjectDeploymentModalOpen: false })}>
-            //     <div>
-            //         <Alert key={this.state.projectToDelete?.projectId} className="main-alert" variant="warning"
-            //                title={"Deployment is Running!!"} isInline={true} isPlain={true}>
-            //             {"Delete the deployment (" + this.state.projectToDelete?.projectId + ")" + " first."}
-            //         </Alert>
-            //     </div>
-            // </Modal>
     )
 }
