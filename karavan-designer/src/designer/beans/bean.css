@@ -17,7 +17,7 @@
 
 .karavan .bean-card {
     /*max-width: 800px;*/
-    border-style: dotted;
+    border-style: dashed;
     border-radius: 42px;
     border-width: 1px;
     padding: 16px 6px 16px 16px;

@@ -143,11 +143,8 @@ body, :root, #root, .karavan {
 
 /* Designer */
 .vscode-dark .karavan .dsl-page .dsl-page-columns,
-.vscode-dark .karavan .rest-page .rest-page-columns,
-.vscode-dark .karavan .beans-page .beans-page-columns,
-.vscode-dark .karavan .error-page .error-page-columns,
-.vscode-dark .karavan .exception-page .exception-page-columns,
-.vscode-dark .karavan .templates-page .templates-page-columns {  
+.vscode-dark .karavan .rest-designer,
+.vscode-dark .karavan .bean-designer {  
   background-color: var(--vscode-editor-background);
 }
 
