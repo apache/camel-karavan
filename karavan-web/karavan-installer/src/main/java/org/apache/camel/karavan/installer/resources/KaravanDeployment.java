@@ -38,6 +38,10 @@ public class KaravanDeployment {
         String image = baseImage + ":" + config.getVersion();
         List<EnvVar> envVarList = new ArrayList<>();
 
+        String devModeImage = config.getDevmodeImage().contains(":")
+                ? config.getDevmodeImage()
+                : config.getDevmodeImage() + ":" + config.getVersion();
+
         envVarList.add(
                 new EnvVar("KARAVAN_ENVIRONMENT", config.getEnvironment(), null)
         );
@@ -51,7 +55,7 @@ public class KaravanDeployment {
                 new EnvVar("KARAVAN_CAMEL_STATUS_INTERVAL", "3s", null)
         );
         envVarList.add(
-                new EnvVar("KARAVAN_DEVMODE_IMAGE", config.getDevmodeImage(), null)
+                new EnvVar("KARAVAN_DEVMODE_IMAGE", devModeImage, null)
         );
         envVarList.add(
                 new EnvVar("INFINISPAN_HOSTS", "infinispan." + config.getNamespace() + ":11222", null)
