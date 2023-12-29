@@ -28,7 +28,6 @@ import {Buffer} from 'buffer';
 import {SsoApi} from "./SsoApi";
 import {EventStreamContentType, fetchEventSource} from "@microsoft/fetch-event-source";
 import {ProjectEventBus} from "./ProjectEventBus";
-import {ProjectExistsError} from "../shared/error/ProjectExistsError";
 
 axios.defaults.headers.common['Accept'] = 'application/json';
 axios.defaults.headers.common['Content-Type'] = 'application/json';
@@ -220,38 +219,12 @@ export class KaravanApi {
         });
     }
 
-    static async postProject(project: Project): Promise<[Error | null, Project | null]> {
-        return instance.post('/api/project', project)
-            .then(res => {
-                if(res.status === 200 || res.status === 201) {
-                    return [null, res.data as Project] as [null, Project]
-                } else {
-                    return [Error("Error while creating project"), null] as [Error, null]
-                }
-            }).catch(err => {
-                if(err.response?.status === 409) {
-                    return [new ProjectExistsError("Project with id " + project.projectId + " already exists."), null] as [Error, null]
-                } else {
-                    return [err as Error, null] as [Error, null];
-                }
-            });
+    static async postProject(project: Project) {
+        return instance.post('/api/project', project);
     }
 
-    static async copyProject(sourceProject: string, project: Project): Promise<[Error | null, Project | null]> {
-        return instance.post('/api/project/copy/' + sourceProject, project)
-            .then(res => {
-                if(res.status === 200 || res.status === 201) {
-                    return [null, res.data as Project] as [null, Project]
-                } else {
-                    return [Error("Error while copying project"), null] as [Error, null]
-                }
-            }).catch(err => {
-                if(err.response?.status === 409) {
-                    return [new ProjectExistsError("Project with id " + project.projectId + " already exists."), null] as [Error, null]
-                } else {
-                    return [err as Error, null] as [Error, null];
-                }
-            });
+    static async copyProject(sourceProject: string, project: Project) {
+        return instance.post('/api/project/copy/' + sourceProject, project);
     }
 
     static async deleteProject(project: Project, deleteContainers: boolean, after: (res: AxiosResponse<any>) => void) {
