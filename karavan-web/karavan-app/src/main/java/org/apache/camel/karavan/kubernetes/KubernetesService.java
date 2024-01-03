@@ -93,8 +93,8 @@ public class KubernetesService implements HealthCheck {
     @ConfigProperty(name = "karavan.builder.service.account")
     public String builderServiceAccount;
 
-    @ConfigProperty(name = "karavan.version")
-    String version;
+    @ConfigProperty(name = "karavan.secret.name", defaultValue = "karavan")
+    String secretName;
 
     List<SharedIndexInformer> informers = new ArrayList<>(INFORMERS);
 
@@ -230,28 +230,28 @@ public class KubernetesService implements HealthCheck {
         });
 
         envVars.add(
-                new EnvVar("IMAGE_REGISTRY", null, new EnvVarSourceBuilder().withSecretKeyRef(new SecretKeySelector("image-registry", SECRET_NAME, false)).build())
+                new EnvVar("IMAGE_REGISTRY", null, new EnvVarSourceBuilder().withSecretKeyRef(new SecretKeySelector("image-registry", secretName, false)).build())
         );
         envVars.add(
-                new EnvVar("IMAGE_REGISTRY_USERNAME", null, new EnvVarSourceBuilder().withSecretKeyRef(new SecretKeySelector("image-registry-username", SECRET_NAME, false)).build())
+                new EnvVar("IMAGE_REGISTRY_USERNAME", null, new EnvVarSourceBuilder().withSecretKeyRef(new SecretKeySelector("image-registry-username", secretName, false)).build())
         );
         envVars.add(
-                new EnvVar("IMAGE_REGISTRY_PASSWORD", null, new EnvVarSourceBuilder().withSecretKeyRef(new SecretKeySelector("image-registry-password", SECRET_NAME, false)).build())
+                new EnvVar("IMAGE_REGISTRY_PASSWORD", null, new EnvVarSourceBuilder().withSecretKeyRef(new SecretKeySelector("image-registry-password", secretName, false)).build())
         );
         envVars.add(
-                new EnvVar("IMAGE_GROUP", null, new EnvVarSourceBuilder().withSecretKeyRef(new SecretKeySelector("image-group", SECRET_NAME, false)).build())
+                new EnvVar("IMAGE_GROUP", null, new EnvVarSourceBuilder().withSecretKeyRef(new SecretKeySelector("image-group", secretName, false)).build())
         );
         envVars.add(
-                new EnvVar("GIT_REPOSITORY", null, new EnvVarSourceBuilder().withSecretKeyRef(new SecretKeySelector("git-repository", SECRET_NAME, false)).build())
+                new EnvVar("GIT_REPOSITORY", null, new EnvVarSourceBuilder().withSecretKeyRef(new SecretKeySelector("git-repository", secretName, false)).build())
         );
         envVars.add(
-                new EnvVar("GIT_USERNAME", null, new EnvVarSourceBuilder().withSecretKeyRef(new SecretKeySelector("git-username", SECRET_NAME, false)).build())
+                new EnvVar("GIT_USERNAME", null, new EnvVarSourceBuilder().withSecretKeyRef(new SecretKeySelector("git-username", secretName, false)).build())
         );
         envVars.add(
-                new EnvVar("GIT_PASSWORD", null, new EnvVarSourceBuilder().withSecretKeyRef(new SecretKeySelector("git-password", SECRET_NAME, false)).build())
+                new EnvVar("GIT_PASSWORD", null, new EnvVarSourceBuilder().withSecretKeyRef(new SecretKeySelector("git-password", secretName, false)).build())
         );
         envVars.add(
-                new EnvVar("GIT_BRANCH", null, new EnvVarSourceBuilder().withSecretKeyRef(new SecretKeySelector("git-branch", SECRET_NAME, false)).build())
+                new EnvVar("GIT_BRANCH", null, new EnvVarSourceBuilder().withSecretKeyRef(new SecretKeySelector("git-branch", secretName, false)).build())
         );
 
         ObjectMeta meta = new ObjectMetaBuilder()
@@ -558,13 +558,13 @@ public class KubernetesService implements HealthCheck {
 
     public Secret getKaravanSecret() {
         try (KubernetesClient client = kubernetesClient()) {
-            return client.secrets().inNamespace(getNamespace()).withName("karavan").get();
+            return client.secrets().inNamespace(getNamespace()).withName(secretName).get();
         }
     }
 
     public String getKaravanSecret(String key) {
         try (KubernetesClient client = kubernetesClient()) {
-            Secret secret = client.secrets().inNamespace(getNamespace()).withName("karavan").get();
+            Secret secret = client.secrets().inNamespace(getNamespace()).withName(secretName).get();
             Map<String, String> data = secret.getData();
             return decodeSecret(data.get(key));
         }

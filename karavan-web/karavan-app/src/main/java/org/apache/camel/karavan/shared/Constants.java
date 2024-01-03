@@ -31,7 +31,6 @@ public class Constants {
     public static final String BUILDER_SUFFIX = "-builder";
 
     public static final String CAMEL_PREFIX = "camel";
-    public static final String SECRET_NAME = "karavan";
     public static final String KARAVAN_PREFIX = "karavan";
     public static final String JBANG_CACHE_SUFFIX = "jbang-cache";
     public static final String M2_CACHE_SUFFIX = "m2-cache";
