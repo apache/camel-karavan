@@ -17,6 +17,7 @@
 
 package org.apache.camel.karavan.api;
 
+import io.quarkus.oidc.UserInfo;
 import io.quarkus.security.identity.SecurityIdentity;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
@@ -34,21 +35,29 @@ public class UsersResource {
     @Inject
     SecurityIdentity securityIdentity;
 
+
     @GET
     @Path("/me")
     @NoCache
-    public User me() {
-        return new User(securityIdentity);
+    public ProfileInfo me() {
+        return new ProfileInfo(securityIdentity);
     }
 
-    public static class User {
+    public static class ProfileInfo {
 
         private final String userName;
+        private final String displayName;
         private final Set<String> roles;
 
-        User(SecurityIdentity securityIdentity) {
+        ProfileInfo(SecurityIdentity securityIdentity) {
+            UserInfo userInfo = (UserInfo) securityIdentity.getAttributes().get("userinfo");
             this.userName = securityIdentity.getPrincipal().getName();
             this.roles = securityIdentity.getRoles();
+            this.displayName = userInfo.getName();
+        }
+
+        public String getDisplayName() {
+            return displayName;
         }
 
         public String getUserName() {

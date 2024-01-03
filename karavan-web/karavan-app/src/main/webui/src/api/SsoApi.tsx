@@ -35,4 +35,17 @@ export class SsoApi {
             });
         });
     }
+
+    static logout(after: () => void) {
+        if (SsoApi.keycloak) {
+            SsoApi.keycloak.logout().then(value => {
+                console.log('SsoApi', 'User is now logout.');
+                KaravanApi.isAuthorized = false;
+                window.location.reload();
+            }).catch(reason => {
+                console.log('SsoApi', 'Error:', reason);
+                window.location.reload();
+            });
+        }
+    }
 }

@@ -20,7 +20,6 @@ import jakarta.enterprise.context.ApplicationScoped;
 import org.eclipse.microprofile.config.ConfigProvider;
 import org.jboss.logging.Logger;
 
-import java.net.MalformedURLException;
 import java.util.Map;
 
 @ApplicationScoped
@@ -32,7 +31,7 @@ public class AuthService {
         return ConfigProvider.getConfig().getValue("karavan.auth", String.class);
     }
 
-    public Map<String, String> getSsoConfig() throws MalformedURLException {
+    public Map<String, String> getSsoConfig() {
         return Map.of(
                 "url", ConfigProvider.getConfig().getValue("karavan.keycloak.url", String.class),
                 "realm", ConfigProvider.getConfig().getValue("karavan.keycloak.realm", String.class),

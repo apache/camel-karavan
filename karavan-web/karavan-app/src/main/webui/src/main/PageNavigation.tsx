@@ -15,13 +15,21 @@
  * limitations under the License.
  */
 
-import React, { useState} from 'react';
+import React, {useState} from 'react';
 import {
     Button,
     Flex,
     FlexItem,
     Tooltip,
-    Divider, Popover, Badge, Spinner, Bullseye
+    Divider,
+    Popover,
+    Badge,
+    Spinner,
+    Bullseye,
+    DescriptionListDescription,
+    DescriptionListTerm,
+    DescriptionListGroup,
+    DescriptionList, Text, TextVariants, TextContent
 } from '@patternfly/react-core';
 import {KaravanApi} from "../api/KaravanApi";
 import '../designer/karavan.css';
@@ -36,6 +44,8 @@ import ServicesIcon from "@patternfly/react-icons/dist/js/icons/services-icon";
 import {useAppConfigStore, useDevModeStore, useFileStore} from "../api/ProjectStore";
 import {shallow} from "zustand/shallow";
 import {useNavigate} from "react-router-dom";
+import LogoutIcon from "@patternfly/react-icons/dist/js/icons/door-open-icon";
+import {SsoApi} from "../api/SsoApi";
 
 class MenuItem {
     pageId: string = '';
@@ -93,7 +103,7 @@ export function PageNavigation () {
                     <Button id={page.pageId} icon={page.icon} variant={"plain"}
                             className={pageId === page.pageId ? "nav-button-selected" : ""}
                             onClick={event => {
-                                setFile('none',undefined);
+                                setFile('none', undefined);
                                 setPodName(undefined);
                                 setStatus("none");
                                 setPageId(page.pageId);
@@ -109,19 +119,56 @@ export function PageNavigation () {
         {KaravanApi.authType !== 'public' &&
             <FlexItem alignSelf={{default: "alignSelfCenter"}}>
                 <Popover
+                    hasAutoWidth
                     aria-label="Current user"
                     position={"right-end"}
                     hideOnOutsideClick={false}
                     isVisible={showUser}
                     shouldClose={(_event, tip) => setShowUser(false)}
                     shouldOpen={(_event, tip) => setShowUser(true)}
-                    headerContent={<div>{KaravanApi.me?.userName}</div>}
+                    headerContent={
+                        <TextContent>
+                            <Text component={TextVariants.h3}>Profile</Text>
+                        </TextContent>
+                    }
                     bodyContent={
-                        <Flex direction={{default: "row"}}>
-                            {KaravanApi.me?.roles && Array.isArray(KaravanApi.me?.roles)
-                                && KaravanApi.me?.roles
-                                    .filter((r: string) => ['administrator', 'developer', 'viewer'].includes(r))
-                                    .map((role: string) => <Badge id={role} isRead>{role}</Badge>)}
+                        <DescriptionList isHorizontal>
+                            <DescriptionListGroup>
+                                <DescriptionListTerm>UserName</DescriptionListTerm>
+                                <DescriptionListDescription>{KaravanApi.me?.userName}</DescriptionListDescription>
+                            </DescriptionListGroup>
+                            <DescriptionListGroup>
+                                <DescriptionListTerm>Display Name</DescriptionListTerm>
+                                <DescriptionListDescription>{KaravanApi.me?.displayName}</DescriptionListDescription>
+                            </DescriptionListGroup>
+                            <DescriptionListGroup>
+                                <DescriptionListTerm>Roles</DescriptionListTerm>
+                                <DescriptionListDescription>
+                                    <Flex direction={{default: "row"}} gap={{default: "gapXs"}}>
+                                        {KaravanApi.me?.roles && Array.isArray(KaravanApi.me?.roles)
+                                            && KaravanApi.me?.roles
+                                                .filter((r: string) => ['administrator', 'developer', 'viewer'].includes(r))
+                                                .map((role: string) => <Badge key={role} id={role}
+                                                                              isRead>{role}</Badge>)}
+                                    </Flex>
+                                </DescriptionListDescription>
+                            </DescriptionListGroup>
+                        </DescriptionList>
+                    }
+                    footerContent={
+                        <Flex justifyContent={{default: "justifyContentFlexEnd"}}>
+                            <Button size="sm"
+                                    variant={"primary"}
+                                    icon={<LogoutIcon/>}
+                                // component={'a'}
+                                // href={KaravanApi.me.logoutUrl}
+                                    onClick={e => {
+                                        setShowUser(false);
+                                        SsoApi.logout(() => {});
+                                    }}
+                            >
+                                Logout
+                            </Button>
                         </Flex>
                     }
                 >
