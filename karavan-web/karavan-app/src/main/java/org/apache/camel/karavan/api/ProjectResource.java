@@ -30,7 +30,6 @@ import org.apache.camel.karavan.infinispan.model.Project;
 import org.apache.camel.karavan.kubernetes.KubernetesService;
 import org.apache.camel.karavan.service.ConfigService;
 import org.apache.camel.karavan.service.ProjectService;
-import org.apache.camel.karavan.shared.exception.ProjectExistsException;
 import org.jboss.logging.Logger;
 
 import java.net.URLDecoder;
@@ -82,17 +81,8 @@ public class ProjectResource {
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response save(Project project) throws Exception {
-        try {
-            Project createdProject = projectService.save(project);
-            return Response.ok().entity(createdProject).build();
-        } catch (ProjectExistsException exception) {
-            LOGGER.error(exception.getMessage());
-            return Response.status(Response.Status.CONFLICT).entity(exception.getMessage()).build();
-        } catch (Exception exception) {
-            LOGGER.error(exception.getMessage());
-            return Response.serverError().entity(exception.getMessage()).build();
-        }
+    public Project save(Project project) {
+        return projectService.save(project);
     }
 
     @DELETE
@@ -180,16 +170,7 @@ public class ProjectResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/copy/{sourceProject}")
-    public Response copy(@PathParam("sourceProject") String sourceProject, Project project) throws Exception {
-        try {
-            Project copiedProject = projectService.copy(sourceProject, project);
-            return Response.ok().entity(copiedProject).build();
-        } catch (ProjectExistsException exception) {
-            LOGGER.error(exception.getMessage());
-            return Response.status(Response.Status.CONFLICT).entity(exception.getMessage()).build();
-        } catch (Exception exception) {
-            LOGGER.error(exception.getMessage());
-            return Response.serverError().entity(exception.getMessage()).build();
-        }
+    public Project copy(@PathParam("sourceProject") String sourceProject, Project project) {
+        return projectService.copy(sourceProject, project);
     }
 }

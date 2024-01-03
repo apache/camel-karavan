@@ -237,11 +237,13 @@ export class ProjectService {
     }
 
     public static async createProject(project: Project) {
-        return KaravanApi.postProject(project);
+        const result = await KaravanApi.postProject(project);
+        return result.data;
     }
 
     public static async copyProject(sourceProject: string, project: Project) {
-        return KaravanApi.copyProject(sourceProject, project);
+        const result = await KaravanApi.copyProject(sourceProject, project);
+        return result.data;
     }
 
     public static createFile(file: ProjectFile) {

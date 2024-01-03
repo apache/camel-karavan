@@ -36,7 +36,7 @@ import org.apache.camel.karavan.kubernetes.KubernetesService;
 import org.apache.camel.karavan.registry.RegistryService;
 import org.apache.camel.karavan.shared.Constants;
 import org.apache.camel.karavan.shared.Property;
-import org.apache.camel.karavan.shared.exception.ProjectExistsException;
+import org.apache.camel.karavan.validation.project.ProjectModifyValidator;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -61,6 +61,10 @@ public class ProjectService implements HealthCheck {
 
     @ConfigProperty(name = "karavan.environment")
     String environment;
+
+
+    @Inject
+    ProjectModifyValidator projectModifyValidator;
 
     @Inject
     InfinispanService infinispanService;
@@ -167,11 +171,8 @@ public class ProjectService implements HealthCheck {
         }
     }
 
-    public Project save(Project project) throws Exception {
-        boolean projectExists = infinispanService.getProject(project.getProjectId()) != null;
-        if(projectExists) {
-            throw new ProjectExistsException("Project with project id [" + project.getProjectId() + "] already exists");
-        }
+    public Project save(Project project) {
+        projectModifyValidator.validate(project).failOnError();
 
         infinispanService.saveProject(project);
 
@@ -188,11 +189,9 @@ public class ProjectService implements HealthCheck {
         return project;
     }
 
-    public Project copy(String sourceProjectId, Project project) throws Exception {
-        boolean projectExists = infinispanService.getProject(project.getProjectId()) != null;
-        if(projectExists) {
-            throw new ProjectExistsException("Project with project id [" + project.getProjectId() + "] already exists");
-        }
+    public Project copy(String sourceProjectId, Project project) {
+        projectModifyValidator.validate(project).failOnError();
+
         Project sourceProject = infinispanService.getProject(sourceProjectId);
 
         // Save project
@@ -208,7 +207,7 @@ public class ProjectService implements HealthCheck {
                         e -> {
                             ProjectFile file = e.getValue();
                             file.setProjectId(project.getProjectId());
-                            if(Objects.equals(file.getName(), APPLICATION_PROPERTIES_FILENAME)) {
+                            if (Objects.equals(file.getName(), APPLICATION_PROPERTIES_FILENAME)) {
                                 modifyPropertyFileOnProjectCopy(file, sourceProject, project);
                             }
                             return file;
@@ -219,7 +218,7 @@ public class ProjectService implements HealthCheck {
         if (!ConfigService.inKubernetes()) {
             ProjectFile projectCompose = codeService.createInitialProjectCompose(project);
             infinispanService.saveProjectFile(projectCompose);
-        } else if (kubernetesService.isOpenshift()){
+        } else if (kubernetesService.isOpenshift()) {
             ProjectFile projectCompose = codeService.createInitialDeployment(project);
             infinispanService.saveProjectFile(projectCompose);
         }

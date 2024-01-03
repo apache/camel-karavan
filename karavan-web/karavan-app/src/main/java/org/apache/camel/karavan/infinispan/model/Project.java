@@ -23,6 +23,8 @@ import org.infinispan.protostream.annotations.ProtoField;
 
 import java.time.Instant;
 
+import jakarta.validation.constraints.NotBlank;
+
 public class Project {
     public static final String CACHE = "projects";
 
@@ -36,10 +38,13 @@ public class Project {
     }
 
     @ProtoField(number = 1)
+    @NotBlank
     String projectId;
     @ProtoField(number = 2)
+    @NotBlank
     String name;
     @ProtoField(number = 3)
+    @NotBlank
     String description;
     @ProtoField(number = 4)
     String lastCommit;
