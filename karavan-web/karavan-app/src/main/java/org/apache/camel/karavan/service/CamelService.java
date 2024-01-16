@@ -79,7 +79,7 @@ public class CamelService {
 
     @Scheduled(every = "{karavan.camel.status.interval}", concurrentExecution = Scheduled.ConcurrentExecution.SKIP)
     public void collectCamelStatuses() {
-        LOGGER.info("Collect Camel Statuses");
+        LOGGER.debug("Collect Camel Statuses");
         if (infinispanService.isReady()) {
             infinispanService.getContainerStatuses(environment).stream()
                     .filter(cs ->
@@ -97,7 +97,7 @@ public class CamelService {
 
     @ConsumeEvent(value = RELOAD_PROJECT_CODE, blocking = true, ordered = true)
     public void reloadProjectCode(String projectId) {
-        LOGGER.info("Reload project code " + projectId);
+        LOGGER.debug("Reload project code " + projectId);
         try {
             deleteRequest(projectId);
             Map<String, String> files = codeService.getProjectFilesForDevMode(projectId, true);
@@ -119,7 +119,7 @@ public class CamelService {
                     .timeout(timeout).sendBuffer(Buffer.buffer(body)).subscribeAsCompletionStage().toCompletableFuture().get();
             return result.statusCode() == 200;
         } catch (Exception e) {
-            LOGGER.info(e.getMessage());
+            LOGGER.error(e.getMessage());
         }
         return false;
     }
@@ -180,7 +180,7 @@ public class CamelService {
     public void collectCamelStatuses(JsonObject data) {
         CamelStatusRequest dms = data.getJsonObject("camelStatusRequest").mapTo(CamelStatusRequest.class);
         ContainerStatus containerStatus = data.getJsonObject("containerStatus").mapTo(ContainerStatus.class);
-        LOGGER.info("Collect Camel Status for " + containerStatus.getContainerName());
+        LOGGER.debug("Collect Camel Status for " + containerStatus.getContainerName());
         String projectId = dms.getProjectId();
         String containerName = dms.getContainerName();
         List<CamelStatusValue> statuses = new ArrayList<>();
@@ -204,7 +204,7 @@ public class CamelService {
                 return res.encodePrettily();
             }
         } catch (Exception e) {
-            LOGGER.info(e.getMessage());
+            LOGGER.error(e.getMessage());
         }
         return null;
     }
@@ -213,10 +213,10 @@ public class CamelService {
         try {
             HttpResponse<Buffer> result = getWebClient().deleteAbs(url)
                     .timeout(timeout).send().subscribeAsCompletionStage().toCompletableFuture().get();
-                JsonObject res = result.bodyAsJsonObject();
-                return res.encodePrettily();
+            JsonObject res = result.bodyAsJsonObject();
+            return res.encodePrettily();
         } catch (Exception e) {
-            LOGGER.info(e.getMessage());
+            LOGGER.error(e.getMessage());
         }
         return null;
     }
