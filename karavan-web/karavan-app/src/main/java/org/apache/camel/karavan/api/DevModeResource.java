@@ -31,11 +31,14 @@ import org.apache.camel.karavan.service.CamelService;
 import org.apache.camel.karavan.service.ConfigService;
 import org.apache.camel.karavan.service.ProjectService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.jboss.logging.Logger;
 
 import static org.apache.camel.karavan.service.ContainerStatusService.CONTAINER_STATUS;
 
 @Path("/api/devmode")
 public class DevModeResource {
+
+    private static final Logger LOGGER = Logger.getLogger(DevModeResource.class.getName());
 
     @ConfigProperty(name = "karavan.environment")
     String environment;
@@ -71,6 +74,7 @@ public class DevModeResource {
                 return Response.notModified().build();
             }
         } catch (Exception e) {
+            LOGGER.error(e);
             return Response.serverError().entity(e).build();
         }
     }

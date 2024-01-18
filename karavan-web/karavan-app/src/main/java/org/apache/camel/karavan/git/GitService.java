@@ -32,6 +32,7 @@ import org.apache.camel.karavan.kubernetes.KubernetesService;
 import org.apache.camel.karavan.service.ConfigService;
 import org.eclipse.jgit.api.*;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.api.errors.InvalidRemoteException;
 import org.eclipse.jgit.api.errors.RefNotFoundException;
 import org.eclipse.jgit.api.errors.TransportException;
 import org.eclipse.jgit.diff.DiffEntry;
@@ -147,7 +148,7 @@ public class GitService {
         try {
             git = clone(folder, gitConfig.getUri(), gitConfig.getBranch(), cred);
             checkout(git, false, null, null, gitConfig.getBranch());
-        } catch (RefNotFoundException | TransportException e) {
+        } catch (RefNotFoundException | InvalidRemoteException e) {
             LOGGER.error("New repository");
             git = init(folder, gitConfig.getUri(), gitConfig.getBranch());
         } catch (Exception e) {
