@@ -42,7 +42,7 @@ export class ProjectService {
                 ProjectEventBus.sendLog('set', '');
                 useLogStore.setState({showLog: true, type: 'container', podName: res.data})
             } else {
-                // Todo notification
+                EventBus.sendAlert('Error Starting DevMode container', res.statusText, 'warning')
             }
         });
     }
@@ -54,8 +54,7 @@ export class ProjectService {
             if (res.status === 200 || res.status === 201) {
                 // setIsReloadingPod(false);
             } else {
-                // Todo notification
-                // setIsReloadingPod(false);
+                EventBus.sendAlert('Error Reloading DevMode container', res.statusText, 'warning')
             }
         });
     }
@@ -115,19 +114,19 @@ export class ProjectService {
     }
 
     public static pullProject(projectId: string) {
-            useProjectStore.setState({isPulling: true})
-            KaravanApi.pull(projectId, res => {
-                console.log(res);
-                if (res.status === 200 || res.status === 201) {
-                    useProjectStore.setState({isPulling: false})
-                    ProjectService.refreshProject(projectId);
-                    ProjectService.refreshProjectData(projectId);
-                } else {
-                    EventBus.sendAlert("Error pulling", (res as any)?.response?.data, 'danger')
-                }
+        useProjectStore.setState({isPulling: true})
+        KaravanApi.pull(projectId, res => {
+            console.log(res);
+            if (res.status === 200 || res.status === 201) {
                 useProjectStore.setState({isPulling: false})
-            });
-        }
+                ProjectService.refreshProject(projectId);
+                ProjectService.refreshProjectData(projectId);
+            } else {
+                EventBus.sendAlert("Error pulling", (res as any)?.response?.data, 'danger')
+            }
+            useProjectStore.setState({isPulling: false})
+        });
+    }
 
     public static reloadKamelets() {
         KaravanApi.getKamelets(yamls => {
