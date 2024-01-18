@@ -42,6 +42,24 @@ export class CamelDisplayUtil {
         }
     }
 
+    static getDescription = (element: CamelElement): string => {
+        const kamelet: KameletModel | undefined = CamelUtil.getKamelet(element);
+        if (kamelet) {
+            return kamelet.spec.definition.description;
+        } else if ((element as any).uri && (['ToDefinition', 'FromDefinition'].includes(element.dslName))) {
+            const uri = (element as any).uri
+            return ComponentApi.getComponentDescriptionFromUri(uri) || '';
+        } else {
+            const description = CamelMetadataApi.getCamelModelMetadataByClassName(element.dslName)?.description;
+            return description ? description : CamelDisplayUtil.getTitle(element);
+        }
+    }
+
+    static getStepDescription = (element: CamelElement): string => {
+        const description = (element as any).description;
+        return description ? description : CamelDisplayUtil.getTitle(element);
+    }
+
     static isStepDefinitionExpanded = (integration: Integration, stepUuid: string, selectedUuid: string | undefined): boolean => {
         const expandedUuids: string[] = [];
         if (selectedUuid) {

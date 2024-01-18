@@ -33,6 +33,8 @@ interface TopologyState {
     fileName?: string
     setSelectedIds: (selectedIds: string []) => void
     setFileName: (fileName?: string) => void
+    ranker: string
+    setRanker: (ranker: string) => void
 }
 
 export const useTopologyStore = createWithEqualityFn<TopologyState>((set) => ({
@@ -46,5 +48,11 @@ export const useTopologyStore = createWithEqualityFn<TopologyState>((set) => ({
         set((state: TopologyState) => {
             return {fileName: fileName};
         });
-    }
+    },
+    ranker: 'network-simplex',
+    setRanker: (ranker: string) => {
+        set((state: TopologyState) => {
+            return {ranker: ranker};
+        });
+    },
 }), shallow)

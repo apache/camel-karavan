@@ -3,6 +3,7 @@
     nodePrefixId: route-a32
     from:
       id: from-c489
+      description: Receive Data
       uri: kamelet:aws-ddb-streams-source
       steps:
         - setHeader:
@@ -24,6 +25,15 @@
               - log:
                   id: log-d86e
                   message: ${body}!!!
+              - to:
+                  id: to-9f7d
+                  description: Send notification
+                  uri: kafka
+        - to:
+            id: to-53a3
+            description: Send payments
+            uri: amqp
+
 
 #      steps:
 #        - marshal:

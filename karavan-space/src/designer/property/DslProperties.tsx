@@ -131,7 +131,7 @@ export function DslProperties(props: Props) {
 
     function getRouteHeader(): JSX.Element {
         const title = selectedStep && CamelDisplayUtil.getTitle(selectedStep)
-        const description = selectedStep && CamelUi.getDescription(selectedStep);
+        const description = selectedStep && CamelDisplayUtil.getDescription(selectedStep);
         const descriptionLines: string [] = description ? description?.split("\n") : [""];
         return (
             <div className="headers">

@@ -185,7 +185,7 @@ export class TopologyUtils {
             const routes = i.spec.flows?.filter(flow => flow.dslName === 'RouteDefinition');
             const routeElements = routes?.map(r => {
                 const id = 'incoming-' + r.id;
-                const title = CamelDisplayUtil.getTitle(r.from);
+                const title = CamelDisplayUtil.getStepDescription(r.from);
                 const type = TopologyUtils.isElementInternalComponent(r.from) ? 'internal' : 'external';
                 const connectorType = TopologyUtils.getConnectorType(r.from);
                 const uniqueUri = TopologyUtils.getUniqueUri(r.from);
@@ -221,7 +221,7 @@ export class TopologyUtils {
                 const elements = TopologyUtils.findOutgoingInStep(from, []);
                 elements.forEach((e: any) => {
                     const id = 'outgoing-' + route.id + '-' + e.id;
-                    const title = CamelDisplayUtil.getTitle(e);
+                    const title = CamelDisplayUtil.getStepDescription(e);
                     const type = TopologyUtils.isElementInternalComponent(e) ? 'internal' : 'external';
                     const connectorType = TopologyUtils.getConnectorType(e);
                     const uniqueUri = TopologyUtils.getUniqueUri(e);

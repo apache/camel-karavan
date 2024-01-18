@@ -38,7 +38,7 @@ import {
     CloudIcon,
     ClusterIcon,
     DatabaseIcon,
-    DebeziumIcon,
+    DebeziumIcon, DirectIcon,
     DocumentIcon,
     FileIcon,
     GithubIcon,
@@ -349,19 +349,6 @@ export class CamelUi {
         }
     }
 
-    static getDescription = (element: CamelElement): string => {
-        const kamelet: KameletModel | undefined = CamelUtil.getKamelet(element);
-        if (kamelet) {
-            return kamelet.spec.definition.description;
-        } else if ((element as any).uri && (['ToDefinition', 'FromDefinition'].includes(element.dslName))) {
-            const uri = (element as any).uri
-            return ComponentApi.getComponentDescriptionFromUri(uri) || '';
-        } else {
-            const description = CamelMetadataApi.getCamelModelMetadataByClassName(element.dslName)?.description;
-            return description ? description : CamelDisplayUtil.getTitle(element);
-        }
-    }
-
     static getOutgoingTitle = (element: CamelElement): string => {
         const k: KameletModel | undefined = CamelUtil.getKamelet(element);
         if (k) {
@@ -556,6 +543,8 @@ export class CamelUi {
         const labels = label.split(",");
         if (title === "Ref") {
             return RefIcon();
+        } else if (title === "Direct") {
+            return DirectIcon();
         } else if (title === "Exec") {
             return TerminalIcon();
         } else if (title === "Grape") {
@@ -666,6 +655,8 @@ export class CamelUi {
         } else if (element.dslName === "ToDefinition" && (element as ToDefinition).uri?.startsWith("kamelet:")) {
             return k ? this.getIconFromSource(k.icon()) : CamelUi.getIconForDslName(element.dslName);
         } else if (element.dslName === "ToDefinition" && component && TopologyUtils.isComponentInternal(component.component.label)) {
+            return this.getIconForComponent(component?.component.title, component?.component.label);
+        } else if (element.dslName === "ToDefinition" && component && TopologyUtils.hasDirectUri(element)) {
             return this.getIconForComponent(component?.component.title, component?.component.label);
         } else {
             return this.getIconForDslName(element.dslName);

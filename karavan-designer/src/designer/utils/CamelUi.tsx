@@ -349,19 +349,6 @@ export class CamelUi {
         }
     }
 
-    static getDescription = (element: CamelElement): string => {
-        const kamelet: KameletModel | undefined = CamelUtil.getKamelet(element);
-        if (kamelet) {
-            return kamelet.spec.definition.description;
-        } else if ((element as any).uri && (['ToDefinition', 'FromDefinition'].includes(element.dslName))) {
-            const uri = (element as any).uri
-            return ComponentApi.getComponentDescriptionFromUri(uri) || '';
-        } else {
-            const description = CamelMetadataApi.getCamelModelMetadataByClassName(element.dslName)?.description;
-            return description ? description : CamelDisplayUtil.getTitle(element);
-        }
-    }
-
     static getOutgoingTitle = (element: CamelElement): string => {
         const k: KameletModel | undefined = CamelUtil.getKamelet(element);
         if (k) {

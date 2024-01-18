@@ -33,7 +33,6 @@ import DeleteIcon from "@patternfly/react-icons/dist/js/icons/times-icon";
 import AddIcon from "@patternfly/react-icons/dist/js/icons/plus-circle-icon";
 import CloneIcon from '@patternfly/react-icons/dist/esm/icons/clone-icon'
 import HelpIcon from "@patternfly/react-icons/dist/js/icons/help-icon";
-import {InfrastructureSelector} from "../route/property/InfrastructureSelector";
 import {InfrastructureAPI} from "../utils/InfrastructureAPI";
 import ShowIcon from "@patternfly/react-icons/dist/js/icons/eye-icon";
 import HideIcon from "@patternfly/react-icons/dist/js/icons/eye-slash-icon";
@@ -42,6 +41,7 @@ import {useDesignerStore} from "../DesignerStore";
 import {shallow} from "zustand/shallow";
 import {IntegrationHeader} from "../utils/IntegrationHeader";
 import {KubernetesIcon} from "../icons/ComponentIcons";
+import {InfrastructureSelector} from "../property/property/InfrastructureSelector";
 
 
 interface Props {
