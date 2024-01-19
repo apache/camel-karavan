@@ -22,12 +22,14 @@ public class GitConfig {
     private String username;
     private String password;
     private String branch;
+    private String privateKeyPath;
 
-    public GitConfig(String uri, String username, String password, String branch) {
+    public GitConfig(String uri, String username, String password, String branch, String privateKeyPath) {
         this.uri = uri;
         this.username = username;
         this.password = password;
         this.branch = branch;
+        this.privateKeyPath = privateKeyPath;
     }
 
     public String getUri() {
@@ -60,5 +62,13 @@ public class GitConfig {
 
     public void setBranch(String branch) {
         this.branch = branch;
+    }
+
+    public String getPrivateKeyPath() {
+        return privateKeyPath;
+    }
+
+    public void setPrivateKeyPath(String privateKeyPath) {
+        this.privateKeyPath = privateKeyPath;
     }
 }

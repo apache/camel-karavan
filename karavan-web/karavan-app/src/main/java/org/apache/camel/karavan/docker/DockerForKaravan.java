@@ -74,12 +74,15 @@ public class DockerForKaravan {
 
     }
 
-    public void runBuildProject(Project project, String script, List<String> env, String tag) throws Exception {
+    public void runBuildProject(Project project, String script, List<String> env, Map<String, String> sshFiles, String tag) throws Exception {
         String containerName = project.getProjectId() + BUILDER_SUFFIX;
         Map<String, String> volumes = getMavenVolumes();
         dockerService.deleteContainer(containerName);
         Container c = createBuildContainer(containerName, project, env, volumes, tag);
         dockerService.copyExecFile(c.getId(), "/karavan/builder", "build.sh", script);
+        sshFiles.forEach((name, text) -> {
+            dockerService.copyExecFile(c.getId(), "/karavan/.ssh", name, text);
+        });
         dockerService.runContainer(c);
     }
 

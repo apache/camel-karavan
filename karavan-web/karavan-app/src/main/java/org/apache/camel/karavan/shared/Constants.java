@@ -38,6 +38,8 @@ public class Constants {
 
     public static final String BUILD_CONFIG_MAP = "build-config-map";
     public static final String BUILD_DOCKER_CONFIG_SECRET = "dockerconfigjson";
+    public static final String PRIVATE_KEY_SECRET_KEY = "private-key";
+    public static final String KNOWN_HOSTS_SECRET_KEY = "known-hosts";
     public static final String BUILD_SCRIPT_FILENAME_SUFFIX = "-build.sh";
 
     public enum CamelRuntime {

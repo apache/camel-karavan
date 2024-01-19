@@ -16,7 +16,8 @@
  */
 package org.apache.camel.karavan.git;
 
-import io.fabric8.kubernetes.api.model.Secret;
+import com.jcraft.jsch.JSch;
+import com.jcraft.jsch.JSchException;
 import io.quarkus.oidc.UserInfo;
 import io.quarkus.security.identity.SecurityIdentity;
 import io.smallrye.mutiny.tuples.Tuple2;
@@ -28,7 +29,6 @@ import org.apache.camel.karavan.git.model.GitRepo;
 import org.apache.camel.karavan.git.model.GitRepoFile;
 import org.apache.camel.karavan.infinispan.model.Project;
 import org.apache.camel.karavan.infinispan.model.ProjectFile;
-import org.apache.camel.karavan.kubernetes.KubernetesService;
 import org.apache.camel.karavan.service.ConfigService;
 import org.eclipse.jgit.api.*;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -40,9 +40,10 @@ import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.transport.*;
+import org.eclipse.jgit.transport.ssh.jsch.JschConfigSessionFactory;
 import org.eclipse.jgit.treewalk.TreeWalk;
 import org.eclipse.jgit.treewalk.filter.TreeFilter;
-import org.eclipse.microprofile.config.ConfigProvider;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.faulttolerance.Retry;
 import org.jboss.logging.Logger;
 
@@ -57,20 +58,40 @@ import java.util.*;
 @ApplicationScoped
 public class GitService {
 
+    @ConfigProperty(name = "karavan.git-repository")
+    String repository;
+
+    @ConfigProperty(name = "karavan.git-username")
+    Optional<String> username;
+
+    @ConfigProperty(name = "karavan.git-password")
+    Optional<String> password;
+
+    @ConfigProperty(name = "karavan.git-branch")
+    String branch;
+
+    @ConfigProperty(name = "karavan.private-key-path")
+    Optional<String> privateKeyPath;
+
+    @ConfigProperty(name = "karavan.known-hosts-path")
+    Optional<String> knownHostsPath;
+
+    @ConfigProperty(name = "karavan.git-install-gitea")
+    boolean installGitea;
+
     @Inject
     Vertx vertx;
 
     @Inject
-    KubernetesService kubernetesService;
-
-    @Inject
     SecurityIdentity securityIdentity;
+
+    SshSessionFactory sshSessionFactory;
 
     private Git gitForImport;
 
     private static final Logger LOGGER = Logger.getLogger(GitService.class.getName());
 
-    public Git getGitForImport(){
+    public Git getGitForImport() {
         if (gitForImport == null) {
             try {
                 gitForImport = getGit(true, vertx.fileSystem().createTempDirectoryBlocking("import"));
@@ -82,28 +103,13 @@ public class GitService {
     }
 
     public GitConfig getGitConfig() {
-        String propertiesPrefix = "karavan.";
-        String branch = ConfigProvider.getConfig().getValue(propertiesPrefix + "git-branch", String.class);
-        if (ConfigService.inKubernetes()) {
-            String uri = kubernetesService.getKaravanSecret("git-repository");
-            String username = kubernetesService.getKaravanSecret("git-username");
-            String password = kubernetesService.getKaravanSecret("git-password");
-            String branchInSecret = kubernetesService.getKaravanSecret("git-branch");
-            branch = branchInSecret != null ? branchInSecret : branch;
-            return new GitConfig(uri, username, password, branch);
-        } else if (ConfigService.inDocker()) {
-            String uri = ConfigProvider.getConfig().getValue(propertiesPrefix + "git-repository", String.class);
-            String username = ConfigProvider.getConfig().getValue(propertiesPrefix + "git-username", String.class);
-            String password = ConfigProvider.getConfig().getValue(propertiesPrefix + "git-password", String.class);
-            return new GitConfig(uri, username, password, branch);
+        if (ConfigService.inKubernetes() || ConfigService.inDocker()) {
+            return new GitConfig(repository, username.orElse(null), password.orElse(null), branch, privateKeyPath.orElse(null));
         } else {
-            Boolean giteaInstall = ConfigProvider.getConfig().getValue(propertiesPrefix + "git-install-gitea", Boolean.class);
-            String uri = giteaInstall
+            String uri = installGitea
                     ? "http://localhost:3000/karavan/karavan.git"
-                    : ConfigProvider.getConfig().getValue(propertiesPrefix + "git-repository", String.class);
-            String username = ConfigProvider.getConfig().getValue(propertiesPrefix + "git-username", String.class);
-            String password = ConfigProvider.getConfig().getValue(propertiesPrefix + "git-password", String.class);
-            return new GitConfig(uri, username, password, branch);
+                    : repository;
+            return new GitConfig(uri, username.orElse(null), password.orElse(null), branch, privateKeyPath.orElse(null));
         }
     }
 
@@ -116,39 +122,25 @@ public class GitService {
                 "GIT_BRANCH=" + gitConfig.getBranch());
     }
 
+    public Tuple2<String,String> getSShFiles() {
+        return Tuple2.of(privateKeyPath.orElse(null), knownHostsPath.orElse(null));
+    }
+
     public GitConfig getGitConfigForBuilder() {
-        String propertiesPrefix = "karavan.";
-        String branch = ConfigProvider.getConfig().getValue(propertiesPrefix + "git-branch", String.class);
-        if (ConfigService.inKubernetes()) {
-            LOGGER.info("inKubernetes " + kubernetesService.getNamespace());
-            Secret secret = kubernetesService.getKaravanSecret();
-            String uri = kubernetesService.getKaravanSecret("git-repository");
-            String username = kubernetesService.getKaravanSecret("git-username");
-            String password = kubernetesService.getKaravanSecret("git-password");
-            if (secret.getData().containsKey("git-branch")) {
-                branch = kubernetesService.getKaravanSecret("git-branch");
-            }
-            return new GitConfig(uri, username, password, branch);
-        } else {
-            String uri = ConfigProvider.getConfig().getValue(propertiesPrefix + "git-repository", String.class);
-            String username = ConfigProvider.getConfig().getValue(propertiesPrefix + "git-username", String.class);
-            String password = ConfigProvider.getConfig().getValue(propertiesPrefix + "git-password", String.class);
-            return new GitConfig(uri, username, password, branch);
-        }
+        return new GitConfig(repository, username.orElse(null), password.orElse(null), branch, privateKeyPath.orElse(null));
     }
 
     public RevCommit commitAndPushProject(Project project, List<ProjectFile> files, String message) throws GitAPIException, IOException, URISyntaxException {
         LOGGER.info("Commit and push project " + project.getProjectId());
         GitConfig gitConfig = getGitConfig();
-        CredentialsProvider cred = new UsernamePasswordCredentialsProvider(gitConfig.getUsername(), gitConfig.getPassword());
         String uuid = UUID.randomUUID().toString();
         String folder = vertx.fileSystem().createTempDirectoryBlocking(uuid);
         LOGGER.info("Temp folder created " + folder);
         Git git = null;
         try {
-            git = clone(folder, gitConfig.getUri(), gitConfig.getBranch(), cred);
+            git = clone(folder, gitConfig.getUri(), gitConfig.getBranch());
             checkout(git, false, null, null, gitConfig.getBranch());
-        } catch (RefNotFoundException | InvalidRemoteException e) {
+        } catch (RefNotFoundException | InvalidRemoteException | TransportException e) {
             LOGGER.error("New repository");
             git = init(folder, gitConfig.getUri(), gitConfig.getBranch());
         } catch (Exception e) {
@@ -156,7 +148,7 @@ public class GitService {
         }
         writeProjectToFolder(folder, project, files);
         addDeletedFilesToIndex(git, folder, project, files);
-        return commitAddedAndPush(git, gitConfig.getBranch(), cred, message);
+        return commitAddedAndPush(git, gitConfig.getBranch(), message);
     }
 
     public List<GitRepo> readProjectsToImport() {
@@ -204,15 +196,14 @@ public class GitService {
     public Git getGit(boolean checkout, String folder) throws GitAPIException, IOException, URISyntaxException {
         LOGGER.info("Git checkout");
         GitConfig gitConfig = getGitConfig();
-        CredentialsProvider cred = new UsernamePasswordCredentialsProvider(gitConfig.getUsername(), gitConfig.getPassword());
         LOGGER.info("Temp folder created " + folder);
         Git git = null;
         try {
-            git = clone(folder, gitConfig.getUri(), gitConfig.getBranch(), cred);
+            git = clone(folder, gitConfig.getUri(), gitConfig.getBranch());
             if (checkout) {
                 checkout(git, false, null, null, gitConfig.getBranch());
             }
-        } catch (RefNotFoundException | TransportException e) {
+        } catch (RefNotFoundException | InvalidRemoteException | TransportException e) {
             LOGGER.error("New repository");
             git = init(folder, gitConfig.getUri(), gitConfig.getBranch());
         } catch (Exception e) {
@@ -304,12 +295,15 @@ public class GitService {
         });
     }
 
-    public RevCommit commitAddedAndPush(Git git, String branch, CredentialsProvider cred, String message) throws GitAPIException {
+    public RevCommit commitAddedAndPush(Git git, String branch, String message) throws GitAPIException {
         LOGGER.info("Commit and push changes");
         LOGGER.info("Git add: " + git.add().addFilepattern(".").call());
         RevCommit commit = git.commit().setMessage(message).setAuthor(getPersonIdent()).call();
         LOGGER.info("Git commit: " + commit);
-        Iterable<PushResult> result = git.push().add(branch).setRemote("origin").setCredentialsProvider(cred).call();
+        PushCommand pushCommand = git.push();
+        pushCommand.add(branch).setRemote("origin");
+        setCredentials(pushCommand);
+        Iterable<PushResult> result = pushCommand.call();
         LOGGER.info("Git push: " + result);
         return commit;
     }
@@ -341,17 +335,16 @@ public class GitService {
     public void deleteProject(String projectId, List<ProjectFile> files) {
         LOGGER.info("Delete and push project " + projectId);
         GitConfig gitConfig = getGitConfig();
-        CredentialsProvider cred = new UsernamePasswordCredentialsProvider(gitConfig.getUsername(), gitConfig.getPassword());
         String uuid = UUID.randomUUID().toString();
         String folder = vertx.fileSystem().createTempDirectoryBlocking(uuid);
         String commitMessage = "Project " + projectId + " is deleted";
         LOGGER.infof("Temp folder %s is created for deletion of project %s", folder, projectId);
         Git git = null;
         try {
-            git = clone(folder, gitConfig.getUri(), gitConfig.getBranch(), cred);
+            git = clone(folder, gitConfig.getUri(), gitConfig.getBranch());
             checkout(git, false, null, null, gitConfig.getBranch());
             addDeletedFolderToIndex(git, folder, projectId, files);
-            commitAddedAndPush(git, gitConfig.getBranch(), cred, commitMessage);
+            commitAddedAndPush(git, gitConfig.getBranch(), commitMessage);
             LOGGER.info("Delete Temp folder " + folder);
             vertx.fileSystem().deleteRecursiveBlocking(folder, true);
             LOGGER.infof("Project %s deleted from Git", projectId);
@@ -363,14 +356,14 @@ public class GitService {
         }
     }
 
-    private Git clone(String dir, String uri, String branch, CredentialsProvider cred) throws GitAPIException, URISyntaxException {
-        CloneCommand cloneCommand = Git.cloneRepository();
-        cloneCommand.setCloneAllBranches(false);
-        cloneCommand.setDirectory(Paths.get(dir).toFile());
-        cloneCommand.setURI(uri);
-        cloneCommand.setBranch(branch);
-        cloneCommand.setCredentialsProvider(cred);
-        Git git = cloneCommand.call();
+    private Git clone(String dir, String uri, String branch) throws GitAPIException, URISyntaxException {
+        CloneCommand command = Git.cloneRepository();
+        command.setCloneAllBranches(false);
+        command.setDirectory(Paths.get(dir).toFile());
+        command.setURI(uri);
+        command.setBranch(branch);
+        setCredentials(command);
+        Git git = command.call();
         addRemote(git, uri);
         return git;
     }
@@ -383,18 +376,18 @@ public class GitService {
         remoteAddCommand.call();
     }
 
-    private void fetch(Git git, CredentialsProvider cred) throws GitAPIException {
+    private void fetch(Git git) throws GitAPIException {
         // fetch:
-        FetchCommand fetchCommand = git.fetch();
-        fetchCommand.setCredentialsProvider(cred);
-        FetchResult result = fetchCommand.call();
+        FetchCommand command = git.fetch();
+        setCredentials(command);
+        FetchResult result = command.call();
     }
 
-    private void pull(Git git, CredentialsProvider cred) throws GitAPIException {
+    private void pull(Git git) throws GitAPIException {
         // pull:
-        PullCommand pullCommand = git.pull();
-        pullCommand.setCredentialsProvider(cred);
-        PullResult result = pullCommand.call();
+        PullCommand command = git.pull();
+        setCredentials(command);
+        PullResult result = command.call();
     }
 
     private void checkout(Git git, boolean create, String path, String startPoint, String branch) throws GitAPIException {
@@ -453,14 +446,43 @@ public class GitService {
     public boolean checkGit() throws Exception {
         LOGGER.info("Check git");
         GitConfig gitConfig = getGitConfig();
-        CredentialsProvider cred = new UsernamePasswordCredentialsProvider(gitConfig.getUsername(), gitConfig.getPassword());
         String uuid = UUID.randomUUID().toString();
         String folder = vertx.fileSystem().createTempDirectoryBlocking(uuid);
-        try (Git git = clone(folder, gitConfig.getUri(), gitConfig.getBranch(), cred)) {
+        try (Git git = clone(folder, gitConfig.getUri(), gitConfig.getBranch())) {
             LOGGER.info("Git is ready");
         } catch (Exception e) {
             LOGGER.info("Error connecting git: " + (e.getCause() != null ? e.getCause().getMessage() : e.getMessage()));
         }
         return true;
+    }
+
+    private <T extends TransportCommand> T setCredentials(T command) {
+        if (privateKeyPath.isPresent() && repository.startsWith("git")) {
+            LOGGER.info("Set SshTransport");
+            command.setTransportConfigCallback(transport -> {
+                SshTransport sshTransport = (SshTransport) transport;
+                sshTransport.setSshSessionFactory(getSshSessionFactory());
+            });
+        } else if (username.isPresent() && password.isPresent()) {
+            LOGGER.info("Set UsernamePasswordCredentialsProvider");
+            command.setCredentialsProvider(new UsernamePasswordCredentialsProvider(username.get(), password.get()));
+        }
+        return command;
+    }
+
+    private SshSessionFactory getSshSessionFactory() {
+        if (sshSessionFactory == null) {
+            sshSessionFactory = new JschConfigSessionFactory() {
+                protected void configureJSch(JSch jsch) {
+                    try {
+                        jsch.addIdentity(privateKeyPath.get());
+                        jsch.setKnownHosts(knownHostsPath.get());
+                    } catch (JSchException e) {
+                        LOGGER.info("Error configureJSch: " + (e.getCause() != null ? e.getCause().getMessage() : e.getMessage()));
+                    }
+                }
+            };
+        }
+        return sshSessionFactory;
     }
 }

@@ -96,6 +96,9 @@ public class KubernetesService implements HealthCheck {
     @ConfigProperty(name = "karavan.secret.name", defaultValue = "karavan")
     String secretName;
 
+    @ConfigProperty(name = "karavan.private-key-path")
+    Optional<String> privateKeyPath;
+
     List<SharedIndexInformer> informers = new ArrayList<>(INFORMERS);
 
     public void startInformers(String data) {
@@ -271,6 +274,10 @@ public class KubernetesService implements HealthCheck {
         if (hasDockerConfigSecret) {
             volumeMounts.add(new VolumeMountBuilder().withName(BUILD_DOCKER_CONFIG_SECRET).withMountPath("/karavan/.docker").withReadOnly(true).build());
         }
+        if (privateKeyPath.isPresent()) {
+            volumeMounts.add(new VolumeMountBuilder().withName(PRIVATE_KEY_SECRET_KEY).withMountPath("/karavan/.ssh/id_rsa").withSubPath("id_rsa").withReadOnly(true).build());
+            volumeMounts.add(new VolumeMountBuilder().withName(KNOWN_HOSTS_SECRET_KEY).withMountPath("/karavan/.ssh/known_hosts").withSubPath("known_hosts").withReadOnly(true).build());
+        }
 
         Container container = new ContainerBuilder()
                 .withName(name)
@@ -291,6 +298,16 @@ public class KubernetesService implements HealthCheck {
             volumes.add(new VolumeBuilder().withName(BUILD_DOCKER_CONFIG_SECRET)
                     .withSecret(new SecretVolumeSourceBuilder().withSecretName(BUILD_DOCKER_CONFIG_SECRET).withItems(
                             new KeyToPathBuilder().withKey(".dockerconfigjson").withPath("config.json").build()
+                    ).withDefaultMode(511).build()).build());
+        }
+        if (privateKeyPath.isPresent()) {
+            volumes.add(new VolumeBuilder().withName(PRIVATE_KEY_SECRET_KEY)
+                    .withSecret(new SecretVolumeSourceBuilder().withSecretName(secretName).withItems(
+                            new KeyToPathBuilder().withKey(PRIVATE_KEY_SECRET_KEY).withPath("id_rsa").build()
+                    ).withDefaultMode(511).build()).build());
+            volumes.add(new VolumeBuilder().withName(KNOWN_HOSTS_SECRET_KEY)
+                    .withSecret(new SecretVolumeSourceBuilder().withSecretName(secretName).withItems(
+                            new KeyToPathBuilder().withKey(KNOWN_HOSTS_SECRET_KEY).withPath("known_hosts").build()
                     ).withDefaultMode(511).build()).build());
         }
 

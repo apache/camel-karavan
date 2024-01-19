@@ -360,4 +360,8 @@ public class CodeService {
         return vertx.fileSystem().readFileBlocking(fileName).toString();
     }
 
+    public String getFileString(String fullName) {
+        return vertx.fileSystem().readFileBlocking(fullName).toString();
+    }
+
 }

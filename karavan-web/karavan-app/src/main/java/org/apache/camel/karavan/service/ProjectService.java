@@ -16,6 +16,7 @@
  */
 package org.apache.camel.karavan.service;
 
+import io.smallrye.mutiny.tuples.Tuple2;
 import io.vertx.core.json.JsonObject;
 import io.vertx.mutiny.core.eventbus.EventBus;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -131,8 +132,21 @@ public class ProjectService implements HealthCheck {
             kubernetesService.runBuildProject(project, script, env, tag);
         } else {
             env.addAll(getConnectionsEnvForBuild());
-            dockerForKaravan.runBuildProject(project, script, env, tag);
+            Map<String, String> sshFiles = getSshFiles();
+            dockerForKaravan.runBuildProject(project, script, env, sshFiles, tag);
         }
+    }
+
+    private Map<String, String> getSshFiles() {
+        Map<String, String> sshFiles = new HashMap<>(2);
+        Tuple2<String,String> sshFileNames = gitService.getSShFiles();
+        if (sshFileNames.getItem1() != null) {
+            sshFiles.put("id_rsa", codeService.getFileString(sshFileNames.getItem1()));
+        }
+        if (sshFileNames.getItem2() != null) {
+            sshFiles.put("known_hosts", codeService.getFileString(sshFileNames.getItem2()));
+        }
+        return sshFiles;
     }
 
     private List<String> getProjectEnvForBuild(Project project, String tag) {
