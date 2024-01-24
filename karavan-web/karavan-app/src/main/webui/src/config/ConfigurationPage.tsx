@@ -41,7 +41,7 @@ export const ConfigurationPage = (props: Props) => {
         return (<Toolbar id="toolbar-group-types">
             <ToolbarContent>
                 {tab === 'statuses' && <ToolbarItem>
-                    <Button onClick={event => {
+                    <Button className="dev-action-button" onClick={event => {
                         KaravanApi.deleteAllStatuses(res => {
                             if (res.status === 200) {
                                 EventBus.sendAlert('Success', 'Statuses deleted', "info");

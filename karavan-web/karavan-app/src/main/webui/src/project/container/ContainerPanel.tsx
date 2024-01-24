@@ -100,7 +100,7 @@ export function ContainerPanel (props: Props) {
                             const ready = cs.state === 'running';
                             return (
                                 <Label icon={ready ? <UpIcon/> : <DownIcon/>} color={ready ? "green" : "grey"}>
-                                    <Button variant="link" className="labeled-button"
+                                    <Button variant="link" className="dev-action-button labeled-button"
                                             onClick={e => {
                                                 setShowLog(true, 'container', cs.containerName);
                                             }}>

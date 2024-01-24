@@ -81,7 +81,7 @@ export function DevModeToolbar(props: Props) {
         <FlexItem className="refresher">
             {poll && <Spinner className="spinner" size="lg" aria-label="Refresh"/>}
             <Tooltip content={poll ? "Stop refresh" : "Refresh auto"} position={TooltipPosition.bottom}>
-                <Button className="button"
+                <Button className="dev-action-button button"
                         icon={poll ? <StopIcon/> : <RefreshIcon/>}
                         variant={"link"}
                         onClick={e => setPoll(!poll)}/>
@@ -96,7 +96,7 @@ export function DevModeToolbar(props: Props) {
         {containerStatus?.containerId && <FlexItem>
             <Label icon={icon} color={color}>
                 <Tooltip content={"Show log"} position={TooltipPosition.bottom}>
-                    <Button className='labeled-button' variant="link" isDisabled={!isRunning}
+                    <Button className='dev-action-button labeled-button' variant="link" isDisabled={!isRunning}
                             onClick={e =>
                                 setShowLog(true, 'container', containerStatus.containerName)}>
                         {containerStatus.containerName}
@@ -116,7 +116,7 @@ export function DevModeToolbar(props: Props) {
         </FlexItem>}
         {!isRunning && <FlexItem>
             <Tooltip content="Run in developer mode" position={TooltipPosition.bottomEnd}>
-                <Button size="sm"
+                <Button className="dev-action-button" size="sm"
                         isDisabled={(!(commands.length === 0) && !commands.includes('run')) || inTransit}
                         variant={"primary"}
                         icon={<RocketIcon/>}
@@ -130,10 +130,9 @@ export function DevModeToolbar(props: Props) {
         </FlexItem>}
         {isRunning && inDevMode && <FlexItem>
             <Tooltip content="Reload" position={TooltipPosition.bottomEnd}>
-                <Button size="sm"
+                <Button className="project-button dev-action-button" size="sm"
                         isDisabled={inTransit}
                         variant={"primary"}
-                        className="project-button"
                         icon={<ReloadIcon/>}
                         onClick={() => ProjectService.reloadDevModeCode(project)}>Reload
                 </Button>
@@ -141,7 +140,7 @@ export function DevModeToolbar(props: Props) {
         </FlexItem>}
         {inDevMode && <FlexItem>
             <Tooltip content="Delete container" position={TooltipPosition.bottomEnd}>
-                <Button size="sm"
+                <Button className="dev-action-button" size="sm"
                         isDisabled={!commands.includes('delete') || inTransit}
                         variant={"control"}
                         icon={<DeleteIcon/>}

@@ -112,7 +112,7 @@ export function DeploymentPanel (props: Props) {
     function rolloutButton() {
         return (<Tooltip content="Rollout deployment" position={"left"}>
             <Button size="sm" variant="secondary"
-                    className="project-button"
+                    className="project-button dev-action-button"
                     icon={<RolloutIcon/>}
                     onClick={e => {
                         setShowRolloutConfirmation(true);

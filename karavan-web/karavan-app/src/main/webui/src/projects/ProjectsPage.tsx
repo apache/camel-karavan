@@ -82,7 +82,8 @@ export function ProjectsPage () {
                                onChange={(_, e) => setFilter(e)}/>
                 </ToolbarItem>
                 <ToolbarItem>
-                    <Button icon={<PlusIcon/>}
+                    <Button className="dev-action-button"
+                            icon={<PlusIcon/>}
                             onClick={e =>
                                 setProject(new Project(), 'create')}
                     >Create</Button>

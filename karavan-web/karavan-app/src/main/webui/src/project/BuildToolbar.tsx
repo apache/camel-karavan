@@ -45,13 +45,13 @@ export function BuildToolbar (props: Props) {
 
     return (<Flex className="toolbar" direction={{default: "row"}} alignItems={{default: "alignItemsCenter"}}>
         <FlexItem>
-            <Button style={{visibility:"hidden"}} size="sm" variant={"control"} icon={<DeleteIcon/>} onClick={() => {}}>
+            <Button className="dev-action-button" style={{visibility:"hidden"}} size="sm" variant={"control"} icon={<DeleteIcon/>} onClick={() => {}}>
             </Button>
         </FlexItem>
         {containerStatus?.containerId && <FlexItem>
             <Label icon={icon} color={color}>
                 <Tooltip content={"Show log"} position={TooltipPosition.bottom}>
-                    <Button className='labeled-button' variant="link" isDisabled={!isRunning}
+                    <Button className="dev-action-button labeled-button" variant="link" isDisabled={!isRunning}
                             onClick={e =>
                                 setShowLog( true, 'container', containerStatus.containerName)}>
                         {containerStatus.containerName}

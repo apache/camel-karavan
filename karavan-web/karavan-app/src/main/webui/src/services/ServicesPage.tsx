@@ -88,7 +88,7 @@ export function ServicesPage () {
                     <Button variant="link" icon={<RefreshIcon/>} onClick={e => getServices()}/>
                 </ToolbarItem>
                 <ToolbarItem>
-                    <Button icon={<PlusIcon/>}
+                    <Button className="dev-action-button" icon={<PlusIcon/>}
                             onClick={e =>
                                 useProjectStore.setState({operation: "create", project: new Project()})}
                     >Create</Button>

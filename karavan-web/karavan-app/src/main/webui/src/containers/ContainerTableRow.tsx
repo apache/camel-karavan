@@ -119,7 +119,7 @@ export function ContainerTableRow(props: Props) {
                               spaceItems={{default: 'spaceItemsNone'}}>
                             <FlexItem>
                                 <Tooltip content={"Start container"} position={"bottom"}>
-                                    <Button variant={"plain"} icon={<PlayIcon/>}
+                                    <Button className="dev-action-button" variant={"plain"} icon={<PlayIcon/>}
                                             isDisabled={!commands.includes('run') || inTransit}
                                             onClick={e => {
                                                 setCommand('run');
@@ -129,7 +129,7 @@ export function ContainerTableRow(props: Props) {
                             </FlexItem>
                             <FlexItem>
                                 <Tooltip content={"Pause container"} position={"bottom"}>
-                                    <Button variant={"plain"} icon={<PauseIcon/>}
+                                    <Button className="dev-action-button" variant={"plain"} icon={<PauseIcon/>}
                                             isDisabled={!commands.includes('pause') || inTransit}
                                             onClick={e => {
                                                 setCommand('pause');
@@ -139,7 +139,7 @@ export function ContainerTableRow(props: Props) {
                             </FlexItem>
                             <FlexItem>
                                 <Tooltip content={"Stop container"} position={"bottom"}>
-                                    <Button variant={"plain"} icon={<StopIcon/>}
+                                    <Button className="dev-action-button" variant={"plain"} icon={<StopIcon/>}
                                             isDisabled={!commands.includes('stop') || inTransit}
                                             onClick={e => {
                                                 setCommand('stop');
@@ -149,7 +149,7 @@ export function ContainerTableRow(props: Props) {
                             </FlexItem>
                             <FlexItem>
                                 <Tooltip content={"Delete container"} position={"bottom"}>
-                                    <Button variant={"plain"} icon={<DeleteIcon/>}
+                                    <Button className="dev-action-button" variant={"plain"} icon={<DeleteIcon/>}
                                             isDisabled={!commands.includes('delete') || inTransit}
                                             onClick={e => {
                                                 setCommand('delete');

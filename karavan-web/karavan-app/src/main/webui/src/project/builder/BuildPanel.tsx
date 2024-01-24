@@ -82,7 +82,7 @@ export function BuildPanel () {
                     isDisabled={isBuilding || isRunning || isPushing}
                     size="sm"
                     variant="secondary"
-                    className="project-button"
+                    className="project-button dev-action-button"
                     icon={!isBuilding ? <BuildIcon/> : <div></div>}
                     onClick={e => build()}>
                 {isBuilding ? "..." : "Build"}
@@ -122,7 +122,7 @@ export function BuildPanel () {
                         <Label icon={isRunning ? <Spinner diameter="16px" className="spinner"/> : icon}
                                color={color}>
                             {buildName
-                                ? <Button className='labeled-button' variant="link" onClick={e =>
+                                ? <Button className='labeled-button dev-action-button' variant="link" onClick={e =>
                                     useLogStore.setState({showLog: true, type: 'build', podName: buildName})
                                 }>
                                     {buildName}

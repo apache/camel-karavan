@@ -102,7 +102,7 @@ export function TraceTable (props: Props) {
                                 {node?.uid}
                             </Td>
                             <Td>
-                                <Button style={{padding: '0'}} variant={"link"}
+                                <Button className="dev-action-button" style={{padding: '0'}} variant={"link"}
                                         onClick={e => {
                                             setExchangeId(exchangeId);
                                             setNodes(getNodes(exchangeId));

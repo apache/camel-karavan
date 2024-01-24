@@ -130,7 +130,7 @@ export function FilesTab () {
                                 </Td>
                                 <Td modifier={"fitContent"}>
                                     {canDeleteFiles() &&
-                                        <Button style={{padding: '0'}} variant={"plain"}
+                                        <Button className="dev-action-button" style={{padding: '0'}} variant={"plain"}
                                                 isDisabled={['application.properties', 'docker-compose.yaml'].includes(file.name)}
                                                 onClick={e =>
                                                     setFile('delete', file)
@@ -139,7 +139,7 @@ export function FilesTab () {
                                         </Button>
                                     }
                                     <Tooltip content="Download source" position={"bottom-end"}>
-                                        <Button size="sm" variant="plain" icon={<DownloadIcon/>} onClick={e => download(file)}/>
+                                        <Button className="dev-action-button"  size="sm" variant="plain" icon={<DownloadIcon/>} onClick={e => download(file)}/>
                                     </Tooltip>
                                 </Td>
                             </Tr>

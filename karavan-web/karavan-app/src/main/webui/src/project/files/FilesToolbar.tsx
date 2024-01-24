@@ -173,7 +173,7 @@ export function FileToolbar () {
             <Tooltip content="Load Custom Kamelets to Library" position={TooltipPosition.right}>
                 <Button size="sm"
                         variant={"secondary"}
-                        className="project-button"
+                        className="project-button dev-action-button"
                         icon={<RefreshIcon/>}
                         onClick={() => {
                             ProjectService.reloadKamelets();
@@ -189,7 +189,7 @@ export function FileToolbar () {
                         size="sm"
                         variant={"secondary"}
                         isDanger
-                        className="project-button"
+                        className="project-button dev-action-button"
                         icon={!isPulling ? <PushIcon/> : <div></div>}
                         onClick={() => {
                             setPullIsOpen(true);
@@ -203,7 +203,7 @@ export function FileToolbar () {
                 <Button isLoading={isPushing ? true : undefined}
                         size="sm"
                         variant={"secondary"}
-                        className="project-button"
+                        className="project-button dev-action-button"
                         icon={!isPushing ? <PushIcon/> : <div></div>}
                         onClick={() => {
                             setCommitMessage(commitMessage === '' ? new Date().toLocaleString() : commitMessage);
@@ -215,7 +215,7 @@ export function FileToolbar () {
         </FlexItem>
         {isTemplates() && config.infrastructure === 'kubernetes' && <FlexItem>
             <Tooltip content="Update Build Script in Config Maps" position={"bottom-end"}>
-                <Button size="sm" variant={"primary"} icon={<UpdateIcon/>}
+                <Button className="dev-action-button"  size="sm" variant={"primary"} icon={<UpdateIcon/>}
                         onClick={e => updateScripts()}
                 >
                     Update Script
@@ -223,11 +223,11 @@ export function FileToolbar () {
             </Tooltip>
         </FlexItem>}
         {canAddFiles() && <FlexItem>
-            <Button size="sm" variant={"primary"} icon={<PlusIcon/>}
+            <Button className="dev-action-button" size="sm" variant={"primary"} icon={<PlusIcon/>}
                     onClick={e => setFile("create")}>Create</Button>
         </FlexItem>}
         {canAddFiles() && <FlexItem>
-            <Button size="sm" variant="secondary" icon={<UploadIcon/>}
+            <Button className="dev-action-button" size="sm" variant="secondary" icon={<UploadIcon/>}
                     onClick={e => setFile("upload")}>Upload</Button>
         </FlexItem>}
         {getCommitModal()}

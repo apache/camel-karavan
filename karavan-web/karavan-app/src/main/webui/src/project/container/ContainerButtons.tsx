@@ -96,7 +96,7 @@ export function ContainerButtons (props: Props) {
         </FlexItem>
         {!isRunning && config.infrastructure !== 'kubernetes' && commands.includes('deploy') && <FlexItem>
             <Tooltip content="Deploy container" position={TooltipPosition.bottom}>
-                <Button size="sm"
+                <Button className="dev-action-button" size="sm"
                         isDisabled={(!(commands.length === 0) && !commands.includes('deploy')) || inTransit}
                         variant={"primary"}
                         icon={<DeployIcon/>}
@@ -108,7 +108,7 @@ export function ContainerButtons (props: Props) {
         </FlexItem>}
         {!isRunning && config.infrastructure !== 'kubernetes' && <FlexItem>
             <Tooltip content="Run container" position={TooltipPosition.bottom}>
-                <Button size="sm"
+                <Button className="dev-action-button" size="sm"
                         isDisabled={(!(commands.length === 0) && !commands.includes('run')) || inTransit}
                         variant={"primary"}
                         icon={<RunIcon/>}
@@ -123,7 +123,7 @@ export function ContainerButtons (props: Props) {
         {config.infrastructure !== 'kubernetes' &&
             <FlexItem>
                 <Tooltip content="Stop container" position={TooltipPosition.bottom}>
-                    <Button size="sm"
+                    <Button className="dev-action-button" size="sm"
                             isDisabled={!commands.includes('stop') || inTransit}
                             variant={"control"}
                             icon={<StopIcon/>}
@@ -137,7 +137,7 @@ export function ContainerButtons (props: Props) {
         }
         <FlexItem>
             <Tooltip content="Delete container" position={TooltipPosition.bottom}>
-                <Button size="sm"
+                <Button className="dev-action-button" size="sm"
                         isDisabled={!commands.includes('delete') || inTransit}
                         variant={"control"}
                         icon={<DeleteIcon/>}
