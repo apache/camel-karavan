@@ -26,6 +26,7 @@ import io.fabric8.openshift.api.model.ImageStream;
 import io.fabric8.openshift.client.OpenShiftClient;
 import io.quarkus.runtime.configuration.ProfileManager;
 import io.smallrye.mutiny.tuples.Tuple2;
+import io.smallrye.mutiny.tuples.Tuple3;
 import io.vertx.mutiny.core.eventbus.EventBus;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Default;
@@ -170,7 +171,7 @@ public class KubernetesService implements HealthCheck {
             String containerName = project.getProjectId() + BUILDER_SUFFIX;
             Map<String, String> labels = getLabels(containerName, project, ContainerStatus.ContainerType.build);
 //        createPVC(containerName, labels);
-            createBuildScriptConfigmap(script, false);
+//            createBuildScriptConfigmap(script, false);
 
 //        Delete old build pod
             Pod old = client.pods().inNamespace(getNamespace()).withName(containerName).get();
@@ -178,7 +179,8 @@ public class KubernetesService implements HealthCheck {
                 client.resource(old).delete();
             }
             boolean hasDockerConfigSecret = hasDockerConfigSecret();
-            Pod pod = getBuilderPod(containerName, env, labels, hasDockerConfigSecret);
+            List<Tuple3<String, String, String>> envMappings =  codeService.getBuilderEnvMapping();
+            Pod pod = getBuilderPod(containerName, env, labels, envMappings, hasDockerConfigSecret);
             Pod result = client.resource(pod).create();
 
             LOGGER.info("Created pod " + result.getMetadata().getName());
@@ -224,7 +226,8 @@ public class KubernetesService implements HealthCheck {
                 .build();
     }
 
-    private Pod getBuilderPod(String name, List<String> env, Map<String, String> labels, boolean hasDockerConfigSecret) {
+    private Pod getBuilderPod(String name, List<String> env, Map<String, String> labels,
+                              List<Tuple3<String, String, String>> envMappings, boolean hasDockerConfigSecret) {
         List<EnvVar> envVars = new ArrayList<>();
         env.stream().map(s -> s.split("=")).filter(s -> s.length > 0).forEach(parts -> {
             String varName = parts[0];
@@ -232,30 +235,16 @@ public class KubernetesService implements HealthCheck {
             envVars.add(new EnvVarBuilder().withName(varName).withValue(varValue).build());
         });
 
-        envVars.add(
-                new EnvVar("IMAGE_REGISTRY", null, new EnvVarSourceBuilder().withSecretKeyRef(new SecretKeySelector("image-registry", secretName, false)).build())
-        );
-        envVars.add(
-                new EnvVar("IMAGE_REGISTRY_USERNAME", null, new EnvVarSourceBuilder().withSecretKeyRef(new SecretKeySelector("image-registry-username", secretName, false)).build())
-        );
-        envVars.add(
-                new EnvVar("IMAGE_REGISTRY_PASSWORD", null, new EnvVarSourceBuilder().withSecretKeyRef(new SecretKeySelector("image-registry-password", secretName, false)).build())
-        );
-        envVars.add(
-                new EnvVar("IMAGE_GROUP", null, new EnvVarSourceBuilder().withSecretKeyRef(new SecretKeySelector("image-group", secretName, false)).build())
-        );
-        envVars.add(
-                new EnvVar("GIT_REPOSITORY", null, new EnvVarSourceBuilder().withSecretKeyRef(new SecretKeySelector("git-repository", secretName, false)).build())
-        );
-        envVars.add(
-                new EnvVar("GIT_USERNAME", null, new EnvVarSourceBuilder().withSecretKeyRef(new SecretKeySelector("git-username", secretName, false)).build())
-        );
-        envVars.add(
-                new EnvVar("GIT_PASSWORD", null, new EnvVarSourceBuilder().withSecretKeyRef(new SecretKeySelector("git-password", secretName, false)).build())
-        );
-        envVars.add(
-                new EnvVar("GIT_BRANCH", null, new EnvVarSourceBuilder().withSecretKeyRef(new SecretKeySelector("git-branch", secretName, false)).build())
-        );
+        envMappings.forEach(envMapping -> {
+            String variableName = envMapping.getItem1();
+            String sName = envMapping.getItem2();
+            String sKey = envMapping.getItem3();
+            envVars.add(
+                    new EnvVar(variableName, null, new EnvVarSourceBuilder().withSecretKeyRef(
+                            new SecretKeySelector(sKey, sName, false)
+                    ).build())
+            );
+        });
 
         ObjectMeta meta = new ObjectMetaBuilder()
                 .withName(name)

@@ -17,13 +17,13 @@
 
 package org.apache.camel.karavan.infinispan.model;
 
+import jakarta.validation.constraints.NotBlank;
 import org.infinispan.protostream.annotations.ProtoEnumValue;
 import org.infinispan.protostream.annotations.ProtoFactory;
 import org.infinispan.protostream.annotations.ProtoField;
 
 import java.time.Instant;
-
-import jakarta.validation.constraints.NotBlank;
+import java.util.Arrays;
 
 public class Project {
     public static final String CACHE = "projects";
@@ -69,7 +69,7 @@ public class Project {
         this.description = description;
         this.lastCommit = lastCommit;
         this.lastCommitTimestamp = lastCommitTimestamp;
-        this.type = Type.normal;
+        this.type = Arrays.stream(Type.values()).anyMatch(t -> t.name().equals(projectId)) ? Type.valueOf(projectId) : Type.normal;
     }
 
     public Project(String projectId, String name, String description) {
@@ -77,7 +77,7 @@ public class Project {
         this.name = name;
         this.description = description;
         this.lastCommitTimestamp = Instant.now().toEpochMilli();
-        this.type = Type.normal;
+        this.type = Arrays.stream(Type.values()).anyMatch(t -> t.name().equals(projectId)) ? Type.valueOf(projectId) : Type.normal;
     }
 
     public Project() {

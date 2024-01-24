@@ -23,6 +23,7 @@ import io.apicurio.datamodels.models.openapi.OpenApiDocument;
 import io.quarkus.qute.Engine;
 import io.quarkus.qute.Template;
 import io.quarkus.qute.TemplateInstance;
+import io.smallrye.mutiny.tuples.Tuple3;
 import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -64,6 +65,7 @@ public class CodeService {
     public static final String PROJECT_DEPLOYMENT_JKUBE_FILENAME = "deployment" + PROJECT_JKUBE_EXTENSION;
     private static final String SNIPPETS_PATH = "/snippets/";
     private static final String DATA_FOLDER = System.getProperty("user.dir") + File.separator + "data";
+    public static final String BUILDER_ENV_MAPPING_FILENAME = "kubernetes-builder-env.properties";
     private static final int INTERNAL_PORT = 8080;
 
     @ConfigProperty(name = "karavan.environment")
@@ -106,6 +108,26 @@ public class CodeService {
                     .forEach(file -> files.put(file.getName(), file.getCode()));
         }
         return files;
+    }
+
+    public List<Tuple3<String, String, String>> getBuilderEnvMapping() {
+        List<Tuple3<String, String, String>> result = new ArrayList<>();
+        ProjectFile projectFile = infinispanService.getProjectFile(Project.Type.templates.name(), BUILDER_ENV_MAPPING_FILENAME);
+        if (projectFile != null) {
+            String text = projectFile.getCode();
+            text.lines().forEach(line -> {
+                String[] params = line.split("=");
+                if (params.length > 1) {
+                    String env = params[0];
+                    String[] secret = params[1].split(":");
+                    String secretName = secret[0];
+                    String secretKey = secret[1];
+                    result.add(Tuple3.of(env, secretName, secretKey));
+                }
+            });
+        }
+
+        return result;
     }
 
     public ProjectFile getApplicationProperties(Project project) {
