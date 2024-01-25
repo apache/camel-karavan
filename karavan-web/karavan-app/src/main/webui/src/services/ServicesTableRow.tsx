@@ -57,7 +57,7 @@ export function ServicesTableRow (props: Props) {
                       spaceItems={{default: 'spaceItemsNone'}}>
                     <FlexItem>
                         <Tooltip content={"Start container"} position={"bottom"}>
-                            <Button variant={"plain"} icon={<PlayIcon/>} isDisabled={!commands.includes('run') || inTransit}
+                            <Button className={'dev-action-button'} variant={"plain"} icon={<PlayIcon/>} isDisabled={!commands.includes('run') || inTransit}
                                     onClick={e => {
                                         KaravanApi.manageContainer(service.container_name, 'devservice', service.container_name, 'run', false,res => {});
                                     }}></Button>
@@ -65,7 +65,7 @@ export function ServicesTableRow (props: Props) {
                     </FlexItem>
                     <FlexItem>
                         <Tooltip content={"Pause container"} position={"bottom"}>
-                            <Button variant={"plain"} icon={<PauseIcon/>} isDisabled={!commands.includes('pause') || inTransit}
+                            <Button className={'dev-action-button'} variant={"plain"} icon={<PauseIcon/>} isDisabled={!commands.includes('pause') || inTransit}
                                     onClick={e => {
                                         // KaravanApi.manageContainer(container.env, container.containerName, 'pause', res => {});
                                     }}></Button>
@@ -73,7 +73,7 @@ export function ServicesTableRow (props: Props) {
                     </FlexItem>
                     <FlexItem>
                         <Tooltip content={"Stop container"} position={"bottom"}>
-                            <Button variant={"plain"} icon={<StopIcon/>} isDisabled={!commands.includes('stop') || inTransit}
+                            <Button className={'dev-action-button'} variant={"plain"} icon={<StopIcon/>} isDisabled={!commands.includes('stop') || inTransit}
                                     onClick={e => {
                                         KaravanApi.manageContainer(service.container_name, 'devservice', service.container_name, 'stop', false,res => {});
                                     }}></Button>
@@ -81,7 +81,7 @@ export function ServicesTableRow (props: Props) {
                     </FlexItem>
                     <FlexItem>
                         <Tooltip content={"Delete container"} position={"bottom"}>
-                            <Button variant={"plain"} icon={<DeleteIcon/>} isDisabled={!commands.includes('delete') || inTransit}
+                            <Button className={'dev-action-button'} variant={"plain"} icon={<DeleteIcon/>} isDisabled={!commands.includes('delete') || inTransit}
                                     onClick={e => {
                                         KaravanApi.deleteContainer(service.container_name, 'devservice', service.container_name, res => {});
                                     }}></Button>
@@ -148,7 +148,7 @@ export function ServicesTableRow (props: Props) {
                 <Td colSpan={1}>
                     <ExpandableRowContent>
                         <Flex direction={{default: "column"}} cellPadding={"0px"}>
-                        {keys.map(key => <FlexItem key={key}>{key + ": " + env[key]}</FlexItem>)}
+                            {keys.map(key => <FlexItem key={key}>{key + ": " + env[key]}</FlexItem>)}
                         </Flex>
                     </ExpandableRowContent>
                 </Td>
