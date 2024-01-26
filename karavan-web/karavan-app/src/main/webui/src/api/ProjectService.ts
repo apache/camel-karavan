@@ -245,15 +245,14 @@ export class ProjectService {
         return result.data;
     }
 
-    public static createFile(file: ProjectFile) {
-        KaravanApi.postProjectFile(file, res => {
-            if (res.status === 200) {
-                // console.log(res) //TODO show notification
-                ProjectService.refreshProjectData(file.projectId);
-            } else {
-                // console.log(res) //TODO show notification
-            }
-        })
+    public static async createFile(file: ProjectFile) {
+        const result = await KaravanApi.saveProjectFile(file);
+        return result.data;
+    }
+
+    public static async createOpenApiFile(file: ProjectFile, generateRest: boolean, generateRoutes: boolean, integrationName: string) {
+        const result = await KaravanApi.postOpenApi(file, generateRest, generateRoutes, integrationName);
+        return result.data;
     }
 
     public static deleteFile(file: ProjectFile) {

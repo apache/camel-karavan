@@ -267,12 +267,16 @@ export class KaravanApi {
         });
     }
 
+    static async saveProjectFile(file: ProjectFile) {
+        return instance.post('/api/file', file);
+    }
+
     static async postProjectFile(file: ProjectFile, after: (res: AxiosResponse<any>) => void) {
         instance.post('/api/file', file)
             .then(res => {
                 after(res);
             }).catch(err => {
-            after(err);
+                after(err);
         });
     }
 
@@ -621,14 +625,9 @@ export class KaravanApi {
         });
     }
 
-    static async postOpenApi(file: ProjectFile, generateRest: boolean, generateRoutes: boolean, integrationName: string, after: (res: AxiosResponse<any>) => void) {
+    static async postOpenApi(file: ProjectFile, generateRest: boolean, generateRoutes: boolean, integrationName: string) {
         const uri = `/api/file/openapi/${generateRest}/${generateRoutes}/${integrationName}`;
-        instance.post(encodeURI(uri), file)
-            .then(res => {
-                after(res);
-            }).catch(err => {
-            after(err);
-        });
+        return instance.post(encodeURI(uri), file);
     }
 
     static async fetchData(type: 'container' | 'build' | 'none', podName: string, controller: AbortController) {

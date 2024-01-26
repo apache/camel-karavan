@@ -17,22 +17,44 @@
 import React, {useEffect, useState} from 'react';
 import {
     TextInput,
-    Button, Modal, FormGroup, ModalVariant, Switch, Form, FileUpload, Radio
+    Button, Modal, FormGroup, ModalVariant, Switch, Form, FileUpload, Radio, Alert, Divider, Grid, Text
 } from '@patternfly/react-core';
 import '../../designer/karavan.css';
 import {ProjectFile} from "../../api/ProjectModels";
-import {KaravanApi} from "../../api/KaravanApi";
 import {useFileStore} from "../../api/ProjectStore";
 import {Accept, DropEvent, FileRejection} from "react-dropzone";
 import {EventBus} from "../../designer/utils/EventBus";
 import {shallow} from "zustand/shallow";
 import {ProjectService} from "../../api/ProjectService";
+import {useForm} from "react-hook-form";
+import {useResponseErrorHandler} from "../../shared/error/UseResponseErrorHandler";
+import {AxiosError} from "axios";
 
 interface Props {
     projectId: string,
 }
 
 export function UploadFileModal(props: Props) {
+
+    const defaultFormValues = {
+        upload: ""
+    };
+
+    const responseToFormErrorFields = new Map<string, string>([
+        ["name", "upload"]
+    ]);
+
+    const {
+        register,
+        setError,
+        handleSubmit,
+        formState: { errors },
+        reset,
+        clearErrors
+    } = useForm({
+        mode: "onChange",
+        defaultValues: defaultFormValues
+    });
 
     const [operation, setFile] = useFileStore((s) => [s.operation, s.setFile], shallow);
     const [type, setType] = useState<'integration' | 'openapi' | 'other'>('integration');
@@ -43,6 +65,10 @@ export function UploadFileModal(props: Props) {
     const [isRejected, setIsRejected] = useState(false);
     const [generateRest, setGenerateRest] = useState(true);
     const [generateRoutes, setGenerateRoutes] = useState(true);
+    const [globalErrors, registerResponseErrors, resetGlobalErrors] = useResponseErrorHandler(
+        responseToFormErrorFields,
+        setError
+    );
 
     useEffect(() => {
         setFilename('')
@@ -50,35 +76,39 @@ export function UploadFileModal(props: Props) {
         setType('integration')
     }, []);
 
-    function closeModal () {
-        setFile("none")
+    function resetForm() {
+        resetGlobalErrors();
     }
 
-    function saveAndCloseModal () {
+    function closeModal () {
+        setFile("none");
+        resetForm();
+    }
+
+    function handleFormSubmit() {
         const file = new ProjectFile(filename, props.projectId, data, Date.now());
-        if (type === "openapi"){
-            KaravanApi.postOpenApi(file, generateRest, generateRoutes, integrationName, res => {
-                if (res.status === 200) {
-                    EventBus.sendAlert("File uploaded", "", "info")
-                    closeModal();
-                    ProjectService.refreshProjectData(props.projectId);
-                } else {
-                    closeModal();
-                    EventBus.sendAlert("Error", res.statusText, "warning")
-                }
-            })
+
+        if (type === "openapi") {
+            return ProjectService.createOpenApiFile(file, generateRest, generateRoutes, integrationName)
+                .then(() => handleOnFormSubmitSuccess())
+                .catch((error) => handleOnFormSubmitFailure(error));
         } else {
-            KaravanApi.postProjectFile(file, res => {
-                if (res.status === 200) {
-                    EventBus.sendAlert("File uploaded", "", "info")
-                    closeModal();
-                    ProjectService.refreshProjectData(props.projectId);
-                } else {
-                    closeModal();
-                    EventBus.sendAlert("Error", res.statusText, "warning")
-                }
-            })
+            return ProjectService.createFile(file)
+                .then(() => handleOnFormSubmitSuccess())
+                .catch((error) => handleOnFormSubmitFailure(error));
         }
+    }
+
+    function handleOnFormSubmitSuccess () {
+        const message = "File successfully uploaded.";
+        EventBus.sendAlert( "Success", message, "success");
+
+        closeModal();
+        ProjectService.refreshProjectData(props.projectId);
+    }
+
+    function handleOnFormSubmitFailure(error: AxiosError) {
+        registerResponseErrors(error);
     }
 
     const handleFileInputChange = (file: File) => setFilename(file.name);
@@ -90,6 +120,8 @@ export function UploadFileModal(props: Props) {
         setFilename('');
         setData('');
         setIsRejected(false);
+        resetGlobalErrors();
+        reset(defaultFormValues);
     };
 
 
@@ -104,20 +136,32 @@ export function UploadFileModal(props: Props) {
             isOpen={operation === 'upload'}
             onClose={closeModal}
             actions={[
-                <Button key="confirm" variant="primary" onClick={saveAndCloseModal} isDisabled={fileNotUploaded}>Save</Button>,
+                <Button key="confirm" variant="primary" onClick={handleSubmit(handleFormSubmit)} isDisabled={fileNotUploaded}>Save</Button>,
                 <Button key="cancel" variant="secondary" onClick={closeModal}>Cancel</Button>
             ]}
         >
             <Form>
                 <FormGroup fieldId="type">
                     <Radio value="Integration" label="Integration yaml" name="Integration" id="Integration" isChecked={type === 'integration'}
-                           onChange={(event, _) => setType(_ ? 'integration': 'openapi' )}
+                           onChange={(event, _) => {
+                               resetGlobalErrors();
+                               clearErrors("upload");
+                               setType(_ ? 'integration': 'openapi' );
+                           }}
                     />{' '}
                     <Radio value="OpenAPI" label="OpenAPI json/yaml" name="OpenAPI" id="OpenAPI" isChecked={type === 'openapi'}
-                           onChange={(event, _) => setType( _ ? 'openapi' : 'integration' )}
+                           onChange={(event, _) => {
+                               resetGlobalErrors();
+                               clearErrors("upload");
+                               setType( _ ? 'openapi' : 'integration' );
+                           }}
                     />
                     <Radio value="Other" label="Other" name="Other" id="Other" isChecked={type === 'other'}
-                           onChange={(event, _) => setType( _ ? 'other' : 'integration' )}
+                           onChange={(event, _) => {
+                               resetGlobalErrors();
+                               clearErrors("upload");
+                               setType( _ ? 'other' : 'integration' );
+                           }}
                     />
                 </FormGroup>
                 <FormGroup fieldId="upload">
@@ -129,16 +173,27 @@ export function UploadFileModal(props: Props) {
                         hideDefaultPreview
                         browseButtonText="Upload"
                         isLoading={isLoading}
-                        onFileInputChange={(_event, fileHandle: File) => handleFileInputChange(fileHandle)}
-                        onDataChange={(_event, data) => handleTextOrDataChange(data)}
-                        onTextChange={(_event, text) => handleTextOrDataChange(text)}
+                        onFileInputChange={(_event, fileHandle: File) => {
+                            handleFileInputChange(fileHandle);
+                            register('upload').onChange(_event);
+                        }}
+                        onDataChange={(_event, data) => {
+                            handleTextOrDataChange(data);
+                            register('upload').onChange(_event);
+                        }}
+                        onTextChange={(_event, text) => {
+                            handleTextOrDataChange(data);
+                            register('upload').onChange(_event);
+                        }}
                         onReadStarted={(_event, fileHandle: File) => handleFileReadStarted(fileHandle)}
                         onReadFinished={(_event, fileHandle: File) => handleFileReadFinished(fileHandle)}
                         allowEditingUploadedText={false}
                         onClearClick={handleClear}
                         dropzoneProps={{accept: accept, onDropRejected: handleFileRejected}}
-                        validated={isRejected ? 'error' : 'default'}
+                        validated={!!errors.upload && isRejected ? 'error' : 'default'}
+                        {...register('upload')}
                     />
+                    {!!errors.upload && <Text  style={{ color: 'red', fontStyle: 'italic'}}>{errors?.upload?.message}</Text>}
                 </FormGroup>
                 {type === 'openapi' && <FormGroup fieldId="generateRest">
                     <Switch
@@ -167,7 +222,14 @@ export function UploadFileModal(props: Props) {
                                onChange={(_, value) => setIntegrationName(value)}
                     />
                 </FormGroup>}
+                <Grid>
+                    {globalErrors &&
+                        globalErrors.map((error) => (
+                            <Alert title={error} key={error} variant="danger"></Alert>
+                        ))}
+                    <Divider role="presentation" />
+                </Grid>
             </Form>
         </Modal>
     )
-};
+}
