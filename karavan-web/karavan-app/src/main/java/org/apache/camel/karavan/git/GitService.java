@@ -309,11 +309,14 @@ public class GitService {
     }
 
     private PersonIdent getPersonIdent() {
+        String defaultEmailAddress = "karavan@test.org";
+
         if (securityIdentity != null && securityIdentity.getAttributes().get("userinfo") != null) {
             UserInfo userInfo = (UserInfo) securityIdentity.getAttributes().get("userinfo");
-            return new PersonIdent(securityIdentity.getPrincipal().getName(), userInfo.getEmail());
+            String email = Objects.isNull(userInfo.getEmail()) || userInfo.getEmail().isBlank() ? defaultEmailAddress : userInfo.getEmail();
+            return new PersonIdent(securityIdentity.getPrincipal().getName(), email);
         }
-        return new PersonIdent("karavan", "karavan@test.org");
+        return new PersonIdent("karavan", defaultEmailAddress);
     }
 
     public Git init(String dir, String uri, String branch) throws GitAPIException, IOException, URISyntaxException {

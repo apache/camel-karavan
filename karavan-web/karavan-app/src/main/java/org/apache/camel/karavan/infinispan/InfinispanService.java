@@ -17,8 +17,10 @@
 package org.apache.camel.karavan.infinispan;
 
 import jakarta.enterprise.inject.Default;
+import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import org.apache.camel.karavan.infinispan.model.*;
+import org.apache.camel.karavan.validation.project.ProjectFileCreateValidator;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.faulttolerance.Retry;
 import org.eclipse.microprofile.health.HealthCheck;
@@ -62,6 +64,9 @@ public class InfinispanService implements HealthCheck {
     String infinispanUsername;
     @ConfigProperty(name = "karavan.infinispan.password")
     String infinispanPassword;
+
+    @Inject
+    ProjectFileCreateValidator projectFileCreateValidator;
 
     private RemoteCache<GroupedKey, Project> projects;
     private RemoteCache<GroupedKey, ProjectFile> files;
@@ -174,6 +179,8 @@ public class InfinispanService implements HealthCheck {
     }
 
     public void saveProjectFile(ProjectFile file) {
+        projectFileCreateValidator.validate(file).failOnError();
+
         files.put(GroupedKey.create(file.getProjectId(), DEFAULT_ENVIRONMENT, file.getName()), file);
     }
 

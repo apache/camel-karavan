@@ -22,12 +22,12 @@ import {
     FormGroup,
     ModalVariant,
     Form,
-    ToggleGroupItem, ToggleGroup, FormHelperText, HelperText, HelperTextItem, TextInput,
+    ToggleGroupItem, ToggleGroup, TextInput, Alert, Divider, Grid, Text,
 } from '@patternfly/react-core';
 import '../../designer/karavan.css';
 import {Integration, KameletTypes, MetadataLabels} from "karavan-core/lib/model/IntegrationDefinition";
 import {CamelDefinitionYaml} from "karavan-core/lib/api/CamelDefinitionYaml";
-import {useFilesStore, useFileStore, useProjectStore} from "../../api/ProjectStore";
+import {useFileStore, useProjectStore} from "../../api/ProjectStore";
 import {ProjectFile, ProjectFileTypes} from "../../api/ProjectModels";
 import {CamelUi} from "../../designer/utils/CamelUi";
 import {ProjectService} from "../../api/ProjectService";
@@ -35,6 +35,12 @@ import {shallow} from "zustand/shallow";
 import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
 import {KameletApi} from "karavan-core/lib/api/KameletApi";
 import {TypeaheadSelect, Value} from "../../designer/ui/TypeaheadSelect";
+import * as yup from "yup";
+import {useForm} from "react-hook-form";
+import {yupResolver} from "@hookform/resolvers/yup";
+import {useResponseErrorHandler} from "../../shared/error/UseResponseErrorHandler";
+import {EventBus} from "../../designer/utils/EventBus";
+import {AxiosError} from "axios";
 
 interface Props {
     types: string[],
@@ -43,14 +49,44 @@ interface Props {
 
 export function CreateFileModal(props: Props) {
 
+    const formValidationSchema = yup.object().shape({
+        name: yup
+            .string()
+            .required("File name is required"),
+    });
+
+    const defaultFormValues = {
+        name: ""
+    };
+
+    const responseToFormErrorFields = new Map<string, string>([
+        ["name", "name"]
+    ]);
+
+    const {
+        register,
+        setError,
+        handleSubmit,
+        formState: { errors },
+        reset,
+        clearErrors
+    } = useForm({
+        resolver: yupResolver(formValidationSchema),
+        mode: "onChange",
+        defaultValues: defaultFormValues
+    });
+
+
     const [project] = useProjectStore((s) => [s.project], shallow);
-    const [files] = useFilesStore((s) => [s.files], shallow);
     const [operation, setFile, designerTab] = useFileStore((s) => [s.operation, s.setFile, s.designerTab], shallow);
     const [name, setName] = useState<string>('');
-    const [nameAvailable, setNameAvailable] = useState<boolean>(true);
     const [fileType, setFileType] = useState<string>();
     const [kameletType, setKameletType] = useState<KameletTypes>('source');
     const [selectedKamelet, setSelectedKamelet] = useState<string>();
+    const [globalErrors, registerResponseErrors, resetGlobalErrors] = useResponseErrorHandler(
+        responseToFormErrorFields,
+        setError
+    );
 
     useEffect(() => {
         if (props.types.length > 0) {
@@ -58,14 +94,44 @@ export function CreateFileModal(props: Props) {
         }
     }, [props]);
 
-    function cleanValues() {
-        setName("");
+    function resetForm() {
+        resetGlobalErrors();
+        reset(defaultFormValues);
+        setName("")
         setFileType(props.types.at(0) || 'INTEGRATION');
     }
 
     function closeModal() {
         setFile("none");
-        cleanValues();
+        resetForm();
+    }
+
+    function handleFormSubmit() {
+        const code = getCode();
+        const fullFileName = getFullFileName(name, fileType);
+        const file = new ProjectFile(fullFileName, project.projectId, code, Date.now());
+
+        return ProjectService.createFile(file)
+            .then(() => handleOnFormSubmitSuccess(code, file))
+            .catch((error) => handleOnFormSubmitFailure(error));
+    }
+
+    function handleOnFormSubmitSuccess (code: string, file: ProjectFile) {
+        const message = "File successfully created.";
+        EventBus.sendAlert( "Success", message, "success");
+
+        ProjectService.refreshProjectData(file.projectId);
+
+        resetForm();
+        if (code) {
+            setFile('select', file, designerTab);
+        } else {
+            setFile("none");
+        }
+    }
+
+    function handleOnFormSubmitFailure(error: AxiosError) {
+        registerResponseErrors(error);
     }
 
     function getCode(): string {
@@ -92,23 +158,6 @@ export function CreateFileModal(props: Props) {
         }
     }
 
-    function confirmAndCloseModal() {
-        const code = getCode();
-        const fullFileName = getFullFileName(name, fileType);
-        const file = new ProjectFile(fullFileName, project.projectId, code, Date.now());
-        ProjectService.createFile(file);
-        cleanValues();
-        if (code) {
-            setFile('select', file, designerTab);
-        } else {
-            setFile("none");
-        }
-    }
-
-    function getExistingFilenames(): string[] {
-        return files.map(f => f.name);
-    }
-
     function fileNameCheck(title: string) {
         return title.replace(/[^0-9a-zA-Z.]+/gi, "-").toLowerCase();
     }
@@ -133,8 +182,6 @@ export function CreateFileModal(props: Props) {
 
     function update(value: string, type?: string) {
         setName(value);
-        const exists = getExistingFilenames().findIndex(f => f === getFullFileName(value, type)) === -1;
-        setNameAvailable(exists);
         setFileType(type);
     }
 
@@ -145,9 +192,8 @@ export function CreateFileModal(props: Props) {
             isOpen={["create", "copy"].includes(operation)}
             onClose={closeModal}
             actions={[
-                <Button key="confirm" variant="primary" isDisabled={!nameAvailable || name === undefined || name.trim().length === 0}
-                        onClick={event => confirmAndCloseModal()}>Save</Button>,
-                <Button key="cancel" variant="secondary" onClick={event => closeModal()}>Cancel</Button>
+                <Button key="confirm" variant="primary" onClick={handleSubmit(handleFormSubmit)}>Save</Button>,
+                <Button key="cancel" variant="secondary" onClick={closeModal}>Cancel</Button>
             ]}
         >
             <Form autoComplete="off" isHorizontal className="create-file-form">
@@ -159,6 +205,8 @@ export function CreateFileModal(props: Props) {
                                 return <ToggleGroupItem key={title} text={title} buttonId={p.name}
                                                         isSelected={fileType === p.name}
                                                         onChange={(_, selected) => {
+                                                            resetGlobalErrors();
+                                                            clearErrors('name');
                                                             update(name, p.name);
                                                         }}/>
                             })}
@@ -178,23 +226,30 @@ export function CreateFileModal(props: Props) {
                     </ToggleGroup>
                 </FormGroup>}
                 <FormGroup label="Name" fieldId="name" isRequired>
-                    <TextInput id="name"
+                    <TextInput className="text-field" type="text" id="name"
                                aria-label="name"
                                value={name}
-                               onChange={(_, value) => update(value, fileType)}/>
-                    <FormHelperText>
-                        <HelperText id="helper-text1">
-                            <HelperTextItem variant={nameAvailable ? 'default' : 'error'}>
-                                {!nameAvailable ? 'File ': ''}{getFullFileName(name, fileType)}{!nameAvailable ? ' already exists': ''}
-                            </HelperTextItem>
-                        </HelperText>
-                    </FormHelperText>
+                               validated={!!errors.name ? 'error' : 'default'}
+                               {...register('name')}
+                               onChange={(e, value) => {
+                                   update(value, fileType);
+                                   register('name').onChange(e);
+                               }}
+                    />
+                    {!!errors.name && <Text  style={{ color: 'red', fontStyle: 'italic'}}>{errors?.name?.message}</Text>}
                 </FormGroup>
                 {isKamelet && <FormGroup label="Copy from" fieldId="kamelet">
                     <TypeaheadSelect listOfValues={listOfValues} onSelect={value => {
                         setSelectedKamelet(value)
                     }}/>
                 </FormGroup>}
+                <Grid>
+                    {globalErrors &&
+                        globalErrors.map((error) => (
+                            <Alert title={error} key={error} variant="danger"></Alert>
+                        ))}
+                    <Divider role="presentation" />
+                </Grid>
             </Form>
         </Modal>
     )
