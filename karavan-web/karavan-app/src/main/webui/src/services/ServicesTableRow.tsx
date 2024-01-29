@@ -59,7 +59,7 @@ export function ServicesTableRow (props: Props) {
                         <Tooltip content={"Start container"} position={"bottom"}>
                             <Button className={'dev-action-button'} variant={"plain"} icon={<PlayIcon/>} isDisabled={!commands.includes('run') || inTransit}
                                     onClick={e => {
-                                        KaravanApi.manageContainer(service.container_name, 'devservice', service.container_name, 'run', false,res => {});
+                                        KaravanApi.manageContainer(service.container_name, 'devservice', service.container_name, 'deploy', false,res => {});
                                     }}></Button>
                         </Tooltip>
                     </FlexItem>
