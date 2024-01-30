@@ -81,7 +81,7 @@ export function ProjectsTableRow (props: Props) {
                             const active = value[1];
                             const color = active ? "green" : "grey"
                             const style = active ? {fontWeight: "bold"} : {}
-                            return <Label style={style} color={color} >{value[0]}</Label>
+                            return <Label key={value.toString()} style={style} color={color} >{value[0]}</Label>
                         })}
                     </div>
                 }

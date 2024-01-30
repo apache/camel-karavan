@@ -271,8 +271,8 @@ export class KaravanApi {
         return instance.post('/api/file', file);
     }
 
-    static async postProjectFile(file: ProjectFile, after: (res: AxiosResponse<any>) => void) {
-        instance.post('/api/file', file)
+    static async putProjectFile(file: ProjectFile, after: (res: AxiosResponse<any>) => void) {
+        instance.put('/api/file', file)
             .then(res => {
                 after(res);
             }).catch(err => {

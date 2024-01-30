@@ -41,7 +41,7 @@ export function FileEditor (props: Props) {
     function save (name: string, code: string) {
         if (file) {
             file.code = code;
-            ProjectService.saveFile(file, true);
+            ProjectService.updateFile(file, true);
         }
     }
 
@@ -61,7 +61,7 @@ export function FileEditor (props: Props) {
                 tab={designerTab}
                 onSave={(name, yaml) => save(name, yaml)}
                 onSaveCustomCode={(name, code) =>
-                    ProjectService.saveFile(new ProjectFile(name + ".java", props.projectId, code, Date.now()), false)}
+                    ProjectService.updateFile(new ProjectFile(name + ".java", props.projectId, code, Date.now()), false)}
                 onGetCustomCode={onGetCustomCode}
             />
         )

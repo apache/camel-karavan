@@ -139,8 +139,8 @@ export class ProjectService {
         })
     }
 
-    public static saveFile(file: ProjectFile, active: boolean) {
-        KaravanApi.postProjectFile(file, res => {
+    public static updateFile(file: ProjectFile, active: boolean) {
+        KaravanApi.putProjectFile(file, res => {
             if (res.status === 200) {
                 const newFile = res.data;
                 useFilesStore.getState().upsertFile(newFile);

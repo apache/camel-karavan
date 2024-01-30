@@ -22,6 +22,7 @@ import jakarta.ws.rs.core.MediaType;
 import org.apache.camel.karavan.code.CodeService;
 import org.apache.camel.karavan.infinispan.InfinispanService;
 import org.apache.camel.karavan.infinispan.model.ProjectFile;
+import org.apache.camel.karavan.validation.project.ProjectFileCreateValidator;
 
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
@@ -39,6 +40,9 @@ public class ProjectFileResource {
     @Inject
     CodeService codeService;
 
+    @Inject
+    ProjectFileCreateValidator projectFileCreateValidator;
+
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/{projectId}")
@@ -52,7 +56,17 @@ public class ProjectFileResource {
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public ProjectFile save(ProjectFile file) throws Exception {
+    public ProjectFile create(ProjectFile file) throws Exception {
+        file.setLastUpdate(Instant.now().toEpochMilli());
+        projectFileCreateValidator.validate(file).failOnError();
+        infinispanService.saveProjectFile(file);
+        return file;
+    }
+
+    @PUT
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public ProjectFile update(ProjectFile file) throws Exception {
         file.setLastUpdate(Instant.now().toEpochMilli());
         infinispanService.saveProjectFile(file);
         return file;

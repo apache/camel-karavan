@@ -21,14 +21,13 @@ public class ProjectFileCreateValidator extends Validator<ProjectFile> {
         this.infinispanService = infinispanService;
     }
 
-
     @Override
     protected void validationRules(ProjectFile value, List<ValidationError> errors) {
         simpleValidator.validate(value, errors);
 
         boolean projectFileExists = infinispanService.getProjectFile(value.getProjectId(), value.getName()) != null;
 
-        if(projectFileExists) {
+        if (projectFileExists) {
             errors.add(new ValidationError("name", "File with given name already exists"));
         }
     }
