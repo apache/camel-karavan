@@ -248,6 +248,11 @@
     min-height: 6px;
 }
 
+.karavan .properties .header-menu-toggle {
+    padding-left: 6px;
+    padding-right: 0;
+}
+
 .karavan .properties .component-headers {
     margin-left: 24px;
 }

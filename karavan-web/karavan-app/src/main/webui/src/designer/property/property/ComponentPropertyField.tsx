@@ -21,10 +21,13 @@ import {
     Popover,
     Switch,
     InputGroup,
-    TextArea,
     Tooltip,
     Button,
-    capitalize, InputGroupItem, TextInputGroup, TextVariants, Text
+    capitalize,
+    InputGroupItem,
+    TextInputGroup,
+    TextVariants,
+    Text,
 } from '@patternfly/react-core';
 import {
     Select,
@@ -51,6 +54,7 @@ import {shallow} from "zustand/shallow";
 import {KubernetesIcon} from "../../icons/ComponentIcons";
 import EditorIcon from "@patternfly/react-icons/dist/js/icons/code-icon";
 import {ModalEditor} from "./ModalEditor";
+import {ComponentPropertyPlaceholderDropdown} from "./ComponentPropertyPlaceholderDropdown";
 
 const prefix = "parameters";
 const beanPrefix = "#bean:";
@@ -67,16 +71,18 @@ export function ComponentPropertyField(props: Props) {
     const {onParametersChange, getInternalComponentName} = usePropertiesHook();
 
     const [integration] = useIntegrationStore((state) => [state.integration], shallow)
-    const [dark, setSelectedStep] = useDesignerStore((s) => [s.dark, s.setSelectedStep], shallow)
+    const [dark, setSelectedStep, propertyPlaceholders] = useDesignerStore((s) =>
+        [s.dark, s.setSelectedStep, s.propertyPlaceholders], shallow)
 
     const [selectStatus, setSelectStatus] = useState<Map<string, boolean>>(new Map<string, boolean>());
     const [showEditor, setShowEditor] = useState<boolean>(false);
     const [showPassword, setShowPassword] = useState<boolean>(false);
     const [infrastructureSelector, setInfrastructureSelector] = useState<boolean>(false);
     const [infrastructureSelectorProperty, setInfrastructureSelectorProperty] = useState<string | undefined>(undefined);
-
     const [id, setId] = useState<string>(prefix + "-" + props.property.name);
+
     const ref = useRef<any>(null);
+    const [isOpenPlaceholdersDropdown, setOpenPlaceholdersDropdown] = useState<boolean>(false);
 
 
     function parametersChanged(parameter: string, value: string | number | boolean | any, pathParameter?: boolean, newRoute?: RouteToCreate) {
@@ -262,20 +268,30 @@ export function ComponentPropertyField(props: Props) {
                     </Button>
                 </Tooltip>
             }
+            <InputGroupItem>
+                <ComponentPropertyPlaceholderDropdown property={property}/>
+            </InputGroupItem>
         </InputGroup>
     }
 
-    function getTextInput(property: ComponentProperty, value: any) {
+    function getSpecialStringInput(property: ComponentProperty, value: any) {
         return (
-            <TextInput
-                className="text-field" isRequired
-                type={(property.secret ? "password" : "text")}
-                id={id} name={id}
-                value={value !== undefined ? value : property.defaultValue}
-                customIcon={<Text component={TextVariants.p}>{property.type}</Text>}
-                onChange={(_, value) => {
-                    parametersChanged(property.name, value, property.kind === 'path')
-                }}/>
+            <InputGroup>
+                <InputGroupItem isFill>
+                    <TextInput
+                        className="text-field" isRequired
+                        type={(property.secret ? "password" : "text")}
+                        id={id} name={id}
+                        value={value !== undefined ? value : property.defaultValue}
+                        customIcon={<Text component={TextVariants.p}>{property.type}</Text>}
+                        onChange={(_, value) => {
+                            parametersChanged(property.name, value, property.kind === 'path')
+                        }}/>
+                </InputGroupItem>
+                <InputGroupItem>
+                    <ComponentPropertyPlaceholderDropdown property={property}/>
+                </InputGroupItem>
+            </InputGroup>
         )
     }
 
@@ -330,6 +346,9 @@ export function ComponentPropertyField(props: Props) {
                         onChange={(_, v) => parametersChanged(property.name, v)}
                     />
                 </InputGroupItem>
+                <InputGroupItem>
+                    <ComponentPropertyPlaceholderDropdown property={property}/>
+                </InputGroupItem>
             </TextInputGroup>
         )
     }
@@ -362,7 +381,7 @@ export function ComponentPropertyField(props: Props) {
             {property.type === 'string' && property.enum === undefined && !canBeInternalUri(property)
                 && getStringInput(property, value)}
             {['duration', 'integer', 'int', 'number'].includes(property.type) && property.enum === undefined && !canBeInternalUri(property)
-                && getTextInput(property, value)}
+                && getSpecialStringInput(property, value)}
             {['object'].includes(property.type) && !property.enum
                 && getSelectBean(property, value)}
             {['string', 'object'].includes(property.type) && property.enum
