@@ -34,7 +34,7 @@ export function TopologyToolbar (props: Props) {
         <ToolbarContent>
             <ToolbarItem align={{default:"alignRight"}}>
                 <Tooltip content={"Add Integration Route"} position={"bottom"}>
-                    <Button size="sm"
+                    <Button className="dev-action-button" size="sm"
                             variant={"primary"}
                             icon={<PlusIcon/>}
                             onClick={e => props.onClickAddRoute()}
@@ -45,7 +45,7 @@ export function TopologyToolbar (props: Props) {
             </ToolbarItem>
             <ToolbarItem align={{default:"alignRight"}}>
                 <Tooltip content={"Add REST API"} position={"bottom"}>
-                    <Button size="sm"
+                    <Button className="dev-action-button" size="sm"
                             variant={"primary"}
                             icon={<PlusIcon/>}
                             onClick={e => props.onClickAddREST()}
@@ -56,7 +56,7 @@ export function TopologyToolbar (props: Props) {
             </ToolbarItem>
             <ToolbarItem align={{default:"alignRight"}}>
                 <Tooltip content={"Add Bean"} position={"bottom"}>
-                    <Button size="sm"
+                    <Button className="dev-action-button" size="sm"
                             variant={"primary"}
                             icon={<PlusIcon/>}
                             onClick={e => props.onClickAddBean()}

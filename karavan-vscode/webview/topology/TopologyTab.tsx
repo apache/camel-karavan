@@ -45,10 +45,10 @@ interface Props {
     onClickAddBean: () => void
 }
 
-export function TopologyTab (props: Props) {
+export function TopologyTab(props: Props) {
 
-    const [selectedIds, setSelectedIds, setFileName] = useTopologyStore((s) =>
-        [s.selectedIds, s.setSelectedIds, s.setFileName], shallow);
+    const [selectedIds, setSelectedIds, setFileName, ranker, setRanker] = useTopologyStore((s) =>
+        [s.selectedIds, s.setSelectedIds, s.setFileName, s.ranker, s.setRanker], shallow);
     const [setSelectedStep] = useDesignerStore((s) => [s.setSelectedStep], shallow)
 
     function setTopologySelected(model: Model, ids: string []) {
@@ -71,7 +71,15 @@ export function TopologyTab (props: Props) {
     const controller = React.useMemo(() => {
         const model = getModel(props.files);
         const newController = new Visualization();
-        newController.registerLayoutFactory((_, graph) => new DagreLayout(graph));
+        newController.registerLayoutFactory((_, graph) =>
+            new DagreLayout(graph, {
+                rankdir: 'TB',
+                ranker: ranker,
+                nodesep: 20,
+                edgesep: 20,
+                ranksep: 0
+            }));
+
         newController.registerComponentFactory(customComponentFactory);
 
         newController.addEventListener(SELECTION_EVENT, args => setTopologySelected(model, args));
@@ -84,15 +92,51 @@ export function TopologyTab (props: Props) {
 
         newController.fromModel(model, false);
         return newController;
-    }, []);
+    },[]);
 
     React.useEffect(() => {
         setSelectedIds([])
         const model = getModel(props.files);
         controller.fromModel(model, false);
-    }, []);
+    }, [ranker, controller, setSelectedIds, props.files]);
 
-    return (
+    const controlButtons = React.useMemo(() => {
+        // const customButtons = [
+        //     {
+        //         id: "change-ranker",
+        //         icon: <RankerIcon />,
+        //         tooltip: 'Change Ranker ' + ranker,
+        //         ariaLabel: '',
+        //         callback: (id: any) => {
+        //             if (ranker === 'network-simplex') {
+        //                 setRanker('tight-tree')
+        //             } else {
+        //                 setRanker('network-simplex')
+        //             }
+        //         }
+        //     }
+        // ];
+        return createTopologyControlButtons({
+            ...defaultControlButtonsOptions,
+            zoomInCallback: action(() => {
+                controller.getGraph().scaleBy(4 / 3);
+            }),
+            zoomOutCallback: action(() => {
+                controller.getGraph().scaleBy(0.75);
+            }),
+            fitToScreenCallback: action(() => {
+                controller.getGraph().fit(80);
+            }),
+            resetViewCallback: action(() => {
+                controller.getGraph().reset();
+                controller.getGraph().layout();
+            }),
+            legend: false,
+            // customButtons,
+        });
+    }, [ranker, controller, setRanker]);
+
+        return (
         <TopologyView
             className="topology-panel"
             contextToolbar={!props.hideToolbar
@@ -103,28 +147,12 @@ export function TopologyTab (props: Props) {
             sideBar={<TopologyPropertiesPanel onSetFile={props.onSetFile}/>}
             controlBar={
                 <TopologyControlBar
-                    controlButtons={createTopologyControlButtons({
-                        ...defaultControlButtonsOptions,
-                        zoomInCallback: action(() => {
-                            controller.getGraph().scaleBy(4 / 3);
-                        }),
-                        zoomOutCallback: action(() => {
-                            controller.getGraph().scaleBy(0.75);
-                        }),
-                        fitToScreenCallback: action(() => {
-                            controller.getGraph().fit(80);
-                        }),
-                        resetViewCallback: action(() => {
-                            controller.getGraph().reset();
-                            controller.getGraph().layout();
-                        }),
-                        legend: false
-                    })}
+                    controlButtons={controlButtons}
                 />
             }
         >
             <VisualizationProvider controller={controller}>
-                <VisualizationSurface state={{ selectedIds }}/>
+                <VisualizationSurface state={{selectedIds}}/>
             </VisualizationProvider>
         </TopologyView>
     );

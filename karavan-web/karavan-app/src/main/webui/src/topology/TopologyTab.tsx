@@ -35,7 +35,6 @@ import {IntegrationFile, useTopologyStore} from "./TopologyStore";
 import {TopologyPropertiesPanel} from "./TopologyPropertiesPanel";
 import {TopologyToolbar} from "./TopologyToolbar";
 import {useDesignerStore} from "../designer/DesignerStore";
-import RankerIcon from "@patternfly/react-icons/dist/esm/icons/random-icon";
 
 interface Props {
     files: IntegrationFile[],

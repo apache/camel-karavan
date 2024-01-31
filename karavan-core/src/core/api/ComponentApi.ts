@@ -87,6 +87,23 @@ export class ComponentApi {
         return ComponentApi.getComponents().find((c: Component) => c.component.name === name);
     };
 
+    static findStepComponent = (step?: CamelElement): Component | undefined => {
+        return ComponentApi.findByName((step as any)?.uri)
+    };
+
+    static getComponentHeadersList = (step?: CamelElement): ComponentHeader [] => {
+        const component = step && ComponentApi.findStepComponent(step);
+        if (component && component.headers) {
+            return Object.getOwnPropertyNames(component.headers).map(n => {
+                const header = component.headers[n];
+                header.name = n;
+                return header;
+            })
+        } else {
+            return [];
+        }
+    };
+
     static getComponentNameFromUri = (uri: string): string | undefined => {
         return uri !== undefined ? uri.split(':')[0] : undefined;
     };

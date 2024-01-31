@@ -27,7 +27,7 @@ import {
     MenuToggleElement,
     MenuToggle,
     DropdownList,
-    DropdownItem,
+    DropdownItem, Label, Flex, LabelGroup, Popover, FlexItem, Badge,
 } from '@patternfly/react-core';
 import '../karavan.css';
 import './DslProperties.css';
@@ -44,6 +44,9 @@ import {shallow} from "zustand/shallow";
 import {usePropertiesHook} from "./usePropertiesHook";
 import {CamelDisplayUtil} from "karavan-core/lib/api/CamelDisplayUtil";
 import EllipsisVIcon from '@patternfly/react-icons/dist/esm/icons/ellipsis-v-icon';
+import QuestionIcon from '@patternfly/react-icons/dist/esm/icons/question-icon';
+import {ComponentApi} from "karavan-core/lib/api/ComponentApi";
+import HelpIcon from "@patternfly/react-icons/dist/js/icons/help-icon";
 
 interface Props {
     designerType: 'routes' | 'rest' | 'beans'
@@ -53,7 +56,15 @@ export function DslProperties(props: Props) {
 
     const [integration] = useIntegrationStore((s) => [s.integration], shallow)
 
-    const {saveAsRoute, convertStep, cloneElement, onDataFormatChange, onPropertyChange, onParametersChange, onExpressionChange} =
+    const {
+        saveAsRoute,
+        convertStep,
+        cloneElement,
+        onDataFormatChange,
+        onPropertyChange,
+        onParametersChange,
+        onExpressionChange
+    } =
         usePropertiesHook(props.designerType);
 
     const [selectedStep, dark]
@@ -63,7 +74,7 @@ export function DslProperties(props: Props) {
     const [isDescriptionExpanded, setIsDescriptionExpanded] = useState<boolean>(false);
     const [isMenuOpen, setMenuOpen] = useState<boolean>(false);
 
-    useEffect(()=> {
+    useEffect(() => {
         setMenuOpen(false)
     }, [selectedStep])
 
@@ -77,7 +88,8 @@ export function DslProperties(props: Props) {
                 style={{inset: "0px auto auto -70px important!"}}
                 className={"xxx"}
                 isOpen={isMenuOpen}
-                onSelect={() => {}}
+                onSelect={() => {
+                }}
                 onOpenChange={(isOpen: boolean) => setMenuOpen(isOpen)}
                 toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
                     <MenuToggle
@@ -89,11 +101,11 @@ export function DslProperties(props: Props) {
                         onClick={() => setMenuOpen(!isMenuOpen)}
                         isExpanded={isMenuOpen}
                     >
-                        <EllipsisVIcon />
+                        <EllipsisVIcon/>
                     </MenuToggle>
                 )}
             >
-                <DropdownList >
+                <DropdownList>
                     {hasSteps &&
                         <DropdownItem key="saveRoute" onClick={(ev) => {
                             ev.preventDefault()
@@ -102,8 +114,8 @@ export function DslProperties(props: Props) {
                                 setMenuOpen(false);
                             }
                         }}>
-                        Save Steps to Route
-                    </DropdownItem>}
+                            Save Steps to Route
+                        </DropdownItem>}
                     {hasSteps &&
                         <DropdownItem key="saveRoute" onClick={(ev) => {
                             ev.preventDefault()
@@ -112,19 +124,19 @@ export function DslProperties(props: Props) {
                                 setMenuOpen(false);
                             }
                         }}>
-                        Save Element to Route
+                            Save Element to Route
                         </DropdownItem>}
                     {targetDsl &&
                         <DropdownItem key="convert"
-                                   onClick={(ev) => {
-                                       ev.preventDefault()
-                                       if (selectedStep) {
-                                           convertStep(selectedStep, targetDsl);
-                                           setMenuOpen(false);
-                                       }
-                                   }}>
-                        Convert to {targetDslTitle}
-                    </DropdownItem>}
+                                      onClick={(ev) => {
+                                          ev.preventDefault()
+                                          if (selectedStep) {
+                                              convertStep(selectedStep, targetDsl);
+                                              setMenuOpen(false);
+                                          }
+                                      }}>
+                            Convert to {targetDslTitle}
+                        </DropdownItem>}
                 </DropdownList>
             </Dropdown> : <></>;
     }
@@ -133,6 +145,8 @@ export function DslProperties(props: Props) {
         const title = selectedStep && CamelDisplayUtil.getTitle(selectedStep)
         const description = selectedStep && CamelDisplayUtil.getDescription(selectedStep);
         const descriptionLines: string [] = description ? description?.split("\n") : [""];
+        const headers = ComponentApi.getComponentHeadersList(selectedStep)
+        const groups = selectedStep?.dslName === 'FromDefinition' ? ['consumer', 'common'] : ['producer', 'common']
         return (
             <div className="headers">
                 <div className="top">
@@ -146,6 +160,42 @@ export function DslProperties(props: Props) {
                                        isExpanded={isDescriptionExpanded}>
                         {descriptionLines.filter((value, index) => index > 0)
                             .map((desc, index, array) => <Text key={index} component={TextVariants.p}>{desc}</Text>)}
+                    </ExpandableSection>}
+
+                {headers.length > 0 &&
+                    <ExpandableSection toggleText='Headers'
+                                       onToggle={(_event, isExpanded) => setIsDescriptionExpanded(!isDescriptionExpanded)}
+                                       isExpanded={isDescriptionExpanded}>
+                        <Flex direction={{default:"column"}}>
+                            {headers.filter((header) => groups.includes(header.group))
+                                .map((header, index, array) =>
+                                    <Flex key={index}>
+                                        <Text style={{marginLeft: "26px"}} component={TextVariants.p}>{header.name}</Text>
+                                        <FlexItem align={{default: 'alignRight'}}>
+                                            <Popover
+                                                position={"left"}
+                                                headerContent={header.name}
+                                                bodyContent={header.description}
+                                                footerContent={
+                                                <Flex>
+                                                    <Text component={TextVariants.p}>{header.javaType}</Text>
+                                                    <FlexItem align={{default: 'alignRight'}}>
+                                                        <Badge isRead>{header.group}</Badge>
+                                                    </FlexItem>
+                                                </Flex>
+                                                }
+                                            >
+                                                <button type="button" aria-label="More info" onClick={e => {
+                                                    e.preventDefault();
+                                                    e.stopPropagation();
+                                                }} className="pf-v5-c-form__group-label-help">
+                                                    <HelpIcon/>
+                                                </button>
+                                            </Popover>
+                                        </FlexItem>
+                                    </Flex>
+                                )}
+                        </Flex>
                     </ExpandableSection>}
             </div>
         )
@@ -216,7 +266,7 @@ export function DslProperties(props: Props) {
                 {selectedStep && !['MarshalDefinition', 'UnmarshalDefinition'].includes(selectedStep.dslName)
                     && propertiesAdvanced.length > 0 &&
                     <ExpandableSection
-                        toggleText={'Advanced properties'}
+                        toggleText={'EIP advanced properties'}
                         onToggle={(_event, isExpanded) => setShowAdvanced(!showAdvanced)}
                         isExpanded={showAdvanced}>
                         <div className="parameters">
