@@ -248,3 +248,15 @@
     min-height: 6px;
 }
 
+.karavan .properties .header-menu-toggle {
+    padding-left: 6px;
+    padding-right: 0;
+}
+
+.karavan .properties .component-headers {
+    margin-left: 24px;
+}
+
+.karavan .properties .component-headers .pf-v5-c-clipboard-copy.pf-m-inline {
+    background-color: transparent;
+}

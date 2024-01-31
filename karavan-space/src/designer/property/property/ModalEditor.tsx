@@ -22,11 +22,10 @@ import {
 } from '@patternfly/react-core';
 import '../../karavan.css';
 import "@patternfly/patternfly/patternfly.css";
-import {PropertyMeta} from "karavan-core/lib/model/CamelMetadata";
 import Editor from "@monaco-editor/react";
 
 interface Props {
-    property: PropertyMeta,
+    name: string,
     customCode: any,
     onSave: (fieldId: string, value: string | number | boolean | any) => void,
     onClose: () => void,
@@ -49,7 +48,7 @@ export function ModalEditor(props: Props) {
     }
 
     function closeAndSave(){
-        props.onSave(props.property.name, customCode);
+        props.onSave(props.name, customCode);
     }
 
     const {dark, dslLanguage, title, showEditor} = props;

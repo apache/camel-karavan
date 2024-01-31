@@ -168,7 +168,8 @@ type DesignerState = {
     height: number,
     top: number,
     left: number,
-    moveElements: [string | undefined, string | undefined]
+    moveElements: [string | undefined, string | undefined],
+    propertyPlaceholders: string[];
 }
 
 const designerState: DesignerState = {
@@ -186,7 +187,8 @@ const designerState: DesignerState = {
     height: 0,
     top: 0,
     left: 0,
-    moveElements: [undefined, undefined]
+    moveElements: [undefined, undefined],
+    propertyPlaceholders: []
 };
 
 type DesignerAction = {
@@ -203,6 +205,7 @@ type DesignerAction = {
     reset: () => void;
     setNotification: (notificationBadge: boolean, notificationMessage: [string, string]) => void;
     setMoveElements: (moveElements: [string | undefined, string | undefined]) => void;
+    setPropertyPlaceholders: (propertyPlaceholders: string[]) => void;
 }
 
 export const useDesignerStore = createWithEqualityFn<DesignerState & DesignerAction>((set) => ({
@@ -257,5 +260,12 @@ export const useDesignerStore = createWithEqualityFn<DesignerState & DesignerAct
     },
     setMoveElements: (moveElements: [string | undefined, string | undefined]) => {
         set({moveElements: moveElements})
-    }
+    },
+    setPropertyPlaceholders: (propertyPlaceholders: string[]) => {
+        set((state: DesignerState) => {
+            state.propertyPlaceholders.length = 0;
+            state.propertyPlaceholders.push(...propertyPlaceholders);
+            return state;
+        })
+    },
 }), shallow)

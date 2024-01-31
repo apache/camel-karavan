@@ -74,6 +74,7 @@ import {
 import {TemplateApi} from "karavan-core/lib/api/TemplateApi";
 import {KubernetesIcon} from "../../icons/ComponentIcons";
 import {BeanProperties} from "./BeanProperties";
+import {ComponentPropertyPlaceholderDropdown} from "./ComponentPropertyPlaceholderDropdown";
 
 interface Props {
     property: PropertyMeta,

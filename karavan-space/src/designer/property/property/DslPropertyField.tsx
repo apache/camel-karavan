@@ -32,7 +32,7 @@ import {
     Tooltip,
     Card,
     InputGroup,
-    capitalize, InputGroupItem
+    capitalize, InputGroupItem, TextVariants
 } from '@patternfly/react-core';
 import {
     Select,
@@ -59,8 +59,6 @@ import {CamelDefinitionApi} from "karavan-core/lib/api/CamelDefinitionApi";
 import AddIcon from "@patternfly/react-icons/dist/js/icons/plus-circle-icon";
 import {MediaTypes} from "../../utils/MediaTypes";
 import {ComponentProperty} from "karavan-core/lib/model/ComponentModels";
-import CompressIcon from "@patternfly/react-icons/dist/js/icons/compress-icon";
-import ExpandIcon from "@patternfly/react-icons/dist/js/icons/expand-icon";
 import {InfrastructureSelector} from "./InfrastructureSelector";
 import {InfrastructureAPI} from "../../utils/InfrastructureAPI";
 import EditorIcon from "@patternfly/react-icons/dist/js/icons/code-icon";
@@ -76,6 +74,7 @@ import {
 import {TemplateApi} from "karavan-core/lib/api/TemplateApi";
 import {KubernetesIcon} from "../../icons/ComponentIcons";
 import {BeanProperties} from "./BeanProperties";
+import {ComponentPropertyPlaceholderDropdown} from "./ComponentPropertyPlaceholderDropdown";
 
 interface Props {
     property: PropertyMeta,
@@ -229,6 +228,9 @@ export function DslPropertyField(props: Props) {
         const inInfrastructure = InfrastructureAPI.infrastructure !== 'local';
         const noInfraSelectorButton = ["uri", "id", "description", "group"].includes(property.name);
         const icon = InfrastructureAPI.infrastructure === 'kubernetes' ? KubernetesIcon("infra-button") : <DockerIcon/>
+        const isNumber = ['integer', 'number', 'duration'].includes(property.type);
+        const uriReadOnly = isUriReadOnly(property);
+        const showEditorButton = !uriReadOnly && !isNumber && !property.secret && !['id', 'description'].includes(property.name);
         return (<InputGroup>
             {inInfrastructure && !showEditor && !noInfraSelectorButton &&
                 <InputGroupItem>
@@ -244,34 +246,35 @@ export function DslPropertyField(props: Props) {
                 <InputGroupItem isFill>
                     <TextInput ref={ref}
                                className="text-field" isRequired
-                               type={['integer', 'number'].includes(property.type) ? 'number' : (property.secret ? "password" : "text")}
+                               type={(property.secret ? "password" : "text")}
                                id={property.name} name={property.name}
                                value={value?.toString()}
-                               onChange={(_, v) => propertyChanged(property.name, ['integer', 'number'].includes(property.type) ? Number(v) : v)}
-                               readOnlyVariant={isUriReadOnly(property) ? "default" : undefined}/>
+                               customIcon={property.type !== 'string' ? <Text component={TextVariants.p}>{property.type}</Text> : undefined}
+                               onChange={(_, v) =>
+                                   propertyChanged(property.name, v)}
+                               readOnlyVariant={uriReadOnly? "default" : undefined}/>
                 </InputGroupItem>
             }
-            {showEditor && !property.secret &&
-                <InputGroupItem isFill>
-                    <TextArea ref={ref}
-                              autoResize={true}
-                              className="text-field" isRequired
-                              type="text"
-                              id={property.name} name={property.name}
-                              value={value?.toString()}
-                              onChange={(_, v) => propertyChanged(property.name, ['integer', 'number'].includes(property.type) ? Number(v) : v)}
-                              readOnlyVariant={isUriReadOnly(property) ? "default" : undefined}/>
-                </InputGroupItem>
-            }
-            {!property.secret &&
-                <InputGroupItem>
-                    <Tooltip position="bottom-end" content={showEditor ? "Change to TextField" : "Change to Text Area"}>
-                        <Button variant="control" onClick={e => setShowEditor(!showEditor)}>
-                            {showEditor ? <CompressIcon/> : <ExpandIcon/>}
-                        </Button>
-                    </Tooltip>
-                </InputGroupItem>
-            }
+            {showEditorButton && <InputGroupItem>
+                <Tooltip position="bottom-end" content={"Show Editor"}>
+                    <Button variant="control" onClick={e => setShowEditor(!showEditor)}>
+                        <EditorIcon/>
+                    </Button>
+                </Tooltip>
+            </InputGroupItem>}
+            {showEditor && <InputGroupItem>
+                <ModalEditor name={property.name}
+                             customCode={value}
+                             showEditor={showEditor}
+                             dark={dark}
+                             dslLanguage={undefined}
+                             title={property.displayName}
+                             onClose={() => setShowEditor(false)}
+                             onSave={(fieldId, value1) => {
+                                 propertyChanged(property.name, value1)
+                                 setShowEditor(false);
+                             }}/>
+            </InputGroupItem>}
         </InputGroup>)
     }
 
@@ -313,7 +316,7 @@ export function DslPropertyField(props: Props) {
                 </Tooltip>
             </InputGroupItem>
             {showEditor && <InputGroupItem>
-                <ModalEditor property={property}
+                <ModalEditor name={property.name}
                              customCode={customCode}
                              showEditor={showEditor}
                              dark={dark}
@@ -351,7 +354,7 @@ export function DslPropertyField(props: Props) {
                     </Tooltip>
                 </InputGroupItem>
                 {showEditor && <InputGroupItem>
-                    <ModalEditor property={property}
+                    <ModalEditor name={property.name}
                                  customCode={value}
                                  showEditor={showEditor}
                                  dark={dark}
@@ -388,7 +391,7 @@ export function DslPropertyField(props: Props) {
         )
     }
 
-    function getSwitch(property: PropertyMeta, value: any) {
+    function getBooleanInput(property: PropertyMeta, value: any) {
         const isValueBoolean = (value === true || value === false);
         const isDisabled = value !== undefined && !isValueBoolean;
         let isChecked = false;
@@ -410,17 +413,16 @@ export function DslPropertyField(props: Props) {
                         isChecked={isChecked}
                         onChange={(_, v) => propertyChanged(property.name, v)}/>
                 </InputGroupItem>
-                {property.placeholder && <InputGroupItem isFill>
+                <InputGroupItem isFill>
                     <TextInput
                         id={property.name + "-placeholder"}
                         name={property.name + "-placeholder"}
                         type="text"
                         aria-label="placeholder"
-                        placeholder="Property placeholder"
                         value={!isValueBoolean ? value?.toString() : undefined}
                         onChange={(_, v) => propertyChanged(property.name, v)}
                     />
-                </InputGroupItem>}
+                </InputGroupItem>
             </TextInputGroup>
         )
     }
@@ -831,7 +833,7 @@ export function DslPropertyField(props: Props) {
                 {isMultiValueField(property)
                     && getMultiValueField(property, value)}
                 {property.type === 'boolean'
-                    && getSwitch(property, value)}
+                    && getBooleanInput(property, value)}
                 {property.enumVals
                     && getSelect(property, value)}
                 {isKamelet && property.name === 'parameters' && getKameletParameters()}

@@ -108,6 +108,7 @@ export class SpacePage extends React.Component<Props, State> {
                 onSaveCustomCode={(name1, code) => {
                     console.log(name1, code)
                 }}
+                propertyPlaceholders={[]}
             />
         )
     }

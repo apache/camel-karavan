@@ -41,7 +41,6 @@ import {BeansDesigner} from "./beans/BeansDesigner";
 import {CodeEditor} from "./editor/CodeEditor";
 import BellIcon from '@patternfly/react-icons/dist/esm/icons/bell-icon';
 import {KameletDesigner} from "./kamelet/KameletDesigner";
-import {v4 as uuidv4} from "uuid";
 
 interface Props {
     onSave: (filename: string, yaml: string, propertyOnly: boolean) => void
@@ -53,13 +52,15 @@ interface Props {
     hideLogDSL?: boolean
     showCodeTab: boolean
     tab?: "routes" | "rest" | "beans"
+    propertyPlaceholders: string[]
 }
 
 export function KaravanDesigner(props: Props) {
 
     const [tab, setTab] = useState<string>('routes');
-    const [setDark, hideLogDSL, setHideLogDSL, setSelectedStep, reset, badge, message] = useDesignerStore((s) =>
-        [s.setDark, s.hideLogDSL, s.setHideLogDSL, s.setSelectedStep, s.reset, s.notificationBadge, s.notificationMessage], shallow)
+    const [setDark, hideLogDSL, setHideLogDSL, setSelectedStep, reset, badge, message, setPropertyPlaceholders] =
+        useDesignerStore((s) =>
+        [s.setDark, s.hideLogDSL, s.setHideLogDSL, s.setSelectedStep, s.reset, s.notificationBadge, s.notificationMessage, s.setPropertyPlaceholders], shallow)
     const [integration, setIntegration] = useIntegrationStore((s) =>
         [s.integration, s.setIntegration], shallow)
 
@@ -83,6 +84,7 @@ export function KaravanDesigner(props: Props) {
         setTab(designerTab || 'routes')
         reset();
         setDark(props.dark);
+        setPropertyPlaceholders(props.propertyPlaceholders)
         setHideLogDSL(props.hideLogDSL === true);
         return () => {
             sub?.unsubscribe();

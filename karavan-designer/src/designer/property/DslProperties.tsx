@@ -27,7 +27,7 @@ import {
     MenuToggleElement,
     MenuToggle,
     DropdownList,
-    DropdownItem, Label, Flex, LabelGroup, Popover, FlexItem, Badge, ClipboardCopy, ClipboardCopyAction,
+    DropdownItem, Flex, Popover, FlexItem, Badge, ClipboardCopy,
 } from '@patternfly/react-core';
 import '../karavan.css';
 import './DslProperties.css';
@@ -85,18 +85,16 @@ export function DslProperties(props: Props) {
         const showMenu = hasSteps || targetDsl !== undefined;
         return showMenu ?
             <Dropdown
-                style={{inset: "0px auto auto -70px important!"}}
-                className={"xxx"}
+                popperProps={{position: "end"}}
                 isOpen={isMenuOpen}
                 onSelect={() => {
                 }}
                 onOpenChange={(isOpen: boolean) => setMenuOpen(isOpen)}
                 toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
                     <MenuToggle
-                        style={{width: "240px", display: "flex", flexDirection: "row", justifyContent: "end"}}
-                        className={"zzzz"}
+                        className="header-menu-toggle"
                         ref={toggleRef}
-                        aria-label="kebab dropdown toggle"
+                        aria-label="menu"
                         variant="plain"
                         onClick={() => setMenuOpen(!isMenuOpen)}
                         isExpanded={isMenuOpen}
