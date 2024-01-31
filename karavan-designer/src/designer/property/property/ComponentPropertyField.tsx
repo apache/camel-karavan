@@ -62,7 +62,7 @@ interface Props {
     onParameterChange?: (parameter: string, value: string | number | boolean | any, pathParameter?: boolean, newRoute?: RouteToCreate) => void
 }
 
-export function ComponentParameterField(props: Props) {
+export function ComponentPropertyField(props: Props) {
 
     const {onParametersChange, getInternalComponentName} = usePropertiesHook();
 

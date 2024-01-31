@@ -33,7 +33,12 @@
             id: to-53a3
             description: Send payments
             uri: amqp
-
+- route:
+    id: route-8609
+    nodePrefixId: route-ae2
+    from:
+      id: from-6aee
+      uri: timer
 
 #      steps:
 #        - marshal:
