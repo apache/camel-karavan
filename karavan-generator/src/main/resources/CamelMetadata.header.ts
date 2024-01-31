@@ -50,11 +50,10 @@ export class PropertyMeta {
     isObject: boolean = false
     label: string = ''
     javaType: string = ''
-    placeholder: boolean = false
 
     constructor(name: string, displayName: string, description: string, type: string, enumVals: string,
                 defaultValue: string, required: boolean, secret: boolean, isArray: boolean, isObject: boolean,
-                label: string, javaType: string, placeholder: boolean) {
+                label: string, javaType: string) {
         this.name = name;
         this.displayName = displayName;
         this.description = description;
@@ -67,7 +66,6 @@ export class PropertyMeta {
         this.isObject = isObject;
         this.label = label;
         this.javaType = javaType;
-        this.placeholder = placeholder;
     }
 }
 

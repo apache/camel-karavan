@@ -24,7 +24,7 @@ import {
     TextArea,
     Tooltip,
     Button,
-    capitalize, InputGroupItem
+    capitalize, InputGroupItem, TextInputGroup, TextVariants, Text
 } from '@patternfly/react-core';
 import {
     Select,
@@ -39,8 +39,6 @@ import {ComponentProperty} from "karavan-core/lib/model/ComponentModels";
 import {CamelUi, RouteToCreate} from "../../utils/CamelUi";
 import {CamelElement} from "karavan-core/lib/model/IntegrationDefinition";
 import {ToDefinition} from "karavan-core/lib/model/CamelDefinition";
-import CompressIcon from "@patternfly/react-icons/dist/js/icons/compress-icon";
-import ExpandIcon from "@patternfly/react-icons/dist/js/icons/expand-icon";
 import {InfrastructureSelector} from "./InfrastructureSelector";
 import {InfrastructureAPI} from "../../utils/InfrastructureAPI";
 import DockerIcon from "@patternfly/react-icons/dist/js/icons/docker-icon";
@@ -48,9 +46,11 @@ import ShowIcon from "@patternfly/react-icons/dist/js/icons/eye-icon";
 import HideIcon from "@patternfly/react-icons/dist/js/icons/eye-slash-icon";
 import PlusIcon from "@patternfly/react-icons/dist/esm/icons/plus-icon";
 import {usePropertiesHook} from "../usePropertiesHook";
-import {useIntegrationStore} from "../../DesignerStore";
+import {useDesignerStore, useIntegrationStore} from "../../DesignerStore";
 import {shallow} from "zustand/shallow";
 import {KubernetesIcon} from "../../icons/ComponentIcons";
+import EditorIcon from "@patternfly/react-icons/dist/js/icons/code-icon";
+import {ModalEditor} from "./ModalEditor";
 
 const prefix = "parameters";
 const beanPrefix = "#bean:";
@@ -67,6 +67,7 @@ export function ComponentPropertyField(props: Props) {
     const {onParametersChange, getInternalComponentName} = usePropertiesHook();
 
     const [integration] = useIntegrationStore((state) => [state.integration], shallow)
+    const [dark, setSelectedStep] = useDesignerStore((s) => [s.dark, s.setSelectedStep], shallow)
 
     const [selectStatus, setSelectStatus] = useState<Map<string, boolean>>(new Map<string, boolean>());
     const [showEditor, setShowEditor] = useState<boolean>(false);
@@ -170,7 +171,7 @@ export function ComponentPropertyField(props: Props) {
                     <Button isDisabled={value === undefined} variant="control" onClick={e => {
                         if (value) {
                             const newRoute = !internalUris.includes(value.toString())
-                                ? CamelUi.createNewInternalRoute(componentName.concat(...':',value.toString()))
+                                ? CamelUi.createNewInternalRoute(componentName.concat(...':', value.toString()))
                                 : undefined;
                             parametersChanged(property.name, value, property.kind === 'path', newRoute);
                         }
@@ -234,20 +235,26 @@ export function ComponentPropertyField(props: Props) {
                            id={id} name={id}
                            value={value !== undefined ? value : property.defaultValue}
                            onChange={(e, value) => parametersChanged(property.name, value, property.kind === 'path')}/>}
-            {showEditor && !property.secret &&
-                <TextArea autoResize={true} ref={ref}
-                          className="text-field" isRequired
-                          type="text"
-                          id={id} name={id}
-                          value={value !== undefined ? value : property.defaultValue}
-                          onChange={(e, value) => parametersChanged(property.name, value, property.kind === 'path')}/>}
-            {!property.secret &&
-                <Tooltip position="bottom-end" content={showEditor ? "Change to TextField" : "Change to Text Area"}>
+            <InputGroupItem>
+                <Tooltip position="bottom-end" content={"Show Editor"}>
                     <Button variant="control" onClick={e => setShowEditor(!showEditor)}>
-                        {showEditor ? <CompressIcon/> : <ExpandIcon/>}
+                        <EditorIcon/>
                     </Button>
                 </Tooltip>
-            }
+            </InputGroupItem>
+            {showEditor && <InputGroupItem>
+                <ModalEditor name={property.name}
+                             customCode={value}
+                             showEditor={showEditor}
+                             dark={dark}
+                             dslLanguage={undefined}
+                             title={property.displayName}
+                             onClose={() => setShowEditor(false)}
+                             onSave={(fieldId, value1) => {
+                                 parametersChanged(property.name, value1, property.kind === 'path')
+                                 setShowEditor(false);
+                             }}/>
+            </InputGroupItem>}
             {property.secret &&
                 <Tooltip position="bottom-end" content={showPassword ? "Hide" : "Show"}>
                     <Button variant="control" onClick={e => setShowPassword(!showPassword)}>
@@ -262,11 +269,12 @@ export function ComponentPropertyField(props: Props) {
         return (
             <TextInput
                 className="text-field" isRequired
-                type={['integer', 'int', 'number'].includes(property.type) ? 'number' : (property.secret ? "password" : "text")}
+                type={(property.secret ? "password" : "text")}
                 id={id} name={id}
                 value={value !== undefined ? value : property.defaultValue}
+                customIcon={<Text component={TextVariants.p}>{property.type}</Text>}
                 onChange={(_, value) => {
-                    parametersChanged(property.name, ['integer', 'int', 'number'].includes(property.type) ? Number(value) : value, property.kind === 'path')
+                    parametersChanged(property.name, value, property.kind === 'path')
                 }}/>
         )
     }
@@ -297,14 +305,32 @@ export function ComponentPropertyField(props: Props) {
     }
 
     function getSwitch(property: ComponentProperty, value: any) {
+        const isValueBoolean = (value === true || value === false);
+        const isDisabled = value !== undefined && !isValueBoolean;
         const isChecked = value !== undefined ? Boolean(value) : (property.defaultValue !== undefined && ['true', true].includes(property.defaultValue))
         return (
-            <Switch
-                id={id} name={id}
-                value={value?.toString()}
-                aria-label={id}
-                isChecked={isChecked}
-                onChange={(e, checked) => parametersChanged(property.name, checked)}/>
+            <TextInputGroup className="input-group">
+                <InputGroupItem>
+                    <Switch
+                        id={id} name={id}
+                        value={value?.toString()}
+                        isDisabled={isDisabled}
+                        className="switch-placeholder"
+                        aria-label={id}
+                        isChecked={isChecked}
+                        onChange={(e, checked) => parametersChanged(property.name, checked)}/>
+                </InputGroupItem>
+                <InputGroupItem isFill>
+                    <TextInput
+                        id={property.name + "-placeholder"}
+                        name={property.name + "-placeholder"}
+                        type="text"
+                        aria-label="placeholder"
+                        value={!isValueBoolean ? value?.toString() : undefined}
+                        onChange={(_, v) => parametersChanged(property.name, v)}
+                    />
+                </InputGroupItem>
+            </TextInputGroup>
         )
     }
 

@@ -203,11 +203,10 @@ public final class CamelMetadataGenerator extends AbstractGenerator {
                         defaultValue = defaultValue.length() == 1 && defaultValue.toCharArray()[0] == '\\' ? "\\\\" : defaultValue;
                         String labels = p != null && p.containsKey("label") ? p.getString("label") : "";
                         String javaType = getJavaType(name, p);
-                        Boolean placeholder = Objects.equals(typeInCatalog, "string") && !Objects.equals(typeInCatalog, pm.type);
                         if (name.equals("ProcessDefinition") && pname.equals("ref")) javaType = "org.apache.camel.Processor"; // exception for processor
                         code.append(String.format(
-                                "        new PropertyMeta('%s', '%s', \"%s\", '%s', '%s', '%s', %b, %b, %b, %b, '%s', '%s', %b),\n",
-                                pname, displayName, desc, pm.type, en, defaultValue, required, secret, pm.isArray, (pm.isArray ? pm.type : pm.isObject), labels, javaType, placeholder));
+                                "        new PropertyMeta('%s', '%s', \"%s\", '%s', '%s', '%s', %b, %b, %b, %b, '%s', '%s'),\n",
+                                pname, displayName, desc, pm.type, en, defaultValue, required, secret, pm.isArray, (pm.isArray ? pm.type : pm.isObject), labels, javaType));
                     }
                 });
                 code.append("    ]),\n");
