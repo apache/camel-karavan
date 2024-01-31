@@ -111,6 +111,22 @@ export async function readComponents(context: ExtensionContext) {
     return jsons;
 }
 
+export async function readPropertyPlaceholder(context: ExtensionContext) {
+    const result: string[] = [];
+    const properties = await getProperties();
+    const lines = properties.split('\n').map((line) => line.trim());
+        lines
+            .filter(line => !line.startsWith("camel.") && !line.startsWith("jkube.") && !line.startsWith("jib."))
+            .filter(line => line !== undefined && line !== null && line.length > 0)
+            .forEach(line => {
+            const parts = line.split("=");
+            if (parts.length > 0) {
+                result.push(parts[0]);
+            }
+        })
+    return result;
+}
+
 export async function readTemplates(context: ExtensionContext) {
     const result = new Map<string, string>();
     const runtime = await getRuntime();

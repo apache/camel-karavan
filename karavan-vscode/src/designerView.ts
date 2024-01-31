@@ -177,7 +177,9 @@ export class DesignerView {
             utils.readJavaCode(fullPath),
             // Read supported components
             utils.readSupportedComponents(),
-            utils.readSupportedOnlySettings()
+            utils.readSupportedOnlySettings(),
+            // Read property placeholders
+            utils.readPropertyPlaceholder(this.context)
         ]).then(results => {
             // Send Kamelets
             panel.webview.postMessage({ command: 'kamelets', kamelets: results[0] });
@@ -191,22 +193,24 @@ export class DesignerView {
             if (results[4]) panel.webview.postMessage({ command: 'supportedComponents', components: results[4]});
             if (results[5] === true) panel.webview.postMessage({ command: 'supportedOnly'});
             // Send integration
-            this.sendIntegrationData(panel, filename, relativePath, fullPath, reread, yaml, tab);
+            this.sendIntegrationData(panel, filename, relativePath, fullPath, reread, yaml, tab, results[6]);
             
         }).catch(err => console.log(err));
     }
 
-    sendIntegrationData(panel: WebviewPanel, filename: string, relativePath: string, fullPath: string, reread: boolean, yaml?: string, tab?: string) {
+    sendIntegrationData(panel: WebviewPanel, filename: string, relativePath: string, fullPath: string, reread: boolean, yaml?: string, tab?: string, propertyPlaceholders?: string[]) {
         // Read file if required
         if (reread) {
             utils.readFile(path.resolve(fullPath)).then(readData => {
                 const yaml = Buffer.from(readData).toString('utf8');
                 // Send integration
-                panel.webview.postMessage({ command: 'open', page: "designer", filename: filename, relativePath: relativePath, fullPath:fullPath, yaml: yaml, tab: tab });
+                panel.webview.postMessage(
+                    { command: 'open', page: "designer", filename: filename, relativePath: relativePath, fullPath:fullPath, yaml: yaml, tab: tab, propertyPlaceholders: propertyPlaceholders });
             });
         } else {
             // Send integration
-            panel.webview.postMessage({ command: 'open', page: "designer", filename: filename, relativePath: relativePath, fullPath:fullPath, yaml: yaml, tab: tab });
+            panel.webview.postMessage(
+                { command: 'open', page: "designer", filename: filename, relativePath: relativePath, fullPath:fullPath, yaml: yaml, tab: tab, propertyPlaceholders: propertyPlaceholders });
         }
 
     }

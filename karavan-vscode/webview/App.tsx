@@ -46,7 +46,8 @@ interface State {
   page: "designer" | "knowledgebase" | 'topology'
   active: boolean
   tab?: "routes" | "rest" | "beans"
-  files: IntegrationFile[]
+  files: IntegrationFile[],
+  propertyPlaceholders: string[]
 }
 
 class App extends React.Component<Props, State> {
@@ -64,6 +65,7 @@ class App extends React.Component<Props, State> {
     page: "designer",
     active: false,
     files: [],
+    propertyPlaceholders: []
   };
 
   saveScheduledChanges = () => {
@@ -153,7 +155,8 @@ class App extends React.Component<Props, State> {
             key: Math.random().toString(),
             loaded: true,
             active: true,
-            tab: message.tab
+            tab: message.tab,
+            propertyPlaceholders: message.propertyPlaceholders
           });
         }
         break;
@@ -219,6 +222,7 @@ class App extends React.Component<Props, State> {
               if (code === undefined || code.length === 0) code = TemplateApi.generateCode(javaType, name);
               return new Promise<string | undefined>(resolve => resolve(code))
             }}
+            propertyPlaceholders={this.state.propertyPlaceholders}
           />
         }
         {loaded && page === "knowledgebase" && <KnowledgebasePage dark={dark} />}
