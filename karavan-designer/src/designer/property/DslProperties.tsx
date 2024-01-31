@@ -27,7 +27,7 @@ import {
     MenuToggleElement,
     MenuToggle,
     DropdownList,
-    DropdownItem, Label, Flex, LabelGroup, Popover, FlexItem, Badge,
+    DropdownItem, Label, Flex, LabelGroup, Popover, FlexItem, Badge, ClipboardCopy, ClipboardCopyAction,
 } from '@patternfly/react-core';
 import '../karavan.css';
 import './DslProperties.css';
@@ -166,11 +166,13 @@ export function DslProperties(props: Props) {
                     <ExpandableSection toggleText='Headers'
                                        onToggle={(_event, isExpanded) => setIsDescriptionExpanded(!isDescriptionExpanded)}
                                        isExpanded={isDescriptionExpanded}>
-                        <Flex direction={{default:"column"}}>
+                        <Flex className='component-headers' direction={{default:"column"}}>
                             {headers.filter((header) => groups.includes(header.group))
                                 .map((header, index, array) =>
                                     <Flex key={index}>
-                                        <Text style={{marginLeft: "26px"}} component={TextVariants.p}>{header.name}</Text>
+                                        <ClipboardCopy key={index} hoverTip="Copy" clickTip="Copied" variant="inline-compact" isCode>
+                                            {header.name}
+                                        </ClipboardCopy>
                                         <FlexItem align={{default: 'alignRight'}}>
                                             <Popover
                                                 position={"left"}
