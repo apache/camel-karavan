@@ -20,6 +20,7 @@ import * as utils from "./utils";
 import { CamelDefinitionYaml } from "core/api/CamelDefinitionYaml";
 import { Integration, KameletTypes, Metadata, MetadataLabels } from "core/model/IntegrationDefinition";
 import { getWebviewContent } from "./webviewContent";
+import { RegistryBeanDefinition } from "core/model/CamelDefinition";
 
 const KARAVAN_LOADED = "karavan:loaded";
 const KARAVAN_PANELS: Map<string, WebviewPanel> = new Map<string, WebviewPanel>();
@@ -182,7 +183,9 @@ export class DesignerView {
             utils.readSupportedComponents(),
             utils.readSupportedOnlySettings(),
             // Read property placeholders
-            utils.readPropertyPlaceholder(this.context)
+            utils.readPropertyPlaceholders(this.context),
+            // Read beans
+            utils.readBeans(fullPath)
         ]).then(results => {
             // Send Kamelets
             panel.webview.postMessage({ command: 'kamelets', kamelets: results[0] });
@@ -196,24 +199,27 @@ export class DesignerView {
             if (results[4]) panel.webview.postMessage({ command: 'supportedComponents', components: results[4]});
             if (results[5] === true) panel.webview.postMessage({ command: 'supportedOnly'});
             // Send integration
-            this.sendIntegrationData(panel, filename, relativePath, fullPath, reread, yaml, tab, results[6]);
+            this.sendIntegrationData(panel, filename, relativePath, fullPath, reread, yaml, tab, results[6], results[7]);
             
         }).catch(err => console.log(err));
     }
 
-    sendIntegrationData(panel: WebviewPanel, filename: string, relativePath: string, fullPath: string, reread: boolean, yaml?: string, tab?: string, propertyPlaceholders?: string[]) {
+    sendIntegrationData(panel: WebviewPanel, filename: string, relativePath: string, 
+        fullPath: string, reread: boolean, yaml?: string, tab?: string, propertyPlaceholders?: string[], beans?: RegistryBeanDefinition[]) {
         // Read file if required
         if (reread) {
             utils.readFile(path.resolve(fullPath)).then(readData => {
                 const yaml = Buffer.from(readData).toString('utf8');
                 // Send integration
                 panel.webview.postMessage(
-                    { command: 'open', page: "designer", filename: filename, relativePath: relativePath, fullPath:fullPath, yaml: yaml, tab: tab, propertyPlaceholders: propertyPlaceholders });
+                    { command: 'open', page: "designer", filename: filename, relativePath: relativePath, 
+                    fullPath:fullPath, yaml: yaml, tab: tab, propertyPlaceholders: propertyPlaceholders, beans: beans });
             });
         } else {
             // Send integration
             panel.webview.postMessage(
-                { command: 'open', page: "designer", filename: filename, relativePath: relativePath, fullPath:fullPath, yaml: yaml, tab: tab, propertyPlaceholders: propertyPlaceholders });
+                { command: 'open', page: "designer", filename: filename, relativePath: relativePath, 
+                fullPath:fullPath, yaml: yaml, tab: tab, propertyPlaceholders: propertyPlaceholders, beans: beans });
         }
 
     }

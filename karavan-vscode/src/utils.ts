@@ -17,7 +17,8 @@
 import * as path from "path";
 import { workspace, Uri, window, ExtensionContext, FileType } from "vscode";
 import { CamelDefinitionYaml } from "core/api/CamelDefinitionYaml";
-import { KameletTypes } from "webview/core/model/IntegrationDefinition";
+import { Integration, KameletTypes } from "core/model/IntegrationDefinition";
+import { RegistryBeanDefinition } from "core/model/CamelDefinition";
 
 export function getRoot(): string | undefined {
     return (workspace.workspaceFolders && (workspace.workspaceFolders.length > 0))
@@ -120,19 +121,48 @@ export async function readComponents(context: ExtensionContext) {
     return jsons;
 }
 
-export async function readPropertyPlaceholder(context: ExtensionContext) {
+export async function readPropertyPlaceholders(context: ExtensionContext) {
     const result: string[] = [];
     const properties = await getProperties();
     const lines = properties.split('\n').map((line) => line.trim());
-        lines
-            .filter(line => !line.startsWith("camel.") && !line.startsWith("jkube.") && !line.startsWith("jib."))
-            .filter(line => line !== undefined && line !== null && line.length > 0)
-            .forEach(line => {
+    lines
+        .filter(line => !line.startsWith("camel.") && !line.startsWith("jkube.") && !line.startsWith("jib."))
+        .filter(line => line !== undefined && line !== null && line.length > 0)
+        .forEach(line => {
             const parts = line.split("=");
             if (parts.length > 0) {
                 result.push(parts[0]);
             }
         })
+    return result;
+}
+
+function getBeans (integration: Integration): RegistryBeanDefinition[] {
+    const result: RegistryBeanDefinition[] = [];
+    const beans = integration.spec.flows?.filter((e: any) => e.dslName === 'Beans');
+    if (beans && beans.length > 0 && beans[0].beans) {
+        result.push(...beans[0].beans);
+    }
+    return result;
+}
+
+export async function readBeans(fullPath: string) {
+    const result: RegistryBeanDefinition[] = [];
+    try {
+        const codePath = path.dirname(fullPath);
+        const files = await getCamelYamlFiles(codePath);
+        for (let x in files) {
+            const filename = files[x];
+            const readData = await readFile(filename);
+            const code = Buffer.from(readData).toString('utf8');
+            const i = CamelDefinitionYaml.yamlToIntegration(filename, code);
+            const beans = getBeans(i);
+            result.push(...beans);
+        }
+    }
+    catch (e) {
+        console.log((e as Error).message);
+    }
     return result;
 }
 
@@ -235,11 +265,11 @@ export async function readCamelYamlFiles(dir: string) {
     const result: any = {};
     const files = await getCamelYamlFiles(dir);
     const camelFiles = exportFolder ? files.filter(f => !f.startsWith(fullExportFolder)) : files;
-    for (let x in camelFiles){
+    for (let x in camelFiles) {
         const filename = camelFiles[x];
         const readData = await readFile(path.resolve(filename));
         const yaml = Buffer.from(readData).toString('utf8');
-        if (CamelDefinitionYaml.yamlIsIntegration(yaml)){
+        if (CamelDefinitionYaml.yamlIsIntegration(yaml)) {
             const basename = filename.replace(dir, '');
             result[basename] = yaml;
         }
@@ -306,7 +336,7 @@ export async function getProperty(name: string) {
 export async function getRuntime() {
     const defaultRuntime: string = workspace.getConfiguration().get("camel.runtimes") || "";
     const runtime = await getProperty("camel.jbang.runtime");
-    const result:string = runtime !== undefined ? runtime : defaultRuntime;
+    const result: string = runtime !== undefined ? runtime : defaultRuntime;
     return result;
 }
 
