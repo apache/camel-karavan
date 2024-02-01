@@ -19,6 +19,7 @@ import {CamelElement, Integration} from "karavan-core/lib/model/IntegrationDefin
 import {DslPosition, EventBus} from "./utils/EventBus";
 import {createWithEqualityFn} from "zustand/traditional";
 import {shallow} from "zustand/shallow";
+import {RegistryBeanDefinition} from "karavan-core/src/core/model/CamelDefinition";
 
 interface IntegrationState {
     integration: Integration;
@@ -169,7 +170,8 @@ type DesignerState = {
     top: number,
     left: number,
     moveElements: [string | undefined, string | undefined],
-    propertyPlaceholders: string[];
+    propertyPlaceholders: string[],
+    beans: RegistryBeanDefinition[]
 }
 
 const designerState: DesignerState = {
@@ -188,7 +190,8 @@ const designerState: DesignerState = {
     top: 0,
     left: 0,
     moveElements: [undefined, undefined],
-    propertyPlaceholders: []
+    propertyPlaceholders: [],
+    beans: []
 };
 
 type DesignerAction = {
@@ -206,6 +209,7 @@ type DesignerAction = {
     setNotification: (notificationBadge: boolean, notificationMessage: [string, string]) => void;
     setMoveElements: (moveElements: [string | undefined, string | undefined]) => void;
     setPropertyPlaceholders: (propertyPlaceholders: string[]) => void;
+    setBeans: (beans: RegistryBeanDefinition[]) => void;
 }
 
 export const useDesignerStore = createWithEqualityFn<DesignerState & DesignerAction>((set) => ({
@@ -265,6 +269,13 @@ export const useDesignerStore = createWithEqualityFn<DesignerState & DesignerAct
         set((state: DesignerState) => {
             state.propertyPlaceholders.length = 0;
             state.propertyPlaceholders.push(...propertyPlaceholders);
+            return state;
+        })
+    },
+    setBeans: (beans: RegistryBeanDefinition[]) => {
+        set((state: DesignerState) => {
+            state.beans.length = 0;
+            state.beans.push(...beans);
             return state;
         })
     },
