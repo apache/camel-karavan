@@ -109,6 +109,8 @@ export class SpacePage extends React.Component<Props, State> {
                     console.log(name1, code)
                 }}
                 propertyPlaceholders={[]}
+                beans={[]}
+                onSavePropertyPlaceholder={(key, value) => {}}
             />
         )
     }

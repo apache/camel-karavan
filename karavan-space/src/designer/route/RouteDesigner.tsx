@@ -40,7 +40,7 @@ import {DslElementMoveModal} from "./element/DslElementMoveModal";
 
 export function RouteDesigner() {
 
-    const {openSelector, createRouteConfiguration, onCommand, handleKeyDown, handleKeyUp, unselectElement, onDslSelect,
+    const {openSelector, createRouteConfiguration, onCommand, unselectElement, onDslSelect,
         isSourceKamelet, isActionKamelet, isKamelet, isSinkKamelet} = useRouteDesignerHook();
 
     const [integration] = useIntegrationStore((state) => [state.integration], shallow)
@@ -72,12 +72,9 @@ export function RouteDesigner() {
     const flowRef = useRef<HTMLDivElement | null>(null);
 
     useEffect(()=> {
-        // window.addEventListener('resize', changeGraphSize);
         const interval = setInterval(() => {
             changeGraphSize();
         }, 500);
-        window.addEventListener('keydown', handleKeyDown);
-        window.addEventListener('keyup', handleKeyUp);
         const commandSub = EventBus.onCommand()?.subscribe((command: Command) => onCommand(command, printerRef));
         if (flowRef.current === null) {
             clearSteps();
@@ -86,9 +83,6 @@ export function RouteDesigner() {
         }
         return ()=> {
             clearInterval(interval)
-            // window.removeEventListener('resize', changeGraphSize);
-            window.removeEventListener('keydown', handleKeyDown);
-            window.removeEventListener('keyup', handleKeyUp);
             commandSub?.unsubscribe();
         }
     }, [showSelector, integration])
