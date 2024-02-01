@@ -19,13 +19,12 @@ import {
     Toolbar,
     ToolbarContent,
     ToolbarItem,
-    PageSection, TextContent, Text, Flex, FlexItem, Button, Tooltip, ToggleGroup, ToggleGroupItem, Page
+    PageSection, TextContent, Text, Flex, FlexItem, Button, Tooltip
 } from '@patternfly/react-core';
 import './designer/karavan.css';
 import DownloadIcon from "@patternfly/react-icons/dist/esm/icons/download-icon";
 import DownloadImageIcon from "@patternfly/react-icons/dist/esm/icons/image-icon";
 import {KaravanDesigner} from "./designer/KaravanDesigner";
-import Editor from "@monaco-editor/react";
 import {EventBus} from "./designer/utils/EventBus";
 
 interface Props {

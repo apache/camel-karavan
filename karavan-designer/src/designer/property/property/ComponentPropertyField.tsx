@@ -71,8 +71,8 @@ export function ComponentPropertyField(props: Props) {
     const {onParametersChange, getInternalComponentName} = usePropertiesHook();
 
     const [integration] = useIntegrationStore((state) => [state.integration], shallow)
-    const [dark, setSelectedStep, propertyPlaceholders] = useDesignerStore((s) =>
-        [s.dark, s.setSelectedStep, s.propertyPlaceholders], shallow)
+    const [dark, setSelectedStep, beans] = useDesignerStore((s) =>
+        [s.dark, s.setSelectedStep, s.beans], shallow)
 
     const [selectStatus, setSelectStatus] = useState<Map<string, boolean>>(new Map<string, boolean>());
     const [showEditor, setShowEditor] = useState<boolean>(false);
@@ -82,7 +82,6 @@ export function ComponentPropertyField(props: Props) {
     const [id, setId] = useState<string>(prefix + "-" + props.property.name);
 
     const ref = useRef<any>(null);
-    const [isOpenPlaceholdersDropdown, setOpenPlaceholdersDropdown] = useState<boolean>(false);
 
 
     function parametersChanged(parameter: string, value: string | number | boolean | any, pathParameter?: boolean, newRoute?: RouteToCreate) {
@@ -100,7 +99,6 @@ export function ComponentPropertyField(props: Props) {
 
     function getSelectBean(property: ComponentProperty, value: any) {
         const selectOptions: JSX.Element[] = [];
-        const beans = CamelUi.getBeans(integration);
         if (beans) {
             selectOptions.push(<SelectOption key={0} value={"Select..."} isPlaceholder/>);
             selectOptions.push(...beans.map((bean) => <SelectOption key={bean.name} value={beanPrefix + bean.name}
