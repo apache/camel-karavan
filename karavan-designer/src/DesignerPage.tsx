@@ -81,6 +81,7 @@ export const DesignerPage = (props: Props) => {
                     // "sql.query"
                 ]}
                 onSavePropertyPlaceholder={(key, value) => console.log("onSavePropertyPlaceholder", key, value)}
+                beans={[]}
             />
         )
     }

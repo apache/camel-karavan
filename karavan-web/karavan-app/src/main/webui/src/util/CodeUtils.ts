@@ -18,7 +18,7 @@ export class CodeUtils {
     static getIntegrations(files: ProjectFile[]): Integration[] {
         return files
             .filter(f => f.name.endsWith('.camel.yaml'))
-            .map(f => CamelDefinitionYaml.yamlToIntegration(f.name, f.code));
+                .map(f => CamelDefinitionYaml.yamlToIntegration(f.name, f.code));
     }
 
     static getPropertyPlaceholders(files: ProjectFile[]): string[] {

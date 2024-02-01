@@ -18,13 +18,13 @@ import React, {useEffect, useState} from 'react';
 import '../designer/karavan.css';
 import Editor from "@monaco-editor/react";
 import {CamelDefinitionYaml} from "karavan-core/lib/api/CamelDefinitionYaml";
-import {Project, ProjectFile} from "../api/ProjectModels";
+import {ProjectFile} from "../api/ProjectModels";
 import {useFilesStore, useFileStore} from "../api/ProjectStore";
 import {KaravanDesigner} from "../designer/KaravanDesigner";
 import {ProjectService} from "../api/ProjectService";
 import {shallow} from "zustand/shallow";
 import {CodeUtils} from "../util/CodeUtils";
-import {RegistryBeanDefinition} from "karavan-core/src/core/model/CamelDefinition";
+import {RegistryBeanDefinition} from "karavan-core/lib/model/CamelDefinition";
 
 interface Props {
     projectId: string
