@@ -46,6 +46,7 @@ interface Props {
     onSave: (filename: string, yaml: string, propertyOnly: boolean) => void
     onSaveCustomCode: (name: string, code: string) => void
     onGetCustomCode: (name: string, javaType: string) => Promise<string | undefined>
+    onSavePropertyPlaceholder: (key: string, value: string) => void
     filename: string
     yaml: string
     dark: boolean
@@ -70,6 +71,7 @@ export function KaravanDesigner(props: Props) {
         InfrastructureAPI.setOnSaveCustomCode(props.onSaveCustomCode);
         InfrastructureAPI.setOnGetCustomCode(props.onGetCustomCode);
         InfrastructureAPI.setOnSave(props.onSave);
+        InfrastructureAPI.setOnSavePropertyPlaceholder(props.onSavePropertyPlaceholder);
 
         setSelectedStep(undefined);
         const i = makeIntegration(props.yaml, props.filename);

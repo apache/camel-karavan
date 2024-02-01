@@ -6,9 +6,8 @@ export function isEmpty(str: string) {
 
 export function getPropertyPlaceholders(files: ProjectFile[]): string[] {
     const result: string[] = []
-    const file = files.filter(f => f.name === 'application.properties')?.at(0);
-    if (file) {
-        const code = file.code;
+    const code = getPropertyCode(files);
+    if (code) {
         const lines = code.split('\n').map((line) => line.trim());
         lines
             .filter(line => !line.startsWith("camel.") && !line.startsWith("jkube.") && !line.startsWith("jib."))
@@ -21,4 +20,9 @@ export function getPropertyPlaceholders(files: ProjectFile[]): string[] {
         })
     }
     return result;
+}
+
+export function getPropertyCode(files: ProjectFile[]) {
+    const file = files.filter(f => f.name === 'application.properties')?.at(0);
+    return file?.code;
 }

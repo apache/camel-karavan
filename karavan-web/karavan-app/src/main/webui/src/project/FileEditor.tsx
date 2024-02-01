@@ -24,7 +24,7 @@ import {KaravanDesigner} from "../designer/KaravanDesigner";
 import {ProjectService} from "../api/ProjectService";
 import {shallow} from "zustand/shallow";
 import {KaravanApi} from "../api/KaravanApi";
-import {getPropertyPlaceholders} from "../util/StringUtils";
+import {getPropertyCode, getPropertyPlaceholders} from "../util/StringUtils";
 
 interface Props {
     projectId: string
@@ -59,8 +59,16 @@ export function FileEditor (props: Props) {
     }
 
     function onGetCustomCode (name: string, javaType: string): Promise<string | undefined> {
-        const files = useFilesStore.getState().files;
         return new Promise<string | undefined>(resolve => resolve(files.filter(f => f.name === name + ".java")?.at(0)?.code));
+    }
+
+    function onSavePropertyPlaceholder (key: string, value: string) {
+        const file = files.filter(f => f.name === 'application.properties')?.at(0);
+        const code = file?.code?.concat('\n').concat(key).concat('=').concat(value);
+        if (file && code) {
+            file.code = code;
+            ProjectService.updateFile(file, false);
+        }
     }
 
     function getDesigner () {
@@ -77,6 +85,7 @@ export function FileEditor (props: Props) {
                     ProjectService.updateFile(new ProjectFile(name + ".java", props.projectId, code, Date.now()), false)}
                 onGetCustomCode={onGetCustomCode}
                 propertyPlaceholders={propertyPlaceholders}
+                onSavePropertyPlaceholder={onSavePropertyPlaceholder}
             />
         )
     }

@@ -189,6 +189,10 @@ class App extends React.Component<Props, State> {
     vscode.postMessage({ command: 'saveCode', name: name, yamlFullPath: this.state.fullPath, yamFileName: this.state.filename, code: code });
   }
 
+  savePropertyPlaceholder(key: string, value: string) {
+    vscode.postMessage({ command: 'savePropertyPlaceholder', key: key, value: value });
+  }
+
   saveIntegrationFiles(files: any) {
     const f = Object.keys(files).map(key => new IntegrationFile(key, files[key]));
     this.setState({ files: f });
@@ -223,6 +227,7 @@ class App extends React.Component<Props, State> {
               return new Promise<string | undefined>(resolve => resolve(code))
             }}
             propertyPlaceholders={this.state.propertyPlaceholders}
+            onSavePropertyPlaceholder={(key, value) => this.savePropertyPlaceholder(key, value)}
           />
         }
         {loaded && page === "knowledgebase" && <KnowledgebasePage dark={dark} />}

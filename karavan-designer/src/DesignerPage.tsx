@@ -78,9 +78,10 @@ export const DesignerPage = (props: Props) => {
                     console.log(name1, code)
                 }}
                 propertyPlaceholders={[
-                    "timer.delay",
-                    "sql.query"
+                    // "timer.delay",
+                    // "sql.query"
                 ]}
+                onSavePropertyPlaceholder={(key, value) => console.log("onSavePropertyPlaceholder", key, value)}
             />
         )
     }

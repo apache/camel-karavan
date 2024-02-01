@@ -20,6 +20,7 @@ export class InfrastructureAPI {
     static onGetCustomCode: (name: string, javaType: string) => Promise<string | undefined>;
     static onSaveCustomCode: (name: string, code: string) => void;
     static onSave: (filename: string, yaml: string, propertyOnly: boolean) => void;
+    static onSavePropertyPlaceholder: (key: string, value: string) => void;
 
     static setOnGetCustomCode(onGetCustomCode: (name: string, javaType: string) => Promise<string | undefined>){
         this.onGetCustomCode = onGetCustomCode
@@ -31,6 +32,10 @@ export class InfrastructureAPI {
 
     static setOnSave(onSave:(filename: string, yaml: string, propertyOnly: boolean) => void){
         this.onSave = onSave
+    }
+
+    static setOnSavePropertyPlaceholder(onSavePropertyPlaceholder:(key: string, value: string) => void){
+        this.onSavePropertyPlaceholder = onSavePropertyPlaceholder
     }
 
     // Kubernetes/Docker API

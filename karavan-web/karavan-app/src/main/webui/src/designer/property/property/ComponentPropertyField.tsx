@@ -269,7 +269,7 @@ export function ComponentPropertyField(props: Props) {
                 </Tooltip>
             }
             <InputGroupItem>
-                <ComponentPropertyPlaceholderDropdown property={property}/>
+                <ComponentPropertyPlaceholderDropdown property={property} value={value}/>
             </InputGroupItem>
         </InputGroup>
     }
@@ -289,7 +289,7 @@ export function ComponentPropertyField(props: Props) {
                         }}/>
                 </InputGroupItem>
                 <InputGroupItem>
-                    <ComponentPropertyPlaceholderDropdown property={property}/>
+                    <ComponentPropertyPlaceholderDropdown property={property} value={value}/>
                 </InputGroupItem>
             </InputGroup>
         )
@@ -347,7 +347,7 @@ export function ComponentPropertyField(props: Props) {
                     />
                 </InputGroupItem>
                 <InputGroupItem>
-                    <ComponentPropertyPlaceholderDropdown property={property}/>
+                    <ComponentPropertyPlaceholderDropdown property={property} value={value}/>
                 </InputGroupItem>
             </TextInputGroup>
         )

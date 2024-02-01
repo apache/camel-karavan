@@ -38,6 +38,15 @@ export function saveCode(name: string, yamlFullPath: string, yamFileName: string
     }
 }
 
+export async function savePropertyPlaceholder(key: string, value: string) {
+    if (workspace.workspaceFolders) {
+        const uriFolder: Uri = workspace.workspaceFolders[0].uri;
+        const properties = await getProperties();
+        const text = properties.concat('\n').concat(key).concat('=').concat(value);
+        write(path.join(uriFolder.path, "application.properties"), text);
+    }
+}
+
 export function deleteFile(fullPath: string) {
     if (workspace.workspaceFolders) {
         const uriFile: Uri = Uri.file(path.resolve(fullPath));

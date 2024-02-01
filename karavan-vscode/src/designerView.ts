@@ -133,6 +133,9 @@ export class DesignerView {
                         case 'saveCode':
                             utils.saveCode(message.name, message.yamlFullPath, message.yamFileName, message.code);
                             break;
+                        case 'savePropertyPlaceholder':
+                            utils.savePropertyPlaceholder(message.key, message.value);
+                            break;    
                         case 'getData':
                             this.sendData(panel, filename, relativePath, fullPath, message.reread === true, yaml, tab);
                             break;
