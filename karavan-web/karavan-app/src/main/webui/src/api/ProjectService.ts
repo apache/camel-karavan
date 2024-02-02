@@ -30,7 +30,6 @@ import {
 import {ProjectEventBus} from './ProjectEventBus';
 import {EventBus} from "../designer/utils/EventBus";
 import {KameletApi} from "karavan-core/lib/api/KameletApi";
-import {AxiosResponse} from "axios";
 
 export class ProjectService {
 

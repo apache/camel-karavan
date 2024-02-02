@@ -18,7 +18,7 @@ import React, {useEffect, useMemo, useState} from 'react';
 import {
     capitalize,
     Flex,
-    Form, FormGroup, FormHelperText, HelperText, HelperTextItem,
+    Form, FormGroup, FormHelperText, HelperText, HelperTextItem, InputGroup, InputGroupItem,
     Modal,
     ModalVariant,
     Radio, Text, TextInput,
@@ -38,8 +38,10 @@ import * as yup from "yup";
 import {ProjectService} from "../../api/ProjectService";
 import {EventBus} from "../../designer/utils/EventBus";
 import {useResponseErrorHandler} from "../../shared/error/UseResponseErrorHandler";
-import {Beans, Integration} from "karavan-core/lib/model/IntegrationDefinition";
+import {Integration} from "karavan-core/lib/model/IntegrationDefinition";
 import {CamelDefinitionYaml} from "karavan-core/lib/api/CamelDefinitionYaml";
+import {BeanFilesDropdown} from "./BeanFilesDropdown";
+import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt";
 
 const CAMEL_YAML_EXT = ".camel.yaml";
 const EMPTY_BEAN = "empty";
@@ -58,8 +60,9 @@ export function BeanWizard() {
         register,
         setError,
         handleSubmit,
-        formState: { errors },
-        reset
+        formState: {errors},
+        reset,
+        setValue
     } = useForm({
         resolver: yupResolver(formValidationSchema),
         mode: "onChange",
@@ -87,32 +90,40 @@ export function BeanWizard() {
         setError
     );
 
-    function handleOnFormSubmitSuccess (file: ProjectFile) {
+    function handleOnFormSubmitSuccess(file: ProjectFile) {
         const message = "File successfully created.";
-        EventBus.sendAlert( "Success", message, "success");
+        EventBus.sendAlert("Success", message, "success");
         ProjectService.refreshProjectData(file.projectId);
         setFile('select', file, designerTab);
         setShowWizard(false);
     }
 
     function handleFormSubmit() {
-        console.log("!!!", bean)
-        let code = '{}';
-        if (bean !== undefined && templateName !== EMPTY_BEAN) {
-            const i = Integration.createNew("temp");
-            i.spec.flows?.push(new Beans({beans: [bean]}))
-            code = CamelDefinitionYaml.integrationToYaml(i);
+        const file = files.filter(f=> f.name === (filename + CAMEL_YAML_EXT)).at(0);
+        if (file && bean !== undefined) {
+            const i = CamelDefinitionYaml.yamlToIntegration(file.name, file.code);
+            const i2 = CamelDefinitionApiExt.addBeanToIntegration(i, bean);
+            const file2 = {...file} as ProjectFile;
+            file2.code = CamelDefinitionYaml.integrationToYaml(i2);
+            ProjectService.updateFile(file2, false);
+            handleOnFormSubmitSuccess(file2);
+        } else {
+            let code = '{}';
+            if (bean !== undefined && templateName !== EMPTY_BEAN) {
+                const i = Integration.createNew("temp");
+                const i2 = CamelDefinitionApiExt.addBeanToIntegration(i, bean);
+                code = CamelDefinitionYaml.integrationToYaml(i2);
+            }
+            const fullFileName = filename + CAMEL_YAML_EXT;
+            const file = new ProjectFile(fullFileName, project.projectId, code, Date.now());
+            return ProjectService.createFile(file)
+                .then(() => handleOnFormSubmitSuccess(file))
+                .catch((error) => registerResponseErrors(error));
         }
-        const fullFileName = filename + CAMEL_YAML_EXT;
-        const file = new ProjectFile(fullFileName, project.projectId, code, Date.now());
-        return ProjectService.createFile(file)
-            .then(() => handleOnFormSubmitSuccess(file))
-            .catch((error) => registerResponseErrors(error));
     }
 
     useEffect(() => {
         if (showWizard) {
-            console.log("useEffect", "celan")
             reset({filename: ''})
             setFilename('')
             setTemplateName('');
@@ -132,7 +143,7 @@ export function BeanWizard() {
 
     useEffect(() => {
         setBeanName(templateBeanName);
-        getBeans.filter(b=> b.name === templateBeanName).forEach(b => {
+        getBeans.filter(b => b.name === templateBeanName).forEach(b => {
             Object.getOwnPropertyNames(b.properties).forEach(prop => {
                 setBean(new RegistryBeanDefinition({...b}))
             })
@@ -140,7 +151,7 @@ export function BeanWizard() {
     }, [templateBeanName]);
 
 
-    function getRegistryBeanDefinitions():RegistryBeanDefinition[] {
+    function getRegistryBeanDefinitions(): RegistryBeanDefinition[] {
         const fs = templateFiles
             .filter(f => f.name === templateName.concat(BEAN_TEMPLATE_SUFFIX_FILENAME));
         return CodeUtils.getBeans(fs);
@@ -151,24 +162,27 @@ export function BeanWizard() {
     return (
         <Modal title={"Bean"} onClose={_ => setShowWizard(false)}
                variant={ModalVariant.medium} isOpen={showWizard} onEscapePress={() => setShowWizard(false)}>
-            <Wizard height={600} onClose={() => setShowWizard(false)} onSubmit={event => handleFormSubmit()}>
+            <Wizard className="bean-wizard" height={600} onClose={() => setShowWizard(false)} onSubmit={event => handleFormSubmit()}>
                 <WizardStep name={"Type"} id="type"
-                            footer={{ isNextDisabled: !templateNames.includes(templateName) && templateName !== EMPTY_BEAN }}
+                            footer={{isNextDisabled: !templateNames.includes(templateName) && templateName !== EMPTY_BEAN}}
                 >
-                    <Flex direction={{default:"column"}} gap={{default:'gapLg'}}>
-                        <Radio key={EMPTY_BEAN} id={EMPTY_BEAN} label={capitalize(EMPTY_BEAN)} name={EMPTY_BEAN} isChecked={EMPTY_BEAN === templateName} onChange={_ => setTemplateName(EMPTY_BEAN)} />
-                        {templateNames.map(n => <Radio key={n} id={n} label={capitalize(n)} name={n} isChecked={n === templateName}
-                                                       onChange={_ => setTemplateName(n)} />)}
+                    <Flex direction={{default: "column"}} gap={{default: 'gapLg'}}>
+                        <Radio key={EMPTY_BEAN} id={EMPTY_BEAN} label={capitalize(EMPTY_BEAN)} name={EMPTY_BEAN}
+                               isChecked={EMPTY_BEAN === templateName} onChange={_ => setTemplateName(EMPTY_BEAN)}/>
+                        {templateNames.map(n => <Radio key={n} id={n} label={capitalize(n)} name={n}
+                                                       isChecked={n === templateName}
+                                                       onChange={_ => setTemplateName(n)}/>)}
                     </Flex>
                 </WizardStep>
                 <WizardStep name={"Template"} id="template"
                             isHidden={templateName === EMPTY_BEAN}
                             isDisabled={templateName.length == 0}
-                            footer={{ isNextDisabled: !getBeans.map(b=> b.name).includes(templateBeanName) }}
+                            footer={{isNextDisabled: !getBeans.map(b => b.name).includes(templateBeanName)}}
                 >
-                    <Flex direction={{default:"column"}} gap={{default:'gapLg'}}>
-                    {getBeans.map(b => <Radio key={b.name} id={b.name} label={b.name} name={b.name} isChecked={b.name === templateBeanName}
-                                               onChange={_ => setTemplateBeanName(b.name)} />)}
+                    <Flex direction={{default: "column"}} gap={{default: 'gapLg'}}>
+                        {getBeans.map(b => <Radio key={b.name} id={b.name} label={b.name} name={b.name}
+                                                  isChecked={b.name === templateBeanName}
+                                                  onChange={_ => setTemplateBeanName(b.name)}/>)}
                     </Flex>
                 </WizardStep>
                 <WizardStep name="Properties" id="properties"
@@ -185,48 +199,57 @@ export function BeanWizard() {
                             />
                         </FormGroup>
                         <FormGroup label="Properties:" fieldId="properties"/>
-                        {getBeans.filter(b=> b.name === templateBeanName).map(b => (
-                           <div key={b.name}>
-                               {Object.getOwnPropertyNames(b.properties).map(prop => (
-                                   <FormGroup key={prop} label={prop} fieldId={prop}>
-                                       <TextInput
-                                           value={bean?.properties[prop] || ''}
-                                           id={prop}
-                                           aria-describedby={prop}
-                                           onChange={(_, value) => {
-                                               const b = new RegistryBeanDefinition({...bean});
-                                               b.properties[prop] = value;
-                                               setBean(b);
-                                           }}
-                                       />
-                                   </FormGroup>
-                               ))}
-                           </div>
+                        {getBeans.filter(b => b.name === templateBeanName).map(b => (
+                            <div key={b.name}>
+                                {Object.getOwnPropertyNames(b.properties).map(prop => (
+                                    <FormGroup key={prop} label={prop} fieldId={prop}>
+                                        <TextInput
+                                            value={bean?.properties[prop] || ''}
+                                            id={prop}
+                                            aria-describedby={prop}
+                                            onChange={(_, value) => {
+                                                const b = new RegistryBeanDefinition({...bean});
+                                                b.properties[prop] = value;
+                                                setBean(b);
+                                            }}
+                                        />
+                                    </FormGroup>
+                                ))}
+                            </div>
                         ))}
                     </Form>
                 </WizardStep>
                 <WizardStep name={"File"} id={"file"}
-                            footer={{ nextButtonText: 'Save', onNext: handleSubmit(handleFormSubmit) }}
+                            footer={{nextButtonText: 'Save', onNext: handleSubmit(handleFormSubmit)}}
                             isDisabled={(templateName.length == 0 || templateBeanName.length == 0) && templateName !== EMPTY_BEAN}
                 >
                     <Form autoComplete="off">
                         <FormGroup label="Filename" fieldId="filename" isRequired>
-                            <TextInput className="text-field" type="text" id="filename"
-                                       aria-label="filename"
-                                       value={filename}
-                                       customIcon={<Text>{CAMEL_YAML_EXT}</Text>}
-                                       validated={!!errors.filename ? 'error' : 'default'}
-                                       {...register('filename')}
-                                       // validated={!!errors.name ? 'error' : 'default'}
-                                       onChange={(e, value) => {
-                                           setFilename(value);
-                                           register('filename').onChange(e);
-                                       }}
-                            />
+                            <InputGroup>
+                                <InputGroupItem isFill>
+                                    <TextInput className="text-field" type="text" id="filename"
+                                               aria-label="filename"
+                                               value={filename}
+                                               customIcon={<Text>{CAMEL_YAML_EXT}</Text>}
+                                               validated={!!errors.filename ? 'error' : 'default'}
+                                               {...register('filename')}
+                                               onChange={(e, value) => {
+                                                   setFilename(value);
+                                                   register('filename').onChange(e);
+                                               }}
+                                    />
+                                </InputGroupItem>
+                                <InputGroupItem>
+                                    <BeanFilesDropdown {...register('filename')} onSelect={(fn, event) => {
+                                        setFilename(fn);
+                                        setValue('filename', fn, {shouldValidate: true});
+                                    }}/>
+                                </InputGroupItem>
+                            </InputGroup>
                             {!!errors.filename && (
                                 <FormHelperText>
                                     <HelperText>
-                                        <HelperTextItem icon={<ExclamationCircleIcon />} variant={"error"}>
+                                        <HelperTextItem icon={<ExclamationCircleIcon/>} variant={"error"}>
                                             {errors?.filename?.message}
                                         </HelperTextItem>
                                     </HelperText>
