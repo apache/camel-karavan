@@ -239,12 +239,12 @@ export function BeanWizard() {
                                                }}
                                     />
                                 </InputGroupItem>
-                                <InputGroupItem>
+                                {templateName !== EMPTY_BEAN && <InputGroupItem>
                                     <BeanFilesDropdown {...register('filename')} onSelect={(fn, event) => {
                                         setFilename(fn);
                                         setValue('filename', fn, {shouldValidate: true});
                                     }}/>
-                                </InputGroupItem>
+                                </InputGroupItem>}
                             </InputGroup>
                             {!!errors.filename && (
                                 <FormHelperText>
