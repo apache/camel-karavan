@@ -239,6 +239,19 @@ export const useFileStore = createWithEqualityFn<FileState>((set) => ({
     },
 }), shallow)
 
+
+
+interface WizardState {
+    showWizard: boolean;
+    setShowWizard: (showWizard: boolean) => void;
+}
+export const useWizardStore = createWithEqualityFn<WizardState>((set) => ({
+    showWizard: false,
+    setShowWizard: (showWizard: boolean)  => {
+        set({showWizard: showWizard})
+    },
+}), shallow)
+
 interface DevModeState {
     podName?: string,
     status: "none" | "wip",

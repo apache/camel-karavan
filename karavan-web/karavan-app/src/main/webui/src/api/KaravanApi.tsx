@@ -318,6 +318,17 @@ export class KaravanApi {
         });
     }
 
+    static async getBeanTemplatesFiles( after: (files: ProjectFile []) => void) {
+        instance.get('/api/file/templates/beans')
+            .then(res => {
+                if (res.status === 200) {
+                    after(res.data);
+                }
+            }).catch(err => {
+            console.log(err);
+        });
+    }
+
     static async getDevModePodStatus(projectId: string, after: (res: AxiosResponse<ContainerStatus>) => void) {
         instance.get('/api/devmode/container/' + projectId)
             .then(res => {

@@ -21,6 +21,7 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import org.apache.camel.karavan.code.CodeService;
 import org.apache.camel.karavan.infinispan.InfinispanService;
+import org.apache.camel.karavan.infinispan.model.Project;
 import org.apache.camel.karavan.infinispan.model.ProjectFile;
 import org.apache.camel.karavan.validation.project.ProjectFileCreateValidator;
 
@@ -46,11 +47,19 @@ public class ProjectFileResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/{projectId}")
-    public List<ProjectFile> get(@HeaderParam("username") String username,
-                                 @PathParam("projectId") String projectId) throws Exception {
+    public List<ProjectFile> get(@PathParam("projectId") String projectId) throws Exception {
         return infinispanService.getProjectFiles(projectId).stream()
                 .sorted(Comparator.comparing(ProjectFile::getName))
                 .collect(Collectors.toList());
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/templates/beans")
+    public List<ProjectFile> getBeanTemplates() throws Exception {
+        return  codeService.getBeanTemplateNames().stream()
+                .map(s -> infinispanService.getProjectFile(Project.Type.templates.name(), s))
+                .toList();
     }
 
     @POST

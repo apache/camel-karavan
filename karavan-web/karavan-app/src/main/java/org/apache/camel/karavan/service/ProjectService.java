@@ -386,6 +386,15 @@ public class ProjectService implements HealthCheck {
                     infinispanService.saveProjectFile(file);
                 });
                 commitAndPushProject(Project.Type.templates.name(), "Add default templates");
+            } else {
+                LOGGER.info("Add new templates if any");
+                codeService.getTemplates().forEach((name, value) -> {
+                    ProjectFile f = infinispanService.getProjectFile(Project.Type.templates.name(), name);
+                    if (f == null) {
+                        ProjectFile file = new ProjectFile(name, value, Project.Type.templates.name(), Instant.now().toEpochMilli());
+                        infinispanService.saveProjectFile(file);
+                    }
+                });
             }
         } catch (Exception e) {
             LOGGER.error("Error during templates project creation", e);

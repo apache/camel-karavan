@@ -15,14 +15,14 @@
  * limitations under the License.
  */
 
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
     Flex,
-    FlexItem, PageSection
+    FlexItem, Modal, ModalVariant, PageSection
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
 import {FilesTab} from "./files/FilesTab";
-import {useAppConfigStore, useFilesStore, useFileStore, useProjectStore} from "../api/ProjectStore";
+import {useAppConfigStore, useFilesStore, useFileStore, useProjectStore, useWizardStore} from "../api/ProjectStore";
 import {DashboardTab} from "./dashboard/DashboardTab";
 import {TraceTab} from "./trace/TraceTab";
 import {ProjectBuildTab} from "./builder/ProjectBuildTab";
@@ -36,6 +36,7 @@ import {Buffer} from "buffer";
 import {CreateFileModal} from "./files/CreateFileModal";
 import {ProjectType} from "../api/ProjectModels";
 import {ReadmeTab} from "./readme/ReadmeTab";
+import {BeanWizard} from "./beans/BeanWizard";
 
 export function ProjectPanel() {
 
@@ -43,6 +44,7 @@ export function ProjectPanel() {
     const [project, tab, setTab] = useProjectStore((s) => [s.project, s.tabIndex, s.setTabIndex], shallow);
     const [setFile] = useFileStore((s) => [s.setFile], shallow);
     const [files] = useFilesStore((s) => [s.files], shallow);
+    const [setShowWizard] = useWizardStore((s) => [s.setShowWizard], shallow)
 
     useEffect(() => {
         onRefresh();
@@ -70,21 +72,25 @@ export function ProjectPanel() {
     const isTopology = tab === 'topology';
 
     const iFiles = files.map(f => new IntegrationFile(f.name, f.code));
-    const codes = iFiles.map(f=>f.code).join("");
+    const codes = iFiles.map(f => f.code).join("");
     const key = Buffer.from(codes).toString('base64')
 
     return isTopology
         ? (
             <>
-            <TopologyTab key={key}
-                         hideToolbar={false}
-                         files={files.map(f => new IntegrationFile(f.name, f.code))}
-                         onClickAddRoute={() => setFile('create', undefined, 'routes')}
-                         onClickAddREST={() => setFile('create', undefined, 'rest')}
-                         onClickAddBean={() => setFile('create', undefined, 'beans')}
-                         onSetFile={(fileName) => selectFile(fileName)}
-            />
+                <TopologyTab key={key}
+                             hideToolbar={false}
+                             files={files.map(f => new IntegrationFile(f.name, f.code))}
+                             onClickAddRoute={() => setFile('create', undefined, 'routes')}
+                             onClickAddREST={() => setFile('create', undefined, 'rest')}
+                             onClickAddBean={() => {
+                                 // setFile('create', undefined, 'beans');
+                                 setShowWizard(true)
+                             }}
+                             onSetFile={(fileName) => selectFile(fileName)}
+                />
                 <CreateFileModal types={['INTEGRATION']} isKameletsProject={false}/>
+                <BeanWizard/>
             </>
         )
         : (<PageSection padding={{default: 'noPadding'}} className="scrollable-out">

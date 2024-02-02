@@ -19,7 +19,7 @@ import {CamelElement, Integration} from "karavan-core/lib/model/IntegrationDefin
 import {DslPosition, EventBus} from "./utils/EventBus";
 import {createWithEqualityFn} from "zustand/traditional";
 import {shallow} from "zustand/shallow";
-import {RegistryBeanDefinition} from "karavan-core/src/core/model/CamelDefinition";
+import {RegistryBeanDefinition} from "karavan-core/lib/model/CamelDefinition";
 
 interface IntegrationState {
     integration: Integration;

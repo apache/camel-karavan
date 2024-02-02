@@ -58,6 +58,7 @@ public class CodeService {
     private static final Logger LOGGER = Logger.getLogger(CodeService.class.getName());
     public static final String APPLICATION_PROPERTIES_FILENAME = "application.properties";
     public static final String BUILD_SCRIPT_FILENAME = "build.sh";
+    public static final String BEAN_TEMPLATE_SUFFIX_FILENAME = "-bean-template.camel.yaml";
     public static final String DEV_SERVICES_FILENAME = "devservices.yaml";
     public static final String PROJECT_COMPOSE_FILENAME = "docker-compose.yaml";
     public static final String MARKDOWN_EXTENSION = ".md";
@@ -86,6 +87,7 @@ public class CodeService {
     @Inject
     Vertx vertx;
 
+    List<String> beansTemplates = List.of("database", "messaging");
     List<String> targets = List.of("openshift", "kubernetes", "docker");
     List<String> interfaces = List.of("org.apache.camel.AggregationStrategy.java", "org.apache.camel.Processor.java");
 
@@ -185,6 +187,10 @@ public class CodeService {
         return null;
     }
 
+    public List<String> getBeanTemplateNames(){
+        return beansTemplates.stream().map(name -> name + BEAN_TEMPLATE_SUFFIX_FILENAME).toList();
+    }
+
     public Map<String, String> getTemplates() {
         Map<String, String> result = new HashMap<>();
 
@@ -192,10 +198,14 @@ public class CodeService {
         files.addAll(targets.stream().map(target -> target + "-" + APPLICATION_PROPERTIES_FILENAME).toList());
         files.addAll(targets.stream().map(target ->  target + "-" + BUILD_SCRIPT_FILENAME).toList());
 
+        files.addAll(getBeanTemplateNames());
+
         files.forEach(file -> {
             String templatePath = SNIPPETS_PATH + file;
             String templateText = getResourceFile(templatePath);
-            result.put(file, templateText);
+            if (templateText != null) {
+                result.put(file, templateText);
+            }
         });
 
         result.put(PROJECT_COMPOSE_FILENAME, getResourceFile(SNIPPETS_PATH + PROJECT_COMPOSE_FILENAME));
