@@ -423,6 +423,9 @@ export function DslPropertyField(props: Props) {
                         onChange={(_, v) => propertyChanged(property.name, v)}
                     />
                 </InputGroupItem>
+                <InputGroupItem>
+                    <PropertyPlaceholderDropdown property={property} value={value} onDslPropertyChange={propertyChanged}/>
+                </InputGroupItem>
             </TextInputGroup>
         )
     }

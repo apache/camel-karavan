@@ -54,7 +54,7 @@ import {shallow} from "zustand/shallow";
 import {KubernetesIcon} from "../../icons/ComponentIcons";
 import EditorIcon from "@patternfly/react-icons/dist/js/icons/code-icon";
 import {ModalEditor} from "./ModalEditor";
-import {ComponentPropertyPlaceholderDropdown} from "./ComponentPropertyPlaceholderDropdown";
+import {PropertyPlaceholderDropdown} from "./PropertyPlaceholderDropdown";
 
 const prefix = "parameters";
 const beanPrefix = "#bean:";
@@ -267,7 +267,7 @@ export function ComponentPropertyField(props: Props) {
                 </Tooltip>
             }
             <InputGroupItem>
-                <ComponentPropertyPlaceholderDropdown property={property} value={value}/>
+                <PropertyPlaceholderDropdown property={property} value={value} onComponentPropertyChange={onParametersChange}/>
             </InputGroupItem>
         </InputGroup>
     }
@@ -287,7 +287,7 @@ export function ComponentPropertyField(props: Props) {
                         }}/>
                 </InputGroupItem>
                 <InputGroupItem>
-                    <ComponentPropertyPlaceholderDropdown property={property} value={value}/>
+                    <PropertyPlaceholderDropdown property={property} value={value} onComponentPropertyChange={onParametersChange}/>
                 </InputGroupItem>
             </InputGroup>
         )
@@ -345,7 +345,7 @@ export function ComponentPropertyField(props: Props) {
                     />
                 </InputGroupItem>
                 <InputGroupItem>
-                    <ComponentPropertyPlaceholderDropdown property={property} value={value}/>
+                    <PropertyPlaceholderDropdown property={property} value={value} onComponentPropertyChange={onParametersChange}/>
                 </InputGroupItem>
             </TextInputGroup>
         )

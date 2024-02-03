@@ -74,7 +74,7 @@ import {
 import {TemplateApi} from "karavan-core/lib/api/TemplateApi";
 import {KubernetesIcon} from "../../icons/ComponentIcons";
 import {BeanProperties} from "./BeanProperties";
-import {ComponentPropertyPlaceholderDropdown} from "./ComponentPropertyPlaceholderDropdown";
+import {PropertyPlaceholderDropdown} from "./PropertyPlaceholderDropdown";
 
 interface Props {
     property: PropertyMeta,
@@ -422,6 +422,9 @@ export function DslPropertyField(props: Props) {
                         value={!isValueBoolean ? value?.toString() : undefined}
                         onChange={(_, v) => propertyChanged(property.name, v)}
                     />
+                </InputGroupItem>
+                <InputGroupItem>
+                    <PropertyPlaceholderDropdown property={property} value={value} onDslPropertyChange={propertyChanged}/>
                 </InputGroupItem>
             </TextInputGroup>
         )
