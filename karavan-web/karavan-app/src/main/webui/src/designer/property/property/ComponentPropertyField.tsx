@@ -27,7 +27,7 @@ import {
     InputGroupItem,
     TextInputGroup,
     TextVariants,
-    Text,
+    Text
 } from '@patternfly/react-core';
 import {
     Select,
