@@ -52,9 +52,12 @@ npm install -g @vscode/vsce
 vsce package
 ```
 
-## For working in windows machine
+## To run karavan-web in the local machine for debugging
 
-#### 1. Make following change in package.json line 5-12
+#### Prerequisite 
+1. Docker Engine 24+
+
+1. Make the following change in package.json line 5-12 (needed only for Windows)
 ```
   "scripts": {
     "copy-designer": "xcopy ..\\..\\..\\..\\..\\karavan-designer\\src\\designer src\\designer /E/H/Y",
@@ -64,4 +67,20 @@ vsce package
     "start": "set PORT=3003 && npm run copy-code && react-scripts start",
     "build": "npm run copy-code && DISABLE_ESLINT_PLUGIN=true react-scripts build"
   },
+``` 
+
+2. Add local profile config to the application.properties
+```
+# Local
+%local.karavan.image-registry=localhost:5000
+%local.karavan.infinispan.hosts=localhost:11222
+%local.karavan.git-repository=http://localhost:3000/karavan/karavan.git
+%local.karavan.image-registry-install=true
+%local.karavan.git-install-gitea=true
+%local.quarkus.http.host=localhost
+```
+
+3. Run ./karavan-web/karavan-app in Quarkus Dev mode
+```
+mvn clean compile quarkus:dev -Dquarkus.profile=local,public
 ```
