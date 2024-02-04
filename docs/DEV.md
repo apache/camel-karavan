@@ -55,7 +55,7 @@ vsce package
 ## To run karavan-web in the local machine for debugging
 
 #### Prerequisite 
-1. Docker Engine 24+
+Docker Engine 24+
 
 1. Make the following change in package.json line 5-12 (needed only for Windows)
 ```
