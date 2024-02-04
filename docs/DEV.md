@@ -52,9 +52,9 @@ npm install -g @vscode/vsce
 vsce package
 ```
 
-### For working in windows machine
+## For working in windows machine
 
-#### Make following change in package.json line 5-12
+#### 1. Make following change in package.json line 5-12
 ```
   "scripts": {
     "copy-designer": "xcopy ..\\..\\..\\..\\..\\karavan-designer\\src\\designer src\\designer /E/H/Y",
