@@ -295,16 +295,13 @@ export function getDesignerIcon(icon: string): React.JSX.Element {
     )
     if (icon === 'routes') return (
         <svg className="top-icon" width="32px" height="32px" viewBox="0 0 32 32" id="icon">
-            <defs>
-                <style>{".cls-1{fill:none;}"}</style>
-            </defs>
             <path
                 d="M29,10H24v2h5v6H22v2h3v2.142a4,4,0,1,0,2,0V20h2a2.0027,2.0027,0,0,0,2-2V12A2.0023,2.0023,0,0,0,29,10ZM28,26a2,2,0,1,1-2-2A2.0027,2.0027,0,0,1,28,26Z"/>
             <path
                 d="M19,6H14V8h5v6H12v2h3v6.142a4,4,0,1,0,2,0V16h2a2.0023,2.0023,0,0,0,2-2V8A2.0023,2.0023,0,0,0,19,6ZM18,26a2,2,0,1,1-2-2A2.0027,2.0027,0,0,1,18,26Z"/>
             <path
                 d="M9,2H3A2.002,2.002,0,0,0,1,4v6a2.002,2.002,0,0,0,2,2H5V22.142a4,4,0,1,0,2,0V12H9a2.002,2.002,0,0,0,2-2V4A2.002,2.002,0,0,0,9,2ZM8,26a2,2,0,1,1-2-2A2.0023,2.0023,0,0,1,8,26ZM3,10V4H9l.0015,6Z"/>
-            <rect id="_Transparent_Rectangle_" data-name="&lt;Transparent Rectangle&gt;" className="cls-1" width="32"
+            <rect id="_Transparent_Rectangle_" data-name="&lt;Transparent Rectangle&gt;" fill='none' width="32"
                   height="32"/>
         </svg>)
     if (icon === 'route') return (
@@ -335,9 +332,6 @@ export function getDesignerIcon(icon: string): React.JSX.Element {
     )
     if (icon === 'beans') return (
         <svg className="top-icon" width="32px" height="32px" viewBox="0 0 32 32" id="icon">
-            <defs>
-                <style>{".cls-1 {fill: none;}"}</style>
-            </defs>
             <title>data--1</title>
             <rect x="15" y="6" width="13" height="2"/>
             <rect x="15" y="24" width="13" height="2"/>
@@ -347,15 +341,12 @@ export function getDesignerIcon(icon: string): React.JSX.Element {
             <path d="M25,20a4,4,0,1,1,4-4A4,4,0,0,1,25,20Zm0-6a2,2,0,1,0,2,2A2,2,0,0,0,25,14Z"
                   transform="translate(0 0)"/>
             <g id="_Transparent_Rectangle_" data-name="&lt;Transparent Rectangle&gt;">
-                <rect className="cls-1" width="32" height="32"/>
+                <rect fill='none' width="32" height="32"/>
             </g>
         </svg>
     )
     if (icon === 'dependencies') return (
         <svg className="top-icon" width="32px" height="32px" viewBox="0 0 32 32" id="icon">
-            <defs>
-                <style>{".cls-1 {fill: none;}"}</style>
-            </defs>
             <title>application</title>
             <path d="M16,18H6a2,2,0,0,1-2-2V6A2,2,0,0,1,6,4H16a2,2,0,0,1,2,2V16A2,2,0,0,1,16,18ZM6,6V16H16V6Z"
                   transform="translate(0 0)"/>
@@ -366,7 +357,7 @@ export function getDesignerIcon(icon: string): React.JSX.Element {
             <path d="M16,22v4H12V22h4m0-2H12a2,2,0,0,0-2,2v4a2,2,0,0,0,2,2h4a2,2,0,0,0,2-2V22a2,2,0,0,0-2-2Z"
                   transform="translate(0 0)"/>
             <g id="_Transparent_Rectangle_" data-name="&lt;Transparent Rectangle&gt;">
-                <rect className="cls-1" width="32" height="32"/>
+                <rect fill='none' width="32" height="32"/>
             </g>
         </svg>
     )
@@ -382,27 +373,21 @@ export function getDesignerIcon(icon: string): React.JSX.Element {
         </svg>)
     if (icon === 'exception') return (
         <svg className="top-icon" width="32px" height="32px" viewBox="0 0 32 32" id="icon">
-            <defs>
-                <style>{".cls-1{fill:none;}"}</style>
-            </defs>
             <title>misuse--alt</title>
             <polygon
                 points="21.41 23 16 17.591 10.59 23 9 21.41 14.409 16 9 10.591 10.591 9 16 14.409 21.409 9 23 10.591 17.591 16 23 21.41 21.41 23"/>
             <path d="M16,4A12,12,0,1,1,4,16,12.0136,12.0136,0,0,1,16,4m0-2A14,14,0,1,0,30,16,14,14,0,0,0,16,2Z"
                   transform="translate(0)"/>
-            <rect id="_Transparent_Rectangle_" data-name="&lt;Transparent Rectangle&gt;" className="cls-1" width="32"
+            <rect id="_Transparent_Rectangle_" data-name="&lt;Transparent Rectangle&gt;" fill='none' width="32"
                   height="32"/>
         </svg>)
     if (icon === 'routeConfiguration') return (
-        <svg className="top-icon" width="32" height="32" viewBox="0 0 32 32">
-            <defs>
-                <style>{".cls-1{fill:none;}"}</style>
-            </defs>
+        <svg className="top-icon" width="32" height="32" viewBox="0 0 32 32">     
             <path
                 d="M28.83 21.17L25 17.37l.67-.67a1 1 0 000-1.41l-6-6a1 1 0 00-1.41 0l-.79.79-6.76-6.79a1 1 0 00-1.41 0l-4 4-.12.15-4 6a1 1 0 00.12 1.26l3 3a1 1 0 001.42 0L10 13.41l2.09 2.09-4.8 4.79a1 1 0 000 1.41l2 2a1 1 0 00.71.3 1 1 0 00.52-.15l4.33-2.6 2.44 2.45a1 1 0 001.41 0l.67-.7 3.79 3.83a4 4 0 005.66-5.66zM10 10.58l-5 5-1.71-1.71 3.49-5.24L10 5.41l6.09 6.09-2.59 2.58zm8 11l-2.84-2.84-5 3-.74-.74L19 11.41 23.59 16zm9.42 3.83a2 2 0 01-2.83 0l-3.8-3.79 2.83-2.83 3.8 3.79a2 2 0 010 2.83z"></path>
             <path
                 d="M0 0H32V32H0z"
-                className="cls-1"
+                fill='none'
                 data-name="&lt;Transparent Rectangle&gt;"
             ></path>
         </svg>)
@@ -419,14 +404,11 @@ export function getDesignerIcon(icon: string): React.JSX.Element {
         </svg>)
     if (icon === 'code') return (
         <svg className="top-icon" width="32px" height="32px" viewBox="0 0 32 32" id="icon">
-            <defs>
-                <style>{".cls-1{fill:none;}"}</style>
-            </defs>
             <title>code</title>
             <polygon points="31 16 24 23 22.59 21.59 28.17 16 22.59 10.41 24 9 31 16"/>
             <polygon points="1 16 8 9 9.41 10.41 3.83 16 9.41 21.59 8 23 1 16"/>
             <rect x="5.91" y="15" width="20.17" height="2" transform="translate(-3.6 27.31) rotate(-75)"/>
-            <rect id="_Transparent_Rectangle_" data-name="&lt;Transparent Rectangle&gt;" className="cls-1" width="32"
+            <rect id="_Transparent_Rectangle_" data-name="&lt;Transparent Rectangle&gt;" fill='none' width="32"
                   height="32" transform="translate(0 32) rotate(-90)"/>
         </svg>)
     return <></>;
@@ -438,9 +420,6 @@ export class BeanIcon extends React.Component<any> {
     render() {
         return (
             <svg className="icon" width="32px" height="32px" viewBox="0 0 32 32" id="icon">
-                <defs>
-                    <style>{".cls-1 {fill: none;}"}</style>
-                </defs>
                 <title>data--1</title>
                 <rect x="15" y="6" width="13" height="2"/>
                 <rect x="15" y="24" width="13" height="2"/>
@@ -452,7 +431,7 @@ export class BeanIcon extends React.Component<any> {
                 <path d="M25,20a4,4,0,1,1,4-4A4,4,0,0,1,25,20Zm0-6a2,2,0,1,0,2,2A2,2,0,0,0,25,14Z"
                       transform="translate(0 0)"/>
                 <g id="_Transparent_Rectangle_" data-name="&lt;Transparent Rectangle&gt;">
-                    <rect className="cls-1" width="32" height="32"/>
+                    <rect fill='none' width="32" height="32"/>
                 </g>
             </svg>
         )
@@ -464,9 +443,6 @@ export class DependencyIcon extends React.Component<any> {
     render() {
         return (
             <svg className="icon" width="32px" height="32px" viewBox="0 0 32 32" id="icon">
-                <defs>
-                    <style>{".cls-1 {fill: none;}"}</style>
-                </defs>
                 <title>application</title>
                 <path d="M16,18H6a2,2,0,0,1-2-2V6A2,2,0,0,1,6,4H16a2,2,0,0,1,2,2V16A2,2,0,0,1,16,18ZM6,6V16H16V6Z"
                       transform="translate(0 0)"/>
@@ -477,7 +453,7 @@ export class DependencyIcon extends React.Component<any> {
                 <path d="M16,22v4H12V22h4m0-2H12a2,2,0,0,0-2,2v4a2,2,0,0,0,2,2h4a2,2,0,0,0,2-2V22a2,2,0,0,0-2-2Z"
                       transform="translate(0 0)"/>
                 <g id="_Transparent_Rectangle_" data-name="&lt;Transparent Rectangle&gt;">
-                    <rect className="cls-1" width="32" height="32"/>
+                    <rect fill='none' width="32" height="32"/>
                 </g>
             </svg>
         )
@@ -508,13 +484,10 @@ export class ConceptIcon extends React.Component<any> {
     render() {
         return (
             <svg className="icon" width="32px" height="32px" viewBox="0 0 32 32">
-                <defs>
-                    <style>{".cls-1 {fill: none;}"}</style>
-                </defs>
                 <title>concept</title>
                 <path
                     d="M20.8851,19.4711a5.9609,5.9609,0,0,0,0-6.9422L23,10.4141l1.293,1.2929a.9995.9995,0,0,0,1.414,0l4-4a.9994.9994,0,0,0,0-1.414l-4-4a.9994.9994,0,0,0-1.414,0l-4,4a.9994.9994,0,0,0,0,1.414L21.5859,9l-2.1148,2.1149a5.9609,5.9609,0,0,0-6.9422,0L10,8.5859V2H2v8H8.5859l2.529,2.5289a5.9609,5.9609,0,0,0,0,6.9422L9,21.5859,7.707,20.293a.9994.9994,0,0,0-1.414,0l-4,4a.9994.9994,0,0,0,0,1.414l4,4a.9995.9995,0,0,0,1.414,0l4-4a.9994.9994,0,0,0,0-1.414L10.4141,23l2.1148-2.1149a5.9609,5.9609,0,0,0,6.9422,0L22,23.4141V30h8V22H23.4141ZM25,4.4141,27.5859,7,25,9.5859,22.4141,7ZM7,27.5859,4.4141,25,7,22.4141,9.5859,25ZM8,8H4V4H8Zm4,8a4,4,0,1,1,4,4A4.0045,4.0045,0,0,1,12,16Zm12,8h4v4H24Z"/>
-                <rect id="_Transparent_Rectangle_" data-name="&lt;Transparent Rectangle&gt;" className="cls-1"
+                <rect id="_Transparent_Rectangle_" data-name="&lt;Transparent Rectangle&gt;" fill='none'
                       width="32" height="32"/>
             </svg>
         )
