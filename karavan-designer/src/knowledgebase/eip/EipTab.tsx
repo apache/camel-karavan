@@ -17,7 +17,7 @@
 import React from 'react';
 import {
     Gallery,
-    PageSection, PageSectionVariants
+    PageSection, PageSectionVariants,ToggleGroup,ToggleGroupItem
 } from '@patternfly/react-core';
 import '../../designer/karavan.css';
 import {EipCard} from "./EipCard";
@@ -25,6 +25,7 @@ import {EipModal} from "./EipModal";
 import {CamelModelMetadata, ElementMeta} from "karavan-core/lib/model/CamelMetadata";
 import {useKnowledgebaseStore} from "../KnowledgebaseStore";
 import {shallow} from "zustand/shallow";
+import { useSelectorStore } from '../../designer/DesignerStore';
 
 interface Props {
     dark: boolean,
@@ -36,20 +37,46 @@ export function EipTab(props: Props) {
     const [isModalOpen] = useKnowledgebaseStore((s) =>
         [s.isModalOpen], shallow)
 
-
-    const {filter} = props;
-    const elements = CamelModelMetadata
-        .filter(c => c.name.toLowerCase().includes(filter.toLowerCase()))
+        const [ selectedLabels, addSelectedLabel, deleteSelectedLabel] =
+        useSelectorStore((s) =>
+            [s.selectedLabels, s.addSelectedLabel, s.deleteSelectedLabel], shallow)
+        const { filter } = props;
+        const elements = CamelModelMetadata;
+        const filteredElements=CamelModelMetadata
+        .filter(c => c.name.toLowerCase().includes(filter.toLowerCase())).filter((dsl: ElementMeta) => {
+            if (selectedLabels.length === 0) {
+                return true;
+            } else {
+                return dsl.labels.split(",").some(r => selectedLabels.includes(r));
+            }
+        })
         .sort((a: ElementMeta, b: ElementMeta) => a.name > b.name ? 1 : -1);
-
+     const eipLabels = [...new Set(elements.map(e => e.labels).join(",").split(",").filter(e => e !== 'eip'))];
+    function selectLabel(eipLabel: string) {
+            if (!selectedLabels.includes(eipLabel)) {
+                addSelectedLabel(eipLabel);
+            } else {
+                deleteSelectedLabel(eipLabel);
+            }
+        }
     return (
         <PageSection variant={props.dark ? PageSectionVariants.darker : PageSectionVariants.light}
-                     padding={{default: 'noPadding'}} className="kamelet-section">
+            padding={{ default: 'noPadding' }} className="kamelet-section knowledbase-eip-section">
+             <ToggleGroup aria-label="Labels" isCompact >
+                    {eipLabels.map(eipLabel => <ToggleGroupItem
+                        key={eipLabel}
+                        text={eipLabel}
+                        buttonId={eipLabel}
+                        isSelected={selectedLabels.includes(eipLabel)}
+                        onChange={selected => selectLabel(eipLabel)}
+                    />)}
+                </ToggleGroup>
+
             {isModalOpen && <EipModal/>}
             <PageSection isFilled className="kamelets-page"
                          variant={props.dark ? PageSectionVariants.darker : PageSectionVariants.light}>
                 <Gallery hasGutter>
-                    {elements.map(c => (
+                    {filteredElements.map(c => (
                         <EipCard key={c.name} element={c}/>
                     ))}
                 </Gallery>
