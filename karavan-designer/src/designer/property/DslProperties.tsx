@@ -44,7 +44,6 @@ import {shallow} from "zustand/shallow";
 import {usePropertiesHook} from "./usePropertiesHook";
 import {CamelDisplayUtil} from "karavan-core/lib/api/CamelDisplayUtil";
 import EllipsisVIcon from '@patternfly/react-icons/dist/esm/icons/ellipsis-v-icon';
-import QuestionIcon from '@patternfly/react-icons/dist/esm/icons/question-icon';
 import {ComponentApi} from "karavan-core/lib/api/ComponentApi";
 import HelpIcon from "@patternfly/react-icons/dist/js/icons/help-icon";
 

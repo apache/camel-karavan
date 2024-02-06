@@ -47,8 +47,8 @@ interface Props {
 
 export function TopologyTab(props: Props) {
 
-    const [selectedIds, setSelectedIds, setFileName, ranker, setRanker] = useTopologyStore((s) =>
-        [s.selectedIds, s.setSelectedIds, s.setFileName, s.ranker, s.setRanker], shallow);
+    const [selectedIds, setSelectedIds, setFileName, ranker, setRanker, setNodeData] = useTopologyStore((s) =>
+        [s.selectedIds, s.setSelectedIds, s.setFileName, s.ranker, s.setRanker, s.setNodeData], shallow);
     const [setSelectedStep] = useDesignerStore((s) => [s.setSelectedStep], shallow)
 
     function setTopologySelected(model: Model, ids: string []) {
@@ -57,6 +57,7 @@ export function TopologyTab(props: Props) {
             const node = model.nodes?.filter(node => node.id === ids[0]);
             if (node && node.length > 0) {
                 const data = node[0].data;
+                setNodeData(data);
                 setFileName(data.fileName)
                 if (data.step) {
                     setSelectedStep(data.step)

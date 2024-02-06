@@ -35,6 +35,8 @@ interface TopologyState {
     setFileName: (fileName?: string) => void
     ranker: string
     setRanker: (ranker: string) => void
+    nodeData: any
+    setNodeData: (nodeData: any) => void
 }
 
 export const useTopologyStore = createWithEqualityFn<TopologyState>((set) => ({
@@ -55,4 +57,10 @@ export const useTopologyStore = createWithEqualityFn<TopologyState>((set) => ({
             return {ranker: ranker};
         });
     },
+    nodeData: undefined,
+    setNodeData: (nodeData: any) => {
+    set((state: TopologyState) => {
+        return {nodeData: nodeData};
+    });
+},
 }), shallow)

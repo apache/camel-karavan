@@ -69,7 +69,7 @@ interface State {
 class App extends React.Component<Props, State> {
 
     public state: State = {
-        pageId: "designer",
+        pageId: "topology",
         name: 'example.yaml',
         key: '',
         yaml: ''
