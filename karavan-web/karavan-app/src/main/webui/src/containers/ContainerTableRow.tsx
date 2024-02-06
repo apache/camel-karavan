@@ -92,7 +92,7 @@ export function ContainerTableRow(props: Props) {
                             expandId: 'composable-expandable-example'
                         }
                         : undefined}
-                    modifier={"fitContent"}>
+                    modifier={"fitContent"} className={'dev-action-button'}>
                 </Td>
                 <Td>
                     {container.env}

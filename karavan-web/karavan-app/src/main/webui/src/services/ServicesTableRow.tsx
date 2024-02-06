@@ -114,7 +114,7 @@ export function ServicesTableRow (props: Props) {
                             expandId: 'composable-expandable-example'
                         }
                         : undefined}
-                    modifier={"fitContent"}>
+                    modifier={"fitContent"} className={'dev-action-button'}>
                 </Td>
                 <Td>
                     {container && <Label icon={icon} color={color}>
