@@ -24,6 +24,9 @@ import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt"
 import {TopologyUtils} from "karavan-core/lib/api/TopologyUtils";
 import {CamelElement} from "karavan-core/lib/model/IntegrationDefinition";
 import {v4 as uuidv4} from "uuid";
+import {DeleteElementIcon} from "../utils/ElementIcons";
+import {Button} from "@patternfly/react-core";
+import {InfrastructureAPI} from "../utils/InfrastructureAPI";
 
 const overlapGap: number = 40;
 
@@ -191,7 +194,7 @@ export function DslConnections() {
             const step = (pos.step as any);
             const uri = step?.uri;
             const directOrSeda = step && uri && step?.dslName === 'ToDefinition' && ['direct','seda'].includes(uri);
-            const label = directOrSeda ? (step?.parameters?.name) : '';
+            const name = directOrSeda ? (step?.parameters?.name) : '';
             const r = pos.headerRect.height / 2;
             const outgoingX = width - 20;
             const outgoingY = data[1] + 15;
@@ -201,7 +204,14 @@ export function DslConnections() {
                 <div key={pos.step.uuid + "-icon"}
                      style={{display: "block", position: "absolute", top: imageY, left: imageX}}>
                     {CamelUi.getConnectionIcon(pos.step)}
-                    {directOrSeda && <div style={{position: 'absolute', right: 27, top: -10, whiteSpace: 'nowrap'}}>{label}</div>}
+                    {directOrSeda &&
+                        <Button style={{position: 'absolute', right: 27, top: -12, whiteSpace: 'nowrap', zIndex: 300, padding: 0}}
+                               variant={'link'}
+                                aria-label="Goto"
+                                onClick={_ => InfrastructureAPI.onInternalConsumerClick(uri, name)}>
+                            {name}
+                        </Button>
+                    }
                 </div>
             )
         }
