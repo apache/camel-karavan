@@ -16,25 +16,21 @@
  */
 import React from 'react';
 import {
-    Button, Card, CardBody, CardFooter, CardTitle, Divider,
+    Button,
     Drawer,
     DrawerContent,
     DrawerContentBody,
-    DrawerPanelContent, Flex, FlexItem, Gallery, GalleryItem,
+    DrawerPanelContent,
     Modal,
     PageSection,
 } from '@patternfly/react-core';
 import '../karavan.css';
 import './kamelet.css';
 import {RegistryBeanDefinition} from "karavan-core/lib/model/CamelDefinition";
-import {CamelUi} from "../utils/CamelUi";
-import PlusIcon from "@patternfly/react-icons/dist/esm/icons/plus-icon";
 import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt";
 import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
 import {useDesignerStore, useIntegrationStore} from "../DesignerStore";
 import {shallow} from "zustand/shallow";
-import {BeanProperties} from "../property/property/BeanProperties";
-import {BeanCard} from "../beans/BeanCard";
 import {KameletAnnotationsPanel} from "./KameletAnnotationsPanel";
 import {KameletDefinitionsPanel} from "./KameletDefinitionsPanel";
 import {KameletProperties} from "./KameletProperties";

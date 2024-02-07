@@ -92,7 +92,6 @@ import {
 } from "../icons/EipIcons";
 import React from "react";
 import {TopologyUtils} from "karavan-core/lib/api/TopologyUtils";
-import {CamelDisplayUtil} from "karavan-core/lib/api/CamelDisplayUtil";
 
 const StepElements: string[] = [
     "AggregateDefinition",

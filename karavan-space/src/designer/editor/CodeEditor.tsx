@@ -20,7 +20,6 @@ import Editor from "@monaco-editor/react";
 import {shallow} from "zustand/shallow";
 import {useDesignerStore, useIntegrationStore} from "../DesignerStore";
 import {CamelDefinitionYaml} from "karavan-core/lib/api/CamelDefinitionYaml";
-import {EventBus} from "../utils/EventBus";
 
 export function CodeEditor () {
 
