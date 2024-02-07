@@ -122,7 +122,7 @@ export function BuildPanel () {
                         <Label icon={isRunning ? <Spinner diameter="16px" className="spinner"/> : icon}
                                color={color}>
                             {buildName
-                                ? <Button className='labeled-button dev-action-button' variant="link" onClick={e =>
+                                ? <Button className='labeled-button' variant="link" onClick={e =>
                                     useLogStore.setState({showLog: true, type: 'build', podName: buildName})
                                 }>
                                     {buildName}
@@ -131,7 +131,7 @@ export function BuildPanel () {
                             {status !== undefined && <Tooltip content={"Delete build"}>
                                 <Button
                                     icon={<DeleteIcon/>}
-                                    className="labeled-button"
+                                    className="labeled-button dev-action-button"
                                     variant="link" onClick={e => {
                                     setShowDeleteConfirmation(true);
                                     setDeleteEntityName(buildName);
@@ -184,7 +184,7 @@ export function BuildPanel () {
     }
 
     return (
-        <Card className="project-status">
+        <Card className="project-status" >
             <CardBody>
                 <DescriptionList isHorizontal horizontalTermWidthModifier={{default: '20ch'}}>
                     <DescriptionListGroup>

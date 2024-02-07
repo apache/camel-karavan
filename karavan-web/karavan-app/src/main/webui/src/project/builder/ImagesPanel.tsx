@@ -27,7 +27,16 @@ import {
     TextContent,
     Text,
     TextVariants,
-    Bullseye, EmptyState, EmptyStateVariant, EmptyStateHeader, EmptyStateIcon, PageSection, Switch, TextInput
+    Bullseye,
+    EmptyState,
+    EmptyStateVariant,
+    EmptyStateHeader,
+    EmptyStateIcon,
+    PageSection,
+    Switch,
+    TextInput,
+    Card,
+    CardBody, CardHeader
 } from '@patternfly/react-core';
 import '../../designer/karavan.css';
 import {useFilesStore, useProjectStore} from "../../api/ProjectStore";
@@ -42,7 +51,7 @@ import {ServicesYaml} from "../../api/ServiceModels";
 import DeleteIcon from "@patternfly/react-icons/dist/js/icons/times-icon";
 import {EventBus} from "../../designer/utils/EventBus";
 
-export function ImagesPanel () {
+export function ImagesPanel() {
 
     const [project, images] = useProjectStore((s) => [s.project, s.images], shallow);
     const [files] = useFilesStore((s) => [s.files], shallow);
@@ -73,7 +82,7 @@ export function ImagesPanel () {
     function getSetConfirmation() {
         const index = imageName?.lastIndexOf(":");
         const name = imageName?.substring(0, index);
-        const tag = index ? imageName?.substring(index+1) : "";
+        const tag = index ? imageName?.substring(index + 1) : "";
         return (<Modal
             className="modal-delete"
             title="Confirmation"
@@ -95,7 +104,7 @@ export function ImagesPanel () {
                         }}>Cancel</Button>
             ]}
             onEscapePress={e => setShowSetConfirmation(false)}>
-            <Flex direction={{default:"column"}} justifyContent={{default:"justifyContentFlexStart"}}>
+            <Flex direction={{default: "column"}} justifyContent={{default: "justifyContentFlexStart"}}>
                 <FlexItem>
                     <div>{"Set image for project " + project.projectId + ":"}</div>
                     <div>{"Name: " + name}</div>
@@ -147,92 +156,96 @@ export function ImagesPanel () {
     const projectImage = getProjectImage();
     return (
         <PageSection className="project-tab-panel project-images-panel" padding={{default: "padding"}}>
-            <Panel>
-                <PanelHeader>
-                    <Flex direction={{default: "row"}} justifyContent={{default:"justifyContentFlexStart"}}>
+            <Card>
+                <CardHeader>
+                    <Flex direction={{default: "row"}} justifyContent={{default: "justifyContentFlexStart"}}>
                         <FlexItem>
                             <TextContent>
                                 <Text component={TextVariants.h6}>Images</Text>
                             </TextContent>
                         </FlexItem>
-                        <FlexItem>
-
-                        </FlexItem>
                     </Flex>
-                </PanelHeader>
-            </Panel>
-            <Table aria-label="Images" variant={"compact"} className={"table"}>
-                <Thead>
-                    <Tr>
-                        <Th key='status' width={10}></Th>
-                        <Th key='image' width={20}>Image</Th>
-                        <Th key='tag' width={10}>Tag</Th>
-                        <Th key='actions' width={10}></Th>
-                    </Tr>
-                </Thead>
-                <Tbody>
-                    {images.map(image => {
-                        const index = image.lastIndexOf(":");
-                        const name = image.substring(0, index);
-                        const tag = image.substring(index+1);
-                        return <Tr key={image}>
-                            <Td modifier={"fitContent"} >
-                                {image === projectImage ? <SetIcon/> : <div/>}
-                            </Td>
-                            <Td>
-                                {name}
-                            </Td>
-                            <Td>
-                                {tag}
-                            </Td>
-                            <Td modifier={"fitContent"} isActionCell>
-                                <Flex direction={{default: "row"}} justifyContent={{default: "justifyContentFlexEnd"}}
-                                      spaceItems={{default: 'spaceItemsNone'}}>
-                                    <FlexItem>
-                                        <Tooltip content={"Delete image"} position={"bottom"}>
-                                            <Button variant={"plain"}
-                                                    icon={<DeleteIcon/>}
-                                                    isDisabled={image === projectImage}
-                                                    onClick={e => {
-                                                        setImageName(image);
-                                                        setShowDeleteConfirmation(true);
-                                                    }}>
-                                            </Button>
-                                        </Tooltip>
-                                    </FlexItem>
-                                    <FlexItem>
-                                        <Tooltip content="Set project image" position={"bottom"}>
-                                            <Button style={{padding: '0'}}
-                                                    variant={"plain"}
-                                                    isDisabled={image === projectImage}
-                                                    onClick={e => {
-                                                        setImageName(image);
-                                                        setCommitMessage(commitMessage === '' ? new Date().toLocaleString() : commitMessage);
-                                                        setShowSetConfirmation(true);
-                                                    }}>
-                                                <SetIcon/>
-                                            </Button>
-                                        </Tooltip>
-                                    </FlexItem>
-                                </Flex>
-                            </Td>
-                        </Tr>
-                    })}
-                    {images.length === 0 &&
-                        <Tr>
-                            <Td colSpan={8}>
-                                <Bullseye>
-                                    <EmptyState variant={EmptyStateVariant.sm}>
-                                        <EmptyStateHeader titleText="No results found" icon={<EmptyStateIcon icon={SearchIcon}/>} headingLevel="h2" />
-                                    </EmptyState>
-                                </Bullseye>
-                            </Td>
-                        </Tr>
-                    }
-                </Tbody>
-            </Table>
-            {showSetConfirmation && getSetConfirmation()}
-            {showDeleteConfirmation && getDeleteConfirmation()}
+                </CardHeader>
+                <CardBody className='table-card-body'>
+                    <Table aria-label="Images" variant={"compact"} className={"table"}>
+                        <Thead>
+                            <Tr>
+                                <Th key='status' width={10}></Th>
+                                <Th key='image' width={20}>Image</Th>
+                                <Th key='tag' width={10}>Tag</Th>
+                                <Th key='actions' width={10}></Th>
+                            </Tr>
+                        </Thead>
+                        <Tbody>
+                            {images.map(image => {
+                                const index = image.lastIndexOf(":");
+                                const name = image.substring(0, index);
+                                const tag = image.substring(index + 1);
+                                return <Tr key={image}>
+                                    <Td modifier={"fitContent"}>
+                                        {image === projectImage ? <SetIcon/> : <div/>}
+                                    </Td>
+                                    <Td>
+                                        {name}
+                                    </Td>
+                                    <Td>
+                                        {tag}
+                                    </Td>
+                                    <Td modifier={"fitContent"} isActionCell>
+                                        <Flex direction={{default: "row"}}
+                                              justifyContent={{default: "justifyContentFlexEnd"}}
+                                              spaceItems={{default: 'spaceItemsNone'}}>
+                                            <FlexItem>
+                                                <Tooltip content={"Delete image"} position={"bottom"}>
+                                                    <Button variant={"plain"}
+                                                            className='dev-action-button'
+                                                            icon={<DeleteIcon/>}
+                                                            isDisabled={image === projectImage}
+                                                            onClick={e => {
+                                                                setImageName(image);
+                                                                setShowDeleteConfirmation(true);
+                                                            }}>
+                                                    </Button>
+                                                </Tooltip>
+                                            </FlexItem>
+                                            <FlexItem>
+                                                <Tooltip content="Set project image" position={"bottom"}>
+                                                    <Button style={{padding: '0'}}
+                                                            variant={"plain"}
+                                                            className='dev-action-button'
+                                                            isDisabled={image === projectImage}
+                                                            onClick={e => {
+                                                                setImageName(image);
+                                                                setCommitMessage(commitMessage === '' ? new Date().toLocaleString() : commitMessage);
+                                                                setShowSetConfirmation(true);
+                                                            }}>
+                                                        <SetIcon/>
+                                                    </Button>
+                                                </Tooltip>
+                                            </FlexItem>
+                                        </Flex>
+                                    </Td>
+                                </Tr>
+                            })}
+                            {images.length === 0 &&
+                                <Tr>
+                                    <Td colSpan={8}>
+                                        <Bullseye>
+                                            <EmptyState variant={EmptyStateVariant.sm}>
+                                                <EmptyStateHeader titleText="No results found"
+                                                                  icon={<EmptyStateIcon icon={SearchIcon}/>}
+                                                                  headingLevel="h2"/>
+                                            </EmptyState>
+                                        </Bullseye>
+                                    </Td>
+                                </Tr>
+                            }
+                        </Tbody>
+                    </Table>
+                    {showSetConfirmation && getSetConfirmation()}
+                    {showDeleteConfirmation && getDeleteConfirmation()}
+                </CardBody>
+            </Card>
         </PageSection>
     )
 }
