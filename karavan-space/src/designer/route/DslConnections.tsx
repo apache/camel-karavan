@@ -141,8 +141,7 @@ export function DslConnections() {
         let outs: [string, number][] = Array.from(steps.values())
             .filter(pos => outgoingDefinitions.includes(pos.step.dslName))
             .filter(pos => pos.step.dslName !== 'KameletDefinition' || (pos.step.dslName === 'KameletDefinition' && !CamelUi.isActionKamelet(pos.step)))
-            .filter(pos => pos.step.dslName === 'ToDefinition' && !CamelUi.isActionKamelet(pos.step) && !TopologyUtils.isElementInternalComponent(pos.step))
-            .filter(pos => !(outgoingDefinitions.includes(pos.step.dslName) && TopologyUtils.hasInternalUri(pos.step)))
+            .filter(pos => pos.step.dslName === 'ToDefinition' && !CamelUi.isActionKamelet(pos.step))
             .filter(pos => pos.step.dslName !== 'SagaDefinition')
             .filter(pos => !CamelUi.isKameletSink(pos.step))
             .sort((pos1: DslPosition, pos2: DslPosition) => {
@@ -189,6 +188,10 @@ export function DslConnections() {
     function getOutgoingIcons(data: [string, number]) {
         const pos = steps.get(data[0]);
         if (pos) {
+            const step = (pos.step as any);
+            const uri = step?.uri;
+            const directOrSeda = step && uri && step?.dslName === 'ToDefinition' && ['direct','seda'].includes(uri);
+            const label = directOrSeda ? (step?.parameters?.name) : '';
             const r = pos.headerRect.height / 2;
             const outgoingX = width - 20;
             const outgoingY = data[1] + 15;
@@ -198,6 +201,7 @@ export function DslConnections() {
                 <div key={pos.step.uuid + "-icon"}
                      style={{display: "block", position: "absolute", top: imageY, left: imageX}}>
                     {CamelUi.getConnectionIcon(pos.step)}
+                    {directOrSeda && <div style={{position: 'absolute', right: 27, top: -10, whiteSpace: 'nowrap'}}>{label}</div>}
                 </div>
             )
         }
