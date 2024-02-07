@@ -72,7 +72,6 @@ class App extends React.Component<Props, State> {
   };
 
   saveScheduledChanges = () => {
-    console.log("saveScheduledChanges", this.state.active);
     if (this.state.active && this.state.hasChanges) {
       this.save(this.state.relativePath, this.state.scheduledYaml, false);
     }
@@ -234,7 +233,7 @@ class App extends React.Component<Props, State> {
             onSavePropertyPlaceholder={(key, value) => this.savePropertyPlaceholder(key, value)}
             beans={this.state.beans}
             onInternalConsumerClick={(uri, name) => {
-              console.log("onInternalConsumerClick", uri, name)
+              vscode.postMessage({ command: 'internalConsumerClick', uri: uri, name: name });
           }}
           />
         }

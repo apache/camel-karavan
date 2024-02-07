@@ -19,6 +19,7 @@ import { workspace, Uri, window, ExtensionContext, FileType } from "vscode";
 import { CamelDefinitionYaml } from "core/api/CamelDefinitionYaml";
 import { Integration, KameletTypes } from "core/model/IntegrationDefinition";
 import { RegistryBeanDefinition } from "core/model/CamelDefinition";
+import { TopologyUtils } from "core/api/TopologyUtils";
 
 export function getRoot(): string | undefined {
     return (workspace.workspaceFolders && (workspace.workspaceFolders.length > 0))
@@ -455,4 +456,29 @@ function setMinikubeEnvVariables(env: string): Map<string, string> {
         map.set(key, value);
     })
     return map;
+}
+
+export async function getFileWithIntegralConsumer(fullPath: string, uri: string, name: string) {
+    try {
+        const codePath = path.dirname(fullPath);
+        const integrations: Integration[] = [];
+        const files = await getCamelYamlFiles(codePath);
+        for (let x in files) {
+            const filename = files[x];
+            const readData = await readFile(filename);
+            const code = Buffer.from(readData).toString('utf8');
+            const i = CamelDefinitionYaml.yamlToIntegration(filename, code);
+            integrations.push(i);
+        }
+        const routes = TopologyUtils.findTopologyRouteNodes(integrations);
+        for (const route of routes) {
+            if (route?.from?.uri === uri && route?.from?.parameters?.name === name) {
+                return route.fileName;
+            }
+        }
+    }
+    catch (e) {
+        console.log((e as Error).message);
+    }
+    return undefined;
 }

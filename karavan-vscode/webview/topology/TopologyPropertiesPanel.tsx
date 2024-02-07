@@ -40,8 +40,6 @@ export function TopologyPropertiesPanel(props: Props) {
     const [selectedIds, setSelectedIds, fileName, nodeData] = useTopologyStore((s) =>
         [s.selectedIds, s.setSelectedIds, s.fileName, s.nodeData], shallow);
 
-    console.log(nodeData)
-
     function isRoute() {
         if (nodeData && nodeData.type === 'route') {
             const uri: string = nodeData?.step?.from.uri || '';

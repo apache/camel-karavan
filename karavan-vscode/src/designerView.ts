@@ -140,6 +140,9 @@ export class DesignerView {
                         case 'getData':
                             this.sendData(panel, filename, relativePath, fullPath, message.reread === true, yaml, tab);
                             break;
+                        case 'internalConsumerClick':
+                            this.internalConsumerClick(panel, fullPath, message.uri, message.name);
+                            break;
                     }
                 },
                 undefined,
@@ -232,5 +235,14 @@ export class DesignerView {
                 panel?.webview.postMessage({ command: 'downloadImage' });
             }
         }
+    }
+
+    internalConsumerClick(panel: WebviewPanel, fullPath: string, uri: string, name: string) {
+        utils.getFileWithIntegralConsumer(fullPath, uri, name).then((filename) => {
+            if (filename !== undefined) {
+                commands.executeCommand("karavan.open", { fsPath: filename })
+            }
+        }).catch(err => window.showErrorMessage("Error: " + err?.reason));
+        
     }
 }
