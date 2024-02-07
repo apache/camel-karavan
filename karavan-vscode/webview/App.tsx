@@ -233,6 +233,9 @@ class App extends React.Component<Props, State> {
             propertyPlaceholders={this.state.propertyPlaceholders}
             onSavePropertyPlaceholder={(key, value) => this.savePropertyPlaceholder(key, value)}
             beans={this.state.beans}
+            onInternalConsumerClick={(uri, name) => {
+              console.log("onInternalConsumerClick", uri, name)
+          }}
           />
         }
         {loaded && page === "knowledgebase" && <KnowledgebasePage dark={dark} />}

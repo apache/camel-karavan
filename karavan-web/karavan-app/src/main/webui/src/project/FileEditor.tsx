@@ -94,6 +94,9 @@ export function FileEditor (props: Props) {
                 propertyPlaceholders={propertyPlaceholders}
                 onSavePropertyPlaceholder={onSavePropertyPlaceholder}
                 beans={beans}
+                onInternalConsumerClick={(uri, name) => {
+                    console.log("onInternalConsumerClick", uri, name)
+                }}
             />
         )
     }
