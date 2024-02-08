@@ -138,7 +138,6 @@ export class ProjectService {
             KameletApi.saveCustomKameletNames(names);
         })
         KaravanApi.getBlockedKameletNames(names => {
-            debugger;
             KameletApi.saveBlockedKameletNames(names);
         })
     }
@@ -151,7 +150,6 @@ export class ProjectService {
             ComponentApi.saveComponents(jsons, true);
         });
         KaravanApi.getBlockedComponentNames(names => {
-            debugger;
             ComponentApi.saveBlockedComponentNames(names); 
         });
     }
