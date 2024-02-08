@@ -37,7 +37,7 @@ public class KaravanCommand implements Callable<Integer> {
     private String namespace;
     @CommandLine.Option(names = {"-e", "--environment"}, description = "Environment", defaultValue = Constants.DEFAULT_ENVIRONMENT)
     private String environment;
-    @CommandLine.Option(names = {"--auth"}, description = "Authentication: public, basic, oidc", defaultValue = Constants.DEFAULT_AUTH)
+    @CommandLine.Option(names = {"--auth"}, description = "Authentication: public, oidc", defaultValue = Constants.DEFAULT_AUTH)
     private String auth;
     @CommandLine.Option(names = {"--node-port"}, description = "Node port", defaultValue = "0")
     private int nodePort;
@@ -79,21 +79,11 @@ public class KaravanCommand implements Callable<Integer> {
     @CommandLine.Option(names = {"--image-registry-password"}, description = "Image registry password")
     private String imageRegistryPassword;
 
-    @CommandLine.Option(names = {"--infinispan-image"}, description = "Infinispan Image", defaultValue = Constants.INFINISPAN_IMAGE)
-    private String infinispanImage;
-    @CommandLine.Option(names = {"--infinispan-username"}, description = "Infinispan Username", defaultValue = Constants.INFINISPAN_USERNAME)
-    private String infinispanUsername;
-    @CommandLine.Option(names = {"--infinispan-password"}, description = "Infinispan Password", defaultValue = Constants.INFINISPAN_PASSWORD)
-    private String infinispanPassword;
-
     @CommandLine.Option(names = {"--nexus-proxy"}, description = "Deploy nexus proxy")
     private boolean nexusProxy;
 
     @CommandLine.Option(names = {"--install-gitea"}, description = "Install Gitea (for demo purposes)", defaultValue = "false")
     private boolean installGitea;
-
-    @CommandLine.Option(names = {"--install-infinispan"}, description = "Install Infinispan", defaultValue = "true")
-    private boolean installInfinispan;
 
     @CommandLine.Option(names = {"-h", "--help"}, usageHelp = true, description = "Display help")
     private boolean helpRequested;
@@ -143,16 +133,8 @@ public class KaravanCommand implements Callable<Integer> {
         return installGitea;
     }
 
-    public boolean isInstallInfinispan() {
-        return installInfinispan;
-    }
-
     public boolean isAuthOidc() {
         return Objects.equals(this.auth, "oidc");
-    }
-
-    public boolean isAuthBasic() {
-        return Objects.equals(this.auth, "basic");
     }
 
     public String getVersion() {
@@ -323,30 +305,6 @@ public class KaravanCommand implements Callable<Integer> {
         this.imageRegistryPassword = imageRegistryPassword;
     }
 
-    public String getInfinispanImage() {
-        return infinispanImage;
-    }
-
-    public void setInfinispanImage(String infinispanImage) {
-        this.infinispanImage = infinispanImage;
-    }
-
-    public String getInfinispanUsername() {
-        return infinispanUsername;
-    }
-
-    public void setInfinispanUsername(String infinispanUsername) {
-        this.infinispanUsername = infinispanUsername;
-    }
-
-    public String getInfinispanPassword() {
-        return infinispanPassword;
-    }
-
-    public void setInfinispanPassword(String infinispanPassword) {
-        this.infinispanPassword = infinispanPassword;
-    }
-
     public boolean isNexusProxy() {
         return nexusProxy;
     }
@@ -391,7 +349,4 @@ public class KaravanCommand implements Callable<Integer> {
         this.installGitea = installGitea;
     }
 
-    public void setInstallInfinispan(boolean installInfinispan) {
-        this.installInfinispan = installInfinispan;
-    }
 }

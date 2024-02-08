@@ -58,12 +58,6 @@ public class KaravanDeployment {
                 new EnvVar("KARAVAN_DEVMODE_IMAGE", devModeImage, null)
         );
         envVarList.add(
-                new EnvVar("INFINISPAN_HOSTS", "infinispan." + config.getNamespace() + ":11222", null)
-        );
-        envVarList.add(
-                new EnvVar("INFINISPAN_PASSWORD", null, new EnvVarSourceBuilder().withSecretKeyRef(new SecretKeySelector("password", INFINISPAN_SECRET_NAME, false)).build())
-        );
-        envVarList.add(
                 new EnvVar("KUBERNETES_NAMESPACE", null, new EnvVarSourceBuilder().withFieldRef(new ObjectFieldSelector("", "metadata.namespace")).build())
         );
         String auth = config.getAuth();
