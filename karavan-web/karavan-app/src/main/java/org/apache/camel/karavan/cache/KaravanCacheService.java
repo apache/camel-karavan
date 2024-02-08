@@ -16,7 +16,7 @@
  */
 package org.apache.camel.karavan.cache;
 
-import com.hazelcast.config.ClasspathXmlConfig;
+import com.hazelcast.config.ClasspathYamlConfig;
 import com.hazelcast.config.Config;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
@@ -29,7 +29,6 @@ import jakarta.enterprise.event.Observes;
 import jakarta.enterprise.inject.Default;
 import jakarta.inject.Singleton;
 import org.apache.camel.karavan.cache.model.*;
-import org.eclipse.microprofile.health.Readiness;
 import org.jboss.logging.Logger;
 
 import java.io.BufferedReader;
@@ -41,11 +40,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 @Default
-@Readiness
 @Singleton
 public class KaravanCacheService {
 
-    Config config = new ClasspathXmlConfig("hazelcast.xml");
+    Config config = new ClasspathYamlConfig("hazelcast.yaml");
     HazelcastInstance hz = Hazelcast.getOrCreateHazelcastInstance(config);
 
     private final IMap<GroupedKey, Project> projects = hz.getMap(Project.CACHE);
@@ -94,9 +92,9 @@ public class KaravanCacheService {
 
     public ProjectFile getProjectFile(String projectId, String filename) {
         Predicate<GroupedKey, ProjectFile> predicate = Predicates.and(
-                        Predicates.equal("name", filename),
-                        Predicates.equal("projectId", projectId)
-                );
+                Predicates.equal("name", filename),
+                Predicates.equal("projectId", projectId)
+        );
         List<ProjectFile> list = files.values(predicate).stream().toList();
         return !list.isEmpty() ? list.get(0) : null;
     }
