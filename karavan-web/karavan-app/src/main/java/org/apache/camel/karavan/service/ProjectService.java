@@ -41,6 +41,7 @@ import org.apache.camel.karavan.validation.project.ProjectModifyValidator;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.eclipse.microprofile.faulttolerance.Retry;
 import org.eclipse.microprofile.health.HealthCheck;
 import org.eclipse.microprofile.health.HealthCheckResponse;
 import org.eclipse.microprofile.health.Readiness;
@@ -266,7 +267,7 @@ public class ProjectService implements HealthCheck {
         return codeService.getProjectPort(projectId);
     }
 
-    //    @Retry(maxRetries = 100, delay = 2000)
+    @Retry(maxRetries = 100, delay = 2000)
     public void tryStart() throws Exception {
         if (karavanCacheService.isReady() && gitService.checkGit()) {
             if (karavanCacheService.getProjects().isEmpty()) {

@@ -78,9 +78,9 @@ public class ContainerStatusService {
     void cleanContainersStatuses(List<ContainerStatus> statusesInDocker) {
         if (karavanCacheService.isReady() && !ConfigService.inKubernetes()) {
             List<String> namesInDocker = statusesInDocker.stream().map(ContainerStatus::getContainerName).toList();
-            List<ContainerStatus> statusesInInfinispan = karavanCacheService.getContainerStatuses(environment);
+            List<ContainerStatus> statusesInCache = karavanCacheService.getContainerStatuses(environment);
             // clean deleted
-            statusesInInfinispan.stream()
+            statusesInCache.stream()
                     .filter(cs -> !checkTransit(cs))
                     .filter(cs -> !namesInDocker.contains(cs.getContainerName()))
                     .forEach(containerStatus -> {

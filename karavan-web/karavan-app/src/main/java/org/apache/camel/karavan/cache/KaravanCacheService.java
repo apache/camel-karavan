@@ -62,12 +62,12 @@ public class KaravanCacheService {
     private static final String DEFAULT_ENVIRONMENT = "dev";
 
     void onStart(@Observes StartupEvent ev) {
-        LOGGER.info("The application is starting...");
+        LOGGER.info("KaravanCacheService is started");
         ready.set(true);
     }
 
     void onStop(@Observes ShutdownEvent ev) {
-        LOGGER.info("The application is stopping...");
+        LOGGER.info("KaravanCacheService is stopped");
         ready.set(false);
     }
 
