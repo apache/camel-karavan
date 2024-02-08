@@ -735,12 +735,13 @@
   },
   "dependencies": {
     "@monaco-editor/react": "^4.6.0",
-    "@patternfly/patternfly": "^5.1.0",
-    "@patternfly/react-core": "^5.1.1",
-    "@patternfly/react-table": "^5.1.1",
-    "@patternfly/react-topology": "^5.1.0",
-    "@types/js-yaml": "4.0.7",
-    "@types/uuid": "9.0.5",
+    "@patternfly/patternfly": "^5.2.0",
+    "@patternfly/react-core": "^5.2.0",
+    "@patternfly/react-table": "^5.2.0",
+    "@patternfly/react-topology": "^5.2.0",
+    "@types/js-yaml": "4.0.9",
+    "@types/node": "20.11.16",
+    "@types/uuid": "9.0.8",
     "html-to-image": "1.11.11",
     "js-yaml": "^4.1.0",
     "path-browserify": "^1.0.1",
@@ -749,7 +750,7 @@
     "rxjs": "7.8.1",
     "shelljs": "^0.8.5",
     "uuid": "9.0.1",
-    "zustand": "4.4.3"
+    "zustand": "4.5.0"
   },
   "devDependencies": {
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",

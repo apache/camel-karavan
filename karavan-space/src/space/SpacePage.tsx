@@ -111,6 +111,9 @@ export class SpacePage extends React.Component<Props, State> {
                 propertyPlaceholders={[]}
                 beans={[]}
                 onSavePropertyPlaceholder={(key, value) => {}}
+                onInternalConsumerClick={(uri, name) => {
+                    console.log("onInternalConsumerClick", uri, name)
+                }}
             />
         )
     }

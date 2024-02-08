@@ -82,6 +82,9 @@ export const DesignerPage = (props: Props) => {
                 ]}
                 onSavePropertyPlaceholder={(key, value) => console.log("onSavePropertyPlaceholder", key, value)}
                 beans={[]}
+                onInternalConsumerClick={(uri, name) => {
+                    console.log("onInternalConsumerClick", uri, name)
+                }}
             />
         )
     }

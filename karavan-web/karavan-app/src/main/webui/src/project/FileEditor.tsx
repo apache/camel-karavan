@@ -25,6 +25,7 @@ import {ProjectService} from "../api/ProjectService";
 import {shallow} from "zustand/shallow";
 import {CodeUtils} from "../util/CodeUtils";
 import {RegistryBeanDefinition} from "karavan-core/lib/model/CamelDefinition";
+import {TopologyUtils} from "karavan-core/lib/api/TopologyUtils";
 
 interface Props {
     projectId: string
@@ -38,10 +39,11 @@ const languages = new Map<string, string>([
 
 export function FileEditor (props: Props) {
 
-    const [file, designerTab] = useFileStore((s) => [s.file, s.designerTab], shallow )
+    const [file, designerTab, setFile] = useFileStore((s) => [s.file, s.designerTab, s.setFile], shallow )
     const [files] = useFilesStore((s) => [s.files], shallow);
     const [propertyPlaceholders, setPropertyPlaceholders] = useState<string[]>([]);
     const [beans, setBeans] = useState<RegistryBeanDefinition[]>([]);
+    const [key, setKey] = useState<string>(Math.random().toString());
 
     useEffect(() => {
         const pp = CodeUtils.getPropertyPlaceholders(files);
@@ -78,10 +80,25 @@ export function FileEditor (props: Props) {
         }
     }
 
+    function internalConsumerClick(uri: string, name: string) {
+        const integrations = files.filter(f => f.name.endsWith(".camel.yaml"))
+            .map(f => CamelDefinitionYaml.yamlToIntegration(f.name, f.code));
+        const routes = TopologyUtils.findTopologyRouteNodes(integrations);
+        for (const route of routes) {
+            if (route?.from?.uri === uri && route?.from?.parameters?.name === name) {
+                const switchToFile = files.filter(f => f.name === route.fileName).at(0);
+                if (switchToFile){
+                    setFile('select', switchToFile);
+                    setKey(Math.random().toString())
+                }
+            }
+        }
+    }
+
     function getDesigner () {
         return (
             file !== undefined &&
-            <KaravanDesigner
+            <KaravanDesigner key={key}
                 showCodeTab={true}
                 dark={false}
                 filename={file.name}
@@ -94,6 +111,7 @@ export function FileEditor (props: Props) {
                 propertyPlaceholders={propertyPlaceholders}
                 onSavePropertyPlaceholder={onSavePropertyPlaceholder}
                 beans={beans}
+                onInternalConsumerClick={internalConsumerClick}
             />
         )
     }

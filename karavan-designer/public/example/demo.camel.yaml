@@ -39,6 +39,31 @@
     from:
       id: from-6aee
       uri: timer
+      steps:
+        - to:
+            id: to-2df4
+            uri: direct
+            parameters:
+              name: first-firect
+        - to:
+            id: to-e017
+            uri: direct
+            parameters:
+              name: second_direct
+- route:
+    id: first-firect
+    from:
+      id: from-f155
+      uri: direct
+      parameters:
+        name: first-firect
+- route:
+    id: second_direct
+    from:
+      id: from-7ce0
+      uri: direct
+      parameters:
+        name: second_direct
 
 #      steps:
 #        - marshal:

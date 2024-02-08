@@ -811,3 +811,6 @@
     background-color: var(--pf-v5-global--BackgroundColor--light-300);
     margin-bottom: 100px;
 }
+.karavan .knowledbase-eip-section .pf-v5-c-toggle-group{
+    margin:16px;
+}

@@ -387,6 +387,10 @@
   padding-bottom: 10px;
 }
 
+.karavan .project-page .table-card-body {
+  padding: 0;
+}
+
 .karavan .project-page .project-images-panel {
   padding-top: 0;
 }

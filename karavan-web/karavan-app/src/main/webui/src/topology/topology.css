@@ -41,13 +41,21 @@
     overflow: auto;
 }
 
-.karavan .topology-panel .properties-header {
-    padding: 10px;
+.karavan .topology-panel .properties .headers {
+    display: none;
 }
 
 .karavan .topology-panel .common-node .icon {
     height: 32px;
     width: 32px;
+}
+
+.karavan .topology-panel .pf-v5-c-panel__header {
+    padding-bottom: 0;
+}
+
+.karavan .topology-panel .file-button {
+    padding: 0;
 }
 
 .karavan .topology-sidebar .pf-topology-side-bar__header {
