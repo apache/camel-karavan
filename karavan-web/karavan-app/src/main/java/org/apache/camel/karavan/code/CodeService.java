@@ -327,10 +327,13 @@ public class CodeService {
     }
 
     public Integer getProjectPort(ProjectFile composeFile) {
-        DockerComposeService dcs = DockerComposeConverter.fromCode(composeFile.getCode(), composeFile.getProjectId());
-        Optional<Integer> port = dcs.getPortsMap().entrySet().stream()
-                .filter(e -> Objects.equals(e.getValue(), INTERNAL_PORT)).map(Map.Entry::getKey).findFirst();
-        return port.orElse(null);
+        if (composeFile != null) {
+            DockerComposeService dcs = DockerComposeConverter.fromCode(composeFile.getCode(), composeFile.getProjectId());
+            Optional<Integer> port = dcs.getPortsMap().entrySet().stream()
+                    .filter(e -> Objects.equals(e.getValue(), INTERNAL_PORT)).map(Map.Entry::getKey).findFirst();
+            return port.orElse(null);
+        }
+        return null;
     }
 
     public Integer getProjectPort(String projectId) {
