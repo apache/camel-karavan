@@ -21,21 +21,18 @@ import {
     PageSectionVariants
 } from '@patternfly/react-core';
 import '../../designer/karavan.css';
-import {KameletCard} from "./KameletCard";
-import {KameletApi} from "karavan-core/lib/api/KameletApi";
-import {KameletModal} from "./KameletModal";
-import {useKnowledgebaseStore} from "../KnowledgebaseStore";
-import {shallow} from "zustand/shallow";
+import { KameletCard } from "./KameletCard";
+import { KameletApi } from "karavan-core/lib/api/KameletApi";
+import { KameletModal } from "./KameletModal";
+import { useKnowledgebaseStore } from "../KnowledgebaseStore";
+import { shallow } from "zustand/shallow";
 
 interface Props {
     dark: boolean,
     filter: string,
+    blockedKamelets: string[],
     customOnly: boolean,
-}
-
-interface Props {
-    dark: boolean,
-    filter: string,
+    onChange: (name: string, operation: 'block' | 'unblock') => void
 }
 
 export function KameletsTab(props: Props) {
@@ -43,19 +40,19 @@ export function KameletsTab(props: Props) {
     const [isModalOpen] = useKnowledgebaseStore((s) =>
         [s.isModalOpen], shallow)
 
-    const {filter, customOnly, dark} = props;
+    const { filter, customOnly, dark } = props;
     let kameletList = KameletApi.getKamelets().filter(kamelet =>
         kamelet.spec.definition.title.toLowerCase().includes(filter.toLowerCase()));
     if (customOnly) kameletList = kameletList.filter(k => KameletApi.getCustomKameletNames().includes(k.metadata.name));
     return (
         <PageSection variant={dark ? PageSectionVariants.darker : PageSectionVariants.light}
-                     padding={{default: 'noPadding'}} className="kamelet-section">
-            {isModalOpen && <KameletModal/>}
+            padding={{ default: 'noPadding' }} className="kamelet-section">
+            {isModalOpen && <KameletModal />}
             <PageSection isFilled className="kamelets-page"
-                         variant={dark ? PageSectionVariants.darker : PageSectionVariants.light}>
+                variant={dark ? PageSectionVariants.darker : PageSectionVariants.light}>
                 <Gallery hasGutter>
                     {kameletList.map(k => (
-                        <KameletCard key={k.metadata.name} kamelet={k}/>
+                        <KameletCard key={k.metadata.name} kamelet={k} onChange={props.onChange} blockedKamelets={props.blockedKamelets} />
                     ))}
                 </Gallery>
             </PageSection>

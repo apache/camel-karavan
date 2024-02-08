@@ -21,9 +21,9 @@ import {ProjectsPage} from "../projects/ProjectsPage";
 import {ProjectPage} from "../project/ProjectPage";
 import {ServicesPage} from "../services/ServicesPage";
 import {ContainersPage} from "../containers/ContainersPage";
-import {KnowledgebasePage} from "../knowledgebase/KnowledgebasePage";
 import {TemplatesPage} from "../templates/TemplatesPage";
 import {ConfigurationPage} from "../config/ConfigurationPage";
+import { KnowledgebaseHome } from '../knowledgebase/KnowledgebaseHome';
 
 export function MainRoutes() {
 
@@ -34,7 +34,7 @@ export function MainRoutes() {
             <Route path="/templates" element={<TemplatesPage key={'templates'}/>}/>
             <Route path="/services" element={<ServicesPage key="services"/>}/>
             <Route path="/containers" element={<ContainersPage key="services"/>}/>
-            <Route path="/knowledgebase" element={<KnowledgebasePage dark={false}/>}/>
+            <Route path="/knowledgebase" element={<KnowledgebaseHome dark={false}/>}/>
             <Route path="/configuration" element={<ConfigurationPage dark={false}/>}/>
             <Route path="*" element={<Navigate to="/projects" replace/>}/>
         </Routes>

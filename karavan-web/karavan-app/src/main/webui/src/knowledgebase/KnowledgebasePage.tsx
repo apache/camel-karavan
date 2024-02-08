@@ -14,16 +14,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import '../designer/karavan.css';
-import {Flex, FlexItem, PageSection, Switch, Tab, Tabs, Text, TextContent, TextInput, Toolbar, ToolbarContent, ToolbarItem} from "@patternfly/react-core";
-import {MainToolbar} from "../designer/MainToolbar";
-import {KameletsTab} from "./kamelets/KameletsTab";
-import {EipTab} from "./eip/EipTab";
-import {ComponentsTab} from "./components/ComponentsTab";
+import { Flex, FlexItem, PageSection, Switch, Tab, Tabs, Text, TextContent, TextInput, Toolbar, ToolbarContent, ToolbarItem } from "@patternfly/react-core";
+import { MainToolbar } from "../designer/MainToolbar";
+import { KameletsTab } from "./kamelets/KameletsTab";
+import { EipTab } from "./eip/EipTab";
+import { ComponentsTab } from "./components/ComponentsTab";
 
 interface Props {
     dark: boolean,
+    changeBlockList: (type: string, name: string, operation: 'block' | 'unblock') => void,
+    blockedKamelets: string[],
+    blockedComponents: string[]
 }
 
 export const KnowledgebasePage = (props: Props) => {
@@ -50,35 +53,35 @@ export const KnowledgebasePage = (props: Props) => {
                 </ToolbarItem>}
                 <ToolbarItem>
                     <TextInput className="text-field" type="search" id="search" name="search"
-                               value={filter}
-                               onChange={(_event, value) => setFilter(value)}
-                               autoComplete="off"
-                               placeholder="Search by name"/>
+                        value={filter}
+                        onChange={(_event, value) => setFilter(value)}
+                        autoComplete="off"
+                        placeholder="Search by name" />
                 </ToolbarItem>
             </ToolbarContent>
         </Toolbar>
     }
 
     return (
-        <PageSection className="kamelet-section" padding={{default: 'noPadding'}}>
-            <PageSection className="tools-section" padding={{default: 'noPadding'}}>
-                <MainToolbar title={title()} tools={getTools()}/>
+        <PageSection className="kamelet-section" padding={{ default: 'noPadding' }}>
+            <PageSection className="tools-section" padding={{ default: 'noPadding' }}>
+                <MainToolbar title={title()} tools={getTools()} />
             </PageSection>
-            <PageSection className="tools-section" padding={{default: 'noPadding'}}>
-                <Flex direction={{default: "column"}} spaceItems={{default: "spaceItemsNone"}}>
+            <PageSection className="tools-section" padding={{ default: 'noPadding' }}>
+                <Flex direction={{ default: "column" }} spaceItems={{ default: "spaceItemsNone" }}>
                     <FlexItem className="knowledge-tabs">
                         <Tabs activeKey={tab} onSelect={(event, tabIndex) => setTab(tabIndex)}>
-                            <Tab eventKey="eip" title="Integration Patterns"/>
-                            <Tab eventKey="kamelets" title="Kamelets"/>
-                            <Tab eventKey="components" title="Components"/>
+                            <Tab eventKey="eip" title="Integration Patterns" />
+                            <Tab eventKey="kamelets" title="Kamelets" />
+                            <Tab eventKey="components" title="Components" />
                         </Tabs>
                     </FlexItem>
                 </Flex>
             </PageSection>
             <>
-                {tab === 'kamelets' && <KameletsTab dark={props.dark} filter={filter} customOnly={customOnly}/>}
-                {tab === 'eip' && <EipTab dark={props.dark} filter={filter}/>}
-                {tab === 'components' && <ComponentsTab dark={props.dark} filter={filter}/>}
+                {tab === 'kamelets' && <KameletsTab dark={props.dark} filter={filter} customOnly={customOnly} onChange={(name: string, operation: 'block' | 'unblock') => props.changeBlockList('kamelet', name, operation)} blockedKamelets={props.blockedKamelets} />}
+                {tab === 'eip' && <EipTab dark={props.dark} filter={filter} />}
+                {tab === 'components' && <ComponentsTab dark={props.dark} filter={filter} onChange={(name: string, operation: 'block' | 'unblock') => props.changeBlockList('component', name, operation)} blockedComponents={props.blockedComponents} />}
             </>
         </PageSection>
     )

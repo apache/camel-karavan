@@ -20,15 +20,17 @@ import {
     PageSection, PageSectionVariants
 } from '@patternfly/react-core';
 import '../../designer/karavan.css';
-import {ComponentCard} from "./ComponentCard";
-import {ComponentModal} from "./ComponentModal";
-import {ComponentApi} from "karavan-core/lib/api/ComponentApi";
-import {shallow} from "zustand/shallow";
-import {useKnowledgebaseStore} from "../KnowledgebaseStore";
+import { ComponentCard } from "./ComponentCard";
+import { ComponentModal } from "./ComponentModal";
+import { ComponentApi } from "karavan-core/lib/api/ComponentApi";
+import { shallow } from "zustand/shallow";
+import { useKnowledgebaseStore } from "../KnowledgebaseStore";
 
 interface Props {
     dark: boolean,
     filter: string,
+    onChange: (name: string, operation: 'block' | 'unblock') => void,
+    blockedComponents: string[]
 }
 
 export function ComponentsTab(props: Props) {
@@ -37,19 +39,19 @@ export function ComponentsTab(props: Props) {
         [s.isModalOpen], shallow)
 
 
-    const {filter} = props;
+    const { filter } = props;
     const components = ComponentApi.getComponents().filter(c => {
         return c.component.name.toLowerCase().includes(filter.toLowerCase())
             || c.component.title.toLowerCase().includes(filter.toLowerCase())
             || c.component.description.toLowerCase().includes(filter.toLowerCase())
-    }).sort((a, b) => (a.component.title?.toLowerCase() > b.component.title?.toLowerCase() ? 1 : -1)) ;
+    }).sort((a, b) => (a.component.title?.toLowerCase() > b.component.title?.toLowerCase() ? 1 : -1));
     return (
         <PageSection variant={props.dark ? PageSectionVariants.darker : PageSectionVariants.light} padding={{ default: 'noPadding' }} className="kamelet-section">
-            {isModalOpen && <ComponentModal/>}
+            {isModalOpen && <ComponentModal />}
             <PageSection isFilled className="kamelets-page" variant={props.dark ? PageSectionVariants.darker : PageSectionVariants.light}>
                 <Gallery hasGutter>
                     {components.map(c => (
-                        <ComponentCard key={c.component.name} component={c}/>
+                        <ComponentCard key={c.component.name} component={c} onChange={props.onChange} blockedComponents={props.blockedComponents} />
                     ))}
                 </Gallery>
             </PageSection>

@@ -30,6 +30,7 @@ import {
 import {ProjectEventBus} from './ProjectEventBus';
 import {EventBus} from "../designer/utils/EventBus";
 import {KameletApi} from "karavan-core/lib/api/KameletApi";
+import { ComponentApi } from 'karavan-core/lib/api/ComponentApi';
 
 export class ProjectService {
 
@@ -130,12 +131,29 @@ export class ProjectService {
     public static reloadKamelets() {
         KaravanApi.getKamelets(yamls => {
             const kamelets: string[] = [];
-            yamls.split("\n---\n").map(c => c.trim()).forEach(z => kamelets.push(z));
+            yamls.split(/\n?---\n?/).map(c => c.trim()).forEach(z => kamelets.push(z));
             KameletApi.saveKamelets(kamelets, true);
         })
         KaravanApi.getCustomKameletNames(names => {
             KameletApi.saveCustomKameletNames(names);
         })
+        KaravanApi.getBlockedKameletNames(names => {
+            debugger;
+            KameletApi.saveBlockedKameletNames(names);
+        })
+    }
+
+    public static reloadComponents() {
+        KaravanApi.getComponents(code => {
+            const components: [] = JSON.parse(code);
+            const jsons: string[] = [];
+            components.forEach(c => jsons.push(JSON.stringify(c)));
+            ComponentApi.saveComponents(jsons, true);
+        });
+        KaravanApi.getBlockedComponentNames(names => {
+            debugger;
+            ComponentApi.saveBlockedComponentNames(names); 
+        });
     }
 
     public static updateFile(file: ProjectFile, active: boolean) {

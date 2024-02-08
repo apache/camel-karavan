@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     Badge,
     Card, CardBody, CardFooter, CardHeader, Flex, FlexItem, Form, FormGroup, Gallery, Modal, PageSection,
@@ -22,27 +22,29 @@ import {
     Text, TextInput, ToggleGroup, ToggleGroupItem,
 } from '@patternfly/react-core';
 import '../karavan.css';
-import {CamelUi} from "../utils/CamelUi";
-import {DslMetaModel} from "../utils/DslMetaModel";
-import {useDesignerStore, useIntegrationStore, useSelectorStore} from "../DesignerStore";
-import {shallow} from "zustand/shallow";
-import {useRouteDesignerHook} from "./useRouteDesignerHook";
+import { CamelUi } from "../utils/CamelUi";
+import { DslMetaModel } from "../utils/DslMetaModel";
+import { useDesignerStore, useIntegrationStore, useSelectorStore } from "../DesignerStore";
+import { shallow } from "zustand/shallow";
+import { useRouteDesignerHook } from "./useRouteDesignerHook";
+import { ComponentApi } from 'karavan-core/lib/api/ComponentApi';
+import { KameletApi } from 'karavan-core/lib/api/KameletApi';
 
 interface Props {
     tabIndex?: string | number
 }
 
-export function DslSelector (props: Props) {
+export function DslSelector(props: Props) {
 
     const [showSelector, showSteps, parentId, parentDsl, selectorTabIndex, setShowSelector, setSelectorTabIndex,
         selectedPosition, selectedLabels, addSelectedLabel, deleteSelectedLabel] =
         useSelectorStore((s) =>
             [s.showSelector, s.showSteps, s.parentId, s.parentDsl, s.selectorTabIndex, s.setShowSelector, s.setSelectorTabIndex,
-                s.selectedPosition, s.selectedLabels, s.addSelectedLabel, s.deleteSelectedLabel], shallow)
+            s.selectedPosition, s.selectedLabels, s.addSelectedLabel, s.deleteSelectedLabel], shallow)
 
     const [dark] = useDesignerStore((s) => [s.dark], shallow)
 
-    const {onDslSelect} = useRouteDesignerHook();
+    const { onDslSelect } = useRouteDesignerHook();
 
 
     const [filter, setFilter] = useState<string>('');
@@ -67,8 +69,8 @@ export function DslSelector (props: Props) {
             <Form isHorizontal className="search" autoComplete="off">
                 <FormGroup fieldId="search">
                     <TextInput className="text-field" type="text" id="search" name="search"
-                               value={filter}
-                               onChange={(_, value) => setFilter(value)}/>
+                        value={filter}
+                        onChange={(_, value) => setFilter(value)} />
                 </FormGroup>
             </Form>
         )
@@ -78,7 +80,7 @@ export function DslSelector (props: Props) {
         const labels = dsl.labels !== undefined ? dsl.labels.split(",").filter(label => label !== 'eip') : [];
         return (
             <Card key={dsl.dsl + index} isCompact className="dsl-card"
-                  onClick={event => selectDsl(event, dsl)}>
+                onClick={event => selectDsl(event, dsl)}>
                 <CardHeader className="header-labels">
                     <Badge isRead className="support-level labels">{dsl.supportLevel}</Badge>
                     {['kamelet', 'component'].includes(dsl.navigation.toLowerCase()) &&
@@ -93,9 +95,9 @@ export function DslSelector (props: Props) {
                     <Text>{dsl.description}</Text>
                 </CardBody>
                 <CardFooter className="footer-labels">
-                    <div style={{display: "flex", flexDirection: "row", justifyContent: "start"}}>
+                    <div style={{ display: "flex", flexDirection: "row", justifyContent: "start" }}>
                         {labels.map((label, index) => <Badge key={label + "-" + index} isRead
-                                                             className="labels">{label}</Badge>)}
+                            className="labels">{label}</Badge>)}
                     </div>
 
                 </CardFooter>
@@ -119,14 +121,20 @@ export function DslSelector (props: Props) {
     const isEip = selectorTabIndex === 'eip';
     const title = parentDsl === undefined ? "Select source" : "Select step";
     const navigation: string = selectorTabIndex ? selectorTabIndex.toString() : '';
+    const blockedComponents = ComponentApi.getBlockedComponentNames();
+    const blockedKamelets = KameletApi.getBlockedKameletNames();
     const elements = CamelUi.getSelectorModelsForParentFiltered(parentDsl, navigation, showSteps);
+    const allowedElements = selectorTabIndex === 'component' ?
+        elements.filter(dsl => (!blockedComponents.includes(dsl.uri || dsl.name))) :
+        (selectorTabIndex === 'kamelet' ? elements.filter(dsl => (!blockedKamelets.includes(dsl.name))) : elements);
     const eipLabels = [...new Set(elements.map(e => e.labels).join(",").split(",").filter(e => e !== 'eip'))];
-    const filteredElement = elements
+    const filteredElement = allowedElements
         .filter((dsl: DslMetaModel) => CamelUi.checkFilter(dsl, filter))
         .filter((dsl: DslMetaModel) => {
             if (!isEip || selectedLabels.length === 0) {
                 return true;
-            } else {
+            }
+            else {
                 return dsl.labels.split(",").some(r => selectedLabels.includes(r));
             }
         });
@@ -139,31 +147,31 @@ export function DslSelector (props: Props) {
             isOpen={showSelector}
             onClose={() => close()}
             header={
-                <Flex direction={{default: "column"}}>
+                <Flex direction={{ default: "column" }}>
                     <FlexItem>
                         <h3>{title}</h3>
                         {searchInput()}
                     </FlexItem>
                     <FlexItem>
-                        <Tabs style={{overflow: 'hidden'}} activeKey={selectorTabIndex}
-                              onSelect={selectTab}>
+                        <Tabs style={{ overflow: 'hidden' }} activeKey={selectorTabIndex}
+                            onSelect={selectTab}>
                             {parentDsl !== undefined &&
                                 <Tab eventKey={"eip"} key={"tab-eip"}
-                                     title={<TabTitleText>Integration Patterns</TabTitleText>}>
+                                    title={<TabTitleText>Integration Patterns</TabTitleText>}>
                                 </Tab>
                             }
                             <Tab eventKey={'kamelet'} key={"tab-kamelet"}
-                                 title={<TabTitleText>Kamelets</TabTitleText>}>
+                                title={<TabTitleText>Kamelets</TabTitleText>}>
                             </Tab>
                             <Tab eventKey={'component'} key={'tab-component'}
-                                 title={<TabTitleText>Components</TabTitleText>}>
+                                title={<TabTitleText>Components</TabTitleText>}>
                             </Tab>
                         </Tabs>
                     </FlexItem>
                 </Flex>
             }
             actions={{}}>
-            <PageSection padding={{default: "noPadding"}} variant={dark ? "darker" : "light"}>
+            <PageSection padding={{ default: "noPadding" }} variant={dark ? "darker" : "light"}>
                 {isEip && <ToggleGroup aria-label="Labels" isCompact>
                     {eipLabels.map(eipLabel => <ToggleGroupItem
                         key={eipLabel}

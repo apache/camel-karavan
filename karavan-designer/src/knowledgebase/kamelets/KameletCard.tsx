@@ -14,19 +14,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
-    CardHeader, Card, CardTitle, CardBody, CardFooter,Badge
+    CardHeader, Card, CardTitle, CardBody, CardFooter, Badge, Checkbox
 } from '@patternfly/react-core';
 import '../../designer/karavan.css';
-import {KameletModel} from "karavan-core/lib/model/KameletModels";
-import {CamelUi} from "../../designer/utils/CamelUi";
-import {KameletApi} from "karavan-core/lib/api/KameletApi";
-import {useKnowledgebaseStore} from "../KnowledgebaseStore";
-import {shallow} from "zustand/shallow";
+import { KameletModel } from "karavan-core/lib/model/KameletModels";
+import { CamelUi } from "../../designer/utils/CamelUi";
+import { KameletApi } from "karavan-core/lib/api/KameletApi";
+import { useKnowledgebaseStore } from "../KnowledgebaseStore";
+import { shallow } from "zustand/shallow";
 
 interface Props {
     kamelet: KameletModel,
+    onChange: (name: string, operation: 'block' | 'unblock') => void
+    blockedKamelets: string[]
 }
 
 export function KameletCard(props: Props) {
@@ -37,18 +39,26 @@ export function KameletCard(props: Props) {
     const kamelet = props.kamelet;
     const isCustom = KameletApi.getCustomKameletNames().includes(kamelet.metadata.name);
 
-    function click (event: React.MouseEvent) {
-        setKamelet(kamelet)
-        setModalOpen(true);
+    function click(event: React.MouseEvent) {
+        const { target } = event;
+        if (!(target as HTMLElement).parentElement?.className.includes("block-checkbox")) {
+            setKamelet(kamelet)
+            setModalOpen(true);
+        }
 
     }
+    function selectKamelet(event: React.FormEvent, checked: Boolean) {
+        props.onChange(kamelet.metadata.name, checked ? 'unblock' : 'block');
+    }
+    const isblockedKamelet = props?.blockedKamelets ? props.blockedKamelets.findIndex(r => r === kamelet.metadata.name) > -1 : false;
     return (
-        <Card  isCompact key={kamelet.metadata.name} className="kamelet-card"
-               onClick={event => click(event)}
+        <Card isCompact key={kamelet.metadata.name} className="kamelet-card"
+            onClick={event => click(event)}
         >
             <CardHeader className="header-labels">
                 {isCustom && <Badge className="custom">custom</Badge>}
                 <Badge isRead className="support-level labels">{kamelet.metadata.annotations["camel.apache.org/kamelet.support.level"]}</Badge>
+                <Checkbox id={kamelet.metadata.name} className="block-checkbox labels" isChecked={!isblockedKamelet} onChange={(_, checked) => selectKamelet(_, checked)} />
             </CardHeader>
             <CardHeader>
                 {CamelUi.getIconFromSource(kamelet.icon())}
@@ -58,7 +68,6 @@ export function KameletCard(props: Props) {
             <CardFooter className="footer-labels">
                 <Badge isRead className="labels">{kamelet.metadata.labels["camel.apache.org/kamelet.type"].toLowerCase()}</Badge>
                 <Badge isRead className="version labels">{kamelet.metadata.annotations["camel.apache.org/catalog.version"].toLowerCase()}</Badge>
-                {/*</div>*/}
             </CardFooter>
         </Card>
     )

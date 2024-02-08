@@ -18,6 +18,7 @@ package org.apache.camel.karavan.api;
 
 import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
+import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
@@ -28,6 +29,7 @@ import org.apache.camel.karavan.infinispan.model.ProjectFile;
 import org.yaml.snakeyaml.Yaml;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Path("/api/kamelet")
@@ -52,7 +54,26 @@ public class KameletResources {
                         .collect(Collectors.joining("\n---\n")));
             }
         }
+
         return kamelets.toString();
+    }
+
+    @GET
+    @Path("/blocklist")
+    public Set<String> blocklist() {
+        return infinispanService.getBlockedKamelets();
+    }
+
+    @PUT
+    @Path("/block")
+    public void blockKamelet(String kameletName) {
+        infinispanService.blockKamelet(kameletName);
+    }
+
+    @PUT
+    @Path("/unblock")
+    public void unblockKamelet(String kameletName) {
+        infinispanService.unblockKamelet(kameletName);
     }
 
     @GET

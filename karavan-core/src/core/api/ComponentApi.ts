@@ -20,9 +20,9 @@ import { CamelElement } from '../model/IntegrationDefinition';
 const Components: Component[] = [];
 const SupportedComponents: SupportedComponent[] = [];
 let SupportedOnly: boolean = false;
-
+const BlockedComponents: string[] = [];
 export class ComponentApi {
-    private constructor() {}
+    private constructor() { }
 
     static setSupportedOnly = (supportedOnly: boolean): void => {
         SupportedOnly = supportedOnly;
@@ -91,7 +91,7 @@ export class ComponentApi {
         return ComponentApi.findByName((step as any)?.uri)
     };
 
-    static getComponentHeadersList = (step?: CamelElement): ComponentHeader [] => {
+    static getComponentHeadersList = (step?: CamelElement): ComponentHeader[] => {
         const component = step && ComponentApi.findStepComponent(step);
         if (component && component.headers) {
             return Object.getOwnPropertyNames(component.headers).map(n => {
@@ -339,4 +339,22 @@ export class ComponentApi {
         }
         return Array.from(new Map(properties.map(item => [item.name, item])).values());
     };
+    static saveBlockedComponentNames = (componentNames: string[], clean = false) => {
+        if (clean)
+            BlockedComponents.length = 0;
+        BlockedComponents.push(...componentNames);
+    }
+    static saveBlockedComponentName = (componentName: string, type: 'add' | 'delete') => {
+        const index = BlockedComponents.indexOf(componentName);
+        if (type === 'add' && index === -1) {
+            BlockedComponents.push(componentName);
+        }
+        else if (type === 'delete' && index > -1) {
+            BlockedComponents.splice(index, 1);
+        }
+        return BlockedComponents;
+    }
+    static getBlockedComponentNames = () => {
+        return BlockedComponents;
+    }
 }

@@ -42,9 +42,11 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
@@ -70,6 +72,7 @@ public class InfinispanService implements HealthCheck {
     private RemoteCache<GroupedKey, Boolean> transits;
     private RemoteCache<GroupedKey, ServiceStatus> serviceStatuses;
     private RemoteCache<GroupedKey, CamelStatus> camelStatuses;
+    private RemoteCache<String, Object> settings;
     private final AtomicBoolean ready = new AtomicBoolean(false);
 
     private RemoteCacheManager cacheManager;
@@ -103,8 +106,7 @@ public class InfinispanService implements HealthCheck {
 
         cacheManager = new RemoteCacheManager(builder.build());
 
-        if (cacheManager.getConnectionCount() > 0 ) {
-
+        if (cacheManager.getConnectionCount() > 0) {
             projects = getOrCreateCache(Project.CACHE);
             files = getOrCreateCache(ProjectFile.CACHE);
             containerStatuses = getOrCreateCache(ContainerStatus.CACHE);
@@ -112,9 +114,10 @@ public class InfinispanService implements HealthCheck {
             serviceStatuses = getOrCreateCache(ServiceStatus.CACHE);
             camelStatuses = getOrCreateCache(CamelStatus.CACHE);
             transits = getOrCreateCache("transits");
-            deploymentStatuses = getOrCreateCache(DeploymentStatus.CACHE);
+            settings = getOrCreateCache("settings");
 
-            cacheManager.getCache(PROTOBUF_METADATA_CACHE_NAME).put("karavan.proto", getResourceFile("/proto/karavan.proto"));
+            cacheManager.getCache(PROTOBUF_METADATA_CACHE_NAME).put("karavan.proto",
+                    getResourceFile("/proto/karavan.proto"));
 
             ready.set(true);
             LOGGER.info("InfinispanService is started in remote mode");
@@ -125,7 +128,8 @@ public class InfinispanService implements HealthCheck {
 
     private <K, V> RemoteCache<K, V> getOrCreateCache(String name) {
         String config = getResourceFile("/cache/data-cache-config.xml");
-        return cacheManager.administration().getOrCreateCache(name, new StringConfiguration(String.format(config, name)));
+        return cacheManager.administration().getOrCreateCache(name,
+                new StringConfiguration(String.format(config, name)));
     }
 
     public boolean isReady() {
@@ -154,12 +158,14 @@ public class InfinispanService implements HealthCheck {
         return queryFactory.<ProjectFile>create("FROM karavan.ProjectFile WHERE projectId = :projectId")
                 .setParameter("projectId", projectId)
                 .execute().list().stream()
-                .collect(Collectors.toMap(f -> new GroupedKey(f.getProjectId(), DEFAULT_ENVIRONMENT, f.getName()), f -> f));
+                .collect(Collectors.toMap(f -> new GroupedKey(f.getProjectId(), DEFAULT_ENVIRONMENT, f.getName()),
+                        f -> f));
     }
 
     public ProjectFile getProjectFile(String projectId, String filename) {
         QueryFactory queryFactory = Search.getQueryFactory(files);
-        List<ProjectFile> list = queryFactory.<ProjectFile>create("FROM karavan.ProjectFile WHERE name = :name AND projectId = :projectId")
+        List<ProjectFile> list = queryFactory
+                .<ProjectFile>create("FROM karavan.ProjectFile WHERE name = :name AND projectId = :projectId")
                 .setParameter("name", filename)
                 .setParameter("projectId", projectId)
                 .execute().list();
@@ -200,7 +206,8 @@ public class InfinispanService implements HealthCheck {
     }
 
     public void saveDeploymentStatus(DeploymentStatus status) {
-        deploymentStatuses.put(GroupedKey.create(status.getProjectId(), status.getEnv(), status.getProjectId()), status);
+        deploymentStatuses.put(GroupedKey.create(status.getProjectId(), status.getEnv(), status.getProjectId()),
+                status);
     }
 
     public void deleteDeploymentStatus(DeploymentStatus status) {
@@ -252,7 +259,8 @@ public class InfinispanService implements HealthCheck {
 
     public List<ContainerStatus> getContainerStatuses(String projectId, String env) {
         QueryFactory queryFactory = Search.getQueryFactory(containerStatuses);
-        return queryFactory.<ContainerStatus>create("FROM karavan.ContainerStatus WHERE projectId = :projectId AND env = :env")
+        return queryFactory
+                .<ContainerStatus>create("FROM karavan.ContainerStatus WHERE projectId = :projectId AND env = :env")
                 .setParameter("projectId", projectId)
                 .setParameter("env", env)
                 .execute().list();
@@ -282,7 +290,8 @@ public class InfinispanService implements HealthCheck {
     }
 
     public void saveContainerStatus(ContainerStatus status) {
-        containerStatuses.put(GroupedKey.create(status.getProjectId(), status.getEnv(), status.getContainerName()), status);
+        containerStatuses.put(GroupedKey.create(status.getProjectId(), status.getEnv(), status.getContainerName()),
+                status);
     }
 
     public void deleteContainerStatus(ContainerStatus status) {
@@ -337,7 +346,8 @@ public class InfinispanService implements HealthCheck {
 
     public void deleteCamelStatuses(String projectId, String env) {
         QueryFactory queryFactory = Search.getQueryFactory(camelStatuses);
-        List<CamelStatus> statuses = queryFactory.<CamelStatus>create("FROM karavan.CamelStatus WHERE projectId = :projectId AND env = :env")
+        List<CamelStatus> statuses = queryFactory
+                .<CamelStatus>create("FROM karavan.CamelStatus WHERE projectId = :projectId AND env = :env")
                 .setParameter("projectId", projectId)
                 .setParameter("env", env)
                 .execute().list();
@@ -351,9 +361,14 @@ public class InfinispanService implements HealthCheck {
         camelStatuses.clearAsync();
     }
 
+    public void deleteAllSettings() {
+        settings.clearAsync();
+    }
+
     public List<ContainerStatus> getLoadedDevModeStatuses() {
         QueryFactory queryFactory = Search.getQueryFactory(containerStatuses);
-        return queryFactory.<ContainerStatus>create("FROM karavan.ContainerStatus WHERE type = :type AND codeLoaded = true")
+        return queryFactory
+                .<ContainerStatus>create("FROM karavan.ContainerStatus WHERE type = :type AND codeLoaded = true")
                 .setParameter("type", ContainerStatus.ContainerType.devmode)
                 .execute().list();
     }
@@ -372,12 +387,52 @@ public class InfinispanService implements HealthCheck {
                 .execute().list();
     }
 
+    public void blockComponent(String componentName) {
+        Set<String> componentsList = getSetting(Settings.BLOCKED_COMPONENTS, new HashSet<>());
+        componentsList.add(componentName);
+        settings.put(Settings.BLOCKED_COMPONENTS, componentsList);
+    }
+
+    public void unblockComponent(String componentName) {
+        Set<String> componentsList = getSetting(Settings.BLOCKED_COMPONENTS, new HashSet<>());
+        componentsList.remove(componentName);
+        settings.put(Settings.BLOCKED_COMPONENTS, componentsList);
+    }
+
+    public Set<String> getBlockedComponents() {
+        return getSetting(Settings.BLOCKED_COMPONENTS, new HashSet<>());
+    }
+
+    public void blockKamelet(String kameletName) {
+        Set<String> kameletList = getSetting(Settings.BLOCKED_KAMELETS, new HashSet<>());
+        kameletList.add(kameletName);
+        settings.put(Settings.BLOCKED_KAMELETS, kameletList);
+    }
+
+    public void unblockKamelet(String kameletName) {
+        Set<String> kameletList = getSetting(Settings.BLOCKED_KAMELETS, new HashSet<>());
+        kameletList.remove(kameletName);
+        settings.put(Settings.BLOCKED_KAMELETS, kameletList);
+    }
+
+    public Set<String> getBlockedKamelets() {
+        return getSetting(Settings.BLOCKED_KAMELETS, new HashSet<>());
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> T getSetting(String key, T defaultValue) {
+        Object value = settings.get(key);
+        if (value != null) {
+            return (T) settings.get(key);
+        }
+        return defaultValue;
+    }
+
     public void clearAllStatuses() {
         CompletableFuture.allOf(
                 deploymentStatuses.clearAsync(),
                 containerStatuses.clearAsync(),
-                camelStatuses.clearAsync()
-        ).join();
+                camelStatuses.clearAsync()).join();
     }
 
     private String getResourceFile(String path) {

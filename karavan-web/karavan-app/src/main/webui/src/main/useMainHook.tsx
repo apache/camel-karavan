@@ -58,12 +58,7 @@ export function useMainHook () {
 
     async function updateComponents(): Promise<void> {
         await new Promise(resolve => {
-            KaravanApi.getComponents(code => {
-                const components: [] = JSON.parse(code);
-                const jsons: string[] = [];
-                components.forEach(c => jsons.push(JSON.stringify(c)));
-                ComponentApi.saveComponents(jsons, true);
-            })
+            ProjectService.reloadComponents();
         });
     }
 
