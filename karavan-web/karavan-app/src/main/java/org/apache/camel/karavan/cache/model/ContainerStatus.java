@@ -15,14 +15,9 @@
  * limitations under the License.
  */
 
-package org.apache.camel.karavan.infinispan.model;
-
-import org.infinispan.protostream.annotations.ProtoEnumValue;
-import org.infinispan.protostream.annotations.ProtoFactory;
-import org.infinispan.protostream.annotations.ProtoField;
+package org.apache.camel.karavan.cache.model;
 
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 
 public class ContainerStatus {
@@ -37,62 +32,42 @@ public class ContainerStatus {
     }
 
     public enum ContainerType {
-        @ProtoEnumValue(number = 0, name = "internal") internal,
-        @ProtoEnumValue(number = 1, name = "devmode") devmode,
-        @ProtoEnumValue(number = 2, name = "devservice") devservice,
-        @ProtoEnumValue(number = 4, name = "project") project,
-        @ProtoEnumValue(number = 5, name = "build") build,
-        @ProtoEnumValue(number = 6, name = "unknown") unknown,
+        internal,
+        devmode,
+        devservice,
+        project,
+        build,
+        unknown,
     }
 
     public enum Command {
-        @ProtoEnumValue(number = 0, name = "run") run,
-        @ProtoEnumValue(number = 1, name = "pause") pause,
-        @ProtoEnumValue(number = 2, name = "stop") stop,
-        @ProtoEnumValue(number = 3, name = "delete") delete,
+        run,
+        pause,
+        stop,
+        delete,
     }
 
     public static final String CACHE = "container_statuses";
-    @ProtoField(number = 1)
     String projectId;
-    @ProtoField(number = 2)
     String containerName;
-    @ProtoField(number = 3)
     String containerId;
-    @ProtoField(number = 4)
     String image;
-    @ProtoField(number = 5, collectionImplementation = ArrayList.class)
     List<ContainerPort> ports;
-    @ProtoField(number = 6)
     String env;
-    @ProtoField(number = 7)
     ContainerType type;
-    @ProtoField(number = 8)
     String memoryInfo;
-    @ProtoField(number = 9)
     String cpuInfo;
-    @ProtoField(number = 10)
     String created;
-    @ProtoField(number = 11)
     String finished;
-    @ProtoField(number = 12)
     List<Command> commands;
-    @ProtoField(number = 13)
     String state;
-    @ProtoField(number = 14)
     String phase;
-    @ProtoField(number = 15)
     Boolean codeLoaded;
-    @ProtoField(number = 16)
     Boolean inTransit = false;
-    @ProtoField(number = 17)
     String initDate;
-    @ProtoField(number = 18)
     String podIP;
-    @ProtoField(number = 19)
     String camelRuntime;
 
-    @ProtoFactory
     public ContainerStatus(String projectId, String containerName, String containerId, String image, List<ContainerPort> ports, String env, ContainerType type, String memoryInfo, String cpuInfo, String created, String finished, List<Command> commands, String state, String phase, Boolean codeLoaded, Boolean inTransit, String initDate, String podIP, String camelRuntime) {
         this.projectId = projectId;
         this.containerName = containerName;

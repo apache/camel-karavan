@@ -15,27 +15,18 @@
  * limitations under the License.
  */
 
-package org.apache.camel.karavan.infinispan.model;
+package org.apache.camel.karavan.cache.model;
 
-import org.infinispan.protostream.annotations.ProtoFactory;
-import org.infinispan.protostream.annotations.ProtoField;
-
-import java.util.ArrayList;
 import java.util.List;
 
 public class CamelStatus {
 
     public static final String CACHE = "camel_statuses";
-    @ProtoField(number = 1)
     String projectId;
-    @ProtoField(number = 2)
     String containerName;
-    @ProtoField(number = 3, collectionImplementation = ArrayList.class)
     List<CamelStatusValue> statuses;
-    @ProtoField(number = 4)
     String env;
 
-    @ProtoFactory
     public CamelStatus(String projectId, String containerName, List<CamelStatusValue> statuses, String env) {
         this.projectId = projectId;
         this.containerName = containerName;

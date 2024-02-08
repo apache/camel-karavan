@@ -25,12 +25,11 @@ import io.vertx.core.eventbus.EventBus;
 import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
+import org.apache.camel.karavan.cache.KaravanCacheService;
 import org.apache.camel.karavan.docker.DockerForGitea;
-import org.apache.camel.karavan.docker.DockerForInfinispan;
 import org.apache.camel.karavan.docker.DockerForRegistry;
 import org.apache.camel.karavan.docker.DockerService;
 import org.apache.camel.karavan.git.GiteaService;
-import org.apache.camel.karavan.infinispan.InfinispanService;
 import org.apache.camel.karavan.kubernetes.KubernetesService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.health.HealthCheck;
@@ -66,10 +65,7 @@ public class KaravanService implements HealthCheck {
     DockerForRegistry dockerForRegistry;
 
     @Inject
-    DockerForInfinispan dockerForInfinispan;
-
-    @Inject
-    InfinispanService infinispanService;
+    KaravanCacheService karavanCacheService;
 
     @Inject
     EventBus eventBus;
@@ -107,7 +103,6 @@ public class KaravanService implements HealthCheck {
             dockerService.createNetwork();
             dockerService.startListeners();
 
-            dockerForInfinispan.startInfinispan();
             if (giteaInstall) {
                 dockerForGitea.startGitea();
                 giteaService.install();
@@ -131,7 +126,6 @@ public class KaravanService implements HealthCheck {
 
     @ConsumeEvent(value = START_SERVICES, blocking = true)
     void startServices(String data) throws Exception {
-        infinispanService.tryStart();
         projectService.tryStart();
     }
 

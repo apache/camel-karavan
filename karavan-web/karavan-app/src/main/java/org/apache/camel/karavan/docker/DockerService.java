@@ -32,7 +32,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.apache.camel.karavan.code.CodeService;
 import org.apache.camel.karavan.code.model.DockerComposeService;
-import org.apache.camel.karavan.infinispan.model.ContainerStatus;
+import org.apache.camel.karavan.cache.model.ContainerStatus;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
 import org.apache.commons.io.IOUtils;

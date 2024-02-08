@@ -15,25 +15,15 @@
  * limitations under the License.
  */
 
-package org.apache.camel.karavan.infinispan.model;
-
-import org.infinispan.protostream.annotations.ProtoDoc;
-import org.infinispan.protostream.annotations.ProtoFactory;
-import org.infinispan.protostream.annotations.ProtoField;
+package org.apache.camel.karavan.cache.model;
 
 public class ProjectFile {
     public static final String CACHE = "project_files";
-    @ProtoField(number = 1)
     String name;
-    @ProtoField(number = 2)
     String code;
-    @ProtoField(number = 3)
-    @ProtoDoc("@Field(index=Index.YES, analyze = Analyze.YES, store = Store.NO)")
     String projectId;
-    @ProtoField(number = 4)
     Long lastUpdate;
 
-    @ProtoFactory
     public ProjectFile(String name, String code, String projectId, Long lastUpdate) {
         this.name = name;
         this.code = code;

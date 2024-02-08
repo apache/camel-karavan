@@ -20,10 +20,10 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import org.apache.camel.karavan.infinispan.InfinispanService;
-import org.apache.camel.karavan.infinispan.model.CamelStatus;
-import org.apache.camel.karavan.infinispan.model.CamelStatusValue;
-import org.apache.camel.karavan.infinispan.model.DeploymentStatus;
+import org.apache.camel.karavan.cache.KaravanCacheService;
+import org.apache.camel.karavan.cache.model.CamelStatus;
+import org.apache.camel.karavan.cache.model.CamelStatusValue;
+import org.apache.camel.karavan.cache.model.DeploymentStatus;
 import org.jboss.logging.Logger;
 
 import java.util.List;
@@ -34,13 +34,13 @@ public class StatusResource {
     private static final Logger LOGGER = Logger.getLogger(StatusResource.class.getName());
 
     @Inject
-    InfinispanService infinispanService;
+    KaravanCacheService karavanCacheService;
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/deployment/{name}/{env}")
     public Response getDeploymentStatus(@PathParam("name") String name, @PathParam("env") String env) {
-        DeploymentStatus status = infinispanService.getDeploymentStatus(name, env);
+        DeploymentStatus status = karavanCacheService.getDeploymentStatus(name, env);
         if (status != null) {
             return Response.ok(status).build();
         }
@@ -51,8 +51,8 @@ public class StatusResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/camel/context")
     public List<CamelStatus> getCamelContextStatusByEnv() {
-        if (infinispanService.isReady()) {
-            return infinispanService.getCamelStatusesByEnv(CamelStatusValue.Name.context);
+        if (karavanCacheService.isReady()) {
+            return karavanCacheService.getCamelStatusesByEnv(CamelStatusValue.Name.context);
         } else {
             return List.of();
         }
@@ -62,8 +62,8 @@ public class StatusResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/deployment")
     public Response deleteDeploymentStatuses() {
-        if (infinispanService.isReady()) {
-            infinispanService.deleteAllDeploymentsStatuses();
+        if (karavanCacheService.isReady()) {
+            karavanCacheService.deleteAllDeploymentsStatuses();
             return Response.ok().build();
         } else {
             return Response.noContent().build();
@@ -74,8 +74,8 @@ public class StatusResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/container")
     public Response deleteContainerStatuses() {
-        if (infinispanService.isReady()) {
-            infinispanService.deleteAllContainersStatuses();
+        if (karavanCacheService.isReady()) {
+            karavanCacheService.deleteAllContainersStatuses();
             return Response.ok().build();
         } else {
             return Response.noContent().build();
@@ -86,8 +86,8 @@ public class StatusResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/camel")
     public Response deleteCamelStatuses() {
-        if (infinispanService.isReady()) {
-            infinispanService.deleteAllCamelStatuses();
+        if (karavanCacheService.isReady()) {
+            karavanCacheService.deleteAllCamelStatuses();
             return Response.ok().build();
         } else {
             return Response.noContent().build();
@@ -98,8 +98,8 @@ public class StatusResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/all")
     public Response deleteAllStatuses() {
-        if (infinispanService.isReady()) {
-            infinispanService.clearAllStatuses();
+        if (karavanCacheService.isReady()) {
+            karavanCacheService.clearAllStatuses();
             return Response.ok().build();
         } else {
             return Response.noContent().build();

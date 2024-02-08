@@ -23,7 +23,7 @@ import jakarta.inject.Inject;
 import org.apache.camel.karavan.code.CodeService;
 import org.apache.camel.karavan.git.GitService;
 import org.apache.camel.karavan.git.model.GitConfig;
-import org.apache.camel.karavan.infinispan.model.ContainerStatus;
+import org.apache.camel.karavan.cache.model.ContainerStatus;
 import org.jboss.logging.Logger;
 
 @ApplicationScoped

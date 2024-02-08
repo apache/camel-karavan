@@ -19,18 +19,18 @@ package org.apache.camel.karavan.kubernetes;
 
 import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.client.informers.ResourceEventHandler;
-import org.apache.camel.karavan.infinispan.InfinispanService;
-import org.apache.camel.karavan.infinispan.model.ServiceStatus;
+import org.apache.camel.karavan.cache.KaravanCacheService;
+import org.apache.camel.karavan.cache.model.ServiceStatus;
 import org.jboss.logging.Logger;
 
 public class ServiceEventHandler implements ResourceEventHandler<Service> {
 
     private static final Logger LOGGER = Logger.getLogger(ServiceEventHandler.class.getName());
-    private InfinispanService infinispanService;
+    private KaravanCacheService karavanCacheService;
     private KubernetesService kubernetesService;
 
-    public ServiceEventHandler(InfinispanService infinispanService, KubernetesService kubernetesService) {
-        this.infinispanService = infinispanService;
+    public ServiceEventHandler(KaravanCacheService karavanCacheService, KubernetesService kubernetesService) {
+        this.karavanCacheService = karavanCacheService;
         this.kubernetesService = kubernetesService;
     }
 
@@ -39,7 +39,7 @@ public class ServiceEventHandler implements ResourceEventHandler<Service> {
         try {
             LOGGER.info("onAdd " + service.getMetadata().getName());
             ServiceStatus ds = getServiceStatus(service);
-            infinispanService.saveServiceStatus(ds);
+            karavanCacheService.saveServiceStatus(ds);
         } catch (Exception e){
             LOGGER.error(e.getMessage());
         }
@@ -50,7 +50,7 @@ public class ServiceEventHandler implements ResourceEventHandler<Service> {
         try {
             LOGGER.info("onUpdate " + newService.getMetadata().getName());
             ServiceStatus ds = getServiceStatus(newService);
-            infinispanService.saveServiceStatus(ds);
+            karavanCacheService.saveServiceStatus(ds);
         } catch (Exception e){
             LOGGER.error(e.getMessage());
         }
@@ -65,7 +65,7 @@ public class ServiceEventHandler implements ResourceEventHandler<Service> {
                     service.getMetadata().getNamespace(),
                     kubernetesService.getCluster(),
                     kubernetesService.environment);
-            infinispanService.deleteServiceStatus(ds);
+            karavanCacheService.deleteServiceStatus(ds);
         } catch (Exception e){
             LOGGER.error(e.getMessage());
         }

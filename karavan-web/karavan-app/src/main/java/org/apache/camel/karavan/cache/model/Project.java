@@ -15,12 +15,9 @@
  * limitations under the License.
  */
 
-package org.apache.camel.karavan.infinispan.model;
+package org.apache.camel.karavan.cache.model;
 
 import jakarta.validation.constraints.NotBlank;
-import org.infinispan.protostream.annotations.ProtoEnumValue;
-import org.infinispan.protostream.annotations.ProtoFactory;
-import org.infinispan.protostream.annotations.ProtoField;
 
 import java.time.Instant;
 import java.util.Arrays;
@@ -30,30 +27,23 @@ public class Project {
 
     public enum Type {
 
-        @ProtoEnumValue(number = 0, name = "templates") templates,
-        @ProtoEnumValue (number = 1, name = "kamelets") kamelets,
-        @ProtoEnumValue (number = 2, name = "services") services,
-        @ProtoEnumValue (number = 3, name = "normal") normal,
-        @ProtoEnumValue (number = 4, name = "ephemeral") ephemeral,
+        templates,
+        kamelets,
+        services,
+        normal,
+        ephemeral,
     }
 
-    @ProtoField(number = 1)
     @NotBlank
     String projectId;
-    @ProtoField(number = 2)
     @NotBlank
     String name;
-    @ProtoField(number = 3)
     @NotBlank
     String description;
-    @ProtoField(number = 4)
     String lastCommit;
-    @ProtoField(number = 5)
     Long lastCommitTimestamp;
-    @ProtoField(number = 6)
     Type type;
 
-    @ProtoFactory
     public Project(String projectId, String name, String description, String lastCommit, Long lastCommitTimestamp, Type type) {
         this.projectId = projectId;
         this.name = name;

@@ -21,8 +21,8 @@ import com.github.dockerjava.api.model.HealthCheck;
 import com.github.dockerjava.api.model.RestartPolicy;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import org.apache.camel.karavan.infinispan.model.ContainerStatus;
-import org.apache.camel.karavan.infinispan.model.Project;
+import org.apache.camel.karavan.cache.model.ContainerStatus;
+import org.apache.camel.karavan.cache.model.Project;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 

@@ -20,9 +20,9 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import org.apache.camel.karavan.infinispan.InfinispanService;
-import org.apache.camel.karavan.infinispan.model.DeploymentStatus;
-import org.apache.camel.karavan.infinispan.model.ServiceStatus;
+import org.apache.camel.karavan.cache.KaravanCacheService;
+import org.apache.camel.karavan.cache.model.DeploymentStatus;
+import org.apache.camel.karavan.cache.model.ServiceStatus;
 import org.apache.camel.karavan.kubernetes.KubernetesService;
 import org.apache.camel.karavan.service.ConfigService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -36,7 +36,7 @@ import java.util.stream.Collectors;
 public class InfrastructureResource {
 
     @Inject
-    InfinispanService infinispanService;
+    KaravanCacheService karavanCacheService;
 
     @Inject
     KubernetesService kubernetesService;
@@ -50,8 +50,8 @@ public class InfrastructureResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/deployment")
     public List<DeploymentStatus> getAllDeploymentStatuses() throws Exception {
-        if (infinispanService.isReady()) {
-            return infinispanService.getDeploymentStatuses().stream()
+        if (karavanCacheService.isReady()) {
+            return karavanCacheService.getDeploymentStatuses().stream()
                     .sorted(Comparator.comparing(DeploymentStatus::getProjectId))
                     .collect(Collectors.toList());
         } else {
@@ -63,8 +63,8 @@ public class InfrastructureResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/deployment/{env}")
     public List<DeploymentStatus> getDeploymentStatusesByEnv(@PathParam("env") String env) throws Exception {
-        if (infinispanService.isReady()) {
-        return infinispanService.getDeploymentStatuses(env).stream()
+        if (karavanCacheService.isReady()) {
+        return karavanCacheService.getDeploymentStatuses(env).stream()
                 .sorted(Comparator.comparing(DeploymentStatus::getProjectId))
                 .collect(Collectors.toList());
         } else {
@@ -93,8 +93,8 @@ public class InfrastructureResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/service")
     public List<ServiceStatus> getAllServiceStatuses() throws Exception {
-        if (infinispanService.isReady()) {
-            return infinispanService.getServiceStatuses().stream()
+        if (karavanCacheService.isReady()) {
+            return karavanCacheService.getServiceStatuses().stream()
                     .sorted(Comparator.comparing(ServiceStatus::getProjectId))
                     .collect(Collectors.toList());
         } else {
@@ -135,11 +135,11 @@ public class InfrastructureResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/services")
     public Response getServices() throws Exception {
-        if (infinispanService.isReady()) {
+        if (karavanCacheService.isReady()) {
             if (ConfigService.inKubernetes()) {
                 return Response.ok(kubernetesService.getServices(kubernetesService.getNamespace())).build();
             } else {
-                List<String> list = infinispanService.getContainerStatuses(environment).stream()
+                List<String> list = karavanCacheService.getContainerStatuses(environment).stream()
                         .filter(ci -> !ci.getPorts().isEmpty())
                         .map(ci -> ci.getPorts().stream().map(i -> ci.getContainerName() + "|" + ci.getContainerName() + ":" + i.getPrivatePort()).collect(Collectors.toList()))
                         .flatMap(List::stream).collect(Collectors.toList());

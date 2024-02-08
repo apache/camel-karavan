@@ -15,22 +15,14 @@
  * limitations under the License.
  */
 
-package org.apache.camel.karavan.infinispan.model;
-
-import org.infinispan.protostream.annotations.ProtoFactory;
-import org.infinispan.protostream.annotations.ProtoField;
-
+package org.apache.camel.karavan.cache.model;
 
 public class GroupedKey {
 
-    @ProtoField(number = 1)
     String projectId;
-    @ProtoField(number = 2)
     String env;
-    @ProtoField(number = 3)
     String key;
 
-    @ProtoFactory
     public GroupedKey(String projectId, String env, String key) {
         this.projectId = projectId;
         this.env = env;

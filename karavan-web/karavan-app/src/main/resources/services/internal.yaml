@@ -2,12 +2,6 @@ version: '3.8'
 
 services:
 
-  infinispan:
-    image: quay.io/infinispan/server:14.0.21.Final
-    restart: always
-    ports:
-      - "11222:11222"
-
   gitea:
     image: gitea/gitea:1.20.2-rootless
     restart: always

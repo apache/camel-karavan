@@ -15,31 +15,19 @@
  * limitations under the License.
  */
 
-package org.apache.camel.karavan.infinispan.model;
-
-import org.infinispan.protostream.annotations.ProtoFactory;
-import org.infinispan.protostream.annotations.ProtoField;
+package org.apache.camel.karavan.cache.model;
 
 public class ServiceStatus {
     public static final String CACHE = "service_statuses";
-    @ProtoField(number = 1)
     String projectId;
-    @ProtoField(number = 2)
     String namespace;
-    @ProtoField(number = 3)
     String env;
-    @ProtoField(number = 4)
     String cluster;
-    @ProtoField(number = 5)
     Integer port;
-    @ProtoField(number = 6)
     Integer targetPort;
-    @ProtoField(number = 7)
     String clusterIP;
-    @ProtoField(number = 8)
     String type;
 
-    @ProtoFactory
     public ServiceStatus(String projectId, String namespace, String env, String cluster, Integer port, Integer targetPort, String clusterIP, String type) {
         this.projectId = projectId;
         this.namespace = namespace;

@@ -21,10 +21,10 @@ import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
+import org.apache.camel.karavan.cache.KaravanCacheService;
+import org.apache.camel.karavan.cache.model.Project;
+import org.apache.camel.karavan.cache.model.ProjectFile;
 import org.apache.camel.karavan.code.CodeService;
-import org.apache.camel.karavan.infinispan.InfinispanService;
-import org.apache.camel.karavan.infinispan.model.Project;
-import org.apache.camel.karavan.infinispan.model.ProjectFile;
 import org.yaml.snakeyaml.Yaml;
 
 import java.util.List;
@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
 public class KameletResources {
 
     @Inject
-    InfinispanService infinispanService;
+    KaravanCacheService karavanCacheService;
 
     @Inject
     CodeService codeService;
@@ -43,8 +43,8 @@ public class KameletResources {
     @Produces(MediaType.TEXT_PLAIN)
     public String getKamelets() {
         StringBuilder kamelets = new StringBuilder(codeService.getResourceFile("/kamelets/kamelets.yaml"));
-        if (infinispanService.isReady()) {
-            List<ProjectFile> custom = infinispanService.getProjectFiles(Project.Type.kamelets.name());
+        if (karavanCacheService.isReady()) {
+            List<ProjectFile> custom = karavanCacheService.getProjectFiles(Project.Type.kamelets.name());
             if (!custom.isEmpty()) {
                 kamelets.append("\n---\n");
                 kamelets.append(custom.stream()
@@ -59,9 +59,9 @@ public class KameletResources {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/names")
     public List<String> getCustomNames() {
-        if (infinispanService.isReady()) {
+        if (karavanCacheService.isReady()) {
             Yaml yaml = new Yaml();
-            return infinispanService.getProjectFiles(Project.Type.kamelets.name()).stream()
+            return karavanCacheService.getProjectFiles(Project.Type.kamelets.name()).stream()
                     .map(projectFile -> projectFile.getName().replace(".kamelet.yaml", ""))
                     .collect(Collectors.toList());
         } else {

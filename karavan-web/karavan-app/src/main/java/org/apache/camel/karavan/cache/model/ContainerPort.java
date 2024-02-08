@@ -15,21 +15,14 @@
  * limitations under the License.
  */
 
-package org.apache.camel.karavan.infinispan.model;
-
-import org.infinispan.protostream.annotations.ProtoFactory;
-import org.infinispan.protostream.annotations.ProtoField;
+package org.apache.camel.karavan.cache.model;
 
 public class ContainerPort {
 
-    @ProtoField(number = 1)
     Integer privatePort;
-    @ProtoField(number = 2)
     Integer publicPort;
-    @ProtoField(number = 3)
     String type;
 
-    @ProtoFactory
     public ContainerPort(Integer privatePort, Integer publicPort, String type) {
         this.privatePort = privatePort;
         this.publicPort = publicPort;
