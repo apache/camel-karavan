@@ -18,7 +18,14 @@
 package org.apache.camel.karavan.cache.model;
 
 
-public class DeploymentStatus {
+import java.io.Serial;
+import java.io.Serializable;
+
+public class DeploymentStatus implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 7777777L;
+
     public static final String CACHE = "deployment_statuses";
     String projectId;
     String namespace;

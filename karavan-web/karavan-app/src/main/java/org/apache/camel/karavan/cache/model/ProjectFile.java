@@ -17,7 +17,13 @@
 
 package org.apache.camel.karavan.cache.model;
 
-public class ProjectFile {
+import java.io.Serial;
+import java.io.Serializable;
+
+public class ProjectFile implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 7777777L;
     public static final String CACHE = "project_files";
     String name;
     String code;

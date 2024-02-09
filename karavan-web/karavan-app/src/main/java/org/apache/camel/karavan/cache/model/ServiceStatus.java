@@ -17,7 +17,13 @@
 
 package org.apache.camel.karavan.cache.model;
 
-public class ServiceStatus {
+import java.io.Serial;
+import java.io.Serializable;
+
+public class ServiceStatus implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 7777777L;
     public static final String CACHE = "service_statuses";
     String projectId;
     String namespace;

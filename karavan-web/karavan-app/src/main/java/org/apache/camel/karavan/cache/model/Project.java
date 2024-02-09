@@ -19,10 +19,15 @@ package org.apache.camel.karavan.cache.model;
 
 import jakarta.validation.constraints.NotBlank;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.time.Instant;
 import java.util.Arrays;
 
-public class Project {
+public class Project implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 7777777L;
     public static final String CACHE = "projects";
 
     public enum Type {

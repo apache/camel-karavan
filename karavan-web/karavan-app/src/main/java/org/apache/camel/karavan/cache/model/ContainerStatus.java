@@ -17,10 +17,15 @@
 
 package org.apache.camel.karavan.cache.model;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.time.Instant;
 import java.util.List;
 
-public class ContainerStatus {
+public class ContainerStatus implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 7777777L;
 
     public enum State {
         created,

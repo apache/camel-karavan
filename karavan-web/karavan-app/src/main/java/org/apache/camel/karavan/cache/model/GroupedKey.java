@@ -17,7 +17,13 @@
 
 package org.apache.camel.karavan.cache.model;
 
-public class GroupedKey {
+import java.io.Serial;
+import java.io.Serializable;
+
+public class GroupedKey implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 7777777L;
 
     String projectId;
     String env;

@@ -16,6 +16,7 @@
  */
 package org.apache.camel.karavan.cache;
 
+import com.hazelcast.config.ClasspathXmlConfig;
 import com.hazelcast.config.ClasspathYamlConfig;
 import com.hazelcast.config.Config;
 import com.hazelcast.core.Hazelcast;
@@ -27,13 +28,12 @@ import io.quarkus.runtime.ShutdownEvent;
 import io.quarkus.runtime.StartupEvent;
 import jakarta.enterprise.event.Observes;
 import jakarta.enterprise.inject.Default;
+import jakarta.enterprise.inject.Produces;
 import jakarta.inject.Singleton;
 import org.apache.camel.karavan.cache.model.*;
 import org.jboss.logging.Logger;
 
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -43,16 +43,17 @@ import java.util.stream.Collectors;
 @Singleton
 public class KaravanCacheService {
 
-    Config config = new ClasspathYamlConfig("hazelcast.yaml");
-    HazelcastInstance hz = Hazelcast.getOrCreateHazelcastInstance(config);
+    private final Config config = new ClasspathYamlConfig("hazelcast.yaml");
+    private final HazelcastInstance hz = Hazelcast.getOrCreateHazelcastInstance(config);
 
-    private final IMap<GroupedKey, Project> projects = hz.getMap(Project.CACHE);
-    private final IMap<GroupedKey, ProjectFile> files = hz.getMap(ProjectFile.CACHE);
-    private final IMap<GroupedKey, DeploymentStatus> deploymentStatuses = hz.getMap(DeploymentStatus.CACHE);
-    private final IMap<GroupedKey, ContainerStatus> containerStatuses = hz.getMap(ContainerStatus.CACHE);
-    private final IMap<GroupedKey, Boolean> transits = hz.getMap("transits");
-    private final IMap<GroupedKey, ServiceStatus> serviceStatuses = hz.getMap(ServiceStatus.CACHE);
-    private final IMap<GroupedKey, CamelStatus> camelStatuses = hz.getMap(CamelStatus.CACHE);
+    private IMap<GroupedKey, Project> projects;
+    private IMap<GroupedKey, ProjectFile> files;
+    private IMap<GroupedKey, DeploymentStatus> deploymentStatuses;
+    private IMap<GroupedKey, ContainerStatus> containerStatuses;
+    private IMap<GroupedKey, Boolean> transits;
+    private IMap<GroupedKey, ServiceStatus> serviceStatuses;
+    private IMap<GroupedKey, CamelStatus> camelStatuses;
+
 
     private final AtomicBoolean ready = new AtomicBoolean(false);
     private static final Logger LOGGER = Logger.getLogger(KaravanCacheService.class.getName());
@@ -60,13 +61,28 @@ public class KaravanCacheService {
     private static final String DEFAULT_ENVIRONMENT = "dev";
 
     void onStart(@Observes StartupEvent ev) {
+        LOGGER.info("KaravanCacheService is starting");
+        projects = hz.getMap(Project.CACHE);
+        files = hz.getMap(ProjectFile.CACHE);
+        deploymentStatuses = hz.getMap(DeploymentStatus.CACHE);
+        containerStatuses = hz.getMap(ContainerStatus.CACHE);
+        transits = hz.getMap("transits");
+        serviceStatuses = hz.getMap(ServiceStatus.CACHE);
+        camelStatuses = hz.getMap(CamelStatus.CACHE);
         LOGGER.info("KaravanCacheService is started");
         ready.set(true);
+
     }
 
     void onStop(@Observes ShutdownEvent ev) {
         LOGGER.info("KaravanCacheService is stopped");
         ready.set(false);
+    }
+
+    @Produces
+    HazelcastInstance createInstance() {
+        Config config = new ClasspathYamlConfig("hazelcast.yaml");
+        return Hazelcast.getOrCreateHazelcastInstance(config);
     }
 
     public List<Project> getProjects() {

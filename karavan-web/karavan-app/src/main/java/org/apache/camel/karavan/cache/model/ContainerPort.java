@@ -17,7 +17,13 @@
 
 package org.apache.camel.karavan.cache.model;
 
-public class ContainerPort {
+import java.io.Serial;
+import java.io.Serializable;
+
+public class ContainerPort implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 7777777L;
 
     Integer privatePort;
     Integer publicPort;
