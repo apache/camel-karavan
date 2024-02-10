@@ -1,9 +1,0 @@
-- route:
-    from:
-      uri: kamelet:timer-source
-      steps:
-        - log:
-            message: ${body}
-      parameters:
-        period: 2000
-        message: '{{message}}'
