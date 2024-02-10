@@ -48,11 +48,9 @@ export function ProjectLogPanel () {
             const f = LogWatchApi.fetchData(type, podName, controller).then(value => {
                 console.log("Fetch Started for: " + podName)
             });
-            console.log("new fetch")
             setFetch(f);
         }
         return () => {
-            console.log("end");
             controller.abort();
         };
     }, [showLog, type, podName]);

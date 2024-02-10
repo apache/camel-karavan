@@ -30,16 +30,28 @@ import {useMainHook} from "./useMainHook";
 import {Notification} from "../designer/utils/Notification";
 import {MainLoader} from "./MainLoader";
 import {MainRoutes} from "./MainRoutes";
+import {NotificationApi} from "../api/NotificationApi";
 
 export function Main() {
 
     const [readiness, setReadiness] = useAppConfigStore((s) => [s.readiness, s.setReadiness], shallow)
-    const {getData, getStatuses} = useMainHook();
+    const {getData} = useMainHook();
 
-    const initialized = useRef(false)
+    const initialized = useRef(false);
 
     useEffect(() => {
-        console.log("Main");
+        if (showMain()) {
+            console.log("Start Notification fetcher");
+            const controller = new AbortController();
+            NotificationApi.notification(controller);
+            return () => {
+                console.log("Stop Notification fetcher");
+                controller.abort();
+            };
+        }
+    }, [readiness]);
+
+    useEffect(() => {
         if (!initialized.current) {
             initialized.current = true
             effect()
@@ -55,7 +67,6 @@ export function Main() {
     }, [])
 
     function effect() {
-        console.log("Main effect start");
         KaravanApi.getAuthType((authType: string) => {
             console.log("authType", authType);
             if (authType === 'oidc') {
@@ -67,9 +78,6 @@ export function Main() {
             }
             getData();
         });
-        return () => {
-            console.log("Main effect end");
-        };
     }
 
     function showSpinner() {

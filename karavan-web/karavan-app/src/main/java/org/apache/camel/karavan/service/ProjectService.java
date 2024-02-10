@@ -16,6 +16,7 @@
  */
 package org.apache.camel.karavan.service;
 
+import io.quarkus.vertx.ConsumeEvent;
 import io.smallrye.mutiny.tuples.Tuple2;
 import io.vertx.core.json.JsonObject;
 import io.vertx.mutiny.core.eventbus.EventBus;
@@ -53,6 +54,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 import static org.apache.camel.karavan.code.CodeService.*;
+import static org.apache.camel.karavan.shared.Constants.NOTIFICATION_EVENT_COMMIT;
 
 @Default
 @Readiness
@@ -60,6 +62,8 @@ import static org.apache.camel.karavan.code.CodeService.*;
 public class ProjectService implements HealthCheck {
 
     private static final Logger LOGGER = Logger.getLogger(ProjectService.class.getName());
+
+    public static final String PUSH_PROJECT = "PUSH_PROJECT";
 
     @ConfigProperty(name = "karavan.environment")
     String environment;
@@ -70,6 +74,9 @@ public class ProjectService implements HealthCheck {
 
     @Inject
     KaravanCacheService karavanCacheService;
+
+    @Inject
+    NotificationService notificationService;
 
     @Inject
     KubernetesService kubernetesService;
@@ -348,7 +355,13 @@ public class ProjectService implements HealthCheck {
 
     }
 
-    public Project commitAndPushProject(String projectId, String message) throws Exception {
+    @ConsumeEvent(value = PUSH_PROJECT, blocking = true, ordered = true)
+    void commitAndPushProject(JsonObject event) throws Exception {
+        LOGGER.info("Commit: " + event.encodePrettily());
+        String projectId = event.getString("projectId");
+        String message = event.getString("message");
+        String userId = event.getString("userId");
+        String eventId = event.getString("eventId");
         Project p = karavanCacheService.getProject(projectId);
         List<ProjectFile> files = karavanCacheService.getProjectFiles(projectId);
         RevCommit commit = gitService.commitAndPushProject(p, files, message);
@@ -357,7 +370,9 @@ public class ProjectService implements HealthCheck {
         p.setLastCommit(commitId);
         p.setLastCommitTimestamp(lastUpdate);
         karavanCacheService.saveProject(p);
-        return p;
+        if (userId != null) {
+            notificationService.sendSystem(eventId, NOTIFICATION_EVENT_COMMIT, Project.class.getSimpleName(), JsonObject.mapFrom(p));
+        }
     }
 
     void addKameletsProject() {
@@ -367,7 +382,7 @@ public class ProjectService implements HealthCheck {
             if (kamelets == null) {
                 kamelets = new Project(Project.Type.kamelets.name(), "Custom Kamelets", "Custom Kamelets", "", Instant.now().toEpochMilli(), Project.Type.kamelets);
                 karavanCacheService.saveProject(kamelets);
-                commitAndPushProject(Project.Type.kamelets.name(), "Add custom kamelets");
+                commitAndPushProject(JsonObject.of("projectId", Project.Type.kamelets.name(), "message", "Add custom kamelets"));
             }
         } catch (Exception e) {
             LOGGER.error("Error during custom kamelets project creation", e);
@@ -386,7 +401,7 @@ public class ProjectService implements HealthCheck {
                     ProjectFile file = new ProjectFile(name, value, Project.Type.templates.name(), Instant.now().toEpochMilli());
                     karavanCacheService.saveProjectFile(file);
                 });
-                commitAndPushProject(Project.Type.templates.name(), "Add default templates");
+                commitAndPushProject(JsonObject.of("projectId", Project.Type.templates.name(), "message", "Add custom templates"));
             } else {
                 LOGGER.info("Add new templates if any");
                 codeService.getTemplates().forEach((name, value) -> {
@@ -414,7 +429,7 @@ public class ProjectService implements HealthCheck {
                     ProjectFile file = new ProjectFile(name, value, Project.Type.services.name(), Instant.now().toEpochMilli());
                     karavanCacheService.saveProjectFile(file);
                 });
-                commitAndPushProject(Project.Type.services.name(), "Add services");
+                commitAndPushProject(JsonObject.of("projectId", Project.Type.services.name(), "message", "Add services"));
             }
         } catch (Exception e) {
             LOGGER.error("Error during services project creation", e);
@@ -427,10 +442,13 @@ public class ProjectService implements HealthCheck {
         return file.orElse(new ProjectFile()).getCode();
     }
 
-    public void setProjectImage(String projectId, String imageName, boolean commit, String message) throws Exception {
+    public void setProjectImage(String projectId, JsonObject data) throws Exception {
+        String imageName = data.getString("imageName");
+        boolean commit = data.getBoolean("commit");
+        data.put("projectId", projectId);
         codeService.updateDockerComposeImage(projectId, imageName);
         if (commit) {
-            commitAndPushProject(projectId, message);
+            eventBus.publish(PUSH_PROJECT, data);
         }
     }
 

@@ -26,9 +26,9 @@ import {
 } from "./ProjectModels";
 import {Buffer} from 'buffer';
 import {SsoApi} from "./SsoApi";
-import {EventStreamContentType, fetchEventSource} from "@microsoft/fetch-event-source";
-import {ProjectEventBus} from "./ProjectEventBus";
+import {v4 as uuidv4} from "uuid";
 
+const USER_ID_KEY = 'KARAVAN_USER_ID';
 axios.defaults.headers.common['Accept'] = 'application/json';
 axios.defaults.headers.common['Content-Type'] = 'application/json';
 const instance = axios.create();
@@ -41,6 +41,21 @@ export class KaravanApi {
 
     static getInstance() {
         return instance;
+    }
+
+    static getUserId(): string {
+        if (KaravanApi.me?.userName !== undefined) {
+            return KaravanApi.me?.userName;
+        } else {
+            const userId = localStorage.getItem(USER_ID_KEY);
+            if (userId !== null && userId !== undefined) {
+                return userId;
+            } else {
+                const newId = uuidv4().toString();
+                localStorage.setItem(USER_ID_KEY, newId);
+                return newId;
+            }
+        }
     }
 
     static setAuthType(authType: string) {

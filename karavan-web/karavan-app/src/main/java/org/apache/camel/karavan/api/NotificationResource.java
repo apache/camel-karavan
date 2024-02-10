@@ -16,48 +16,56 @@
  */
 package org.apache.camel.karavan.api;
 
-import io.quarkus.runtime.StartupEvent;
 import io.smallrye.mutiny.Multi;
 import io.vertx.core.json.JsonObject;
-import io.vertx.mutiny.core.Vertx;
 import io.vertx.mutiny.core.eventbus.EventBus;
-import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
-import org.jboss.logging.Logger;
+import jakarta.ws.rs.sse.OutboundSseEvent;
+import jakarta.ws.rs.sse.Sse;
 import org.jboss.resteasy.reactive.RestStreamElementType;
 
-import java.util.Date;
+import static org.apache.camel.karavan.shared.Constants.*;
 
 @Path("/api/notification")
 public class NotificationResource {
 
-    private static final Logger LOGGER = Logger.getLogger(NotificationResource.class.getName());
-
-    void onStart(@Observes StartupEvent ev) throws Exception {
-        System.out.println("STARTING!!!!!");
-        vertx.setPeriodic(1000,
-                aLong -> {
-                    vertx.eventBus().publish("test0", new JsonObject().put("user", "test0").put("date", new Date().toString()));
-                    vertx.eventBus().publish("test1", new JsonObject().put("user", "test1").put("date", new Date().toString()));
-                });
-    }
-
-    @Inject
-    Vertx vertx;
     @Inject
     EventBus bus;
 
-
     @GET
-    @Path("{name}")
+    @Path("/system")
     @Produces(MediaType.SERVER_SENT_EVENTS)
     @RestStreamElementType(MediaType.TEXT_PLAIN)
-    public Multi<String> greetingStream(@PathParam("name") String name) {
-        return bus.<String>consumer(name).bodyStream().toMulti();
+    public Multi<OutboundSseEvent> karavanStream(
+            @Context Sse sse
+    ) {
+        return bus.<JsonObject>consumer(NOTIFICATION_ADDRESS_SYSTEM).toMulti()
+                .map(m -> sse.newEventBuilder()
+                        .id(m.headers().get(NOTIFICATION_HEADER_EVENT_ID))
+                        .name(m.headers().get(NOTIFICATION_HEADER_EVENT_NAME) + ":" + m.headers().get(NOTIFICATION_HEADER_CLASS_NAME))
+                        .data(m.body())
+                        .build());
+    }
+
+    @GET
+    @Path("/user/{id}")
+    @Produces(MediaType.SERVER_SENT_EVENTS)
+    @RestStreamElementType(MediaType.TEXT_PLAIN)
+    public Multi<OutboundSseEvent> userStream(
+            @PathParam("id") String id,
+            @Context Sse sse
+    ) {
+        return bus.<JsonObject>consumer(id).toMulti()
+                .map(m -> sse.newEventBuilder()
+                        .id(m.headers().get(NOTIFICATION_HEADER_EVENT_ID))
+                        .name(m.headers().get(NOTIFICATION_HEADER_EVENT_NAME) + ":" + m.headers().get(NOTIFICATION_HEADER_CLASS_NAME))
+                        .data(m.body())
+                        .build());
     }
 }

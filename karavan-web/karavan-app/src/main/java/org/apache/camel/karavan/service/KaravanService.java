@@ -65,9 +65,6 @@ public class KaravanService implements HealthCheck {
     DockerForRegistry dockerForRegistry;
 
     @Inject
-    KaravanCacheService karavanCacheService;
-
-    @Inject
     EventBus eventBus;
 
     @Inject

@@ -14,44 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {BehaviorSubject, Subject} from 'rxjs';
-import {Project} from "./ProjectModels";
+import {Subject} from 'rxjs';
 
-const selectedProject = new BehaviorSubject<Project | undefined>(undefined);
-const currentFile = new BehaviorSubject<string | undefined>(undefined);
-const mode = new BehaviorSubject<"design" | "code">("design");
 const log = new Subject<["add" | "set", string]>();
 
-export class ShowLogCommand {
-    name: string
-    environment: string
-    show: boolean
-
-    constructor(name: string, environment: string, show: boolean) {
-        this.name = name;
-        this.environment = environment;
-        this.show = show;
-    }
-}
-
-export class ShowTraceCommand {
-    name: string
-    show: boolean
-
-    constructor(name: string, show: boolean) {
-        this.name = name;
-        this.show = show;
-    }
-}
 export const ProjectEventBus = {
-
-    selectProject: (project: Project) => selectedProject.next(project),
-    onSelectProject: () => selectedProject.asObservable(),
-
-    setMode: (m: 'design' | 'code') =>  mode.next(m),
-    onSetMode: () => mode.asObservable(),
 
     sendLog: (type: "add" | "set", m: string) =>  log.next([type, m]),
     onLog: () => log.asObservable(),
-
 }
