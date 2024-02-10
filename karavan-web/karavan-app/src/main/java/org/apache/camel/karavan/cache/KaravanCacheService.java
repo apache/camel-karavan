@@ -28,7 +28,6 @@ import io.quarkus.runtime.ShutdownEvent;
 import io.quarkus.runtime.StartupEvent;
 import jakarta.enterprise.event.Observes;
 import jakarta.enterprise.inject.Default;
-import jakarta.enterprise.inject.Produces;
 import jakarta.inject.Singleton;
 import org.apache.camel.karavan.cache.model.*;
 import org.jboss.logging.Logger;
@@ -77,12 +76,6 @@ public class KaravanCacheService {
     void onStop(@Observes ShutdownEvent ev) {
         LOGGER.info("KaravanCacheService is stopped");
         ready.set(false);
-    }
-
-    @Produces
-    HazelcastInstance createInstance() {
-        Config config = new ClasspathYamlConfig("hazelcast.yaml");
-        return Hazelcast.getOrCreateHazelcastInstance(config);
     }
 
     public List<Project> getProjects() {
