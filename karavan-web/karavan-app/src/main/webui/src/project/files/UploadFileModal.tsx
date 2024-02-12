@@ -82,6 +82,8 @@ export function UploadFileModal(props: Props) {
 
     function closeModal () {
         setFile("none");
+        setFilename('');
+        setData('');
         resetForm();
     }
 
@@ -175,15 +177,12 @@ export function UploadFileModal(props: Props) {
                         isLoading={isLoading}
                         onFileInputChange={(_event, fileHandle: File) => {
                             handleFileInputChange(fileHandle);
-                            register('upload').onChange(_event);
                         }}
                         onDataChange={(_event, data) => {
                             handleTextOrDataChange(data);
-                            register('upload').onChange(_event);
                         }}
                         onTextChange={(_event, text) => {
                             handleTextOrDataChange(data);
-                            register('upload').onChange(_event);
                         }}
                         onReadStarted={(_event, fileHandle: File) => handleFileReadStarted(fileHandle)}
                         onReadFinished={(_event, fileHandle: File) => handleFileReadFinished(fileHandle)}

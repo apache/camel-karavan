@@ -41,6 +41,7 @@ import {yupResolver} from "@hookform/resolvers/yup";
 import {useResponseErrorHandler} from "../../shared/error/UseResponseErrorHandler";
 import {EventBus} from "../../designer/utils/EventBus";
 import {AxiosError} from "axios";
+import {isEmpty} from "../../util/StringUtils";
 
 interface Props {
     types: string[],
@@ -134,6 +135,13 @@ export function CreateFileModal(props: Props) {
         registerResponseErrors(error);
     }
 
+    function onKeyDown(event: React.KeyboardEvent<HTMLDivElement>): void {
+        if (event.key === 'Enter' && !isEmpty(name)) {
+            handleFormSubmit();
+            event.preventDefault();
+        }
+    }
+
     function getCode(): string {
         if (fileType === 'INTEGRATION') {
             return CamelDefinitionYaml.integrationToYaml(Integration.createNew(name, 'plain'));
@@ -191,6 +199,7 @@ export function CreateFileModal(props: Props) {
             variant={ModalVariant.small}
             isOpen={["create", "copy"].includes(operation)}
             onClose={closeModal}
+            onKeyDown={onKeyDown}
             actions={[
                 <Button key="confirm" variant="primary" onClick={handleSubmit(handleFormSubmit)}>Save</Button>,
                 <Button key="cancel" variant="secondary" onClick={closeModal}>Cancel</Button>
