@@ -27,6 +27,7 @@ import {KaravanApi} from "../../api/KaravanApi";
 import {shallow} from "zustand/shallow";
 import {ProjectEventBus} from "../../api/ProjectEventBus";
 import {ProjectLog} from "./ProjectLog";
+import {LogWatchApi} from "../../api/LogWatchApi";
 
 const INITIAL_LOG_HEIGHT = "50%";
 
@@ -44,14 +45,12 @@ export function ProjectLogPanel () {
     useEffect(() => {
         const controller = new AbortController();
         if (showLog && type !== 'none' && podName !== undefined) {
-            const f = KaravanApi.fetchData(type, podName, controller).then(value => {
+            const f = LogWatchApi.fetchData(type, podName, controller).then(value => {
                 console.log("Fetch Started for: " + podName)
             });
-            console.log("new fetch")
             setFetch(f);
         }
         return () => {
-            console.log("end");
             controller.abort();
         };
     }, [showLog, type, podName]);

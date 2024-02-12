@@ -14,12 +14,50 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {Subject} from 'rxjs';
 
-const log = new Subject<["add" | "set", string]>();
+package org.apache.camel.karavan.cache.model;
 
-export const ProjectEventBus = {
+import java.io.Serial;
+import java.io.Serializable;
 
-    sendLog: (type: "add" | "set", m: string) =>  log.next([type, m]),
-    onLog: () => log.asObservable(),
+public class CamelStatusValue implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 7777777L;
+
+    public enum Name {
+
+        context,
+        inflight,
+        memory,
+        properties,
+        route,
+        trace,
+        jvm,
+        source
+    }
+
+    Name name;
+    String status;
+
+    public CamelStatusValue(Name name, String status) {
+        this.name = name;
+        this.status = status;
+    }
+
+    public Name getName() {
+        return name;
+    }
+
+    public void setName(Name name) {
+        this.name = name;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
 }

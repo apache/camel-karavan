@@ -63,8 +63,3 @@
     `--image-group` - Image group, defaultValue = `karavan`
     `--image-registry-username` - Image registry username
     `--image-registry-password` - Image registry password
-
-    `--infinispan-image` - Infinispan Image
-    `--infinispan-username` - Infinispan Username
-    `--infinispan-password` - Infinispan Password
-    `--install-infinispan` - Install Infinispan

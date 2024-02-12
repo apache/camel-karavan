@@ -16,23 +16,24 @@
  */
 package org.apache.camel.karavan.service;
 
+import io.quarkus.vertx.ConsumeEvent;
 import io.smallrye.mutiny.tuples.Tuple2;
 import io.vertx.core.json.JsonObject;
 import io.vertx.mutiny.core.eventbus.EventBus;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Default;
 import jakarta.inject.Inject;
+import org.apache.camel.karavan.cache.KaravanCacheService;
+import org.apache.camel.karavan.cache.model.ContainerStatus;
+import org.apache.camel.karavan.cache.model.GroupedKey;
+import org.apache.camel.karavan.cache.model.Project;
+import org.apache.camel.karavan.cache.model.ProjectFile;
 import org.apache.camel.karavan.code.CodeService;
 import org.apache.camel.karavan.code.DockerComposeConverter;
 import org.apache.camel.karavan.code.model.DockerComposeService;
 import org.apache.camel.karavan.docker.DockerForKaravan;
 import org.apache.camel.karavan.git.GitService;
 import org.apache.camel.karavan.git.model.GitRepo;
-import org.apache.camel.karavan.infinispan.InfinispanService;
-import org.apache.camel.karavan.infinispan.model.ContainerStatus;
-import org.apache.camel.karavan.infinispan.model.GroupedKey;
-import org.apache.camel.karavan.infinispan.model.Project;
-import org.apache.camel.karavan.infinispan.model.ProjectFile;
 import org.apache.camel.karavan.kubernetes.KubernetesService;
 import org.apache.camel.karavan.registry.RegistryService;
 import org.apache.camel.karavan.shared.Constants;
@@ -41,6 +42,7 @@ import org.apache.camel.karavan.validation.project.ProjectModifyValidator;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.eclipse.microprofile.faulttolerance.Retry;
 import org.eclipse.microprofile.health.HealthCheck;
 import org.eclipse.microprofile.health.HealthCheckResponse;
 import org.eclipse.microprofile.health.Readiness;
@@ -52,6 +54,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 import static org.apache.camel.karavan.code.CodeService.*;
+import static org.apache.camel.karavan.shared.Constants.NOTIFICATION_EVENT_COMMIT;
 
 @Default
 @Readiness
@@ -59,6 +62,8 @@ import static org.apache.camel.karavan.code.CodeService.*;
 public class ProjectService implements HealthCheck {
 
     private static final Logger LOGGER = Logger.getLogger(ProjectService.class.getName());
+
+    public static final String PUSH_PROJECT = "PUSH_PROJECT";
 
     @ConfigProperty(name = "karavan.environment")
     String environment;
@@ -68,7 +73,10 @@ public class ProjectService implements HealthCheck {
     ProjectModifyValidator projectModifyValidator;
 
     @Inject
-    InfinispanService infinispanService;
+    KaravanCacheService karavanCacheService;
+
+    @Inject
+    NotificationService notificationService;
 
     @Inject
     KubernetesService kubernetesService;
@@ -101,7 +109,7 @@ public class ProjectService implements HealthCheck {
 
     public String runProjectWithJBangOptions(Project project, String jBangOptions) throws Exception {
         String containerName = project.getProjectId();
-        ContainerStatus status = infinispanService.getDevModeContainerStatus(project.getProjectId(), environment);
+        ContainerStatus status = karavanCacheService.getDevModeContainerStatus(project.getProjectId(), environment);
         if (status == null) {
             status = ContainerStatus.createDevMode(project.getProjectId(), environment);
         }
@@ -164,8 +172,8 @@ public class ProjectService implements HealthCheck {
     }
 
     public List<Project> getAllProjects(String type) {
-        if (infinispanService.isReady()) {
-            return infinispanService.getProjects().stream()
+        if (karavanCacheService.isReady()) {
+            return karavanCacheService.getProjects().stream()
                     .filter(p -> type == null || Objects.equals(p.getType().name(), type))
                     .sorted(Comparator.comparing(Project::getProjectId))
                     .collect(Collectors.toList());
@@ -188,16 +196,16 @@ public class ProjectService implements HealthCheck {
     public Project save(Project project) {
         projectModifyValidator.validate(project).failOnError();
 
-        infinispanService.saveProject(project);
+        karavanCacheService.saveProject(project);
 
         ProjectFile appProp = codeService.getApplicationProperties(project);
-        infinispanService.saveProjectFile(appProp);
+        karavanCacheService.saveProjectFile(appProp);
         if (!ConfigService.inKubernetes()) {
             ProjectFile projectCompose = codeService.createInitialProjectCompose(project);
-            infinispanService.saveProjectFile(projectCompose);
+            karavanCacheService.saveProjectFile(projectCompose);
         } else if (kubernetesService.isOpenshift()){
             ProjectFile projectCompose = codeService.createInitialDeployment(project);
-            infinispanService.saveProjectFile(projectCompose);
+            karavanCacheService.saveProjectFile(projectCompose);
         }
 
         return project;
@@ -206,13 +214,13 @@ public class ProjectService implements HealthCheck {
     public Project copy(String sourceProjectId, Project project) {
         projectModifyValidator.validate(project).failOnError();
 
-        Project sourceProject = infinispanService.getProject(sourceProjectId);
+        Project sourceProject = karavanCacheService.getProject(sourceProjectId);
 
         // Save project
-        infinispanService.saveProject(project);
+        karavanCacheService.saveProject(project);
 
         // Copy files from the source and make necessary modifications
-        Map<GroupedKey, ProjectFile> filesMap = infinispanService.getProjectFilesMap(sourceProjectId).entrySet().stream()
+        Map<GroupedKey, ProjectFile> filesMap = karavanCacheService.getProjectFilesMap(sourceProjectId).entrySet().stream()
                 .filter(e -> !Objects.equals(e.getValue().getName(), PROJECT_COMPOSE_FILENAME) &&
                         !Objects.equals(e.getValue().getName(), PROJECT_DEPLOYMENT_JKUBE_FILENAME)
                 )
@@ -227,14 +235,14 @@ public class ProjectService implements HealthCheck {
                             return file;
                         })
                 );
-        infinispanService.saveProjectFiles(filesMap);
+        karavanCacheService.saveProjectFiles(filesMap);
 
         if (!ConfigService.inKubernetes()) {
             ProjectFile projectCompose = codeService.createInitialProjectCompose(project);
-            infinispanService.saveProjectFile(projectCompose);
+            karavanCacheService.saveProjectFile(projectCompose);
         } else if (kubernetesService.isOpenshift()) {
             ProjectFile projectCompose = codeService.createInitialDeployment(project);
-            infinispanService.saveProjectFile(projectCompose);
+            karavanCacheService.saveProjectFile(projectCompose);
         }
 
         return project;
@@ -266,10 +274,10 @@ public class ProjectService implements HealthCheck {
         return codeService.getProjectPort(projectId);
     }
 
-    //    @Retry(maxRetries = 100, delay = 2000)
+    @Retry(maxRetries = 100, delay = 2000)
     public void tryStart() throws Exception {
-        if (infinispanService.isReady() && gitService.checkGit()) {
-            if (infinispanService.getProjects().isEmpty()) {
+        if (karavanCacheService.isReady() && gitService.checkGit()) {
+            if (karavanCacheService.getProjects().isEmpty()) {
                 importAllProjects();
             }
             if (Objects.equals(environment, Constants.DEV_ENV)) {
@@ -300,11 +308,11 @@ public class ProjectService implements HealthCheck {
                 } else {
                     project = getProjectFromRepo(repo);
                 }
-                infinispanService.saveProject(project);
+                karavanCacheService.saveProject(project);
 
                 repo.getFiles().forEach(repoFile -> {
                     ProjectFile file = new ProjectFile(repoFile.getName(), repoFile.getBody(), folderName, repoFile.getLastCommitTimestamp());
-                    infinispanService.saveProjectFile(file);
+                    karavanCacheService.saveProjectFile(file);
                 });
             });
         } catch (Exception e) {
@@ -322,10 +330,10 @@ public class ProjectService implements HealthCheck {
         LOGGER.info("Import project from GitRepo " + repo.getName());
         try {
             Project project = getProjectFromRepo(repo);
-            infinispanService.saveProject(project);
+            karavanCacheService.saveProject(project);
             repo.getFiles().forEach(repoFile -> {
                 ProjectFile file = new ProjectFile(repoFile.getName(), repoFile.getBody(), repo.getName(), repoFile.getLastCommitTimestamp());
-                infinispanService.saveProjectFile(file);
+                karavanCacheService.saveProjectFile(file);
             });
             return project;
         } catch (Exception e) {
@@ -347,26 +355,34 @@ public class ProjectService implements HealthCheck {
 
     }
 
-    public Project commitAndPushProject(String projectId, String message) throws Exception {
-        Project p = infinispanService.getProject(projectId);
-        List<ProjectFile> files = infinispanService.getProjectFiles(projectId);
+    @ConsumeEvent(value = PUSH_PROJECT, blocking = true, ordered = true)
+    void commitAndPushProject(JsonObject event) throws Exception {
+        LOGGER.info("Commit: " + event.encodePrettily());
+        String projectId = event.getString("projectId");
+        String message = event.getString("message");
+        String userId = event.getString("userId");
+        String eventId = event.getString("eventId");
+        Project p = karavanCacheService.getProject(projectId);
+        List<ProjectFile> files = karavanCacheService.getProjectFiles(projectId);
         RevCommit commit = gitService.commitAndPushProject(p, files, message);
         String commitId = commit.getId().getName();
         Long lastUpdate = commit.getCommitTime() * 1000L;
         p.setLastCommit(commitId);
         p.setLastCommitTimestamp(lastUpdate);
-        infinispanService.saveProject(p);
-        return p;
+        karavanCacheService.saveProject(p);
+        if (userId != null) {
+            notificationService.sendSystem(eventId, NOTIFICATION_EVENT_COMMIT, Project.class.getSimpleName(), JsonObject.mapFrom(p));
+        }
     }
 
     void addKameletsProject() {
         LOGGER.info("Add custom kamelets project if not exists");
         try {
-            Project kamelets = infinispanService.getProject(Project.Type.kamelets.name());
+            Project kamelets = karavanCacheService.getProject(Project.Type.kamelets.name());
             if (kamelets == null) {
                 kamelets = new Project(Project.Type.kamelets.name(), "Custom Kamelets", "Custom Kamelets", "", Instant.now().toEpochMilli(), Project.Type.kamelets);
-                infinispanService.saveProject(kamelets);
-                commitAndPushProject(Project.Type.kamelets.name(), "Add custom kamelets");
+                karavanCacheService.saveProject(kamelets);
+                commitAndPushProject(JsonObject.of("projectId", Project.Type.kamelets.name(), "message", "Add custom kamelets"));
             }
         } catch (Exception e) {
             LOGGER.error("Error during custom kamelets project creation", e);
@@ -376,23 +392,23 @@ public class ProjectService implements HealthCheck {
     void addTemplatesProject() {
         LOGGER.info("Add templates project if not exists");
         try {
-            Project templates = infinispanService.getProject(Project.Type.templates.name());
+            Project templates = karavanCacheService.getProject(Project.Type.templates.name());
             if (templates == null) {
                 templates = new Project(Project.Type.templates.name(), "Templates", "Templates", "", Instant.now().toEpochMilli(), Project.Type.templates);
-                infinispanService.saveProject(templates);
+                karavanCacheService.saveProject(templates);
 
                 codeService.getTemplates().forEach((name, value) -> {
                     ProjectFile file = new ProjectFile(name, value, Project.Type.templates.name(), Instant.now().toEpochMilli());
-                    infinispanService.saveProjectFile(file);
+                    karavanCacheService.saveProjectFile(file);
                 });
-                commitAndPushProject(Project.Type.templates.name(), "Add default templates");
+                commitAndPushProject(JsonObject.of("projectId", Project.Type.templates.name(), "message", "Add custom templates"));
             } else {
                 LOGGER.info("Add new templates if any");
                 codeService.getTemplates().forEach((name, value) -> {
-                    ProjectFile f = infinispanService.getProjectFile(Project.Type.templates.name(), name);
+                    ProjectFile f = karavanCacheService.getProjectFile(Project.Type.templates.name(), name);
                     if (f == null) {
                         ProjectFile file = new ProjectFile(name, value, Project.Type.templates.name(), Instant.now().toEpochMilli());
-                        infinispanService.saveProjectFile(file);
+                        karavanCacheService.saveProjectFile(file);
                     }
                 });
             }
@@ -404,16 +420,16 @@ public class ProjectService implements HealthCheck {
     void addServicesProject() {
         LOGGER.info("Add services project if not exists");
         try {
-            Project services = infinispanService.getProject(Project.Type.services.name());
+            Project services = karavanCacheService.getProject(Project.Type.services.name());
             if (services == null) {
                 services = new Project(Project.Type.services.name(), "Services", "Development Services", "", Instant.now().toEpochMilli(), Project.Type.services);
-                infinispanService.saveProject(services);
+                karavanCacheService.saveProject(services);
 
                 codeService.getServices().forEach((name, value) -> {
                     ProjectFile file = new ProjectFile(name, value, Project.Type.services.name(), Instant.now().toEpochMilli());
-                    infinispanService.saveProjectFile(file);
+                    karavanCacheService.saveProjectFile(file);
                 });
-                commitAndPushProject(Project.Type.services.name(), "Add services");
+                commitAndPushProject(JsonObject.of("projectId", Project.Type.services.name(), "message", "Add services"));
             }
         } catch (Exception e) {
             LOGGER.error("Error during services project creation", e);
@@ -421,15 +437,18 @@ public class ProjectService implements HealthCheck {
     }
 
     public String getDevServiceCode() {
-        List<ProjectFile> files = infinispanService.getProjectFiles(Project.Type.services.name());
+        List<ProjectFile> files = karavanCacheService.getProjectFiles(Project.Type.services.name());
         Optional<ProjectFile> file = files.stream().filter(f -> f.getName().equals(DEV_SERVICES_FILENAME)).findFirst();
         return file.orElse(new ProjectFile()).getCode();
     }
 
-    public void setProjectImage(String projectId, String imageName, boolean commit, String message) throws Exception {
+    public void setProjectImage(String projectId, JsonObject data) throws Exception {
+        String imageName = data.getString("imageName");
+        boolean commit = data.getBoolean("commit");
+        data.put("projectId", projectId);
         codeService.updateDockerComposeImage(projectId, imageName);
         if (commit) {
-            commitAndPushProject(projectId, message);
+            eventBus.publish(PUSH_PROJECT, data);
         }
     }
 

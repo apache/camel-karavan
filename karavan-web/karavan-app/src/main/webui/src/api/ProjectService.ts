@@ -96,19 +96,18 @@ export class ProjectService {
     }
 
     public static pushProject(project: Project, commitMessage: string) {
-        useProjectStore.setState({isPushing: true})
         const params = {
             'projectId': project.projectId,
-            'message': commitMessage
+            'message': commitMessage,
+            'userId': KaravanApi.getUserId()
         };
         KaravanApi.push(params, res => {
             if (res.status === 200 || res.status === 201) {
-                ProjectService.refreshProject(project.projectId);
-                ProjectService.refreshProjectData(project.projectId);
+                // ProjectService.refreshProject(project.projectId);
+                // ProjectService.refreshProjectData(project.projectId);
             } else {
                 EventBus.sendAlert("Error pushing", (res as any)?.response?.data, 'danger')
             }
-            useProjectStore.setState({isPushing: false})
         });
     }
 

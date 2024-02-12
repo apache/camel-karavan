@@ -31,18 +31,12 @@ public final class Constants {
 
     public static final String KARAVAN_IMAGE = "ghcr.io/apache/camel-karavan";
 
-    public static final String INFINISPAN_IMAGE = "quay.io/infinispan/server:14.0.21.Final";
-    public static final String INFINISPAN_USERNAME = "admin";
-    public static final String INFINISPAN_PASSWORD = "karavan";
-
     public static final String NAME = "karavan";
 
     public static final String SERVICEACCOUNT_KARAVAN = "karavan";
     public static final String ROLE_KARAVAN = "karavan";
     public static final String ROLEBINDING_KARAVAN = "karavan-role-binding";
     public static final String ROLEBINDING_KARAVAN_VIEW = "karavan-cluster-role-binding";
-
-    public static final String INFINISPAN_SECRET_NAME = "infinispan-secret";
 
     public static final String KEYCLOAK_URL = "karavan.keycloak.url";
     public static final String KEYCLOAK_REALM = "karavan.keycloak.realm";

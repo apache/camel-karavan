@@ -1,0 +1,24 @@
+hazelcast:
+  cluster-name: karavan
+  instance-name: karavan
+  jet:
+    enabled: false
+    resource-upload-enabled: false
+  integrity-checker:
+    enabled: false
+  network:
+    port:
+      auto-increment: true
+      port-count: 100
+      port: 5900
+    outbound-ports:
+      ports: 0
+    join:
+      auto-detection:
+        enabled: false
+      multicast:
+        enabled: false
+      tcp-ip:
+        enabled: false
+  metrics:
+    enabled: false

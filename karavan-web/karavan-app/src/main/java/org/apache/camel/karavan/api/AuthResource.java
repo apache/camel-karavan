@@ -22,7 +22,7 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import org.apache.camel.karavan.infinispan.InfinispanService;
+import org.apache.camel.karavan.cache.KaravanCacheService;
 import org.apache.camel.karavan.kubernetes.KubernetesService;
 import org.apache.camel.karavan.service.AuthService;
 import org.apache.camel.karavan.service.ProjectService;
@@ -45,7 +45,7 @@ public class AuthResource {
     KubernetesService kubernetesService;
 
     @Inject
-    InfinispanService infinispanService;
+    KaravanCacheService karavanCacheService;
 
     @GET
     @Path("/auth")
@@ -66,7 +66,6 @@ public class AuthResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getConfiguration() throws Exception {
         List<HealthCheckResponse> list = List.of(
-                infinispanService.call(),
                 kubernetesService.call(),
                 projectService.call()
         );

@@ -33,9 +33,9 @@ import jakarta.enterprise.inject.Default;
 import jakarta.enterprise.inject.Produces;
 import jakarta.inject.Inject;
 import org.apache.camel.karavan.code.CodeService;
-import org.apache.camel.karavan.infinispan.InfinispanService;
-import org.apache.camel.karavan.infinispan.model.ContainerStatus;
-import org.apache.camel.karavan.infinispan.model.Project;
+import org.apache.camel.karavan.cache.KaravanCacheService;
+import org.apache.camel.karavan.cache.model.ContainerStatus;
+import org.apache.camel.karavan.cache.model.Project;
 import org.apache.camel.karavan.service.ConfigService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.health.HealthCheck;
@@ -62,7 +62,7 @@ public class KubernetesService implements HealthCheck {
     EventBus eventBus;
 
     @Inject
-    InfinispanService infinispanService;
+    KaravanCacheService karavanCacheService;
 
     @Inject
     CodeService codeService;
@@ -112,17 +112,17 @@ public class KubernetesService implements HealthCheck {
 
             SharedIndexInformer<Deployment> deploymentInformer = client.apps().deployments().inNamespace(getNamespace())
                     .withLabels(labels).inform();
-            deploymentInformer.addEventHandlerWithResyncPeriod(new DeploymentEventHandler(infinispanService, this), 30 * 1000L);
+            deploymentInformer.addEventHandlerWithResyncPeriod(new DeploymentEventHandler(karavanCacheService, this), 30 * 1000L);
             informers.add(deploymentInformer);
 
             SharedIndexInformer<Service> serviceInformer = client.services().inNamespace(getNamespace())
                     .withLabels(labels).inform();
-            serviceInformer.addEventHandlerWithResyncPeriod(new ServiceEventHandler(infinispanService, this), 30 * 1000L);
+            serviceInformer.addEventHandlerWithResyncPeriod(new ServiceEventHandler(karavanCacheService, this), 30 * 1000L);
             informers.add(serviceInformer);
 
             SharedIndexInformer<Pod> podRunInformer = client.pods().inNamespace(getNamespace())
                     .withLabels(labels).inform();
-            podRunInformer.addEventHandlerWithResyncPeriod(new PodEventHandler(infinispanService, this, eventBus), 30 * 1000L);
+            podRunInformer.addEventHandlerWithResyncPeriod(new PodEventHandler(karavanCacheService, this, eventBus), 30 * 1000L);
             informers.add(podRunInformer);
 
             LOGGER.info("Started Kubernetes Informers");

@@ -20,9 +20,9 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import org.apache.camel.karavan.code.CodeService;
-import org.apache.camel.karavan.infinispan.InfinispanService;
-import org.apache.camel.karavan.infinispan.model.Project;
-import org.apache.camel.karavan.infinispan.model.ProjectFile;
+import org.apache.camel.karavan.cache.KaravanCacheService;
+import org.apache.camel.karavan.cache.model.Project;
+import org.apache.camel.karavan.cache.model.ProjectFile;
 import org.apache.camel.karavan.validation.project.ProjectFileCreateValidator;
 
 import java.net.URLDecoder;
@@ -36,7 +36,7 @@ import java.util.stream.Collectors;
 public class ProjectFileResource {
 
     @Inject
-    InfinispanService infinispanService;
+    KaravanCacheService karavanCacheService;
 
     @Inject
     CodeService codeService;
@@ -48,7 +48,7 @@ public class ProjectFileResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/{projectId}")
     public List<ProjectFile> get(@PathParam("projectId") String projectId) throws Exception {
-        return infinispanService.getProjectFiles(projectId).stream()
+        return karavanCacheService.getProjectFiles(projectId).stream()
                 .sorted(Comparator.comparing(ProjectFile::getName))
                 .collect(Collectors.toList());
     }
@@ -58,7 +58,7 @@ public class ProjectFileResource {
     @Path("/templates/beans")
     public List<ProjectFile> getBeanTemplates() throws Exception {
         return  codeService.getBeanTemplateNames().stream()
-                .map(s -> infinispanService.getProjectFile(Project.Type.templates.name(), s))
+                .map(s -> karavanCacheService.getProjectFile(Project.Type.templates.name(), s))
                 .toList();
     }
 
@@ -68,7 +68,7 @@ public class ProjectFileResource {
     public ProjectFile create(ProjectFile file) throws Exception {
         file.setLastUpdate(Instant.now().toEpochMilli());
         projectFileCreateValidator.validate(file).failOnError();
-        infinispanService.saveProjectFile(file);
+        karavanCacheService.saveProjectFile(file);
         return file;
     }
 
@@ -77,7 +77,7 @@ public class ProjectFileResource {
     @Consumes(MediaType.APPLICATION_JSON)
     public ProjectFile update(ProjectFile file) throws Exception {
         file.setLastUpdate(Instant.now().toEpochMilli());
-        infinispanService.saveProjectFile(file);
+        karavanCacheService.saveProjectFile(file);
         return file;
     }
 
@@ -87,7 +87,7 @@ public class ProjectFileResource {
     public void delete(@HeaderParam("username") String username,
                        @PathParam("project") String project,
                        @PathParam("filename") String filename) throws Exception {
-        infinispanService.deleteProjectFile(
+        karavanCacheService.deleteProjectFile(
                 URLDecoder.decode(project, StandardCharsets.UTF_8.toString()),
                 URLDecoder.decode(filename, StandardCharsets.UTF_8.toString())
         );
@@ -101,11 +101,11 @@ public class ProjectFileResource {
                                    @PathParam("integrationName") String integrationName,
                                    @PathParam("generateRest") boolean generateRest,
                                    @PathParam("generateRoutes") boolean generateRoutes, ProjectFile file) throws Exception {
-        infinispanService.saveProjectFile(file);
+        karavanCacheService.saveProjectFile(file);
         if (generateRest) {
             String yaml = codeService.generate(file.getName(), file.getCode(), generateRoutes);
             ProjectFile integration = new ProjectFile(integrationName, yaml, file.getProjectId(), Instant.now().toEpochMilli());
-            infinispanService.saveProjectFile(integration);
+            karavanCacheService.saveProjectFile(integration);
             return file;
         }
         return file;

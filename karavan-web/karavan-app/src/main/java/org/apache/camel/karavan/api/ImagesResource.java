@@ -65,11 +65,8 @@ public class ImagesResource {
     @Path("/{projectId}")
     public Response build(JsonObject data, @PathParam("projectId") String projectId) throws Exception {
         try {
-            String imageName = data.getString("imageName");
-            boolean commit = data.getBoolean("commit");
-            String message = data.getString("message");
-            projectService.setProjectImage(projectId, imageName, commit, message);
-            return Response.ok().entity(imageName).build();
+            projectService.setProjectImage(projectId, data);
+            return Response.ok().entity(data.getString("imageName")).build();
         } catch (Exception e) {
             return Response.serverError().entity(e.getMessage()).build();
         }
@@ -78,7 +75,7 @@ public class ImagesResource {
     @DELETE
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/{imageName}")
-    public Response deleteImage(@HeaderParam("username") String username, @PathParam("imageName") String imageName) {
+    public Response deleteImage(@PathParam("imageName") String imageName) {
         imageName= new String(Base64.decode(imageName));
         if (ConfigService.inKubernetes()) {
             return Response.ok().build();

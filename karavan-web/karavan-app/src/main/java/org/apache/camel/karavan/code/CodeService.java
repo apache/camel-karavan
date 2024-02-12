@@ -36,9 +36,9 @@ import org.apache.camel.karavan.code.model.DockerComposeService;
 import org.apache.camel.karavan.docker.DockerService;
 import org.apache.camel.karavan.git.model.GitRepo;
 import org.apache.camel.karavan.git.model.GitRepoFile;
-import org.apache.camel.karavan.infinispan.InfinispanService;
-import org.apache.camel.karavan.infinispan.model.Project;
-import org.apache.camel.karavan.infinispan.model.ProjectFile;
+import org.apache.camel.karavan.cache.KaravanCacheService;
+import org.apache.camel.karavan.cache.model.Project;
+import org.apache.camel.karavan.cache.model.ProjectFile;
 import org.apache.camel.karavan.kubernetes.KubernetesService;
 import org.apache.camel.karavan.service.ConfigService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -79,7 +79,7 @@ public class CodeService {
     DockerService dockerService;
 
     @Inject
-    InfinispanService infinispanService;
+    KaravanCacheService karavanCacheService;
 
     @Inject
     Engine engine;
@@ -99,14 +99,14 @@ public class CodeService {
     );
 
     public Map<String, String> getProjectFilesForDevMode(String projectId, Boolean withKamelets) {
-        Map<String, String> files = infinispanService.getProjectFiles(projectId).stream()
+        Map<String, String> files = karavanCacheService.getProjectFiles(projectId).stream()
                 .filter(f -> !f.getName().endsWith(MARKDOWN_EXTENSION))
                 .filter(f -> !Objects.equals(f.getName(), PROJECT_COMPOSE_FILENAME))
                 .filter(f -> !f.getName().endsWith(PROJECT_JKUBE_EXTENSION))
                 .collect(Collectors.toMap(ProjectFile::getName, ProjectFile::getCode));
 
         if (withKamelets) {
-            infinispanService.getProjectFiles(Project.Type.kamelets.name())
+            karavanCacheService.getProjectFiles(Project.Type.kamelets.name())
                     .forEach(file -> files.put(file.getName(), file.getCode()));
         }
         return files;
@@ -114,7 +114,7 @@ public class CodeService {
 
     public List<Tuple3<String, String, String>> getBuilderEnvMapping() {
         List<Tuple3<String, String, String>> result = new ArrayList<>();
-        ProjectFile projectFile = infinispanService.getProjectFile(Project.Type.templates.name(), BUILDER_ENV_MAPPING_FILENAME);
+        ProjectFile projectFile = karavanCacheService.getProjectFile(Project.Type.templates.name(), BUILDER_ENV_MAPPING_FILENAME);
         if (projectFile != null) {
             String text = projectFile.getCode();
             text.lines().forEach(line -> {
@@ -178,7 +178,7 @@ public class CodeService {
 
     public String getTemplateText(String fileName) {
         try {
-            List<ProjectFile> files = infinispanService.getProjectFiles(Project.Type.templates.name());
+            List<ProjectFile> files = karavanCacheService.getProjectFiles(Project.Type.templates.name());
             return files.stream().filter(f -> f.getName().equalsIgnoreCase(fileName))
                     .map(ProjectFile::getCode).findFirst().orElse(null);
         } catch (Exception e) {
@@ -314,7 +314,7 @@ public class CodeService {
 
 
     private int getMaxPortMappedInProjects() {
-        List<ProjectFile> files =  infinispanService.getProjectFilesByName(PROJECT_COMPOSE_FILENAME).stream()
+        List<ProjectFile> files =  karavanCacheService.getProjectFilesByName(PROJECT_COMPOSE_FILENAME).stream()
                 .filter(f -> !Objects.equals(f.getProjectId(), Project.Type.templates.name())).toList();
         if (!files.isEmpty()) {
             return files.stream().map(this::getProjectPort)
@@ -327,14 +327,17 @@ public class CodeService {
     }
 
     public Integer getProjectPort(ProjectFile composeFile) {
-        DockerComposeService dcs = DockerComposeConverter.fromCode(composeFile.getCode(), composeFile.getProjectId());
-        Optional<Integer> port = dcs.getPortsMap().entrySet().stream()
-                .filter(e -> Objects.equals(e.getValue(), INTERNAL_PORT)).map(Map.Entry::getKey).findFirst();
-        return port.orElse(null);
+        if (composeFile != null) {
+            DockerComposeService dcs = DockerComposeConverter.fromCode(composeFile.getCode(), composeFile.getProjectId());
+            Optional<Integer> port = dcs.getPortsMap().entrySet().stream()
+                    .filter(e -> Objects.equals(e.getValue(), INTERNAL_PORT)).map(Map.Entry::getKey).findFirst();
+            return port.orElse(null);
+        }
+        return null;
     }
 
     public Integer getProjectPort(String projectId) {
-        ProjectFile composeFile = infinispanService.getProjectFile(projectId, PROJECT_COMPOSE_FILENAME);
+        ProjectFile composeFile = karavanCacheService.getProjectFile(projectId, PROJECT_COMPOSE_FILENAME);
         return getProjectPort(composeFile);
     }
 
@@ -345,7 +348,7 @@ public class CodeService {
     }
 
     public DockerComposeService getDockerComposeService(String projectId) {
-        ProjectFile compose = infinispanService.getProjectFile(projectId, PROJECT_COMPOSE_FILENAME);
+        ProjectFile compose = karavanCacheService.getProjectFile(projectId, PROJECT_COMPOSE_FILENAME);
         if (compose != null) {
             return DockerComposeConverter.fromCode(compose.getCode(), projectId);
         }
@@ -353,13 +356,13 @@ public class CodeService {
     }
 
     public void updateDockerComposeImage(String projectId, String imageName) {
-        ProjectFile compose = infinispanService.getProjectFile(projectId, PROJECT_COMPOSE_FILENAME);
+        ProjectFile compose = karavanCacheService.getProjectFile(projectId, PROJECT_COMPOSE_FILENAME);
         if (compose != null) {
             DockerComposeService service = DockerComposeConverter.fromCode(compose.getCode(), projectId);
             service.setImage(imageName);
             String code = DockerComposeConverter.toCode(service);
             compose.setCode(code);
-            infinispanService.saveProjectFile(compose);
+            karavanCacheService.saveProjectFile(compose);
         }
     }
 

@@ -24,11 +24,11 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import org.apache.camel.karavan.cache.KaravanCacheService;
+import org.apache.camel.karavan.cache.model.ContainerStatus;
 import org.apache.camel.karavan.code.DockerComposeConverter;
 import org.apache.camel.karavan.code.model.DockerComposeService;
 import org.apache.camel.karavan.docker.DockerService;
-import org.apache.camel.karavan.infinispan.InfinispanService;
-import org.apache.camel.karavan.infinispan.model.ContainerStatus;
 import org.apache.camel.karavan.kubernetes.KubernetesService;
 import org.apache.camel.karavan.service.ConfigService;
 import org.apache.camel.karavan.service.ProjectService;
@@ -48,7 +48,7 @@ public class ContainerResource {
     EventBus eventBus;
 
     @Inject
-    InfinispanService infinispanService;
+    KaravanCacheService karavanCacheService;
 
     @Inject
     KubernetesService kubernetesService;
@@ -67,8 +67,8 @@ public class ContainerResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public List<ContainerStatus> getAllContainerStatuses() throws Exception {
-        if (infinispanService.isReady()) {
-            return infinispanService.getContainerStatuses().stream()
+        if (karavanCacheService.isReady()) {
+            return karavanCacheService.getContainerStatuses().stream()
                     .sorted(Comparator.comparing(ContainerStatus::getProjectId))
                     .collect(Collectors.toList());
         } else {
@@ -82,7 +82,7 @@ public class ContainerResource {
     @Path("/{projectId}/{type}/{name}")
     public Response manageContainer(@PathParam("projectId") String projectId, @PathParam("type") String type, @PathParam("name") String name, JsonObject command) {
         try {
-            if (infinispanService.isReady()) {
+            if (karavanCacheService.isReady()) {
                 if (ConfigService.inKubernetes()) {
                     if (command.getString("command").equalsIgnoreCase("delete")) {
                         kubernetesService.deletePod(name);
@@ -151,7 +151,7 @@ public class ContainerResource {
     }
 
     private void setContainerStatusTransit(String projectId, String name, String type) {
-        ContainerStatus status = infinispanService.getContainerStatus(projectId, environment, name);
+        ContainerStatus status = karavanCacheService.getContainerStatus(projectId, environment, name);
         if (status == null) {
             status = ContainerStatus.createByType(projectId, environment, ContainerStatus.ContainerType.valueOf(type));
         }
@@ -163,7 +163,7 @@ public class ContainerResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/{env}")
     public List<ContainerStatus> getContainerStatusesByEnv(@PathParam("env") String env) throws Exception {
-        return infinispanService.getContainerStatuses(env).stream()
+        return karavanCacheService.getContainerStatuses(env).stream()
                 .sorted(Comparator.comparing(ContainerStatus::getProjectId))
                 .collect(Collectors.toList());
     }
@@ -172,7 +172,7 @@ public class ContainerResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/{projectId}/{env}")
     public List<ContainerStatus> getContainerStatusesByProjectAndEnv(@PathParam("projectId") String projectId, @PathParam("env") String env) throws Exception {
-        return infinispanService.getContainerStatuses(projectId, env).stream()
+        return karavanCacheService.getContainerStatuses(projectId, env).stream()
                 .filter(podStatus -> Objects.equals(podStatus.getType(), ContainerStatus.ContainerType.project))
                 .sorted(Comparator.comparing(ContainerStatus::getContainerName))
                 .collect(Collectors.toList());
@@ -183,7 +183,7 @@ public class ContainerResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/{projectId}/{type}/{name}")
     public Response deleteContainer(@PathParam("projectId") String projectId, @PathParam("type") String type, @PathParam("name") String name) {
-        if (infinispanService.isReady()) {
+        if (karavanCacheService.isReady()) {
             // set container statuses
             setContainerStatusTransit(projectId, name, type);
             try {
