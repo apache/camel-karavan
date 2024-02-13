@@ -17,9 +17,9 @@
 
 import React from 'react';
 import {
-    Button,
+    Button, HelperText, HelperTextItem,
     Modal,
-    ModalVariant,
+    ModalVariant, Text, TextContent, TextVariants,
 } from '@patternfly/react-core';
 import '../../designer/karavan.css';
 import {useFileStore} from "../../api/ProjectStore";
@@ -46,12 +46,19 @@ export function DeleteFileModal () {
                 isOpen={isOpen}
                 onClose={() => closeModal()}
                 actions={[
-                    <Button key="confirm" variant="primary" onClick={e => confirmAndCloseModal()}>Delete</Button>,
+                    <Button key="confirm" variant="danger" onClick={e => confirmAndCloseModal()}>Delete</Button>,
                     <Button key="cancel" variant="link"
                             onClick={e => closeModal()}>Cancel</Button>
                 ]}
                 onEscapePress={e => closeModal()}>
-                <div>{"Are you sure you want to delete file " + file?.name + "?"}</div>
+                <TextContent>
+                    <Text component={TextVariants.h3}>Delete file <b>{file?.name}</b> ?</Text>
+                    <HelperText>
+                        <HelperTextItem variant="warning">
+                            File will be also deleted from <b>git</b> repository
+                        </HelperTextItem>
+                    </HelperText>
+                </TextContent>
             </Modal>
     )
 }
