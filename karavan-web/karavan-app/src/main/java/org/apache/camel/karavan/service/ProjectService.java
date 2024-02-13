@@ -382,7 +382,6 @@ public class ProjectService implements HealthCheck {
             if (kamelets == null) {
                 kamelets = new Project(Project.Type.kamelets.name(), "Custom Kamelets", "Custom Kamelets", "", Instant.now().toEpochMilli(), Project.Type.kamelets);
                 karavanCacheService.saveProject(kamelets);
-                commitAndPushProject(JsonObject.of("projectId", Project.Type.kamelets.name(), "message", "Add custom kamelets"));
             }
         } catch (Exception e) {
             LOGGER.error("Error during custom kamelets project creation", e);
