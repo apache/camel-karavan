@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import axios, { AxiosResponse } from "axios";
+import axios, {AxiosResponse} from "axios";
 import {
     AppConfig,
     CamelStatus,
@@ -24,11 +24,13 @@ import {
     Project,
     ProjectFile, ProjectType, ServiceStatus
 } from "./ProjectModels";
-import { Buffer } from 'buffer';
-import { SsoApi } from "./SsoApi";
+import {Buffer} from 'buffer';
+import {SsoApi} from "./SsoApi";
+import {v4 as uuidv4} from "uuid";
 import { EventStreamContentType, fetchEventSource } from "@microsoft/fetch-event-source";
 import { ProjectEventBus } from "./ProjectEventBus";
 
+const USER_ID_KEY = 'KARAVAN_USER_ID';
 axios.defaults.headers.common['Accept'] = 'application/json';
 axios.defaults.headers.common['Content-Type'] = 'application/json';
 const instance = axios.create();
@@ -43,9 +45,24 @@ export class KaravanApi {
         return instance;
     }
 
+    static getUserId(): string {
+        if (KaravanApi.me?.userName !== undefined) {
+            return KaravanApi.me?.userName;
+        } else {
+            const userId = localStorage.getItem(USER_ID_KEY);
+            if (userId !== null && userId !== undefined) {
+                return userId;
+            } else {
+                const newId = uuidv4().toString();
+                localStorage.setItem(USER_ID_KEY, newId);
+                return newId;
+            }
+        }
+    }
+
     static setAuthType(authType: string) {
         KaravanApi.authType = authType;
-        switch (authType) {
+        switch (authType){
             case "public": {
                 KaravanApi.setPublicAuthentication();
                 break;
@@ -62,9 +79,9 @@ export class KaravanApi {
 
     static setOidcAuthentication() {
         instance.interceptors.request.use(async config => {
-            config.headers.Authorization = 'Bearer ' + SsoApi.keycloak?.token;
-            return config;
-        },
+                config.headers.Authorization = 'Bearer ' + SsoApi.keycloak?.token;
+                return config;
+            },
             error => {
                 Promise.reject(error)
             });
@@ -92,7 +109,7 @@ export class KaravanApi {
     }
 
     static async getReadiness(after: (readiness: any) => void) {
-        axios.get('/public/readiness', { headers: { 'Accept': 'application/json' } })
+        axios.get('/public/readiness', {headers: {'Accept': 'application/json'}})
             .then(res => {
                 if (res.status === 200) {
                     after(res.data);
@@ -100,32 +117,32 @@ export class KaravanApi {
                     after(undefined);
                 }
             }).catch(err => {
-                console.log(err.message);
-                after(undefined);
-            });
+            console.log(err.message);
+            after(undefined);
+        });
     }
 
     static async getConfig(after: (config: {}) => void) {
-        axios.get('/public/sso-config', { headers: { 'Accept': 'application/json' } })
+        axios.get('/public/sso-config', {headers: {'Accept': 'application/json'}})
             .then(res => {
                 if (res.status === 200) {
                     after(res.data);
                 }
             }).catch(err => {
-                console.log(err);
-            });
+            console.log(err);
+        });
     }
 
     static async getAuthType(after: (authType: string) => void) {
-        instance.get('/public/auth', { headers: { 'Accept': 'text/plain' } })
+        instance.get('/public/auth', {headers: {'Accept': 'text/plain'}})
             .then(res => {
                 if (res.status === 200) {
                     KaravanApi.setAuthType(res.data);
                     after(res.data);
                 }
             }).catch(err => {
-                console.log(err);
-            });
+            console.log(err);
+        });
     }
 
     static async getMe(after: (user: {}) => void) {
@@ -136,8 +153,8 @@ export class KaravanApi {
                     after(res.data);
                 }
             }).catch(err => {
-                console.log(err);
-            });
+            console.log(err);
+        });
     }
 
     static async getConfiguration(after: (config: AppConfig) => void) {
@@ -147,8 +164,8 @@ export class KaravanApi {
                     after(res.data);
                 }
             }).catch(err => {
-                console.log(err);
-            });
+            console.log(err);
+        });
     }
 
     static async getInfrastructureInfo(after: (info: any) => void) {
@@ -158,8 +175,8 @@ export class KaravanApi {
                     after(res.data);
                 }
             }).catch(err => {
-                console.log(err);
-            });
+            console.log(err);
+        });
     }
 
     static async getProject(projectId: string, after: (project: Project) => void) {
@@ -169,8 +186,8 @@ export class KaravanApi {
                     after(res.data);
                 }
             }).catch(err => {
-                console.log(err);
-            });
+            console.log(err);
+        });
     }
 
     static async getProjectDeploymentStatus(projectId: string, env: string, after: (status?: DeploymentStatus) => void) {
@@ -178,12 +195,12 @@ export class KaravanApi {
             .then(res => {
                 if (res.status === 200) {
                     after(res.data);
-                } else if (res.status === 204) {
+                } else if (res.status === 204){
                     after(undefined);
                 }
             }).catch(err => {
-                console.log(err);
-            });
+            console.log(err);
+        });
     }
 
     static async getProjectCamelStatus(projectId: string, env: string, after: (status: CamelStatus) => void) {
@@ -193,8 +210,8 @@ export class KaravanApi {
                     after(res.data);
                 }
             }).catch(err => {
-                console.log(err);
-            });
+            console.log(err);
+        });
     }
 
     static async getAllCamelContextStatuses(after: (statuses: CamelStatus[]) => void) {
@@ -204,8 +221,8 @@ export class KaravanApi {
                     after(res.data);
                 }
             }).catch(err => {
-                console.log(err);
-            });
+            console.log(err);
+        });
     }
 
     static async getProjects(after: (projects: Project[]) => void, type?: ProjectType.normal) {
@@ -215,8 +232,8 @@ export class KaravanApi {
                     after(res.data.map((p: Partial<Project> | undefined) => new Project(p)));
                 }
             }).catch(err => {
-                console.log(err);
-            });
+            console.log(err);
+        });
     }
 
     static async postProject(project: Project) {
@@ -232,8 +249,8 @@ export class KaravanApi {
             .then(res => {
                 after(res);
             }).catch(err => {
-                after(err);
-            });
+            after(err);
+        });
     }
 
     static async buildProject(project: Project, tag: string, after: (res: AxiosResponse<any>) => void) {
@@ -241,8 +258,8 @@ export class KaravanApi {
             .then(res => {
                 after(res);
             }).catch(err => {
-                after(err);
-            });
+            after(err);
+        });
     }
 
     static async updateBuildConfigMap(after: (res: AxiosResponse<any>) => void) {
@@ -252,8 +269,8 @@ export class KaravanApi {
                     after(res.data);
                 }
             }).catch(err => {
-                console.log(err);
-            });
+            console.log(err);
+        });
     }
 
     static async getFiles(projectId: string, after: (files: ProjectFile[]) => void) {
@@ -263,8 +280,8 @@ export class KaravanApi {
                     after(res.data);
                 }
             }).catch(err => {
-                console.log(err);
-            });
+            console.log(err);
+        });
     }
 
     static async saveProjectFile(file: ProjectFile) {
@@ -277,7 +294,7 @@ export class KaravanApi {
                 after(res);
             }).catch(err => {
                 after(err);
-            });
+        });
     }
 
     static async deleteProjectFile(file: ProjectFile, after: (res: AxiosResponse<any>) => void) {
@@ -285,8 +302,8 @@ export class KaravanApi {
             .then(res => {
                 after(res);
             }).catch(err => {
-                after(err);
-            });
+            after(err);
+        });
     }
 
     static async push(params: {}, after: (res: AxiosResponse<any>) => void) {
@@ -294,8 +311,8 @@ export class KaravanApi {
             .then(res => {
                 after(res);
             }).catch(err => {
-                after(err);
-            });
+            after(err);
+        });
     }
 
     static async pull(projectId: string, after: (res: AxiosResponse<any> | any) => void) {
@@ -303,30 +320,30 @@ export class KaravanApi {
             .then(res => {
                 after(res);
             }).catch(err => {
-                after(err);
-            });
+            after(err);
+        });
     }
 
-    static async getTemplatesFiles(after: (files: []) => void) {
+    static async getTemplatesFiles( after: (files: []) => void) {
         instance.get('/api/file/templates')
             .then(res => {
                 if (res.status === 200) {
                     after(res.data);
                 }
             }).catch(err => {
-                console.log(err);
-            });
+            console.log(err);
+        });
     }
 
-    static async getBeanTemplatesFiles(after: (files: ProjectFile[]) => void) {
+    static async getBeanTemplatesFiles( after: (files: ProjectFile []) => void) {
         instance.get('/api/file/templates/beans')
             .then(res => {
                 if (res.status === 200) {
                     after(res.data);
                 }
             }).catch(err => {
-                console.log(err);
-            });
+            console.log(err);
+        });
     }
 
     static async getDevModePodStatus(projectId: string, after: (res: AxiosResponse<ContainerStatus>) => void) {
@@ -334,8 +351,8 @@ export class KaravanApi {
             .then(res => {
                 after(res);
             }).catch(err => {
-                after(err);
-            });
+            after(err);
+        });
     }
 
     static async reloadDevModeCode(projectId: string, after: (res: AxiosResponse<any>) => void) {
@@ -343,8 +360,8 @@ export class KaravanApi {
             .then(res => {
                 after(res);
             }).catch(err => {
-                after(err);
-            });
+            after(err);
+        });
     }
 
     static async getProjectCamelStatuses(projectId: string, env: string, after: (res: AxiosResponse<CamelStatus[]>) => void) {
@@ -352,8 +369,8 @@ export class KaravanApi {
             .then(res => {
                 after(res);
             }).catch(err => {
-                after(err);
-            });
+            after(err);
+        });
     }
 
     static async getProjectCamelTraces(projectId: string, env: string, after: (res: AxiosResponse<CamelStatus[]>) => void) {
@@ -361,8 +378,8 @@ export class KaravanApi {
             .then(res => {
                 after(res);
             }).catch(err => {
-                after(err);
-            });
+            after(err);
+        });
     }
 
     static async startDevModeContainer(project: Project, verbose: boolean, after: (res: AxiosResponse<string>) => void) {
@@ -370,26 +387,26 @@ export class KaravanApi {
             .then(res => {
                 after(res);
             }).catch(err => {
-                after(err);
-            });
+            after(err);
+        });
     }
 
     static async deleteDevModeContainer(name: string, deletePVC: boolean, after: (res: AxiosResponse<any>) => void) {
-        instance.delete('/api/devmode/' + name + "/" + deletePVC)
+        instance.delete('/api/devmode/' +  name + "/" + deletePVC)
             .then(res => {
                 after(res);
             }).catch(err => {
-                after(err);
-            });
+            after(err);
+        });
     }
 
     static async setProjectImage(projectId: string, imageName: string, commit: boolean, message: string, after: (res: AxiosResponse<any>) => void) {
-        instance.post('/api/image/' + projectId, { imageName: imageName, commit: commit, message: message })
+        instance.post('/api/image/' + projectId, {imageName: imageName, commit: commit, message: message})
             .then(res => {
                 after(res);
             }).catch(err => {
-                after(err);
-            });
+            after(err);
+        });
     }
 
     static async stopBuild(environment: string, buildName: string, after: (res: AxiosResponse<any>) => void) {
@@ -399,8 +416,8 @@ export class KaravanApi {
                     after(res.data);
                 }
             }).catch(err => {
-                console.log(err);
-            });
+            console.log(err);
+        });
     }
 
     static async getContainerLog(environment: string, name: string, after: (res: AxiosResponse<string>) => void) {
@@ -410,8 +427,8 @@ export class KaravanApi {
                     after(res.data);
                 }
             }).catch(err => {
-                console.log(err);
-            });
+            console.log(err);
+        });
     }
 
     static async getAllServiceStatuses(after: (statuses: ServiceStatus[]) => void) {
@@ -421,8 +438,8 @@ export class KaravanApi {
                     after(res.data);
                 }
             }).catch(err => {
-                console.log(err);
-            });
+            console.log(err);
+        });
     }
 
     static async getAllContainerStatuses(after: (statuses: ContainerStatus[]) => void) {
@@ -432,8 +449,8 @@ export class KaravanApi {
                     after(res.data);
                 }
             }).catch(err => {
-                console.log(err);
-            });
+            console.log(err);
+        });
     }
 
     static async getAllDeploymentStatuses(after: (statuses: DeploymentStatus[]) => void) {
@@ -443,8 +460,8 @@ export class KaravanApi {
                     after(res.data);
                 }
             }).catch(err => {
-                console.log(err);
-            });
+            console.log(err);
+        });
     }
 
     static async getDeploymentStatuses(env: string, after: (statuses: DeploymentStatus[]) => void) {
@@ -454,8 +471,8 @@ export class KaravanApi {
                     after(res.data);
                 }
             }).catch(err => {
-                console.log(err);
-            });
+            console.log(err);
+        });
     }
 
     static async rolloutDeployment(name: string, environment: string, after: (res: AxiosResponse<any>) => void) {
@@ -463,8 +480,8 @@ export class KaravanApi {
             .then(res => {
                 after(res);
             }).catch(err => {
-                after(err);
-            });
+            after(err);
+        });
     }
 
     static async deleteDeployment(environment: string, name: string, after: (res: AxiosResponse<any>) => void) {
@@ -472,22 +489,22 @@ export class KaravanApi {
             .then(res => {
                 after(res);
             }).catch(err => {
-                after(err);
-            });
+            after(err);
+        });
     }
 
     static async manageContainer(projectId: string,
-        type: 'devmode' | 'devservice' | 'project' | 'internal' | 'build' | 'unknown',
-        name: string,
-        command: 'deploy' | 'run' | 'pause' | 'stop' | 'delete',
-        pullImage: boolean,
-        after: (res: AxiosResponse<any> | any) => void) {
-        instance.post('/api/container/' + projectId + '/' + type + "/" + name, { command: command, pullImage: pullImage })
+                                 type: 'devmode' | 'devservice' | 'project' | 'internal' | 'build' | 'unknown',
+                                 name: string,
+                                 command: 'deploy' | 'run' | 'pause' | 'stop' | 'delete',
+                                 pullImage: boolean,
+                                 after: (res: AxiosResponse<any> | any) => void) {
+        instance.post('/api/container/' + projectId + '/' + type + "/" + name, {command: command, pullImage: pullImage})
             .then(res => {
                 after(res);
             }).catch(err => {
-                after(err);
-            });
+            after(err);
+        });
     }
 
     static async deleteContainer(projectId: string, type: 'devmode' | 'devservice' | 'project' | 'internal' | 'build' | 'unknown', name: string, after: (res: AxiosResponse<any>) => void) {
@@ -495,8 +512,8 @@ export class KaravanApi {
             .then(res => {
                 after(res);
             }).catch(err => {
-                after(err);
-            });
+            after(err);
+        });
     }
 
     static async getConfigMaps(after: (any: []) => void) {
@@ -506,8 +523,8 @@ export class KaravanApi {
                     after(res.data);
                 }
             }).catch(err => {
-                console.log(err);
-            });
+            console.log(err);
+        });
     }
 
     static async getImages(projectId: string, after: (string: []) => void) {
@@ -517,8 +534,8 @@ export class KaravanApi {
                     after(res.data);
                 }
             }).catch(err => {
-                console.log(err);
-            });
+            console.log(err);
+        });
     }
 
     static async deleteImage(imageName: string, after: () => void) {
@@ -528,8 +545,8 @@ export class KaravanApi {
                     after();
                 }
             }).catch(err => {
-                console.log(err);
-            });
+            console.log(err);
+        });
     }
 
     static async getSecrets(after: (any: []) => void) {
@@ -539,8 +556,8 @@ export class KaravanApi {
                     after(res.data);
                 }
             }).catch(err => {
-                console.log(err);
-            });
+            console.log(err);
+        });
     }
 
     static async getServices(after: (any: []) => void) {
@@ -550,8 +567,8 @@ export class KaravanApi {
                     after(res.data);
                 }
             }).catch(err => {
-                console.log(err);
-            });
+            console.log(err);
+        });
     }
 
     static async deleteAllStatuses(after: (res: AxiosResponse<any>) => void) {
@@ -559,8 +576,8 @@ export class KaravanApi {
             .then(res => {
                 after(res);
             }).catch(err => {
-                after(err);
-            });
+            after(err);
+        });
     }
 
     static async restartInformers(after: (res: AxiosResponse<any>) => void) {
@@ -568,19 +585,19 @@ export class KaravanApi {
             .then(res => {
                 after(res);
             }).catch(err => {
-                after(err);
-            });
+            after(err);
+        });
     }
 
     static async getKamelets(after: (yaml: string) => void) {
-        instance.get('/api/kamelet', { headers: { 'Accept': 'text/plain' } })
+        instance.get('/api/kamelet', {headers: {'Accept': 'text/plain'}})
             .then(res => {
                 if (res.status === 200) {
                     after(res.data);
                 }
             }).catch(err => {
-                console.log(err);
-            });
+            console.log(err);
+        });
     }
 
     static async getCustomKameletNames(after: (names: []) => void) {
@@ -590,8 +607,8 @@ export class KaravanApi {
                     after(res.data);
                 }
             }).catch(err => {
-                console.log(err);
-            });
+            console.log(err);
+        });
     }
 
     static async getComponents(after: (json: string) => void) {
@@ -601,8 +618,8 @@ export class KaravanApi {
                     after(JSON.stringify(res.data));
                 }
             }).catch(err => {
-                console.log(err);
-            });
+            console.log(err);
+        });
     }
 
     static async getSupportedComponents(after: (json: string) => void) {
@@ -612,8 +629,8 @@ export class KaravanApi {
                     after(JSON.stringify(res.data));
                 }
             }).catch(err => {
-                console.log(err);
-            });
+            console.log(err);
+        });
     }
 
     static async getOpenApis(after: (openapis: []) => void) {
@@ -623,17 +640,17 @@ export class KaravanApi {
                     after(res.data);
                 }
             }).catch(err => {
-                console.log(err);
-            });
+            console.log(err);
+        });
     }
 
     static async getOpenApi(name: string, after: (res: AxiosResponse<any>) => void) {
-        instance.get('/api/openapi/' + name, { headers: { 'Accept': 'text/plain' } })
+        instance.get('/api/openapi/' + name, {headers: {'Accept': 'text/plain'}})
             .then(res => {
                 after(res);
             }).catch(err => {
-                after(err);
-            });
+            after(err);
+        });
     }
 
     static async postOpenApi(file: ProjectFile, generateRest: boolean, generateRoutes: boolean, integrationName: string) {

@@ -65,7 +65,7 @@ export function useMainHook () {
                 const jsons: string[] = [];
                 components.forEach(c => jsons.push(JSON.stringify(c)));
                 ComponentApi.saveComponents(jsons, true);
-            });
+            })
         });
     }
 

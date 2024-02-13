@@ -14,13 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import '../designer/karavan.css';
-import { Flex, FlexItem, PageSection, Switch, Tab, Tabs, Text, TextContent, TextInput, Toolbar, ToolbarContent, ToolbarItem } from "@patternfly/react-core";
-import { MainToolbar } from "../designer/MainToolbar";
-import { KameletsTab } from "./kamelets/KameletsTab";
-import { EipTab } from "./eip/EipTab";
-import { ComponentsTab } from "./components/ComponentsTab";
+import {Flex, FlexItem, PageSection, Switch, Tab, Tabs, Text, TextContent, TextInput, Toolbar, ToolbarContent, ToolbarItem} from "@patternfly/react-core";
+import {MainToolbar} from "../designer/MainToolbar";
+import {KameletsTab} from "./kamelets/KameletsTab";
+import {EipTab} from "./eip/EipTab";
+import {ComponentsTab} from "./components/ComponentsTab";
 
 interface Props {
     dark: boolean,
@@ -51,34 +51,34 @@ export const KnowledgebasePage = (props: Props) => {
                 </ToolbarItem>}
                 <ToolbarItem>
                     <TextInput className="text-field" type="search" id="search" name="search"
-                        value={filter}
-                        onChange={(_event, value) => setFilter(value)}
-                        autoComplete="off"
-                        placeholder="Search by name" />
+                               value={filter}
+                               onChange={(_event, value) => setFilter(value)}
+                               autoComplete="off"
+                               placeholder="Search by name"/>
                 </ToolbarItem>
             </ToolbarContent>
         </Toolbar>
     }
 
     return (
-        <PageSection className="kamelet-section" padding={{ default: 'noPadding' }}>
-            <PageSection className="tools-section" padding={{ default: 'noPadding' }}>
-                <MainToolbar title={title()} tools={getTools()} />
+        <PageSection className="kamelet-section" padding={{default: 'noPadding'}}>
+            <PageSection className="tools-section" padding={{default: 'noPadding'}}>
+                <MainToolbar title={title()} tools={getTools()}/>
             </PageSection>
-            <PageSection className="tools-section" padding={{ default: 'noPadding' }}>
-                <Flex direction={{ default: "column" }} spaceItems={{ default: "spaceItemsNone" }}>
+            <PageSection className="tools-section" padding={{default: 'noPadding'}}>
+                <Flex direction={{default: "column"}} spaceItems={{default: "spaceItemsNone"}}>
                     <FlexItem className="knowledge-tabs">
                         <Tabs activeKey={tab} onSelect={(event, tabIndex) => setTab(tabIndex)}>
-                            <Tab eventKey="eip" title="Integration Patterns" />
-                            <Tab eventKey="kamelets" title="Kamelets" />
-                            <Tab eventKey="components" title="Components" />
+                            <Tab eventKey="eip" title="Integration Patterns"/>
+                            <Tab eventKey="kamelets" title="Kamelets"/>
+                            <Tab eventKey="components" title="Components"/>
                         </Tabs>
                     </FlexItem>
                 </Flex>
             </PageSection>
             <>
                 {tab === 'kamelets' && <KameletsTab dark={props.dark} filter={filter} customOnly={customOnly} onChange={(name: string, checked: boolean) => props.changeBlockList('kamelet', name, checked)}  />}
-                {tab === 'eip' && <EipTab dark={props.dark} filter={filter} />}
+                {tab === 'eip' && <EipTab dark={props.dark} filter={filter}/>}
                 {tab === 'components' && <ComponentsTab dark={props.dark} filter={filter} onChange={(name: string, checked: boolean) => props.changeBlockList('component', name, checked)}  />}
             </>
         </PageSection>

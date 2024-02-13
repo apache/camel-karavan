@@ -22,7 +22,7 @@ const SupportedComponents: SupportedComponent[] = [];
 let SupportedOnly: boolean = false;
 const BlockedComponents: string[] = [];
 export class ComponentApi {
-    private constructor() { }
+    private constructor() {}
 
     static setSupportedOnly = (supportedOnly: boolean): void => {
         SupportedOnly = supportedOnly;
@@ -91,7 +91,7 @@ export class ComponentApi {
         return ComponentApi.findByName((step as any)?.uri)
     };
 
-    static getComponentHeadersList = (step?: CamelElement): ComponentHeader[] => {
+    static getComponentHeadersList = (step?: CamelElement): ComponentHeader [] => {
         const component = step && ComponentApi.findStepComponent(step);
         if (component && component.headers) {
             return Object.getOwnPropertyNames(component.headers).map(n => {

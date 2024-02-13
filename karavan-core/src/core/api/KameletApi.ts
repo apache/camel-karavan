@@ -21,7 +21,7 @@ const Kamelets: KameletModel[] = [];
 const CustomNames: string[] = [];
 const BlockedKamelets: string[] = [];
 export class KameletApi {
-    private constructor() { }
+    private constructor() {}
 
     static getCustomKameletNames = (): string[] => {
         return CustomNames;

@@ -19,11 +19,11 @@ import {
     CardHeader, Card, CardTitle, CardBody, CardFooter, Badge, Checkbox
 } from '@patternfly/react-core';
 import '../../designer/karavan.css';
-import { KameletModel } from "karavan-core/lib/model/KameletModels";
-import { CamelUi } from "../../designer/utils/CamelUi";
-import { KameletApi } from "karavan-core/lib/api/KameletApi";
-import { useKnowledgebaseStore } from "../KnowledgebaseStore";
-import { shallow } from "zustand/shallow";
+import {KameletModel} from "karavan-core/lib/model/KameletModels";
+import {CamelUi} from "../../designer/utils/CamelUi";
+import {KameletApi} from "karavan-core/lib/api/KameletApi";
+import {useKnowledgebaseStore} from "../KnowledgebaseStore";
+import {shallow} from "zustand/shallow";
 
 interface Props {
     kamelet: KameletModel,
@@ -56,8 +56,8 @@ export function KameletCard(props: Props) {
     }
     const isblockedKamelet = blockedKamelets ? blockedKamelets.findIndex(r => r === kamelet.metadata.name) > -1 : false;
     return (
-        <Card isCompact key={kamelet.metadata.name} className="kamelet-card"
-            onClick={event => click(event)}
+        <Card  isCompact key={kamelet.metadata.name} className="kamelet-card"
+               onClick={event => click(event)}
         >
             <CardHeader className="header-labels">
                 {isCustom && <Badge className="custom">custom</Badge>}
@@ -72,6 +72,7 @@ export function KameletCard(props: Props) {
             <CardFooter className="footer-labels">
                 <Badge isRead className="labels">{kamelet.metadata.labels["camel.apache.org/kamelet.type"].toLowerCase()}</Badge>
                 <Badge isRead className="version labels">{kamelet.metadata.annotations["camel.apache.org/catalog.version"].toLowerCase()}</Badge>
+                {/*</div>*/}
             </CardFooter>
         </Card>
     )
