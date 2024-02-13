@@ -19,10 +19,10 @@ import {
     CardHeader, Card, CardTitle, CardBody, CardFooter, Badge, Checkbox
 } from '@patternfly/react-core';
 import '../../designer/karavan.css';
-import { CamelUi } from "../../designer/utils/CamelUi";
-import { Component } from "karavan-core/lib/model/ComponentModels";
-import { useKnowledgebaseStore } from "../KnowledgebaseStore";
-import { shallow } from "zustand/shallow";
+import {CamelUi} from "../../designer/utils/CamelUi";
+import {Component} from "karavan-core/lib/model/ComponentModels";
+import {useKnowledgebaseStore} from "../KnowledgebaseStore";
+import {shallow} from "zustand/shallow";
 import { ComponentApi } from 'karavan-core/lib/api/ComponentApi';
 
 interface Props {
@@ -55,7 +55,8 @@ export function ComponentCard(props: Props) {
     const isBlockedComponent = blockedComponents ? blockedComponents.findIndex(r => r === component.component.name) > -1 : false;
     return (
         <Card isCompact key={component.component.name} className="kamelet-card"
-            onClick={event => click(event)}>
+              onClick={event => click(event)}
+        >
             <CardHeader className="header-labels">
                 {component.component.supportType === 'Supported' && <Badge isRead className="support-type labels">{component.component.supportType}</Badge>}
                 <Badge isRead className="support-level labels">{component.component.supportLevel}</Badge>

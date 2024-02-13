@@ -42,11 +42,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
@@ -72,7 +70,6 @@ public class InfinispanService implements HealthCheck {
     private RemoteCache<GroupedKey, Boolean> transits;
     private RemoteCache<GroupedKey, ServiceStatus> serviceStatuses;
     private RemoteCache<GroupedKey, CamelStatus> camelStatuses;
-    private RemoteCache<String, Object> settings;
     private final AtomicBoolean ready = new AtomicBoolean(false);
 
     private RemoteCacheManager cacheManager;
@@ -114,7 +111,6 @@ public class InfinispanService implements HealthCheck {
             serviceStatuses = getOrCreateCache(ServiceStatus.CACHE);
             camelStatuses = getOrCreateCache(CamelStatus.CACHE);
             transits = getOrCreateCache("transits");
-            settings = getOrCreateCache("settings");
 
             cacheManager.getCache(PROTOBUF_METADATA_CACHE_NAME).put("karavan.proto",
                     getResourceFile("/proto/karavan.proto"));
@@ -361,10 +357,6 @@ public class InfinispanService implements HealthCheck {
         camelStatuses.clearAsync();
     }
 
-    public void deleteAllSettings() {
-        settings.clearAsync();
-    }
-
     public List<ContainerStatus> getLoadedDevModeStatuses() {
         QueryFactory queryFactory = Search.getQueryFactory(containerStatuses);
         return queryFactory
@@ -385,15 +377,6 @@ public class InfinispanService implements HealthCheck {
         return queryFactory.<ContainerStatus>create("FROM karavan.ContainerStatus WHERE env = :env")
                 .setParameter("env", env)
                 .execute().list();
-    }
-    
-    @SuppressWarnings("unchecked")
-    public <T> T getSetting(String key, T defaultValue) {
-        Object value = settings.get(key);
-        if (value != null) {
-            return (T) settings.get(key);
-        }
-        return defaultValue;
     }
 
     public void clearAllStatuses() {

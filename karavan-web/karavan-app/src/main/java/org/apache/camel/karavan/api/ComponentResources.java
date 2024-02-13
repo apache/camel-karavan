@@ -25,6 +25,7 @@ import org.apache.camel.karavan.code.CodeService;
 
 @Path("/api/component")
 public class ComponentResources {
+    
     @Inject
     CodeService codeService;
 

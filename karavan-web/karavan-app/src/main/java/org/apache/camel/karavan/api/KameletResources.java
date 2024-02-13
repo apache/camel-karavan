@@ -52,7 +52,6 @@ public class KameletResources {
                         .collect(Collectors.joining("\n---\n")));
             }
         }
-
         return kamelets.toString();
     }
 
