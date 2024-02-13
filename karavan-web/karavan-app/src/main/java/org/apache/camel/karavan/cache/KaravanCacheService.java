@@ -16,7 +16,6 @@
  */
 package org.apache.camel.karavan.cache;
 
-import com.hazelcast.config.ClasspathXmlConfig;
 import com.hazelcast.config.ClasspathYamlConfig;
 import com.hazelcast.config.Config;
 import com.hazelcast.core.Hazelcast;
@@ -25,26 +24,31 @@ import com.hazelcast.map.IMap;
 import com.hazelcast.query.Predicate;
 import com.hazelcast.query.Predicates;
 import io.quarkus.runtime.ShutdownEvent;
-import io.quarkus.runtime.StartupEvent;
+import io.quarkus.vertx.ConsumeEvent;
 import jakarta.enterprise.event.Observes;
 import jakarta.enterprise.inject.Default;
 import jakarta.inject.Singleton;
-import org.apache.camel.karavan.cache.model.*;
+import org.apache.camel.karavan.model.*;
 import org.jboss.logging.Logger;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
+
+import static org.apache.camel.karavan.service.KaravanService.START_SERVICES;
 
 @Default
 @Singleton
 public class KaravanCacheService {
 
-    private final Config config = new ClasspathYamlConfig("hazelcast.yaml");
-    private final HazelcastInstance hz = Hazelcast.getOrCreateHazelcastInstance(config);
-
+    private HazelcastInstance hz;
     private IMap<GroupedKey, Project> projects;
     private IMap<GroupedKey, ProjectFile> files;
     private IMap<GroupedKey, DeploymentStatus> deploymentStatuses;
@@ -53,14 +57,16 @@ public class KaravanCacheService {
     private IMap<GroupedKey, ServiceStatus> serviceStatuses;
     private IMap<GroupedKey, CamelStatus> camelStatuses;
 
-
     private final AtomicBoolean ready = new AtomicBoolean(false);
     private static final Logger LOGGER = Logger.getLogger(KaravanCacheService.class.getName());
 
     private static final String DEFAULT_ENVIRONMENT = "dev";
 
-    void onStart(@Observes StartupEvent ev) {
+    @ConsumeEvent(value = START_SERVICES, blocking = true, ordered = true)
+    void start(String data) {
         LOGGER.info("KaravanCacheService is starting");
+        Config config = new ClasspathYamlConfig("hazelcast.yaml");
+        hz = Hazelcast.getOrCreateHazelcastInstance(config);
         projects = hz.getMap(Project.CACHE);
         files = hz.getMap(ProjectFile.CACHE);
         deploymentStatuses = hz.getMap(DeploymentStatus.CACHE);
@@ -70,11 +76,11 @@ public class KaravanCacheService {
         camelStatuses = hz.getMap(CamelStatus.CACHE);
         LOGGER.info("KaravanCacheService is started");
         ready.set(true);
-
     }
 
     void onStop(@Observes ShutdownEvent ev) {
-        LOGGER.info("KaravanCacheService is stopped");
+        LOGGER.info("KaravanCacheService is stopping");
+        hz.shutdown();
         ready.set(false);
     }
 

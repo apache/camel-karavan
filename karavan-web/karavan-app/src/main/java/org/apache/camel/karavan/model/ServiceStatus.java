@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.camel.karavan.cache.model;
+package org.apache.camel.karavan.model;
 
 import java.io.Serial;
 import java.io.Serializable;
