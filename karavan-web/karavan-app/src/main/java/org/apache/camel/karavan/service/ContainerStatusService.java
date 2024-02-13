@@ -38,6 +38,7 @@ import java.util.Objects;
 public class ContainerStatusService {
 
     public static final String CONTAINER_STATUS = "CONTAINER_STATUS";
+    public static final String CONTAINER_STATISTIC = "CONTAINER_STATISTIC";
     public static final String CONTAINER_DELETED = "CONTAINER_DELETED";
     private static final Logger LOGGER = Logger.getLogger(ContainerStatusService.class.getName());
     @ConfigProperty(name = "karavan.environment")
@@ -55,10 +56,19 @@ public class ContainerStatusService {
     @Scheduled(every = "{karavan.container.statistics.interval}", concurrentExecution = Scheduled.ConcurrentExecution.SKIP)
     void collectContainersStatistics() {
         if (karavanCacheService.isReady() && !ConfigService.inKubernetes()) {
-            List<ContainerStatus> statusesInDocker = dockerService.collectContainersStatistics();
+            List<ContainerStatus> statusesInDocker = dockerService.collectContainersStatuses();
             statusesInDocker.forEach(containerStatus -> {
-                eventBus.publish(ContainerStatusService.CONTAINER_STATUS, JsonObject.mapFrom(containerStatus));
+                eventBus.publish(ContainerStatusService.CONTAINER_STATISTIC, JsonObject.mapFrom(containerStatus));
             });
+        }
+    }
+
+    @ConsumeEvent(value = CONTAINER_STATISTIC, blocking = true, ordered = false)
+    void collectContainersStatistics(JsonObject data) {
+        if (karavanCacheService.isReady()) {
+            ContainerStatus status = data.mapTo(ContainerStatus.class);
+            ContainerStatus newStatus = dockerService.collectContainerStatistics(status);
+            eventBus.publish(ContainerStatusService.CONTAINER_STATUS, JsonObject.mapFrom(newStatus));
         }
     }
 
@@ -126,7 +136,7 @@ public class ContainerStatusService {
                 return;
             }
         }
-        if (newStatus.getCpuInfo() == null || newStatus.getCpuInfo().isEmpty()) {
+        if (newStatus.getCpuInfo() == null || newStatus.getCpuInfo().isBlank()) {
             newStatus.setCpuInfo(oldStatus.getCpuInfo());
             newStatus.setMemoryInfo(oldStatus.getMemoryInfo());
         }

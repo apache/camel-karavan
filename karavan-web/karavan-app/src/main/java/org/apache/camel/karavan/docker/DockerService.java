@@ -117,6 +117,13 @@ public class DockerService extends DockerServiceUtils {
         return result;
     }
 
+    public ContainerStatus collectContainerStatistics(ContainerStatus containerStatus) {
+        Container container = getContainerByName(containerStatus.getContainerName());
+        Statistics stats = getContainerStats(container.getId());
+        updateStatistics(containerStatus, stats);
+        return containerStatus;
+    }
+
     public void startListeners() {
         getDockerClient().eventsCmd().exec(dockerEventListener);
     }
