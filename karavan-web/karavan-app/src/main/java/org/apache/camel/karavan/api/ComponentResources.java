@@ -43,21 +43,4 @@ public class ComponentResources {
         return codeService.getResourceFile("/components/components.json");
     }
 
-    @GET
-    @Path("/blocklist")
-    public Set<String> blocklist() {
-        return infinispanService.getBlockedComponents();
-    }
-
-    @PUT
-    @Path("/block")
-    public void blockComponent(String componentName) {
-        infinispanService.blockComponent(componentName);
-    }
-
-    @PUT
-    @Path("/unblock")
-    public void unblockComponent(String componentName) {
-        infinispanService.unblockComponent(componentName);
-    }
 }

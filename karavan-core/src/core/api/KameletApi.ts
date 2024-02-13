@@ -99,20 +99,23 @@ export class KameletApi {
             Kamelets.push(kamelet);
         }
     };
+    
     static saveBlockedKameletNames = (names: string[]): void => {
         BlockedKamelets.length = 0;
         BlockedKamelets.push(...names);
     }
-    static saveBlockedKameletName = (name: string, type: 'add' | 'delete') => {
+
+    static saveBlockedKameletName = (name: string, checked: boolean) => {
         const index = BlockedKamelets.indexOf(name);
-        if (type === 'add' && index === -1) {
+        if ( !checked && index === -1) {
             BlockedKamelets.push(name);
         }
-        else if (type === 'delete' && index > -1) {
+        else if ( checked && index > -1) {
             BlockedKamelets.splice(index, 1);
         }
         return BlockedKamelets;
     }
+    
     static getBlockedKameletNames = () => {
         return BlockedKamelets;
     }

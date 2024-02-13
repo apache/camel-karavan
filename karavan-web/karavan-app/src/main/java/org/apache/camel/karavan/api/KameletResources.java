@@ -59,24 +59,6 @@ public class KameletResources {
     }
 
     @GET
-    @Path("/blocklist")
-    public Set<String> blocklist() {
-        return infinispanService.getBlockedKamelets();
-    }
-
-    @PUT
-    @Path("/block")
-    public void blockKamelet(String kameletName) {
-        infinispanService.blockKamelet(kameletName);
-    }
-
-    @PUT
-    @Path("/unblock")
-    public void unblockKamelet(String kameletName) {
-        infinispanService.unblockKamelet(kameletName);
-    }
-
-    @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/names")
     public List<String> getCustomNames() {

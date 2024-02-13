@@ -27,15 +27,18 @@ import { shallow } from "zustand/shallow";
 
 interface Props {
     kamelet: KameletModel,
-    onChange: (name: string, operation: 'block' | 'unblock') => void
-    blockedKamelets: string[]
+    onChange: (name: string, checked: boolean) => void
 }
 
 export function KameletCard(props: Props) {
 
     const [setKamelet, setModalOpen] = useKnowledgebaseStore((s) =>
         [s.setKamelet, s.setModalOpen], shallow)
-
+    const [blockedKamelets, setBlockedKamelets] = useState<string[]>();
+    useEffect(() => {
+        setBlockedKamelets(KameletApi.getBlockedKameletNames());
+    }, []);
+    
     const kamelet = props.kamelet;
     const isCustom = KameletApi.getCustomKameletNames().includes(kamelet.metadata.name);
 
@@ -47,10 +50,11 @@ export function KameletCard(props: Props) {
         }
 
     }
-    function selectKamelet(event: React.FormEvent, checked: Boolean) {
-        props.onChange(kamelet.metadata.name, checked ? 'unblock' : 'block');
+    function selectKamelet(event: React.FormEvent, checked: boolean) {
+        props.onChange(kamelet.metadata.name, checked );
+        setBlockedKamelets([...KameletApi.getBlockedKameletNames()]);
     }
-    const isblockedKamelet = props?.blockedKamelets ? props.blockedKamelets.findIndex(r => r === kamelet.metadata.name) > -1 : false;
+    const isblockedKamelet = blockedKamelets ? blockedKamelets.findIndex(r => r === kamelet.metadata.name) > -1 : false;
     return (
         <Card isCompact key={kamelet.metadata.name} className="kamelet-card"
             onClick={event => click(event)}

@@ -30,9 +30,8 @@ import { shallow } from "zustand/shallow";
 interface Props {
     dark: boolean,
     filter: string,
-    blockedKamelets: string[],
     customOnly: boolean,
-    onChange: (name: string, operation: 'block' | 'unblock') => void
+    onChange: (name: string, checked: boolean) => void
 }
 
 export function KameletsTab(props: Props) {
@@ -52,7 +51,7 @@ export function KameletsTab(props: Props) {
                 variant={dark ? PageSectionVariants.darker : PageSectionVariants.light}>
                 <Gallery hasGutter>
                     {kameletList.map(k => (
-                        <KameletCard key={k.metadata.name} kamelet={k} onChange={props.onChange} blockedKamelets={props.blockedKamelets} />
+                        <KameletCard key={k.metadata.name} kamelet={k} onChange={props.onChange} />
                     ))}
                 </Gallery>
             </PageSection>

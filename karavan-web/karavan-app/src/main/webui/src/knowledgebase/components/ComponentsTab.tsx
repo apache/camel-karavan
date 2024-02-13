@@ -29,8 +29,7 @@ import { useKnowledgebaseStore } from "../KnowledgebaseStore";
 interface Props {
     dark: boolean,
     filter: string,
-    onChange: (name: string, operation: 'block' | 'unblock') => void,
-    blockedComponents: string[]
+    onChange: (name: string, checked: boolean) => void,
 }
 
 export function ComponentsTab(props: Props) {
@@ -51,7 +50,7 @@ export function ComponentsTab(props: Props) {
             <PageSection isFilled className="kamelets-page" variant={props.dark ? PageSectionVariants.darker : PageSectionVariants.light}>
                 <Gallery hasGutter>
                     {components.map(c => (
-                        <ComponentCard key={c.component.name} component={c} onChange={props.onChange} blockedComponents={props.blockedComponents} />
+                        <ComponentCard key={c.component.name} component={c} onChange={props.onChange}  />
                     ))}
                 </Gallery>
             </PageSection>

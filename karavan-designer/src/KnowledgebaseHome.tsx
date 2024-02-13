@@ -6,28 +6,18 @@ interface Props {
     dark: boolean,
 }
 export const KnowledgebaseHome = (props: Props) => {
-    const [blockedKamelets, setBlockedKamelets] = useState<string[]>([]);
-    const [blockedComponents, setBlockedComponents] = useState<string[]>([]);
-    useEffect(() => {
-        const kamelets: string[] = KameletApi.getBlockedKameletNames();
-        setBlockedKamelets([...kamelets]);
-        const components: string[] = ComponentApi.getBlockedComponentNames();
-        setBlockedComponents([...components]);
+   
 
-    }, []);
-
-    const onchangeBlockedList = (type: string, name: string, operation: 'block' | 'unblock') => {
+    const onchangeBlockedList = (type: string, name: string, checked: boolean) => {
         if (type === 'kamelet') {
 
-            const blockedKamelet = KameletApi.saveBlockedKameletName(name, operation === 'block' ? 'add' : 'delete');
-            setBlockedKamelets([...blockedKamelet]);
+            const blockedKamelet = KameletApi.saveBlockedKameletName(name, checked);
         }
         else if (type === 'component') {
-            const blockedComponent = ComponentApi.saveBlockedComponentName(name, operation === 'block' ? 'add' : 'delete');
-            setBlockedComponents([...blockedComponent]);
+            const blockedComponent = ComponentApi.saveBlockedComponentName(name, checked);
         }
     }
     return (
-        <KnowledgebasePage dark={props.dark} changeBlockList={(type: string, name: string, operation: 'block' | 'unblock') => onchangeBlockedList(type, name, operation)} blockedKamelets={blockedKamelets} blockedComponents={blockedComponents} />
+        <KnowledgebasePage dark={props.dark} changeBlockList={(type: string, name: string, checked: boolean) => onchangeBlockedList(type, name, checked)}  />
     );
 }

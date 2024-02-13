@@ -386,39 +386,7 @@ public class InfinispanService implements HealthCheck {
                 .setParameter("env", env)
                 .execute().list();
     }
-
-    public void blockComponent(String componentName) {
-        Set<String> componentsList = getSetting(Settings.BLOCKED_COMPONENTS, new HashSet<>());
-        componentsList.add(componentName);
-        settings.put(Settings.BLOCKED_COMPONENTS, componentsList);
-    }
-
-    public void unblockComponent(String componentName) {
-        Set<String> componentsList = getSetting(Settings.BLOCKED_COMPONENTS, new HashSet<>());
-        componentsList.remove(componentName);
-        settings.put(Settings.BLOCKED_COMPONENTS, componentsList);
-    }
-
-    public Set<String> getBlockedComponents() {
-        return getSetting(Settings.BLOCKED_COMPONENTS, new HashSet<>());
-    }
-
-    public void blockKamelet(String kameletName) {
-        Set<String> kameletList = getSetting(Settings.BLOCKED_KAMELETS, new HashSet<>());
-        kameletList.add(kameletName);
-        settings.put(Settings.BLOCKED_KAMELETS, kameletList);
-    }
-
-    public void unblockKamelet(String kameletName) {
-        Set<String> kameletList = getSetting(Settings.BLOCKED_KAMELETS, new HashSet<>());
-        kameletList.remove(kameletName);
-        settings.put(Settings.BLOCKED_KAMELETS, kameletList);
-    }
-
-    public Set<String> getBlockedKamelets() {
-        return getSetting(Settings.BLOCKED_KAMELETS, new HashSet<>());
-    }
-
+    
     @SuppressWarnings("unchecked")
     public <T> T getSetting(String key, T defaultValue) {
         Object value = settings.get(key);

@@ -27,8 +27,7 @@ import { ComponentApi } from 'karavan-core/lib/api/ComponentApi';
 
 interface Props {
     component: Component,
-    onChange: (name: string, operation: 'block' | 'unblock') => void
-    blockedComponents: string[]
+    onChange: (name: string, checked: boolean) => void
 }
 
 export function ComponentCard(props: Props) {
@@ -36,7 +35,11 @@ export function ComponentCard(props: Props) {
     const [setComponent, setModalOpen] = useKnowledgebaseStore((s) =>
         [s.setComponent, s.setModalOpen], shallow)
     const component = props.component;
-
+    const [blockedComponents, setBlockedComponents] = useState<string[]>();
+    useEffect(() => {
+        setBlockedComponents(ComponentApi.getBlockedComponentNames());
+    }, []);
+    
 
     function click(event: React.MouseEvent) {
         const { target } = event;
@@ -45,10 +48,11 @@ export function ComponentCard(props: Props) {
             setModalOpen(true);
         }
     }
-    function selectComponent(event: React.FormEvent, checked: Boolean) {
-        props.onChange(component.component.name, checked ? 'unblock' : 'block');
+    function selectComponent(event: React.FormEvent, checked: boolean) {
+        props.onChange(component.component.name, checked);
+         setBlockedComponents([...ComponentApi.getBlockedComponentNames()]);
     }
-    const isBlockedComponent = props.blockedComponents ? props.blockedComponents.findIndex(r => r === component.component.name) > -1 : false;
+    const isBlockedComponent = blockedComponents ? blockedComponents.findIndex(r => r === component.component.name) > -1 : false;
     return (
         <Card isCompact key={component.component.name} className="kamelet-card"
             onClick={event => click(event)}>

@@ -46,6 +46,7 @@ export function useMainHook () {
             });
             updateKamelets();
             updateComponents();
+            ProjectService.reloadBlockedTemplates();
             // updateSupportedComponents(); // not implemented yet
         }
     }
@@ -55,10 +56,16 @@ export function useMainHook () {
             ProjectService.reloadKamelets();
         });
     }
-
+ 
+   
     async function updateComponents(): Promise<void> {
         await new Promise(resolve => {
-            ProjectService.reloadComponents();
+            KaravanApi.getComponents(code => {
+                const components: [] = JSON.parse(code);
+                const jsons: string[] = [];
+                components.forEach(c => jsons.push(JSON.stringify(c)));
+                ComponentApi.saveComponents(jsons, true);
+            });
         });
     }
 

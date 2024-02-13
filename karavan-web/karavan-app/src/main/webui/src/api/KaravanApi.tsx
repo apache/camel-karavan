@@ -674,38 +674,6 @@ export class KaravanApi {
         };
         return fetchData();
     }
-    static async getBlockedKameletNames(after: (names: []) => void) {
-        instance.get('/api/kamelet/blocklist')
-            .then(res => {
-                if (res.status === 200) {
-                    after(res.data);
-                }
-            }).catch(err => {
-                console.log(err);
-            });
-    }
-    static async getBlockedComponentNames(after: (names: []) => void) {
-        instance.get('/api/component/blocklist')
-            .then(res => {
-                if (res.status === 200) {
-                    after(res.data);
-                }
-            }).catch(err => {
-                console.log(err);
-            });
-    }
-    static async updateBlockComponent(componentName: string, type: 'block' | 'unblock', after: (res: AxiosResponse<any>) => void) {
-        instance.put('/api/component/' + type, componentName, { headers: { "Content-Type": "text/plain" } }).then(res => {
-            after(res);
-        }).catch(err => {
-            after(err);
-        });
-    }
-    static async updateBlockKamelet(kameletName: string, type: 'block' | 'unblock', after: (res: AxiosResponse<any>) => void) {
-        instance.put('/api/kamelet/' + type, kameletName, { headers: { "Content-Type": "text/plain" } }).then(res => {
-            after(res);
-        }).catch(err => {
-            after(err);
-        });
-    }
+  
+
 }

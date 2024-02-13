@@ -24,9 +24,7 @@ import { ComponentsTab } from "./components/ComponentsTab";
 
 interface Props {
     dark: boolean,
-    changeBlockList: (type: string, name: string, operation: 'block' | 'unblock') => void,
-    blockedKamelets: string[],
-    blockedComponents: string[]
+    changeBlockList: (type: string, name: string, checked: boolean) => void,
 }
 
 export const KnowledgebasePage = (props: Props) => {
@@ -79,9 +77,9 @@ export const KnowledgebasePage = (props: Props) => {
                 </Flex>
             </PageSection>
             <>
-                {tab === 'kamelets' && <KameletsTab dark={props.dark} filter={filter} customOnly={customOnly} onChange={(name: string, operation: 'block' | 'unblock') => props.changeBlockList('kamelet', name, operation)} blockedKamelets={props.blockedKamelets} />}
+                {tab === 'kamelets' && <KameletsTab dark={props.dark} filter={filter} customOnly={customOnly} onChange={(name: string, checked: boolean) => props.changeBlockList('kamelet', name, checked)}  />}
                 {tab === 'eip' && <EipTab dark={props.dark} filter={filter} />}
-                {tab === 'components' && <ComponentsTab dark={props.dark} filter={filter} onChange={(name: string, operation: 'block' | 'unblock') => props.changeBlockList('component', name, operation)} blockedComponents={props.blockedComponents} />}
+                {tab === 'components' && <ComponentsTab dark={props.dark} filter={filter} onChange={(name: string, checked: boolean) => props.changeBlockList('component', name, checked)}  />}
             </>
         </PageSection>
     )

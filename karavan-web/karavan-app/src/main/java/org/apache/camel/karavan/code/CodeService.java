@@ -87,6 +87,7 @@ public class CodeService {
     @Inject
     Vertx vertx;
 
+    List<String> blockList = List.of("components-blocklist.txt", "kamelets-blocklist.txt");
     List<String> beansTemplates = List.of("database", "messaging");
     List<String> targets = List.of("openshift", "kubernetes", "docker");
     List<String> interfaces = List.of("org.apache.camel.AggregationStrategy.java", "org.apache.camel.Processor.java");
@@ -197,6 +198,7 @@ public class CodeService {
         List<String> files = new ArrayList<>(interfaces);
         files.addAll(targets.stream().map(target -> target + "-" + APPLICATION_PROPERTIES_FILENAME).toList());
         files.addAll(targets.stream().map(target ->  target + "-" + BUILD_SCRIPT_FILENAME).toList());
+        files.addAll(blockList);
 
         files.addAll(getBeanTemplateNames());
 

@@ -137,23 +137,7 @@ export class ProjectService {
         KaravanApi.getCustomKameletNames(names => {
             KameletApi.saveCustomKameletNames(names);
         })
-        KaravanApi.getBlockedKameletNames(names => {
-            KameletApi.saveBlockedKameletNames(names);
-        })
     }
-
-    public static reloadComponents() {
-        KaravanApi.getComponents(code => {
-            const components: [] = JSON.parse(code);
-            const jsons: string[] = [];
-            components.forEach(c => jsons.push(JSON.stringify(c)));
-            ComponentApi.saveComponents(jsons, true);
-        });
-        KaravanApi.getBlockedComponentNames(names => {
-            ComponentApi.saveBlockedComponentNames(names); 
-        });
-    }
-
     public static updateFile(file: ProjectFile, active: boolean) {
         KaravanApi.putProjectFile(file, res => {
             if (res.status === 200) {
@@ -313,5 +297,18 @@ export class ProjectService {
         KaravanApi.getImages(projectId, (images: []) => {
             useProjectStore.setState({images: images})
         });
+    }
+    
+    public static reloadBlockedTemplates() {
+      KaravanApi.getTemplatesFiles((files: ProjectFile[]) => {
+            files.filter(f => f.name.endsWith('blocklist.txt')).forEach(file => {
+                if (file.name === 'components-blocklist.txt') {
+                    ComponentApi.saveBlockedComponentNames(file.code.split(/\r?\n/));
+                }
+                else if (file.name === "kamelets-blocklist.txt") {
+                    KameletApi.saveBlockedKameletNames(file.code.split(/\r?\n/));
+                }
+            });
+       });
     }
 }

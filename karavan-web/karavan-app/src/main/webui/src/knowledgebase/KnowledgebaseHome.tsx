@@ -3,45 +3,40 @@ import { KnowledgebasePage } from "./KnowledgebasePage"
 import { ComponentApi } from "karavan-core/lib/api/ComponentApi";
 import { KaravanApi } from "../api/KaravanApi";
 import { useState, useEffect } from "react";
+import { ProjectFile } from "../api/ProjectModels";
+import { ProjectService } from "../api/ProjectService";
 interface Props {
     dark: boolean,
 }
 export const KnowledgebaseHome = (props: Props) => {
-    const [blockedKamelets, setBlockedKamelets] = useState<string[]>([]);
-    const [blockedComponents, setBlockedComponents] = useState<string[]>([]);
+
+    const [blockList, setBlockList] = useState<ProjectFile[]>();
+
     useEffect(() => {
-        const kamelets: string[] = KameletApi.getBlockedKameletNames();
-        setBlockedKamelets([...kamelets]);
-        const components: string[] = ComponentApi.getBlockedComponentNames();
-        setBlockedComponents([...components]);
-
+        KaravanApi.getTemplatesFiles((files:ProjectFile[]) => {
+            setBlockList([...(files.filter(f => f.name.endsWith('blocklist.txt')))]);
+        });
     }, []);
-    const onchangeBlockedList = (type: string, name: string, operation: 'block' | 'unblock') => {
-        if (type === 'component') {
-            KaravanApi.updateBlockComponent(name, operation, res => {
-                if (res.status === 204) {
-                    console.log(res);
-                    const blockedComponent = ComponentApi.saveBlockedComponentName(name, operation === 'block' ? 'add' : 'delete');
-                    setBlockedComponents([...blockedComponent]);
-                } else {
-                    // console.log(res) //TODO show notification
-                }
-            })
-        }
-        else if (type === 'kamelet') {
-            KaravanApi.updateBlockKamelet(name, operation, res => {
-                if (res.status === 204) {
-                    console.log(res);
-                    const blockedKamelet = KameletApi.saveBlockedKameletName(name, operation === 'block' ? 'add' : 'delete');
-                    setBlockedKamelets([...blockedKamelet]);
-                } else {
-                    // console.log(res) //TODO show notification
-                }
-            })
-        }
 
+    const onChangeBlockedList = async (type: string, name: string, checked: boolean) => {
+
+        let file: ProjectFile | undefined;
+        let fileContent = '';
+        if (type === "component") {
+            file = blockList?.find(obj => obj.name === 'components-blocklist.txt');
+            fileContent = ComponentApi.saveBlockedComponentName(name, checked).join('\n');
+        } else {
+            file = blockList?.find(obj => obj.name === 'kamelets-blocklist.txt');
+            const res = KameletApi.saveBlockedKameletName(name, checked);
+            fileContent = res.join('\n');
+        }
+        if (file) {
+            file.code = fileContent;
+            ProjectService.updateFile(file, false);
+        }
     }
+
     return (
-        <KnowledgebasePage dark={props.dark} changeBlockList={(type: string, name: string, operation: 'block' | 'unblock') => onchangeBlockedList(type, name, operation)} blockedKamelets={blockedKamelets} blockedComponents={blockedComponents} />
+        <KnowledgebasePage dark={props.dark} changeBlockList={(type: string, name: string, checked: boolean) => onChangeBlockedList(type, name, checked)} />
     );
 }
