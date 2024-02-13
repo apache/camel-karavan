@@ -62,7 +62,7 @@ public class KaravanCacheService {
 
     private static final String DEFAULT_ENVIRONMENT = "dev";
 
-    @ConsumeEvent(value = START_SERVICES, blocking = true, ordered = true)
+    @ConsumeEvent(value = START_SERVICES, blocking = true)
     void start(String data) {
         LOGGER.info("KaravanCacheService is starting");
         Config config = new ClasspathYamlConfig("hazelcast.yaml");
