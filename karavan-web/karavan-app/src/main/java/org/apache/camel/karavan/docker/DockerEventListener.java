@@ -23,8 +23,7 @@ import com.github.dockerjava.api.model.Event;
 import com.github.dockerjava.api.model.EventType;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import org.apache.camel.karavan.infinispan.InfinispanService;
-import org.apache.camel.karavan.infinispan.model.ContainerStatus;
+import org.apache.camel.karavan.cache.model.ContainerStatus;
 import org.apache.camel.karavan.registry.RegistryService;
 import org.jboss.logging.Logger;
 
@@ -42,9 +41,6 @@ public class DockerEventListener implements ResultCallback<Event> {
 
     @Inject
     RegistryService registryService;
-
-    @Inject
-    InfinispanService infinispanService;
 
     private static final Logger LOGGER = Logger.getLogger(DockerEventListener.class.getName());
 
@@ -68,13 +64,11 @@ public class DockerEventListener implements ResultCallback<Event> {
     }
 
     public void onContainerEvent(Event event, Container container) throws InterruptedException {
-        if (infinispanService.isReady()) {
-            if ("exited".equalsIgnoreCase(container.getState())
-                    && Objects.equals(container.getLabels().get(LABEL_TYPE), ContainerStatus.ContainerType.build.name())) {
-                String tag = container.getLabels().get(LABEL_TAG);
-                String projectId = container.getLabels().get(LABEL_PROJECT_ID);
-                syncImage(projectId, tag);
-            }
+        if ("exited".equalsIgnoreCase(container.getState())
+                && Objects.equals(container.getLabels().get(LABEL_TYPE), ContainerStatus.ContainerType.build.name())) {
+            String tag = container.getLabels().get(LABEL_TAG);
+            String projectId = container.getLabels().get(LABEL_PROJECT_ID);
+            syncImage(projectId, tag);
         }
     }
 

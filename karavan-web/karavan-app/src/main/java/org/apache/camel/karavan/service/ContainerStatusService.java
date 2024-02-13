@@ -23,9 +23,9 @@ import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.json.JsonObject;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import org.apache.camel.karavan.cache.KaravanCacheService;
+import org.apache.camel.karavan.cache.model.ContainerStatus;
 import org.apache.camel.karavan.docker.DockerService;
-import org.apache.camel.karavan.infinispan.InfinispanService;
-import org.apache.camel.karavan.infinispan.model.ContainerStatus;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
@@ -44,7 +44,7 @@ public class ContainerStatusService {
     String environment;
 
     @Inject
-    InfinispanService infinispanService;
+    KaravanCacheService karavanCacheService;
 
     @Inject
     DockerService dockerService;
@@ -54,7 +54,7 @@ public class ContainerStatusService {
 
     @Scheduled(every = "{karavan.container.statistics.interval}", concurrentExecution = Scheduled.ConcurrentExecution.SKIP)
     void collectContainersStatistics() {
-        if (infinispanService.isReady() && !ConfigService.inKubernetes()) {
+        if (karavanCacheService.isReady() && !ConfigService.inKubernetes()) {
             List<ContainerStatus> statusesInDocker = dockerService.collectContainersStatistics();
             statusesInDocker.forEach(containerStatus -> {
                 eventBus.publish(ContainerStatusService.CONTAINER_STATUS, JsonObject.mapFrom(containerStatus));
@@ -64,7 +64,7 @@ public class ContainerStatusService {
 
     @Scheduled(every = "{karavan.container.status.interval}", concurrentExecution = Scheduled.ConcurrentExecution.SKIP)
     void collectContainersStatuses() {
-        if (infinispanService.isReady() && !ConfigService.inKubernetes()) {
+        if (karavanCacheService.isReady() && !ConfigService.inKubernetes()) {
             if (!ConfigService.inKubernetes()) {
                 List<ContainerStatus> statusesInDocker = dockerService.collectContainersStatuses();
                 statusesInDocker.forEach(containerStatus -> {
@@ -76,17 +76,17 @@ public class ContainerStatusService {
     }
 
     void cleanContainersStatuses(List<ContainerStatus> statusesInDocker) {
-        if (infinispanService.isReady() && !ConfigService.inKubernetes()) {
+        if (karavanCacheService.isReady() && !ConfigService.inKubernetes()) {
             List<String> namesInDocker = statusesInDocker.stream().map(ContainerStatus::getContainerName).toList();
-            List<ContainerStatus> statusesInInfinispan = infinispanService.getContainerStatuses(environment);
+            List<ContainerStatus> statusesInCache = karavanCacheService.getContainerStatuses(environment);
             // clean deleted
-            statusesInInfinispan.stream()
+            statusesInCache.stream()
                     .filter(cs -> !checkTransit(cs))
                     .filter(cs -> !namesInDocker.contains(cs.getContainerName()))
                     .forEach(containerStatus -> {
                         eventBus.publish(ContainerStatusService.CONTAINER_DELETED, JsonObject.mapFrom(containerStatus));
-                        infinispanService.deleteContainerStatus(containerStatus);
-                        infinispanService.deleteCamelStatuses(containerStatus.getProjectId(), containerStatus.getEnv());
+                        karavanCacheService.deleteContainerStatus(containerStatus);
+                        karavanCacheService.deleteCamelStatuses(containerStatus.getProjectId(), containerStatus.getEnv());
                     });
         }
     }
@@ -100,12 +100,12 @@ public class ContainerStatusService {
 
     @ConsumeEvent(value = CONTAINER_STATUS, blocking = true, ordered = true)
     public void saveContainerStatus(JsonObject data) {
-        if (infinispanService.isReady()) {
+        if (karavanCacheService.isReady()) {
             ContainerStatus newStatus = data.mapTo(ContainerStatus.class);
-            ContainerStatus oldStatus = infinispanService.getContainerStatus(newStatus.getProjectId(), newStatus.getEnv(), newStatus.getContainerName());
+            ContainerStatus oldStatus = karavanCacheService.getContainerStatus(newStatus.getProjectId(), newStatus.getEnv(), newStatus.getContainerName());
 
             if (oldStatus == null) {
-                infinispanService.saveContainerStatus(newStatus);
+                karavanCacheService.saveContainerStatus(newStatus);
             } else if (Objects.equals(oldStatus.getInTransit(), Boolean.FALSE)) {
                 saveContainerStatus(newStatus, oldStatus);
             } else if (Objects.equals(oldStatus.getInTransit(), Boolean.TRUE)) {
@@ -130,6 +130,6 @@ public class ContainerStatusService {
             newStatus.setCpuInfo(oldStatus.getCpuInfo());
             newStatus.setMemoryInfo(oldStatus.getMemoryInfo());
         }
-        infinispanService.saveContainerStatus(newStatus);
+        karavanCacheService.saveContainerStatus(newStatus);
     }
 }

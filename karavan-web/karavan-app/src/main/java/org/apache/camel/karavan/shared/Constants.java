@@ -42,6 +42,13 @@ public class Constants {
     public static final String KNOWN_HOSTS_SECRET_KEY = "known-hosts";
     public static final String BUILD_SCRIPT_FILENAME_SUFFIX = "-build.sh";
 
+    public static final String NOTIFICATION_ADDRESS_SYSTEM = "karavanSystem";
+    public static final String NOTIFICATION_HEADER_EVENT_ID = "id";
+    public static final String NOTIFICATION_HEADER_EVENT_NAME = "eventName";
+    public static final String NOTIFICATION_HEADER_CLASS_NAME = "className";
+
+    public static final String NOTIFICATION_EVENT_COMMIT = "commit";
+
     public enum CamelRuntime {
         CAMEL_MAIN("camel-main"),
         QUARKUS("quarkus"),

@@ -29,6 +29,7 @@ export function useMainHook () {
 
     const [setConfig] = useAppConfigStore((state) => [state.setConfig], shallow)
     const [setContainers] = useStatusesStore((state) => [state.setContainers], shallow);
+    const [selectedEnv, selectEnvironment] = useAppConfigStore((state) => [state.selectedEnv, state.selectEnvironment], shallow)
 
     const getStatuses = () =>  {
         if (KaravanApi.isAuthorized || KaravanApi.authType === 'public') {
@@ -42,6 +43,9 @@ export function useMainHook () {
         if (KaravanApi.isAuthorized || KaravanApi.authType === 'public') {
             KaravanApi.getConfiguration((config: AppConfig) => {
                 setConfig(config);
+                if (!selectedEnv || selectedEnv.length == 0) {
+                    selectEnvironment(config.environment, true);
+                }
                 InfrastructureAPI.infrastructure = config.infrastructure;
             });
             updateKamelets();

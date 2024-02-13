@@ -41,7 +41,8 @@ import UpdateIcon from "@patternfly/react-icons/dist/esm/icons/cog-icon";
 import RefreshIcon from "@patternfly/react-icons/dist/esm/icons/sync-alt-icon";
 import {ProjectType} from "../../api/ProjectModels";
 import {KaravanApi} from "../../api/KaravanApi";
-import {EventBus} from "../../designer/utils/EventBus";
+import {DslPosition, EventBus} from "../../designer/utils/EventBus";
+import {KaravanEvent, NotificationEventBus} from "../../api/NotificationService";
 
 export function FileToolbar () {
 
@@ -49,17 +50,28 @@ export function FileToolbar () {
     const [commitMessageIsOpen, setCommitMessageIsOpen] = useState(false);
     const [pullIsOpen, setPullIsOpen] = useState(false);
     const [commitMessage, setCommitMessage] = useState('');
-    const [project, isPushing, isPulling] = useProjectStore((s) => [s.project, s.isPushing, s.isPulling], shallow )
+    const [project, isPushing, isPulling] =
+        useProjectStore((s) => [s.project, s.isPushing, s.isPulling], shallow )
     const {files} = useFilesStore();
     const [file, editAdvancedProperties, setEditAdvancedProperties, setAddProperty, setFile] = useFileStore((s) =>
         [s.file, s.editAdvancedProperties, s.setEditAdvancedProperties, s.setAddProperty, s.setFile], shallow )
 
+    // useEffect(() => {
+    //     const sub1 = NotificationEventBus.onEvent()?.subscribe((evt: KaravanEvent) => {
+    //         console.log(evt);
+    //         setIsPushing(false);
+    //     });
+    //     return () => {
+    //         sub1?.unsubscribe();
+    //     };
+    // });
 
     useEffect(() => {
     }, [project, file]);
 
     function push () {
         setCommitMessageIsOpen(false);
+        useProjectStore.setState({isPushing: true});
         ProjectService.pushProject(project, commitMessage);
     }
 

@@ -59,12 +59,6 @@ public class CommandUtils {
             log("Namespace " + config.getNamespace() + " already exists");
         }
 
-        // Check and install Infinispan
-        if (!isInfinispanInstalled(client, config) && config.isInstallInfinispan()) {
-            logError("Infinispan is not installed");
-            installInfinispan(config, client);
-        }
-
         // Check and install Gitea
         if (config.isInstallGitea()) {
             installGitea(config, client);
@@ -173,19 +167,6 @@ public class CommandUtils {
         }
     }
 
-    private static void installInfinispan(KaravanCommand config, KubernetesClient client) {
-        System.out.print("⏳ Installing Infinispan ");
-        String yaml = getResourceFile("/infinispan.yaml");
-        String resource = yaml
-                .replace("$INFINISPAN_PASSWORD", config.getInfinispanPassword())
-                .replace("$INFINISPAN_IMAGE", config.getInfinispanImage());
-
-        client.load(new ByteArrayInputStream(resource.getBytes())).inNamespace(config.getNamespace())
-                .create().forEach(hasMetadata -> System.out.print("\uD83D\uDC2B "));
-        System.out.println();
-        log("Infinispan is installed");
-    }
-
     private static void installGitea(KaravanCommand config, KubernetesClient client) {
         System.out.print("⏳ Installing Gitea ");
         Arrays.stream(new String[] { "init.yaml", "config.yaml", "deployment.yaml", "service.yaml" }).forEach(s -> {
@@ -195,12 +176,6 @@ public class CommandUtils {
         });
         System.out.println();
         log("Gitea is installed");
-    }
-
-    private static boolean isInfinispanInstalled(KubernetesClient client, KaravanCommand config) {
-        Service service = client.services().inNamespace(config.getNamespace()).withName("infinispan").get();
-        StatefulSet set = client.apps().statefulSets().inNamespace(config.getNamespace()).withName("infinispan").get();
-        return service != null && set != null;
     }
 
     public static void log(String emoji, String message) {

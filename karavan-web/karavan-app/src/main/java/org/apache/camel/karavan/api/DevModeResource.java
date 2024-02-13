@@ -22,10 +22,10 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import org.apache.camel.karavan.cache.KaravanCacheService;
+import org.apache.camel.karavan.cache.model.ContainerStatus;
+import org.apache.camel.karavan.cache.model.Project;
 import org.apache.camel.karavan.docker.DockerService;
-import org.apache.camel.karavan.infinispan.InfinispanService;
-import org.apache.camel.karavan.infinispan.model.ContainerStatus;
-import org.apache.camel.karavan.infinispan.model.Project;
 import org.apache.camel.karavan.kubernetes.KubernetesService;
 import org.apache.camel.karavan.service.CamelService;
 import org.apache.camel.karavan.service.ConfigService;
@@ -47,7 +47,7 @@ public class DevModeResource {
     CamelService camelService;
 
     @Inject
-    InfinispanService infinispanService;
+    KaravanCacheService karavanCacheService;
 
     @Inject
     KubernetesService kubernetesService;
@@ -90,7 +90,7 @@ public class DevModeResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/reload/{projectId}")
     public Response reload(@PathParam("projectId") String projectId) {
-        if (infinispanService.isReady()) {
+        if (karavanCacheService.isReady()) {
             camelService.reloadProjectCode(projectId);
             return Response.ok().build();
         } else {
@@ -113,7 +113,7 @@ public class DevModeResource {
     }
 
     private void setContainerStatusTransit(String name, String type) {
-        ContainerStatus status = infinispanService.getContainerStatus(name, environment, name);
+        ContainerStatus status = karavanCacheService.getContainerStatus(name, environment, name);
         if (status == null) {
             status = ContainerStatus.createByType(name, environment, ContainerStatus.ContainerType.valueOf(type));
         }
@@ -125,8 +125,8 @@ public class DevModeResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/container/{projectId}")
     public Response getPodStatus(@PathParam("projectId") String projectId) throws RuntimeException {
-        if (infinispanService.isReady()) {
-            ContainerStatus cs = infinispanService.getDevModeContainerStatus(projectId, environment);
+        if (karavanCacheService.isReady()) {
+            ContainerStatus cs = karavanCacheService.getDevModeContainerStatus(projectId, environment);
             if (cs != null) {
                 return Response.ok(cs).build();
             } else {

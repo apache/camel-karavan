@@ -24,8 +24,8 @@ import io.fabric8.kubernetes.api.model.ResourceRequirements;
 import io.fabric8.kubernetes.client.informers.ResourceEventHandler;
 import io.vertx.core.json.JsonObject;
 import io.vertx.mutiny.core.eventbus.EventBus;
-import org.apache.camel.karavan.infinispan.InfinispanService;
-import org.apache.camel.karavan.infinispan.model.ContainerStatus;
+import org.apache.camel.karavan.cache.KaravanCacheService;
+import org.apache.camel.karavan.cache.model.ContainerStatus;
 import org.jboss.logging.Logger;
 
 import java.util.List;
@@ -38,12 +38,12 @@ import static org.apache.camel.karavan.shared.Constants.*;
 public class PodEventHandler implements ResourceEventHandler<Pod> {
 
     private static final Logger LOGGER = Logger.getLogger(PodEventHandler.class.getName());
-    private final InfinispanService infinispanService;
+    private final KaravanCacheService karavanCacheService;
     private final KubernetesService kubernetesService;
     private final EventBus eventBus;
 
-    public PodEventHandler(InfinispanService infinispanService, KubernetesService kubernetesService, EventBus eventBus) {
-        this.infinispanService = infinispanService;
+    public PodEventHandler(KaravanCacheService karavanCacheService, KubernetesService kubernetesService, EventBus eventBus) {
+        this.karavanCacheService = karavanCacheService;
         this.kubernetesService = kubernetesService;
         this.eventBus = eventBus;
     }
@@ -82,8 +82,8 @@ public class PodEventHandler implements ResourceEventHandler<Pod> {
             LOGGER.info("onDelete " + pod.getMetadata().getName());
             String deployment = pod.getMetadata().getLabels().get("app");
             String projectId = deployment != null ? deployment : pod.getMetadata().getLabels().get(LABEL_PROJECT_ID);
-            infinispanService.deleteContainerStatus(projectId, kubernetesService.environment, pod.getMetadata().getName());
-            infinispanService.deleteCamelStatuses(projectId, kubernetesService.environment);
+            karavanCacheService.deleteContainerStatus(projectId, kubernetesService.environment, pod.getMetadata().getName());
+            karavanCacheService.deleteCamelStatuses(projectId, kubernetesService.environment);
         } catch (Exception e) {
             LOGGER.error(e.getMessage(), e.getCause());
         }

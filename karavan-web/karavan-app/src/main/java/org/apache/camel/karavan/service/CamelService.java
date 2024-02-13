@@ -26,11 +26,11 @@ import io.vertx.mutiny.ext.web.client.HttpResponse;
 import io.vertx.mutiny.ext.web.client.WebClient;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import org.apache.camel.karavan.cache.KaravanCacheService;
+import org.apache.camel.karavan.cache.model.CamelStatus;
+import org.apache.camel.karavan.cache.model.CamelStatusValue;
+import org.apache.camel.karavan.cache.model.ContainerStatus;
 import org.apache.camel.karavan.code.CodeService;
-import org.apache.camel.karavan.infinispan.InfinispanService;
-import org.apache.camel.karavan.infinispan.model.CamelStatus;
-import org.apache.camel.karavan.infinispan.model.CamelStatusValue;
-import org.apache.camel.karavan.infinispan.model.ContainerStatus;
 import org.apache.camel.karavan.kubernetes.KubernetesService;
 import org.apache.camel.karavan.shared.Constants;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -48,7 +48,7 @@ public class CamelService {
     public static final String RELOAD_PROJECT_CODE = "RELOAD_PROJECT_CODE";
 
     @Inject
-    InfinispanService infinispanService;
+    KaravanCacheService karavanCacheService;
 
     @Inject
     CodeService codeService;
@@ -80,8 +80,8 @@ public class CamelService {
     @Scheduled(every = "{karavan.camel.status.interval}", concurrentExecution = Scheduled.ConcurrentExecution.SKIP)
     public void collectCamelStatuses() {
         LOGGER.debug("Collect Camel Statuses");
-        if (infinispanService.isReady()) {
-            infinispanService.getContainerStatuses(environment).stream()
+        if (karavanCacheService.isReady()) {
+            karavanCacheService.getContainerStatuses(environment).stream()
                     .filter(cs ->
                             cs.getType() == ContainerStatus.ContainerType.project
                                     || cs.getType() == ContainerStatus.ContainerType.devmode
@@ -103,7 +103,7 @@ public class CamelService {
             Map<String, String> files = codeService.getProjectFilesForDevMode(projectId, true);
             files.forEach((name, code) -> putRequest(projectId, name, code, 1000));
             reloadRequest(projectId);
-            ContainerStatus containerStatus = infinispanService.getDevModeContainerStatus(projectId, environment);
+            ContainerStatus containerStatus = karavanCacheService.getDevModeContainerStatus(projectId, environment);
             containerStatus.setCodeLoaded(true);
             eventBus.publish(ContainerStatusService.CONTAINER_STATUS, JsonObject.mapFrom(containerStatus));
         } catch (Exception ex) {
@@ -191,7 +191,7 @@ public class CamelService {
             }
         });
         CamelStatus cs = new CamelStatus(projectId, containerName, statuses, environment);
-        infinispanService.saveCamelStatus(cs);
+        karavanCacheService.saveCamelStatus(cs);
     }
 
     @CircuitBreaker(requestVolumeThreshold = 10, failureRatio = 0.5, delay = 1000)

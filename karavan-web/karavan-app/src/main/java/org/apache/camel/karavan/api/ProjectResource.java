@@ -22,11 +22,11 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.apache.camel.karavan.docker.DockerService;
 import org.apache.camel.karavan.git.GitService;
-import org.apache.camel.karavan.infinispan.InfinispanService;
-import org.apache.camel.karavan.infinispan.model.CamelStatus;
-import org.apache.camel.karavan.infinispan.model.CamelStatusValue;
-import org.apache.camel.karavan.infinispan.model.ContainerStatus;
-import org.apache.camel.karavan.infinispan.model.Project;
+import org.apache.camel.karavan.cache.KaravanCacheService;
+import org.apache.camel.karavan.cache.model.CamelStatus;
+import org.apache.camel.karavan.cache.model.CamelStatusValue;
+import org.apache.camel.karavan.cache.model.ContainerStatus;
+import org.apache.camel.karavan.cache.model.Project;
 import org.apache.camel.karavan.kubernetes.KubernetesService;
 import org.apache.camel.karavan.service.ConfigService;
 import org.apache.camel.karavan.service.ProjectService;
@@ -42,7 +42,7 @@ public class ProjectResource {
     private static final Logger LOGGER = Logger.getLogger(ProjectResource.class.getName());
 
     @Inject
-    InfinispanService infinispanService;
+    KaravanCacheService karavanCacheService;
 
     @Inject
     KubernetesService kubernetesService;
@@ -75,7 +75,7 @@ public class ProjectResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/{project}")
     public Project get(@PathParam("project") String project) throws Exception {
-        return infinispanService.getProject(project);
+        return karavanCacheService.getProject(project);
     }
 
     @POST
@@ -98,9 +98,9 @@ public class ProjectResource {
             LOGGER.info("Deleting deployments");
             Response res4 = infrastructureResource.deleteDeployment(null, projectId);
         }
-        gitService.deleteProject(projectId, infinispanService.getProjectFiles(projectId));
-        infinispanService.getProjectFiles(projectId).forEach(file -> infinispanService.deleteProjectFile(projectId, file.getName()));
-        infinispanService.deleteProject(projectId);
+        gitService.deleteProject(projectId, karavanCacheService.getProjectFiles(projectId));
+        karavanCacheService.getProjectFiles(projectId).forEach(file -> karavanCacheService.deleteProjectFile(projectId, file.getName()));
+        karavanCacheService.deleteProject(projectId);
         LOGGER.info("Project deleted");
     }
 
@@ -136,7 +136,7 @@ public class ProjectResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/status/camel/{projectId}/{env}")
     public Response getCamelStatusForProjectAndEnv(@PathParam("projectId") String projectId, @PathParam("env") String env) {
-        List<CamelStatus> statuses = infinispanService.getCamelStatusesByProjectAndEnv(projectId, env)
+        List<CamelStatus> statuses = karavanCacheService.getCamelStatusesByProjectAndEnv(projectId, env)
                 .stream().map(camelStatus -> {
                     var stats = camelStatus.getStatuses().stream().filter(s -> !Objects.equals(s.getName(), CamelStatusValue.Name.trace)).toList();
                     camelStatus.setStatuses(stats);
@@ -153,7 +153,7 @@ public class ProjectResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/traces/{projectId}/{env}")
     public Response getCamelTracesForProjectAndEnv(@PathParam("projectId") String projectId, @PathParam("env") String env) {
-        List<CamelStatus> statuses = infinispanService.getCamelStatusesByProjectAndEnv(projectId, env)
+        List<CamelStatus> statuses = karavanCacheService.getCamelStatusesByProjectAndEnv(projectId, env)
                 .stream().map(camelStatus -> {
                     var stats = camelStatus.getStatuses().stream().filter(s -> Objects.equals(s.getName(), CamelStatusValue.Name.trace)).toList();
                     camelStatus.setStatuses(stats);

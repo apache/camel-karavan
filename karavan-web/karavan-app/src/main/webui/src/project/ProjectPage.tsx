@@ -62,6 +62,7 @@ export function ProjectPage() {
         const interval = setInterval(() => {
             if (tabIndex === 'build' || tabIndex === 'container') {
                 ProjectService.refreshAllContainerStatuses();
+                ProjectService.refreshAllDeploymentStatuses();
                 ProjectService.refreshImages(project.projectId);
             }
         }, 2000)

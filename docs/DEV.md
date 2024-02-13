@@ -73,7 +73,6 @@ Docker Engine 24+
 ```
 # Local
 %local.karavan.image-registry=localhost:5000
-%local.karavan.infinispan.hosts=localhost:11222
 %local.karavan.git-repository=http://localhost:3000/karavan/karavan.git
 %local.karavan.image-registry-install=true
 %local.karavan.git-install-gitea=true

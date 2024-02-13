@@ -23,15 +23,15 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import org.apache.camel.karavan.cache.KaravanCacheService;
 import org.apache.camel.karavan.code.CodeService;
-import org.apache.camel.karavan.infinispan.InfinispanService;
 import org.apache.camel.karavan.kubernetes.KubernetesService;
 
 @Path("/api/build")
 public class BuildResource {
 
     @Inject
-    InfinispanService infinispanService;
+    KaravanCacheService karavanCacheService;
 
     @Inject
     KubernetesService kubernetesService;
@@ -44,7 +44,7 @@ public class BuildResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/update-config-map")
     public Response updateConfigMaps() {
-        if (infinispanService.isReady()) {
+        if (karavanCacheService.isReady()) {
             String script = codeService.getBuilderScript();
             kubernetesService.createBuildScriptConfigmap(script, true);
             return Response.ok().build();
