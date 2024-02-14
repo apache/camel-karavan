@@ -31,10 +31,11 @@ import {
 } from '@patternfly/react-topology';
 import {customComponentFactory, getModel} from "./TopologyApi";
 import {shallow} from "zustand/shallow";
-import {IntegrationFile, useTopologyStore} from "./TopologyStore";
+import {useTopologyStore} from "./TopologyStore";
 import {TopologyPropertiesPanel} from "./TopologyPropertiesPanel";
 import {TopologyToolbar} from "./TopologyToolbar";
 import {useDesignerStore} from "../designer/DesignerStore";
+import {IntegrationFile} from "karavan-core/lib/model/IntegrationDefinition";
 
 interface Props {
     files: IntegrationFile[],
@@ -137,7 +138,7 @@ export function TopologyTab(props: Props) {
         });
     }, [ranker, controller, setRanker]);
 
-        return (
+    return (
         <TopologyView
             className="topology-panel"
             contextToolbar={!props.hideToolbar

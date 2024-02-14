@@ -28,7 +28,7 @@ import DownloadImageIcon from "@patternfly/react-icons/dist/esm/icons/image-icon
 import GithubImageIcon from "@patternfly/react-icons/dist/esm/icons/github-icon";
 import UploadIcon from "@patternfly/react-icons/dist/esm/icons/upload-icon";
 import {KaravanDesigner} from "../designer/KaravanDesigner";
-import Editor from "@monaco-editor/react";
+import {IntegrationFile} from "karavan-core/lib/model/IntegrationDefinition";
 import {UploadModal} from "./UploadModal";
 import {EventBus} from "../designer/utils/EventBus";
 
@@ -111,9 +111,10 @@ export class SpacePage extends React.Component<Props, State> {
                 propertyPlaceholders={[]}
                 beans={[]}
                 onSavePropertyPlaceholder={(key, value) => {}}
-                onInternalConsumerClick={(uri, name) => {
-                    console.log("onInternalConsumerClick", uri, name)
+                onInternalConsumerClick={(uri?: string, name?: string, routeId?: string) => {
+                    console.log("onInternalConsumerClick", uri, name, routeId)
                 }}
+                files={[new IntegrationFile("example.camel.yaml", yaml)]}
             />
         )
     }
