@@ -44,7 +44,7 @@
             id: to-2df4
             uri: direct
             parameters:
-              name: first-firect
+              name: second_direct
         - to:
             id: to-e017
             uri: direct
@@ -57,6 +57,12 @@
       uri: direct
       parameters:
         name: first-firect
+      steps:
+        - to:
+            id: to-5c86
+            uri: direct
+            parameters:
+              name: second_direct
 - route:
     id: second_direct
     from:

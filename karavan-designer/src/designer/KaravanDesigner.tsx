@@ -48,7 +48,7 @@ interface Props {
     onSaveCustomCode: (name: string, code: string) => void
     onGetCustomCode: (name: string, javaType: string) => Promise<string | undefined>
     onSavePropertyPlaceholder: (key: string, value: string) => void
-    onInternalConsumerClick: (uri: string, name: string) => void
+    onInternalConsumerClick: (uri: string, name: string, direction: 'from' | 'to') => void
     filename: string
     yaml: string
     dark: boolean

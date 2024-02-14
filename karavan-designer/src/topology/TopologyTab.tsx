@@ -37,7 +37,6 @@ import {TopologyToolbar} from "./TopologyToolbar";
 import {useDesignerStore} from "../designer/DesignerStore";
 
 interface Props {
-    files: IntegrationFile[],
     onSetFile: (fileName: string) => void
     hideToolbar: boolean
     onClickAddRoute: () => void
@@ -47,8 +46,8 @@ interface Props {
 
 export function TopologyTab(props: Props) {
 
-    const [selectedIds, setSelectedIds, setFileName, ranker, setRanker, setNodeData] = useTopologyStore((s) =>
-        [s.selectedIds, s.setSelectedIds, s.setFileName, s.ranker, s.setRanker, s.setNodeData], shallow);
+    const [selectedIds, setSelectedIds, setFileName, ranker, setRanker, setNodeData, files] = useTopologyStore((s) =>
+        [s.selectedIds, s.setSelectedIds, s.setFileName, s.ranker, s.setRanker, s.setNodeData, s.files], shallow);
     const [setSelectedStep] = useDesignerStore((s) => [s.setSelectedStep], shallow)
 
     function setTopologySelected(model: Model, ids: string []) {
@@ -70,7 +69,7 @@ export function TopologyTab(props: Props) {
     }
 
     const controller = React.useMemo(() => {
-        const model = getModel(props.files);
+        const model = getModel(files);
         const newController = new Visualization();
         newController.registerLayoutFactory((_, graph) =>
             new DagreLayout(graph, {
@@ -97,9 +96,9 @@ export function TopologyTab(props: Props) {
 
     React.useEffect(() => {
         setSelectedIds([])
-        const model = getModel(props.files);
+        const model = getModel(files);
         controller.fromModel(model, false);
-    }, [ranker, controller, setSelectedIds, props.files]);
+    }, [ranker, controller, setSelectedIds, files]);
 
     const controlButtons = React.useMemo(() => {
         // const customButtons = [

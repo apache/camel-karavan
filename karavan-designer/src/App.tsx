@@ -41,7 +41,9 @@ import {KnowledgebasePage} from "./knowledgebase/KnowledgebasePage";
 import {Notification} from "./designer/utils/Notification";
 import {EventBus} from "./designer/utils/EventBus";
 import {TopologyTab} from "./topology/TopologyTab";
-import {IntegrationFile} from "./topology/TopologyStore";
+import {useEffect, useState} from "react";
+import {IntegrationFile, useTopologyStore} from "./topology/TopologyStore";
+import {shallow} from "zustand/shallow";
 
 class MenuItem {
     pageId: string = '';
@@ -55,27 +57,16 @@ class MenuItem {
     }
 }
 
-interface Props {
-}
+export function App() {
 
-interface State {
-    name: string
-    yaml: string
-    key: string
-    loaded?: boolean,
-    pageId: string,
-}
+    const [setFiles] = useTopologyStore((s) => [s.setFiles], shallow);
+    const [pageId, setPageId] = useState<string>('designer');
+    const [name, setName] = useState<string>('example.yaml');
+    const [key, setKey] = useState<string>('');
+    const [yaml, setYaml] = useState<string>('');
+    const [loaded, setLoaded] = useState<boolean>(false);
 
-class App extends React.Component<Props, State> {
-
-    public state: State = {
-        pageId: "designer",
-        name: 'example.yaml',
-        key: '',
-        yaml: ''
-    }
-
-    componentDidMount() {
+    useEffect(() => {
         Promise.all([
             fetch("kamelets/kamelets.yaml"),
             fetch("components/components.json"),
@@ -96,14 +87,15 @@ class App extends React.Component<Props, State> {
             JSON.parse(data[1]).forEach((c: any) => jsons.push(JSON.stringify(c)));
             ComponentApi.saveComponents(jsons, true);
 
-            this.setState({loaded: true});
+            setLoaded(true);
 
             TemplateApi.saveTemplate("org.apache.camel.AggregationStrategy", data[2]);
             TemplateApi.saveTemplate("org.apache.camel.Processor", data[3]);
 
             if (data[4]) {
-                this.setState({yaml: data[4], name: "demo.camel.yaml"})
-                // this.setState({yaml: data[4], name: "aws-s3-cdc-source.kamelet.yaml"})
+                setYaml(data[4]);
+                setName("demo.camel.yaml");
+                setFiles([new IntegrationFile("demo.camel.yaml", yaml)]);
             }
 
             if (data[5]) {
@@ -113,13 +105,13 @@ class App extends React.Component<Props, State> {
         }).catch(err =>
             EventBus.sendAlert("Error", err.text, 'danger')
         );
+    });
+
+    function save(filename: string, yaml: string, propertyOnly: boolean) {
+        // console.log(yaml);
     }
 
-    save(filename: string, yaml: string, propertyOnly: boolean) {
-        console.log(yaml);
-    }
-
-    getSpinner() {
+    function getSpinner() {
         return (
             <Bullseye className="loading-page">
                 <Spinner className="progress-stepper"  diameter="80px" aria-label="Loading..."/>
@@ -127,8 +119,7 @@ class App extends React.Component<Props, State> {
         )
     }
 
-    pageNav = () => {
-        const {pageId} = this.state;
+    function pageNav ()  {
         const pages: MenuItem[] = [
             new MenuItem("designer", "Designer", <BlueprintIcon/>),
             new MenuItem("topology", "Topology", <TopologyIcon/>),
@@ -147,7 +138,7 @@ class App extends React.Component<Props, State> {
                     <Tooltip content={page.tooltip} position={"right"}>
                         <Button id={page.pageId} icon={page.icon} variant={"plain"}
                                 className={pageId === page.pageId ? "nav-button-selected" : ""}
-                                onClick={event => this.setState({pageId: page.pageId})}
+                                onClick={event => setPageId(page.pageId)}
                         />
                     </Tooltip>
                 </FlexItem>
@@ -158,12 +149,7 @@ class App extends React.Component<Props, State> {
         </Flex>)
     }
 
-    getIntegrationFiles(): IntegrationFile[]{
-        return [new IntegrationFile("demo.camel.yaml", this.state.yaml)];
-    }
-
-    getPage() {
-        const { name, yaml, pageId} = this.state;
+    function getPage() {
         const dark = document.body.className.includes('vscode-dark');
         switch (pageId) {
             case "designer":
@@ -171,7 +157,7 @@ class App extends React.Component<Props, State> {
                     <DesignerPage
                         name={name}
                         yaml={yaml}
-                        onSave={(filename, yaml1, propertyOnly) => this.save(filename, yaml1, propertyOnly)}
+                        onSave={(filename, yaml1, propertyOnly) => save(filename, yaml1, propertyOnly)}
                         dark={dark}/>
                 )
             case "knowledgebase":
@@ -181,7 +167,6 @@ class App extends React.Component<Props, State> {
             case "topology":
                 return (
                     <TopologyTab
-                        files={this.getIntegrationFiles()}
                         onSetFile={fileName => {}}
                         onClickAddRoute={() => {}}
                         onClickAddREST={() => {}}
@@ -192,35 +177,32 @@ class App extends React.Component<Props, State> {
         }
     }
 
-    getHeader = () => (
-        <Masthead>
-        </Masthead>
-    );
-
-    getSidebar = () => (
-        <PageSidebar isSidebarOpen={true} id="fill-sidebar">
-            <PageSidebarBody>Navigation</PageSidebarBody>
-        </PageSidebar>
-    );
-
-    public render() {
-        const {loaded} = this.state;
-        return (
-            <Page className="karavan">
-                <Notification/>
-                <Flex direction={{default: "row"}} style={{width: "100%", height: "100%"}}
-                      alignItems={{default: "alignItemsStretch"}} spaceItems={{default: 'spaceItemsNone'}}>
-                    <FlexItem>
-                        {this.pageNav()}
-                    </FlexItem>
-                    <FlexItem flex={{default: "flex_2"}} style={{height: "100%"}}>
-                        {loaded !== true && this.getSpinner()}
-                        {loaded === true && this.getPage()}
-                </FlexItem>
-                </Flex>
-            </Page>
-        )
+    function getHeader () {
+        return (<Masthead>
+        </Masthead>)
     }
+
+    function getSidebar () {
+        return (<PageSidebar isSidebarOpen={true} id="fill-sidebar">
+            <PageSidebarBody>Navigation</PageSidebarBody>
+        </PageSidebar>)
+    }
+
+    return (
+        <Page className="karavan">
+            <Notification/>
+            <Flex direction={{default: "row"}} style={{width: "100%", height: "100%"}}
+                  alignItems={{default: "alignItemsStretch"}} spaceItems={{default: 'spaceItemsNone'}}>
+                <FlexItem>
+                    {pageNav()}
+                </FlexItem>
+                <FlexItem flex={{default: "flex_2"}} style={{height: "100%"}}>
+                    {!loaded && getSpinner()}
+                    {loaded && getPage()}
+                </FlexItem>
+            </Flex>
+        </Page>
+    )
 }
 
 export default App;
