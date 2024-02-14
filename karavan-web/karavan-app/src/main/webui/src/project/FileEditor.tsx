@@ -81,10 +81,10 @@ export function FileEditor(props: Props) {
         }
     }
 
-    function internalConsumerClick(uri: string, name: string, direction: 'from' | 'to') {
+    function internalConsumerClick(uri?: string, name?: string, routeId?: string) {
         const integrations = files.filter(f => f.name.endsWith(".camel.yaml"))
             .map(f => CamelDefinitionYaml.yamlToIntegration(f.name, f.code));
-        if (direction === 'from') {
+        if (uri && name) {
             const routes = TopologyUtils.findTopologyRouteNodes(integrations);
             for (const route of routes) {
                 if (route?.from?.uri === uri && route?.from?.parameters?.name === name) {
@@ -96,14 +96,13 @@ export function FileEditor(props: Props) {
                 }
             }
         } else {
-            const nodes = TopologyUtils.findTopologyOutgoingNodes(integrations).filter(t => t.type === 'internal');
+            const nodes = TopologyUtils.findTopologyOutgoingNodes(integrations)
+                .filter(t => t.routeId === routeId);
             for (const node of nodes) {
-                if ((node?.step as any)?.uri === uri && (node?.step as any)?.parameters?.name === name) {
-                    const switchToFile = files.filter(f => f.name === node.fileName).at(0);
-                    if (switchToFile) {
-                        setFile('select', switchToFile);
-                        setKey(Math.random().toString())
-                    }
+                const switchToFile = files.filter(f => f.name === node.fileName).at(0);
+                if (switchToFile) {
+                    setFile('select', switchToFile);
+                    setKey(Math.random().toString())
                 }
             }
         }

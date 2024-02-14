@@ -78,8 +78,8 @@ export const DesignerPage = (props: Props) => {
                 ]}
                 onSavePropertyPlaceholder={(key, value) => console.log("onSavePropertyPlaceholder", key, value)}
                 beans={[]}
-                onInternalConsumerClick={(uri, name, direction: 'from' | 'to') => {
-                    console.log("onInternalConsumerClick", uri, name, direction)
+                onInternalConsumerClick={(uri, name, routeId) => {
+                    console.log("onInternalConsumerClick", uri, name, routeId)
                 }}
                 files={[new IntegrationFile("demo.camel.yaml", yaml)]}
             />

@@ -97,13 +97,8 @@ export class TopologyView {
 					panel.webview.postMessage({ command: 'components', components: components });
 				}).finally(() => {
 					// Read and send Integrations
-					let fullPath = fsPath;
-					if (fsPath.endsWith(".camel.yaml")) {
-						const parts = fsPath.split(path.sep);
-						parts.pop();
-						fullPath = parts.join(path.sep);
-					}
-					utils.readCamelYamlFiles(fullPath).then((files) => {
+					const dir = fsPath.endsWith('camel.yaml') ? path.dirname(fsPath) : fsPath;
+					utils.readCamelYamlFiles(dir).then((files) => {
 						panel.webview.postMessage({ command: 'files', files: files });
 					}).finally(() => {
 						// Open

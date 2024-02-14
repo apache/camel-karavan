@@ -21,7 +21,7 @@ export class InfrastructureAPI {
     static onSaveCustomCode: (name: string, code: string) => void;
     static onSave: (filename: string, yaml: string, propertyOnly: boolean) => void;
     static onSavePropertyPlaceholder: (key: string, value: string) => void;
-    static onInternalConsumerClick: (uri: string, name: string, direction: 'from' | 'to') => void;
+    static onInternalConsumerClick: (uri?: string, name?: string, routeId?: string) => void;
 
     static setOnGetCustomCode(onGetCustomCode: (name: string, javaType: string) => Promise<string | undefined>){
         this.onGetCustomCode = onGetCustomCode
@@ -39,7 +39,7 @@ export class InfrastructureAPI {
         this.onSavePropertyPlaceholder = onSavePropertyPlaceholder
     }
 
-    static setOnInternalConsumerClick(onInternalConsumerClick:(uri: string, name: string, direction: 'from' | 'to') => void){
+    static setOnInternalConsumerClick(onInternalConsumerClick:(uri?: string, name?: string, routeId?: string) => void){
         this.onInternalConsumerClick = onInternalConsumerClick
     }
 

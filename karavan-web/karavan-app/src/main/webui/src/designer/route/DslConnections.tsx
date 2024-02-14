@@ -157,7 +157,7 @@ export function DslConnections() {
                             <Button style={{position: 'absolute', left: 27, top: (index * 16) + (12), whiteSpace: 'nowrap', zIndex: 300, padding: 0}}
                                     variant={'link'}
                                     aria-label="Goto"
-                                    onClick={_ => InfrastructureAPI.onInternalConsumerClick(uri, name, 'to')}>
+                                    onClick={_ => InfrastructureAPI.onInternalConsumerClick(undefined, undefined, routeId)}>
                                 {routeId}
                             </Button>
                         </Tooltip>
@@ -255,7 +255,7 @@ export function DslConnections() {
                             <Button style={{position: 'absolute', right: 27, top: -12, whiteSpace: 'nowrap', zIndex: 300, padding: 0}}
                                    variant={'link'}
                                     aria-label="Goto"
-                                    onClick={_ => InfrastructureAPI.onInternalConsumerClick(uri, name, 'from')}>
+                                    onClick={_ => InfrastructureAPI.onInternalConsumerClick(uri, name, undefined)}>
                                 {name}
                             </Button>
                         </Tooltip>

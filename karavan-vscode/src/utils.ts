@@ -271,7 +271,7 @@ export async function readCamelYamlFiles(dir: string) {
         const readData = await readFile(path.resolve(filename));
         const yaml = Buffer.from(readData).toString('utf8');
         if (CamelDefinitionYaml.yamlIsIntegration(yaml)) {
-            const basename = filename.replace(dir, '');
+            const basename = filename.replace(dir, '').substring(1);
             result[basename] = yaml;
         }
     }
@@ -458,23 +458,38 @@ function setMinikubeEnvVariables(env: string): Map<string, string> {
     return map;
 }
 
-export async function getFileWithIntegralConsumer(fullPath: string, uri: string, name: string) {
+export async function getIntegrations(dir: string) {
+    const files = await readCamelYamlFiles(dir);
+    const integrations: Integration[] = [];
+    Object.getOwnPropertyNames(files).forEach(n => {
+        const i = CamelDefinitionYaml.yamlToIntegration(n, files[n]);
+        integrations.push(i);
+    });
+    return integrations;
+}
+
+export async function getFileWithIntegnalConsumer(fullPath: string, uri: string, name: string) {
     try {
-        const codePath = path.dirname(fullPath);
-        const integrations: Integration[] = [];
-        const files = await getCamelYamlFiles(codePath);
-        for (let x in files) {
-            const filename = files[x];
-            const readData = await readFile(filename);
-            const code = Buffer.from(readData).toString('utf8');
-            const i = CamelDefinitionYaml.yamlToIntegration(filename, code);
-            integrations.push(i);
+        const integrations = await getIntegrations(path.dirname(fullPath));
+        const route = TopologyUtils.findTopologyRouteNodes(integrations)
+                .filter(t => t?.from?.uri === uri && t?.from?.parameters?.name === name).at(0);
+        if (route) {
+            return path.join(path.dirname(fullPath), route.fileName);
         }
-        const routes = TopologyUtils.findTopologyRouteNodes(integrations);
-        for (const route of routes) {
-            if (route?.from?.uri === uri && route?.from?.parameters?.name === name) {
-                return route.fileName;
-            }
+    }
+    catch (e) {
+        console.log((e as Error).message);
+    }
+    return undefined;
+}
+
+export async function getFileWithInternalProducer(fullPath: string, routeId: string) {
+    try {
+        const integrations = await getIntegrations(path.dirname(fullPath))
+        const route = TopologyUtils.findTopologyOutgoingNodes(integrations)
+                .filter(t => t.routeId === routeId).at(0);
+        if (route) {
+            return path.join(path.dirname(fullPath), route.fileName);
         }
     }
     catch (e) {
