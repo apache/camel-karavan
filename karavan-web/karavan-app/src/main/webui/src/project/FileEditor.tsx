@@ -26,6 +26,7 @@ import {shallow} from "zustand/shallow";
 import {CodeUtils} from "../util/CodeUtils";
 import {RegistryBeanDefinition} from "karavan-core/lib/model/CamelDefinition";
 import {TopologyUtils} from "karavan-core/lib/api/TopologyUtils";
+import {IntegrationFile} from "karavan-core/lib/model/IntegrationDefinition";
 
 interface Props {
     projectId: string
@@ -37,9 +38,9 @@ const languages = new Map<string, string>([
     ['properties', 'ini']
 ])
 
-export function FileEditor (props: Props) {
+export function FileEditor(props: Props) {
 
-    const [file, designerTab, setFile] = useFileStore((s) => [s.file, s.designerTab, s.setFile], shallow )
+    const [file, designerTab, setFile] = useFileStore((s) => [s.file, s.designerTab, s.setFile], shallow)
     const [files] = useFilesStore((s) => [s.files], shallow);
     const [propertyPlaceholders, setPropertyPlaceholders] = useState<string[]>([]);
     const [beans, setBeans] = useState<RegistryBeanDefinition[]>([]);
@@ -60,18 +61,18 @@ export function FileEditor (props: Props) {
         })
     }, []);
 
-    function save (name: string, code: string) {
+    function save(name: string, code: string) {
         if (file) {
             file.code = code;
             ProjectService.updateFile(file, true);
         }
     }
 
-    function onGetCustomCode (name: string, javaType: string): Promise<string | undefined> {
+    function onGetCustomCode(name: string, javaType: string): Promise<string | undefined> {
         return new Promise<string | undefined>(resolve => resolve(files.filter(f => f.name === name + ".java")?.at(0)?.code));
     }
 
-    function onSavePropertyPlaceholder (key: string, value: string) {
+    function onSavePropertyPlaceholder(key: string, value: string) {
         const file = files.filter(f => f.name === 'application.properties')?.at(0);
         const code = file?.code?.concat('\n').concat(key).concat('=').concat(value);
         if (file && code) {
@@ -80,43 +81,57 @@ export function FileEditor (props: Props) {
         }
     }
 
-    function internalConsumerClick(uri: string, name: string) {
+    function internalConsumerClick(uri: string, name: string, direction: 'from' | 'to') {
         const integrations = files.filter(f => f.name.endsWith(".camel.yaml"))
             .map(f => CamelDefinitionYaml.yamlToIntegration(f.name, f.code));
-        const routes = TopologyUtils.findTopologyRouteNodes(integrations);
-        for (const route of routes) {
-            if (route?.from?.uri === uri && route?.from?.parameters?.name === name) {
-                const switchToFile = files.filter(f => f.name === route.fileName).at(0);
-                if (switchToFile){
-                    setFile('select', switchToFile);
-                    setKey(Math.random().toString())
+        if (direction === 'from') {
+            const routes = TopologyUtils.findTopologyRouteNodes(integrations);
+            for (const route of routes) {
+                if (route?.from?.uri === uri && route?.from?.parameters?.name === name) {
+                    const switchToFile = files.filter(f => f.name === route.fileName).at(0);
+                    if (switchToFile) {
+                        setFile('select', switchToFile);
+                        setKey(Math.random().toString())
+                    }
+                }
+            }
+        } else {
+            const nodes = TopologyUtils.findTopologyOutgoingNodes(integrations).filter(t => t.type === 'internal');
+            for (const node of nodes) {
+                if ((node?.step as any)?.uri === uri && (node?.step as any)?.parameters?.name === name) {
+                    const switchToFile = files.filter(f => f.name === node.fileName).at(0);
+                    if (switchToFile) {
+                        setFile('select', switchToFile);
+                        setKey(Math.random().toString())
+                    }
                 }
             }
         }
     }
 
-    function getDesigner () {
+    function getDesigner() {
         return (
             file !== undefined &&
             <KaravanDesigner key={key}
-                showCodeTab={true}
-                dark={false}
-                filename={file.name}
-                yaml={file.code}
-                tab={designerTab}
-                onSave={(name, yaml) => save(name, yaml)}
-                onSaveCustomCode={(name, code) =>
-                    ProjectService.updateFile(new ProjectFile(name + ".java", props.projectId, code, Date.now()), false)}
-                onGetCustomCode={onGetCustomCode}
-                propertyPlaceholders={propertyPlaceholders}
-                onSavePropertyPlaceholder={onSavePropertyPlaceholder}
-                beans={beans}
-                onInternalConsumerClick={internalConsumerClick}
+                             showCodeTab={true}
+                             dark={false}
+                             filename={file.name}
+                             yaml={file.code}
+                             tab={designerTab}
+                             onSave={(name, yaml) => save(name, yaml)}
+                             onSaveCustomCode={(name, code) =>
+                                 ProjectService.updateFile(new ProjectFile(name + ".java", props.projectId, code, Date.now()), false)}
+                             onGetCustomCode={onGetCustomCode}
+                             propertyPlaceholders={propertyPlaceholders}
+                             onSavePropertyPlaceholder={onSavePropertyPlaceholder}
+                             beans={beans}
+                             onInternalConsumerClick={internalConsumerClick}
+                             files={files.map(f => new IntegrationFile(f.name, f.code))}
             />
         )
     }
 
-    function getEditor () {
+    function getEditor() {
         const extension = file?.name.split('.').pop();
         const language = extension && languages.has(extension) ? languages.get(extension) : extension;
         return (

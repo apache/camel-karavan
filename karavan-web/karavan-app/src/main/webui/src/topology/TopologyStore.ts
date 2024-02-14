@@ -18,15 +18,6 @@
 import {createWithEqualityFn} from "zustand/traditional";
 import {shallow} from "zustand/shallow";
 
-export class IntegrationFile {
-    name: string = '';
-    code: string = '';
-
-    constructor(name: string, code: string) {
-        this.name = name;
-        this.code = code;
-    }
-}
 
 interface TopologyState {
     selectedIds: string []

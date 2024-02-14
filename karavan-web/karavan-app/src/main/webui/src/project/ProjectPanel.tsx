@@ -15,10 +15,10 @@
  * limitations under the License.
  */
 
-import React, {useEffect, useState} from 'react';
+import React, {useEffect} from 'react';
 import {
     Flex,
-    FlexItem, Modal, ModalVariant, PageSection
+    FlexItem, PageSection
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
 import {FilesTab} from "./files/FilesTab";
@@ -30,7 +30,7 @@ import {ProjectService} from "../api/ProjectService";
 import {shallow} from "zustand/shallow";
 import {ImagesPanel} from "./builder/ImagesPanel";
 import {ProjectContainerTab} from "./container/ProjectContainerTab";
-import {IntegrationFile} from "../topology/TopologyStore";
+import {IntegrationFile} from "karavan-core/lib/model/IntegrationDefinition";
 import {TopologyTab} from "../topology/TopologyTab";
 import {Buffer} from "buffer";
 import {CreateFileModal} from "./files/CreateFileModal";
@@ -53,7 +53,7 @@ export function ProjectPanel() {
     function onRefresh() {
         if (project.projectId) {
             ProjectService.refreshProjectData(project.projectId);
-            setTab(project.type === ProjectType.normal ? 'topology' : 'files')
+            setTab(project.type === ProjectType.normal ? 'topology' : 'files');
         }
     }
 
