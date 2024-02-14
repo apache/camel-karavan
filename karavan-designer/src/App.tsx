@@ -42,8 +42,7 @@ import {Notification} from "./designer/utils/Notification";
 import {EventBus} from "./designer/utils/EventBus";
 import {TopologyTab} from "./topology/TopologyTab";
 import {useEffect, useState} from "react";
-import {IntegrationFile, useTopologyStore} from "./topology/TopologyStore";
-import {shallow} from "zustand/shallow";
+import {IntegrationFile} from "karavan-core/lib/model/IntegrationDefinition";
 
 class MenuItem {
     pageId: string = '';
@@ -59,7 +58,6 @@ class MenuItem {
 
 export function App() {
 
-    const [setFiles] = useTopologyStore((s) => [s.setFiles], shallow);
     const [pageId, setPageId] = useState<string>('designer');
     const [name, setName] = useState<string>('example.yaml');
     const [key, setKey] = useState<string>('');
@@ -95,7 +93,6 @@ export function App() {
             if (data[4]) {
                 setYaml(data[4]);
                 setName("demo.camel.yaml");
-                setFiles([new IntegrationFile("demo.camel.yaml", yaml)]);
             }
 
             if (data[5]) {
@@ -167,6 +164,7 @@ export function App() {
             case "topology":
                 return (
                     <TopologyTab
+                        files={[new IntegrationFile("demo.camel.yaml", yaml)]}
                         onSetFile={fileName => {}}
                         onClickAddRoute={() => {}}
                         onClickAddREST={() => {}}

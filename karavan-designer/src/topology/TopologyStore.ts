@@ -18,20 +18,8 @@
 import {createWithEqualityFn} from "zustand/traditional";
 import {shallow} from "zustand/shallow";
 
-export class IntegrationFile {
-    name: string = '';
-    code: string = '';
-
-    constructor(name: string, code: string) {
-        this.name = name;
-        this.code = code;
-    }
-}
 
 interface TopologyState {
-    files: IntegrationFile []
-    setFiles: (files: IntegrationFile []) => void
-    resetFiles: (files: IntegrationFile []) => void
     selectedIds: string []
     fileName?: string
     setSelectedIds: (selectedIds: string []) => void
@@ -43,17 +31,6 @@ interface TopologyState {
 }
 
 export const useTopologyStore = createWithEqualityFn<TopologyState>((set) => ({
-    files: [],
-    setFiles: (files: IntegrationFile []) => {
-        set((state: TopologyState) => {
-            return {files: files};
-        });
-    },
-    resetFiles: (files: IntegrationFile []) => {
-        set((state: TopologyState) => {
-            return {files: [...files]};
-        });
-    },
     selectedIds: [],
     setSelectedIds: (selectedIds: string[]) => {
         set((state: TopologyState) => {

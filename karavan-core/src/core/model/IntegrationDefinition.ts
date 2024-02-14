@@ -17,6 +17,16 @@
 import { v4 as uuidv4 } from 'uuid';
 import { RegistryBeanDefinition } from './CamelDefinition';
 
+export class IntegrationFile {
+    name: string = '';
+    code: string = '';
+
+    constructor(name: string, code: string) {
+        this.name = name;
+        this.code = code;
+    }
+}
+
 export class DefinitionProperty {
     title: string = '';
     description: string = '';

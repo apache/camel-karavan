@@ -57,7 +57,7 @@ export class TopologyUtils {
         const uri = (element as any).uri;
         const component = ComponentApi.findByName(uri);
         return component !== undefined &&
-            (TopologyUtils.isComponentInternal(component.component.label));
+            (TopologyUtils.isComponentInternal(component.component.label) || TopologyUtils.hasInternalUri(element));
     }
 
     static getConnectorType = (element: CamelElement): 'component' | 'kamelet' => {

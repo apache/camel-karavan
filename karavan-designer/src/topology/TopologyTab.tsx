@@ -31,12 +31,14 @@ import {
 } from '@patternfly/react-topology';
 import {customComponentFactory, getModel} from "./TopologyApi";
 import {shallow} from "zustand/shallow";
-import {IntegrationFile, useTopologyStore} from "./TopologyStore";
+import {useTopologyStore} from "./TopologyStore";
 import {TopologyPropertiesPanel} from "./TopologyPropertiesPanel";
 import {TopologyToolbar} from "./TopologyToolbar";
 import {useDesignerStore} from "../designer/DesignerStore";
+import {IntegrationFile} from "karavan-core/lib/model/IntegrationDefinition";
 
 interface Props {
+    files: IntegrationFile[],
     onSetFile: (fileName: string) => void
     hideToolbar: boolean
     onClickAddRoute: () => void
@@ -46,8 +48,8 @@ interface Props {
 
 export function TopologyTab(props: Props) {
 
-    const [selectedIds, setSelectedIds, setFileName, ranker, setRanker, setNodeData, files] = useTopologyStore((s) =>
-        [s.selectedIds, s.setSelectedIds, s.setFileName, s.ranker, s.setRanker, s.setNodeData, s.files], shallow);
+    const [selectedIds, setSelectedIds, setFileName, ranker, setRanker, setNodeData] = useTopologyStore((s) =>
+        [s.selectedIds, s.setSelectedIds, s.setFileName, s.ranker, s.setRanker, s.setNodeData], shallow);
     const [setSelectedStep] = useDesignerStore((s) => [s.setSelectedStep], shallow)
 
     function setTopologySelected(model: Model, ids: string []) {
@@ -69,7 +71,7 @@ export function TopologyTab(props: Props) {
     }
 
     const controller = React.useMemo(() => {
-        const model = getModel(files);
+        const model = getModel(props.files);
         const newController = new Visualization();
         newController.registerLayoutFactory((_, graph) =>
             new DagreLayout(graph, {
@@ -96,9 +98,9 @@ export function TopologyTab(props: Props) {
 
     React.useEffect(() => {
         setSelectedIds([])
-        const model = getModel(files);
+        const model = getModel(props.files);
         controller.fromModel(model, false);
-    }, [ranker, controller, setSelectedIds, files]);
+    }, [ranker, controller, setSelectedIds, props.files]);
 
     const controlButtons = React.useMemo(() => {
         // const customButtons = [
@@ -136,7 +138,7 @@ export function TopologyTab(props: Props) {
         });
     }, [ranker, controller, setRanker]);
 
-        return (
+    return (
         <TopologyView
             className="topology-panel"
             contextToolbar={!props.hideToolbar

@@ -26,6 +26,7 @@ import DownloadIcon from "@patternfly/react-icons/dist/esm/icons/download-icon";
 import DownloadImageIcon from "@patternfly/react-icons/dist/esm/icons/image-icon";
 import {KaravanDesigner} from "./designer/KaravanDesigner";
 import {EventBus} from "./designer/utils/EventBus";
+import {IntegrationFile} from "karavan-core/lib/model/IntegrationDefinition";
 
 interface Props {
     name: string,
@@ -80,6 +81,7 @@ export const DesignerPage = (props: Props) => {
                 onInternalConsumerClick={(uri, name, direction: 'from' | 'to') => {
                     console.log("onInternalConsumerClick", uri, name, direction)
                 }}
+                files={[new IntegrationFile("demo.camel.yaml", yaml)]}
             />
         )
     }

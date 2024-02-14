@@ -26,15 +26,14 @@ import {CamelElement} from "karavan-core/lib/model/IntegrationDefinition";
 import {v4 as uuidv4} from "uuid";
 import {Button, Tooltip} from "@patternfly/react-core";
 import {InfrastructureAPI} from "../utils/InfrastructureAPI";
-import {useTopologyStore} from "../../topology/TopologyStore";
 import {getIntegrations} from "../../topology/TopologyApi";
+import {ComponentApi} from "karavan-core/lib/api/ComponentApi";
 
 const overlapGap: number = 40;
 
 export function DslConnections() {
 
-    const [integration] = useIntegrationStore((state) => [state.integration], shallow)
-    const [files] = useTopologyStore((s) => [s.files], shallow);
+    const [integration, files] = useIntegrationStore((s) => [s.integration, s.files], shallow)
     const [width, height, top, left, hideLogDSL] = useDesignerStore((s) =>
         [s.width, s.height, s.top, s.left, s.hideLogDSL], shallow)
     const [steps, addStep, deleteStep, clearSteps] =
@@ -81,10 +80,16 @@ export function DslConnections() {
         }
     }
 
+    function isElementInternalComponent (element: CamelElement): boolean {
+        const uri = (element as any).uri;
+        const component = ComponentApi.findByName(uri);
+        return component !== undefined && (TopologyUtils.isComponentInternal(component.component.label));
+    }
+
     function getIncomings() {
         let outs: [string, number][] = Array.from(steps.values())
             .filter(pos => ["FromDefinition"].includes(pos.step.dslName))
-            .filter(pos => !TopologyUtils.isElementInternalComponent(pos.step))
+            .filter(pos => !isElementInternalComponent(pos.step))
             // .filter(pos => !(pos.step.dslName === 'FromDefinition' && TopologyUtils.hasInternalUri(pos.step)))
             .filter(pos => !(pos.step.dslName === 'FromDefinition' && (pos.step as any).uri === 'kamelet:source'))
             .sort((pos1: DslPosition, pos2: DslPosition) => {
@@ -122,12 +127,12 @@ export function DslConnections() {
         }
     }
 
-    function getToDirectSteps(name: string) {
-        return Array.from(steps.values())
-            .filter(s => s.step.dslName === 'ToDefinition')
-            .filter(s =>  ['direct','seda'].includes((s.step as any)?.uri))
-            .filter(s =>  (s.step as any)?.parameters?.name === name)
-    }
+    // function getToDirectSteps(name: string) {
+    //     return Array.from(steps.values())
+    //         .filter(s => s.step.dslName === 'ToDefinition')
+    //         .filter(s =>  ['direct','seda'].includes((s.step as any)?.uri))
+    //         .filter(s =>  (s.step as any)?.parameters?.name === name)
+    // }
 
     function getIncomingIcons(data: [string, number]) {
         const pos = steps.get(data[0]);
@@ -137,7 +142,7 @@ export function DslConnections() {
             const directOrSeda: boolean = step && uri && step?.dslName === 'FromDefinition' && ['direct','seda'].includes(uri);
             const name: string = directOrSeda ? (step?.parameters?.name) : undefined;
             const routes = directOrSeda ? tons.get(uri + ':' +name) || [] : [];
-            const localDirects = getToDirectSteps(name);
+            // const localDirects = getToDirectSteps(name);
             const fromY = pos.headerRect.y + pos.headerRect.height / 2 - top;
             const r = pos.headerRect.height / 2;
             const incomingX = 20;
@@ -152,7 +157,7 @@ export function DslConnections() {
                             <Button style={{position: 'absolute', left: 27, top: (index * 16) + (12), whiteSpace: 'nowrap', zIndex: 300, padding: 0}}
                                     variant={'link'}
                                     aria-label="Goto"
-                                    onClick={_ => InfrastructureAPI.onInternalConsumerClick(uri, name, 'from')}>
+                                    onClick={_ => InfrastructureAPI.onInternalConsumerClick(uri, name, 'to')}>
                                 {routeId}
                             </Button>
                         </Tooltip>
@@ -250,7 +255,7 @@ export function DslConnections() {
                             <Button style={{position: 'absolute', right: 27, top: -12, whiteSpace: 'nowrap', zIndex: 300, padding: 0}}
                                    variant={'link'}
                                     aria-label="Goto"
-                                    onClick={_ => InfrastructureAPI.onInternalConsumerClick(uri, name, 'to')}>
+                                    onClick={_ => InfrastructureAPI.onInternalConsumerClick(uri, name, 'from')}>
                                 {name}
                             </Button>
                         </Tooltip>
