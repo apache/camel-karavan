@@ -1,2 +1,0 @@
-aws-sqs-sink
-aws-timestream-query-sink

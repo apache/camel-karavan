@@ -27,8 +27,7 @@ export const KnowledgebaseHome = (props: Props) => {
             fileContent = ComponentApi.saveBlockedComponentName(name, checked).join('\n');
         } else {
             file = blockList?.find(obj => obj.name === 'kamelets-blocklist.txt');
-            const res = KameletApi.saveBlockedKameletName(name, checked);
-            fileContent = res.join('\n');
+            fileContent = KameletApi.saveBlockedKameletName(name, checked).join('\n');
         }
         if (file) {
             file.code = fileContent;

@@ -188,7 +188,9 @@ export class DesignerView {
             // Read property placeholders
             utils.readPropertyPlaceholders(this.context),
             // Read beans
-            utils.readBeans(fullPath)
+            utils.readBeans(fullPath),
+            //Read BlockList
+            utils.readBlockTemplates(this.context)
         ]).then(results => {
             // Send Kamelets
             panel.webview.postMessage({ command: 'kamelets', kamelets: results[0] });
@@ -203,7 +205,8 @@ export class DesignerView {
             if (results[5] === true) panel.webview.postMessage({ command: 'supportedOnly'});
             // Send integration
             this.sendIntegrationData(panel, filename, relativePath, fullPath, reread, yaml, tab, results[6], results[7]);
-            
+            // Send block list
+            panel.webview.postMessage({ command: 'blockList', blockList: Object.fromEntries(results[8]) });
         }).catch(err => console.log(err));
     }
 

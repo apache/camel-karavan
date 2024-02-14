@@ -173,6 +173,21 @@ class App extends React.Component<Props, State> {
       case 'downloadImage':
         EventBus.sendCommand("downloadImage");
         break;
+      case 'blockList':
+          const blockList = message.blockList;
+        const blockListMap = new Map(Object.keys(blockList).map(key => [key, blockList[key]])).forEach((list,key) => {
+          if (key === 'components-blocklist.txt') {
+            ComponentApi.saveBlockedComponentNames(list.split(/\r?\n/));
+          }
+          else if (key === 'kamelets-blocklist.txt') {
+            KameletApi.saveBlockedKameletNames(list.split(/\r?\n/));
+          }
+        });
+          this.setState((prevState: State) => {
+            prevState.loadingMessages.push("block lists loaded");
+            return { loadingMessages: prevState.loadingMessages }
+          });
+          break;
     }
   };
 
@@ -200,6 +215,16 @@ class App extends React.Component<Props, State> {
     const f = Object.keys(files).map(key => new IntegrationFile(key, files[key]));
     this.setState({ files: f });
 
+  }
+
+ onchangeBlockedList(type: string, name: string, checked: boolean) {
+  let fileContent = '';
+  if (type === "component") {
+      fileContent = ComponentApi.saveBlockedComponentName(name, checked).join('\n');
+  } else {
+      fileContent =KameletApi.saveBlockedKameletName(name, checked).join('\n');
+  }
+  vscode.postMessage({ command: 'saveBlockedList', key: type, value: fileContent });
   }
 
   public render() {
@@ -237,7 +262,7 @@ class App extends React.Component<Props, State> {
           }}
           />
         }
-        {loaded && page === "knowledgebase" && <KnowledgebasePage dark={dark} />}
+        {loaded && page === "knowledgebase" && <KnowledgebasePage dark={dark}  changeBlockList={(type: string, name: string, checked: boolean) => this.onchangeBlockedList(type, name, checked)}/>}
         {loaded && page === "topology" &&
           <TopologyTab
             hideToolbar={true}

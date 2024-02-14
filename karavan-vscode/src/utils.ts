@@ -49,6 +49,15 @@ export async function savePropertyPlaceholder(key: string, value: string) {
     }
 }
 
+export function saveBlockList(key: string, value: string) {
+    if (workspace.workspaceFolders) {
+        const uriFolder: Uri = workspace.workspaceFolders[0].uri;
+        const name = key+"s-blocklist.txt";
+        write(path.join(uriFolder.path, "snippets/"+name), value);
+    }
+}
+
+
 export function deleteFile(fullPath: string) {
     if (workspace.workspaceFolders) {
         const uriFile: Uri = Uri.file(path.resolve(fullPath));
@@ -179,6 +188,16 @@ export async function readTemplates(context: ExtensionContext) {
     })
     return result;
 }
+export async function readBlockTemplates(context: ExtensionContext) {
+    const result = new Map<string, string>();
+    const runtime = await getRuntime();
+    const files = await readFilesInDirByExtension(path.join(context.extensionPath, 'snippets'), "txt");
+    files.forEach((v, k) => {
+            result.set(k,v);
+    })
+    return result;
+}
+
 
 export async function readJavaCode(fullPath: string) {
     const result = new Map<string, string>();

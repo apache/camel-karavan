@@ -71,6 +71,10 @@ export class HelpView implements vscode.TreeDataProvider<HelpItem> {
 						case 'getData':
 							this.sendData(panel, page);
 							break;
+						
+						case 'saveBlockedList':
+							utils.saveBlockList(message.key,message.value);
+							break;
 					}
 				},
 				undefined,
@@ -102,7 +106,10 @@ export class HelpView implements vscode.TreeDataProvider<HelpItem> {
 			utils.readComponents(this.context).then(components => {
 				// Read and send Components
 				panel.webview.postMessage({ command: 'components', components: components });
-			}).finally(() => {
+			}).finally(() => {utils.readBlockTemplates(this.context).then(list => {
+				// Read and send block lists
+				panel.webview.postMessage({ command: 'blockList', blockList: Object.fromEntries(list) });
+			}) }).finally(() => {
 				// Send integration
 				panel.webview.postMessage({ command: 'open', page: page });
 			})

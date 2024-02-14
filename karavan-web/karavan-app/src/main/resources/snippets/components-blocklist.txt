@@ -1,3 +1,0 @@
-activemq
-amqp
-arangodb
