@@ -49,18 +49,18 @@ import static org.apache.camel.karavan.service.KaravanService.START_SERVICES;
 public class KaravanCacheService {
 
     private HazelcastInstance hz;
-    private IMap<GroupedKey, Project> projects;
-    private IMap<GroupedKey, ProjectFile> files;
-    private IMap<GroupedKey, DeploymentStatus> deploymentStatuses;
-    private IMap<GroupedKey, ContainerStatus> containerStatuses;
-    private IMap<GroupedKey, Boolean> transits;
-    private IMap<GroupedKey, ServiceStatus> serviceStatuses;
-    private IMap<GroupedKey, CamelStatus> camelStatuses;
+    private IMap<String, Project> projects;
+    private IMap<String, ProjectFile> files;
+    private IMap<String, DeploymentStatus> deploymentStatuses;
+    private IMap<String, ContainerStatus> containerStatuses;
+    private IMap<String, Boolean> transits;
+    private IMap<String, ServiceStatus> serviceStatuses;
+    private IMap<String, CamelStatus> camelStatuses;
 
     private final AtomicBoolean ready = new AtomicBoolean(false);
     private static final Logger LOGGER = Logger.getLogger(KaravanCacheService.class.getName());
 
-    private static final String DEFAULT_ENVIRONMENT = "dev";
+    public static final String DEFAULT_ENVIRONMENT = "dev";
 
     @ConsumeEvent(value = START_SERVICES, blocking = true)
     void start(String data) {
@@ -89,24 +89,23 @@ public class KaravanCacheService {
     }
 
     public void saveProject(Project project) {
-        GroupedKey key = GroupedKey.create(project.getProjectId(), DEFAULT_ENVIRONMENT, project.getProjectId());
-        projects.put(key, project);
+        var key = GroupedKey.create(project.getProjectId(), DEFAULT_ENVIRONMENT, project.getProjectId());
         projects.put(key, project);
     }
 
     public List<ProjectFile> getProjectFiles(String projectId) {
-        Predicate<GroupedKey, ProjectFile> predicate = Predicates.equal("projectId", projectId);
+        Predicate<String, ProjectFile> predicate = Predicates.equal("projectId", projectId);
         return files.values(predicate).stream().toList();
     }
 
-    public Map<GroupedKey, ProjectFile> getProjectFilesMap(String projectId) {
-        Predicate<GroupedKey, ProjectFile> predicate = Predicates.equal("projectId", projectId);
+    public Map<String, ProjectFile> getProjectFilesMap(String projectId) {
+        Predicate<String, ProjectFile> predicate = Predicates.equal("projectId", projectId);
         return files.entrySet(predicate).stream()
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
     public ProjectFile getProjectFile(String projectId, String filename) {
-        Predicate<GroupedKey, ProjectFile> predicate = Predicates.and(
+        Predicate<String, ProjectFile> predicate = Predicates.and(
                 Predicates.equal("name", filename),
                 Predicates.equal("projectId", projectId)
         );
@@ -115,7 +114,7 @@ public class KaravanCacheService {
     }
 
     public List<ProjectFile> getProjectFilesByName(String filename) {
-        Predicate<GroupedKey, ProjectFile> predicate = Predicates.equal("name", filename);
+        Predicate<String, ProjectFile> predicate = Predicates.equal("name", filename);
         return files.values(predicate).stream().toList();
     }
 
@@ -123,7 +122,7 @@ public class KaravanCacheService {
         files.put(GroupedKey.create(file.getProjectId(), DEFAULT_ENVIRONMENT, file.getName()), file);
     }
 
-    public void saveProjectFiles(Map<GroupedKey, ProjectFile> filesToSave) {
+    public void saveProjectFiles(Map<String, ProjectFile> filesToSave) {
         long lastUpdate = Instant.now().toEpochMilli();
         filesToSave.forEach((groupedKey, projectFile) -> projectFile.setLastUpdate(lastUpdate));
         files.putAll(filesToSave);
@@ -158,7 +157,7 @@ public class KaravanCacheService {
     }
 
     public List<DeploymentStatus> getDeploymentStatuses(String env) {
-        Predicate<GroupedKey, DeploymentStatus> predicate = Predicates.equal("env", env);
+        Predicate<String, DeploymentStatus> predicate = Predicates.equal("env", env);
         return deploymentStatuses.values(predicate).stream().toList();
     }
 
@@ -195,7 +194,7 @@ public class KaravanCacheService {
     }
 
     public List<ContainerStatus> getContainerStatuses(String projectId, String env) {
-        Predicate<GroupedKey, ContainerStatus> predicate = Predicates.and(
+        Predicate<String, ContainerStatus> predicate = Predicates.and(
                 Predicates.equal("projectId", projectId),
                 Predicates.equal("env", env)
         );
@@ -206,7 +205,7 @@ public class KaravanCacheService {
         return getContainerStatus(GroupedKey.create(projectId, env, containerName));
     }
 
-    public ContainerStatus getContainerStatus(GroupedKey key) {
+    public ContainerStatus getContainerStatus(String key) {
         return containerStatuses.get(key);
     }
 
@@ -215,7 +214,7 @@ public class KaravanCacheService {
     }
 
     public List<ContainerStatus> getContainerStatuses(String env) {
-        Predicate<GroupedKey, ContainerStatus> predicate = Predicates.and(
+        Predicate<String, ContainerStatus> predicate = Predicates.and(
                 Predicates.equal("env", env)
         );
         return containerStatuses.values(predicate).stream().toList();
@@ -242,11 +241,11 @@ public class KaravanCacheService {
     }
 
     public CamelStatus getCamelStatus(String projectId, String env, String containerName) {
-        GroupedKey key = GroupedKey.create(projectId, env, containerName);
+        var key = GroupedKey.create(projectId, env, containerName);
         return camelStatuses.get(key);
     }
 
-    public CamelStatus getCamelStatus(GroupedKey key) {
+    public CamelStatus getCamelStatus(String key) {
         return camelStatuses.get(key);
     }
 
@@ -259,7 +258,7 @@ public class KaravanCacheService {
     }
 
     public List<CamelStatus> getCamelStatusesByProjectAndEnv(String projectId, String env) {
-        Predicate<GroupedKey, CamelStatus> predicate = Predicates.and(
+        Predicate<String, CamelStatus> predicate = Predicates.and(
                 Predicates.equal("projectId", projectId),
                 Predicates.equal("env", env)
         );
@@ -267,22 +266,22 @@ public class KaravanCacheService {
     }
 
     public void saveCamelStatus(CamelStatus status) {
-        GroupedKey key = GroupedKey.create(status.getProjectId(), status.getEnv(), status.getContainerName());
+        var key = GroupedKey.create(status.getProjectId(), status.getEnv(), status.getContainerName());
         camelStatuses.put(key, status);
     }
 
     public void deleteCamelStatus(String projectId, String name, String env) {
-        GroupedKey key = GroupedKey.create(projectId, env, name);
+        var key = GroupedKey.create(projectId, env, name);
         camelStatuses.remove(key);
     }
 
     public void deleteCamelStatuses(String projectId, String env) {
-        Predicate<GroupedKey, CamelStatus> predicate = Predicates.and(
+        Predicate<String, CamelStatus> predicate = Predicates.and(
                 Predicates.equal("projectId", projectId),
                 Predicates.equal("env", env)
         );
         camelStatuses.values(predicate).forEach(s -> {
-            GroupedKey key = GroupedKey.create(projectId, env, s.getContainerName());
+            var key = GroupedKey.create(projectId, env, s.getContainerName());
             camelStatuses.remove(key);
         });
     }
@@ -292,7 +291,7 @@ public class KaravanCacheService {
     }
 
     public List<ContainerStatus> getLoadedDevModeStatuses() {
-        Predicate<GroupedKey, ContainerStatus> predicate = Predicates.and(
+        Predicate<String, ContainerStatus> predicate = Predicates.and(
                 Predicates.equal("type", ContainerStatus.ContainerType.devmode),
                 Predicates.equal("codeLoaded", true)
         );
@@ -300,14 +299,14 @@ public class KaravanCacheService {
     }
 
     public List<ContainerStatus> getDevModeStatuses() {
-        Predicate<GroupedKey, ContainerStatus> predicate = Predicates.and(
+        Predicate<String, ContainerStatus> predicate = Predicates.and(
                 Predicates.equal("type", ContainerStatus.ContainerType.devmode)
         );
         return containerStatuses.values(predicate).stream().toList();
     }
 
     public List<ContainerStatus> getContainerStatusByEnv(String env) {
-        Predicate<GroupedKey, ContainerStatus> predicate = Predicates.and(
+        Predicate<String, ContainerStatus> predicate = Predicates.and(
                 Predicates.equal("env", env)
         );
         return containerStatuses.values(predicate).stream().toList();

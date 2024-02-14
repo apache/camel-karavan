@@ -53,6 +53,7 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
+import static org.apache.camel.karavan.cache.KaravanCacheService.DEFAULT_ENVIRONMENT;
 import static org.apache.camel.karavan.code.CodeService.*;
 import static org.apache.camel.karavan.shared.Constants.NOTIFICATION_EVENT_COMMIT;
 
@@ -220,12 +221,12 @@ public class ProjectService implements HealthCheck {
         karavanCacheService.saveProject(project);
 
         // Copy files from the source and make necessary modifications
-        Map<GroupedKey, ProjectFile> filesMap = karavanCacheService.getProjectFilesMap(sourceProjectId).entrySet().stream()
+        Map<String, ProjectFile> filesMap = karavanCacheService.getProjectFilesMap(sourceProjectId).entrySet().stream()
                 .filter(e -> !Objects.equals(e.getValue().getName(), PROJECT_COMPOSE_FILENAME) &&
                         !Objects.equals(e.getValue().getName(), PROJECT_DEPLOYMENT_JKUBE_FILENAME)
                 )
                 .collect(Collectors.toMap(
-                        e -> new GroupedKey(project.getProjectId(), e.getKey().getEnv(), e.getKey().getKey()),
+                        e -> GroupedKey.create(project.getProjectId(), DEFAULT_ENVIRONMENT, e.getValue().getName()),
                         e -> {
                             ProjectFile file = e.getValue();
                             file.setProjectId(project.getProjectId());
