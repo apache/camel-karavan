@@ -55,11 +55,11 @@ jobs:
       - name: Build application
         working-directory: ./karavan/karavan-web/karavan-app
         run: |
-          mvn package -Dquarkus.profile=public -DskipTests \
+          mvn package -Dquarkus.profile=oidc -DskipTests \
           -Dquarkus.quinoa.package-manager-install=false \
           -Dquarkus.container-image.build=true \
           -Dquarkus.container-image.push=true \
-          -Dquarkus.container-image.image=${{ env.REGISTRY }}/${GITHUB_REPOSITORY}:${{ env.TAG }} \
+          -Dquarkus.container-image.image=${{ env.REGISTRY }}/${GITHUB_REPOSITORY}:${{ env.TAG }}-oidc \
           -Dquarkus.container-image.username=${{ github.actor }} \
           -Dquarkus.container-image.password=${{ secrets.GITHUB_TOKEN }}
         if: ${{ github.ref == 'refs/heads/main' }}
