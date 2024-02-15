@@ -24,13 +24,13 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Default;
 import jakarta.inject.Inject;
 import org.apache.camel.karavan.cache.KaravanCacheService;
-import org.apache.camel.karavan.cache.model.ContainerStatus;
-import org.apache.camel.karavan.cache.model.GroupedKey;
-import org.apache.camel.karavan.cache.model.Project;
-import org.apache.camel.karavan.cache.model.ProjectFile;
+import org.apache.camel.karavan.model.ContainerStatus;
+import org.apache.camel.karavan.model.GroupedKey;
+import org.apache.camel.karavan.model.Project;
+import org.apache.camel.karavan.model.ProjectFile;
 import org.apache.camel.karavan.code.CodeService;
 import org.apache.camel.karavan.code.DockerComposeConverter;
-import org.apache.camel.karavan.code.model.DockerComposeService;
+import org.apache.camel.karavan.model.DockerComposeService;
 import org.apache.camel.karavan.docker.DockerForKaravan;
 import org.apache.camel.karavan.git.GitService;
 import org.apache.camel.karavan.git.model.GitRepo;
@@ -53,6 +53,7 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
+import static org.apache.camel.karavan.cache.KaravanCacheService.DEFAULT_ENVIRONMENT;
 import static org.apache.camel.karavan.code.CodeService.*;
 import static org.apache.camel.karavan.shared.Constants.NOTIFICATION_EVENT_COMMIT;
 
@@ -220,12 +221,12 @@ public class ProjectService implements HealthCheck {
         karavanCacheService.saveProject(project);
 
         // Copy files from the source and make necessary modifications
-        Map<GroupedKey, ProjectFile> filesMap = karavanCacheService.getProjectFilesMap(sourceProjectId).entrySet().stream()
+        Map<String, ProjectFile> filesMap = karavanCacheService.getProjectFilesMap(sourceProjectId).entrySet().stream()
                 .filter(e -> !Objects.equals(e.getValue().getName(), PROJECT_COMPOSE_FILENAME) &&
                         !Objects.equals(e.getValue().getName(), PROJECT_DEPLOYMENT_JKUBE_FILENAME)
                 )
                 .collect(Collectors.toMap(
-                        e -> new GroupedKey(project.getProjectId(), e.getKey().getEnv(), e.getKey().getKey()),
+                        e -> GroupedKey.create(project.getProjectId(), DEFAULT_ENVIRONMENT, e.getValue().getName()),
                         e -> {
                             ProjectFile file = e.getValue();
                             file.setProjectId(project.getProjectId());
@@ -382,7 +383,6 @@ public class ProjectService implements HealthCheck {
             if (kamelets == null) {
                 kamelets = new Project(Project.Type.kamelets.name(), "Custom Kamelets", "Custom Kamelets", "", Instant.now().toEpochMilli(), Project.Type.kamelets);
                 karavanCacheService.saveProject(kamelets);
-                commitAndPushProject(JsonObject.of("projectId", Project.Type.kamelets.name(), "message", "Add custom kamelets"));
             }
         } catch (Exception e) {
             LOGGER.error("Error during custom kamelets project creation", e);

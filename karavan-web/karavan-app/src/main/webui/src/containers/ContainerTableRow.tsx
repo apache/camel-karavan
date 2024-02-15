@@ -178,7 +178,7 @@ export function ContainerTableRow(props: Props) {
                     </ExpandableRowContent>
                 </Td>
             </Tr>}
-            {ports !== undefined && ports.length > 0 && <Tr isExpanded={isExpanded}>
+            {ports !== undefined && ports?.length > 0 && <Tr isExpanded={isExpanded}>
                 <Td></Td>
                 <Td colSpan={1}>Ports</Td>
                 <Td colSpan={5}>

@@ -39,7 +39,7 @@ import {
     TopologyRouteNode
 } from "core/model/TopologyDefinition";
 import CustomEdge from "./CustomEdge";
-import {IntegrationFile} from "./TopologyStore";
+import {IntegrationFile} from "core/model/IntegrationDefinition";
 import CustomGroup from "./CustomGroup";
 
 const NODE_DIAMETER = 60;

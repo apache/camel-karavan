@@ -28,7 +28,7 @@ import {
 import './karavan.css';
 import {RouteDesigner} from "./route/RouteDesigner";
 import {CamelDefinitionYaml} from "karavan-core/lib/api/CamelDefinitionYaml";
-import {Integration} from "karavan-core/lib/model/IntegrationDefinition";
+import {Integration, IntegrationFile} from "karavan-core/lib/model/IntegrationDefinition";
 import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
 import {CamelUi} from "./utils/CamelUi";
 import {useDesignerStore, useIntegrationStore} from "./DesignerStore";
@@ -48,7 +48,7 @@ interface Props {
     onSaveCustomCode: (name: string, code: string) => void
     onGetCustomCode: (name: string, javaType: string) => Promise<string | undefined>
     onSavePropertyPlaceholder: (key: string, value: string) => void
-    onInternalConsumerClick: (uri: string, name: string) => void
+    onInternalConsumerClick: (uri?: string, name?: string, routeId?: string) => void
     filename: string
     yaml: string
     dark: boolean
@@ -57,6 +57,7 @@ interface Props {
     tab?: "routes" | "rest" | "beans"
     propertyPlaceholders: string[]
     beans: RegistryBeanDefinition[]
+    files: IntegrationFile[]
 }
 
 export function KaravanDesigner(props: Props) {
@@ -65,8 +66,8 @@ export function KaravanDesigner(props: Props) {
     const [setDark, hideLogDSL, setHideLogDSL, setSelectedStep, reset, badge, message, setPropertyPlaceholders, setBeans] =
         useDesignerStore((s) =>
         [s.setDark, s.hideLogDSL, s.setHideLogDSL, s.setSelectedStep, s.reset, s.notificationBadge, s.notificationMessage, s.setPropertyPlaceholders, s.setBeans], shallow)
-    const [integration, setIntegration] = useIntegrationStore((s) =>
-        [s.integration, s.setIntegration], shallow)
+    const [integration, setIntegration, resetFiles] = useIntegrationStore((s) =>
+        [s.integration, s.setIntegration, s.resetFiles], shallow)
 
     useEffect(() => {
         const sub = EventBus.onIntegrationUpdate()?.subscribe((update: IntegrationUpdate) =>
@@ -92,6 +93,7 @@ export function KaravanDesigner(props: Props) {
         setDark(props.dark);
         setPropertyPlaceholders(props.propertyPlaceholders)
         setBeans(props.beans)
+        resetFiles(props.files)
         setHideLogDSL(props.hideLogDSL === true);
         return () => {
             sub?.unsubscribe();

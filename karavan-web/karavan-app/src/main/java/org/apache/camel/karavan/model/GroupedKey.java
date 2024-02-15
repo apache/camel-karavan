@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.camel.karavan.cache.model;
+package org.apache.camel.karavan.model;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -25,9 +25,9 @@ public class GroupedKey implements Serializable {
     @Serial
     private static final long serialVersionUID = 7777777L;
 
-    String projectId;
-    String env;
-    String key;
+    private String projectId;
+    private String env;
+    private String key;
 
     public GroupedKey(String projectId, String env, String key) {
         this.projectId = projectId;
@@ -35,33 +35,32 @@ public class GroupedKey implements Serializable {
         this.key = key;
     }
 
-    public static GroupedKey create(String projectId, String env, String key) {
-        return new GroupedKey(projectId, env, key);
+    public static String create(String projectId, String env, String key) {
+        return new GroupedKey(projectId, env, key).getCacheKey();
     }
 
     public String getEnv() {
         return env;
     }
 
-    public void setEnv(String env) {
-        this.env = env;
+    public String getKey() {
+        return key;
+    }
+
+    public String getProjectId() {
+        return projectId;
     }
 
     public void setProjectId(String projectId) {
         this.projectId = projectId;
     }
 
-    public String getKey() {
-        return key;
+    public void setEnv(String env) {
+        this.env = env;
     }
 
     public void setKey(String key) {
         this.key = key;
-    }
-
-//    @Group https://github.com/quarkusio/quarkus/issues/34677
-    public String getProjectId() {
-        return projectId;
     }
 
     @Override
@@ -76,20 +75,17 @@ public class GroupedKey implements Serializable {
         return key.equals(that.key);
     }
 
+    public String getCacheKey() {
+        return projectId + ":" + env + ":" + key;
+    }
+
     @Override
     public int hashCode() {
-        int result = projectId.hashCode();
-        result = 31 * result + env.hashCode();
-        result = 31 * result + key.hashCode();
-        return result;
+        return getCacheKey().hashCode();
     }
 
     @Override
     public String toString() {
-        return "GroupedKey{" +
-                "projectId='" + projectId + '\'' +
-                ", env='" + env + '\'' +
-                ", key='" + key + '\'' +
-                '}';
+        return "GroupedKey{" + getCacheKey() + '}';
     }
 }

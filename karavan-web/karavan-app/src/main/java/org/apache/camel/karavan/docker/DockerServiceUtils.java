@@ -19,9 +19,9 @@ package org.apache.camel.karavan.docker;
 import com.github.dockerjava.api.model.*;
 import io.smallrye.mutiny.tuples.Tuple2;
 import org.apache.camel.karavan.api.KameletResources;
-import org.apache.camel.karavan.code.model.DockerComposeHealthCheck;
-import org.apache.camel.karavan.cache.model.ContainerPort;
-import org.apache.camel.karavan.cache.model.ContainerStatus;
+import org.apache.camel.karavan.model.DockerComposeHealthCheck;
+import org.apache.camel.karavan.model.ContainerPort;
+import org.apache.camel.karavan.model.ContainerStatus;
 
 import java.io.BufferedReader;
 import java.io.InputStream;

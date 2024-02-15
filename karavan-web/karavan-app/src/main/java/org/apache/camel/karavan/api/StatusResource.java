@@ -21,9 +21,9 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.apache.camel.karavan.cache.KaravanCacheService;
-import org.apache.camel.karavan.cache.model.CamelStatus;
-import org.apache.camel.karavan.cache.model.CamelStatusValue;
-import org.apache.camel.karavan.cache.model.DeploymentStatus;
+import org.apache.camel.karavan.model.CamelStatus;
+import org.apache.camel.karavan.model.CamelStatusValue;
+import org.apache.camel.karavan.model.DeploymentStatus;
 import org.jboss.logging.Logger;
 
 import java.util.List;

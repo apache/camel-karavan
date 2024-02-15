@@ -20,7 +20,7 @@ package org.apache.camel.karavan.kubernetes;
 import io.fabric8.kubernetes.api.model.apps.Deployment;
 import io.fabric8.kubernetes.client.informers.ResourceEventHandler;
 import org.apache.camel.karavan.cache.KaravanCacheService;
-import org.apache.camel.karavan.cache.model.DeploymentStatus;
+import org.apache.camel.karavan.model.DeploymentStatus;
 import org.jboss.logging.Logger;
 
 public class DeploymentEventHandler implements ResourceEventHandler<Deployment> {

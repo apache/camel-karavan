@@ -26,8 +26,8 @@ import { TemplateApi } from "./core/api/TemplateApi";
 import { EventBus } from "./designer/utils/EventBus";
 import { KnowledgebasePage } from "./knowledgebase/KnowledgebasePage";
 import { TopologyTab } from "./topology/TopologyTab";
-import { IntegrationFile } from "./topology/TopologyStore";
 import {RegistryBeanDefinition} from "core/model/CamelDefinition";
+import { IntegrationFile } from "core/model/IntegrationDefinition";
 
 interface Props {
   dark: boolean
@@ -257,9 +257,10 @@ class App extends React.Component<Props, State> {
             propertyPlaceholders={this.state.propertyPlaceholders}
             onSavePropertyPlaceholder={(key, value) => this.savePropertyPlaceholder(key, value)}
             beans={this.state.beans}
-            onInternalConsumerClick={(uri, name) => {
-              vscode.postMessage({ command: 'internalConsumerClick', uri: uri, name: name });
-          }}
+            onInternalConsumerClick={(uri, name, routeId) => {
+              vscode.postMessage({ command: 'internalConsumerClick', uri: uri, name: name, routeId: routeId });
+            }}
+            files={this.state.files.map(f => new IntegrationFile(f.name, f.code))}
           />
         }
         {loaded && page === "knowledgebase" && <KnowledgebasePage dark={dark}  changeBlockList={(type: string, name: string, checked: boolean) => this.onchangeBlockedList(type, name, checked)}/>}

@@ -21,8 +21,8 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.apache.camel.karavan.cache.KaravanCacheService;
-import org.apache.camel.karavan.cache.model.DeploymentStatus;
-import org.apache.camel.karavan.cache.model.ServiceStatus;
+import org.apache.camel.karavan.model.DeploymentStatus;
+import org.apache.camel.karavan.model.ServiceStatus;
 import org.apache.camel.karavan.kubernetes.KubernetesService;
 import org.apache.camel.karavan.service.ConfigService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -140,7 +140,7 @@ public class InfrastructureResource {
                 return Response.ok(kubernetesService.getServices(kubernetesService.getNamespace())).build();
             } else {
                 List<String> list = karavanCacheService.getContainerStatuses(environment).stream()
-                        .filter(ci -> !ci.getPorts().isEmpty())
+                        .filter(ci -> ci.getPorts() != null && !ci.getPorts().isEmpty())
                         .map(ci -> ci.getPorts().stream().map(i -> ci.getContainerName() + "|" + ci.getContainerName() + ":" + i.getPrivatePort()).collect(Collectors.toList()))
                         .flatMap(List::stream).collect(Collectors.toList());
                 return Response.ok(list).build();

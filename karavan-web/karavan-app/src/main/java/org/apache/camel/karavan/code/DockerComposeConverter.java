@@ -19,8 +19,8 @@ package org.apache.camel.karavan.code;
 
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-import org.apache.camel.karavan.code.model.DockerCompose;
-import org.apache.camel.karavan.code.model.DockerComposeService;
+import org.apache.camel.karavan.model.DockerCompose;
+import org.apache.camel.karavan.model.DockerComposeService;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.introspector.Property;

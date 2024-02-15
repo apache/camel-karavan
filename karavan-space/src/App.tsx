@@ -33,7 +33,7 @@ import {KnowledgebasePage} from "./knowledgebase/KnowledgebasePage";
 import {EventBus} from "./designer/utils/EventBus";
 import {Notification} from "./designer/utils/Notification";
 import {TopologyTab} from "./topology/TopologyTab";
-import {IntegrationFile} from "./topology/TopologyStore";
+import {IntegrationFile} from "karavan-core/lib/model/IntegrationDefinition";
 
 class MenuItem {
     pageId: string = '';

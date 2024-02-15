@@ -99,7 +99,7 @@ export class TopologyUtils {
                 }
             }
         }
-        return result;
+        return result.endsWith("&") ? result.substring(0, result.length - 1) : result;
     }
 
     static isComponentInternal = (label: string): boolean => {

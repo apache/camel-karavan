@@ -15,8 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.camel.karavan.code.model;
-
+package org.apache.camel.karavan.model;
 
 import java.util.HashMap;
 import java.util.Map;

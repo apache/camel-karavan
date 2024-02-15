@@ -21,8 +21,8 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import org.apache.camel.karavan.code.CodeService;
 import org.apache.camel.karavan.cache.KaravanCacheService;
-import org.apache.camel.karavan.cache.model.Project;
-import org.apache.camel.karavan.cache.model.ProjectFile;
+import org.apache.camel.karavan.model.Project;
+import org.apache.camel.karavan.model.ProjectFile;
 import org.apache.camel.karavan.validation.project.ProjectFileCreateValidator;
 
 import java.net.URLDecoder;

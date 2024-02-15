@@ -31,8 +31,8 @@ import io.vertx.core.buffer.Buffer;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.apache.camel.karavan.code.CodeService;
-import org.apache.camel.karavan.code.model.DockerComposeService;
-import org.apache.camel.karavan.cache.model.ContainerStatus;
+import org.apache.camel.karavan.model.DockerComposeService;
+import org.apache.camel.karavan.model.ContainerStatus;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
 import org.apache.commons.io.IOUtils;
@@ -115,6 +115,13 @@ public class DockerService extends DockerServiceUtils {
             result.add(containerStatus);
         });
         return result;
+    }
+
+    public ContainerStatus collectContainerStatistics(ContainerStatus containerStatus) {
+        Container container = getContainerByName(containerStatus.getContainerName());
+        Statistics stats = getContainerStats(container.getId());
+        updateStatistics(containerStatus, stats);
+        return containerStatus;
     }
 
     public void startListeners() {

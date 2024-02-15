@@ -17,13 +17,14 @@
 
 import React, {useState} from 'react';
 import {
-    Button,
+    Button, HelperText, HelperTextItem,
     Modal,
-    ModalVariant, Switch,
+    ModalVariant, Switch, Text, TextContent, TextVariants,
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
 import {useProjectStore} from "../api/ProjectStore";
 import {ProjectService} from "../api/ProjectService";
+import ExclamationIcon from '@patternfly/react-icons/dist/esm/icons/exclamation-icon';
 
 export function DeleteProjectModal () {
 
@@ -42,23 +43,32 @@ export function DeleteProjectModal () {
     const isOpen= operation === "delete";
     return (
             <Modal
-                title="Project delete confirmation"
+                title="Confirmation"
                 variant={ModalVariant.small}
                 isOpen={isOpen}
                 onClose={() => closeModal()}
                 actions={[
-                    <Button key="confirm" variant="primary" onClick={e => confirmAndCloseModal()}>Delete</Button>,
+                    <Button key="confirm" variant="danger" onClick={e => confirmAndCloseModal()}>Delete</Button>,
                     <Button key="cancel" variant="link"
                             onClick={e => closeModal()}>Cancel</Button>
                 ]}
                 onEscapePress={e => closeModal()}>
-                {/*<div>{"Are you sure you want to delete the project " + project?.projectId + "?"}</div>*/}
-                <Switch
-                    label={"Delete container and/or deployments?"}
-                    isChecked={deleteContainers}
-                    onChange={(_, checked) => setDeleteContainers(checked)}
-                    isReversed
-                />
+                    <TextContent>
+                        <Text component={TextVariants.h3}>Delete project <b>{project?.projectId}</b> ?</Text>
+                        <HelperText>
+                            <HelperTextItem variant="warning">
+                                Project will be also deleted from <b>git</b> repository
+                            </HelperTextItem>
+                        </HelperText>
+                        <Text component={TextVariants.p}></Text>
+                        <Text component={TextVariants.p}></Text>
+                    </TextContent>
+                    <Switch
+                        label={"Delete related container and/or deployments?"}
+                        isChecked={deleteContainers}
+                        onChange={(_, checked) => setDeleteContainers(checked)}
+                        isReversed
+                    />
             </Modal>
     )
 }

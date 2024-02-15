@@ -15,49 +15,30 @@
  * limitations under the License.
  */
 
-package org.apache.camel.karavan.cache.model;
+package org.apache.camel.karavan.model;
 
-import java.io.Serial;
-import java.io.Serializable;
 
-public class CamelStatusValue implements Serializable {
+public class DockerComposeNetwork {
 
-    @Serial
-    private static final long serialVersionUID = 7777777L;
+    private String name;
+    private Boolean external;
 
-    public enum Name {
-
-        context,
-        inflight,
-        memory,
-        properties,
-        route,
-        trace,
-        jvm,
-        source
+    public DockerComposeNetwork() {
     }
 
-    Name name;
-    String status;
-
-    public CamelStatusValue(Name name, String status) {
-        this.name = name;
-        this.status = status;
-    }
-
-    public Name getName() {
+    public String getName() {
         return name;
     }
 
-    public void setName(Name name) {
+    public void setName(String name) {
         this.name = name;
     }
 
-    public String getStatus() {
-        return status;
+    public Boolean getExternal() {
+        return external;
     }
 
-    public void setStatus(String status) {
-        this.status = status;
+    public void setExternal(Boolean external) {
+        this.external = external;
     }
 }

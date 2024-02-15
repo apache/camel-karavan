@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {Uri, window, commands, WebviewPanel, ExtensionContext, ViewColumn, WebviewPanelOnDidChangeViewStateEvent } from "vscode";
+import { Uri, window, commands, WebviewPanel, ExtensionContext, ViewColumn, WebviewPanelOnDidChangeViewStateEvent } from "vscode";
 import * as path from "path";
 import * as utils from "./utils";
 import { CamelDefinitionYaml } from "core/api/CamelDefinitionYaml";
@@ -32,7 +32,7 @@ export class DesignerView {
     }
     karavanOpen(fullPath: string, tab?: string) {
         utils.readFile(path.resolve(fullPath)).then(readData => {
-            
+
             const yaml = Buffer.from(readData).toString('utf8');
             const filename = path.basename(fullPath);
             const relativePath = utils.getRalativePath(fullPath);
@@ -76,7 +76,7 @@ export class DesignerView {
             .showInputBox({
                 title: type === 'kamelet' ? 'Create Kamelet' : "Create Integration",
                 ignoreFocusOut: true,
-                prompt: type === 'kamelet' ? 'Kamelet Name' : "Integration name", 
+                prompt: type === 'kamelet' ? 'Kamelet Name' : "Integration name",
                 validateInput: (text: string): string | undefined => {
                     if (!text || text.length === 0) {
                         return 'Name should not be empty';
@@ -88,9 +88,9 @@ export class DesignerView {
                 if (value) {
                     const name = utils.nameFromTitle(type, value, kameletType);
                     const filename = utils.fileNameFromName(type, name, kameletType);
-                    const i:Integration = Integration.createNew(name, type);
+                    const i: Integration = Integration.createNew(name, type);
                     if (type === 'kamelet' && i.metadata && kameletType) {
-                        i.metadata.labels = new MetadataLabels({"camel.apache.org/kamelet.type": kameletType});
+                        i.metadata.labels = new MetadataLabels({ "camel.apache.org/kamelet.type": kameletType });
                     }
                     i.type = type;
                     const yaml = CamelDefinitionYaml.integrationToYaml(i);
@@ -136,12 +136,12 @@ export class DesignerView {
                             break;
                         case 'savePropertyPlaceholder':
                             utils.savePropertyPlaceholder(message.key, message.value);
-                            break;    
+                            break;
                         case 'getData':
                             this.sendData(panel, filename, relativePath, fullPath, message.reread === true, yaml, tab);
                             break;
                         case 'internalConsumerClick':
-                            this.internalConsumerClick(panel, fullPath, message.uri, message.name);
+                            this.internalConsumerClick(panel, fullPath, message.uri, message.name, message.routeId);
                             break;
                     }
                 },
@@ -190,7 +190,9 @@ export class DesignerView {
             // Read beans
             utils.readBeans(fullPath),
             //Read BlockList
-            utils.readBlockTemplates(this.context)
+            utils.readBlockTemplates(this.context),
+            // Read integration
+            utils.readCamelYamlFiles(path.dirname(fullPath))
         ]).then(results => {
             // Send Kamelets
             panel.webview.postMessage({ command: 'kamelets', kamelets: results[0] });
@@ -201,16 +203,18 @@ export class DesignerView {
             // Send java code
             panel.webview.postMessage({ command: 'javaCode', javaCode: Object.fromEntries(results[3]) });
             // Send supported components
-            if (results[4]) panel.webview.postMessage({ command: 'supportedComponents', components: results[4]});
-            if (results[5] === true) panel.webview.postMessage({ command: 'supportedOnly'});
+            if (results[4]) panel.webview.postMessage({ command: 'supportedComponents', components: results[4] });
+            if (results[5] === true) panel.webview.postMessage({ command: 'supportedOnly' });
             // Send integration
+            panel.webview.postMessage({ command: 'files', files: results[8] });
             this.sendIntegrationData(panel, filename, relativePath, fullPath, reread, yaml, tab, results[6], results[7]);
             // Send block list
             panel.webview.postMessage({ command: 'blockList', blockList: Object.fromEntries(results[8]) });
+
         }).catch(err => console.log(err));
     }
 
-    sendIntegrationData(panel: WebviewPanel, filename: string, relativePath: string, 
+    sendIntegrationData(panel: WebviewPanel, filename: string, relativePath: string,
         fullPath: string, reread: boolean, yaml?: string, tab?: string, propertyPlaceholders?: string[], beans?: RegistryBeanDefinition[]) {
         // Read file if required
         if (reread) {
@@ -218,14 +222,18 @@ export class DesignerView {
                 const yaml = Buffer.from(readData).toString('utf8');
                 // Send integration
                 panel.webview.postMessage(
-                    { command: 'open', page: "designer", filename: filename, relativePath: relativePath, 
-                    fullPath:fullPath, yaml: yaml, tab: tab, propertyPlaceholders: propertyPlaceholders, beans: beans });
+                    {
+                        command: 'open', page: "designer", filename: filename, relativePath: relativePath,
+                        fullPath: fullPath, yaml: yaml, tab: tab, propertyPlaceholders: propertyPlaceholders, beans: beans
+                    });
             });
         } else {
             // Send integration
             panel.webview.postMessage(
-                { command: 'open', page: "designer", filename: filename, relativePath: relativePath, 
-                fullPath:fullPath, yaml: yaml, tab: tab, propertyPlaceholders: propertyPlaceholders, beans: beans });
+                {
+                    command: 'open', page: "designer", filename: filename, relativePath: relativePath,
+                    fullPath: fullPath, yaml: yaml, tab: tab, propertyPlaceholders: propertyPlaceholders, beans: beans
+                });
         }
 
     }
@@ -240,12 +248,21 @@ export class DesignerView {
         }
     }
 
-    internalConsumerClick(panel: WebviewPanel, fullPath: string, uri: string, name: string) {
-        utils.getFileWithIntegralConsumer(fullPath, uri, name).then((filename) => {
-            if (filename !== undefined) {
-                commands.executeCommand("karavan.open", { fsPath: filename })
-            }
-        }).catch(err => window.showErrorMessage("Error: " + err?.reason));
-        
+    internalConsumerClick(panel: WebviewPanel, fullPath: string, uri?: string, name?: string, routeId?: string) {
+        console.log(uri, name, routeId)
+        if (uri && name) {
+            utils.getFileWithIntegnalConsumer(fullPath, uri, name).then((filename) => {
+                if (filename !== undefined) {
+                    commands.executeCommand("karavan.open", { fsPath: filename })
+                }
+            }).catch(err => window.showErrorMessage("Error: " + err?.reason));
+        } else if(routeId) {
+            utils.getFileWithInternalProducer(fullPath, routeId).then((filename) => {
+                if (filename !== undefined) {
+                    commands.executeCommand("karavan.open", { fsPath: filename })
+                }
+            }).catch(err => window.showErrorMessage("Error: " + err?.reason));
+        }
+
     }
 }

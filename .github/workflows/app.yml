@@ -59,6 +59,9 @@ jobs:
           mvn package -Dquarkus.profile=public -DskipTests \
           -Dquarkus.quinoa.package-manager-install=false \
           -Dquarkus.container-image.build=true \
+          -Dquarkus.container-image.builder=jib \
+          -Dquarkus.jib.platforms=linux/amd64,linux/arm64 \
+          -Dquarkus.jib.base-native-image=quay.io/quarkus/quarkus-micro-image:latest \
           -Dquarkus.container-image.push=true \
           -Dquarkus.container-image.image=${{ env.REGISTRY }}/${GITHUB_REPOSITORY}:${{ env.TAG }} \
           -Dquarkus.container-image.username=${{ github.actor }} \

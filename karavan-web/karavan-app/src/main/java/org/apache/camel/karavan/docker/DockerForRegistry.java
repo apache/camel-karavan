@@ -19,7 +19,7 @@ package org.apache.camel.karavan.docker;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.apache.camel.karavan.code.CodeService;
-import org.apache.camel.karavan.cache.model.ContainerStatus;
+import org.apache.camel.karavan.model.ContainerStatus;
 import org.jboss.logging.Logger;
 
 @ApplicationScoped

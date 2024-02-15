@@ -25,7 +25,7 @@ import io.fabric8.kubernetes.client.informers.ResourceEventHandler;
 import io.vertx.core.json.JsonObject;
 import io.vertx.mutiny.core.eventbus.EventBus;
 import org.apache.camel.karavan.cache.KaravanCacheService;
-import org.apache.camel.karavan.cache.model.ContainerStatus;
+import org.apache.camel.karavan.model.ContainerStatus;
 import org.jboss.logging.Logger;
 
 import java.util.List;

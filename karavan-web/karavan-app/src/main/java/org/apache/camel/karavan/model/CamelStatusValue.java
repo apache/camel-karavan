@@ -15,47 +15,49 @@
  * limitations under the License.
  */
 
-package org.apache.camel.karavan.cache.model;
+package org.apache.camel.karavan.model;
 
 import java.io.Serial;
 import java.io.Serializable;
 
-public class ContainerPort implements Serializable {
+public class CamelStatusValue implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 7777777L;
 
-    Integer privatePort;
-    Integer publicPort;
-    String type;
+    public enum Name {
 
-    public ContainerPort(Integer privatePort, Integer publicPort, String type) {
-        this.privatePort = privatePort;
-        this.publicPort = publicPort;
-        this.type = type;
+        context,
+        inflight,
+        memory,
+        properties,
+        route,
+        trace,
+        jvm,
+        source
     }
 
-    public Integer getPrivatePort() {
-        return privatePort;
+    Name name;
+    String status;
+
+    public CamelStatusValue(Name name, String status) {
+        this.name = name;
+        this.status = status;
     }
 
-    public void setPrivatePort(Integer privatePort) {
-        this.privatePort = privatePort;
+    public Name getName() {
+        return name;
     }
 
-    public Integer getPublicPort() {
-        return publicPort;
+    public void setName(Name name) {
+        this.name = name;
     }
 
-    public void setPublicPort(Integer publicPort) {
-        this.publicPort = publicPort;
+    public String getStatus() {
+        return status;
     }
 
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
+    public void setStatus(String status) {
+        this.status = status;
     }
 }
