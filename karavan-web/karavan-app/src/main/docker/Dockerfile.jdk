@@ -26,5 +26,14 @@ RUN mkdir /opt/app
 COPY target/*-runner.jar /opt/app/karavan.jar
 ENV JAVA_OPTS="-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:-UseG1GC -XX:+UseZGC"
 EXPOSE 8080
-CMD ["java", "-jar", "/opt/app/karavan.jar"]
+CMD ["java", \
+    "--add-modules", "java.se", \
+    "--add-exports", "java.base/jdk.internal.ref=ALL-UNNAMED", \
+    "--add-opens", "java.base/java.lang=ALL-UNNAMED", \
+    "--add-opens", "java.base/java.nio=ALL-UNNAMED", \
+    "--add-opens", "java.base/sun.nio.ch=ALL-UNNAMED", \
+    "--add-opens", "java.management/sun.management=ALL-UNNAMED", \
+    "--add-opens", "jdk.management/com.ibm.lang.management.internal=ALL-UNNAMED", \
+    "--add-opens", "jdk.management/com.sun.management.internal=ALL-UNNAMED", \
+    "-jar", "/opt/app/karavan.jar"]
 
