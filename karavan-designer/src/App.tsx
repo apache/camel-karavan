@@ -71,11 +71,12 @@ export function App() {
             fetch("snippets/org.apache.camel.AggregationStrategy"),
             fetch("snippets/org.apache.camel.Processor"),
             fetch("example/demo.camel.yaml"),
-            // fetch("example/aws-cloudwatch-sink.kamelet.yaml")
-            // fetch("example/aws-s3-cdc-source.kamelet.yaml")
-            fetch("components/supported-components.json"),
             fetch("components/blocked-components.properties"),
             fetch("kamelets/blocked-kamelets.properties")
+            // fetch("example/aws-cloudwatch-sink.kamelet.yaml")
+            // fetch("example/aws-s3-cdc-source.kamelet.yaml")
+            //fetch("components/supported-components.json"),
+            
         ]).then(responses =>
             Promise.all(responses.map(response => response.text()))
         ).then(data => {
@@ -96,16 +97,17 @@ export function App() {
                 setYaml(data[4]);
                 setName("demo.camel.yaml");
             }
- 	    if (data[5]) {
-                ComponentApi.saveSupportedComponents(data[4]);
-                ComponentApi.setSupportedOnly(true);
+            if (data[5]) {
+                ComponentApi.saveBlockedComponentNames(data[5].split('\r\n'));
             }
             if (data[6]) {
-                ComponentApi.saveBlockedComponentNames(data[6].split('\r\n'));
+                KameletApi.saveBlockedKameletNames(data[6].split('\n'));
             }
-            if (data[7]) {
-                KameletApi.saveBlockedKameletNames(data[7].split('\n'));
+ 	        if (data[7]) {
+                ComponentApi.saveSupportedComponents(data[7]);
+                ComponentApi.setSupportedOnly(true);
             }
+           
         }).catch(err =>
             EventBus.sendAlert("Error", err.text, 'danger')
         );

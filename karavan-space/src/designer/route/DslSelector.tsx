@@ -27,6 +27,8 @@ import {DslMetaModel} from "../utils/DslMetaModel";
 import {useDesignerStore, useIntegrationStore, useSelectorStore} from "../DesignerStore";
 import {shallow} from "zustand/shallow";
 import {useRouteDesignerHook} from "./useRouteDesignerHook";
+import { ComponentApi } from 'karavan-core/lib/api/ComponentApi';
+import { KameletApi } from 'karavan-core/lib/api/KameletApi';
 
 interface Props {
     tabIndex?: string | number
@@ -119,9 +121,14 @@ export function DslSelector (props: Props) {
     const isEip = selectorTabIndex === 'eip';
     const title = parentDsl === undefined ? "Select source" : "Select step";
     const navigation: string = selectorTabIndex ? selectorTabIndex.toString() : '';
+    const blockedComponents = ComponentApi.getBlockedComponentNames();
+    const blockedKamelets = KameletApi.getBlockedKameletNames();
     const elements = CamelUi.getSelectorModelsForParentFiltered(parentDsl, navigation, showSteps);
+    const allowedElements = selectorTabIndex === 'component' ?
+        elements.filter(dsl => (!blockedComponents.includes(dsl.uri || dsl.name))) :
+        (selectorTabIndex === 'kamelet' ? elements.filter(dsl => (!blockedKamelets.includes(dsl.name))) : elements);
     const eipLabels = [...new Set(elements.map(e => e.labels).join(",").split(",").filter(e => e !== 'eip'))];
-    const filteredElement = elements
+    const filteredElement = allowedElements
         .filter((dsl: DslMetaModel) => CamelUi.checkFilter(dsl, filter))
         .filter((dsl: DslMetaModel) => {
             if (!isEip || selectedLabels.length === 0) {

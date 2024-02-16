@@ -14,9 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
-    CardHeader, Card, CardTitle, CardBody, CardFooter,Badge
+    CardHeader, Card, CardTitle, CardBody, CardFooter, Badge, Checkbox
 } from '@patternfly/react-core';
 import '../../designer/karavan.css';
 import {KameletModel} from "karavan-core/lib/model/KameletModels";
@@ -27,21 +27,34 @@ import {shallow} from "zustand/shallow";
 
 interface Props {
     kamelet: KameletModel,
+    onChange: (name: string, checked: boolean) => void
 }
 
 export function KameletCard(props: Props) {
 
     const [setKamelet, setModalOpen] = useKnowledgebaseStore((s) =>
         [s.setKamelet, s.setModalOpen], shallow)
-
+    const [blockedKamelets, setBlockedKamelets] = useState<string[]>();
+    useEffect(() => {
+        setBlockedKamelets(KameletApi.getBlockedKameletNames());
+    }, []);
+    
     const kamelet = props.kamelet;
     const isCustom = KameletApi.getCustomKameletNames().includes(kamelet.metadata.name);
 
-    function click (event: React.MouseEvent) {
-        setKamelet(kamelet)
-        setModalOpen(true);
+    function click(event: React.MouseEvent) {
+        const { target } = event;
+        if (!(target as HTMLElement).parentElement?.className.includes("block-checkbox")) {
+            setKamelet(kamelet)
+            setModalOpen(true);
+        }
 
     }
+    function selectKamelet(event: React.FormEvent, checked: boolean) {
+        props.onChange(kamelet.metadata.name, checked );
+        setBlockedKamelets([...KameletApi.getBlockedKameletNames()]);
+    }
+    const isblockedKamelet = blockedKamelets ? blockedKamelets.findIndex(r => r === kamelet.metadata.name) > -1 : false;
     return (
         <Card  isCompact key={kamelet.metadata.name} className="kamelet-card"
                onClick={event => click(event)}
@@ -49,6 +62,7 @@ export function KameletCard(props: Props) {
             <CardHeader className="header-labels">
                 {isCustom && <Badge className="custom">custom</Badge>}
                 <Badge isRead className="support-level labels">{kamelet.metadata.annotations["camel.apache.org/kamelet.support.level"]}</Badge>
+                <Checkbox id={kamelet.metadata.name} className="block-checkbox labels" isChecked={!isblockedKamelet} onChange={(_, checked) => selectKamelet(_, checked)} />
             </CardHeader>
             <CardHeader>
                 {CamelUi.getIconFromSource(kamelet.icon())}
