@@ -52,8 +52,9 @@ export async function savePropertyPlaceholder(key: string, value: string) {
 export function saveBlockList(key: string, value: string) {
     if (workspace.workspaceFolders) {
         const uriFolder: Uri = workspace.workspaceFolders[0].uri;
+        const settingsPath: string | undefined = workspace.getConfiguration().get("Karavan.settingsPath");
         const name = key+"s-blocklist.txt";
-        write(path.join(uriFolder.path, "snippets/"+name), value);
+        write(path.join(uriFolder.path, settingsPath+"/"+name), value);
     }
 }
 
@@ -73,7 +74,7 @@ export function getRalativePath(fullPath: string): string {
 }
 
 export async function readKamelets(context: ExtensionContext) {
-    const yamls: string[] = await readBuildInKamelets(context);
+   const yamls: string[] = await readBuildInKamelets(context);
     const kameletsPath: string | undefined = workspace.getConfiguration().get("Karavan.kameletsPath");
     if (kameletsPath && kameletsPath.trim().length > 0) {
         const kameletsDir = path.isAbsolute(kameletsPath) ? kameletsPath : path.resolve(kameletsPath);
@@ -190,11 +191,14 @@ export async function readTemplates(context: ExtensionContext) {
 }
 export async function readBlockTemplates(context: ExtensionContext) {
     const result = new Map<string, string>();
-    const runtime = await getRuntime();
-    const files = await readFilesInDirByExtension(path.join(context.extensionPath, 'snippets'), "txt");
-    files.forEach((v, k) => {
-            result.set(k,v);
-    })
+  
+    const blockedListDir: string | undefined = workspace.getConfiguration().get("Karavan.settingsPath");
+    if (blockedListDir && blockedListDir.trim().length > 0) {
+        const files = await readFilesInDirByExtension(path.join(context.extensionPath, blockedListDir), "txt");
+        files.forEach((v, k) => {
+                    result.set(k,v);
+            })
+    }
     return result;
 }
 
