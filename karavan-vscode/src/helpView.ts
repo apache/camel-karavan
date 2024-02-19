@@ -73,7 +73,7 @@ export class HelpView implements vscode.TreeDataProvider<HelpItem> {
 							break;
 						
 						case 'saveBlockedList':
-							utils.saveBlockList(message.key,message.value);
+							utils.saveBlockList(message.key, message.value);
 							break;
 					}
 				},

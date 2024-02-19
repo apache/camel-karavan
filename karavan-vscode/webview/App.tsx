@@ -263,7 +263,12 @@ class App extends React.Component<Props, State> {
             files={this.state.files.map(f => new IntegrationFile(f.name, f.code))}
           />
         }
-        {loaded && page === "knowledgebase" && <KnowledgebasePage dark={dark}  changeBlockList={(type: string, name: string, checked: boolean) => this.onchangeBlockedList(type, name, checked)}/>}
+        {loaded && page === "knowledgebase" && 
+                <KnowledgebasePage 
+                          dark={dark} 
+                          showBlockCheckbox={true}
+                          changeBlockList={(type: string, name: string, checked: boolean) => this.onchangeBlockedList(type, name, checked)}/>
+        }
         {loaded && page === "topology" &&
           <TopologyTab
             hideToolbar={true}

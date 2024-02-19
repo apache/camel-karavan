@@ -458,9 +458,8 @@
           "scope": "machine",
           "order": 95
         },
-        "Karavan.settingsPath": {
+        "Karavan.blockingComponentsPath": {
           "type": "string",
-          "default": "settings",
           "description": "Blocked kamelets/components Path",
           "scope": "machine",
           "order": 96
@@ -726,7 +725,7 @@
     "replace-import": "run-script-os",
     "replace-import:darwin": "find webview -type f -name '*.ts*' -exec sed -i '' 's!karavan-core/lib!core!g' {} +",
     "replace-import:linux": "find webview -type f -name '*.ts*' -exec sed -i 's!karavan-core/lib!core!g' {} +",
-        "copy-karavan": "npm run copy-core && npm run copy-designer && npm run replace-import",
+    "copy-karavan": "npm run copy-core && npm run copy-designer && npm run replace-import",
     "vscode:prepublish": "npm run copy-karavan && npm run package",
     "compile": "npm run copy-karavan && cross-env NODE_ENV=development webpack --progress --stats-error-details",
     "watch": "npm run copy-karavan && cross-env NODE_ENV=development webpack --progress --watch",
@@ -749,9 +748,9 @@
     "@types/js-yaml": "4.0.9",
     "@types/node": "20.11.16",
     "@types/uuid": "9.0.8",
-        "html-to-image": "1.11.11",
+    "html-to-image": "1.11.11",
     "js-yaml": "^4.1.0",
-        "path-browserify": "^1.0.1",
+    "path-browserify": "^1.0.1",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "rxjs": "7.8.1",
