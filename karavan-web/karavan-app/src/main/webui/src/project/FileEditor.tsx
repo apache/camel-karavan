@@ -45,8 +45,10 @@ export function FileEditor(props: Props) {
     const [propertyPlaceholders, setPropertyPlaceholders] = useState<string[]>([]);
     const [beans, setBeans] = useState<RegistryBeanDefinition[]>([]);
     const [key, setKey] = useState<string>(Math.random().toString());
+    const [code, setCode] = useState<string>();
 
     useEffect(() => {
+        setCode(file?.code);
         const pp = CodeUtils.getPropertyPlaceholders(files);
         setPropertyPlaceholders(prevState => {
             prevState.length = 0;
@@ -139,7 +141,7 @@ export function FileEditor(props: Props) {
                 height="100vh"
                 defaultLanguage={language}
                 theme={'light'}
-                value={file.code}
+                value={code}
                 className={'code-editor'}
                 onChange={(value, ev) => {
                     if (value) {
