@@ -543,8 +543,10 @@ public class KubernetesService implements HealthCheck {
 
     private void createService(String name, Map<String, String> labels) {
         try (KubernetesClient client = kubernetesClient()) {
-            ServicePortBuilder portBuilder = new ServicePortBuilder()
-                    .withName("http").withPort(80).withProtocol("TCP").withTargetPort(new IntOrString(8080));
+            ServicePort http = new ServicePortBuilder()
+                    .withName("http").withPort(80).withProtocol("TCP").withTargetPort(new IntOrString(8080)).build();
+            ServicePort https = new ServicePortBuilder()
+                    .withName("https").withPort(443).withProtocol("TCP").withTargetPort(new IntOrString(8080)).build();
 
             Service service = new ServiceBuilder()
                     .withNewMetadata()
@@ -554,7 +556,7 @@ public class KubernetesService implements HealthCheck {
                     .endMetadata()
                     .withNewSpec()
                     .withType("ClusterIP")
-                    .withPorts(portBuilder.build())
+                    .withPorts(http, https)
                     .withSelector(labels)
                     .endSpec()
                     .build();
