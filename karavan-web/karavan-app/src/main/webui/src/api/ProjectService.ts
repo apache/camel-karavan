@@ -30,6 +30,7 @@ import {
 import {ProjectEventBus} from './ProjectEventBus';
 import {EventBus} from "../designer/utils/EventBus";
 import {KameletApi} from "karavan-core/lib/api/KameletApi";
+import { ComponentApi } from 'karavan-core/lib/api/ComponentApi';
 
 export class ProjectService {
 
@@ -129,14 +130,13 @@ export class ProjectService {
     public static reloadKamelets() {
         KaravanApi.getKamelets(yamls => {
             const kamelets: string[] = [];
-            yamls.split("\n---\n").map(c => c.trim()).forEach(z => kamelets.push(z));
+            yamls.split(/\n?---\n?/).map(c => c.trim()).forEach(z => kamelets.push(z));
             KameletApi.saveKamelets(kamelets, true);
         })
         KaravanApi.getCustomKameletNames(names => {
             KameletApi.saveCustomKameletNames(names);
         })
     }
-
     public static updateFile(file: ProjectFile, active: boolean) {
         KaravanApi.putProjectFile(file, res => {
             if (res.status === 200) {
@@ -296,5 +296,18 @@ export class ProjectService {
         KaravanApi.getImages(projectId, (images: []) => {
             useProjectStore.setState({images: images})
         });
+    }
+    
+    public static reloadBlockedTemplates() {
+      KaravanApi.getTemplatesFiles((files: ProjectFile[]) => {
+            files.filter(f => f.name.endsWith('blocklist.txt')).forEach(file => {
+                if (file.name === 'components-blocklist.txt') {
+                    ComponentApi.saveBlockedComponentNames(file.code.split(/\r?\n/));
+                }
+                else if (file.name === "kamelets-blocklist.txt") {
+                    KameletApi.saveBlockedKameletNames(file.code.split(/\r?\n/));
+                }
+            });
+       });
     }
 }

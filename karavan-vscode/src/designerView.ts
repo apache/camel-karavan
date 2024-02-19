@@ -189,6 +189,8 @@ export class DesignerView {
             utils.readPropertyPlaceholders(this.context),
             // Read beans
             utils.readBeans(fullPath),
+            //Read BlockList
+            utils.readBlockTemplates(this.context),
             // Read integration
             utils.readCamelYamlFiles(path.dirname(fullPath))
         ]).then(results => {
@@ -206,6 +208,8 @@ export class DesignerView {
             // Send integration
             panel.webview.postMessage({ command: 'files', files: results[8] });
             this.sendIntegrationData(panel, filename, relativePath, fullPath, reread, yaml, tab, results[6], results[7]);
+            // Send block list
+            panel.webview.postMessage({ command: 'blockList', blockList: Object.fromEntries(results[8]) });
 
         }).catch(err => console.log(err));
     }

@@ -37,10 +37,10 @@ import {KaravanIcon} from "./designer/icons/KaravanIcons";
 import './designer/karavan.css';
 import {DesignerPage} from "./DesignerPage";
 import {TemplateApi} from "karavan-core/lib/api/TemplateApi";
-import {KnowledgebasePage} from "./knowledgebase/KnowledgebasePage";
 import {Notification} from "./designer/utils/Notification";
 import {EventBus} from "./designer/utils/EventBus";
 import {TopologyTab} from "./topology/TopologyTab";
+import {KnowledgebaseHome} from "./KnowledgebaseHome";
 import {useEffect, useState} from "react";
 import {IntegrationFile} from "karavan-core/lib/model/IntegrationDefinition";
 
@@ -70,10 +70,13 @@ export function App() {
             fetch("components/components.json"),
             fetch("snippets/org.apache.camel.AggregationStrategy"),
             fetch("snippets/org.apache.camel.Processor"),
-            fetch("example/demo.camel.yaml")
+            fetch("example/demo.camel.yaml"),
+            fetch("components/blocked-components.properties"),
+            fetch("kamelets/blocked-kamelets.properties")
             // fetch("example/aws-cloudwatch-sink.kamelet.yaml")
             // fetch("example/aws-s3-cdc-source.kamelet.yaml")
-            // fetch("components/supported-components.json"),
+            //fetch("components/supported-components.json"),
+            
         ]).then(responses =>
             Promise.all(responses.map(response => response.text()))
         ).then(data => {
@@ -94,11 +97,17 @@ export function App() {
                 setYaml(data[4]);
                 setName("demo.camel.yaml");
             }
-
             if (data[5]) {
-                ComponentApi.saveSupportedComponents(data[4]);
+                ComponentApi.saveBlockedComponentNames(data[5].split('\r\n'));
+            }
+            if (data[6]) {
+                KameletApi.saveBlockedKameletNames(data[6].split('\n'));
+            }
+ 	        if (data[7]) {
+                ComponentApi.saveSupportedComponents(data[7]);
                 ComponentApi.setSupportedOnly(true);
             }
+           
         }).catch(err =>
             EventBus.sendAlert("Error", err.text, 'danger')
         );
@@ -159,7 +168,7 @@ export function App() {
                 )
             case "knowledgebase":
                 return (
-                    <KnowledgebasePage dark={dark}/>
+                    <KnowledgebaseHome dark={dark}/>
                 )
             case "topology":
                 return (

@@ -31,11 +31,7 @@ interface Props {
     dark: boolean,
     filter: string,
     customOnly: boolean,
-}
-
-interface Props {
-    dark: boolean,
-    filter: string,
+    onChange: (name: string, checked: boolean) => void
 }
 
 export function KameletsTab(props: Props) {
@@ -55,7 +51,7 @@ export function KameletsTab(props: Props) {
                          variant={dark ? PageSectionVariants.darker : PageSectionVariants.light}>
                 <Gallery hasGutter>
                     {kameletList.map(k => (
-                        <KameletCard key={k.metadata.name} kamelet={k}/>
+                        <KameletCard key={k.metadata.name} kamelet={k} onChange={props.onChange} />
                     ))}
                 </Gallery>
             </PageSection>

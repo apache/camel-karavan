@@ -20,7 +20,7 @@ import { CamelElement } from '../model/IntegrationDefinition';
 const Components: Component[] = [];
 const SupportedComponents: SupportedComponent[] = [];
 let SupportedOnly: boolean = false;
-
+const BlockedComponents: string[] = [];
 export class ComponentApi {
     private constructor() {}
 
@@ -339,4 +339,27 @@ export class ComponentApi {
         }
         return Array.from(new Map(properties.map(item => [item.name, item])).values());
     };
+
+
+    static saveBlockedComponentNames = (componentNames: string[]) => {
+        BlockedComponents.length = 0;
+        BlockedComponents.push(...componentNames);
+    }
+
+
+    static saveBlockedComponentName = (componentName: string, checked :boolean) => {
+        const index = BlockedComponents.indexOf(componentName);
+        if (!checked && index === -1) {
+            BlockedComponents.push(componentName);
+        }
+        else if (checked && index > -1) {
+            BlockedComponents.splice(index, 1);
+        }
+        return BlockedComponents;
+    }
+
+
+    static getBlockedComponentNames = () => {
+        return BlockedComponents;
+    }
 }

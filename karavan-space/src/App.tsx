@@ -74,7 +74,9 @@ class App extends React.Component<Props, State> {
             fetch("kamelets/kamelets.yaml"),
             fetch("components/components.json"),
             fetch("snippets/org.apache.camel.AggregationStrategy"),
-            fetch("snippets/org.apache.camel.Processor")
+            fetch("snippets/org.apache.camel.Processor"),
+            fetch("components/blocked-components.properties"),
+            fetch("kamelets/blocked-kamelets.properties")
         ]).then(responses =>
             Promise.all(responses.map(response => response.text()))
         ).then(data => {
@@ -91,6 +93,12 @@ class App extends React.Component<Props, State> {
 
             TemplateApi.saveTemplate("org.apache.camel.AggregationStrategy", data[2]);
             TemplateApi.saveTemplate("org.apache.camel.Processor", data[3]);
+            if (data[4]) {
+                ComponentApi.saveBlockedComponentNames(data[4].split('\r\n'));
+            }
+            if (data[5]) {
+                KameletApi.saveBlockedKameletNames(data[5].split('\n'));
+            }
         }).catch(err =>
             EventBus.sendAlert("Error", err.text, 'danger')
         );
@@ -99,6 +107,16 @@ class App extends React.Component<Props, State> {
     save(filename: string, yaml: string, propertyOnly: boolean) {
         this.setState({name: filename, yaml: yaml});
         // console.log(yaml);
+    }
+    
+    onchangeBlockedList(type: string, name: string, checked: boolean){
+        if (type === 'kamelet') {
+
+            const blockedKamelet = KameletApi.saveBlockedKameletName(name, checked);
+        }
+        else if (type === 'component') {
+            const blockedComponent = ComponentApi.saveBlockedComponentName(name, checked);
+        }
     }
 
     closeGithubModal() {
@@ -167,7 +185,7 @@ class App extends React.Component<Props, State> {
                 )
             case "knowledgebase":
                 return (
-                    <KnowledgebasePage dark={dark}/>
+                    <KnowledgebasePage dark={dark} changeBlockList={(type: string, name: string, checked: boolean) => this.onchangeBlockedList(type, name, checked)}/>
                 )
             case "topology":
                 return (

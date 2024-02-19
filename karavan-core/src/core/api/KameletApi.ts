@@ -19,7 +19,7 @@ import * as yaml from 'js-yaml';
 
 const Kamelets: KameletModel[] = [];
 const CustomNames: string[] = [];
-
+const BlockedKamelets: string[] = [];
 export class KameletApi {
     private constructor() {}
 
@@ -99,4 +99,24 @@ export class KameletApi {
             Kamelets.push(kamelet);
         }
     };
+    
+    static saveBlockedKameletNames = (names: string[]): void => {
+        BlockedKamelets.length = 0;
+        BlockedKamelets.push(...names);
+    }
+
+    static saveBlockedKameletName = (name: string, checked: boolean) => {
+        const index = BlockedKamelets.indexOf(name);
+        if ( !checked && index === -1) {
+            BlockedKamelets.push(name);
+        }
+        else if ( checked && index > -1) {
+            BlockedKamelets.splice(index, 1);
+        }
+        return BlockedKamelets;
+    }
+    
+    static getBlockedKameletNames = () => {
+        return BlockedKamelets;
+    }
 }
