@@ -32,8 +32,8 @@ interface Props {
 
 export function KameletCard(props: Props) {
 
-    const [setKamelet, setModalOpen] = useKnowledgebaseStore((s) =>
-        [s.setKamelet, s.setModalOpen], shallow)
+    const [setKamelet, setModalOpen, showBlockCheckbox] = useKnowledgebaseStore((s) =>
+        [s.setKamelet, s.setModalOpen, s.showBlockCheckbox], shallow)
     const [blockedKamelets, setBlockedKamelets] = useState<string[]>();
     useEffect(() => {
         setBlockedKamelets(KameletApi.getBlockedKameletNames());
@@ -62,7 +62,8 @@ export function KameletCard(props: Props) {
             <CardHeader className="header-labels">
                 {isCustom && <Badge className="custom">custom</Badge>}
                 <Badge isRead className="support-level labels">{kamelet.metadata.annotations["camel.apache.org/kamelet.support.level"]}</Badge>
-                <Checkbox id={kamelet.metadata.name} className="block-checkbox labels" isChecked={!isblockedKamelet} onChange={(_, checked) => selectKamelet(_, checked)} />
+                {showBlockCheckbox && <Checkbox id={kamelet.metadata.name} className="block-checkbox labels" isChecked={!isblockedKamelet}
+                           onChange={(_, checked) => selectKamelet(_, checked)}/>}
             </CardHeader>
             <CardHeader>
                 {CamelUi.getIconFromSource(kamelet.icon())}

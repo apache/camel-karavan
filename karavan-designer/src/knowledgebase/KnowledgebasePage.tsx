@@ -21,17 +21,26 @@ import {MainToolbar} from "../designer/MainToolbar";
 import {KameletsTab} from "./kamelets/KameletsTab";
 import {EipTab} from "./eip/EipTab";
 import {ComponentsTab} from "./components/ComponentsTab";
+import {useKnowledgebaseStore} from "./KnowledgebaseStore";
+import {shallow} from "zustand/shallow";
 
 interface Props {
     dark: boolean,
     changeBlockList: (type: string, name: string, checked: boolean) => void,
+    showBlockCheckbox?: boolean,
 }
 
 export const KnowledgebasePage = (props: Props) => {
 
+    const [setShowBlockCheckbox] = useKnowledgebaseStore((s) => [s.setShowBlockCheckbox], shallow)
     const [tab, setTab] = useState<string | number>("eip");
     const [filter, setFilter] = useState<string>("");
     const [customOnly, setCustomOnly] = useState<boolean>(false);
+
+
+    React.useEffect(() => {
+        setShowBlockCheckbox(props.showBlockCheckbox === true)
+    }, []);
 
     function title() {
         return <TextContent>

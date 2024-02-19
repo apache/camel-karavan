@@ -24,6 +24,8 @@ import {KameletModel} from "karavan-core/lib/model/KameletModels";
 interface KnowledgebaseState {
     isModalOpen: boolean;
     setModalOpen: (isModalOpen: boolean) => void;
+    showBlockCheckbox: boolean;
+    setShowBlockCheckbox: (showBlockCheckbox: boolean) => void;
     component?: Component;
     setComponent: (component: Component) => void;
     element?: ElementMeta;
@@ -37,6 +39,12 @@ export const useKnowledgebaseStore = createWithEqualityFn<KnowledgebaseState>((s
     setModalOpen: (isModalOpen: boolean) => {
         set((state: KnowledgebaseState) => {
             return {isModalOpen: isModalOpen};
+        })
+    },
+    showBlockCheckbox: false,
+    setShowBlockCheckbox: (showBlockCheckbox: boolean) => {
+        set((state: KnowledgebaseState) => {
+            return {showBlockCheckbox: showBlockCheckbox};
         })
     },
     setComponent: (component: Component) => {

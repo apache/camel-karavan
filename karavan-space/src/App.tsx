@@ -75,8 +75,6 @@ class App extends React.Component<Props, State> {
             fetch("components/components.json"),
             fetch("snippets/org.apache.camel.AggregationStrategy"),
             fetch("snippets/org.apache.camel.Processor"),
-            fetch("components/blocked-components.properties"),
-            fetch("kamelets/blocked-kamelets.properties")
         ]).then(responses =>
             Promise.all(responses.map(response => response.text()))
         ).then(data => {
@@ -93,12 +91,6 @@ class App extends React.Component<Props, State> {
 
             TemplateApi.saveTemplate("org.apache.camel.AggregationStrategy", data[2]);
             TemplateApi.saveTemplate("org.apache.camel.Processor", data[3]);
-            if (data[4]) {
-                ComponentApi.saveBlockedComponentNames(data[4].split('\r\n'));
-            }
-            if (data[5]) {
-                KameletApi.saveBlockedKameletNames(data[5].split('\n'));
-            }
         }).catch(err =>
             EventBus.sendAlert("Error", err.text, 'danger')
         );

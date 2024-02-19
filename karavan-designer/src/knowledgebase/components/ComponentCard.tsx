@@ -32,8 +32,8 @@ interface Props {
 
 export function ComponentCard(props: Props) {
 
-    const [setComponent, setModalOpen] = useKnowledgebaseStore((s) =>
-        [s.setComponent, s.setModalOpen], shallow)
+    const [setComponent, setModalOpen, showBlockCheckbox] = useKnowledgebaseStore((s) =>
+        [s.setComponent, s.setModalOpen, s.showBlockCheckbox], shallow)
     const component = props.component;
     const [blockedComponents, setBlockedComponents] = useState<string[]>();
     useEffect(() => {
@@ -60,7 +60,8 @@ export function ComponentCard(props: Props) {
             <CardHeader className="header-labels">
                 {component.component.supportType === 'Supported' && <Badge isRead className="support-type labels">{component.component.supportType}</Badge>}
                 <Badge isRead className="support-level labels">{component.component.supportLevel}</Badge>
-                <Checkbox id={component.component.name} className="block-checkbox labels" isChecked={!isBlockedComponent} onChange={(_, checked) => selectComponent(_, checked)} />
+                {showBlockCheckbox && <Checkbox id={component.component.name} className="block-checkbox labels"
+                           isChecked={!isBlockedComponent} onChange={(_, checked) => selectComponent(_, checked)}/>}
             </CardHeader>
             <CardHeader>
                 {CamelUi.getIconForComponent(component.component.title, component.component.label)}

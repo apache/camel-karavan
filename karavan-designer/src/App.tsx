@@ -71,8 +71,8 @@ export function App() {
             fetch("snippets/org.apache.camel.AggregationStrategy"),
             fetch("snippets/org.apache.camel.Processor"),
             fetch("example/demo.camel.yaml"),
-            fetch("components/blocked-components.properties"),
-            fetch("kamelets/blocked-kamelets.properties")
+            // fetch("components/blocked-components.properties"),
+            // fetch("kamelets/blocked-kamelets.properties")
             // fetch("example/aws-cloudwatch-sink.kamelet.yaml")
             // fetch("example/aws-s3-cdc-source.kamelet.yaml")
             //fetch("components/supported-components.json"),
