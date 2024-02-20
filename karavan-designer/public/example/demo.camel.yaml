@@ -1,68 +1,68 @@
-- route:
-    id: route-a947
-    nodePrefixId: route-a32
-    from:
-      id: from-c489
-      description: Receive Data
-      uri: kamelet:aws-ddb-streams-source
-      steps:
-        - setHeader:
-            id: setBody-4434
-            expression:
-              simple:
-                id: simple-abd8
-                expression: dddddd
-        - filter:
-            id: filter-929b
-            expression:
-              simple:
-                id: simple-d932
-                expression: Hello
-            steps:
-              - bean:
-                  id: bean-120b
-                  ref: xxx
-              - log:
-                  id: log-d86e
-                  message: ${body}!!!
-              - to:
-                  id: to-9f7d
-                  description: Send notification
-                  uri: kafka
-        - to:
-            id: to-53a3
-            description: Send payments
-            uri: amqp
-- route:
-    id: route-8609
-    nodePrefixId: route-ae2
-    from:
-      id: from-6aee
-      uri: timer
-      steps:
-        - to:
-            id: to-2df4
-            uri: direct
-            parameters:
-              name: second_direct
-        - to:
-            id: to-e017
-            uri: direct
-            parameters:
-              name: second_direct
-- route:
-    id: first-firect
-    from:
-      id: from-f155
-      uri: direct
-      parameters:
-        name: first-firect
-      steps:
-        - to:
-            id: to-5c86
-            uri: direct
-            parameters:
-              name: second_direct
+#- route:
+#    id: route-a947
+#    nodePrefixId: route-a32
+#    from:
+#      id: from-c489
+#      description: Receive Data
+#      uri: kamelet:aws-ddb-streams-source
+#      steps:
+#        - setHeader:
+#            id: setBody-4434
+#            expression:
+#              simple:
+#                id: simple-abd8
+#                expression: dddddd
+#        - filter:
+#            id: filter-929b
+#            expression:
+#              simple:
+#                id: simple-d932
+#                expression: Hello
+#            steps:
+#              - bean:
+#                  id: bean-120b
+#                  ref: xxx
+#              - log:
+#                  id: log-d86e
+#                  message: ${body}!!!
+#              - to:
+#                  id: to-9f7d
+#                  description: Send notification
+#                  uri: kafka
+#        - to:
+#            id: to-53a3
+#            description: Send payments
+#            uri: amqp
+#- route:
+#    id: route-8609
+#    nodePrefixId: route-ae2
+#    from:
+#      id: from-6aee
+#      uri: timer
+#      steps:
+#        - to:
+#            id: to-2df4
+#            uri: direct
+#            parameters:
+#              name: second_direct
+#        - to:
+#            id: to-e017
+#            uri: direct
+#            parameters:
+#              name: second_direct
+#- route:
+#    id: first-firect
+#    from:
+#      id: from-f155
+#      uri: direct
+#      parameters:
+#        name: first-firect
+#      steps:
+#        - to:
+#            id: to-5c86
+#            uri: direct
+#            parameters:
+#              name: second_direct
 - route:
     id: second_direct
     from:
