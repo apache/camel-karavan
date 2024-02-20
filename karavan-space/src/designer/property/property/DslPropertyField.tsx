@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import React, {useRef, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {
     FormGroup,
     TextInput,
@@ -99,9 +99,25 @@ export function DslPropertyField(props: Props) {
     const [showEditor, setShowEditor] = useState<boolean>(false);
     const [infrastructureSelector, setInfrastructureSelector] = useState<boolean>(false);
     const [infrastructureSelectorProperty, setInfrastructureSelectorProperty] = useState<string | undefined>(undefined);
-    const [customCode, setCustomCode] = useState<string | undefined>(undefined);
-
+    const [customCode, setCustomCode] = useState<string>('');
     const ref = useRef<any>(null);
+    const [textValue, setTextValue] = useState<any>();
+    const [checkChanges, setCheckChanges] = useState<boolean>(false);
+
+    useEffect(()=> setTextValue(value), [])
+
+    useEffect(()=> {
+        if (checkChanges) {
+            const interval = setInterval(() => {
+                if (props.value !== textValue) {
+                    propertyChanged(property.name, textValue);
+                }
+            }, 3000);
+            return () => {
+                clearInterval(interval)
+            }
+        }
+    }, [checkChanges, textValue])
 
     function openSelect(propertyName: string, isExpanded: boolean) {
         setSelectStatus(new Map<string, boolean>([[propertyName, isExpanded]]))
@@ -116,6 +132,7 @@ export function DslPropertyField(props: Props) {
     }
 
     function propertyChanged(fieldId: string, value: string | number | boolean | any, newRoute?: RouteToCreate) {
+        setCheckChanges(false);
         if (fieldId === 'id' && CamelDefinitionApiExt.hasElementWithId(integration, value)) {
             value = props.element;
         }
@@ -224,14 +241,14 @@ export function DslPropertyField(props: Props) {
                 onSelect={selectInfrastructure}/>)
     }
 
-    function getStringInput(property: PropertyMeta, value: any) {
+    function getStringInput(property: PropertyMeta) {
         const inInfrastructure = InfrastructureAPI.infrastructure !== 'local';
         const noInfraSelectorButton = ["uri", "id", "description", "group"].includes(property.name);
         const icon = InfrastructureAPI.infrastructure === 'kubernetes' ? KubernetesIcon("infra-button") : <DockerIcon/>
         const isNumber = ['integer', 'number', 'duration'].includes(property.type);
         const uriReadOnly = isUriReadOnly(property);
         const showEditorButton = !uriReadOnly && !isNumber && !property.secret && !['id', 'description'].includes(property.name);
-        return (<InputGroup>
+        return <InputGroup>
             {inInfrastructure && !showEditor && !noInfraSelectorButton &&
                 <InputGroupItem>
                     <Tooltip position="bottom-end"
@@ -246,12 +263,16 @@ export function DslPropertyField(props: Props) {
                 <InputGroupItem isFill>
                     <TextInput ref={ref}
                                className="text-field" isRequired
-                               type={(property.secret ? "password" : "text")}
+                               type={property.secret ? "password" : "text"}
                                id={property.name} name={property.name}
-                               value={value?.toString()}
+                               value={textValue?.toString()}
                                customIcon={property.type !== 'string' ? <Text component={TextVariants.p}>{property.type}</Text> : undefined}
-                               onChange={(_, v) =>
-                                   propertyChanged(property.name, v)}
+                               onBlur={_ => propertyChanged(property.name, textValue)}
+                               onFocus={_ => setCheckChanges(true)}
+                               onChange={(_, v) => {
+                                   setTextValue(v);
+                                   setCheckChanges(true);
+                               }}
                                readOnlyVariant={uriReadOnly? "default" : undefined}/>
                 </InputGroupItem>
             }
@@ -275,14 +296,14 @@ export function DslPropertyField(props: Props) {
                                  setShowEditor(false);
                              }}/>
             </InputGroupItem>}
-        </InputGroup>)
+        </InputGroup>
     }
 
     function showCode(name: string, javaType: string) {
         const {property} = props;
         InfrastructureAPI.onGetCustomCode?.(name, property.javaType).then(value => {
             if (value === undefined) {
-                const code = TemplateApi.generateCode(property.javaType, name);
+                const code = TemplateApi.generateCode(property.javaType, name) || '';
                 setCustomCode(code);
                 setShowEditor(true);
             } else {
@@ -343,8 +364,13 @@ export function DslPropertyField(props: Props) {
                         id={property.name}
                         name={property.name}
                         height={"100px"}
-                        value={value?.toString()}
-                        onChange={(_, v) => propertyChanged(property.name, v)}/>
+                        value={textValue?.toString()}
+                        onBlur={_ => propertyChanged(property.name, textValue)}
+                        onChange={(_, v) => {
+                            setTextValue(v);
+                            setCheckChanges(true);
+                        }}
+                    />
                 </InputGroupItem>
                 <InputGroupItem>
                     <Tooltip position="bottom-end" content={"Show Editor"}>
@@ -391,13 +417,13 @@ export function DslPropertyField(props: Props) {
         )
     }
 
-    function getBooleanInput(property: PropertyMeta, value: any) {
-        const isValueBoolean = (value === true || value === false);
-        const isDisabled = value !== undefined && !isValueBoolean;
+    function getBooleanInput(property: PropertyMeta) {
+        const isValueBoolean = (textValue?.toString() === 'true' || textValue?.toString() === 'false');
+        const isDisabled = textValue?.toString().includes("{") || textValue?.toString().includes("}")
         let isChecked = false;
-        if (value !== undefined && isValueBoolean) {
-            isChecked = Boolean(value);
-        } else if ((value === undefined || value.toString().length > 0) && property.defaultValue !== undefined) {
+        if (textValue !== undefined && isValueBoolean) {
+            isChecked = Boolean(textValue);
+        } else if ((textValue === undefined || textValue.toString().length > 0) && property.defaultValue !== undefined) {
             isChecked = property.defaultValue === 'true';
         }
         return (
@@ -408,10 +434,14 @@ export function DslPropertyField(props: Props) {
                         id={property.name + "-switch"}
                         name={property.name + "-switch"}
                         className="switch-placeholder"
-                        value={value?.toString()}
+                        value={textValue?.toString()}
                         aria-label={property.name}
                         isChecked={isChecked}
-                        onChange={(_, v) => propertyChanged(property.name, v)}/>
+                        onChange={(_, v) => {
+                            setTextValue(v);
+                            propertyChanged(property.name, v);
+                            setCheckChanges(false);
+                        }}/>
                 </InputGroupItem>
                 <InputGroupItem isFill>
                     <TextInput
@@ -419,12 +449,20 @@ export function DslPropertyField(props: Props) {
                         name={property.name + "-placeholder"}
                         type="text"
                         aria-label="placeholder"
-                        value={!isValueBoolean ? value?.toString() : undefined}
-                        onChange={(_, v) => propertyChanged(property.name, v)}
+                        value={!isValueBoolean ? textValue?.toString() : undefined}
+                        onBlur={_ => propertyChanged(property.name, textValue)}
+                        onChange={(_, v) => {
+                            setTextValue(v);
+                            setCheckChanges(true);
+                        }}
                     />
                 </InputGroupItem>
                 <InputGroupItem>
-                    <PropertyPlaceholderDropdown property={property} value={value} onDslPropertyChange={propertyChanged}/>
+                    <PropertyPlaceholderDropdown property={property} value={value} onDslPropertyChange={(_, v, newRoute) => {
+                        setTextValue(v);
+                        propertyChanged(property.name, v, newRoute);
+                        setCheckChanges(false);
+                    }}/>
                 </InputGroupItem>
             </TextInputGroup>
         )
@@ -830,13 +868,13 @@ export function DslPropertyField(props: Props) {
                     && !canBeInternalUri(property, element)
                     && !canBeMediaType(property, element)
                     && !javaTypeGenerated(property)
-                    && getStringInput(property, value)}
+                    && getStringInput(property)}
                 {['string'].includes(property.type) && property.name.endsWith("Ref") && !property.isArray && !property.enumVals
                     && getSelectBean(property, value)}
                 {isMultiValueField(property)
                     && getMultiValueField(property, value)}
                 {property.type === 'boolean'
-                    && getBooleanInput(property, value)}
+                    && getBooleanInput(property)}
                 {property.enumVals
                     && getSelect(property, value)}
                 {isKamelet && property.name === 'parameters' && getKameletParameters()}

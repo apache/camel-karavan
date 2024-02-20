@@ -14,12 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import React, {useRef, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {
     FormGroup,
     TextInput,
     Popover,
-    Switch, InputGroup, Button, TextArea, Tooltip, capitalize
+    Switch, InputGroup, Button, TextArea, Tooltip, capitalize, Text, TextVariants, InputGroupItem
 } from '@patternfly/react-core';
 import '../../karavan.css';
 import "@patternfly/patternfly/patternfly.css";
@@ -52,10 +52,27 @@ export function KameletPropertyField(props: Props) {
     const [infrastructureSelector, setInfrastructureSelector] = useState<boolean>(false);
     const [infrastructureSelectorProperty, setInfrastructureSelectorProperty] = useState<string | undefined>(undefined);
     const [selectStatus, setSelectStatus] = useState<Map<string, boolean>>(new Map<string, boolean>());
-
     const ref = useRef<any>(null);
+    const [textValue, setTextValue] = useState<any>();
+    const [checkChanges, setCheckChanges] = useState<boolean>(false);
+
+    useEffect(()=> setTextValue(value), [])
+
+    useEffect(()=> {
+        if (checkChanges) {
+            const interval = setInterval(() => {
+                if (props.value !== textValue) {
+                    onParametersChange(property.id, textValue);
+                }
+            }, 3000);
+            return () => {
+                clearInterval(interval)
+            }
+        }
+    }, [checkChanges, textValue])
 
     function parametersChanged (parameter: string, value: string | number | boolean | any, pathParameter?: boolean)  {
+        setCheckChanges(false);
         onParametersChange(parameter, value, pathParameter);
         setSelectIsOpen(false);
         setSelectStatus(new Map<string, boolean>([[parameter, false]]))
@@ -134,6 +151,7 @@ export function KameletPropertyField(props: Props) {
                     }}
                     onSelect={(e, value, isPlaceholder) => {
                         parametersChanged(property.id, value);
+                        setCheckChanges(false);
                     }}
                     selections={value}
                     isOpen={isSelectOpen(property.id)}
@@ -151,16 +169,26 @@ export function KameletPropertyField(props: Props) {
                     className="text-field" isRequired
                     type={property.format && !showPassword ? "password" : "text"}
                     id={id} name={id}
-                    value={value}
-                    onChange={(e, value) => parametersChanged(property.id, value)}/>
+                    value={textValue}
+                    onBlur={_ => parametersChanged(property.id, textValue)}
+                    onChange={(_, v) => {
+                        setTextValue(v);
+                        setCheckChanges(true);
+                    }}
+                />
             }
             {(!selectFromList && showEditor) && property.format !== "password" &&
                 <TextArea autoResize={true}
                           className="text-field" isRequired
                           type="text"
                           id={id} name={id}
-                          value={value}
-                          onChange={(e, value) => parametersChanged(property.id, value)}/>
+                          value={textValue}
+                          onBlur={_ => parametersChanged(property.id, textValue)}
+                          onChange={(_, v) => {
+                              setTextValue(v);
+                              setCheckChanges(true);
+                          }}
+                />
             }
             {property.format !== "password" &&
                 <Tooltip position="bottom-end" content={showEditor ? "Change to TextField" : "Change to Text Area"}>
@@ -177,6 +205,36 @@ export function KameletPropertyField(props: Props) {
                 </Tooltip>
             }
         </InputGroup>
+    }
+
+    function isNumeric (num: any) {
+        return (typeof(num) === 'number' || typeof(num) === "string" && num.trim() !== '') && !isNaN(num as number);
+    }
+
+    function getNumberInput() {
+        return (
+            <TextInput id={id}
+                       name={id}
+                       className="text-field"
+                       isRequired
+                       // type='number'
+                       value={textValue?.toString()}
+                       customIcon={<Text component={TextVariants.p}>{property.type}</Text>}
+                       onBlur={_ => {
+                           if (isNumeric((textValue))) {
+                               parametersChanged(property.id, Number(textValue))
+                           }
+                       }}
+                       onChange={(_, v) => {
+                           if (isNumeric(v)) {
+                               setTextValue(v);
+                               setCheckChanges(true);
+                           } else {
+                               setTextValue(textValue);
+                           }
+                       }}
+            />
+        )
     }
 
     const property =  props.property;
@@ -208,13 +266,8 @@ export function KameletPropertyField(props: Props) {
                         </button>
                     </Popover>
                 }>
-                {property.type === 'string' && getStringInput()
-                }
-                {['integer', 'int', 'number'].includes(property.type) &&
-                    <TextInput className="text-field" isRequired type='number' id={id} name={id} value={value}
-                               onChange={(e, value) => parametersChanged(property.id, Number(value))}
-                    />
-                }
+                {property.type === 'string' && getStringInput()}
+                {['integer', 'int', 'number'].includes(property.type) && getNumberInput()}
                 {property.type === 'boolean' && <Switch
                     id={id} name={id}
                     value={value?.toString()}
