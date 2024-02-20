@@ -100,8 +100,8 @@ export function DslPropertyField(props: Props) {
     const [infrastructureSelector, setInfrastructureSelector] = useState<boolean>(false);
     const [infrastructureSelectorProperty, setInfrastructureSelectorProperty] = useState<string | undefined>(undefined);
     const [customCode, setCustomCode] = useState<string>('');
-    const [textValue, setTextValue] = useState<any>();
     const ref = useRef<any>(null);
+    const [textValue, setTextValue] = useState<any>();
     const [checkChanges, setCheckChanges] = useState<boolean>(false);
 
     useEffect(()=> setTextValue(value), [])
