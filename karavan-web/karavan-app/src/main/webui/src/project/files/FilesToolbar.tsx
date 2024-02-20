@@ -38,11 +38,9 @@ import {shallow} from "zustand/shallow";
 import {ProjectService} from "../../api/ProjectService";
 import PushIcon from "@patternfly/react-icons/dist/esm/icons/code-branch-icon";
 import UpdateIcon from "@patternfly/react-icons/dist/esm/icons/cog-icon";
-import RefreshIcon from "@patternfly/react-icons/dist/esm/icons/sync-alt-icon";
 import {ProjectType} from "../../api/ProjectModels";
 import {KaravanApi} from "../../api/KaravanApi";
-import {DslPosition, EventBus} from "../../designer/utils/EventBus";
-import {KaravanEvent, NotificationEventBus} from "../../api/NotificationService";
+import {EventBus} from "../../designer/utils/EventBus";
 
 export function FileToolbar () {
 
@@ -55,16 +53,6 @@ export function FileToolbar () {
     const {files} = useFilesStore();
     const [file, editAdvancedProperties, setEditAdvancedProperties, setAddProperty, setFile] = useFileStore((s) =>
         [s.file, s.editAdvancedProperties, s.setEditAdvancedProperties, s.setAddProperty, s.setFile], shallow )
-
-    // useEffect(() => {
-    //     const sub1 = NotificationEventBus.onEvent()?.subscribe((evt: KaravanEvent) => {
-    //         console.log(evt);
-    //         setIsPushing(false);
-    //     });
-    //     return () => {
-    //         sub1?.unsubscribe();
-    //     };
-    // });
 
     useEffect(() => {
     }, [project, file]);
@@ -176,24 +164,7 @@ export function FileToolbar () {
         )
     }
 
-    function isKameletsProject(): boolean {
-        return project.projectId === 'kamelets';
-    }
-
     return <Flex className="toolbar" direction={{default: "row"}} justifyContent={{default: "justifyContentFlexEnd"}}>
-        {isKameletsProject() && <FlexItem align={{default: "alignLeft"}} flex={{default: "flex_3"}}>
-            <Tooltip content="Load Custom Kamelets to Library" position={TooltipPosition.right}>
-                <Button size="sm"
-                        variant={"secondary"}
-                        className="project-button dev-action-button"
-                        icon={<RefreshIcon/>}
-                        onClick={() => {
-                            ProjectService.reloadKamelets();
-                        }}>
-                    Load
-                </Button>
-            </Tooltip>
-        </FlexItem>}
         <FlexItem>{getLastUpdatePanel()}</FlexItem>
         <FlexItem>
             <Tooltip content="Pull from git" position={"bottom-end"}>
