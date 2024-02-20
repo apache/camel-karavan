@@ -33,6 +33,7 @@ import {
     ContextScanDefinition,
     ConvertBodyDefinition,
     ConvertHeaderDefinition,
+    ConvertVariableDefinition,
     DataFormatDefinition,
     DelayDefinition,
     DynamicRouterDefinition,
@@ -77,6 +78,7 @@ import {
     RemoveHeadersDefinition,
     RemovePropertiesDefinition,
     RemovePropertyDefinition,
+    RemoveVariableDefinition,
     ResequenceDefinition,
     Resilience4jConfigurationDefinition,
     RestContextRefDefinition,
@@ -100,6 +102,7 @@ import {
     SetHeaderDefinition,
     SetHeadersDefinition,
     SetPropertyDefinition,
+    SetVariableDefinition,
     SortDefinition,
     SplitDefinition,
     StepDefinition,
@@ -154,6 +157,7 @@ import {
     AvroDataFormat,
     BarcodeDataFormat,
     Base64DataFormat,
+    BeanioDataFormat,
     BindyDataFormat,
     CBORDataFormat,
     CryptoDataFormat,
@@ -221,6 +225,8 @@ import {
     SimpleExpression,
     SpELExpression,
     TokenizerExpression,
+    VariableExpression,
+    WasmExpression,
     XMLTokenizerExpression,
     XPathExpression,
     XQueryExpression,
@@ -294,6 +300,9 @@ export class CamelDefinitionApi {
         if (element?.convertHeaderTo !== undefined) { 
             def.convertHeaderTo = CamelDefinitionApi.createConvertHeaderDefinition(element.convertHeaderTo); 
         }
+        if (element?.convertVariableTo !== undefined) { 
+            def.convertVariableTo = CamelDefinitionApi.createConvertVariableDefinition(element.convertVariableTo); 
+        }
         if (element?.delay !== undefined) { 
             def.delay = CamelDefinitionApi.createDelayDefinition(element.delay); 
         }
@@ -366,6 +375,9 @@ export class CamelDefinitionApi {
         if (element?.removeProperty !== undefined) { 
             def.removeProperty = CamelDefinitionApi.createRemovePropertyDefinition(element.removeProperty); 
         }
+        if (element?.removeVariable !== undefined) { 
+            def.removeVariable = CamelDefinitionApi.createRemoveVariableDefinition(element.removeVariable); 
+        }
         if (element?.resequence !== undefined) { 
             def.resequence = CamelDefinitionApi.createResequenceDefinition(element.resequence); 
         }
@@ -401,6 +413,9 @@ export class CamelDefinitionApi {
         }
         if (element?.setProperty !== undefined) { 
             def.setProperty = CamelDefinitionApi.createSetPropertyDefinition(element.setProperty); 
+        }
+        if (element?.setVariable !== undefined) { 
+            def.setVariable = CamelDefinitionApi.createSetVariableDefinition(element.setVariable); 
         }
         if (element?.sort !== undefined) { 
             def.sort = CamelDefinitionApi.createSortDefinition(element.sort); 
@@ -581,6 +596,12 @@ export class CamelDefinitionApi {
         return def;
     }
 
+    static createConvertVariableDefinition = (element: any): ConvertVariableDefinition => { 
+        const def = element ? new ConvertVariableDefinition({...element}) : new ConvertVariableDefinition();
+        def.uuid = element?.uuid ? element.uuid : def.uuid; 
+        return def;
+    }
+
     static createDataFormatDefinition = (element: any): DataFormatDefinition => { 
         const def = element ? new DataFormatDefinition({...element}) : new DataFormatDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
@@ -697,6 +718,12 @@ export class CamelDefinitionApi {
         }
         if (element?.tokenize !== undefined) { 
             def.tokenize = CamelDefinitionApi.createTokenizerExpression(element.tokenize); 
+        }
+        if (element?.variable !== undefined) { 
+            def.variable = CamelDefinitionApi.createVariableExpression(element.variable); 
+        }
+        if (element?.wasm !== undefined) { 
+            def.wasm = CamelDefinitionApi.createWasmExpression(element.wasm); 
         }
         if (element?.xpath !== undefined) { 
             def.xpath = CamelDefinitionApi.createXPathExpression(element.xpath); 
@@ -863,6 +890,9 @@ export class CamelDefinitionApi {
         }
         if (element?.base64 !== undefined) { 
             def.base64 = CamelDefinitionApi.createBase64DataFormat(element.base64); 
+        }
+        if (element?.beanio !== undefined) { 
+            def.beanio = CamelDefinitionApi.createBeanioDataFormat(element.beanio); 
         }
         if (element?.bindy !== undefined) { 
             def.bindy = CamelDefinitionApi.createBindyDataFormat(element.bindy); 
@@ -1151,6 +1181,15 @@ export class CamelDefinitionApi {
         return def;
     }
 
+    static createRemoveVariableDefinition = (element: any): RemoveVariableDefinition => { 
+        if (element && typeof element === 'string') {
+            element = {name: element};
+        }
+        const def = element ? new RemoveVariableDefinition({...element}) : new RemoveVariableDefinition();
+        def.uuid = element?.uuid ? element.uuid : def.uuid; 
+        return def;
+    }
+
     static createResequenceDefinition = (element: any): ResequenceDefinition => { 
         const def = element ? new ResequenceDefinition({...element}) : new ResequenceDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
@@ -1346,6 +1385,14 @@ export class CamelDefinitionApi {
         return def;
     }
 
+    static createSetVariableDefinition = (element: any): SetVariableDefinition => { 
+        const def = element ? new SetVariableDefinition({...element}) : new SetVariableDefinition();
+        def.uuid = element?.uuid ? element.uuid : def.uuid; 
+        def.expression = CamelDefinitionApi.createExpressionDefinition(element.expression); 
+
+        return def;
+    }
+
     static createSortDefinition = (element: any): SortDefinition => { 
         const def = element ? new SortDefinition({...element}) : new SortDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
@@ -1484,6 +1531,9 @@ export class CamelDefinitionApi {
         }
         if (element?.base64 !== undefined) { 
             def.base64 = CamelDefinitionApi.createBase64DataFormat(element.base64); 
+        }
+        if (element?.beanio !== undefined) { 
+            def.beanio = CamelDefinitionApi.createBeanioDataFormat(element.beanio); 
         }
         if (element?.bindy !== undefined) { 
             def.bindy = CamelDefinitionApi.createBindyDataFormat(element.bindy); 
@@ -1915,6 +1965,12 @@ export class CamelDefinitionApi {
         return def;
     }
 
+    static createBeanioDataFormat = (element: any): BeanioDataFormat => { 
+        const def = element ? new BeanioDataFormat({...element}) : new BeanioDataFormat();
+        def.uuid = element?.uuid ? element.uuid : def.uuid; 
+        return def;
+    }
+
     static createBindyDataFormat = (element: any): BindyDataFormat => { 
         const def = element ? new BindyDataFormat({...element}) : new BindyDataFormat();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
@@ -1962,6 +2018,9 @@ export class CamelDefinitionApi {
         }
         if (element?.base64 !== undefined) { 
             def.base64 = CamelDefinitionApi.createBase64DataFormat(element.base64); 
+        }
+        if (element?.beanio !== undefined) { 
+            def.beanio = CamelDefinitionApi.createBeanioDataFormat(element.beanio); 
         }
         if (element?.bindy !== undefined) { 
             def.bindy = CamelDefinitionApi.createBindyDataFormat(element.bindy); 
@@ -2433,6 +2492,12 @@ export class CamelDefinitionApi {
         if (element?.tokenize !== undefined) { 
             def.tokenize = CamelDefinitionApi.createTokenizerExpression(element.tokenize); 
         }
+        if (element?.variable !== undefined) { 
+            def.variable = CamelDefinitionApi.createVariableExpression(element.variable); 
+        }
+        if (element?.wasm !== undefined) { 
+            def.wasm = CamelDefinitionApi.createWasmExpression(element.wasm); 
+        }
         if (element?.xpath !== undefined) { 
             def.xpath = CamelDefinitionApi.createXPathExpression(element.xpath); 
         }
@@ -2588,6 +2653,24 @@ export class CamelDefinitionApi {
             element = {token: element};
         }
         const def = element ? new TokenizerExpression({...element}) : new TokenizerExpression();
+        def.uuid = element?.uuid ? element.uuid : def.uuid; 
+        return def;
+    }
+
+    static createVariableExpression = (element: any): VariableExpression => { 
+        if (element && typeof element === 'string') {
+            element = {expression: element};
+        }
+        const def = element ? new VariableExpression({...element}) : new VariableExpression();
+        def.uuid = element?.uuid ? element.uuid : def.uuid; 
+        return def;
+    }
+
+    static createWasmExpression = (element: any): WasmExpression => { 
+        if (element && typeof element === 'string') {
+            element = {expression: element};
+        }
+        const def = element ? new WasmExpression({...element}) : new WasmExpression();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
         return def;
     }
@@ -2882,6 +2965,9 @@ export class CamelDefinitionApi {
         if (element?.base64 !== undefined) { 
             def.base64 = CamelDefinitionApi.createBase64DataFormat(element.base64); 
         }
+        if (element?.beanio !== undefined) { 
+            def.beanio = CamelDefinitionApi.createBeanioDataFormat(element.beanio); 
+        }
         if (element?.bindy !== undefined) { 
             def.bindy = CamelDefinitionApi.createBindyDataFormat(element.bindy); 
         }
@@ -3074,6 +3160,7 @@ export class CamelDefinitionApi {
             case 'ContextScanDefinition': return CamelDefinitionApi.createContextScanDefinition(newBody);
             case 'ConvertBodyDefinition': return CamelDefinitionApi.createConvertBodyDefinition(newBody);
             case 'ConvertHeaderDefinition': return CamelDefinitionApi.createConvertHeaderDefinition(newBody);
+            case 'ConvertVariableDefinition': return CamelDefinitionApi.createConvertVariableDefinition(newBody);
             case 'DataFormatDefinition': return CamelDefinitionApi.createDataFormatDefinition(newBody);
             case 'DelayDefinition': return CamelDefinitionApi.createDelayDefinition(newBody);
             case 'DynamicRouterDefinition': return CamelDefinitionApi.createDynamicRouterDefinition(newBody);
@@ -3118,6 +3205,7 @@ export class CamelDefinitionApi {
             case 'RemoveHeadersDefinition': return CamelDefinitionApi.createRemoveHeadersDefinition(newBody);
             case 'RemovePropertiesDefinition': return CamelDefinitionApi.createRemovePropertiesDefinition(newBody);
             case 'RemovePropertyDefinition': return CamelDefinitionApi.createRemovePropertyDefinition(newBody);
+            case 'RemoveVariableDefinition': return CamelDefinitionApi.createRemoveVariableDefinition(newBody);
             case 'ResequenceDefinition': return CamelDefinitionApi.createResequenceDefinition(newBody);
             case 'Resilience4jConfigurationDefinition': return CamelDefinitionApi.createResilience4jConfigurationDefinition(newBody);
             case 'RestContextRefDefinition': return CamelDefinitionApi.createRestContextRefDefinition(newBody);
@@ -3141,6 +3229,7 @@ export class CamelDefinitionApi {
             case 'SetHeaderDefinition': return CamelDefinitionApi.createSetHeaderDefinition(newBody);
             case 'SetHeadersDefinition': return CamelDefinitionApi.createSetHeadersDefinition(newBody);
             case 'SetPropertyDefinition': return CamelDefinitionApi.createSetPropertyDefinition(newBody);
+            case 'SetVariableDefinition': return CamelDefinitionApi.createSetVariableDefinition(newBody);
             case 'SortDefinition': return CamelDefinitionApi.createSortDefinition(newBody);
             case 'SplitDefinition': return CamelDefinitionApi.createSplitDefinition(newBody);
             case 'StepDefinition': return CamelDefinitionApi.createStepDefinition(newBody);
@@ -3195,6 +3284,7 @@ export class CamelDefinitionApi {
             case 'AvroDataFormat': return CamelDefinitionApi.createAvroDataFormat(newBody);
             case 'BarcodeDataFormat': return CamelDefinitionApi.createBarcodeDataFormat(newBody);
             case 'Base64DataFormat': return CamelDefinitionApi.createBase64DataFormat(newBody);
+            case 'BeanioDataFormat': return CamelDefinitionApi.createBeanioDataFormat(newBody);
             case 'BindyDataFormat': return CamelDefinitionApi.createBindyDataFormat(newBody);
             case 'CBORDataFormat': return CamelDefinitionApi.createCBORDataFormat(newBody);
             case 'CryptoDataFormat': return CamelDefinitionApi.createCryptoDataFormat(newBody);
@@ -3262,6 +3352,8 @@ export class CamelDefinitionApi {
             case 'SimpleExpression': return CamelDefinitionApi.createSimpleExpression(newBody);
             case 'SpELExpression': return CamelDefinitionApi.createSpELExpression(newBody);
             case 'TokenizerExpression': return CamelDefinitionApi.createTokenizerExpression(newBody);
+            case 'VariableExpression': return CamelDefinitionApi.createVariableExpression(newBody);
+            case 'WasmExpression': return CamelDefinitionApi.createWasmExpression(newBody);
             case 'XMLTokenizerExpression': return CamelDefinitionApi.createXMLTokenizerExpression(newBody);
             case 'XPathExpression': return CamelDefinitionApi.createXPathExpression(newBody);
             case 'XQueryExpression': return CamelDefinitionApi.createXQueryExpression(newBody);
@@ -3333,6 +3425,8 @@ export class CamelDefinitionApi {
             case 'SimpleExpression': return CamelDefinitionApi.createSimpleExpression(newBody);
             case 'SpELExpression': return CamelDefinitionApi.createSpELExpression(newBody);
             case 'TokenizerExpression': return CamelDefinitionApi.createTokenizerExpression(newBody);
+            case 'VariableExpression': return CamelDefinitionApi.createVariableExpression(newBody);
+            case 'WasmExpression': return CamelDefinitionApi.createWasmExpression(newBody);
             case 'XPathExpression': return CamelDefinitionApi.createXPathExpression(newBody);
             case 'XQueryExpression': return CamelDefinitionApi.createXQueryExpression(newBody);
             case 'XMLTokenizerExpression': return CamelDefinitionApi.createXMLTokenizerExpression(newBody);
@@ -3349,6 +3443,7 @@ export class CamelDefinitionApi {
             case 'AvroDataFormat': return CamelDefinitionApi.createAvroDataFormat(newBody);
             case 'BarcodeDataFormat': return CamelDefinitionApi.createBarcodeDataFormat(newBody);
             case 'Base64DataFormat': return CamelDefinitionApi.createBase64DataFormat(newBody);
+            case 'BeanioDataFormat': return CamelDefinitionApi.createBeanioDataFormat(newBody);
             case 'BindyDataFormat': return CamelDefinitionApi.createBindyDataFormat(newBody);
             case 'CBORDataFormat': return CamelDefinitionApi.createCBORDataFormat(newBody);
             case 'CryptoDataFormat': return CamelDefinitionApi.createCryptoDataFormat(newBody);

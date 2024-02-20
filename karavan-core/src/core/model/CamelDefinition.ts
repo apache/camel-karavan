@@ -30,6 +30,7 @@ export class ProcessorDefinition extends CamelElement {
     claimCheck?: ClaimCheckDefinition;
     convertBodyTo?: ConvertBodyDefinition | string;
     convertHeaderTo?: ConvertHeaderDefinition;
+    convertVariableTo?: ConvertVariableDefinition;
     delay?: DelayDefinition;
     dynamicRouter?: DynamicRouterDefinition;
     enrich?: EnrichDefinition;
@@ -54,6 +55,7 @@ export class ProcessorDefinition extends CamelElement {
     removeHeaders?: RemoveHeadersDefinition | string;
     removeProperties?: RemovePropertiesDefinition | string;
     removeProperty?: RemovePropertyDefinition | string;
+    removeVariable?: RemoveVariableDefinition | string;
     resequence?: ResequenceDefinition;
     resumable?: ResumableDefinition;
     rollback?: RollbackDefinition | string;
@@ -66,6 +68,7 @@ export class ProcessorDefinition extends CamelElement {
     setHeader?: SetHeaderDefinition;
     setHeaders?: SetHeadersDefinition;
     setProperty?: SetPropertyDefinition;
+    setVariable?: SetVariableDefinition;
     sort?: SortDefinition;
     split?: SplitDefinition;
     step?: StepDefinition;
@@ -118,6 +121,7 @@ export class OutputAwareFromDefinition extends CamelElement {
     parameters?: any = {};
     steps: CamelElement[] = [];
     uri: string = '';
+    variableReceive?: string;
     public constructor(init?: Partial<OutputAwareFromDefinition>) {
         super('OutputAwareFromDefinition');
         Object.assign(this, init);
@@ -270,10 +274,27 @@ export class ConvertHeaderDefinition extends CamelElement {
     disabled?: boolean;
     name: string = '';
     type: string = '';
+    toName?: string;
     mandatory?: boolean;
     charset?: string;
     public constructor(init?: Partial<ConvertHeaderDefinition>) {
         super('ConvertHeaderDefinition');
+        Object.assign(this, init);
+    }
+}
+
+export class ConvertVariableDefinition extends CamelElement {
+    stepName?: string = 'convertVariable';
+    charset?: string;
+    description?: string;
+    disabled?: boolean;
+    id?: string = 'convertVariable-' + uuidv4().substring(0,4);
+    mandatory?: boolean;
+    name: string = '';
+    toName?: string;
+    type: string = '';
+    public constructor(init?: Partial<ConvertVariableDefinition>) {
+        super('ConvertVariableDefinition');
         Object.assign(this, init);
     }
 }
@@ -323,6 +344,8 @@ export class EnrichDefinition extends CamelElement {
     description?: string;
     disabled?: boolean;
     expression?: ExpressionDefinition;
+    variableSend?: string;
+    variableReceive?: string;
     aggregationStrategy?: string;
     aggregationStrategyMethodName?: string;
     aggregationStrategyMethodAllowNull?: string;
@@ -331,6 +354,7 @@ export class EnrichDefinition extends CamelElement {
     cacheSize?: number;
     ignoreInvalidEndpoint?: boolean;
     allowOptimisedComponents?: boolean;
+    autoStartComponents?: boolean;
     public constructor(init?: Partial<EnrichDefinition>) {
         super('EnrichDefinition');
         Object.assign(this, init);
@@ -374,6 +398,8 @@ export class ExpressionSubElementDefinition extends CamelElement {
     simple?: SimpleExpression | string;
     spel?: SpELExpression | string;
     tokenize?: TokenizerExpression | string;
+    variable?: VariableExpression | string;
+    wasm?: WasmExpression | string;
     xpath?: XPathExpression | string;
     xquery?: XQueryExpression | string;
     xtokenize?: XMLTokenizerExpression | string;
@@ -436,6 +462,7 @@ export class FromDefinition extends CamelElement {
     id?: string = 'from-' + uuidv4().substring(0,4);
     description?: string;
     uri: string = '';
+    variableReceive?: string;
     parameters?: any = {};
     steps: CamelElement[] = [];
     public constructor(init?: Partial<FromDefinition>) {
@@ -600,10 +627,13 @@ export class MarshalDefinition extends CamelElement {
     id?: string = 'marshal-' + uuidv4().substring(0,4);
     description?: string;
     disabled?: boolean;
+    variableSend?: string;
+    variableReceive?: string;
     asn1?: ASN1DataFormat | string;
     avro?: AvroDataFormat | string;
     barcode?: BarcodeDataFormat;
     base64?: Base64DataFormat;
+    beanio?: BeanioDataFormat;
     bindy?: BindyDataFormat;
     cbor?: CBORDataFormat;
     crypto?: CryptoDataFormat;
@@ -829,6 +859,7 @@ export class PollEnrichDefinition extends CamelElement {
     description?: string;
     disabled?: boolean;
     expression?: ExpressionDefinition;
+    variableReceive?: string;
     aggregationStrategy?: string;
     aggregationStrategyMethodName?: string;
     aggregationStrategyMethodAllowNull?: string;
@@ -836,6 +867,7 @@ export class PollEnrichDefinition extends CamelElement {
     timeout?: string;
     cacheSize?: number;
     ignoreInvalidEndpoint?: boolean;
+    autoStartComponents?: boolean;
     public constructor(init?: Partial<PollEnrichDefinition>) {
         super('PollEnrichDefinition');
         Object.assign(this, init);
@@ -980,6 +1012,18 @@ export class RemovePropertyDefinition extends CamelElement {
     name: string = '';
     public constructor(init?: Partial<RemovePropertyDefinition>) {
         super('RemovePropertyDefinition');
+        Object.assign(this, init);
+    }
+}
+
+export class RemoveVariableDefinition extends CamelElement {
+    stepName?: string = 'removeVariable';
+    id?: string = 'removeVariable-' + uuidv4().substring(0,4);
+    description?: string;
+    disabled?: boolean;
+    name: string = '';
+    public constructor(init?: Partial<RemoveVariableDefinition>) {
+        super('RemoveVariableDefinition');
         Object.assign(this, init);
     }
 }
@@ -1306,6 +1350,19 @@ export class SetPropertyDefinition extends CamelElement {
     }
 }
 
+export class SetVariableDefinition extends CamelElement {
+    stepName?: string = 'setVariable';
+    id?: string = 'setVariable-' + uuidv4().substring(0,4);
+    description?: string;
+    disabled?: boolean;
+    name: string = '';
+    expression?: ExpressionDefinition;
+    public constructor(init?: Partial<SetVariableDefinition>) {
+        super('SetVariableDefinition');
+        Object.assign(this, init);
+    }
+}
+
 export class SortDefinition extends CamelElement {
     stepName?: string = 'sort';
     id?: string = 'sort-' + uuidv4().substring(0,4);
@@ -1450,11 +1507,13 @@ export class ThrottleDefinition extends CamelElement {
     description?: string;
     disabled?: boolean;
     expression?: ExpressionDefinition;
+    mode?: string;
     correlationExpression?: ExpressionSubElementDefinition;
     executorService?: string;
     asyncDelayed?: boolean;
     callerRunsWhenRejected?: boolean;
     rejectExecution?: boolean;
+    timePeriodMillis?: string;
     public constructor(init?: Partial<ThrottleDefinition>) {
         super('ThrottleDefinition');
         Object.assign(this, init);
@@ -1480,6 +1539,8 @@ export class ToDefinition extends CamelElement {
     id?: string = 'to-' + uuidv4().substring(0,4);
     description?: string;
     disabled?: boolean;
+    variableSend?: string;
+    variableReceive?: string;
     uri: string = '';
     pattern?: string;
     parameters?: any = {};
@@ -1495,6 +1556,8 @@ export class ToDynamicDefinition extends CamelElement {
     description?: string;
     disabled?: boolean;
     uri: string = '';
+    variableSend?: string;
+    variableReceive?: string;
     pattern?: string;
     cacheSize?: number;
     ignoreInvalidEndpoint?: boolean;
@@ -1553,11 +1616,14 @@ export class UnmarshalDefinition extends CamelElement {
     id?: string = 'unmarshal-' + uuidv4().substring(0,4);
     description?: string;
     disabled?: boolean;
+    variableSend?: string;
+    variableReceive?: string;
     allowNullBody?: boolean;
     asn1?: ASN1DataFormat | string;
     avro?: AvroDataFormat | string;
     barcode?: BarcodeDataFormat;
     base64?: Base64DataFormat;
+    beanio?: BeanioDataFormat;
     bindy?: BindyDataFormat;
     cbor?: CBORDataFormat;
     crypto?: CryptoDataFormat;
@@ -1658,6 +1724,8 @@ export class WireTapDefinition extends CamelElement {
     onPrepare?: string;
     executorService?: string;
     uri: string = '';
+    variableSend?: string;
+    variableReceive?: string;
     pattern?: string;
     cacheSize?: number;
     ignoreInvalidEndpoint?: boolean;
@@ -2095,6 +2163,23 @@ export class Base64DataFormat extends CamelElement {
     }
 }
 
+export class BeanioDataFormat extends CamelElement {
+    dataFormatName?: string = 'beanio';
+    id?: string = 'beanio-' + uuidv4().substring(0,4);
+    mapping: string = '';
+    streamName: string = '';
+    ignoreUnidentifiedRecords?: boolean;
+    ignoreUnexpectedRecords?: boolean;
+    ignoreInvalidRecords?: boolean;
+    encoding?: string;
+    beanReaderErrorHandlerType?: string;
+    unmarshalSingleObject?: boolean;
+    public constructor(init?: Partial<BeanioDataFormat>) {
+        super('BeanioDataFormat');
+        Object.assign(this, init);
+    }
+}
+
 export class BindyDataFormat extends CamelElement {
     dataFormatName?: string = 'bindy';
     id?: string = 'bindy-' + uuidv4().substring(0,4);
@@ -2200,6 +2285,7 @@ export class DataFormatsDefinition extends CamelElement {
     avro?: AvroDataFormat | string;
     barcode?: BarcodeDataFormat;
     base64?: Base64DataFormat;
+    beanio?: BeanioDataFormat;
     bindy?: BindyDataFormat;
     cbor?: CBORDataFormat;
     crypto?: CryptoDataFormat;
@@ -2932,6 +3018,7 @@ export class DatasonnetExpression extends CamelElement {
     expression: string = '';
     bodyMediaType?: string;
     outputMediaType?: string;
+    source?: string;
     resultType?: string;
     trim?: boolean;
     public constructor(init?: Partial<DatasonnetExpression>) {
@@ -2974,6 +3061,8 @@ export class ExpressionDefinition extends CamelElement {
     simple?: SimpleExpression | string;
     spel?: SpELExpression | string;
     tokenize?: TokenizerExpression | string;
+    variable?: VariableExpression | string;
+    wasm?: WasmExpression | string;
     xpath?: XPathExpression | string;
     xquery?: XQueryExpression | string;
     xtokenize?: XMLTokenizerExpression | string;
@@ -3010,8 +3099,7 @@ export class Hl7TerserExpression extends CamelElement {
     expressionName?: string = 'hl7terser';
     id?: string = 'hl7terser-' + uuidv4().substring(0,4);
     expression: string = '';
-    headerName?: string;
-    propertyName?: string;
+    source?: string;
     resultType?: string;
     trim?: boolean;
     public constructor(init?: Partial<Hl7TerserExpression>) {
@@ -3064,8 +3152,7 @@ export class JqExpression extends CamelElement {
     expressionName?: string = 'jq';
     id?: string = 'jq-' + uuidv4().substring(0,4);
     expression: string = '';
-    headerName?: string;
-    propertyName?: string;
+    source?: string;
     resultType?: string;
     trim?: boolean;
     public constructor(init?: Partial<JqExpression>) {
@@ -3084,8 +3171,7 @@ export class JsonPathExpression extends CamelElement {
     writeAsString?: boolean;
     unpackArray?: boolean;
     option?: string;
-    headerName?: string;
-    propertyName?: string;
+    source?: string;
     resultType?: string;
     trim?: boolean;
     public constructor(init?: Partial<JsonPathExpression>) {
@@ -3206,11 +3292,35 @@ export class TokenizerExpression extends CamelElement {
     group?: string;
     groupDelimiter?: string;
     skipFirst?: boolean;
-    headerName?: string;
-    propertyName?: string;
+    source?: string;
+    resultType?: string;
     trim?: boolean;
     public constructor(init?: Partial<TokenizerExpression>) {
         super('TokenizerExpression');
+        Object.assign(this, init);
+    }
+}
+
+export class VariableExpression extends CamelElement {
+    expressionName?: string = 'variable';
+    id?: string = 'variable-' + uuidv4().substring(0,4);
+    expression: string = '';
+    trim?: boolean;
+    public constructor(init?: Partial<VariableExpression>) {
+        super('VariableExpression');
+        Object.assign(this, init);
+    }
+}
+
+export class WasmExpression extends CamelElement {
+    expressionName?: string = 'wasm';
+    id?: string = 'wasm-' + uuidv4().substring(0,4);
+    expression: string = '';
+    module: string = '';
+    resultType?: string;
+    trim?: boolean;
+    public constructor(init?: Partial<WasmExpression>) {
+        super('WasmExpression');
         Object.assign(this, init);
     }
 }
@@ -3222,8 +3332,8 @@ export class XMLTokenizerExpression extends CamelElement {
     mode?: string;
     group?: number;
     namespace?: PropertyDefinition[] = [];
-    headerName?: string;
-    propertyName?: string;
+    source?: string;
+    resultType?: string;
     trim?: boolean;
     public constructor(init?: Partial<XMLTokenizerExpression>) {
         super('XMLTokenizerExpression');
@@ -3236,7 +3346,7 @@ export class XPathExpression extends CamelElement {
     id?: string = 'xpath-' + uuidv4().substring(0,4);
     expression: string = '';
     documentType?: string;
-    resultType?: string;
+    resultQName?: string;
     saxon?: boolean;
     factoryRef?: string;
     objectModel?: string;
@@ -3244,8 +3354,8 @@ export class XPathExpression extends CamelElement {
     threadSafety?: boolean;
     preCompile?: boolean;
     namespace?: PropertyDefinition[] = [];
-    headerName?: string;
-    propertyName?: string;
+    source?: string;
+    resultType?: string;
     trim?: boolean;
     public constructor(init?: Partial<XPathExpression>) {
         super('XPathExpression');
@@ -3257,12 +3367,10 @@ export class XQueryExpression extends CamelElement {
     expressionName?: string = 'xquery';
     id?: string = 'xquery-' + uuidv4().substring(0,4);
     expression: string = '';
-    resultType?: string;
-    type?: string;
     configurationRef?: string;
     namespace?: PropertyDefinition[] = [];
-    headerName?: string;
-    propertyName?: string;
+    source?: string;
+    resultType?: string;
     trim?: boolean;
     public constructor(init?: Partial<XQueryExpression>) {
         super('XQueryExpression');
@@ -3779,6 +3887,7 @@ export class DataFormatTransformerDefinition extends CamelElement {
     avro?: AvroDataFormat | string;
     barcode?: BarcodeDataFormat;
     base64?: Base64DataFormat;
+    beanio?: BeanioDataFormat;
     bindy?: BindyDataFormat;
     cbor?: CBORDataFormat;
     crypto?: CryptoDataFormat;
