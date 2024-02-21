@@ -114,6 +114,7 @@ export class SpacePage extends React.Component<Props, State> {
                 onInternalConsumerClick={(uri?: string, name?: string, routeId?: string) => {
                     console.log("onInternalConsumerClick", uri, name, routeId)
                 }}
+                variables={[]}
                 files={[new IntegrationFile("example.camel.yaml", yaml)]}
             />
         )
