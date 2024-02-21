@@ -127,7 +127,7 @@ public final class CamelMetadataGenerator extends AbstractGenerator {
         });
 
         definitions.getMap().forEach((s, o) -> {
-            if (s.startsWith("org.apache.camel.model.") && s.endsWith("Definition")) {
+            if (s.startsWith("org.apache.camel.model.") && (s.endsWith("Definition") || s.endsWith("Config"))) {
                 String name = classSimple(s);
                 String stepName = getStepNameForClass(name);
                 JsonObject obj = getDefinition(definitions, s);
@@ -177,6 +177,12 @@ public final class CamelMetadataGenerator extends AbstractGenerator {
                 } else {
                     json = getMetaDataFormat(stepName);
                 }
+            }
+
+            if (name.endsWith("Config")) {
+                System.out.println(name);
+                System.out.println(entry.getValue());
+                System.out.println(stepName);
             }
 
             if (json != null) {

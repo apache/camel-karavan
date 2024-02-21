@@ -82,6 +82,10 @@ public class AbstractGenerator {
             className = "sample";
         } else if (className.equals("BeanPropertiesDefinition")) {
             className = "properties";
+        } else if (className.equals("BatchResequencerConfig")) {
+            className = "batchConfig";
+        } else if (className.equals("StreamResequencerConfig")) {
+            className = "streamConfig";
         } else if (className.equals("RestSecuritiesDefinition")) {
             className = "securityDefinitions";
         } else if (className.endsWith("Definition")) {
