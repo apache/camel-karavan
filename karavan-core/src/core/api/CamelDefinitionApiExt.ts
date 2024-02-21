@@ -654,7 +654,7 @@ export class CamelDefinitionApiExt {
 
         if (className) {
             const properties =
-                className.endsWith('Definition') || className.endsWith('BuilderRef')
+                className.endsWith('Definition') || className.endsWith('BuilderRef') || className.endsWith('Config')
                     ? CamelMetadataApi.getCamelModelMetadataByClassName(className)?.properties
                     : className.endsWith('DataFormat')
                     ? CamelMetadataApi.getCamelDataFormatMetadataByClassName(className)?.properties

@@ -46,7 +46,7 @@ import "@patternfly/patternfly/patternfly.css";
 import HelpIcon from "@patternfly/react-icons/dist/js/icons/help-icon";
 import DeleteIcon from "@patternfly/react-icons/dist/js/icons/times-circle-icon";
 import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
-import {PropertyMeta} from "karavan-core/lib/model/CamelMetadata";
+import {CamelMetadataApi, PropertyMeta} from "karavan-core/lib/model/CamelMetadata";
 import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt";
 import {ExpressionField} from "./ExpressionField";
 import {CamelUi, RouteToCreate} from "../../utils/CamelUi";
@@ -76,6 +76,7 @@ import {KubernetesIcon} from "../../icons/ComponentIcons";
 import {BeanProperties} from "./BeanProperties";
 import {PropertyPlaceholderDropdown} from "./PropertyPlaceholderDropdown";
 import {VariablesDropdown} from "./VariablesDropdown";
+import {CamelModelMetadata} from "karavan-core/lib/model/CamelMetadata";
 
 const GLOBAL = 'global:';
 const ROUTE = 'route:';
@@ -203,10 +204,11 @@ export function DslPropertyField(props: Props) {
             const tooltip = value ? "Delete " + property.name : "Add " + property.name;
             const className = value ? "change-button delete-button" : "change-button add-button";
             const x = value ? undefined : CamelDefinitionApi.createStep(property.type, {});
+            const meta = CamelMetadataApi.getCamelModelMetadataByClassName(property.type);
             const icon = value ? (<DeleteIcon/>) : (<AddIcon/>);
             return (
                 <div style={{display: "flex"}}>
-                    <Text>{property.displayName} </Text>
+                    <Text>{meta?.title} </Text>
                     <Tooltip position={"top"} content={<div>{tooltip}</div>}>
                         <button className={className} onClick={e => props.onPropertyChange?.(property.name, x)}
                                 aria-label="Add element">
@@ -323,6 +325,10 @@ export function DslPropertyField(props: Props) {
         </InputGroup>
     }
 
+    function isNumeric (num: any) {
+        return (typeof(num) === 'number' || typeof(num) === "string" && num.trim() !== '') && !isNaN(num as number);
+    }
+
     function getStringInput(property: PropertyMeta) {
         const inInfrastructure = InfrastructureAPI.infrastructure !== 'local';
         const noInfraSelectorButton = ["uri", "id", "description", "group"].includes(property.name);
@@ -350,11 +356,23 @@ export function DslPropertyField(props: Props) {
                                value={textValue?.toString()}
                                customIcon={property.type !== 'string' ?
                                    <Text component={TextVariants.p}>{property.type}</Text> : undefined}
-                               onBlur={_ => propertyChanged(property.name, textValue)}
+                               onBlur={_ => {
+                                   if (isNumber && isNumeric((textValue))) {
+                                       propertyChanged(property.name, Number(textValue))
+                                   } else if (!isNumber) {
+                                       propertyChanged(property.name, textValue)
+                                   }
+                               }}
                                onFocus={_ => setCheckChanges(true)}
                                onChange={(_, v) => {
-                                   setTextValue(v);
-                                   setCheckChanges(true);
+
+                                   if (isNumber && isNumeric(v)) {
+                                       setTextValue(v);
+                                       setCheckChanges(true);
+                                   } else if (!isNumber) {
+                                       setTextValue(v);
+                                       setCheckChanges(true);
+                                   }
                                }}
                                readOnlyVariant={uriReadOnly ? "default" : undefined}/>
                 </InputGroupItem>
