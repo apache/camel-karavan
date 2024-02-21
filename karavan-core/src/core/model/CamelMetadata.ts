@@ -1903,6 +1903,21 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('properties', 'Properties', "Optional properties to set on the created bean.", 'object', '', '', false, false, false, false, '', ''),
         new PropertyMeta('script', 'Script', "The script to execute that creates the bean when using scripting languages. If the script use the prefix resource: such as resource:classpath:com/foo/myscript.groovy, resource:file:/var/myscript.groovy, then its loaded from the external resource.", 'string', '', '', false, false, false, false, 'advanced', ''),
     ]),
+    new ElementMeta('batchConfig', 'BatchResequencerConfig', 'Batch Config', "Configures batch-processing resequence eip.", 'configuration,eip', [
+        new PropertyMeta('batchSize', 'Batch Size', "Sets the size of the batch to be re-ordered. The default size is 100.", 'number', '', '100', false, false, false, false, '', ''),
+        new PropertyMeta('batchTimeout', 'Batch Timeout', "Sets the timeout for collecting elements to be re-ordered. The default timeout is 1000 msec.", 'string', '', '1000', false, false, false, false, '', ''),
+        new PropertyMeta('allowDuplicates', 'Allow Duplicates', "Whether to allow duplicates.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('reverse', 'Reverse', "Whether to reverse the ordering.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('ignoreInvalidExchanges', 'Ignore Invalid Exchanges', "Whether to ignore invalid exchanges", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
+    ]),
+    new ElementMeta('streamConfig', 'StreamResequencerConfig', 'Stream Config', "Configures stream-processing resequence eip.", 'configuration,eip', [
+        new PropertyMeta('capacity', 'Capacity', "Sets the capacity of the resequencer inbound queue.", 'number', '', '1000', false, false, false, false, '', ''),
+        new PropertyMeta('timeout', 'Timeout', "Sets minimum time (milliseconds) to wait for missing elements (messages).", 'string', '', '1000', false, false, false, false, '', ''),
+        new PropertyMeta('deliveryAttemptInterval', 'Delivery Attempt Interval', "Sets the interval in milliseconds the stream resequencer will at most wait while waiting for condition of being able to deliver.", 'string', '', '1000', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('ignoreInvalidExchanges', 'Ignore Invalid Exchanges', "Whether to ignore invalid exchanges", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('rejectOld', 'Reject Old', "If true, throws an exception when messages older than the last delivered message are processed", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('comparator', 'Comparator', "To use a custom comparator as a org.apache.camel.processor.resequencer.ExpressionResultComparator type.", 'string', '', '', false, false, false, false, 'advanced', ''),
+    ]),
     new ElementMeta('dataFormats', 'DataFormatsDefinition', 'Data formats', "Configure data formats.", 'dataformat,transformation', [
         new PropertyMeta('asn1', 'asn1', "asn1", 'ASN1DataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('avro', 'avro', "avro", 'AvroDataFormat', '', '', false, false, false, true, '', ''),

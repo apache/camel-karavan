@@ -1807,11 +1807,11 @@ export class RegistryBeanDefinition extends CamelElement {
 }
 
 export class BatchResequencerConfig extends CamelElement {
-    allowDuplicates?: boolean;
     batchSize?: number;
     batchTimeout?: string;
-    ignoreInvalidExchanges?: boolean;
+    allowDuplicates?: boolean;
     reverse?: boolean;
+    ignoreInvalidExchanges?: boolean;
     public constructor(init?: Partial<BatchResequencerConfig>) {
         super('BatchResequencerConfig');
         Object.assign(this, init);
@@ -1820,11 +1820,11 @@ export class BatchResequencerConfig extends CamelElement {
 
 export class StreamResequencerConfig extends CamelElement {
     capacity?: number;
-    comparator?: string;
+    timeout?: string;
     deliveryAttemptInterval?: string;
     ignoreInvalidExchanges?: boolean;
     rejectOld?: boolean;
-    timeout?: string;
+    comparator?: string;
     public constructor(init?: Partial<StreamResequencerConfig>) {
         super('StreamResequencerConfig');
         Object.assign(this, init);
