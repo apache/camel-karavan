@@ -56,6 +56,7 @@ interface Props {
     showCodeTab: boolean
     tab?: "routes" | "rest" | "beans"
     propertyPlaceholders: string[]
+    variables: string[]
     beans: RegistryBeanDefinition[]
     files: IntegrationFile[]
 }
@@ -63,9 +64,9 @@ interface Props {
 export function KaravanDesigner(props: Props) {
 
     const [tab, setTab] = useState<string>('routes');
-    const [setDark, hideLogDSL, setHideLogDSL, setSelectedStep, reset, badge, message, setPropertyPlaceholders, setBeans] =
+    const [setDark, hideLogDSL, setHideLogDSL, setSelectedStep, reset, badge, message, setPropertyPlaceholders, setBeans, setVariables] =
         useDesignerStore((s) =>
-        [s.setDark, s.hideLogDSL, s.setHideLogDSL, s.setSelectedStep, s.reset, s.notificationBadge, s.notificationMessage, s.setPropertyPlaceholders, s.setBeans], shallow)
+        [s.setDark, s.hideLogDSL, s.setHideLogDSL, s.setSelectedStep, s.reset, s.notificationBadge, s.notificationMessage, s.setPropertyPlaceholders, s.setBeans, s.setVariables], shallow)
     const [integration, setIntegration, resetFiles] = useIntegrationStore((s) =>
         [s.integration, s.setIntegration, s.resetFiles], shallow)
 
@@ -92,6 +93,7 @@ export function KaravanDesigner(props: Props) {
         reset();
         setDark(props.dark);
         setPropertyPlaceholders(props.propertyPlaceholders)
+        setVariables(props.variables)
         setBeans(props.beans)
         resetFiles(props.files)
         setHideLogDSL(props.hideLogDSL === true);
