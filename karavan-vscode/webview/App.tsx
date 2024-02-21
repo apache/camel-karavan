@@ -260,6 +260,7 @@ class App extends React.Component<Props, State> {
             onInternalConsumerClick={(uri, name, routeId) => {
               vscode.postMessage({ command: 'internalConsumerClick', uri: uri, name: name, routeId: routeId });
             }}
+            variables={[]}
             files={this.state.files.map(f => new IntegrationFile(f.name, f.code))}
           />
         }
