@@ -272,6 +272,10 @@ export function DslPropertyField(props: Props) {
 
     function getVariableInput(property: PropertyMeta) {
         return <InputGroup>
+            {/*<InputGroupItem>*/}
+            {/*    <Button variant={'control'}>{GLOBAL}</Button>*/}
+            {/*    <Button variant={'control'}>{ROUTE}</Button>*/}
+            {/*</InputGroupItem>*/}
             <InputGroupItem>
                 <ToggleGroup aria-label="Variable type">
                     <ToggleGroupItem text="global:" key='global' buttonId={"global-variable-"+ property.name}
@@ -287,6 +291,7 @@ export function DslPropertyField(props: Props) {
                                      }}
                     />
                     <ToggleGroupItem text="route:" key='route' buttonId={"route-variable"+ property.name}
+                                     className='route-variable'
                                      isSelected={variableType === ROUTE}
                                      onChange={(_, selected) => {
                                          if (selected) {
@@ -302,7 +307,7 @@ export function DslPropertyField(props: Props) {
             </InputGroupItem>
             <InputGroupItem isFill>
                 <TextInput ref={ref}
-                           className="text-field" isRequired
+                           className="text-field route-variable" isRequired
                            type='text'
                            id={property.name} name={property.name}
                            value={textValue?.toString()}
