@@ -1018,6 +1018,16 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('mandatory', 'Mandatory', "When mandatory then the conversion must return a value (cannot be null), if this is not possible then NoTypeConversionAvailableException is thrown. Setting this to false could mean conversion is not possible and the value is null.", 'boolean', '', 'true', false, false, false, false, 'advanced', ''),
         new PropertyMeta('charset', 'Charset', "To use a specific charset when converting", 'string', '', '', false, false, false, false, 'advanced', ''),
     ]),
+    new ElementMeta('convertVariableTo', 'ConvertVariableDefinition', 'Convert Variable To', "Converts the variable to another type", 'eip,transformation', [
+        new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('disabled', 'Disabled', "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('name', 'Name', "Name of variable to convert its value The simple language can be used to define a dynamic evaluated header name to be used. Otherwise a constant name will be used.", 'string', '', '', true, false, false, false, '', ''),
+        new PropertyMeta('type', 'Type', "The java type to convert to", 'string', '', '', true, false, false, false, '', ''),
+        new PropertyMeta('toName', 'To Name', "To use another variable to store the result. By default, the result is stored in the same variable. This option allows to use another variable. The simple language can be used to define a dynamic evaluated variable name to be used. Otherwise a constant name will be used.", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('mandatory', 'Mandatory', "When mandatory then the conversion must return a value (cannot be null), if this is not possible then NoTypeConversionAvailableException is thrown. Setting this to false could mean conversion is not possible and the value is null.", 'boolean', '', 'true', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('charset', 'Charset', "To use a specific charset when converting", 'string', '', '', false, false, false, false, 'advanced', ''),
+    ]),
     new ElementMeta('delay', 'DelayDefinition', 'Delay', "Delays processing for a specified length of time", 'eip,routing', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),

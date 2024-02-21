@@ -24,7 +24,7 @@ import {
 import '../karavan.css';
 import {CamelUi} from "../utils/CamelUi";
 import {DslMetaModel} from "../utils/DslMetaModel";
-import {useDesignerStore, useIntegrationStore, useSelectorStore} from "../DesignerStore";
+import {useDesignerStore, useSelectorStore} from "../DesignerStore";
 import {shallow} from "zustand/shallow";
 import {useRouteDesignerHook} from "./useRouteDesignerHook";
 import { ComponentApi } from 'karavan-core/lib/api/ComponentApi';

@@ -16,9 +16,6 @@
  */
 import {expect} from 'chai';
 import 'mocha';
-import {
-    FromDefinition,
-} from "../src/core/model/CamelDefinition";
 import {CamelDefinitionApiExt} from "../src/core/api/CamelDefinitionApiExt";
 import {PropertyMeta} from "../src/core/model/CamelMetadata";
 

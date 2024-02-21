@@ -284,15 +284,15 @@ export class ConvertHeaderDefinition extends CamelElement {
 }
 
 export class ConvertVariableDefinition extends CamelElement {
-    stepName?: string = 'convertVariable';
-    charset?: string;
+    stepName?: string = 'convertVariableTo';
+    id?: string = 'convertVariableTo-' + uuidv4().substring(0,4);
     description?: string;
     disabled?: boolean;
-    id?: string = 'convertVariable-' + uuidv4().substring(0,4);
-    mandatory?: boolean;
     name: string = '';
-    toName?: string;
     type: string = '';
+    toName?: string;
+    mandatory?: boolean;
+    charset?: string;
     public constructor(init?: Partial<ConvertVariableDefinition>) {
         super('ConvertVariableDefinition');
         Object.assign(this, init);
