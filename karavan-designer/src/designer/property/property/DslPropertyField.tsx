@@ -940,7 +940,6 @@ export function DslPropertyField(props: Props) {
     }
 
     function getIsVariable() {
-        console.log(element?.dslName)
         if (['variableSend', 'variableReceive'].includes(property.name)) {
             return true;
         } else if (property.name === 'name' && element?.dslName === 'SetVariableDefinition') {

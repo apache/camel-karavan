@@ -16,8 +16,9 @@
  */
 import React, {useState} from 'react';
 import {
-	FormGroup,
-	Popover
+    ExpandableSection,
+    FormGroup,
+    Popover
 } from '@patternfly/react-core';
 import {
 	Select,
@@ -45,6 +46,7 @@ interface Props {
 export function ExpressionField(props: Props) {
 
     const [selectIsOpen, setSelectIsOpen] = useState<boolean>(false);
+    const [propsAreOpen, setPropsAreOpen] = useState<boolean>(false);
 
     function openSelect (isExpanded: boolean) {
         setSelectIsOpen(isExpanded);
@@ -91,7 +93,13 @@ export function ExpressionField(props: Props) {
         const dslName = getValueClassName();
         return CamelDefinitionApiExt.getElementProperties(dslName)
             .filter(p => p.name !== 'id')
+            .filter(p => p.name !== 'expression')
             .filter(p => !p.isObject || (p.isObject && !CamelUi.dslHasSteps(p.type)) || (dslName === 'CatchDefinition' && p.name === 'onWhen'));
+    }
+
+    function getExpressionProps (): PropertyMeta | undefined {
+        const dslName = getValueClassName();
+        return CamelDefinitionApiExt.getElementProperties(dslName).filter(p => p.name === 'expression').at(0);
     }
 
     const property: PropertyMeta = props.property;
@@ -102,6 +110,7 @@ export function ExpressionField(props: Props) {
         const s = <SelectOption key={lang[0]} value={lang[0]} description={lang[2]}/>;
         selectOptions.push(s);
     })
+    const exp = getExpressionProps();
     return (
         <div>
             <label className="pf-v5-c-form__label" htmlFor="expression">
@@ -137,21 +146,41 @@ export function ExpressionField(props: Props) {
                             e.stopPropagation();
                         }}
                                 className="pf-v5-c-form__group-label-help">
-                            <HelpIcon />
+                            <HelpIcon/>
                         </button>
                     </Popover> : <div></div>
                 }>
-                {value && getProps().map((property: PropertyMeta) =>
-                    <DslPropertyField key={property.name + props.value?.uuid}
-                                      property={property}
-                                      value={value ? (value as any)[property.name] : undefined}
-                                      dslLanguage={dslLanguage}
-                                      onExpressionChange={exp => {}}
-                                      onParameterChange={parameter => {}}
-                                      onDataFormatChange={dataFormat => {}}
-                                      onPropertyChange={propertyChanged}
-                    />
-                )}
+                {exp && <DslPropertyField key={exp.name + props.value?.uuid}
+                                          property={exp}
+                                          value={value ? (value as any)[exp.name] : undefined}
+                                          dslLanguage={dslLanguage}
+                                          onExpressionChange={exp => {
+                                          }}
+                                          onParameterChange={parameter => {
+                                          }}
+                                          onDataFormatChange={dataFormat => {
+                                          }}
+                                          onPropertyChange={propertyChanged}
+                />}
+                <ExpandableSection
+                    toggleText={'Expression properties'}
+                    onToggle={(_event, isExpanded) => setPropsAreOpen(isExpanded)}
+                    isExpanded={propsAreOpen}>
+                    {value && getProps().map((property: PropertyMeta) =>
+                        <DslPropertyField key={property.name + props.value?.uuid}
+                                          property={property}
+                                          value={value ? (value as any)[property.name] : undefined}
+                                          dslLanguage={dslLanguage}
+                                          onExpressionChange={exp => {
+                                          }}
+                                          onParameterChange={parameter => {
+                                          }}
+                                          onDataFormatChange={dataFormat => {
+                                          }}
+                                          onPropertyChange={propertyChanged}
+                        />
+                    )}
+                </ExpandableSection>
             </FormGroup>
         </div>
     )
