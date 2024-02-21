@@ -70,6 +70,21 @@
       uri: direct
       parameters:
         name: second_direct
+      steps:
+        - setVariable:
+            id: setVariable-75ca
+            name: global:data1
+            expression:
+              simple:
+                id: simple-009e
+        - convertVariableTo:
+            id: convertVariableTo-c0b8
+        - removeVariable:
+            id: removeVariable-2cae
+        - to:
+            id: to-4711
+            uri: metrics
+
 
 #      steps:
 #        - marshal:

@@ -939,11 +939,25 @@ export function DslPropertyField(props: Props) {
         )
     }
 
+    function getIsVariable() {
+        console.log(element?.dslName)
+        if (['variableSend', 'variableReceive'].includes(property.name)) {
+            return true;
+        } else if (property.name === 'name' && element?.dslName === 'SetVariableDefinition') {
+            return true;
+        } else if (property.name === 'name' && element?.dslName === 'RemoveVariableDefinition') {
+            return true
+        } else if (['name', 'toName'].includes(property.name) && element?.dslName === 'ConvertVariableDefinition') {
+            return true;
+        }
+        return false;
+    }
+
     const element = props.element;
     const isKamelet = CamelUtil.isKameletComponent(element);
     const property: PropertyMeta = props.property;
     const value = props.value;
-    const isVariable = ['variableSend', 'variableReceive'].includes(property.name)
+    const isVariable = getIsVariable();
     const beanConstructors = element?.dslName === 'RegistryBeanDefinition' && property.name === 'constructors'
     const beanProperties = element?.dslName === 'RegistryBeanDefinition' && property.name === 'properties'
     return (
