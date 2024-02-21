@@ -40,6 +40,8 @@ import java.util.stream.Collectors;
 
 public class AbstractGenerator {
 
+    public static final List<String> deprecatedClasses = new ArrayList<>();
+
     Logger LOGGER = Logger.getLogger(AbstractGenerator.class.getName());
     protected static boolean print = false;
 
@@ -140,14 +142,18 @@ public class AbstractGenerator {
                 JsonObject val = obj.getJsonObject("properties");
                 properties.putAll(getJsonObjectProperties(val));
             } else if (key.equals("anyOf")) {
-                JsonArray vals = obj.getJsonArray("anyOf").getJsonObject(0).getJsonArray("oneOf");
-                for (int i = 0; i < vals.size(); i++) {
-                    JsonObject data = vals.getJsonObject(i);
-                    if (!data.containsKey("not") && data.containsKey("type")) {
-                        JsonObject val = data.getJsonObject("properties");
-                        properties.putAll(getJsonObjectProperties(val));
+                JsonArray anyOfs = obj.getJsonArray("anyOf");
+                anyOfs.forEach(o -> {
+                    JsonObject ob = (JsonObject) o;
+                    JsonArray vals = ob.getJsonArray("oneOf");
+                    for (int i = 0; i < vals.size(); i++) {
+                        JsonObject data = vals.getJsonObject(i);
+                        if (!data.containsKey("not") && data.containsKey("type")) {
+                            JsonObject val = data.getJsonObject("properties");
+                            properties.putAll(getJsonObjectProperties(val));
+                        }
                     }
-                }
+                });
             }
         });
         return properties;
@@ -282,6 +288,8 @@ public class AbstractGenerator {
     protected boolean excludeProperty(String stepName, String name, String attributeType) {
         var hasModelInCatalog = hasModelInCatalog(stepName);
         var hasInCatalog = hasPropertyInCatalogIgnoreCase(stepName, name);
+        var clazz = attributeType.contains("|") ? attributeType.split("\\|")[0].trim() : "";
+
         if (hasModelInCatalog
                 && !hasInCatalog
                 && !attributeType.contains("[]")
@@ -289,7 +297,11 @@ public class AbstractGenerator {
                 && !attributeType.contains("Definition")
                 && !attributeType.contains("DataFormat")
                 && !attributeType.contains("FilterConfiguration")
+                && !attributeType.contains("BatchResequencerConfig")
+                && !attributeType.contains("StreamResequencerConfig")
                 && !attributeType.contains("Expression")) {
+            return true;
+        } else if (getDeprecatedClasses().contains(clazz)) {
             return true;
         }
         return false;
@@ -416,7 +428,9 @@ public class AbstractGenerator {
         List<String> result = new ArrayList<>();
         definitions.getMap().forEach((s, o) -> {
             if (s.startsWith(filter) && !s.equals("org.apache.camel.dsl.yaml.deserializers.RouteFromDefinitionDeserializer")) {
-                result.add(s);
+                if (!getDeprecatedClasses().contains(classSimple(s))) {
+                    result.add(s);
+                }
             }
         });
         return result;
@@ -436,7 +450,9 @@ public class AbstractGenerator {
             } else if (object instanceof String && k.equals("$ref") && !object.toString().contains(".deserializers.")) {
                 String ref = jsonObject.getString(k);
                 String className = classSimple(ref);
-                result.put(className, key);
+                if (!getDeprecatedClasses().contains(className)) {
+                    result.put(className, key);
+                }
             }
         });
         return result;
@@ -475,7 +491,9 @@ public class AbstractGenerator {
         properties.getMap().forEach((key, o) -> {
             String ref = ((Map) o).get("$ref").toString();
             String className = classSimple(ref);
-            result.put(className, key);
+            if (!getDeprecatedClasses().contains(className)) {
+                result.put(className, key);
+            }
         });
         return result;
     }
@@ -486,5 +504,23 @@ public class AbstractGenerator {
 
     protected boolean isAttributeRefArray(JsonObject attribute) {
         return attribute.containsKey("type") && attribute.getString("type").equals("array");
+    }
+
+    protected List<String> getDeprecatedClasses() {
+        if (deprecatedClasses.isEmpty()) {
+            String camelYamlDSL = getCamelYamlDSL();
+            JsonObject definitions = new JsonObject(camelYamlDSL).getJsonObject("items").getJsonObject("definitions");
+
+            definitions.getMap().forEach((s, o) -> {
+                if (s.startsWith("org.apache.camel") && !s.equals("org.apache.camel.dsl.yaml.deserializers.RouteFromDefinitionDeserializer")) {
+                    JsonObject classObject = definitions.getJsonObject(s);
+                    if (classObject.containsKey("deprecated") && classObject.getBoolean("deprecated")) {
+                        String className = classSimple(s);
+                        deprecatedClasses.add(className);
+                    }
+                }
+            });
+        }
+        return deprecatedClasses;
     }
 }

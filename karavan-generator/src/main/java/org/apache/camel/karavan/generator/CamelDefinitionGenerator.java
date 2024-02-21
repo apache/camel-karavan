@@ -46,15 +46,11 @@ public final class CamelDefinitionGenerator extends AbstractGenerator {
 
         JsonObject definitions = new JsonObject(camelYamlDSL).getJsonObject("items").getJsonObject("definitions");
 
-        // Prepare stepNames map
-        Map<String, String> stepNames = getProcessorStepNameMap();
-
         List<String> modelList = getClasses(definitions, "org.apache.camel");
-        modelList.forEach(className -> {
-            String model = generateModel(className, definitions.getJsonObject(className), definitions, getDslMetadata());
+        modelList.forEach(classFullName -> {
+            String model = generateModel(classFullName, definitions.getJsonObject(classFullName), definitions, getDslMetadata());
             camelModel.append(model).append(System.lineSeparator());
         });
-
         writeFileText(targetModel, camelModel.toString());
     }
 

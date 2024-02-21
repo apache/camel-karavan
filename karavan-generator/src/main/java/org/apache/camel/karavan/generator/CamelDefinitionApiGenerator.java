@@ -48,7 +48,8 @@ public final class CamelDefinitionApiGenerator extends AbstractGenerator {
         String camelYamlDSL = getCamelYamlDSL();
         JsonObject definitions = new JsonObject(camelYamlDSL).getJsonObject("items").getJsonObject("definitions");
 
-        List<String> modelList = getClasses(definitions, "org.apache.camel");
+        List<String> modelList = getClasses(definitions, "org.apache.camel").stream()
+                .filter(s -> !getDeprecatedClasses().contains(classSimple(s))).collect(toList()); // filter deprecated
         modelList.forEach(classFullName -> {
             String className = classSimple(classFullName);
             camelModel.append("    ").append(className).append(",\n");
@@ -72,8 +73,7 @@ public final class CamelDefinitionApiGenerator extends AbstractGenerator {
                 "       const newBody = CamelUtil.camelizeBody(name, body, clone);\n" +
                 "       switch (name) { \n"
         );
-        getClasses(definitions, "org.apache.camel")
-                .forEach(className -> {
+        modelList.forEach(className -> {
                     String code = String.format("            case '%1$s': return CamelDefinitionApi.create%1$s(newBody);\n", classSimple(className));
                     cs.append(code);
                 });
@@ -158,6 +158,7 @@ public final class CamelDefinitionApiGenerator extends AbstractGenerator {
                     && !getAttributeClass(aValue).equals("SagaActionUriDefinition") // SagaActionUriDefinition is exception
                     && !getAttributeClass(aValue).equals("ToDefinition") // exception for ToDefinition (in REST Methods)
                     && !getAttributeClass(aValue).equals("ToDynamicDefinition") // exception for ToDynamicDefinition (in REST Methods)
+                    && !getDeprecatedClasses().contains(getAttributeClass(aValue)) // exception for deprecated classes
             ) {
                 String attributeClass = getAttributeClass(aValue);
                 String template = attributeClass.equals("ExpressionDefinition")

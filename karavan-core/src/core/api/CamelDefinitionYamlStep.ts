@@ -132,26 +132,6 @@ import {
     BeanPropertyDefinition,
     ComponentScanDefinition,
     RegistryBeanDefinition,
-    BlacklistServiceCallServiceFilterConfiguration,
-    CachingServiceCallServiceDiscoveryConfiguration,
-    CombinedServiceCallServiceDiscoveryConfiguration,
-    CombinedServiceCallServiceFilterConfiguration,
-    ConsulServiceCallServiceDiscoveryConfiguration,
-    CustomServiceCallServiceFilterConfiguration,
-    DefaultServiceCallServiceLoadBalancerConfiguration,
-    DnsServiceCallServiceDiscoveryConfiguration,
-    HealthyServiceCallServiceFilterConfiguration,
-    KubernetesServiceCallServiceDiscoveryConfiguration,
-    PassThroughServiceCallServiceFilterConfiguration,
-    ServiceCallConfigurationDefinition,
-    ServiceCallDefinition,
-    ServiceCallExpressionConfiguration,
-    ServiceCallServiceChooserConfiguration,
-    ServiceCallServiceDiscoveryConfiguration,
-    ServiceCallServiceFilterConfiguration,
-    ServiceCallServiceLoadBalancerConfiguration,
-    StaticServiceCallServiceDiscoveryConfiguration,
-    ZooKeeperServiceCallServiceDiscoveryConfiguration,
     BatchResequencerConfig,
     StreamResequencerConfig,
     ASN1DataFormat,
@@ -214,7 +194,6 @@ import {
     Hl7TerserExpression,
     JavaExpression,
     JavaScriptExpression,
-    JoorExpression,
     JqExpression,
     JsonPathExpression,
     LanguageExpression,
@@ -445,13 +424,6 @@ export class CamelDefinitionYamlStep {
                def.stop = CamelDefinitionYamlStep.readStopDefinition(element.stop[0]); 
             } else { 
                def.stop = CamelDefinitionYamlStep.readStopDefinition(element.stop); 
-            } 
-        } 
-        if (element?.serviceCall !== undefined) { 
-            if (Array.isArray(element.serviceCall)) { 
-               def.serviceCall = CamelDefinitionYamlStep.readServiceCallDefinition(element.serviceCall[0]); 
-            } else { 
-               def.serviceCall = CamelDefinitionYamlStep.readServiceCallDefinition(element.serviceCall); 
             } 
         } 
         if (element?.whenSkipSendToEndpoint !== undefined) { 
@@ -1128,13 +1100,6 @@ export class CamelDefinitionYamlStep {
                def.jsonpath = CamelDefinitionYamlStep.readJsonPathExpression(element.jsonpath[0]); 
             } else { 
                def.jsonpath = CamelDefinitionYamlStep.readJsonPathExpression(element.jsonpath); 
-            } 
-        } 
-        if (element?.joor !== undefined) { 
-            if (Array.isArray(element.joor)) { 
-               def.joor = CamelDefinitionYamlStep.readJoorExpression(element.joor[0]); 
-            } else { 
-               def.joor = CamelDefinitionYamlStep.readJoorExpression(element.joor); 
             } 
         } 
         if (element?.ognl !== undefined) { 
@@ -1966,6 +1931,13 @@ export class CamelDefinitionYamlStep {
     static readResequenceDefinition = (element: any): ResequenceDefinition => {
         
         let def = element ? new ResequenceDefinition({...element}) : new ResequenceDefinition();
+        if (element?.streamConfig !== undefined) { 
+            if (Array.isArray(element.streamConfig)) { 
+               def.streamConfig = CamelDefinitionYamlStep.readStreamResequencerConfig(element.streamConfig[0]); 
+            } else { 
+               def.streamConfig = CamelDefinitionYamlStep.readStreamResequencerConfig(element.streamConfig); 
+            } 
+        } 
         if (element?.expression !== undefined) { 
             def.expression = CamelDefinitionYamlStep.readExpressionDefinition(element.expression); 
         } else {
@@ -1978,6 +1950,13 @@ export class CamelDefinitionYamlStep {
             }
         }
         def.steps = CamelDefinitionYamlStep.readSteps(element?.steps);
+        if (element?.batchConfig !== undefined) { 
+            if (Array.isArray(element.batchConfig)) { 
+               def.batchConfig = CamelDefinitionYamlStep.readBatchResequencerConfig(element.batchConfig[0]); 
+            } else { 
+               def.batchConfig = CamelDefinitionYamlStep.readBatchResequencerConfig(element.batchConfig); 
+            } 
+        } 
 
         return def;
     }
@@ -2859,332 +2838,6 @@ export class CamelDefinitionYamlStep {
         return def;
     }
 
-    static readBlacklistServiceCallServiceFilterConfiguration = (element: any): BlacklistServiceCallServiceFilterConfiguration => {
-        
-        let def = element ? new BlacklistServiceCallServiceFilterConfiguration({...element}) : new BlacklistServiceCallServiceFilterConfiguration();
-        def.properties = element && element?.properties ? element?.properties.map((x:any) => CamelDefinitionYamlStep.readPropertyDefinition(x)) :[]; 
-
-        return def;
-    }
-
-    static readCachingServiceCallServiceDiscoveryConfiguration = (element: any): CachingServiceCallServiceDiscoveryConfiguration => {
-        
-        let def = element ? new CachingServiceCallServiceDiscoveryConfiguration({...element}) : new CachingServiceCallServiceDiscoveryConfiguration();
-        if (element?.dnsServiceDiscovery !== undefined) { 
-            if (Array.isArray(element.dnsServiceDiscovery)) { 
-               def.dnsServiceDiscovery = CamelDefinitionYamlStep.readDnsServiceCallServiceDiscoveryConfiguration(element.dnsServiceDiscovery[0]); 
-            } else { 
-               def.dnsServiceDiscovery = CamelDefinitionYamlStep.readDnsServiceCallServiceDiscoveryConfiguration(element.dnsServiceDiscovery); 
-            } 
-        } 
-        if (element?.kubernetesServiceDiscovery !== undefined) { 
-            if (Array.isArray(element.kubernetesServiceDiscovery)) { 
-               def.kubernetesServiceDiscovery = CamelDefinitionYamlStep.readKubernetesServiceCallServiceDiscoveryConfiguration(element.kubernetesServiceDiscovery[0]); 
-            } else { 
-               def.kubernetesServiceDiscovery = CamelDefinitionYamlStep.readKubernetesServiceCallServiceDiscoveryConfiguration(element.kubernetesServiceDiscovery); 
-            } 
-        } 
-        if (element?.consulServiceDiscovery !== undefined) { 
-            if (Array.isArray(element.consulServiceDiscovery)) { 
-               def.consulServiceDiscovery = CamelDefinitionYamlStep.readConsulServiceCallServiceDiscoveryConfiguration(element.consulServiceDiscovery[0]); 
-            } else { 
-               def.consulServiceDiscovery = CamelDefinitionYamlStep.readConsulServiceCallServiceDiscoveryConfiguration(element.consulServiceDiscovery); 
-            } 
-        } 
-        if (element?.staticServiceDiscovery !== undefined) { 
-            if (Array.isArray(element.staticServiceDiscovery)) { 
-               def.staticServiceDiscovery = CamelDefinitionYamlStep.readStaticServiceCallServiceDiscoveryConfiguration(element.staticServiceDiscovery[0]); 
-            } else { 
-               def.staticServiceDiscovery = CamelDefinitionYamlStep.readStaticServiceCallServiceDiscoveryConfiguration(element.staticServiceDiscovery); 
-            } 
-        } 
-        if (element?.combinedServiceDiscovery !== undefined) { 
-            if (Array.isArray(element.combinedServiceDiscovery)) { 
-               def.combinedServiceDiscovery = CamelDefinitionYamlStep.readCombinedServiceCallServiceDiscoveryConfiguration(element.combinedServiceDiscovery[0]); 
-            } else { 
-               def.combinedServiceDiscovery = CamelDefinitionYamlStep.readCombinedServiceCallServiceDiscoveryConfiguration(element.combinedServiceDiscovery); 
-            } 
-        } 
-        def.properties = element && element?.properties ? element?.properties.map((x:any) => CamelDefinitionYamlStep.readPropertyDefinition(x)) :[]; 
-
-        return def;
-    }
-
-    static readCombinedServiceCallServiceDiscoveryConfiguration = (element: any): CombinedServiceCallServiceDiscoveryConfiguration => {
-        
-        let def = element ? new CombinedServiceCallServiceDiscoveryConfiguration({...element}) : new CombinedServiceCallServiceDiscoveryConfiguration();
-        if (element?.cachingServiceDiscovery !== undefined) { 
-            if (Array.isArray(element.cachingServiceDiscovery)) { 
-               def.cachingServiceDiscovery = CamelDefinitionYamlStep.readCachingServiceCallServiceDiscoveryConfiguration(element.cachingServiceDiscovery[0]); 
-            } else { 
-               def.cachingServiceDiscovery = CamelDefinitionYamlStep.readCachingServiceCallServiceDiscoveryConfiguration(element.cachingServiceDiscovery); 
-            } 
-        } 
-        if (element?.dnsServiceDiscovery !== undefined) { 
-            if (Array.isArray(element.dnsServiceDiscovery)) { 
-               def.dnsServiceDiscovery = CamelDefinitionYamlStep.readDnsServiceCallServiceDiscoveryConfiguration(element.dnsServiceDiscovery[0]); 
-            } else { 
-               def.dnsServiceDiscovery = CamelDefinitionYamlStep.readDnsServiceCallServiceDiscoveryConfiguration(element.dnsServiceDiscovery); 
-            } 
-        } 
-        if (element?.kubernetesServiceDiscovery !== undefined) { 
-            if (Array.isArray(element.kubernetesServiceDiscovery)) { 
-               def.kubernetesServiceDiscovery = CamelDefinitionYamlStep.readKubernetesServiceCallServiceDiscoveryConfiguration(element.kubernetesServiceDiscovery[0]); 
-            } else { 
-               def.kubernetesServiceDiscovery = CamelDefinitionYamlStep.readKubernetesServiceCallServiceDiscoveryConfiguration(element.kubernetesServiceDiscovery); 
-            } 
-        } 
-        if (element?.consulServiceDiscovery !== undefined) { 
-            if (Array.isArray(element.consulServiceDiscovery)) { 
-               def.consulServiceDiscovery = CamelDefinitionYamlStep.readConsulServiceCallServiceDiscoveryConfiguration(element.consulServiceDiscovery[0]); 
-            } else { 
-               def.consulServiceDiscovery = CamelDefinitionYamlStep.readConsulServiceCallServiceDiscoveryConfiguration(element.consulServiceDiscovery); 
-            } 
-        } 
-        if (element?.staticServiceDiscovery !== undefined) { 
-            if (Array.isArray(element.staticServiceDiscovery)) { 
-               def.staticServiceDiscovery = CamelDefinitionYamlStep.readStaticServiceCallServiceDiscoveryConfiguration(element.staticServiceDiscovery[0]); 
-            } else { 
-               def.staticServiceDiscovery = CamelDefinitionYamlStep.readStaticServiceCallServiceDiscoveryConfiguration(element.staticServiceDiscovery); 
-            } 
-        } 
-        def.properties = element && element?.properties ? element?.properties.map((x:any) => CamelDefinitionYamlStep.readPropertyDefinition(x)) :[]; 
-
-        return def;
-    }
-
-    static readCombinedServiceCallServiceFilterConfiguration = (element: any): CombinedServiceCallServiceFilterConfiguration => {
-        
-        let def = element ? new CombinedServiceCallServiceFilterConfiguration({...element}) : new CombinedServiceCallServiceFilterConfiguration();
-        if (element?.blacklistServiceFilter !== undefined) { 
-            if (Array.isArray(element.blacklistServiceFilter)) { 
-               def.blacklistServiceFilter = CamelDefinitionYamlStep.readBlacklistServiceCallServiceFilterConfiguration(element.blacklistServiceFilter[0]); 
-            } else { 
-               def.blacklistServiceFilter = CamelDefinitionYamlStep.readBlacklistServiceCallServiceFilterConfiguration(element.blacklistServiceFilter); 
-            } 
-        } 
-        if (element?.passThroughServiceFilter !== undefined) { 
-            if (Array.isArray(element.passThroughServiceFilter)) { 
-               def.passThroughServiceFilter = CamelDefinitionYamlStep.readPassThroughServiceCallServiceFilterConfiguration(element.passThroughServiceFilter[0]); 
-            } else { 
-               def.passThroughServiceFilter = CamelDefinitionYamlStep.readPassThroughServiceCallServiceFilterConfiguration(element.passThroughServiceFilter); 
-            } 
-        } 
-        if (element?.healthyServiceFilter !== undefined) { 
-            if (Array.isArray(element.healthyServiceFilter)) { 
-               def.healthyServiceFilter = CamelDefinitionYamlStep.readHealthyServiceCallServiceFilterConfiguration(element.healthyServiceFilter[0]); 
-            } else { 
-               def.healthyServiceFilter = CamelDefinitionYamlStep.readHealthyServiceCallServiceFilterConfiguration(element.healthyServiceFilter); 
-            } 
-        } 
-        if (element?.customServiceFilter !== undefined) { 
-            if (Array.isArray(element.customServiceFilter)) { 
-               def.customServiceFilter = CamelDefinitionYamlStep.readCustomServiceCallServiceFilterConfiguration(element.customServiceFilter[0]); 
-            } else { 
-               def.customServiceFilter = CamelDefinitionYamlStep.readCustomServiceCallServiceFilterConfiguration(element.customServiceFilter); 
-            } 
-        } 
-        def.properties = element && element?.properties ? element?.properties.map((x:any) => CamelDefinitionYamlStep.readPropertyDefinition(x)) :[]; 
-
-        return def;
-    }
-
-    static readConsulServiceCallServiceDiscoveryConfiguration = (element: any): ConsulServiceCallServiceDiscoveryConfiguration => {
-        
-        let def = element ? new ConsulServiceCallServiceDiscoveryConfiguration({...element}) : new ConsulServiceCallServiceDiscoveryConfiguration();
-        def.properties = element && element?.properties ? element?.properties.map((x:any) => CamelDefinitionYamlStep.readPropertyDefinition(x)) :[]; 
-
-        return def;
-    }
-
-    static readCustomServiceCallServiceFilterConfiguration = (element: any): CustomServiceCallServiceFilterConfiguration => {
-        
-        let def = element ? new CustomServiceCallServiceFilterConfiguration({...element}) : new CustomServiceCallServiceFilterConfiguration();
-        def.properties = element && element?.properties ? element?.properties.map((x:any) => CamelDefinitionYamlStep.readPropertyDefinition(x)) :[]; 
-
-        return def;
-    }
-
-    static readDefaultServiceCallServiceLoadBalancerConfiguration = (element: any): DefaultServiceCallServiceLoadBalancerConfiguration => {
-        
-        let def = element ? new DefaultServiceCallServiceLoadBalancerConfiguration({...element}) : new DefaultServiceCallServiceLoadBalancerConfiguration();
-        def.properties = element && element?.properties ? element?.properties.map((x:any) => CamelDefinitionYamlStep.readPropertyDefinition(x)) :[]; 
-
-        return def;
-    }
-
-    static readDnsServiceCallServiceDiscoveryConfiguration = (element: any): DnsServiceCallServiceDiscoveryConfiguration => {
-        
-        let def = element ? new DnsServiceCallServiceDiscoveryConfiguration({...element}) : new DnsServiceCallServiceDiscoveryConfiguration();
-        def.properties = element && element?.properties ? element?.properties.map((x:any) => CamelDefinitionYamlStep.readPropertyDefinition(x)) :[]; 
-
-        return def;
-    }
-
-    static readHealthyServiceCallServiceFilterConfiguration = (element: any): HealthyServiceCallServiceFilterConfiguration => {
-        
-        let def = element ? new HealthyServiceCallServiceFilterConfiguration({...element}) : new HealthyServiceCallServiceFilterConfiguration();
-        def.properties = element && element?.properties ? element?.properties.map((x:any) => CamelDefinitionYamlStep.readPropertyDefinition(x)) :[]; 
-
-        return def;
-    }
-
-    static readKubernetesServiceCallServiceDiscoveryConfiguration = (element: any): KubernetesServiceCallServiceDiscoveryConfiguration => {
-        
-        let def = element ? new KubernetesServiceCallServiceDiscoveryConfiguration({...element}) : new KubernetesServiceCallServiceDiscoveryConfiguration();
-        def.properties = element && element?.properties ? element?.properties.map((x:any) => CamelDefinitionYamlStep.readPropertyDefinition(x)) :[]; 
-
-        return def;
-    }
-
-    static readPassThroughServiceCallServiceFilterConfiguration = (element: any): PassThroughServiceCallServiceFilterConfiguration => {
-        
-        let def = element ? new PassThroughServiceCallServiceFilterConfiguration({...element}) : new PassThroughServiceCallServiceFilterConfiguration();
-        def.properties = element && element?.properties ? element?.properties.map((x:any) => CamelDefinitionYamlStep.readPropertyDefinition(x)) :[]; 
-
-        return def;
-    }
-
-    static readServiceCallConfigurationDefinition = (element: any): ServiceCallConfigurationDefinition => {
-        
-        let def = element ? new ServiceCallConfigurationDefinition({...element}) : new ServiceCallConfigurationDefinition();
-        def = ComponentApi.parseElementUri(def);
-        if (element?.blacklistServiceFilter !== undefined) { 
-            if (Array.isArray(element.blacklistServiceFilter)) { 
-               def.blacklistServiceFilter = CamelDefinitionYamlStep.readBlacklistServiceCallServiceFilterConfiguration(element.blacklistServiceFilter[0]); 
-            } else { 
-               def.blacklistServiceFilter = CamelDefinitionYamlStep.readBlacklistServiceCallServiceFilterConfiguration(element.blacklistServiceFilter); 
-            } 
-        } 
-        if (element?.expression !== undefined) { 
-            def.expression = CamelDefinitionYamlStep.readExpressionDefinition(element.expression); 
-        } else {
-            const languageName: string | undefined = Object.keys(element).filter(key => CamelMetadataApi.hasLanguage(key))[0] || undefined;
-            if (languageName){
-                const exp:any = {};
-                exp[languageName] = element[languageName]
-                def.expression = CamelDefinitionYamlStep.readExpressionDefinition(exp);
-                delete (def as any)[languageName];
-            }
-        }
-        if (element?.passThroughServiceFilter !== undefined) { 
-            if (Array.isArray(element.passThroughServiceFilter)) { 
-               def.passThroughServiceFilter = CamelDefinitionYamlStep.readPassThroughServiceCallServiceFilterConfiguration(element.passThroughServiceFilter[0]); 
-            } else { 
-               def.passThroughServiceFilter = CamelDefinitionYamlStep.readPassThroughServiceCallServiceFilterConfiguration(element.passThroughServiceFilter); 
-            } 
-        } 
-        if (element?.healthyServiceFilter !== undefined) { 
-            if (Array.isArray(element.healthyServiceFilter)) { 
-               def.healthyServiceFilter = CamelDefinitionYamlStep.readHealthyServiceCallServiceFilterConfiguration(element.healthyServiceFilter[0]); 
-            } else { 
-               def.healthyServiceFilter = CamelDefinitionYamlStep.readHealthyServiceCallServiceFilterConfiguration(element.healthyServiceFilter); 
-            } 
-        } 
-        if (element?.combinedServiceFilter !== undefined) { 
-            if (Array.isArray(element.combinedServiceFilter)) { 
-               def.combinedServiceFilter = CamelDefinitionYamlStep.readCombinedServiceCallServiceFilterConfiguration(element.combinedServiceFilter[0]); 
-            } else { 
-               def.combinedServiceFilter = CamelDefinitionYamlStep.readCombinedServiceCallServiceFilterConfiguration(element.combinedServiceFilter); 
-            } 
-        } 
-        if (element?.customServiceFilter !== undefined) { 
-            if (Array.isArray(element.customServiceFilter)) { 
-               def.customServiceFilter = CamelDefinitionYamlStep.readCustomServiceCallServiceFilterConfiguration(element.customServiceFilter[0]); 
-            } else { 
-               def.customServiceFilter = CamelDefinitionYamlStep.readCustomServiceCallServiceFilterConfiguration(element.customServiceFilter); 
-            } 
-        } 
-
-        return def;
-    }
-
-    static readServiceCallDefinition = (element: any): ServiceCallDefinition => {
-        if (element && typeof element === 'string') element = {name: element};
-        let def = element ? new ServiceCallDefinition({...element}) : new ServiceCallDefinition();
-        def = ComponentApi.parseElementUri(def);
-        if (element?.expression !== undefined) { 
-            def.expression = CamelDefinitionYamlStep.readExpressionDefinition(element.expression); 
-        } else {
-            const languageName: string | undefined = Object.keys(element).filter(key => CamelMetadataApi.hasLanguage(key))[0] || undefined;
-            if (languageName){
-                const exp:any = {};
-                exp[languageName] = element[languageName]
-                def.expression = CamelDefinitionYamlStep.readExpressionDefinition(exp);
-                delete (def as any)[languageName];
-            }
-        }
-
-        return def;
-    }
-
-    static readServiceCallExpressionConfiguration = (element: any): ServiceCallExpressionConfiguration => {
-        
-        let def = element ? new ServiceCallExpressionConfiguration({...element}) : new ServiceCallExpressionConfiguration();
-        if (element?.expressionType !== undefined) { 
-            def.expressionType = CamelDefinitionYamlStep.readExpressionDefinition(element.expressionType); 
-        } else {
-            const languageName: string | undefined = Object.keys(element).filter(key => CamelMetadataApi.hasLanguage(key))[0] || undefined;
-            if (languageName){
-                const exp:any = {};
-                exp[languageName] = element[languageName]
-                def.expressionType = CamelDefinitionYamlStep.readExpressionDefinition(exp);
-                delete (def as any)[languageName];
-            }
-        }
-        def.properties = element && element?.properties ? element?.properties.map((x:any) => CamelDefinitionYamlStep.readPropertyDefinition(x)) :[]; 
-
-        return def;
-    }
-
-    static readServiceCallServiceChooserConfiguration = (element: any): ServiceCallServiceChooserConfiguration => {
-        
-        let def = element ? new ServiceCallServiceChooserConfiguration({...element}) : new ServiceCallServiceChooserConfiguration();
-        def.properties = element && element?.properties ? element?.properties.map((x:any) => CamelDefinitionYamlStep.readPropertyDefinition(x)) :[]; 
-
-        return def;
-    }
-
-    static readServiceCallServiceDiscoveryConfiguration = (element: any): ServiceCallServiceDiscoveryConfiguration => {
-        
-        let def = element ? new ServiceCallServiceDiscoveryConfiguration({...element}) : new ServiceCallServiceDiscoveryConfiguration();
-        def.properties = element && element?.properties ? element?.properties.map((x:any) => CamelDefinitionYamlStep.readPropertyDefinition(x)) :[]; 
-
-        return def;
-    }
-
-    static readServiceCallServiceFilterConfiguration = (element: any): ServiceCallServiceFilterConfiguration => {
-        
-        let def = element ? new ServiceCallServiceFilterConfiguration({...element}) : new ServiceCallServiceFilterConfiguration();
-        def.properties = element && element?.properties ? element?.properties.map((x:any) => CamelDefinitionYamlStep.readPropertyDefinition(x)) :[]; 
-
-        return def;
-    }
-
-    static readServiceCallServiceLoadBalancerConfiguration = (element: any): ServiceCallServiceLoadBalancerConfiguration => {
-        
-        let def = element ? new ServiceCallServiceLoadBalancerConfiguration({...element}) : new ServiceCallServiceLoadBalancerConfiguration();
-        def.properties = element && element?.properties ? element?.properties.map((x:any) => CamelDefinitionYamlStep.readPropertyDefinition(x)) :[]; 
-
-        return def;
-    }
-
-    static readStaticServiceCallServiceDiscoveryConfiguration = (element: any): StaticServiceCallServiceDiscoveryConfiguration => {
-        
-        let def = element ? new StaticServiceCallServiceDiscoveryConfiguration({...element}) : new StaticServiceCallServiceDiscoveryConfiguration();
-        def.properties = element && element?.properties ? element?.properties.map((x:any) => CamelDefinitionYamlStep.readPropertyDefinition(x)) :[]; 
-
-        return def;
-    }
-
-    static readZooKeeperServiceCallServiceDiscoveryConfiguration = (element: any): ZooKeeperServiceCallServiceDiscoveryConfiguration => {
-        
-        let def = element ? new ZooKeeperServiceCallServiceDiscoveryConfiguration({...element}) : new ZooKeeperServiceCallServiceDiscoveryConfiguration();
-        def.properties = element && element?.properties ? element?.properties.map((x:any) => CamelDefinitionYamlStep.readPropertyDefinition(x)) :[]; 
-
-        return def;
-    }
-
     static readBatchResequencerConfig = (element: any): BatchResequencerConfig => {
         
         let def = element ? new BatchResequencerConfig({...element}) : new BatchResequencerConfig();
@@ -3990,13 +3643,6 @@ export class CamelDefinitionYamlStep {
                def.jsonpath = CamelDefinitionYamlStep.readJsonPathExpression(element.jsonpath); 
             } 
         } 
-        if (element?.joor !== undefined) { 
-            if (Array.isArray(element.joor)) { 
-               def.joor = CamelDefinitionYamlStep.readJoorExpression(element.joor[0]); 
-            } else { 
-               def.joor = CamelDefinitionYamlStep.readJoorExpression(element.joor); 
-            } 
-        } 
         if (element?.ognl !== undefined) { 
             if (Array.isArray(element.ognl)) { 
                def.ognl = CamelDefinitionYamlStep.readOgnlExpression(element.ognl[0]); 
@@ -4116,13 +3762,6 @@ export class CamelDefinitionYamlStep {
     static readJavaScriptExpression = (element: any): JavaScriptExpression => {
         if (element && typeof element === 'string') element = {expression: element};
         let def = element ? new JavaScriptExpression({...element}) : new JavaScriptExpression();
-
-        return def;
-    }
-
-    static readJoorExpression = (element: any): JoorExpression => {
-        if (element && typeof element === 'string') element = {expression: element};
-        let def = element ? new JoorExpression({...element}) : new JoorExpression();
 
         return def;
     }
@@ -5019,7 +4658,6 @@ export class CamelDefinitionYamlStep {
             case 'when': return CamelDefinitionYamlStep.readWhenDefinition(newBody);
             case 'whenSkipSendToEndpoint': return CamelDefinitionYamlStep.readWhenSkipSendToEndpointDefinition(newBody);
             case 'wireTap': return CamelDefinitionYamlStep.readWireTapDefinition(newBody);
-            case 'serviceCall': return CamelDefinitionYamlStep.readServiceCallDefinition(newBody);
             default: return new CamelElement('');
         }
     }

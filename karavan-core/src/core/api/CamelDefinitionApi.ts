@@ -131,26 +131,6 @@ import {
     BeanPropertyDefinition,
     ComponentScanDefinition,
     RegistryBeanDefinition,
-    BlacklistServiceCallServiceFilterConfiguration,
-    CachingServiceCallServiceDiscoveryConfiguration,
-    CombinedServiceCallServiceDiscoveryConfiguration,
-    CombinedServiceCallServiceFilterConfiguration,
-    ConsulServiceCallServiceDiscoveryConfiguration,
-    CustomServiceCallServiceFilterConfiguration,
-    DefaultServiceCallServiceLoadBalancerConfiguration,
-    DnsServiceCallServiceDiscoveryConfiguration,
-    HealthyServiceCallServiceFilterConfiguration,
-    KubernetesServiceCallServiceDiscoveryConfiguration,
-    PassThroughServiceCallServiceFilterConfiguration,
-    ServiceCallConfigurationDefinition,
-    ServiceCallDefinition,
-    ServiceCallExpressionConfiguration,
-    ServiceCallServiceChooserConfiguration,
-    ServiceCallServiceDiscoveryConfiguration,
-    ServiceCallServiceFilterConfiguration,
-    ServiceCallServiceLoadBalancerConfiguration,
-    StaticServiceCallServiceDiscoveryConfiguration,
-    ZooKeeperServiceCallServiceDiscoveryConfiguration,
     BatchResequencerConfig,
     StreamResequencerConfig,
     ASN1DataFormat,
@@ -213,7 +193,6 @@ import {
     Hl7TerserExpression,
     JavaExpression,
     JavaScriptExpression,
-    JoorExpression,
     JqExpression,
     JsonPathExpression,
     LanguageExpression,
@@ -462,9 +441,6 @@ export class CamelDefinitionApi {
         if (element?.wireTap !== undefined) { 
             def.wireTap = CamelDefinitionApi.createWireTapDefinition(element.wireTap); 
         }
-        if (element?.serviceCall !== undefined) { 
-            def.serviceCall = CamelDefinitionApi.createServiceCallDefinition(element.serviceCall); 
-        }
         return def;
     }
 
@@ -679,9 +655,6 @@ export class CamelDefinitionApi {
         }
         if (element?.java !== undefined) { 
             def.java = CamelDefinitionApi.createJavaExpression(element.java); 
-        }
-        if (element?.joor !== undefined) { 
-            def.joor = CamelDefinitionApi.createJoorExpression(element.joor); 
         }
         if (element?.jq !== undefined) { 
             def.jq = CamelDefinitionApi.createJqExpression(element.jq); 
@@ -1195,6 +1168,12 @@ export class CamelDefinitionApi {
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
         def.expression = CamelDefinitionApi.createExpressionDefinition(element.expression); 
 
+        if (element?.batchConfig !== undefined) { 
+            def.batchConfig = CamelDefinitionApi.createBatchResequencerConfig(element.batchConfig); 
+        }
+        if (element?.streamConfig !== undefined) { 
+            def.streamConfig = CamelDefinitionApi.createStreamResequencerConfig(element.streamConfig); 
+        }
         def.steps = CamelDefinitionApi.createSteps(element?.steps);
         return def;
     }
@@ -1725,210 +1704,6 @@ export class CamelDefinitionApi {
         return def;
     }
 
-    static createBlacklistServiceCallServiceFilterConfiguration = (element: any): BlacklistServiceCallServiceFilterConfiguration => { 
-        const def = element ? new BlacklistServiceCallServiceFilterConfiguration({...element}) : new BlacklistServiceCallServiceFilterConfiguration();
-        def.uuid = element?.uuid ? element.uuid : def.uuid; 
-        def.properties = element && element?.properties ? element?.properties.map((x:any) => CamelDefinitionApi.createPropertyDefinition(x)) :[];
-        return def;
-    }
-
-    static createCachingServiceCallServiceDiscoveryConfiguration = (element: any): CachingServiceCallServiceDiscoveryConfiguration => { 
-        const def = element ? new CachingServiceCallServiceDiscoveryConfiguration({...element}) : new CachingServiceCallServiceDiscoveryConfiguration();
-        def.uuid = element?.uuid ? element.uuid : def.uuid; 
-        if (element?.combinedServiceDiscovery !== undefined) { 
-            def.combinedServiceDiscovery = CamelDefinitionApi.createCombinedServiceCallServiceDiscoveryConfiguration(element.combinedServiceDiscovery); 
-        }
-        if (element?.consulServiceDiscovery !== undefined) { 
-            def.consulServiceDiscovery = CamelDefinitionApi.createConsulServiceCallServiceDiscoveryConfiguration(element.consulServiceDiscovery); 
-        }
-        if (element?.dnsServiceDiscovery !== undefined) { 
-            def.dnsServiceDiscovery = CamelDefinitionApi.createDnsServiceCallServiceDiscoveryConfiguration(element.dnsServiceDiscovery); 
-        }
-        if (element?.kubernetesServiceDiscovery !== undefined) { 
-            def.kubernetesServiceDiscovery = CamelDefinitionApi.createKubernetesServiceCallServiceDiscoveryConfiguration(element.kubernetesServiceDiscovery); 
-        }
-        if (element?.staticServiceDiscovery !== undefined) { 
-            def.staticServiceDiscovery = CamelDefinitionApi.createStaticServiceCallServiceDiscoveryConfiguration(element.staticServiceDiscovery); 
-        }
-        def.properties = element && element?.properties ? element?.properties.map((x:any) => CamelDefinitionApi.createPropertyDefinition(x)) :[];
-        return def;
-    }
-
-    static createCombinedServiceCallServiceDiscoveryConfiguration = (element: any): CombinedServiceCallServiceDiscoveryConfiguration => { 
-        const def = element ? new CombinedServiceCallServiceDiscoveryConfiguration({...element}) : new CombinedServiceCallServiceDiscoveryConfiguration();
-        def.uuid = element?.uuid ? element.uuid : def.uuid; 
-        if (element?.cachingServiceDiscovery !== undefined) { 
-            def.cachingServiceDiscovery = CamelDefinitionApi.createCachingServiceCallServiceDiscoveryConfiguration(element.cachingServiceDiscovery); 
-        }
-        if (element?.consulServiceDiscovery !== undefined) { 
-            def.consulServiceDiscovery = CamelDefinitionApi.createConsulServiceCallServiceDiscoveryConfiguration(element.consulServiceDiscovery); 
-        }
-        if (element?.dnsServiceDiscovery !== undefined) { 
-            def.dnsServiceDiscovery = CamelDefinitionApi.createDnsServiceCallServiceDiscoveryConfiguration(element.dnsServiceDiscovery); 
-        }
-        if (element?.kubernetesServiceDiscovery !== undefined) { 
-            def.kubernetesServiceDiscovery = CamelDefinitionApi.createKubernetesServiceCallServiceDiscoveryConfiguration(element.kubernetesServiceDiscovery); 
-        }
-        def.properties = element && element?.properties ? element?.properties.map((x:any) => CamelDefinitionApi.createPropertyDefinition(x)) :[];
-        if (element?.staticServiceDiscovery !== undefined) { 
-            def.staticServiceDiscovery = CamelDefinitionApi.createStaticServiceCallServiceDiscoveryConfiguration(element.staticServiceDiscovery); 
-        }
-        return def;
-    }
-
-    static createCombinedServiceCallServiceFilterConfiguration = (element: any): CombinedServiceCallServiceFilterConfiguration => { 
-        const def = element ? new CombinedServiceCallServiceFilterConfiguration({...element}) : new CombinedServiceCallServiceFilterConfiguration();
-        def.uuid = element?.uuid ? element.uuid : def.uuid; 
-        if (element?.blacklistServiceFilter !== undefined) { 
-            def.blacklistServiceFilter = CamelDefinitionApi.createBlacklistServiceCallServiceFilterConfiguration(element.blacklistServiceFilter); 
-        }
-        if (element?.customServiceFilter !== undefined) { 
-            def.customServiceFilter = CamelDefinitionApi.createCustomServiceCallServiceFilterConfiguration(element.customServiceFilter); 
-        }
-        if (element?.healthyServiceFilter !== undefined) { 
-            def.healthyServiceFilter = CamelDefinitionApi.createHealthyServiceCallServiceFilterConfiguration(element.healthyServiceFilter); 
-        }
-        if (element?.passThroughServiceFilter !== undefined) { 
-            def.passThroughServiceFilter = CamelDefinitionApi.createPassThroughServiceCallServiceFilterConfiguration(element.passThroughServiceFilter); 
-        }
-        def.properties = element && element?.properties ? element?.properties.map((x:any) => CamelDefinitionApi.createPropertyDefinition(x)) :[];
-        return def;
-    }
-
-    static createConsulServiceCallServiceDiscoveryConfiguration = (element: any): ConsulServiceCallServiceDiscoveryConfiguration => { 
-        const def = element ? new ConsulServiceCallServiceDiscoveryConfiguration({...element}) : new ConsulServiceCallServiceDiscoveryConfiguration();
-        def.uuid = element?.uuid ? element.uuid : def.uuid; 
-        def.properties = element && element?.properties ? element?.properties.map((x:any) => CamelDefinitionApi.createPropertyDefinition(x)) :[];
-        return def;
-    }
-
-    static createCustomServiceCallServiceFilterConfiguration = (element: any): CustomServiceCallServiceFilterConfiguration => { 
-        const def = element ? new CustomServiceCallServiceFilterConfiguration({...element}) : new CustomServiceCallServiceFilterConfiguration();
-        def.uuid = element?.uuid ? element.uuid : def.uuid; 
-        def.properties = element && element?.properties ? element?.properties.map((x:any) => CamelDefinitionApi.createPropertyDefinition(x)) :[];
-        return def;
-    }
-
-    static createDefaultServiceCallServiceLoadBalancerConfiguration = (element: any): DefaultServiceCallServiceLoadBalancerConfiguration => { 
-        const def = element ? new DefaultServiceCallServiceLoadBalancerConfiguration({...element}) : new DefaultServiceCallServiceLoadBalancerConfiguration();
-        def.uuid = element?.uuid ? element.uuid : def.uuid; 
-        def.properties = element && element?.properties ? element?.properties.map((x:any) => CamelDefinitionApi.createPropertyDefinition(x)) :[];
-        return def;
-    }
-
-    static createDnsServiceCallServiceDiscoveryConfiguration = (element: any): DnsServiceCallServiceDiscoveryConfiguration => { 
-        const def = element ? new DnsServiceCallServiceDiscoveryConfiguration({...element}) : new DnsServiceCallServiceDiscoveryConfiguration();
-        def.uuid = element?.uuid ? element.uuid : def.uuid; 
-        def.properties = element && element?.properties ? element?.properties.map((x:any) => CamelDefinitionApi.createPropertyDefinition(x)) :[];
-        return def;
-    }
-
-    static createHealthyServiceCallServiceFilterConfiguration = (element: any): HealthyServiceCallServiceFilterConfiguration => { 
-        const def = element ? new HealthyServiceCallServiceFilterConfiguration({...element}) : new HealthyServiceCallServiceFilterConfiguration();
-        def.uuid = element?.uuid ? element.uuid : def.uuid; 
-        def.properties = element && element?.properties ? element?.properties.map((x:any) => CamelDefinitionApi.createPropertyDefinition(x)) :[];
-        return def;
-    }
-
-    static createKubernetesServiceCallServiceDiscoveryConfiguration = (element: any): KubernetesServiceCallServiceDiscoveryConfiguration => { 
-        const def = element ? new KubernetesServiceCallServiceDiscoveryConfiguration({...element}) : new KubernetesServiceCallServiceDiscoveryConfiguration();
-        def.uuid = element?.uuid ? element.uuid : def.uuid; 
-        def.properties = element && element?.properties ? element?.properties.map((x:any) => CamelDefinitionApi.createPropertyDefinition(x)) :[];
-        return def;
-    }
-
-    static createPassThroughServiceCallServiceFilterConfiguration = (element: any): PassThroughServiceCallServiceFilterConfiguration => { 
-        const def = element ? new PassThroughServiceCallServiceFilterConfiguration({...element}) : new PassThroughServiceCallServiceFilterConfiguration();
-        def.uuid = element?.uuid ? element.uuid : def.uuid; 
-        def.properties = element && element?.properties ? element?.properties.map((x:any) => CamelDefinitionApi.createPropertyDefinition(x)) :[];
-        return def;
-    }
-
-    static createServiceCallConfigurationDefinition = (element: any): ServiceCallConfigurationDefinition => { 
-        const def = element ? new ServiceCallConfigurationDefinition({...element}) : new ServiceCallConfigurationDefinition();
-        def.uuid = element?.uuid ? element.uuid : def.uuid; 
-        def.expression = CamelDefinitionApi.createExpressionDefinition(element.expression); 
-
-        if (element?.blacklistServiceFilter !== undefined) { 
-            def.blacklistServiceFilter = CamelDefinitionApi.createBlacklistServiceCallServiceFilterConfiguration(element.blacklistServiceFilter); 
-        }
-        if (element?.combinedServiceFilter !== undefined) { 
-            def.combinedServiceFilter = CamelDefinitionApi.createCombinedServiceCallServiceFilterConfiguration(element.combinedServiceFilter); 
-        }
-        if (element?.customServiceFilter !== undefined) { 
-            def.customServiceFilter = CamelDefinitionApi.createCustomServiceCallServiceFilterConfiguration(element.customServiceFilter); 
-        }
-        if (element?.healthyServiceFilter !== undefined) { 
-            def.healthyServiceFilter = CamelDefinitionApi.createHealthyServiceCallServiceFilterConfiguration(element.healthyServiceFilter); 
-        }
-        if (element?.passThroughServiceFilter !== undefined) { 
-            def.passThroughServiceFilter = CamelDefinitionApi.createPassThroughServiceCallServiceFilterConfiguration(element.passThroughServiceFilter); 
-        }
-        return def;
-    }
-
-    static createServiceCallDefinition = (element: any): ServiceCallDefinition => { 
-        if (element && typeof element === 'string') {
-            element = {name: element};
-        }
-        const def = element ? new ServiceCallDefinition({...element}) : new ServiceCallDefinition();
-        def.uuid = element?.uuid ? element.uuid : def.uuid; 
-        def.expression = CamelDefinitionApi.createExpressionDefinition(element.expression); 
-
-        return def;
-    }
-
-    static createServiceCallExpressionConfiguration = (element: any): ServiceCallExpressionConfiguration => { 
-        const def = element ? new ServiceCallExpressionConfiguration({...element}) : new ServiceCallExpressionConfiguration();
-        def.uuid = element?.uuid ? element.uuid : def.uuid; 
-        def.expressionType = CamelDefinitionApi.createExpressionDefinition(element.expressionType); 
-
-        def.properties = element && element?.properties ? element?.properties.map((x:any) => CamelDefinitionApi.createPropertyDefinition(x)) :[];
-        return def;
-    }
-
-    static createServiceCallServiceChooserConfiguration = (element: any): ServiceCallServiceChooserConfiguration => { 
-        const def = element ? new ServiceCallServiceChooserConfiguration({...element}) : new ServiceCallServiceChooserConfiguration();
-        def.uuid = element?.uuid ? element.uuid : def.uuid; 
-        def.properties = element && element?.properties ? element?.properties.map((x:any) => CamelDefinitionApi.createPropertyDefinition(x)) :[];
-        return def;
-    }
-
-    static createServiceCallServiceDiscoveryConfiguration = (element: any): ServiceCallServiceDiscoveryConfiguration => { 
-        const def = element ? new ServiceCallServiceDiscoveryConfiguration({...element}) : new ServiceCallServiceDiscoveryConfiguration();
-        def.uuid = element?.uuid ? element.uuid : def.uuid; 
-        def.properties = element && element?.properties ? element?.properties.map((x:any) => CamelDefinitionApi.createPropertyDefinition(x)) :[];
-        return def;
-    }
-
-    static createServiceCallServiceFilterConfiguration = (element: any): ServiceCallServiceFilterConfiguration => { 
-        const def = element ? new ServiceCallServiceFilterConfiguration({...element}) : new ServiceCallServiceFilterConfiguration();
-        def.uuid = element?.uuid ? element.uuid : def.uuid; 
-        def.properties = element && element?.properties ? element?.properties.map((x:any) => CamelDefinitionApi.createPropertyDefinition(x)) :[];
-        return def;
-    }
-
-    static createServiceCallServiceLoadBalancerConfiguration = (element: any): ServiceCallServiceLoadBalancerConfiguration => { 
-        const def = element ? new ServiceCallServiceLoadBalancerConfiguration({...element}) : new ServiceCallServiceLoadBalancerConfiguration();
-        def.uuid = element?.uuid ? element.uuid : def.uuid; 
-        def.properties = element && element?.properties ? element?.properties.map((x:any) => CamelDefinitionApi.createPropertyDefinition(x)) :[];
-        return def;
-    }
-
-    static createStaticServiceCallServiceDiscoveryConfiguration = (element: any): StaticServiceCallServiceDiscoveryConfiguration => { 
-        const def = element ? new StaticServiceCallServiceDiscoveryConfiguration({...element}) : new StaticServiceCallServiceDiscoveryConfiguration();
-        def.uuid = element?.uuid ? element.uuid : def.uuid; 
-        def.properties = element && element?.properties ? element?.properties.map((x:any) => CamelDefinitionApi.createPropertyDefinition(x)) :[];
-        return def;
-    }
-
-    static createZooKeeperServiceCallServiceDiscoveryConfiguration = (element: any): ZooKeeperServiceCallServiceDiscoveryConfiguration => { 
-        const def = element ? new ZooKeeperServiceCallServiceDiscoveryConfiguration({...element}) : new ZooKeeperServiceCallServiceDiscoveryConfiguration();
-        def.uuid = element?.uuid ? element.uuid : def.uuid; 
-        def.properties = element && element?.properties ? element?.properties.map((x:any) => CamelDefinitionApi.createPropertyDefinition(x)) :[];
-        return def;
-    }
-
     static createBatchResequencerConfig = (element: any): BatchResequencerConfig => { 
         const def = element ? new BatchResequencerConfig({...element}) : new BatchResequencerConfig();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
@@ -2453,9 +2228,6 @@ export class CamelDefinitionApi {
         if (element?.java !== undefined) { 
             def.java = CamelDefinitionApi.createJavaExpression(element.java); 
         }
-        if (element?.joor !== undefined) { 
-            def.joor = CamelDefinitionApi.createJoorExpression(element.joor); 
-        }
         if (element?.jq !== undefined) { 
             def.jq = CamelDefinitionApi.createJqExpression(element.jq); 
         }
@@ -2551,15 +2323,6 @@ export class CamelDefinitionApi {
             element = {expression: element};
         }
         const def = element ? new JavaScriptExpression({...element}) : new JavaScriptExpression();
-        def.uuid = element?.uuid ? element.uuid : def.uuid; 
-        return def;
-    }
-
-    static createJoorExpression = (element: any): JoorExpression => { 
-        if (element && typeof element === 'string') {
-            element = {expression: element};
-        }
-        const def = element ? new JoorExpression({...element}) : new JoorExpression();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
         return def;
     }
@@ -3258,26 +3021,6 @@ export class CamelDefinitionApi {
             case 'BeanPropertyDefinition': return CamelDefinitionApi.createBeanPropertyDefinition(newBody);
             case 'ComponentScanDefinition': return CamelDefinitionApi.createComponentScanDefinition(newBody);
             case 'RegistryBeanDefinition': return CamelDefinitionApi.createRegistryBeanDefinition(newBody);
-            case 'BlacklistServiceCallServiceFilterConfiguration': return CamelDefinitionApi.createBlacklistServiceCallServiceFilterConfiguration(newBody);
-            case 'CachingServiceCallServiceDiscoveryConfiguration': return CamelDefinitionApi.createCachingServiceCallServiceDiscoveryConfiguration(newBody);
-            case 'CombinedServiceCallServiceDiscoveryConfiguration': return CamelDefinitionApi.createCombinedServiceCallServiceDiscoveryConfiguration(newBody);
-            case 'CombinedServiceCallServiceFilterConfiguration': return CamelDefinitionApi.createCombinedServiceCallServiceFilterConfiguration(newBody);
-            case 'ConsulServiceCallServiceDiscoveryConfiguration': return CamelDefinitionApi.createConsulServiceCallServiceDiscoveryConfiguration(newBody);
-            case 'CustomServiceCallServiceFilterConfiguration': return CamelDefinitionApi.createCustomServiceCallServiceFilterConfiguration(newBody);
-            case 'DefaultServiceCallServiceLoadBalancerConfiguration': return CamelDefinitionApi.createDefaultServiceCallServiceLoadBalancerConfiguration(newBody);
-            case 'DnsServiceCallServiceDiscoveryConfiguration': return CamelDefinitionApi.createDnsServiceCallServiceDiscoveryConfiguration(newBody);
-            case 'HealthyServiceCallServiceFilterConfiguration': return CamelDefinitionApi.createHealthyServiceCallServiceFilterConfiguration(newBody);
-            case 'KubernetesServiceCallServiceDiscoveryConfiguration': return CamelDefinitionApi.createKubernetesServiceCallServiceDiscoveryConfiguration(newBody);
-            case 'PassThroughServiceCallServiceFilterConfiguration': return CamelDefinitionApi.createPassThroughServiceCallServiceFilterConfiguration(newBody);
-            case 'ServiceCallConfigurationDefinition': return CamelDefinitionApi.createServiceCallConfigurationDefinition(newBody);
-            case 'ServiceCallDefinition': return CamelDefinitionApi.createServiceCallDefinition(newBody);
-            case 'ServiceCallExpressionConfiguration': return CamelDefinitionApi.createServiceCallExpressionConfiguration(newBody);
-            case 'ServiceCallServiceChooserConfiguration': return CamelDefinitionApi.createServiceCallServiceChooserConfiguration(newBody);
-            case 'ServiceCallServiceDiscoveryConfiguration': return CamelDefinitionApi.createServiceCallServiceDiscoveryConfiguration(newBody);
-            case 'ServiceCallServiceFilterConfiguration': return CamelDefinitionApi.createServiceCallServiceFilterConfiguration(newBody);
-            case 'ServiceCallServiceLoadBalancerConfiguration': return CamelDefinitionApi.createServiceCallServiceLoadBalancerConfiguration(newBody);
-            case 'StaticServiceCallServiceDiscoveryConfiguration': return CamelDefinitionApi.createStaticServiceCallServiceDiscoveryConfiguration(newBody);
-            case 'ZooKeeperServiceCallServiceDiscoveryConfiguration': return CamelDefinitionApi.createZooKeeperServiceCallServiceDiscoveryConfiguration(newBody);
             case 'BatchResequencerConfig': return CamelDefinitionApi.createBatchResequencerConfig(newBody);
             case 'StreamResequencerConfig': return CamelDefinitionApi.createStreamResequencerConfig(newBody);
             case 'ASN1DataFormat': return CamelDefinitionApi.createASN1DataFormat(newBody);
@@ -3340,7 +3083,6 @@ export class CamelDefinitionApi {
             case 'Hl7TerserExpression': return CamelDefinitionApi.createHl7TerserExpression(newBody);
             case 'JavaExpression': return CamelDefinitionApi.createJavaExpression(newBody);
             case 'JavaScriptExpression': return CamelDefinitionApi.createJavaScriptExpression(newBody);
-            case 'JoorExpression': return CamelDefinitionApi.createJoorExpression(newBody);
             case 'JqExpression': return CamelDefinitionApi.createJqExpression(newBody);
             case 'JsonPathExpression': return CamelDefinitionApi.createJsonPathExpression(newBody);
             case 'LanguageExpression': return CamelDefinitionApi.createLanguageExpression(newBody);
@@ -3412,7 +3154,6 @@ export class CamelDefinitionApi {
             case 'HeaderExpression': return CamelDefinitionApi.createHeaderExpression(newBody);
             case 'Hl7TerserExpression': return CamelDefinitionApi.createHl7TerserExpression(newBody);
             case 'JavaExpression': return CamelDefinitionApi.createJavaExpression(newBody);
-            case 'JoorExpression': return CamelDefinitionApi.createJoorExpression(newBody);
             case 'JqExpression': return CamelDefinitionApi.createJqExpression(newBody);
             case 'JavaScriptExpression': return CamelDefinitionApi.createJavaScriptExpression(newBody);
             case 'JsonPathExpression': return CamelDefinitionApi.createJsonPathExpression(newBody);

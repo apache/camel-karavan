@@ -107,9 +107,10 @@ public final class CamelDefinitionYamlStepGenerator extends AbstractGenerator {
             JsonObject aValue = properties.get(aName);
             boolean attributeIsArray = isAttributeRefArray(aValue);
             String attributeArrayClass = getAttributeArrayClass(aName, aValue);
+
             if (attributeIsArray && aName.equals("steps") && ! className.equals("ChoiceDefinition") && ! className.equals("SwitchDefinition") && ! className.equals("KameletDefinition")) {
                 attrs.put(aName, "        def.steps = CamelDefinitionYamlStep.readSteps(element?.steps);\n");
-            } else if (attributeIsArray && !aName.equals("steps") && !attributeArrayClass.equals("string")) {
+            } else if (attributeIsArray && !aName.equals("steps") && !attributeArrayClass.equals("string") && !getDeprecatedClasses().contains(attributeArrayClass)) {
                 String format = Arrays.asList("intercept", "interceptFrom", "interceptSendToEndpoint", "onCompletion", "onException").contains(aName)
                         ? "        def.%1$s = element && element?.%1$s ? element?.%1$s.map((x:any) => CamelDefinitionYamlStep.read%2$s(x.%1$s)) :[]; \n"
                         : "        def.%1$s = element && element?.%1$s ? element?.%1$s.map((x:any) => CamelDefinitionYamlStep.read%2$s(x)) :[]; \n";
@@ -135,6 +136,7 @@ public final class CamelDefinitionYamlStepGenerator extends AbstractGenerator {
                     && !getAttributeClass(aValue).equals("SagaActionUriDefinition") // SagaActionUriDefinition is exception
                     && !getAttributeClass(aValue).equals("ToDefinition") // exception for ToDefinition (in REST Methods)
                     && !getAttributeClass(aValue).equals("ToDynamicDefinition") // exception for ToDynamicDefinition (in REST Methods)
+                    && !getDeprecatedClasses().contains(getAttributeClass(aValue)) // exception for deprecated classes
             ) {
                 String code = String.format(
                         "        if (element?.%1$s !== undefined) { \n" +

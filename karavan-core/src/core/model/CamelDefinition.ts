@@ -86,7 +86,6 @@ export class ProcessorDefinition extends CamelElement {
     when?: WhenDefinition;
     whenSkipSendToEndpoint?: WhenSkipSendToEndpointDefinition;
     wireTap?: WireTapDefinition;
-    serviceCall?: ServiceCallDefinition | string;
     public constructor(init?: Partial<ProcessorDefinition>) {
         super('ProcessorDefinition');
         Object.assign(this, init);
@@ -385,7 +384,6 @@ export class ExpressionSubElementDefinition extends CamelElement {
     header?: HeaderExpression | string;
     hl7terser?: Hl7TerserExpression | string;
     java?: JavaExpression | string;
-    joor?: JoorExpression | string;
     jq?: JqExpression | string;
     js?: JavaScriptExpression | string;
     jsonpath?: JsonPathExpression | string;
@@ -1034,6 +1032,8 @@ export class ResequenceDefinition extends CamelElement {
     description?: string;
     disabled?: boolean;
     expression?: ExpressionDefinition;
+    batchConfig?: BatchResequencerConfig;
+    streamConfig?: StreamResequencerConfig;
     steps?: CamelElement[] = [];
     public constructor(init?: Partial<ResequenceDefinition>) {
         super('ResequenceDefinition');
@@ -1802,273 +1802,6 @@ export class RegistryBeanDefinition extends CamelElement {
     type: string = '';
     public constructor(init?: Partial<RegistryBeanDefinition>) {
         super('RegistryBeanDefinition');
-        Object.assign(this, init);
-    }
-}
-
-export class BlacklistServiceCallServiceFilterConfiguration extends CamelElement {
-    id?: string = 'blacklistServiceCallServiceFilterConfiguration-' + uuidv4().substring(0,4);
-    properties?: PropertyDefinition[] = [];
-    servers?: string[] = [];
-    public constructor(init?: Partial<BlacklistServiceCallServiceFilterConfiguration>) {
-        super('BlacklistServiceCallServiceFilterConfiguration');
-        Object.assign(this, init);
-    }
-}
-
-export class CachingServiceCallServiceDiscoveryConfiguration extends CamelElement {
-    combinedServiceDiscovery?: CombinedServiceCallServiceDiscoveryConfiguration;
-    consulServiceDiscovery?: ConsulServiceCallServiceDiscoveryConfiguration;
-    dnsServiceDiscovery?: DnsServiceCallServiceDiscoveryConfiguration;
-    kubernetesServiceDiscovery?: KubernetesServiceCallServiceDiscoveryConfiguration;
-    staticServiceDiscovery?: StaticServiceCallServiceDiscoveryConfiguration;
-    id?: string = 'cachingServiceCallServiceDiscoveryConfiguration-' + uuidv4().substring(0,4);
-    properties?: PropertyDefinition[] = [];
-    timeout?: number;
-    units?: string;
-    public constructor(init?: Partial<CachingServiceCallServiceDiscoveryConfiguration>) {
-        super('CachingServiceCallServiceDiscoveryConfiguration');
-        Object.assign(this, init);
-    }
-}
-
-export class CombinedServiceCallServiceDiscoveryConfiguration extends CamelElement {
-    cachingServiceDiscovery?: CachingServiceCallServiceDiscoveryConfiguration;
-    consulServiceDiscovery?: ConsulServiceCallServiceDiscoveryConfiguration;
-    dnsServiceDiscovery?: DnsServiceCallServiceDiscoveryConfiguration;
-    id?: string = 'combinedServiceCallServiceDiscoveryConfiguration-' + uuidv4().substring(0,4);
-    kubernetesServiceDiscovery?: KubernetesServiceCallServiceDiscoveryConfiguration;
-    properties?: PropertyDefinition[] = [];
-    staticServiceDiscovery?: StaticServiceCallServiceDiscoveryConfiguration;
-    public constructor(init?: Partial<CombinedServiceCallServiceDiscoveryConfiguration>) {
-        super('CombinedServiceCallServiceDiscoveryConfiguration');
-        Object.assign(this, init);
-    }
-}
-
-export class CombinedServiceCallServiceFilterConfiguration extends CamelElement {
-    blacklistServiceFilter?: BlacklistServiceCallServiceFilterConfiguration;
-    customServiceFilter?: CustomServiceCallServiceFilterConfiguration;
-    healthyServiceFilter?: HealthyServiceCallServiceFilterConfiguration;
-    id?: string = 'combinedServiceCallServiceFilterConfiguration-' + uuidv4().substring(0,4);
-    passThroughServiceFilter?: PassThroughServiceCallServiceFilterConfiguration;
-    properties?: PropertyDefinition[] = [];
-    public constructor(init?: Partial<CombinedServiceCallServiceFilterConfiguration>) {
-        super('CombinedServiceCallServiceFilterConfiguration');
-        Object.assign(this, init);
-    }
-}
-
-export class ConsulServiceCallServiceDiscoveryConfiguration extends CamelElement {
-    aclToken?: string;
-    blockSeconds?: number;
-    connectTimeoutMillis?: number;
-    datacenter?: string;
-    id?: string = 'consulServiceCallServiceDiscoveryConfiguration-' + uuidv4().substring(0,4);
-    password?: string;
-    properties?: PropertyDefinition[] = [];
-    readTimeoutMillis?: number;
-    url?: string;
-    userName?: string;
-    writeTimeoutMillis?: number;
-    public constructor(init?: Partial<ConsulServiceCallServiceDiscoveryConfiguration>) {
-        super('ConsulServiceCallServiceDiscoveryConfiguration');
-        Object.assign(this, init);
-    }
-}
-
-export class CustomServiceCallServiceFilterConfiguration extends CamelElement {
-    id?: string = 'customServiceCallServiceFilterConfiguration-' + uuidv4().substring(0,4);
-    properties?: PropertyDefinition[] = [];
-    ref?: string;
-    public constructor(init?: Partial<CustomServiceCallServiceFilterConfiguration>) {
-        super('CustomServiceCallServiceFilterConfiguration');
-        Object.assign(this, init);
-    }
-}
-
-export class DefaultServiceCallServiceLoadBalancerConfiguration extends CamelElement {
-    id?: string = 'defaultServiceCallServiceLoadBalancerConfiguration-' + uuidv4().substring(0,4);
-    properties?: PropertyDefinition[] = [];
-    public constructor(init?: Partial<DefaultServiceCallServiceLoadBalancerConfiguration>) {
-        super('DefaultServiceCallServiceLoadBalancerConfiguration');
-        Object.assign(this, init);
-    }
-}
-
-export class DnsServiceCallServiceDiscoveryConfiguration extends CamelElement {
-    domain?: string;
-    id?: string = 'dnsServiceCallServiceDiscoveryConfiguration-' + uuidv4().substring(0,4);
-    properties?: PropertyDefinition[] = [];
-    proto?: string;
-    public constructor(init?: Partial<DnsServiceCallServiceDiscoveryConfiguration>) {
-        super('DnsServiceCallServiceDiscoveryConfiguration');
-        Object.assign(this, init);
-    }
-}
-
-export class HealthyServiceCallServiceFilterConfiguration extends CamelElement {
-    id?: string = 'healthyServiceCallServiceFilterConfiguration-' + uuidv4().substring(0,4);
-    properties?: PropertyDefinition[] = [];
-    public constructor(init?: Partial<HealthyServiceCallServiceFilterConfiguration>) {
-        super('HealthyServiceCallServiceFilterConfiguration');
-        Object.assign(this, init);
-    }
-}
-
-export class KubernetesServiceCallServiceDiscoveryConfiguration extends CamelElement {
-    apiVersion?: string;
-    caCertData?: string;
-    caCertFile?: string;
-    clientCertData?: string;
-    clientCertFile?: string;
-    clientKeyAlgo?: string;
-    clientKeyData?: string;
-    clientKeyFile?: string;
-    clientKeyPassphrase?: string;
-    dnsDomain?: string;
-    id?: string = 'kubernetesServiceCallServiceDiscoveryConfiguration-' + uuidv4().substring(0,4);
-    lookup?: string;
-    masterUrl?: string;
-    namespace?: string;
-    oauthToken?: string;
-    password?: string;
-    portName?: string;
-    portProtocol?: string;
-    properties?: PropertyDefinition[] = [];
-    trustCerts?: boolean;
-    username?: string;
-    public constructor(init?: Partial<KubernetesServiceCallServiceDiscoveryConfiguration>) {
-        super('KubernetesServiceCallServiceDiscoveryConfiguration');
-        Object.assign(this, init);
-    }
-}
-
-export class PassThroughServiceCallServiceFilterConfiguration extends CamelElement {
-    id?: string = 'passThroughServiceCallServiceFilterConfiguration-' + uuidv4().substring(0,4);
-    properties?: PropertyDefinition[] = [];
-    public constructor(init?: Partial<PassThroughServiceCallServiceFilterConfiguration>) {
-        super('PassThroughServiceCallServiceFilterConfiguration');
-        Object.assign(this, init);
-    }
-}
-
-export class ServiceCallConfigurationDefinition extends CamelElement {
-    stepName?: string = 'serviceCallConfiguration';
-    id?: string = 'serviceCallConfiguration-' + uuidv4().substring(0,4);
-    expression?: ExpressionDefinition;
-    uri?: string;
-    component?: string;
-    pattern?: string;
-    serviceDiscoveryRef?: string;
-    serviceFilterRef?: string;
-    serviceChooserRef?: string;
-    loadBalancerRef?: string;
-    expressionRef?: string;
-    blacklistServiceFilter?: BlacklistServiceCallServiceFilterConfiguration;
-    combinedServiceFilter?: CombinedServiceCallServiceFilterConfiguration;
-    customServiceFilter?: CustomServiceCallServiceFilterConfiguration;
-    healthyServiceFilter?: HealthyServiceCallServiceFilterConfiguration;
-    passThroughServiceFilter?: PassThroughServiceCallServiceFilterConfiguration;
-    public constructor(init?: Partial<ServiceCallConfigurationDefinition>) {
-        super('ServiceCallConfigurationDefinition');
-        Object.assign(this, init);
-    }
-}
-
-export class ServiceCallDefinition extends CamelElement {
-    stepName?: string = 'serviceCall';
-    id?: string = 'serviceCall-' + uuidv4().substring(0,4);
-    description?: string;
-    disabled?: boolean;
-    name: string = '';
-    expression?: ExpressionDefinition;
-    uri?: string;
-    component?: string;
-    pattern?: string;
-    configurationRef?: string;
-    serviceDiscoveryRef?: string;
-    serviceFilterRef?: string;
-    serviceChooserRef?: string;
-    loadBalancerRef?: string;
-    expressionRef?: string;
-    public constructor(init?: Partial<ServiceCallDefinition>) {
-        super('ServiceCallDefinition');
-        Object.assign(this, init);
-    }
-}
-
-export class ServiceCallExpressionConfiguration extends CamelElement {
-    expressionType?: ExpressionDefinition;
-    hostHeader?: string;
-    id?: string = 'serviceCallExpressionConfiguration-' + uuidv4().substring(0,4);
-    portHeader?: string;
-    properties?: PropertyDefinition[] = [];
-    public constructor(init?: Partial<ServiceCallExpressionConfiguration>) {
-        super('ServiceCallExpressionConfiguration');
-        Object.assign(this, init);
-    }
-}
-
-export class ServiceCallServiceChooserConfiguration extends CamelElement {
-    id?: string = 'serviceCallServiceChooserConfiguration-' + uuidv4().substring(0,4);
-    properties?: PropertyDefinition[] = [];
-    public constructor(init?: Partial<ServiceCallServiceChooserConfiguration>) {
-        super('ServiceCallServiceChooserConfiguration');
-        Object.assign(this, init);
-    }
-}
-
-export class ServiceCallServiceDiscoveryConfiguration extends CamelElement {
-    id?: string = 'serviceCallServiceDiscoveryConfiguration-' + uuidv4().substring(0,4);
-    properties?: PropertyDefinition[] = [];
-    public constructor(init?: Partial<ServiceCallServiceDiscoveryConfiguration>) {
-        super('ServiceCallServiceDiscoveryConfiguration');
-        Object.assign(this, init);
-    }
-}
-
-export class ServiceCallServiceFilterConfiguration extends CamelElement {
-    id?: string = 'serviceCallServiceFilterConfiguration-' + uuidv4().substring(0,4);
-    properties?: PropertyDefinition[] = [];
-    public constructor(init?: Partial<ServiceCallServiceFilterConfiguration>) {
-        super('ServiceCallServiceFilterConfiguration');
-        Object.assign(this, init);
-    }
-}
-
-export class ServiceCallServiceLoadBalancerConfiguration extends CamelElement {
-    id?: string = 'serviceCallServiceLoadBalancerConfiguration-' + uuidv4().substring(0,4);
-    properties?: PropertyDefinition[] = [];
-    public constructor(init?: Partial<ServiceCallServiceLoadBalancerConfiguration>) {
-        super('ServiceCallServiceLoadBalancerConfiguration');
-        Object.assign(this, init);
-    }
-}
-
-export class StaticServiceCallServiceDiscoveryConfiguration extends CamelElement {
-    id?: string = 'staticServiceCallServiceDiscoveryConfiguration-' + uuidv4().substring(0,4);
-    properties?: PropertyDefinition[] = [];
-    servers?: string[] = [];
-    public constructor(init?: Partial<StaticServiceCallServiceDiscoveryConfiguration>) {
-        super('StaticServiceCallServiceDiscoveryConfiguration');
-        Object.assign(this, init);
-    }
-}
-
-export class ZooKeeperServiceCallServiceDiscoveryConfiguration extends CamelElement {
-    basePath: string = '';
-    connectionTimeout?: string;
-    id?: string = 'zooKeeperServiceCallServiceDiscoveryConfiguration-' + uuidv4().substring(0,4);
-    namespace?: string;
-    nodes: string = '';
-    properties?: PropertyDefinition[] = [];
-    reconnectBaseSleepTime?: string;
-    reconnectMaxRetries?: string;
-    reconnectMaxSleepTime?: string;
-    sessionTimeout?: string;
-    public constructor(init?: Partial<ZooKeeperServiceCallServiceDiscoveryConfiguration>) {
-        super('ZooKeeperServiceCallServiceDiscoveryConfiguration');
         Object.assign(this, init);
     }
 }
@@ -3048,7 +2781,6 @@ export class ExpressionDefinition extends CamelElement {
     header?: HeaderExpression | string;
     hl7terser?: Hl7TerserExpression | string;
     java?: JavaExpression | string;
-    joor?: JoorExpression | string;
     jq?: JqExpression | string;
     js?: JavaScriptExpression | string;
     jsonpath?: JsonPathExpression | string;
@@ -3130,20 +2862,6 @@ export class JavaScriptExpression extends CamelElement {
     trim?: boolean;
     public constructor(init?: Partial<JavaScriptExpression>) {
         super('JavaScriptExpression');
-        Object.assign(this, init);
-    }
-}
-
-export class JoorExpression extends CamelElement {
-    expressionName?: string = 'joor';
-    id?: string = 'joor-' + uuidv4().substring(0,4);
-    expression: string = '';
-    preCompile?: boolean;
-    singleQuotes?: boolean;
-    resultType?: string;
-    trim?: boolean;
-    public constructor(init?: Partial<JoorExpression>) {
-        super('JoorExpression');
         Object.assign(this, init);
     }
 }

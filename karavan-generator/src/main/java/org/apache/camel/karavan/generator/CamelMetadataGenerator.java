@@ -81,14 +81,16 @@ public final class CamelMetadataGenerator extends AbstractGenerator {
             JsonObject model = new JsonObject(json).getJsonObject("model");
             String title = model.getString("title");
             String description = model.getString("description");
-            camelModel.append(String.format("    ['%s','%s',\"%s\"],\n", name, title, description));
+            if (!name.equalsIgnoreCase("joor")) { // exception for deprecated
+                camelModel.append(String.format("    ['%s','%s',\"%s\"],\n", name, title, description));
+            }
         });
         camelModel.append("]\n\n");
 
         // Generate LanguageMetadata
         classProps.clear();
         definitions.getMap().forEach((s, o) -> {
-            if (s.startsWith("org.apache.camel.model.language")) {
+            if (s.startsWith("org.apache.camel.model.language") && !s.endsWith("ExpressionDefinition")) {
                 String name = classSimple(s);
                 JsonObject obj = getDefinition(definitions, s);
                 JsonObject props = obj.containsKey("oneOf") ? obj.getJsonArray("oneOf").getJsonObject(1).getJsonObject("properties") : obj.getJsonObject("properties");
@@ -107,9 +109,11 @@ public final class CamelMetadataGenerator extends AbstractGenerator {
         defsMap.forEach((s, o) -> {
             String ref = ((Map<?, ?>) o).get("$ref").toString();
             String name = classSimple(ref);
-            JsonObject obj = getDefinition(definitions, ref);
-            JsonObject props = obj.containsKey("oneOf") ? obj.getJsonArray("oneOf").getJsonObject(1).getJsonObject("properties") : obj.getJsonObject("properties");
-            classProps.put(name, props);
+            if (!getDeprecatedClasses().contains(name)) {
+                JsonObject obj = getDefinition(definitions, ref);
+                JsonObject props = obj.containsKey("oneOf") ? obj.getJsonArray("oneOf").getJsonObject(1).getJsonObject("properties") : obj.getJsonObject("properties");
+                classProps.put(name, props);
+            }
         });
 
 
@@ -150,7 +154,9 @@ public final class CamelMetadataGenerator extends AbstractGenerator {
         StringBuilder code = new StringBuilder();
         code.append(String.format("export const %s: ElementMeta[] = [\n", className));
         classProps.entrySet().stream().filter(entry -> {
-            if (entry.getValue() == null) {
+            if (getDeprecatedClasses().contains(entry.getKey())) {
+                return false;
+            } else if (entry.getValue() == null) {
                 return false;
             } else {
                 return true;
@@ -203,10 +209,14 @@ public final class CamelMetadataGenerator extends AbstractGenerator {
                         defaultValue = defaultValue.length() == 1 && defaultValue.toCharArray()[0] == '\\' ? "\\\\" : defaultValue;
                         String labels = p != null && p.containsKey("label") ? p.getString("label") : "";
                         String javaType = getJavaType(name, p);
-                        if (name.equals("ProcessDefinition") && pname.equals("ref")) javaType = "org.apache.camel.Processor"; // exception for processor
-                        code.append(String.format(
-                                "        new PropertyMeta('%s', '%s', \"%s\", '%s', '%s', '%s', %b, %b, %b, %b, '%s', '%s'),\n",
-                                pname, displayName, desc, pm.type, en, defaultValue, required, secret, pm.isArray, (pm.isArray ? pm.type : pm.isObject), labels, javaType));
+                        if (name.equals("ProcessDefinition") && pname.equals("ref")) {
+                            javaType = "org.apache.camel.Processor";
+                        } // exception for processor
+                        if (!getDeprecatedClasses().contains(pm.type)) {
+                            code.append(String.format(
+                                    "        new PropertyMeta('%s', '%s', \"%s\", '%s', '%s', '%s', %b, %b, %b, %b, '%s', '%s'),\n",
+                                    pname, displayName, desc, pm.type, en, defaultValue, required, secret, pm.isArray, (pm.isArray ? pm.type : pm.isObject), labels, javaType));
+                        }
                     }
                 });
                 code.append("    ]),\n");
