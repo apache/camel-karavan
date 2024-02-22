@@ -36,10 +36,8 @@ interface Props {
 
 export function VariablesDropdown(props: Props) {
 
-    const [variables] = useIntegrationStore((s) => [s.variables], shallow)
+    const [variables, getVariables] = useIntegrationStore((s) => [s.variables, s.getVariables], shallow)
     const [isOpenVariablesDropdown, setOpenVariablesDropdown] = useState<boolean>(false);
-
-    useEffect(() => console.log(variables), [variables])
 
     const hasVariables = (variables && variables.length > 0 );
 
@@ -82,7 +80,7 @@ export function VariablesDropdown(props: Props) {
         >
             <DropdownList>
                 {hasVariables && <DropdownGroup label="Variables">
-                    {variables.map((pp, index) =>
+                    {getVariables().map((pp, index) =>
                         <DropdownItem value={pp} key={index}>{pp}</DropdownItem>
                     )}
                 </DropdownGroup>}

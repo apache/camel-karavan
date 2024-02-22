@@ -35,9 +35,10 @@ interface IntegrationState {
     variables: string[],
     setVariables: (variables: string[]) => void;
     addVariable: (variable: string) => void;
+    getVariables: () => string[];
 }
 
-export const useIntegrationStore = createWithEqualityFn<IntegrationState>((set) => ({
+export const useIntegrationStore = createWithEqualityFn<IntegrationState>((set, get) => ({
     integration: Integration.createNew("demo", "plain"),
     propertyOnly: false,
     json: '{}',
@@ -78,6 +79,15 @@ export const useIntegrationStore = createWithEqualityFn<IntegrationState>((set) 
             if (!vars.includes(variable)) vars.push(variable);
             return {variables: VariableUtil.sortVariables(vars)};
         });
+    },
+    getVariables: () => {
+        const files = get().files;
+        const integration = get().integration;
+        const otherFiles = files.filter(file => file.name !== integration.metadata.name);
+        const currentVariables = VariableUtil.findVariablesInIntegrations([integration]);
+        const otherVariables = VariableUtil.findVariables(otherFiles);
+        currentVariables.concat(otherVariables);
+        return currentVariables;
     },
 }), shallow)
 

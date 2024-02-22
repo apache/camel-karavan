@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 import {
-    CamelElement,
+    CamelElement, Integration,
     IntegrationFile,
 } from '../model/IntegrationDefinition';
 import { CamelDefinitionYaml } from './CamelDefinitionYaml';
@@ -35,8 +35,12 @@ export class VariableUtil {
     }
 
     static findVariables = (files: IntegrationFile[]): string[] => {
-        const result: string[] = []
         const integrations = files.map(file => CamelDefinitionYaml.yamlToIntegration(file.name, file.code));
+        return VariableUtil.findVariablesInIntegrations(integrations);
+    };
+
+    static findVariablesInIntegrations = (integrations: Integration[]): string[] => {
+        const result: string[] = []
         integrations.forEach(i => {
             const filename = i.metadata.name;
             const routes = i.spec.flows?.filter(flow => flow.dslName === 'RouteDefinition');
