@@ -127,7 +127,6 @@ export function FileEditor(props: Props) {
                              onSavePropertyPlaceholder={onSavePropertyPlaceholder}
                              beans={beans}
                              onInternalConsumerClick={internalConsumerClick}
-                             variables={[]}
                              files={files.map(f => new IntegrationFile(f.name, f.code))}
             />
         )

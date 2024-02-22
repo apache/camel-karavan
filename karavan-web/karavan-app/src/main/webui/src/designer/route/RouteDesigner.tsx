@@ -74,7 +74,7 @@ export function RouteDesigner() {
     useEffect(()=> {
         const interval = setInterval(() => {
             changeGraphSize();
-        }, 500);
+        }, 300);
         const commandSub = EventBus.onCommand()?.subscribe((command: Command) => onCommand(command, printerRef));
         if (flowRef.current === null) {
             clearSteps();

@@ -76,10 +76,7 @@ import {KubernetesIcon} from "../../icons/ComponentIcons";
 import {BeanProperties} from "./BeanProperties";
 import {PropertyPlaceholderDropdown} from "./PropertyPlaceholderDropdown";
 import {VariablesDropdown} from "./VariablesDropdown";
-import {CamelModelMetadata} from "karavan-core/lib/model/CamelMetadata";
-
-const GLOBAL = 'global:';
-const ROUTE = 'route:';
+import {ROUTE, GLOBAL} from "karavan-core/lib/api/VariableUtil";
 
 interface Props {
     property: PropertyMeta,
@@ -95,7 +92,7 @@ interface Props {
 
 export function DslPropertyField(props: Props) {
 
-    const [integration, setIntegration] = useIntegrationStore((s) => [s.integration, s.setIntegration], shallow)
+    const [integration, setIntegration, addVariable] = useIntegrationStore((s) => [s.integration, s.setIntegration, s.addVariable], shallow)
     const [dark, setSelectedStep] = useDesignerStore((s) => [s.dark, s.setSelectedStep], shallow)
 
     const [isShowAdvanced, setIsShowAdvanced] = useState<string[]>([]);
@@ -165,6 +162,9 @@ export function DslPropertyField(props: Props) {
         }
         props.onPropertyChange?.(fieldId, value, newRoute);
         clearSelection(fieldId);
+        if (isVariable) {
+            addVariable(value);
+        }
     }
 
     function arrayChanged(fieldId: string, value: string) {
@@ -272,10 +272,6 @@ export function DslPropertyField(props: Props) {
 
     function getVariableInput(property: PropertyMeta) {
         return <InputGroup>
-            {/*<InputGroupItem>*/}
-            {/*    <Button variant={'control'}>{GLOBAL}</Button>*/}
-            {/*    <Button variant={'control'}>{ROUTE}</Button>*/}
-            {/*</InputGroupItem>*/}
             <InputGroupItem>
                 <ToggleGroup aria-label="Variable type">
                     <ToggleGroupItem text="global:" key='global' buttonId={"global-variable-"+ property.name}

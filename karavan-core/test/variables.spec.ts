@@ -17,21 +17,15 @@
 import {expect} from 'chai';
 import * as fs from 'fs';
 import 'mocha';
-import {CamelDefinitionYaml} from "../src/core/api/CamelDefinitionYaml";
+import { VariableUtil } from '../src/core/api/VariableUtil';
+import { IntegrationFile } from '../src/core/model/IntegrationDefinition';
 
-describe('Plain YAML with route to integration', () => {
+describe('Variables', () => {
 
-    it('YAML <-> Object', () => {
-        const yaml = fs.readFileSync('test/routes1.yaml',{encoding:'utf8', flag:'r'});
-        const i = CamelDefinitionYaml.yamlToIntegration("test1.yaml", yaml);
-        expect(i.metadata.name).to.equal('test1.yaml');
-        expect(i.kind).to.equal('Integration');
-        expect(i.spec.flows?.length).to.equal(1);
-        expect(i.type).to.equal('plain');
-        if (i.spec.flows) expect(i.spec.flows[0].from.uri).to.equal('timer');
-        if (i.spec.flows) expect(i.spec.flows[0].from.parameters.name).to.equal('info');
-        const yaml2 = CamelDefinitionYaml.integrationToYaml(i);
-        expect(yaml.replaceAll("\r\n", "\n")).to.equal(yaml2); // replace for Windows compatibility
+    it('Find Variables', () => {
+        const yaml1 = fs.readFileSync('test/variable1.camel.yaml',{encoding:'utf8', flag:'r'});
+        const yaml2 = fs.readFileSync('test/variable2.camel.yaml',{encoding:'utf8', flag:'r'});
+        const variables = VariableUtil.findVariables([new IntegrationFile('1', yaml1), new IntegrationFile('2', yaml2)]);
+        expect(variables.length).to.equal(19);
     });
-
 });

@@ -114,7 +114,7 @@ export function App() {
     });
 
     function save(filename: string, yaml: string, propertyOnly: boolean) {
-        console.log(yaml);
+        // console.log(yaml);
     }
 
     function getSpinner() {
