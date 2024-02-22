@@ -50,7 +50,6 @@ export function FileEditor(props: Props) {
     useEffect(() => {
         setCode(file?.code);
         const pp = CodeUtils.getPropertyPlaceholders(files);
-        ProjectService.reloadKamelets(); // to reload custom kamelets if created after on load
         setPropertyPlaceholders(prevState => {
             prevState.length = 0;
             prevState.push(...pp);
@@ -61,7 +60,8 @@ export function FileEditor(props: Props) {
             prevState.length = 0;
             prevState.push(...bs);
             return prevState;
-        })
+        });
+        ProjectService.reloadKamelets(); // to reload custom kamelets if created after on load
     }, []);
 
     function save(name: string, code: string) {
