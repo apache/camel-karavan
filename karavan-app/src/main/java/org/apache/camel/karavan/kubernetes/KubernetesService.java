@@ -531,7 +531,7 @@ public class KubernetesService implements HealthCheck {
                         .withLabels(labels)
                         .endMetadata()
                         .withNewSpec()
-                        .withResources(new ResourceRequirementsBuilder().withRequests(Map.of("storage", new Quantity("2Gi"))).build())
+                        .withResources(new VolumeResourceRequirementsBuilder().withRequests(Map.of("storage", new Quantity("2Gi"))).build())
                         .withVolumeMode("Filesystem")
                         .withAccessModes("ReadWriteOnce")
                         .endSpec()

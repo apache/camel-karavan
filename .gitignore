@@ -78,3 +78,5 @@ karavan-cloud/karavan-secret-real.yaml
 docs/install/karavan-docker/data/*
 
 **/dependency-reduced-pom.xml
+
+.env

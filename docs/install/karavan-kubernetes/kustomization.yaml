@@ -5,6 +5,7 @@ commonLabels:
   app.kubernetes.io/part-of: "karavan"
   app.kubernetes.io/name: "karavan"
   app.kubernetes.io/version: "4.4.0"
+namespace: "karavan"
 resources:
   - secret.yaml
   - role.yaml
@@ -12,4 +13,12 @@ resources:
   - role-binding.yaml
   - deployment.yaml
   - service.yaml
-namespace: "karavan"
+
+# Replace secret from.env if required
+secretGenerator:
+- name: karavan
+  behavior: replace
+  options:
+      disableNameSuffixHash: true
+  envs:
+    - .env
