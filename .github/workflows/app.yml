@@ -42,7 +42,6 @@ jobs:
           mvn clean compile exec:java -f karavan-generator \
           -Dexec.mainClass="org.apache.camel.karavan.generator.KaravanGenerator"
 
-      #  Building Karavan Core
       - name: Set up Node
         uses: actions/setup-node@v4
         with:

@@ -42,7 +42,6 @@ jobs:
           mvn clean compile exec:java -f karavan-generator \
           -Dexec.mainClass="org.apache.camel.karavan.generator.KaravanGenerator"
 
-      #  Building Karavan Core
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
@@ -52,6 +51,9 @@ jobs:
         working-directory: ./karavan/karavan-core
         run: npm ci
 
+      - name: Create Multi Platfrom Builder
+        run: docker buildx create --use --platform=linux/arm64,linux/amd64 --name multi-platform-builder        
+
       - name: Build application
         working-directory: ./karavan/karavan-app
         run: |
@@ -59,6 +61,7 @@ jobs:
           -Dquarkus.quinoa.package-manager-install=false \
           -Dquarkus.container-image.build=true \
           -Dquarkus.container-image.push=true \
+          -Dquarkus.docker.buildx.platform=linux/amd64,linux/arm64 \
           -Dquarkus.container-image.image=${{ env.REGISTRY }}/${GITHUB_REPOSITORY}:${{ env.TAG }}-oidc \
           -Dquarkus.container-image.username=${{ github.actor }} \
           -Dquarkus.container-image.password=${{ secrets.GITHUB_TOKEN }}
