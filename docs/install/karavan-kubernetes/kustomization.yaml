@@ -14,6 +14,13 @@ resources:
   - deployment.yaml
   - service.yaml
 
+# Patch for Service with nodePort
+patches:
+  - path: ./nodePort.yaml
+    target:
+      kind: "Service"
+      name: "karavan"
+      
 # Replace secret from.env if required
 secretGenerator:
 - name: karavan
