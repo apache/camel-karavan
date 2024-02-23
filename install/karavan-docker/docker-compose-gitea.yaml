@@ -4,7 +4,7 @@ services:
 
   karavan:
     container_name: karavan
-    image: ghcr.io/apache/camel-karavan:4.4.0
+    image: marat/karavan:4.4.0
     ports:
       - "8080:8080"
     environment:
@@ -21,6 +21,15 @@ services:
       - "/var/run/docker.sock:/var/run/docker.sock"    
     labels:
       - "org.apache.camel.karavan/type=internal"    
+    depends_on:
+      gitea:
+        condition: service_healthy
+        restart: true
+    restart_policy:
+        condition: on-failure
+        delay: 3s
+        max_attempts: 5
+        window: 60s
     networks:
       - karavan
 
@@ -33,6 +42,12 @@ services:
     volumes:
       - ./data:/var/lib/gitea
       - ./config:/etc/gitea
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/healthz"]
+      interval: 1m
+      timeout: 10s
+      retries: 3
+      start_period: 10s  
     labels:
       - "org.apache.camel.karavan/type=internal"  
     networks:
