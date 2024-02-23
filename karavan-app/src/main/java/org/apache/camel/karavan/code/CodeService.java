@@ -199,6 +199,7 @@ public class CodeService {
         files.addAll(targets.stream().map(target -> target + "-" + APPLICATION_PROPERTIES_FILENAME).toList());
         files.addAll(targets.stream().map(target ->  target + "-" + BUILD_SCRIPT_FILENAME).toList());
         files.addAll(blockList);
+        files.add(BUILDER_ENV_MAPPING_FILENAME);
 
         files.addAll(getBeanTemplateNames());
 
