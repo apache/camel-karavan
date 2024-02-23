@@ -23,7 +23,6 @@ import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.json.JsonObject;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import org.apache.camel.karavan.cache.KaravanCacheService;
 import org.apache.camel.karavan.model.ContainerStatus;
 import org.apache.camel.karavan.docker.DockerService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;

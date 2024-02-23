@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.camel.karavan.registry;
+package org.apache.camel.karavan.model;
 
 public class RegistryConfig {
     private String registry;

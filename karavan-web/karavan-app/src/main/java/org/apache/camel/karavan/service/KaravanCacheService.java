@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.camel.karavan.cache;
+package org.apache.camel.karavan.service;
 
 import com.hazelcast.config.ClasspathYamlConfig;
 import com.hazelcast.config.Config;

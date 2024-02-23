@@ -25,13 +25,8 @@ import io.vertx.core.eventbus.EventBus;
 import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
-import org.apache.camel.karavan.cache.KaravanCacheService;
-import org.apache.camel.karavan.docker.DockerForGitea;
-import org.apache.camel.karavan.docker.DockerForRegistry;
 import org.apache.camel.karavan.docker.DockerService;
-import org.apache.camel.karavan.git.GiteaService;
 import org.apache.camel.karavan.kubernetes.KubernetesService;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.health.HealthCheck;
 import org.eclipse.microprofile.health.HealthCheckResponse;
 import org.eclipse.microprofile.health.Liveness;
@@ -46,12 +41,6 @@ public class KaravanService implements HealthCheck {
 
     private static final Logger LOGGER = Logger.getLogger(KaravanService.class.getName());
 
-    @ConfigProperty(name = "karavan.git-install-gitea")
-    boolean giteaInstall;
-
-    @ConfigProperty(name = "karavan.image-registry-install")
-    boolean registryInstall;
-
     @Inject
     KubernetesService kubernetesService;
 
@@ -59,16 +48,7 @@ public class KaravanService implements HealthCheck {
     DockerService dockerService;
 
     @Inject
-    DockerForGitea dockerForGitea;
-
-    @Inject
-    DockerForRegistry dockerForRegistry;
-
-    @Inject
     EventBus eventBus;
-
-    @Inject
-    GiteaService giteaService;
 
     @Inject
     ProjectService projectService;
@@ -99,25 +79,12 @@ public class KaravanService implements HealthCheck {
         } else {
             dockerService.createNetwork();
             dockerService.startListeners();
-
-            if (giteaInstall) {
-                dockerForGitea.startGitea();
-                giteaService.install();
-                dockerForGitea.createGiteaUser();
-                giteaService.createRepository();
-            }
-            if (registryInstall) {
-                dockerForRegistry.startRegistry();
-            }
         }
     }
 
     @ConsumeEvent(value = START_KUBERNETES_SERVICES, blocking = true)
     void startKubernetesServices(String data) throws Exception {
         LOGGER.info("Starting Karavan in Kubernetes");
-        if (giteaInstall) {
-            giteaService.createRepository();
-        }
         kubernetesService.startInformers(null);
     }
 

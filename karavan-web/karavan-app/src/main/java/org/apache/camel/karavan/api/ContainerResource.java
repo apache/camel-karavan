@@ -24,7 +24,7 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import org.apache.camel.karavan.cache.KaravanCacheService;
+import org.apache.camel.karavan.service.KaravanCacheService;
 import org.apache.camel.karavan.model.ContainerStatus;
 import org.apache.camel.karavan.code.DockerComposeConverter;
 import org.apache.camel.karavan.model.DockerComposeService;

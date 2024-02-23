@@ -33,7 +33,7 @@ import jakarta.enterprise.inject.Default;
 import jakarta.enterprise.inject.Produces;
 import jakarta.inject.Inject;
 import org.apache.camel.karavan.code.CodeService;
-import org.apache.camel.karavan.cache.KaravanCacheService;
+import org.apache.camel.karavan.service.KaravanCacheService;
 import org.apache.camel.karavan.model.ContainerStatus;
 import org.apache.camel.karavan.model.Project;
 import org.apache.camel.karavan.service.ConfigService;

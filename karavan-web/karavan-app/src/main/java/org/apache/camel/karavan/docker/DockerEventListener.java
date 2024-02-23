@@ -24,7 +24,7 @@ import com.github.dockerjava.api.model.EventType;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.apache.camel.karavan.model.ContainerStatus;
-import org.apache.camel.karavan.registry.RegistryService;
+import org.apache.camel.karavan.service.RegistryService;
 import org.jboss.logging.Logger;
 
 import java.io.Closeable;

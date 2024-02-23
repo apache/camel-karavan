@@ -2,7 +2,7 @@ package org.apache.camel.karavan.validation.project;
 
 import java.util.List;
 
-import org.apache.camel.karavan.cache.KaravanCacheService;
+import org.apache.camel.karavan.service.KaravanCacheService;
 import org.apache.camel.karavan.model.ProjectFile;
 import org.apache.camel.karavan.shared.validation.SimpleValidator;
 import org.apache.camel.karavan.shared.validation.ValidationError;

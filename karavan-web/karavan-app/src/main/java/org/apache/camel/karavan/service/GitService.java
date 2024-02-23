@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.camel.karavan.git;
+package org.apache.camel.karavan.service;
 
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
@@ -24,12 +24,11 @@ import io.smallrye.mutiny.tuples.Tuple2;
 import io.vertx.core.Vertx;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import org.apache.camel.karavan.git.model.GitConfig;
-import org.apache.camel.karavan.git.model.GitRepo;
-import org.apache.camel.karavan.git.model.GitRepoFile;
+import org.apache.camel.karavan.model.GitConfig;
+import org.apache.camel.karavan.model.GitRepo;
+import org.apache.camel.karavan.model.GitRepoFile;
 import org.apache.camel.karavan.model.Project;
 import org.apache.camel.karavan.model.ProjectFile;
-import org.apache.camel.karavan.service.ConfigService;
 import org.eclipse.jgit.api.*;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.InvalidRemoteException;
@@ -44,7 +43,6 @@ import org.eclipse.jgit.transport.ssh.jsch.JschConfigSessionFactory;
 import org.eclipse.jgit.treewalk.TreeWalk;
 import org.eclipse.jgit.treewalk.filter.TreeFilter;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.eclipse.microprofile.faulttolerance.Retry;
 import org.jboss.logging.Logger;
 
 import java.io.File;
@@ -76,9 +74,6 @@ public class GitService {
     @ConfigProperty(name = "karavan.known-hosts-path")
     Optional<String> knownHostsPath;
 
-    @ConfigProperty(name = "karavan.git-install-gitea")
-    boolean installGitea;
-
     @Inject
     Vertx vertx;
 
@@ -103,14 +98,7 @@ public class GitService {
     }
 
     public GitConfig getGitConfig() {
-        if (ConfigService.inKubernetes() || ConfigService.inDocker()) {
-            return new GitConfig(repository, username.orElse(null), password.orElse(null), branch, privateKeyPath.orElse(null));
-        } else {
-            String uri = installGitea
-                    ? "http://localhost:3000/karavan/karavan.git"
-                    : repository;
-            return new GitConfig(uri, username.orElse(null), password.orElse(null), branch, privateKeyPath.orElse(null));
-        }
+        return new GitConfig(repository, username.orElse(null), password.orElse(null), branch, privateKeyPath.orElse(null));
     }
 
     public List<String> getEnvForBuild() {
@@ -210,21 +198,6 @@ public class GitService {
             LOGGER.error("Error", e);
         }
         return git;
-    }
-
-    private List<Tuple2<String, String>> readKameletsFromFolder(String folder) {
-        LOGGER.info("Read kamelets from " + folder);
-        List<Tuple2<String, String>> kamelets = new ArrayList<>();
-        vertx.fileSystem().readDirBlocking(folder).stream().filter(f -> f.endsWith("kamelet.yaml")).forEach(f -> {
-            Path path = Paths.get(f);
-            try {
-                String yaml = Files.readString(path);
-                kamelets.add(Tuple2.of(path.getFileName().toString(), yaml));
-            } catch (IOException e) {
-                LOGGER.error("Error during file read", e);
-            }
-        });
-        return kamelets;
     }
 
     private List<String> readProjectsFromFolder(String folder, String... filter) {
@@ -445,7 +418,6 @@ public class GitService {
         return files;
     }
 
-    @Retry(maxRetries = 100, delay = 2000)
     public boolean checkGit() throws Exception {
         LOGGER.info("Check git");
         GitConfig gitConfig = getGitConfig();

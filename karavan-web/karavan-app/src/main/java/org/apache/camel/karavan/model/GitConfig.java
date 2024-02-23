@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.camel.karavan.git.model;
+package org.apache.camel.karavan.model;
 
 public class GitConfig {
     private String uri;

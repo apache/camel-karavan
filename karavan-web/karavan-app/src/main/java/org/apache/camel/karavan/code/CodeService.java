@@ -34,9 +34,9 @@ import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.camel.karavan.api.KameletResources;
 import org.apache.camel.karavan.model.DockerComposeService;
 import org.apache.camel.karavan.docker.DockerService;
-import org.apache.camel.karavan.git.model.GitRepo;
-import org.apache.camel.karavan.git.model.GitRepoFile;
-import org.apache.camel.karavan.cache.KaravanCacheService;
+import org.apache.camel.karavan.model.GitRepo;
+import org.apache.camel.karavan.model.GitRepoFile;
+import org.apache.camel.karavan.service.KaravanCacheService;
 import org.apache.camel.karavan.model.Project;
 import org.apache.camel.karavan.model.ProjectFile;
 import org.apache.camel.karavan.kubernetes.KubernetesService;
@@ -343,11 +343,6 @@ public class CodeService {
         return getProjectPort(composeFile);
     }
 
-
-    public DockerComposeService getInternalDockerComposeService (String name) {
-        String composeText = getResourceFile("/services/internal.yaml");
-        return DockerComposeConverter.fromCode(composeText, name);
-    }
 
     public DockerComposeService getDockerComposeService(String projectId) {
         ProjectFile compose = karavanCacheService.getProjectFile(projectId, PROJECT_COMPOSE_FILENAME);

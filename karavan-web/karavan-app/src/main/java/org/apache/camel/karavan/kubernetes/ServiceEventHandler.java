@@ -19,7 +19,7 @@ package org.apache.camel.karavan.kubernetes;
 
 import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.client.informers.ResourceEventHandler;
-import org.apache.camel.karavan.cache.KaravanCacheService;
+import org.apache.camel.karavan.service.KaravanCacheService;
 import org.apache.camel.karavan.model.ServiceStatus;
 import org.jboss.logging.Logger;
 

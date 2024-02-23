@@ -14,12 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.camel.karavan.registry;
+package org.apache.camel.karavan.service;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.apache.camel.karavan.kubernetes.KubernetesService;
-import org.apache.camel.karavan.service.ConfigService;
+import org.apache.camel.karavan.model.RegistryConfig;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
@@ -32,8 +32,6 @@ public class RegistryService {
 
     private static final Logger LOGGER = Logger.getLogger(RegistryService.class.getName());
 
-    @ConfigProperty(name = "karavan.image-registry-install")
-    boolean installRegistry;
     @ConfigProperty(name = "karavan.image-registry")
     String registry;
     @ConfigProperty(name = "karavan.image-group")
