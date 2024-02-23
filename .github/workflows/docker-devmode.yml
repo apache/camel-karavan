@@ -1,4 +1,4 @@
-name: DevMode container image
+name: DevMode container
 
 on:
   push:
