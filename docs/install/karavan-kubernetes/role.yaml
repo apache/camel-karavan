@@ -1,0 +1,30 @@
+---
+apiVersion: "rbac.authorization.k8s.io/v1"
+kind: "Role"
+metadata:
+  name: "karavan"
+rules:
+- apiGroups: [""]
+  resources: ["secrets", "configmaps", "serviceaccounts"]
+  verbs: ["*"]
+- apiGroups: [""]
+  resources: ["persistentvolumes", "persistentvolumeclaims"]
+  verbs: ["*"]
+- apiGroups: [""]
+  resources: ["pods", "services", "replicationcontrollers"]
+  verbs: ["*"]
+- apiGroups: ["route.openshift.io"]
+  resources: ["routes"]
+  verbs:  ["*"]
+- apiGroups: ["apps"]
+  resources: ["deployments"]
+  verbs: ["*"]
+- apiGroups: ["networking.k8s.io"]
+  resources: ["ingresses"]
+  verbs: ["*"]
+- apiGroups: ["image.openshift.io"]
+  resources: ["imagestreams/layers"]
+  verbs: ["update", "get"]
+- apiGroups: [""]
+  resources: ["pods/exec"]
+  verbs: ["create", "get"]

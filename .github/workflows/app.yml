@@ -3,7 +3,7 @@ name: Web application
 on:
   push:
     branches: [ main ]
-    paths: ['karavan-web/karavan-app/**', 'karavan-core/**', 'karavan-designer/**', '.github/workflows/app.yml']
+    paths: ['karavan-app/**', 'karavan-core/**', 'karavan-designer/**', '.github/workflows/app.yml']
   workflow_dispatch:
   pull_request:
     branches: [ main ]
@@ -53,7 +53,7 @@ jobs:
         run: npm ci
 
       - name: Build application
-        working-directory: ./karavan/karavan-web/karavan-app
+        working-directory: ./karavan/karavan-app
         run: |
           mvn package -Dquarkus.profile=public -DskipTests \
           -Dquarkus.quinoa.package-manager-install=false \

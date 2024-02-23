@@ -1,0 +1,66 @@
+---
+apiVersion: "apps/v1"
+kind: "Deployment"
+metadata:
+  name: "karavan"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: "karavan"
+  template:
+    metadata:
+      labels:
+        app: "karavan"
+    spec:
+      containers:
+      - env:
+        - name: "KARAVAN_ENVIRONMENT"
+          value: "dev"
+        - name: "KARAVAN_CONTAINER_STATUS_INTERVAL"
+          value: "disabled"
+        - name: "KARAVAN_CONTAINER_STATISTICS_INTERVAL"
+          value: "disabled"
+        - name: "KARAVAN_CAMEL_STATUS_INTERVAL"
+          value: "3s"
+        - name: "KARAVAN_DEVMODE_IMAGE"
+          value: "ghcr.io/apache/camel-karavan-devmode:4.4.0"
+        - name: "karavan.git.repository"
+          valueFrom:
+            secretKeyRef:
+              key: "karavan.git.repository"
+              name: "karavan"
+              optional: false
+        - name: "karavan.git.username"
+          valueFrom:
+            secretKeyRef:
+              key: "karavan.git.username"
+              name: "karavan"
+              optional: false
+        - name: "karavan.git.password"
+          valueFrom:
+            secretKeyRef:
+              key: "karavan.git.password"
+              name: "karavan"
+              optional: false  
+        - name: "karavan.git.branch"
+          valueFrom:
+            secretKeyRef:
+              key: "karavan.git.branch"
+              name: "karavan"
+              optional: false  
+        - name: "KUBERNETES_NAMESPACE"
+          valueFrom:
+            fieldRef:
+              apiVersion: ""
+              fieldPath: "metadata.namespace"
+        image: "ghcr.io/apache/camel-karavan:4.4.0"
+        imagePullPolicy: "Always"
+        name: "karavan"
+        ports:
+        - containerPort: 8080
+          name: "karavan"
+        resources:
+          requests:
+            memory: "1024Mi"
+      serviceAccount: "karavan"
