@@ -558,12 +558,17 @@
 }
 
 .dsl-modal .search {
-    width: 300px;
+    width: 350px;
     position: absolute;
     top: 24px;
     right: 72px;
+    display:flex;
+    justify-content:flex-end;
 }
 
+.dsl-modal .search .pf-v5-c-form__group{
+    grid-template-columns:auto !important;
+}
 
 .dsl-modal .search .pf-v5-c-form__group-label {
     padding: 0;
