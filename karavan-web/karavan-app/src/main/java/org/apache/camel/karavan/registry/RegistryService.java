@@ -63,7 +63,7 @@ public class RegistryService {
 
     public String getRegistryWithGroupForSync() {
         String registryUrl = registry;
-        if (!ConfigService.inKubernetes() && installRegistry) {
+        if (!ConfigService.inKubernetes() && registryUrl.equalsIgnoreCase("registry:5000")) {
             registryUrl = "localhost:5555";
         }
         return registryUrl + "/" + group;
