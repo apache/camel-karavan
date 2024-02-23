@@ -52,6 +52,9 @@ jobs:
         working-directory: ./karavan/karavan-core
         run: npm ci
 
+      - name: Create Multi Platfrom Builder
+        run: docker buildx create --use --platform=linux/arm64,linux/amd64 --name multi-platform-builder
+
       - name: Build application
         working-directory: ./karavan/karavan-app
         run: |
