@@ -1,9 +1,9 @@
-name: Web application 
+name: Application OIDC
 
 on:
   push:
     branches: [ main ]
-    paths: ['karavan-web/karavan-app/**', 'karavan-core/**', 'karavan-designer/**', '.github/workflows/app.yml']
+    paths: ['karavan-app/**', 'karavan-core/**', 'karavan-designer/**', '.github/workflows/app.yml']
   workflow_dispatch:
   pull_request:
     branches: [ main ]
@@ -17,18 +17,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Karavan
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           path: karavan
 
       - name: Set up JDK 17
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           distribution: adopt
           java-version: 17
 
       - name: Cache local Maven repository
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             ~/.m2/repository
@@ -42,9 +42,8 @@ jobs:
           mvn clean compile exec:java -f karavan-generator \
           -Dexec.mainClass="org.apache.camel.karavan.generator.KaravanGenerator"
 
-      #  Building Karavan Core
       - name: Set up Node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: '18.14.2'
 
@@ -52,13 +51,17 @@ jobs:
         working-directory: ./karavan/karavan-core
         run: npm ci
 
+      - name: Create Multi Platfrom Builder
+        run: docker buildx create --use --platform=linux/arm64,linux/amd64 --name multi-platform-builder        
+
       - name: Build application
-        working-directory: ./karavan/karavan-web/karavan-app
+        working-directory: ./karavan/karavan-app
         run: |
           mvn package -Dquarkus.profile=oidc -DskipTests \
           -Dquarkus.quinoa.package-manager-install=false \
           -Dquarkus.container-image.build=true \
           -Dquarkus.container-image.push=true \
+          -Dquarkus.docker.buildx.platform=linux/amd64,linux/arm64 \
           -Dquarkus.container-image.image=${{ env.REGISTRY }}/${GITHUB_REPOSITORY}:${{ env.TAG }}-oidc \
           -Dquarkus.container-image.username=${{ github.actor }} \
           -Dquarkus.container-image.password=${{ secrets.GITHUB_TOKEN }}

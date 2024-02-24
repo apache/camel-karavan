@@ -5,52 +5,31 @@
 2. Docker Engine 24+
 
 ### How to run Karavan on Docker
-1. Create network
+1. Download [docker-compose.yaml](install/karavan-docker/docker-compose.yaml)
+2. Set Environment Variables for Git Repository and Container Image Registry connections in docker-compose.yaml
+2. Create network
     ```
     docker network create karavan
     ```
-2. Start Karavan with demo features
+3. Start Karavan
     ```
-    docker run -it --rm  --name karavan \
-        --network karavan -p 8080:8080 \
-        -e KARAVAN_GIT_INSTALL_GITEA=true \
-        -e KARAVAN_IMAGE_REGISTRY_INSTALL=true \
-        -v /var/run/docker.sock:/var/run/docker.sock \
-        ghcr.io/apache/camel-karavan:4.4.0
+    docker compose up
     ```
 3. Open http://localhost:8080
 
-### Configuration variables
-1. For demo/evaluation purposes:
+### How to run Demo Karavan on Docker with Gitea
 
-    Install Gitea Git repository
+1. Download [karavan-docker](install/karavan-docker) folder
+2. Unzip data.zip with Gitea database in karavan-docker folder
     ```
-    -e KARAVAN_GIT_INSTALL_GITEA=true
+    unzip data.zip
     ```
-
-    Install Image registry
+2. Create network
     ```
-    -e KARAVAN_IMAGE_REGISTRY_INSTALL=true
+    docker network create karavan
     ```
-
-2. Maven cache
+3. Start Karavan
     ```
-    -e KARAVAN_MAVEN_CACHE=$YOUR_PATH_TO_MAVEN/.m2
+    docker compose -f docker-compose-gitea.yaml up
     ```
-
-3. Git repository
-    ```
-    -e KARAVAN_GIT_REPOSITORY=$YOUR_GIT_REPOSITORY \
-    -e KARAVAN_GIT_USERNAME=$YOUR_GIT_USERNAME \
-    -e KARAVAN_GIT_PASSWORD=$YOUR_GIT_PASSWORD \
-    -e KARAVAN_GIT_BRANCH=$YOUR_GIT_DEFAULT_BRANCH \
-    ```
-
-4. Image registry
-    ```
-    -e KARAVAN_IMAGE_REGISTRY=$YOUR_IMAGE_REGISTRY \
-    -e KARAVAN_IMAGE_REGISTRY_USERNAME=$YOUR_IMAGE_REGISTRY_USERNAME \
-    -e KARAVAN_IMAGE_REGISTRY_PASSWORD=$YOUR_IMAGE_REGISTRY_PASSWORD \
-    -e KARAVAN_IMAGE_GROUP=$YOUR_IMAGE_GROUP \
-    ```    
-
+3. Open http://localhost:8080

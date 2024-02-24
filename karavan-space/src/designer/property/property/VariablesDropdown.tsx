@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
     Dropdown,
     MenuToggleElement,
@@ -26,7 +26,7 @@ import {
 import '../../karavan.css';
 import './VariablesDropdown.css';
 import "@patternfly/patternfly/patternfly.css";
-import {useDesignerStore} from "../../DesignerStore";
+import {useIntegrationStore} from "../../DesignerStore";
 import {shallow} from "zustand/shallow";
 import EllipsisVIcon from "@patternfly/react-icons/dist/esm/icons/ellipsis-v-icon";
 
@@ -36,8 +36,7 @@ interface Props {
 
 export function VariablesDropdown(props: Props) {
 
-    const [variables, setVariables] = useDesignerStore((s) =>
-        [s.variables, s.setVariables], shallow)
+    const [variables, getVariables] = useIntegrationStore((s) => [s.variables, s.getVariables], shallow)
     const [isOpenVariablesDropdown, setOpenVariablesDropdown] = useState<boolean>(false);
 
     const hasVariables = (variables && variables.length > 0 );
@@ -81,7 +80,7 @@ export function VariablesDropdown(props: Props) {
         >
             <DropdownList>
                 {hasVariables && <DropdownGroup label="Variables">
-                    {variables.map((pp, index) =>
+                    {getVariables().map((pp, index) =>
                         <DropdownItem value={pp} key={index}>{pp}</DropdownItem>
                     )}
                 </DropdownGroup>}

@@ -211,9 +211,9 @@ export class TopologyUtils {
         return result;
     }
 
-    static findTopologyOutgoingNodes = (integration: Integration[]): TopologyOutgoingNode[] => {
+    static findTopologyOutgoingNodes = (integrations: Integration[]): TopologyOutgoingNode[] => {
         const result:TopologyOutgoingNode[] = [];
-        integration.forEach(i => {
+        integrations.forEach(i => {
             const filename = i.metadata.name;
             const routes = i.spec.flows?.filter(flow => flow.dslName === 'RouteDefinition');
             routes?.forEach(route => {

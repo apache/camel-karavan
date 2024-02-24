@@ -1,9 +1,9 @@
-name: DevMode container image
+name: DevMode container
 
 on:
   push:
     branches: [ main ]
-    paths: ['karavan-web/docker/Dockerfile.devmode', '.github/workflows/docker-devmode.yml']
+    paths: ['karavan-devmode/Dockerfile', '.github/workflows/docker-devmode.yml']
   workflow_dispatch:
 
 env:
@@ -32,8 +32,8 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
-          context: ./karavan-web/docker
+          context: ./karavan-devmode
           platforms: linux/amd64,linux/arm64
-          file: karavan-web/docker/Dockerfile.devmode
+          file: karavan-devmode/Dockerfile
           push: true
           tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TAG }}

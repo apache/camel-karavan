@@ -179,12 +179,6 @@ public final class CamelMetadataGenerator extends AbstractGenerator {
                 }
             }
 
-            if (name.endsWith("Config")) {
-                System.out.println(name);
-                System.out.println(entry.getValue());
-                System.out.println(stepName);
-            }
-
             if (json != null) {
                 JsonObject model = new JsonObject(json).getJsonObject("model");
                 JsonObject props = new JsonObject(json).getJsonObject("properties");

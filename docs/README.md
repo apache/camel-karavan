@@ -8,8 +8,7 @@ Karavan Web Application is a container deployed into Docker, Kubernetes or OpenS
 
 1. [Run in Docker](WEB_DOCKER.md)
 2. [Run in Kubernetes](WEB_KUBERNETES.md)
-3. [Run in Openshift](WEB_OPENSHIFT.md)
-4. [How to use](WEB_HOWTO.md)
+3. [How to use](WEB_HOWTO.md)
 
 ### VS Code extensions
 

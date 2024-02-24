@@ -21,6 +21,7 @@ import {createWithEqualityFn} from "zustand/traditional";
 import {shallow} from "zustand/shallow";
 import {RegistryBeanDefinition} from "karavan-core/lib/model/CamelDefinition";
 import {IntegrationFile} from "karavan-core/lib/model/IntegrationDefinition";
+import {VariableUtil} from "karavan-core/lib/api/VariableUtil";
 
 interface IntegrationState {
     integration: Integration;
@@ -31,9 +32,13 @@ interface IntegrationState {
     files: IntegrationFile []
     setFiles: (files: IntegrationFile []) => void
     resetFiles: (files: IntegrationFile []) => void
+    variables: string[],
+    setVariables: (variables: string[]) => void;
+    addVariable: (variable: string) => void;
+    getVariables: () => string[];
 }
 
-export const useIntegrationStore = createWithEqualityFn<IntegrationState>((set) => ({
+export const useIntegrationStore = createWithEqualityFn<IntegrationState>((set, get) => ({
     integration: Integration.createNew("demo", "plain"),
     propertyOnly: false,
     json: '{}',
@@ -61,6 +66,28 @@ export const useIntegrationStore = createWithEqualityFn<IntegrationState>((set) 
         set((state: IntegrationState) => {
             return {files: [...files]};
         });
+    },
+    variables: [],
+    setVariables: (variables: string[]) => {
+        set((state: IntegrationState) => {
+            return {variables: [...variables]};
+        })
+    },
+    addVariable: (variable: string) => {
+        set((state: IntegrationState) => {
+            const vars = VariableUtil.findVariables(state.files);
+            if (!vars.includes(variable)) vars.push(variable);
+            return {variables: VariableUtil.sortVariables(vars)};
+        });
+    },
+    getVariables: () => {
+        const files = get().files;
+        const integration = get().integration;
+        const otherFiles = files.filter(file => file.name !== integration.metadata.name);
+        const currentVariables = VariableUtil.findVariablesInIntegrations([integration]);
+        const otherVariables = VariableUtil.findVariables(otherFiles);
+        currentVariables.concat(otherVariables);
+        return currentVariables;
     },
 }), shallow)
 
@@ -186,7 +213,6 @@ type DesignerState = {
     left: number,
     moveElements: [string | undefined, string | undefined],
     propertyPlaceholders: string[],
-    variables: string[],
     beans: RegistryBeanDefinition[]
 }
 
@@ -207,7 +233,6 @@ const designerState: DesignerState = {
     left: 0,
     moveElements: [undefined, undefined],
     propertyPlaceholders: [],
-    variables: [],
     beans: []
 };
 
@@ -226,7 +251,6 @@ type DesignerAction = {
     setNotification: (notificationBadge: boolean, notificationMessage: [string, string]) => void;
     setMoveElements: (moveElements: [string | undefined, string | undefined]) => void;
     setPropertyPlaceholders: (propertyPlaceholders: string[]) => void;
-    setVariables: (variables: string[]) => void;
     setBeans: (beans: RegistryBeanDefinition[]) => void;
 }
 
@@ -287,13 +311,6 @@ export const useDesignerStore = createWithEqualityFn<DesignerState & DesignerAct
         set((state: DesignerState) => {
             state.propertyPlaceholders.length = 0;
             state.propertyPlaceholders.push(...propertyPlaceholders);
-            return state;
-        })
-    },
-    setVariables: (variables: string[]) => {
-        set((state: DesignerState) => {
-            state.variables.length = 0;
-            state.variables.push(...variables);
             return state;
         })
     },

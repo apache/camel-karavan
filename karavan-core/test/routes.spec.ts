@@ -19,7 +19,6 @@ import * as fs from 'fs';
 import 'mocha';
 import {CamelDefinitionYaml} from "../src/core/api/CamelDefinitionYaml";
 
-
 describe('Plain YAML with route to integration', () => {
 
     it('YAML <-> Object', () => {

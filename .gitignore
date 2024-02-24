@@ -37,6 +37,7 @@ yarn-error.log*
 
 # OSX
 .DS_Store
+*__MACOSX/
 
 # Vim
 *.swp
@@ -74,4 +75,8 @@ yarn-error.log*
 
 karavan-cloud/karavan-secret-real.yaml
 
+docs/install/karavan-docker/data/*
+
 **/dependency-reduced-pom.xml
+
+.env

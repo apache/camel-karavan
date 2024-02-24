@@ -1,0 +1,42 @@
+- route:
+    id: route-18e5
+    nodePrefixId: route-656
+    from:
+      id: from-9468
+      uri: amqp
+      variableReceive: global:variable1
+      steps:
+        - doTry:
+            id: doTry-8bb0
+            doCatch:
+              - id: doCatch-19a9
+                steps:
+                  - convertVariableTo:
+                      id: convertVariableTo-b0e5
+                      name: xxx
+                      toName: yyy
+            steps:
+              - multicast:
+                  id: multicast-ad44
+                  steps:
+                    - to:
+                        id: to-0c20
+                        variableSend: send1
+                        variableReceive: receive1
+                        uri: activemq
+                    - to:
+                        id: to-e79a
+                        variableSend: route:aran1
+                        variableReceive: route:aran1
+                        uri: arangodb
+              - setVariable:
+                  id: setVariable-957d
+                  name: varrr
+                  expression:
+                    simple:
+                      id: simple-cd4b
+        - to:
+            id: to-60f8
+            variableSend: hello
+            variableReceive: world
+            uri: amqp

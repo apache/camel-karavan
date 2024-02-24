@@ -76,7 +76,6 @@ export const DesignerPage = (props: Props) => {
                     // "timer.delay",
                     // "sql.query"
                 ]}
-                variables={['var1', 'global:data1', 'route:example1']}
                 onSavePropertyPlaceholder={(key, value) => console.log("onSavePropertyPlaceholder", key, value)}
                 beans={[]}
                 onInternalConsumerClick={(uri, name, routeId) => {
