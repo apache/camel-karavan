@@ -180,8 +180,9 @@ public class CodeService {
     public String getTemplateText(String fileName) {
         try {
             List<ProjectFile> files = karavanCacheService.getProjectFiles(Project.Type.templates.name());
+            // replaceAll("\r\n", "\n")) has been add to eliminate the impact of editing the template files from windows machine. 
             return files.stream().filter(f -> f.getName().equalsIgnoreCase(fileName))
-                    .map(ProjectFile::getCode).findFirst().orElse(null);
+                    .map(file-> file.getCode().replaceAll("\r\n", "\n")).findFirst().orElse(null);
         } catch (Exception e) {
             LOGGER.error(e.getMessage());
         }
