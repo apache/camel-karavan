@@ -19,7 +19,7 @@ import {
     Badge,
     Card, CardBody, CardFooter, CardHeader, Flex, FlexItem, Form, FormGroup, Gallery, Modal, PageSection,
     Tab, Tabs, TabTitleText,
-    Text, TextInput, ToggleGroup, ToggleGroupItem,
+    Text, TextInput, ToggleGroup, ToggleGroupItem,Switch
 } from '@patternfly/react-core';
 import '../karavan.css';
 import {CamelUi} from "../utils/CamelUi";
@@ -48,6 +48,7 @@ export function DslSelector (props: Props) {
 
 
     const [filter, setFilter] = useState<string>('');
+    const [customOnly, setCustomOnly] = useState<boolean>(false);
 
     useEffect(() => {
     }, [selectedLabels]);
@@ -67,6 +68,17 @@ export function DslSelector (props: Props) {
     function searchInput() {
         return (
             <Form isHorizontal className="search" autoComplete="off">
+              {selectorTabIndex === 'kamelet' &&   <FormGroup fieldId="switch">
+                
+                    <Switch
+                        label="Custom only"
+                        id="switch"
+                        isChecked={customOnly}
+                        onChange={(_event, checked) => setCustomOnly(checked)}
+                    />
+                </FormGroup>}
+                  
+                
                 <FormGroup fieldId="search">
                     <TextInput className="text-field" type="text" id="search" name="search"
                                value={filter}
@@ -75,9 +87,10 @@ export function DslSelector (props: Props) {
             </Form>
         )
     }
-
+    
     function getCard(dsl: DslMetaModel, index: number) {
         const labels = dsl.labels !== undefined ? dsl.labels.split(",").filter(label => label !== 'eip') : [];
+        const isCustom = KameletApi.getCustomKameletNames().includes(dsl.name);
         return (
             <Card key={dsl.dsl + index} isCompact className="dsl-card"
                   onClick={event => selectDsl(event, dsl)}>
@@ -86,6 +99,7 @@ export function DslSelector (props: Props) {
                     {['kamelet', 'component'].includes(dsl.navigation.toLowerCase()) &&
                         <Badge isRead className="version labels">{dsl.version}</Badge>
                     }
+                     {isCustom && <Badge className="custom">custom</Badge>}
                 </CardHeader>
                 <CardHeader>
                     {CamelUi.getIconForDsl(dsl)}
@@ -124,10 +138,11 @@ export function DslSelector (props: Props) {
     const blockedComponents = ComponentApi.getBlockedComponentNames();
     const blockedKamelets = KameletApi.getBlockedKameletNames();
     const elements = CamelUi.getSelectorModelsForParentFiltered(parentDsl, navigation, showSteps);
-    const allowedElements = selectorTabIndex === 'component' ?
+    let allowedElements = selectorTabIndex === 'component' ?
         elements.filter(dsl => (!blockedComponents.includes(dsl.uri || dsl.name))) :
         (selectorTabIndex === 'kamelet' ? elements.filter(dsl => (!blockedKamelets.includes(dsl.name))) : elements);
     const eipLabels = [...new Set(elements.map(e => e.labels).join(",").split(",").filter(e => e !== 'eip'))];
+    if (customOnly) allowedElements = allowedElements.filter(k => KameletApi.getCustomKameletNames().includes(k.name));
     const filteredElement = allowedElements
         .filter((dsl: DslMetaModel) => CamelUi.checkFilter(dsl, filter))
         .filter((dsl: DslMetaModel) => {

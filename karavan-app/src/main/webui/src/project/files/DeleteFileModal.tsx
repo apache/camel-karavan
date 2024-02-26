@@ -24,6 +24,7 @@ import {
 import '../../designer/karavan.css';
 import {useFileStore} from "../../api/ProjectStore";
 import {ProjectService} from "../../api/ProjectService";
+import { KameletApi } from 'karavan-core/lib/api/KameletApi';
 
 export function DeleteFileModal () {
 
@@ -33,8 +34,13 @@ export function DeleteFileModal () {
         useFileStore.setState({operation: "none"})
     }
 
-    function confirmAndCloseModal () {
+    function isKameletsProject(): boolean {
+        return file?.name.includes ('kamelet.yaml') || false;
+    }
+
+    function confirmAndCloseModal() {
         if (file) ProjectService.deleteFile(file);
+        if (isKameletsProject()) KameletApi.removeKamelet(file?.code || '');
         useFileStore.setState({operation: "none"});
     }
 

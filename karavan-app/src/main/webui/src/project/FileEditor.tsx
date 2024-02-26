@@ -27,6 +27,7 @@ import {CodeUtils} from "../util/CodeUtils";
 import {RegistryBeanDefinition} from "karavan-core/lib/model/CamelDefinition";
 import {TopologyUtils} from "karavan-core/lib/api/TopologyUtils";
 import {IntegrationFile} from "karavan-core/lib/model/IntegrationDefinition";
+import { KameletApi } from 'karavan-core/lib/api/KameletApi';
 
 interface Props {
     projectId: string
@@ -60,7 +61,13 @@ export function FileEditor(props: Props) {
             prevState.length = 0;
             prevState.push(...bs);
             return prevState;
-        })
+        });
+        return () => {
+            //save custom kamelet on page unload
+            if (props.projectId.includes('kamelets') && file) {
+                KameletApi.saveKamelet(file?.code);
+            }
+          };
     }, []);
 
     function save(name: string, code: string) {

@@ -21,7 +21,7 @@ public final class KaravanGenerator {
     public static void main(String[] args) throws Exception {
         String[] paths = new String[] {
                 "karavan-designer/public",
-                "karavan-web/karavan-app/src/main/resources",
+                "karavan-app/src/main/resources",
                 "karavan-vscode"
         };
         if (args.length > 0) {
