@@ -60,7 +60,7 @@ jobs:
           mvn package -Dquarkus.profile=public -DskipTests \
           -Dquarkus.quinoa.package-manager-install=false \
           -Dquarkus.container-image.build=true \
-          -Dquarkus.container-image.push=true \
+          -Dquarkus.container-image.push=${{ github.event_name != 'pull_request' }} \
           -Dquarkus.docker.buildx.platform=linux/amd64,linux/arm64 \
           -Dquarkus.container-image.image=${{ env.REGISTRY }}/${GITHUB_REPOSITORY}:${{ env.TAG }} \
           -Dquarkus.container-image.username=${{ github.actor }} \
