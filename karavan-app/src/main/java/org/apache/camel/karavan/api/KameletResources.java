@@ -55,17 +55,4 @@ public class KameletResources {
         return kamelets.toString();
     }
 
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    @Path("/names")
-    public List<String> getCustomNames() {
-        if (karavanCacheService.isReady()) {
-            Yaml yaml = new Yaml();
-            return karavanCacheService.getProjectFiles(Project.Type.kamelets.name()).stream()
-                    .map(projectFile -> projectFile.getName().replace(".kamelet.yaml", ""))
-                    .collect(Collectors.toList());
-        } else {
-            return List.of();
-        }
-    }
 }

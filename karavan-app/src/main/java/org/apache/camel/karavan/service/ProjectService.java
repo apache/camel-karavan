@@ -274,6 +274,10 @@ public class ProjectService implements HealthCheck {
 
     @Retry(maxRetries = 20, delay = 3000)
     public void tryStart() throws Exception {
+        boolean cache = karavanCacheService.isReady();
+        boolean git = gitService.checkGit();
+        LOGGER.info("Starting Project service: cache is " + (cache ? "ready" : "not ready"));
+        LOGGER.info("Starting Project service: git is " + (git ? "ready" : "not ready"));
         if (karavanCacheService.isReady() && gitService.checkGit()) {
             if (karavanCacheService.getProjects().isEmpty()) {
                 importAllProjects();

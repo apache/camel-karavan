@@ -21,7 +21,7 @@ import {
     Tab, Tabs, TabTitleText,
     Text, TextInput, ToggleGroup, ToggleGroupItem,Switch
 } from '@patternfly/react-core';
-import '../karavan.css';
+import './DslSelector.css';
 import {CamelUi} from "../utils/CamelUi";
 import {DslMetaModel} from "../utils/DslMetaModel";
 import {useDesignerStore, useSelectorStore} from "../DesignerStore";
@@ -67,24 +67,21 @@ export function DslSelector (props: Props) {
 
     function searchInput() {
         return (
-            <Form isHorizontal className="search" autoComplete="off">
-              {selectorTabIndex === 'kamelet' &&   <FormGroup fieldId="switch">
-                
+            <Flex className="search">
+              {selectorTabIndex === 'kamelet' && <FlexItem>
                     <Switch
                         label="Custom only"
                         id="switch"
                         isChecked={customOnly}
                         onChange={(_event, checked) => setCustomOnly(checked)}
                     />
-                </FormGroup>}
-                  
-                
-                <FormGroup fieldId="search">
-                    <TextInput className="text-field" type="text" id="search" name="search"
+                </FlexItem>}
+                <FlexItem>
+                    <TextInput className="text-field" type="text" id="search" name="search" autoComplete={"off"}
                                value={filter}
                                onChange={(_, value) => setFilter(value)}/>
-                </FormGroup>
-            </Form>
+                </FlexItem>
+            </Flex>
         )
     }
     

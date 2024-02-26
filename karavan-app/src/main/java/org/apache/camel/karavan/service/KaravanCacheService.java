@@ -62,7 +62,7 @@ public class KaravanCacheService {
 
     public static final String DEFAULT_ENVIRONMENT = "dev";
 
-    @ConsumeEvent(value = START_SERVICES, blocking = true)
+    @ConsumeEvent(value = START_SERVICES)
     void start(String data) {
         LOGGER.info("KaravanCacheService is starting");
         Config config = new ClasspathYamlConfig("hazelcast.yaml");
@@ -80,7 +80,9 @@ public class KaravanCacheService {
 
     void onStop(@Observes ShutdownEvent ev) {
         LOGGER.info("KaravanCacheService is stopping");
-        hz.shutdown();
+        if (hz != null){
+            hz.shutdown();
+        }
         ready.set(false);
     }
 

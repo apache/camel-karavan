@@ -51,20 +51,22 @@ export const KnowledgebasePage = (props: Props) => {
     function getTools() {
         return <Toolbar id="toolbar-group-types">
             <ToolbarContent>
-                {tab === 'kamelets' && <ToolbarItem>
+                <Flex>
+                {tab === 'kamelets' && <FlexItem>
                     <Switch
                         label="Custom only"
                         isChecked={customOnly}
                         onChange={(_event, checked) => setCustomOnly(checked)}
                     />
-                </ToolbarItem>}
-                <ToolbarItem>
+                </FlexItem>}
+                <FlexItem>
                     <TextInput className="text-field" type="search" id="search" name="search"
                                value={filter}
                                onChange={(_event, value) => setFilter(value)}
                                autoComplete="off"
                                placeholder="Search by name"/>
-                </ToolbarItem>
+                </FlexItem>
+                </Flex>
             </ToolbarContent>
         </Toolbar>
     }

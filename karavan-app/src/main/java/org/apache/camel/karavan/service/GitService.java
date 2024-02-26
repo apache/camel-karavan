@@ -66,7 +66,7 @@ public class GitService {
     @ConfigProperty(name = "karavan.git.password")
     Optional<String> password;
 
-    @ConfigProperty(name = "karavan.git.branch")
+    @ConfigProperty(name = "karavan.git.branch", defaultValue = "main")
     String branch;
 
     @ConfigProperty(name = "karavan.private-key-path")

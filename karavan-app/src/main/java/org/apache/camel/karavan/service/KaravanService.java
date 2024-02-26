@@ -77,7 +77,6 @@ public class KaravanService implements HealthCheck {
         if (!dockerService.checkDocker()){
             Quarkus.asyncExit();
         } else {
-            dockerService.createNetwork();
             dockerService.startListeners();
         }
     }
@@ -90,6 +89,7 @@ public class KaravanService implements HealthCheck {
 
     @ConsumeEvent(value = START_SERVICES, blocking = true)
     void startServices(String data) throws Exception {
+        LOGGER.info("Starting Karavan services");
         projectService.tryStart();
     }
 

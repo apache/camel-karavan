@@ -598,17 +598,6 @@ export class KaravanApi {
         });
     }
 
-    static async getCustomKameletNames(after: (names: []) => void) {
-        instance.get('/api/kamelet/names')
-            .then(res => {
-                if (res.status === 200) {
-                    after(res.data);
-                }
-            }).catch(err => {
-            console.log(err);
-        });
-    }
-
     static async getComponents(after: (json: string) => void) {
         instance.get('/api/component')
             .then(res => {

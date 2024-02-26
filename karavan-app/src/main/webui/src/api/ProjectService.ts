@@ -133,9 +133,12 @@ export class ProjectService {
             yamls.split(/\n?---\n?/).map(c => c.trim()).forEach(z => kamelets.push(z));
             KameletApi.saveKamelets(kamelets, true);
         })
-        KaravanApi.getCustomKameletNames(names => {
-            KameletApi.saveCustomKameletNames(names);
-        })
+
+        KaravanApi.getFiles("kamelets", (files: ProjectFile[]) => {
+            console.log(files)
+            files.map(f => f.name.replace('.kamelet.yaml', ''))
+                .forEach(name => KameletApi.saveCustomKameletName(name))
+        });
     }
     public static updateFile(file: ProjectFile, active: boolean) {
         KaravanApi.putProjectFile(file, res => {

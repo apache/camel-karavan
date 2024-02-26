@@ -43,6 +43,9 @@ export function KameletsTab(props: Props) {
     let kameletList = KameletApi.getKamelets().filter(kamelet =>
         kamelet.spec.definition.title.toLowerCase().includes(filter.toLowerCase()));
     if (customOnly) kameletList = kameletList.filter(k => KameletApi.getCustomKameletNames().includes(k.metadata.name));
+
+    console.log("KameletApi.getCustomKameletNames()", KameletApi.getCustomKameletNames())
+
     return (
         <PageSection variant={dark ? PageSectionVariants.darker : PageSectionVariants.light}
                      padding={{default: 'noPadding'}} className="kamelet-section">

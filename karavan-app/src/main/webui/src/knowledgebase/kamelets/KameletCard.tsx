@@ -16,7 +16,7 @@
  */
 import React, { useEffect, useState } from 'react';
 import {
-    CardHeader, Card, CardTitle, CardBody, CardFooter, Badge, Checkbox
+    CardHeader, Card, CardTitle, CardBody, CardFooter, Badge, Checkbox, Flex, FlexItem
 } from '@patternfly/react-core';
 import '../../designer/karavan.css';
 import {KameletModel} from "karavan-core/lib/model/KameletModels";
@@ -60,8 +60,10 @@ export function KameletCard(props: Props) {
                onClick={event => click(event)}
         >
             <CardHeader className="header-labels">
-                {isCustom && <Badge className="custom">custom</Badge>}
-                <Badge isRead className="support-level labels">{kamelet.metadata.annotations["camel.apache.org/kamelet.support.level"]}</Badge>
+                <Flex gap={{default:'gapNone'}}>
+                    <Badge isRead className="support-level labels">{kamelet.metadata.annotations["camel.apache.org/kamelet.support.level"]}</Badge>
+                    {isCustom && <Badge className="custom labels">custom</Badge>}
+                </Flex>
                 {showBlockCheckbox && <Checkbox id={kamelet.metadata.name} className="block-checkbox labels" isChecked={!isblockedKamelet}
                            onChange={(_, checked) => selectKamelet(_, checked)}/>}
             </CardHeader>
