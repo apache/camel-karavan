@@ -35,7 +35,8 @@ export class VariableUtil {
     }
 
     static findVariables = (files: IntegrationFile[]): string[] => {
-        const integrations = files.map(file => CamelDefinitionYaml.yamlToIntegration(file.name, file.code));
+        const integrations = files.filter(file => file.name?.endsWith(".camel.yaml"))
+            .map(file => CamelDefinitionYaml.yamlToIntegration(file.name, file.code));
         return VariableUtil.findVariablesInIntegrations(integrations);
     };
 
