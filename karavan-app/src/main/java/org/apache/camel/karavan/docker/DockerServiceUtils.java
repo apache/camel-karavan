@@ -43,6 +43,31 @@ public class DockerServiceUtils {
     protected static final DecimalFormat formatGiB = new DecimalFormat("0.00");
     protected static final Map<String, Tuple2<Long, Long>> previousStats = new ConcurrentHashMap<>();
 
+    private static final Map<String, Long> UNIT_MULTIPLIERS = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);;
+    static {
+        UNIT_MULTIPLIERS.put("b", 1L);
+        UNIT_MULTIPLIERS.put("k", 1024L);
+        UNIT_MULTIPLIERS.put("m", 1024L * 1024);
+        UNIT_MULTIPLIERS.put("g", 1024L * 1024 * 1024);
+        // Add more units if needed
+    }
+
+    public static Long parseMemory(String memory) {
+
+        if (memory != null && !memory.isEmpty()) {
+            memory = memory.trim();
+            String numericPart = memory.replaceAll("[^\\d.]", "");
+            double numericValue = Double.parseDouble(numericPart);
+            String unitPart = memory.replaceAll("[\\d.]", "").toLowerCase();
+            Long multiplier = UNIT_MULTIPLIERS.get(unitPart);
+            if (multiplier == null) {
+                throw new IllegalArgumentException("Invalid unit in memory: " + unitPart);
+            }
+            return (long) (numericValue * multiplier);
+        }
+        return null;
+    }
+
     protected ContainerStatus getContainerStatus(Container container, String environment) {
         String name = container.getNames()[0].replace("/", "");
         List<ContainerPort> ports = Arrays.stream(container.getPorts())
@@ -53,7 +78,8 @@ public class DockerServiceUtils {
         String created = Instant.ofEpochSecond(container.getCreated()).toString();
         String projectId = container.getLabels().getOrDefault(LABEL_PROJECT_ID, name);
         String camelRuntime = container.getLabels().getOrDefault(LABEL_CAMEL_RUNTIME, "");
-        return ContainerStatus.createWithId(projectId, name, environment, container.getId(), container.getImage(), ports, type, commands, container.getState(), created, camelRuntime);
+        return ContainerStatus.createWithId(projectId, name, environment, container.getId(), container.getImage(),
+                ports, type, commands, container.getState(), created, camelRuntime);
     }
 
     protected void updateStatistics(ContainerStatus containerStatus, Statistics stats) {
@@ -171,8 +197,10 @@ public class DockerServiceUtils {
     protected String formatCpu(String containerName, Statistics stats) {
         try {
             double cpuUsage = 0;
-            long previousCpu = previousStats.containsKey(containerName) ? previousStats.get(containerName).getItem1() : -1;
-            long previousSystem = previousStats.containsKey(containerName) ? previousStats.get(containerName).getItem2() : -1;
+            long previousCpu = previousStats.containsKey(containerName) ? previousStats.get(containerName).getItem1()
+                    : -1;
+            long previousSystem = previousStats.containsKey(containerName) ? previousStats.get(containerName).getItem2()
+                    : -1;
 
             CpuStatsConfig cpuStats = stats.getCpuStats();
             if (cpuStats != null) {
