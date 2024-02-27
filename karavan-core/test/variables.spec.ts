@@ -25,7 +25,10 @@ describe('Variables', () => {
     it('Find Variables', () => {
         const yaml1 = fs.readFileSync('test/variable1.camel.yaml',{encoding:'utf8', flag:'r'});
         const yaml2 = fs.readFileSync('test/variable2.camel.yaml',{encoding:'utf8', flag:'r'});
-        const variables = VariableUtil.findVariables([new IntegrationFile('1', yaml1), new IntegrationFile('2', yaml2)]);
+        const variables = VariableUtil.findVariables([
+            new IntegrationFile('variable1.camel.yaml', yaml1)
+            , new IntegrationFile('variable2.camel.yaml', yaml2)
+        ]);
         expect(variables.length).to.equal(19);
     });
 });
