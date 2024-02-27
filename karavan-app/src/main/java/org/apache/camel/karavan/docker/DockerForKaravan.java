@@ -22,7 +22,9 @@ import com.github.dockerjava.api.model.RestartPolicy;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.apache.camel.karavan.model.ContainerStatus;
+import org.apache.camel.karavan.model.DockerComposeService;
 import org.apache.camel.karavan.model.Project;
+import org.apache.camel.karavan.service.ProjectService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
@@ -46,6 +48,9 @@ public class DockerForKaravan {
     @Inject
     DockerService dockerService;
 
+    @Inject
+    ProjectService projectService;
+
     public void runProjectInDevMode(String projectId, String jBangOptions, Map<Integer, Integer> ports,
                                     Map<String, String> files) throws Exception {
         Map<String, String> volumes = getMavenVolumes();
@@ -64,13 +69,16 @@ public class DockerForKaravan {
                 ? List.of(ENV_VAR_JBANG_OPTIONS + "=" + jBangOptions)
                 : List.of();
 
+        DockerComposeService composeService = projectService.getProjectDockerComposeService(projectId);
+
         return dockerService.createContainer(projectId, devmodeImage,
                 env, ports, healthCheck,
                 Map.of(LABEL_TYPE, ContainerStatus.ContainerType.devmode.name(),
                         LABEL_PROJECT_ID, projectId,
                         LABEL_CAMEL_RUNTIME, CamelRuntime.CAMEL_MAIN.getValue()
                 ),
-                volumes, null, RestartPolicy.noRestart(), false);
+                volumes, null, RestartPolicy.noRestart(), false,
+                composeService.getCpus(), composeService.getCpu_percent(), composeService.getMem_limit(), composeService.getMem_reservation());
 
     }
 
@@ -96,7 +104,9 @@ public class DockerForKaravan {
                         LABEL_PROJECT_ID, project.getProjectId(),
                         LABEL_TAG, tag
                 ),
-                volumes, null,RestartPolicy.noRestart(), false, "/karavan/builder/build.sh");
+                volumes, null,RestartPolicy.noRestart(), false, 
+                null, null, null, null,
+                "/karavan/builder/build.sh");
     }
 
     private Map<String,String> getMavenVolumes(){

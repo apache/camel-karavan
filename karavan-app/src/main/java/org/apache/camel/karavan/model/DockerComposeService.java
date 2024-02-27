@@ -28,6 +28,10 @@ public class DockerComposeService {
     private String container_name;
     private String image;
     private String restart;
+    private String cpus;
+    private String cpu_percent;
+    private String mem_limit;
+    private String mem_reservation;
     private List<String> ports;
     private List<String> expose;
     private List<String> depends_on;
@@ -142,12 +146,48 @@ public class DockerComposeService {
         this.networks = networks;
     }
 
+    public String getCpu_percent() {
+        return cpu_percent;
+    }
+
+    public void setCpu_percent(String cpu_percent) {
+        this.cpu_percent = cpu_percent;
+    }
+
+    public String getCpus() {
+        return cpus;
+    }
+
+    public void setCpus(String cpus) {
+        this.cpus = cpus;
+    }
+
+    public String getMem_limit() {
+        return mem_limit;
+    }
+
+    public void setMem_limit(String mem_limit) {
+        this.mem_limit = mem_limit;
+    }
+
+    public String getMem_reservation() {
+        return mem_reservation;
+    }
+
+    public void setMem_reservation(String mem_reservation) {
+        this.mem_reservation = mem_reservation;
+    }
+    
     @Override
     public String toString() {
         return "DockerComposeService {" +
                 "container_name='" + container_name + '\'' +
                 ", image='" + image + '\'' +
                 ", restart='" + restart + '\'' +
+                ", cpus='" + cpus + '\'' +
+                ", cpu_percent='" + cpu_percent + '\'' +
+                ", mem_limit='" + mem_limit + '\'' +
+                ", mem_reservation='" + mem_reservation + '\'' +
                 ", ports=" + ports +
                 ", env_file=" + env_file +
                 ", networks=" + networks +
@@ -157,4 +197,5 @@ public class DockerComposeService {
                 ", healthcheck=" + healthcheck +
                 '}';
     }
+
 }

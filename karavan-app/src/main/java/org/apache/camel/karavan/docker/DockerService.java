@@ -36,6 +36,7 @@ import org.apache.camel.karavan.model.ContainerStatus;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
@@ -205,8 +206,9 @@ public class DockerService extends DockerServiceUtils {
                 restartPolicy = RestartPolicy.alwaysRestart();
             }
 
-            return createContainer(compose.getContainer_name(), compose.getImage(),
-                    env, compose.getPortsMap(), healthCheck, labels, volumes, networkName, restartPolicy, pullAlways, command);
+            return createContainer(compose.getContainer_name(), compose.getImage(), 
+                    env, compose.getPortsMap(), healthCheck, labels, volumes, networkName, restartPolicy, pullAlways, 
+                    compose.getCpus(), compose.getCpu_percent(), compose.getMem_limit(), compose.getMem_reservation(), command);
 
         } else {
             LOGGER.info("Compose Service already exists: " + containers.get(0).getId());
@@ -222,7 +224,7 @@ public class DockerService extends DockerServiceUtils {
     public Container createContainer(String name, String image, List<String> env, Map<Integer, Integer> ports,
                                      HealthCheck healthCheck, Map<String, String> labels,
                                      Map<String, String> volumes, String network, RestartPolicy restartPolicy,
-                                     boolean pullAlways,
+                                     boolean pullAlways, String cpus, String cpu_percent, String mem_limit, String mem_reservation,
                                      String... command) throws InterruptedException {
         List<Container> containers = findContainer(name);
         if (containers.isEmpty()) {
@@ -249,6 +251,10 @@ public class DockerService extends DockerServiceUtils {
                             .withRestartPolicy(restartPolicy)
                     .withPortBindings(portBindings)
                     .withMounts(mounts)
+                    .withMemory(parseMemory(mem_limit))
+                    .withMemoryReservation(parseMemory(mem_reservation))
+                    .withCpuPercent(NumberUtils.toLong(cpu_percent))
+                    .withNanoCPUs(NumberUtils.toLong(cpus))
                     .withNetworkMode(network != null ? network : networkName));
 
             CreateContainerResponse response = createContainerCmd.exec();
