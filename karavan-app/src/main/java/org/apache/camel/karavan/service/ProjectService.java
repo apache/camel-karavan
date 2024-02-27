@@ -23,23 +23,17 @@ import io.vertx.mutiny.core.eventbus.EventBus;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Default;
 import jakarta.inject.Inject;
-import org.apache.camel.karavan.model.ContainerStatus;
-import org.apache.camel.karavan.model.GroupedKey;
-import org.apache.camel.karavan.model.Project;
-import org.apache.camel.karavan.model.ProjectFile;
 import org.apache.camel.karavan.code.CodeService;
 import org.apache.camel.karavan.code.DockerComposeConverter;
-import org.apache.camel.karavan.model.DockerComposeService;
 import org.apache.camel.karavan.docker.DockerForKaravan;
-import org.apache.camel.karavan.model.GitRepo;
 import org.apache.camel.karavan.kubernetes.KubernetesService;
+import org.apache.camel.karavan.model.*;
 import org.apache.camel.karavan.shared.Constants;
 import org.apache.camel.karavan.shared.Property;
 import org.apache.camel.karavan.validation.project.ProjectModifyValidator;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.eclipse.microprofile.faulttolerance.Retry;
 import org.eclipse.microprofile.health.HealthCheck;
 import org.eclipse.microprofile.health.HealthCheckResponse;
 import org.eclipse.microprofile.health.Readiness;
@@ -50,8 +44,8 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
-import static org.apache.camel.karavan.service.KaravanCacheService.DEFAULT_ENVIRONMENT;
 import static org.apache.camel.karavan.code.CodeService.*;
+import static org.apache.camel.karavan.service.KaravanCacheService.DEFAULT_ENVIRONMENT;
 import static org.apache.camel.karavan.shared.Constants.NOTIFICATION_EVENT_COMMIT;
 
 @Default
@@ -272,13 +266,10 @@ public class ProjectService implements HealthCheck {
         return codeService.getProjectPort(projectId);
     }
 
-    @Retry(maxRetries = 20, delay = 3000)
     public void tryStart() throws Exception {
-        boolean cache = karavanCacheService.isReady();
         boolean git = gitService.checkGit();
-        LOGGER.info("Starting Project service: cache is " + (cache ? "ready" : "not ready"));
         LOGGER.info("Starting Project service: git is " + (git ? "ready" : "not ready"));
-        if (karavanCacheService.isReady() && gitService.checkGit()) {
+        if (gitService.checkGit()) {
             if (karavanCacheService.getProjects().isEmpty()) {
                 importAllProjects();
             }

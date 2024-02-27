@@ -116,7 +116,6 @@ export class ProjectService {
     public static pullProject(projectId: string) {
         useProjectStore.setState({isPulling: true})
         KaravanApi.pull(projectId, res => {
-            console.log(res);
             if (res.status === 200 || res.status === 201) {
                 useProjectStore.setState({isPulling: false})
                 ProjectService.refreshProject(projectId);
@@ -136,7 +135,6 @@ export class ProjectService {
         })
 
         KaravanApi.getFiles("kamelets", (files: ProjectFile[]) => {
-            console.log(files)
             files.map(f => f.name.replace('.kamelet.yaml', ''))
                 .forEach(name => KameletApi.saveCustomKameletName(name))
         });
