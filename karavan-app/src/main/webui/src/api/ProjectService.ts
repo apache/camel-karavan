@@ -42,6 +42,7 @@ export class ProjectService {
                 ProjectEventBus.sendLog('set', '');
                 useLogStore.setState({showLog: true, type: 'container', podName: res.data})
             } else {
+                console.log(res);
                 EventBus.sendAlert('Error Starting DevMode container', res.statusText, 'warning')
             }
         });
