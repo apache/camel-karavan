@@ -182,7 +182,7 @@ export function CreateFileModal(props: Props) {
     function getFullFileName(name: string, type?: string) {
         let extension = ProjectFileTypes.filter(value => value.name === type)[0]?.extension;
         extension = extension === '*' ? '' : '.' + extension;
-        const filename = (extension !== 'java')
+        const filename = (extension !== '.java')
             ? fileNameCheck(name)
             : CamelUi.javaNameFromTitle(name);
         return filename + (isKamelet ? '-' + kameletType : '') + extension;

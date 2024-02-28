@@ -38,7 +38,7 @@ export function KameletCard(props: Props) {
     useEffect(() => {
         setBlockedKamelets(KameletApi.getBlockedKameletNames());
     }, []);
-    
+
     const kamelet = props.kamelet;
     const isCustom = KameletApi.getCustomKameletNames().includes(kamelet.metadata.name);
 
@@ -65,7 +65,7 @@ export function KameletCard(props: Props) {
                     {isCustom && <Badge className="custom labels">custom</Badge>}
                 </Flex>
                 {showBlockCheckbox && <Checkbox id={kamelet.metadata.name} className="block-checkbox labels" isChecked={!isblockedKamelet}
-                           onChange={(_, checked) => selectKamelet(_, checked)}/>}
+                                                onChange={(_, checked) => selectKamelet(_, checked)}/>}
             </CardHeader>
             <CardHeader>
                 {CamelUi.getIconFromSource(kamelet.icon())}
