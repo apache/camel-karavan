@@ -59,6 +59,10 @@ public class KaravanCacheService {
 
     public static final String DEFAULT_ENVIRONMENT = "dev";
 
+    public HazelcastInstance getHz() {
+        return hz;
+    }
+
     void start() {
         LOGGER.info("KaravanCacheService is starting");
         Config config = new ClasspathYamlConfig("hazelcast.yaml");
