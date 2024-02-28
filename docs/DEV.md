@@ -55,9 +55,9 @@ Docker Engine 24+
 1. Make the following change in package.json line 5-12 (needed only for Windows)
 ```
   "scripts": {
-    "copy-designer": "xcopy ..\\..\\..\\..\\..\\karavan-designer\\src\\designer src\\designer /E/H/Y",
-    "copy-knowledgebase": "xcopy ..\\..\\..\\..\\..\\karavan-designer\\src\\knowledgebase src\\knowledgebase /E/H/Y",
-    "copy-topology": "xcopy ..\\..\\..\\..\\..\\karavan-designer\\src\\topology src\\topology /E/H/Y",
+    "copy-designer": "xcopy ..\\..\\..\\..\\karavan-designer\\src\\designer src\\designer /E/H/Y",
+    "copy-knowledgebase": "xcopy ..\\..\\..\\..\\karavan-designer\\src\\knowledgebase src\\knowledgebase /E/H/Y",
+    "copy-topology": "xcopy ..\\..\\..\\..\\karavan-designer\\src\\topology src\\topology /E/H/Y",
     "copy-code": " npm run copy-designer &&  npm run copy-knowledgebase &&  npm run copy-topology",
     "start": "set PORT=3003 && npm run copy-code && react-scripts start",
     "build": "npm run copy-code && DISABLE_ESLINT_PLUGIN=true react-scripts build"
