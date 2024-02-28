@@ -24,7 +24,6 @@ import com.hazelcast.map.IMap;
 import com.hazelcast.query.Predicate;
 import com.hazelcast.query.Predicates;
 import io.quarkus.runtime.ShutdownEvent;
-import io.quarkus.vertx.ConsumeEvent;
 import jakarta.enterprise.event.Observes;
 import jakarta.enterprise.inject.Default;
 import jakarta.inject.Singleton;
@@ -41,8 +40,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
-
-import static org.apache.camel.karavan.service.KaravanService.START_SERVICES;
 
 @Default
 @Singleton
@@ -62,8 +59,11 @@ public class KaravanCacheService {
 
     public static final String DEFAULT_ENVIRONMENT = "dev";
 
-    @ConsumeEvent(value = START_SERVICES, blocking = true)
-    void start(String data) {
+    public HazelcastInstance getHz() {
+        return hz;
+    }
+
+    void start() {
         LOGGER.info("KaravanCacheService is starting");
         Config config = new ClasspathYamlConfig("hazelcast.yaml");
         hz = Hazelcast.getOrCreateHazelcastInstance(config);
@@ -80,7 +80,9 @@ public class KaravanCacheService {
 
     void onStop(@Observes ShutdownEvent ev) {
         LOGGER.info("KaravanCacheService is stopping");
-        hz.shutdown();
+        if (hz != null){
+            hz.shutdown();
+        }
         ready.set(false);
     }
 

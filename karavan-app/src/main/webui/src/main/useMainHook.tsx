@@ -19,8 +19,8 @@ import {KaravanApi} from "../api/KaravanApi";
 import {KameletApi} from "karavan-core/lib/api/KameletApi";
 import '../designer/karavan.css';
 import {ComponentApi} from "karavan-core/lib/api/ComponentApi";
-import {AppConfig, ContainerStatus} from "../api/ProjectModels";
-import {useAppConfigStore, useStatusesStore} from "../api/ProjectStore";
+import {AppConfig, ContainerStatus, Project} from "../api/ProjectModels";
+import {useAppConfigStore, useProjectsStore, useStatusesStore} from "../api/ProjectStore";
 import {InfrastructureAPI} from "../designer/utils/InfrastructureAPI";
 import {shallow} from "zustand/shallow";
 import {ProjectService} from "../api/ProjectService";
@@ -28,6 +28,7 @@ import {ProjectService} from "../api/ProjectService";
 export function useMainHook () {
 
     const [setConfig] = useAppConfigStore((state) => [state.setConfig], shallow)
+    const [setProjects] = useProjectsStore((s) => [s.setProjects], shallow)
     const [setContainers] = useStatusesStore((state) => [state.setContainers], shallow);
     const [selectedEnv, selectEnvironment] = useAppConfigStore((state) => [state.selectedEnv, state.selectEnvironment], shallow)
 
@@ -48,20 +49,16 @@ export function useMainHook () {
                 }
                 InfrastructureAPI.infrastructure = config.infrastructure;
             });
-            updateKamelets();
+            KaravanApi.getProjects((projects: Project[]) => {
+                setProjects(projects);
+            });
             updateComponents();
+            ProjectService.reloadKamelets();
             ProjectService.reloadBlockedTemplates();
             // updateSupportedComponents(); // not implemented yet
         }
     }
 
-    async function updateKamelets(): Promise<void> {
-        await new Promise(resolve => {
-            ProjectService.reloadKamelets();
-        });
-    }
- 
-   
     async function updateComponents(): Promise<void> {
         await new Promise(resolve => {
             KaravanApi.getComponents(code => {

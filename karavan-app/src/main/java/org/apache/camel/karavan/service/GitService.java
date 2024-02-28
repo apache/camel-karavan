@@ -24,11 +24,7 @@ import io.smallrye.mutiny.tuples.Tuple2;
 import io.vertx.core.Vertx;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import org.apache.camel.karavan.model.GitConfig;
-import org.apache.camel.karavan.model.GitRepo;
-import org.apache.camel.karavan.model.GitRepoFile;
-import org.apache.camel.karavan.model.Project;
-import org.apache.camel.karavan.model.ProjectFile;
+import org.apache.camel.karavan.model.*;
 import org.eclipse.jgit.api.*;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.InvalidRemoteException;
@@ -52,6 +48,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.regex.Pattern;
 
 @ApplicationScoped
 public class GitService {
@@ -65,7 +62,7 @@ public class GitService {
     @ConfigProperty(name = "karavan.git.password")
     Optional<String> password;
 
-    @ConfigProperty(name = "karavan.git.branch")
+    @ConfigProperty(name = "karavan.git.branch", defaultValue = "main")
     String branch;
 
     @ConfigProperty(name = "karavan.private-key-path")
@@ -204,7 +201,7 @@ public class GitService {
         LOGGER.info("Read projects from " + folder);
         List<String> files = new ArrayList<>();
         vertx.fileSystem().readDirBlocking(folder).forEach(path -> {
-            String[] filenames = path.split(File.separator);
+            String[] filenames = path.split(Pattern.quote(File.separator));
             String folderName = filenames[filenames.length - 1];
             if (folderName.startsWith(".")) {
                 // skip hidden
@@ -222,7 +219,7 @@ public class GitService {
         LOGGER.infof("Read files from %s/%s", repoFolder, projectFolder);
         Map<String, String> files = new HashMap<>();
         vertx.fileSystem().readDirBlocking(repoFolder + File.separator + projectFolder).forEach(f -> {
-            String[] filenames = f.split(File.separator);
+            String[] filenames = f.split(Pattern.quote(File.separator));
             String filename = filenames[filenames.length - 1];
             Path path = Paths.get(f);
             if (!filename.startsWith(".") && !Files.isDirectory(path)) {
@@ -254,7 +251,7 @@ public class GitService {
         Path path = Paths.get(folder, project.getProjectId());
         LOGGER.info("Add deleted files to git index for project " + project.getProjectId());
         vertx.fileSystem().readDirBlocking(path.toString()).forEach(f -> {
-            String[] filenames = f.split(File.separator);
+            String[] filenames = f.split(Pattern.quote(File.separator));
             String filename = filenames[filenames.length - 1];
             LOGGER.info("Checking file " + filename);
             if (files.stream().filter(pf -> Objects.equals(pf.getName(), filename)).count() == 0) {
@@ -405,7 +402,7 @@ public class GitService {
                 changes.stream().forEach(de -> {
                     String path = de.getNewPath();
                     if (path != null) {
-                        String[] parts = path.split(File.separator);
+                        String[] parts = path.split(Pattern.quote(File.separator));
                         if (parts.length > 0) {
                             files.add(parts[0]);
                         }
