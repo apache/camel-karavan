@@ -36,7 +36,8 @@ import AddIcon from "@patternfly/react-icons/dist/js/icons/plus-circle-icon";
 import {KameletDefinitionPropertyCard} from "./KameletDefinitionPropertyCard";
 import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
 import {DefinitionProperty} from "karavan-core/lib/model/IntegrationDefinition";
-import {KameletDependenciesCard} from "./KameletDependenciesCard";
+import { KameletDependenciesCard } from "./KameletDependenciesCard";
+import { KameletInput } from './KameletInput';
 
 export function KameletDefinitionsPanel() {
 
@@ -59,27 +60,13 @@ export function KameletDefinitionsPanel() {
     }
 
     function getElementTextInput(key: string, label: string, span: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12) {
-        return (
-            <GridItem span={span}>
-                <FormGroup label={label} fieldId={key} isRequired>
-                    <TextInput className="text-field" type="text" id={key} name={key}
-                               onChange={(_, value) => setValue(key, value)}
-                               value={getValue(key)}/>
-                </FormGroup>
-            </GridItem>
-        )
+        return (<KameletInput elementKey={key} label={label} span={span} value={getValue(key)} setValue={(value: string) => setValue(key, value)} type='text' isRequired={true}/>);
+
     }
 
     function getElementTextArea(key: string, label: string, span: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12) {
-        return (
-            <GridItem span={span}>
-                <FormGroup label={label} fieldId={key} isRequired>
-                    <TextArea type="text" id={key} name={key} autoResize
-                               onChange={(_, value) => setValue(key, value)}
-                               value={getValue(key)}/>
-                </FormGroup>
-            </GridItem>
-        )
+        return (<KameletInput elementKey={key} label={label} span={span} value={getValue(key)} setValue={(value: string) => setValue(key, value)} type='textArea' isRequired={true}/>);
+
     }
 
     const properties = integration.spec.definition?.properties ? Object.keys(integration.spec.definition?.properties) : [];
