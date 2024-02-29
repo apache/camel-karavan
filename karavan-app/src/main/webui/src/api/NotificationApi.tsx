@@ -66,10 +66,10 @@ export class NotificationApi {
                 } else if (response.status >= 400 && response.status < 500 && response.status !== 429) {
                     // client-side errors are usually non-retriable:
                     console.log("Server side error ", response);
-                    EventBus.sendAlert("Error fetching", `${input} : ${response.statusText}`, "danger");
+                    // EventBus.sendAlert("Error fetching", `${input} : ${response.statusText}`, "danger");
                 } else {
                     console.log("Error ", response);
-                    EventBus.sendAlert("Error fetching", `${input} : ${response.statusText}`, "danger");
+                    // EventBus.sendAlert("Error fetching", `${input} : ${response.statusText}`, "danger");
                 }
             },
             onmessage(event) {
