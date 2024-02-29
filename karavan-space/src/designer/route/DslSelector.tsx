@@ -19,9 +19,9 @@ import {
     Badge,
     Card, CardBody, CardFooter, CardHeader, Flex, FlexItem, Form, FormGroup, Gallery, Modal, PageSection,
     Tab, Tabs, TabTitleText,
-    Text, TextInput, ToggleGroup, ToggleGroupItem,
+    Text, TextInput, ToggleGroup, ToggleGroupItem,Switch
 } from '@patternfly/react-core';
-import '../karavan.css';
+import './DslSelector.css';
 import {CamelUi} from "../utils/CamelUi";
 import {DslMetaModel} from "../utils/DslMetaModel";
 import {useDesignerStore, useSelectorStore} from "../DesignerStore";
@@ -48,6 +48,7 @@ export function DslSelector (props: Props) {
 
 
     const [filter, setFilter] = useState<string>('');
+    const [customOnly, setCustomOnly] = useState<boolean>(false);
 
     useEffect(() => {
     }, [selectedLabels]);
@@ -66,18 +67,27 @@ export function DslSelector (props: Props) {
 
     function searchInput() {
         return (
-            <Form isHorizontal className="search" autoComplete="off">
-                <FormGroup fieldId="search">
-                    <TextInput className="text-field" type="text" id="search" name="search"
+            <Flex className="search">
+                {selectorTabIndex === 'kamelet' && <FlexItem>
+                    <Switch
+                        label="Custom only"
+                        id="switch"
+                        isChecked={customOnly}
+                        onChange={(_event, checked) => setCustomOnly(checked)}
+                    />
+                </FlexItem>}
+                <FlexItem>
+                    <TextInput className="text-field" type="text" id="search" name="search" autoComplete={"off"}
                                value={filter}
                                onChange={(_, value) => setFilter(value)}/>
-                </FormGroup>
-            </Form>
+                </FlexItem>
+            </Flex>
         )
     }
 
     function getCard(dsl: DslMetaModel, index: number) {
         const labels = dsl.labels !== undefined ? dsl.labels.split(",").filter(label => label !== 'eip') : [];
+        const isCustom = KameletApi.getCustomKameletNames().includes(dsl.name);
         return (
             <Card key={dsl.dsl + index} isCompact className="dsl-card"
                   onClick={event => selectDsl(event, dsl)}>
@@ -86,6 +96,7 @@ export function DslSelector (props: Props) {
                     {['kamelet', 'component'].includes(dsl.navigation.toLowerCase()) &&
                         <Badge isRead className="version labels">{dsl.version}</Badge>
                     }
+                    {isCustom && <Badge className="custom">custom</Badge>}
                 </CardHeader>
                 <CardHeader>
                     {CamelUi.getIconForDsl(dsl)}
@@ -118,25 +129,41 @@ export function DslSelector (props: Props) {
         }
     }
 
+    function filterElements(elements: DslMetaModel[]):DslMetaModel[] {
+        return elements.filter((dsl: DslMetaModel) => CamelUi.checkFilter(dsl, filter))
+            .filter((dsl: DslMetaModel) => {
+                if (!isEip || selectedLabels.length === 0) {
+                    return true;
+                } else {
+                    return dsl.labels.split(",").some(r => selectedLabels.includes(r));
+                }
+            });
+    }
+
     const isEip = selectorTabIndex === 'eip';
     const title = parentDsl === undefined ? "Select source" : "Select step";
     const navigation: string = selectorTabIndex ? selectorTabIndex.toString() : '';
     const blockedComponents = ComponentApi.getBlockedComponentNames();
     const blockedKamelets = KameletApi.getBlockedKameletNames();
     const elements = CamelUi.getSelectorModelsForParentFiltered(parentDsl, navigation, showSteps);
-    const allowedElements = selectorTabIndex === 'component' ?
-        elements.filter(dsl => (!blockedComponents.includes(dsl.uri || dsl.name))) :
-        (selectorTabIndex === 'kamelet' ? elements.filter(dsl => (!blockedKamelets.includes(dsl.name))) : elements);
-    const eipLabels = [...new Set(elements.map(e => e.labels).join(",").split(",").filter(e => e !== 'eip'))];
-    const filteredElement = allowedElements
-        .filter((dsl: DslMetaModel) => CamelUi.checkFilter(dsl, filter))
-        .filter((dsl: DslMetaModel) => {
-            if (!isEip || selectedLabels.length === 0) {
-                return true;
-            } else {
-                return dsl.labels.split(",").some(r => selectedLabels.includes(r));
-            }
-        });
+
+    const eipElements = CamelUi.getSelectorModelsForParentFiltered(parentDsl, 'eip', showSteps);
+    const componentElements = CamelUi.getSelectorModelsForParentFiltered(parentDsl, 'component', showSteps)
+        .filter(dsl => (!blockedComponents.includes(dsl.uri || dsl.name)));
+    let kameletElements = CamelUi.getSelectorModelsForParentFiltered(parentDsl, 'kamelet', showSteps)
+        .filter(dsl => (!blockedKamelets.includes(dsl.name)));
+    if (customOnly) kameletElements = kameletElements.filter(k => KameletApi.getCustomKameletNames().includes(k.name));
+
+    const filteredEipElements = filterElements(eipElements);
+    const filteredComponentElements = filterElements(componentElements);
+    const filteredKameletElements = filterElements(kameletElements);
+
+    const eipLabels = [...new Set(eipElements.map(e => e.labels).join(",").split(",").filter(e => e !== 'eip'))];
+
+
+    const filteredElement = navigation === 'component'
+        ? filteredComponentElements
+        : (navigation === 'kamelet' ? filteredKameletElements : filteredEipElements);
 
     return (
         <Modal
@@ -154,17 +181,23 @@ export function DslSelector (props: Props) {
                     <FlexItem>
                         <Tabs style={{overflow: 'hidden'}} activeKey={selectorTabIndex}
                               onSelect={selectTab}>
-                            {parentDsl !== undefined &&
+                            {parentDsl !== undefined && filteredEipElements?.length > 0 &&
                                 <Tab eventKey={"eip"} key={"tab-eip"}
-                                     title={<TabTitleText>Integration Patterns</TabTitleText>}>
+                                     title={<TabTitleText>{`Integration Patterns (${filteredEipElements?.length})`}</TabTitleText>}>
                                 </Tab>
                             }
-                            <Tab eventKey={'kamelet'} key={"tab-kamelet"}
-                                 title={<TabTitleText>Kamelets</TabTitleText>}>
-                            </Tab>
-                            <Tab eventKey={'component'} key={'tab-component'}
-                                 title={<TabTitleText>Components</TabTitleText>}>
-                            </Tab>
+                            {filteredKameletElements?.length > 0 &&
+                                <Tab eventKey={'kamelet'} key={"tab-kamelet"}
+                                     title={
+                                         <TabTitleText>{`Kamelets (${filteredKameletElements?.length})`}</TabTitleText>}>
+                                </Tab>
+                            }
+                            {filteredComponentElements?.length > 0 &&
+                                <Tab eventKey={'component'} key={'tab-component'}
+                                     title={
+                                         <TabTitleText>{`Components (${filteredComponentElements?.length})`}</TabTitleText>}>
+                                </Tab>
+                            }
                         </Tabs>
                     </FlexItem>
                 </Flex>
