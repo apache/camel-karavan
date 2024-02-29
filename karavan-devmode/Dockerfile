@@ -19,7 +19,7 @@ LABEL "org.opencontainers.image.title"="karavan-devmode"
 LABEL "org.opencontainers.image.description"="Apache Camel Karavan DevMode"
 LABEL "org.opencontainers.image.url"="https://camel.apache.org"
 LABEL "org.opencontainers.image.licenses"="Apache 2.0"
-LABEL "org.opencontainers.image.version"="4.4.0"
+LABEL "org.opencontainers.image.version"="4.4.1"
 
 RUN apt-get update && apt-get install git && apt-get clean
 
