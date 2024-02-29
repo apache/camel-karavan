@@ -4,7 +4,7 @@ services:
 
   artemis:
     container_name: artemis
-    image: quay.io/artemiscloud/activemq-artemis-broker:artemis.2.31.2
+    image: quay.io/artemiscloud/activemq-artemis-broker:artemis.2.32.0
     ports:
       - "8161:8161"
       - "61616:61616"
@@ -13,31 +13,15 @@ services:
       AMQ_USER: artemis
       AMQ_PASSWORD: artemis
 
-  zookeeper:
-    image: confluentinc/cp-zookeeper:latest
-    environment:
-      ZOOKEEPER_CLIENT_PORT: 2181
-      ZOOKEEPER_TICK_TIME: 2000
-    ports:
-      - 22181:2181
-
   kafka:
-    image: confluentinc/cp-kafka:latest
-    depends_on:
-      - zookeeper
+    container_name: kafka
+    image: apache/kafka:3.7.0
     ports:
-      - 29092:29092
-    environment:
-      KAFKA_BROKER_ID: 1
-      AUTO_CREATE_TOPICS: true
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
-      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      - 9092:9092
 
   postgres:
-    image: postgres:15.4
+    container_name: postgres
+    image: postgres:16.2
     restart: always
     environment:
       - POSTGRES_USER=postgres
@@ -46,6 +30,7 @@ services:
       - '5432:5432'
 
   adminer:
+    container_name: adminer
     image: adminer:4.8.1-standalone
     restart: always
     ports:
