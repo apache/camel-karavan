@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+import React, {useEffect, useState} from "react";
 import {
     GridItem,
     FormGroup,
@@ -27,7 +28,6 @@ import {
     capitalize,
     TextArea
 } from "@patternfly/react-core";
-import {useEffect, useState} from "react";
 import '../karavan.css';
 import './kamelet.css';
 
