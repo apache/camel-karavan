@@ -68,7 +68,7 @@ export function DslSelector (props: Props) {
     function searchInput() {
         return (
             <Flex className="search">
-              {selectorTabIndex === 'kamelet' && <FlexItem>
+                {selectorTabIndex === 'kamelet' && <FlexItem>
                     <Switch
                         label="Custom only"
                         id="switch"
@@ -84,7 +84,7 @@ export function DslSelector (props: Props) {
             </Flex>
         )
     }
-    
+
     function getCard(dsl: DslMetaModel, index: number) {
         const labels = dsl.labels !== undefined ? dsl.labels.split(",").filter(label => label !== 'eip') : [];
         const isCustom = KameletApi.getCustomKameletNames().includes(dsl.name);
@@ -96,7 +96,7 @@ export function DslSelector (props: Props) {
                     {['kamelet', 'component'].includes(dsl.navigation.toLowerCase()) &&
                         <Badge isRead className="version labels">{dsl.version}</Badge>
                     }
-                     {isCustom && <Badge className="custom">custom</Badge>}
+                    {isCustom && <Badge className="custom">custom</Badge>}
                 </CardHeader>
                 <CardHeader>
                     {CamelUi.getIconForDsl(dsl)}
@@ -149,9 +149,9 @@ export function DslSelector (props: Props) {
 
     const eipElements = CamelUi.getSelectorModelsForParentFiltered(parentDsl, 'eip', showSteps);
     const componentElements = CamelUi.getSelectorModelsForParentFiltered(parentDsl, 'component', showSteps)
-                                                    .filter(dsl => (!blockedComponents.includes(dsl.uri || dsl.name)));
+        .filter(dsl => (!blockedComponents.includes(dsl.uri || dsl.name)));
     let kameletElements = CamelUi.getSelectorModelsForParentFiltered(parentDsl, 'kamelet', showSteps)
-                                                    .filter(dsl => (!blockedKamelets.includes(dsl.name)));
+        .filter(dsl => (!blockedKamelets.includes(dsl.name)));
     if (customOnly) kameletElements = kameletElements.filter(k => KameletApi.getCustomKameletNames().includes(k.name));
 
     const filteredEipElements = filterElements(eipElements);
@@ -188,14 +188,14 @@ export function DslSelector (props: Props) {
                             }
                             {filteredKameletElements?.length > 0 &&
                                 <Tab eventKey={'kamelet'} key={"tab-kamelet"}
-                                  title={
-                                      <TabTitleText>{`Kamelets (${filteredKameletElements?.length})`}</TabTitleText>}>
+                                     title={
+                                         <TabTitleText>{`Kamelets (${filteredKameletElements?.length})`}</TabTitleText>}>
                                 </Tab>
                             }
                             {filteredComponentElements?.length > 0 &&
                                 <Tab eventKey={'component'} key={'tab-component'}
-                                  title={
-                                      <TabTitleText>{`Components (${filteredComponentElements?.length})`}</TabTitleText>}>
+                                     title={
+                                         <TabTitleText>{`Components (${filteredComponentElements?.length})`}</TabTitleText>}>
                                 </Tab>
                             }
                         </Tabs>

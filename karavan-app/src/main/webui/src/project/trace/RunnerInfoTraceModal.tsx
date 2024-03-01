@@ -16,12 +16,14 @@
  */
 import React, {useState} from 'react';
 import {
-    Flex, FlexItem,
-    Modal, ModalVariant, DescriptionListGroup, DescriptionListTerm, DescriptionList, Button
+    Modal,
+    ModalVariant,
+    JumpLinksItem,
+    JumpLinks,
+    TextContent, TextVariants, Text
 } from '@patternfly/react-core';
-import '../../designer/karavan.css';
-import {RunnerInfoTraceNode} from "./RunnerInfoTraceNode";
-import ArrowRightIcon from "@patternfly/react-icons/dist/esm/icons/arrow-right-icon";
+import './trace.css';
+import {RunnerInfoTraceMessage} from "./RunnerInfoTraceMessage";
 
 interface Props {
     exchangeId: string
@@ -34,49 +36,37 @@ export function RunnerInfoTraceModal (props: Props) {
 
     const [activeNode, setActiveNode] = useState(props.nodes.at(0));
 
-    function getComponent(node: any): any {
-        return {name: node.nodeId, component: (<p>Step 1 content</p>) }
-    }
-
-    function getRoutes(): any[] {
-        return Array.from(new Set((props.nodes).map((item: any) => item?.routeId)));
-    }
-
     return (
         <Modal
             title={"Exchange: " + props.exchangeId}
+            width={"90%"}
+            className="trace-modal"
             variant={ModalVariant.large}
             isOpen={props.isOpen}
             onClose={() => props.onClose()}
-            actions={[
-            ]}
+            actions={[]}
         >
-            <Flex direction={{default: "row"}} justifyContent={{default:"justifyContentSpaceBetween"}}>
-                <FlexItem flex={{default: "flex_1"}}>
-                    <DescriptionList>
-                        <DescriptionListGroup>
-                            <DescriptionListTerm>Nodes</DescriptionListTerm>
-                        </DescriptionListGroup>
-                    </DescriptionList>
-                    {props.nodes.map((node: any, index: number) => (
-                        <FlexItem key={node.uid + "-" + index}>
-                            <Button variant={node.uid === activeNode.uid ? "secondary" : "link"}
-                                    icon={node.nodeId === undefined ? <ArrowRightIcon/> : undefined}
-                                    onClick={event => {setActiveNode(node)}}>
-                                {node.nodeId ? node.nodeId : node.routeId}
-                            </Button>
-                        </FlexItem>
-                    ))}
-                </FlexItem>
-                <FlexItem flex={{default: "flex_3"}}>
-                    <DescriptionList>
-                        <DescriptionListGroup>
-                            <DescriptionListTerm>Exchange</DescriptionListTerm>
-                        </DescriptionListGroup>
-                    </DescriptionList>
-                    <RunnerInfoTraceNode trace={activeNode} />
-                </FlexItem>
-            </Flex>
+            <div className="container">
+                <div className="panel1">
+                    <TextContent className="title">
+                        <Text component={TextVariants.h3}>Nodes</Text>
+                    </TextContent>
+                    <div className="scrollable">
+                        <JumpLinks isVertical>
+                            {[...props.nodes].map((node: any, index: number) => (
+                                <JumpLinksItem key={node.uid + "-" + index}
+                                               isActive={node.uid === activeNode.uid}
+                                               onClick={_ => {setActiveNode(node)}}>
+                                    {node.nodeId ? node.nodeId : node.routeId}
+                                </JumpLinksItem>
+                            ))}
+                            {/*{Array.from(Array(100).keys())*/}
+                            {/*    .map(_ => (<JumpLinksItem>Inactive section</JumpLinksItem>))}*/}
+                        </JumpLinks>
+                    </div>
+                </div>
+                <RunnerInfoTraceMessage trace={activeNode}/>
+            </div>
         </Modal>
     );
 }
