@@ -106,7 +106,7 @@ public class CamelService {
             containerStatus.setCodeLoaded(true);
             eventBus.publish(ContainerStatusService.CONTAINER_STATUS, JsonObject.mapFrom(containerStatus));
         } catch (Exception ex) {
-            LOGGER.error(ex.getMessage());
+            LOGGER.error("ReloadProjectCode " + (ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage()));
         }
     }
 
@@ -117,8 +117,8 @@ public class CamelService {
             HttpResponse<Buffer> result = getWebClient().putAbs(url)
                     .timeout(timeout).sendBuffer(Buffer.buffer(body)).subscribeAsCompletionStage().toCompletableFuture().get();
             return result.statusCode() == 200;
-        } catch (Exception e) {
-            LOGGER.error(e.getMessage());
+        } catch (Exception ex) {
+            LOGGER.error("putRequest " + (ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage()));
         }
         return false;
     }
@@ -127,8 +127,8 @@ public class CamelService {
         String url = getContainerAddressForReload(containerName) + "/q/upload/*";
         try {
             return deleteResult(url, 1000);
-        } catch (InterruptedException | ExecutionException e) {
-            LOGGER.error(e.getMessage());
+        } catch (InterruptedException | ExecutionException ex) {
+            LOGGER.error("deleteRequest " + (ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage()));
         }
         return null;
     }
@@ -137,8 +137,8 @@ public class CamelService {
         String url = getContainerAddressForReload(containerName) + "/q/dev/reload?reload=true";
         try {
             return getResult(url, 1000);
-        } catch (InterruptedException | ExecutionException e) {
-            LOGGER.error(e.getMessage());
+        } catch (InterruptedException | ExecutionException ex) {
+            LOGGER.error("reloadRequest " + (ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage()));
         }
         return null;
     }
@@ -169,8 +169,8 @@ public class CamelService {
         String url = getContainerAddressForStatus(containerStatus) + "/q/dev/" + statusName.name();
         try {
             return getResult(url, 500);
-        } catch (InterruptedException | ExecutionException e) {
-            LOGGER.error(e.getMessage());
+        } catch (InterruptedException | ExecutionException ex) {
+            LOGGER.error("getCamelStatus " + (ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage()));
         }
         return null;
     }
@@ -202,8 +202,8 @@ public class CamelService {
                 JsonObject res = result.bodyAsJsonObject();
                 return res.encodePrettily();
             }
-        } catch (Exception e) {
-            LOGGER.error(e.getMessage());
+        } catch (Exception ex) {
+            LOGGER.error("getResult " + (ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage()));
         }
         return null;
     }
@@ -214,8 +214,8 @@ public class CamelService {
                     .timeout(timeout).send().subscribeAsCompletionStage().toCompletableFuture().get();
             JsonObject res = result.bodyAsJsonObject();
             return res.encodePrettily();
-        } catch (Exception e) {
-            LOGGER.error(e.getMessage());
+        } catch (Exception ex) {
+            LOGGER.error("deleteResult " + (ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage()));
         }
         return null;
     }
