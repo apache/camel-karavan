@@ -53,10 +53,6 @@ export function RunnerInfoTraceMessage (props: Props) {
     const body = props.trace?.message?.body?.value;
     const variable = variables.filter(v => v.key === variableName)?.at(0);
 
-    useEffect(()=> {
-        console.log(variableName)
-    }, [variableName])
-
     function getBody() {
         return (
             <CodeBlock title="Body">
@@ -150,7 +146,7 @@ export function RunnerInfoTraceMessage (props: Props) {
             </Tabs>
             {tab === 'variables' && variables.length > 0 &&
                 <>
-                <Tabs activeKey={variableName} onSelect={(event, eventKey) => setVariableName(eventKey)}>
+                <Tabs key={variableName} activeKey={variableName} onSelect={(event, eventKey) => setVariableName(eventKey)}>
                     {variables.map(v => (<Tab eventKey={v.key} title={<TabTitleText>{v.key}</TabTitleText>}/>))}
                 </Tabs>
                 {getVariableType()}

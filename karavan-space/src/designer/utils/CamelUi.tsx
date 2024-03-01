@@ -27,7 +27,7 @@ import {
     RouteDefinition,
     ToDefinition
 } from "karavan-core/lib/model/CamelDefinition";
-import {CamelElement, Integration} from "karavan-core/lib/model/IntegrationDefinition";
+import {CamelElement, Integration, IntegrationFile} from "karavan-core/lib/model/IntegrationDefinition";
 import {
     ActivemqIcon, ApiIcon,
     AwsIcon,
@@ -92,6 +92,7 @@ import {
 } from "../icons/EipIcons";
 import React from "react";
 import {TopologyUtils} from "karavan-core/lib/api/TopologyUtils";
+import {getIntegrations} from "../../topology/TopologyApi";
 
 const StepElements: string[] = [
     "AggregateDefinition",
@@ -340,6 +341,20 @@ export class CamelUi {
                 else result.push(name);
             });
         return result;
+    }
+
+    static getInternalUris = (files: IntegrationFile[], direct: boolean, seda: boolean) => {
+        const urls: string[] = [];
+        const integrations = getIntegrations(files);
+        integrations.forEach(i => {
+            if (direct) {
+                urls.push(...CamelUi.getInternalRouteUris(i, "direct"))
+            }
+            if (seda) {
+                urls.push(...CamelUi.getInternalRouteUris(i, "seda"));
+            }
+        })
+        return urls;
     }
 
     static getElementTitle = (element: CamelElement): string => {

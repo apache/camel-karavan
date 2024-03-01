@@ -70,7 +70,7 @@ export function ComponentPropertyField(props: Props) {
 
     const {onParametersChange, getInternalComponentName} = usePropertiesHook();
 
-    const [integration] = useIntegrationStore((state) => [state.integration], shallow)
+    const [integration, files] = useIntegrationStore((state) => [state.integration, state.files], shallow)
     const [dark, setSelectedStep, beans] = useDesignerStore((s) =>
         [s.dark, s.setSelectedStep, s.beans], shallow)
 
@@ -150,12 +150,22 @@ export function ComponentPropertyField(props: Props) {
         }
     }
 
+    function checkUri(startsWith: string): boolean {
+        if (props.element && props.element.dslName === 'ToDefinition' && property.name === 'name') {
+            const uri: string = (props.element as ToDefinition).uri || '';
+            return uri.startsWith(startsWith);
+        } else {
+            return false;
+        }
+    }
+
     function getInternalUriSelect(property: ComponentProperty, value: any) {
         const selectOptions: JSX.Element[] = [];
         const componentName = getInternalComponentName(property.name, props.element);
         const internalUris = CamelUi.getInternalRouteUris(integration, componentName, false);
-        const uris: string [] = [];
+        let uris: string[] = CamelUi.getInternalUris(files, checkUri('direct'), checkUri('seda'));
         uris.push(...internalUris);
+        uris = [...new Set(uris.map(e => e.includes(":") ? e.split(":")?.at(1) || "" : e))]
         if (value && value.length > 0 && !uris.includes(value)) {
             uris.unshift(value);
         }

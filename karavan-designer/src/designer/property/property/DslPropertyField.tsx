@@ -51,7 +51,7 @@ import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt"
 import {ExpressionField} from "./ExpressionField";
 import {CamelUi, RouteToCreate} from "../../utils/CamelUi";
 import {ComponentPropertyField} from "./ComponentPropertyField";
-import {CamelElement} from "karavan-core/lib/model/IntegrationDefinition";
+import {CamelElement, IntegrationFile} from "karavan-core/lib/model/IntegrationDefinition";
 import {KameletPropertyField} from "./KameletPropertyField";
 import PlusIcon from "@patternfly/react-icons/dist/esm/icons/plus-icon";
 import {ObjectField} from "./ObjectField";
@@ -77,6 +77,7 @@ import {BeanProperties} from "./BeanProperties";
 import {PropertyPlaceholderDropdown} from "./PropertyPlaceholderDropdown";
 import {VariablesDropdown} from "./VariablesDropdown";
 import {ROUTE, GLOBAL} from "karavan-core/lib/api/VariableUtil";
+import {getIntegrations} from "../../../topology/TopologyApi";
 
 interface Props {
     property: PropertyMeta,
@@ -92,7 +93,7 @@ interface Props {
 
 export function DslPropertyField(props: Props) {
 
-    const [integration, setIntegration, addVariable] = useIntegrationStore((s) => [s.integration, s.setIntegration, s.addVariable], shallow)
+    const [integration, setIntegration, addVariable, files] = useIntegrationStore((s) => [s.integration, s.setIntegration, s.addVariable, s.files], shallow)
     const [dark, setSelectedStep] = useDesignerStore((s) => [s.dark, s.setSelectedStep], shallow)
 
     const [isShowAdvanced, setIsShowAdvanced] = useState<string[]>([]);
@@ -107,7 +108,9 @@ export function DslPropertyField(props: Props) {
     const [variableType, setVariableType] = useState<'global:' | 'route:' | ''>('');
     const [checkChanges, setCheckChanges] = useState<boolean>(false);
 
-    useEffect(() => setTextVariable(value), [])
+    useEffect(() => {
+        setTextVariable(value)
+    }, [])
 
     useEffect(() => {
         if (checkChanges) {
@@ -687,10 +690,9 @@ export function DslPropertyField(props: Props) {
 
     function getInternalUriSelect(property: PropertyMeta, value: any) {
         const selectOptions: JSX.Element[] = [];
-        const urls = CamelUi.getInternalRouteUris(integration, "direct");
-        urls.push(...CamelUi.getInternalRouteUris(integration, "seda"));
-        if (urls && urls.length > 0) {
-            selectOptions.push(...urls.map((value: string) =>
+        const uris: string[] = CamelUi.getInternalUris(files, true, true);
+        if (uris && uris.length > 0) {
+            selectOptions.push(...uris.map((value: string) =>
                 <SelectOption key={value} value={value.trim()}/>));
         }
         return (
