@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
     Bullseye,
     Button,
@@ -68,6 +68,11 @@ export function TraceTab() {
 
     const camelContainers = containers
         .filter(c => c.projectId === project.projectId && ['devmode', 'project'].includes(c.type));
+
+    function getContainer() {
+        return containerName ? containerName : camelContainers.at(0)?.containerName;
+    }
+
     return (
         <PageSection className="project-tab-panel" padding={{default: "padding"}}>
             <Panel>
@@ -85,7 +90,7 @@ export function TraceTab() {
                                         {camelContainers.map((containerStatus, index) =>
                                             <ToggleGroupItem
                                                 text={containerStatus.containerName}
-                                                isSelected={containerName === containerStatus.containerName}
+                                                isSelected={getContainer() === containerStatus.containerName}
                                                 onChange={(_, selected) => {
                                                     if (selected) {
                                                         setContainerName(containerStatus.containerName);
@@ -116,7 +121,7 @@ export function TraceTab() {
                     </Flex>
                 </PanelHeader>
             </Panel>
-            <TraceTable containerName={containerName}/>
+            <TraceTable containerName={getContainer()}/>
         </PageSection>
     )
 }
