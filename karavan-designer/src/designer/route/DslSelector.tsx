@@ -17,9 +17,28 @@
 import React, {useEffect, useState} from 'react';
 import {
     Badge,
-    Card, CardBody, CardFooter, CardHeader, Flex, FlexItem, Form, FormGroup, Gallery, Modal, PageSection,
-    Tab, Tabs, TabTitleText,
-    Text, TextInput, ToggleGroup, ToggleGroupItem,Switch
+    Card,
+    CardBody,
+    CardFooter,
+    CardHeader,
+    Flex,
+    FlexItem,
+    Form,
+    FormGroup,
+    Gallery,
+    Modal,
+    PageSection,
+    Tab,
+    Tabs,
+    TabTitleText,
+    Text,
+    ToggleGroup,
+    ToggleGroupItem,
+    Switch,
+    TextInputGroup,
+    TextInputGroupMain,
+    TextInputGroupUtilities,
+    Button
 } from '@patternfly/react-core';
 import './DslSelector.css';
 import {CamelUi} from "../utils/CamelUi";
@@ -29,6 +48,7 @@ import {shallow} from "zustand/shallow";
 import {useRouteDesignerHook} from "./useRouteDesignerHook";
 import { ComponentApi } from 'karavan-core/lib/api/ComponentApi';
 import { KameletApi } from 'karavan-core/lib/api/KameletApi';
+import TimesIcon from "@patternfly/react-icons/dist/esm/icons/times-icon";
 
 interface Props {
     tabIndex?: string | number
@@ -77,9 +97,16 @@ export function DslSelector (props: Props) {
                     />
                 </FlexItem>}
                 <FlexItem>
-                    <TextInput className="text-field" type="text" id="search" name="search" autoComplete={"off"}
+                    <TextInputGroup>
+                        <TextInputGroupMain className="text-field" type="text" autoComplete={"off"}
                                value={filter}
                                onChange={(_, value) => setFilter(value)}/>
+                        <TextInputGroupUtilities>
+                            <Button variant="plain" onClick={_ => setFilter('')}>
+                                <TimesIcon />
+                            </Button>
+                        </TextInputGroupUtilities>
+                    </TextInputGroup>
                 </FlexItem>
             </Flex>
         )
@@ -141,11 +168,11 @@ export function DslSelector (props: Props) {
     }
 
     const isEip = selectorTabIndex === 'eip';
+    const isRouteConfig = parentDsl === 'RouteConfigurationDefinition';
     const title = parentDsl === undefined ? "Select source" : "Select step";
     const navigation: string = selectorTabIndex ? selectorTabIndex.toString() : '';
     const blockedComponents = ComponentApi.getBlockedComponentNames();
     const blockedKamelets = KameletApi.getBlockedKameletNames();
-    const elements = CamelUi.getSelectorModelsForParentFiltered(parentDsl, navigation, showSteps);
 
     const eipElements = CamelUi.getSelectorModelsForParentFiltered(parentDsl, 'eip', showSteps);
     const componentElements = CamelUi.getSelectorModelsForParentFiltered(parentDsl, 'component', showSteps)
@@ -165,6 +192,8 @@ export function DslSelector (props: Props) {
         ? filteredComponentElements
         : (navigation === 'kamelet' ? filteredKameletElements : filteredEipElements);
 
+    console.log(parentDsl)
+
     return (
         <Modal
             aria-label={title}
@@ -181,18 +210,18 @@ export function DslSelector (props: Props) {
                     <FlexItem>
                         <Tabs style={{overflow: 'hidden'}} activeKey={selectorTabIndex}
                               onSelect={selectTab}>
-                            {parentDsl !== undefined && filteredEipElements?.length > 0 &&
+                            {parentDsl !== undefined &&
                                 <Tab eventKey={"eip"} key={"tab-eip"}
                                      title={<TabTitleText>{`Integration Patterns (${filteredEipElements?.length})`}</TabTitleText>}>
                                 </Tab>
                             }
-                            {filteredKameletElements?.length > 0 &&
+                            {!isRouteConfig &&
                                 <Tab eventKey={'kamelet'} key={"tab-kamelet"}
                                      title={
                                          <TabTitleText>{`Kamelets (${filteredKameletElements?.length})`}</TabTitleText>}>
                                 </Tab>
                             }
-                            {filteredComponentElements?.length > 0 &&
+                            {!isRouteConfig &&
                                 <Tab eventKey={'component'} key={'tab-component'}
                                      title={
                                          <TabTitleText>{`Components (${filteredComponentElements?.length})`}</TabTitleText>}>
