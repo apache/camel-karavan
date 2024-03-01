@@ -17,16 +17,10 @@
 
 import React from 'react';
 import {
-    capitalize,
     Card,
     CardBody,
     CardTitle,
-    Form,
-    FormGroup, Grid, GridItem,
-    InputGroup,
-    InputGroupItem,
-    InputGroupText,
-    TextInput, ToggleGroup, ToggleGroupItem,
+    Form, Grid,
 } from '@patternfly/react-core';
 import '../karavan.css';
 import './kamelet.css';

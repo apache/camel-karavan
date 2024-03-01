@@ -31,7 +31,6 @@ import {
     LabelGroup,
     Modal,
     Switch,
-    TextInput,
 } from '@patternfly/react-core';
 import '../karavan.css';
 import './kamelet.css';

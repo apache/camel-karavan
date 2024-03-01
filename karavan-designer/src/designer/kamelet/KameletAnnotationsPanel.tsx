@@ -17,21 +17,16 @@
 
 import React from 'react';
 import {
-    capitalize,
     Card,
     CardBody,
     CardTitle,
-    Form,
-    FormGroup, Grid, GridItem,
-    InputGroup,
-    InputGroupItem,
-    InputGroupText,
-    TextInput, ToggleGroup, ToggleGroupItem,
+    Form, Grid,
 } from '@patternfly/react-core';
 import '../karavan.css';
 import './kamelet.css';
 import {useIntegrationStore} from "../DesignerStore";
 import {shallow} from "zustand/shallow";
+import { KameletInput } from './KameletInput';
 
 const PREFIX = 'camel.apache.org/';
 
@@ -56,60 +51,17 @@ export function KameletAnnotationsPanel() {
     }
 
     function getElement(key: string, label: string, span: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12) {
-        return (
-            <GridItem span={span}>
-                <FormGroup label={label} fieldId={key} isRequired>
-                    <InputGroup>
-                        <InputGroupItem isFill>
-                            <TextInput className="text-field" type="text" id={key} name={key}
-                                       onChange={(_, value) => setValue(key, value)}
-                                       value={getValue(key)}/>
-                        </InputGroupItem>
-                    </InputGroup>
-                </FormGroup>
-            </GridItem>
-        )
+        return (<KameletInput elementKey={key} label={label} span={span} value={getValue(key)} setValue={(value: string) => setValue(key, value)} type='text' isRequired={true}/>);
     }
 
     function getElementToggleGroup(key: string, label: string, values: string[], span: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12) {
-        return (
-            <GridItem span={span}>
-                <FormGroup label={label} fieldId={key} isRequired>
-                    <ToggleGroup aria-label={key} id={key} name={key}>
-                        {values.map(value =>
-                            <ToggleGroupItem
-                                key={value}
-                                text={capitalize(value)}
-                                buttonId="toggle-group-single-1"
-                                isSelected={getValue(key) === value}
-                                onChange={(_, selected) => setValue(key, value) }
-                            />
-                        )}
-                    </ToggleGroup>
-                </FormGroup>
-            </GridItem>
-        )
+        return (<KameletInput elementKey={key} label={label} span={span} value={getValue(key)} setValue={(value: string) => setValue(key, value)} type='toggle' options={values} isRequired={true}/>);
+
     }
 
     function getElementIcon(key: string, label: string, span: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12) {
-        return (
-            <GridItem span={span}>
-                <FormGroup label={label} fieldId={key} isRequired>
-                    <InputGroup>
-                        <InputGroupText id="username">
-                            <svg className="icon">
-                                <image href={getValue(key)} className="icon"/>
-                            </svg>
-                        </InputGroupText>
-                        <InputGroupItem isFill>
-                            <TextInput className="text-field" type="text" id={key} name={key}
-                                       onChange={(_, value) => setValue(key, value)}
-                                       value={getValue(key)}/>
-                        </InputGroupItem>
-                    </InputGroup>
-                </FormGroup>
-            </GridItem>
-        )
+       
+            return (<KameletInput elementKey={key} label={label} span={span} value={getValue(key)} setValue={(value: string) => setValue(key, value)} type='icon' isRequired={true}/>);
     }
 
     return (

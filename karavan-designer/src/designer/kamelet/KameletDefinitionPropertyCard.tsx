@@ -31,7 +31,6 @@ import {
     LabelGroup,
     Modal,
     Switch,
-    TextInput,
 } from '@patternfly/react-core';
 import '../karavan.css';
 import './kamelet.css';
@@ -40,6 +39,7 @@ import {shallow} from "zustand/shallow";
 import {DefinitionProperty} from "karavan-core/lib/model/IntegrationDefinition";
 import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
 import AddIcon from "@patternfly/react-icons/dist/js/icons/plus-circle-icon";
+import { KameletInput } from './KameletInput';
 
 interface Props {
     index: number
@@ -72,15 +72,7 @@ export function KameletDefinitionPropertyCard(props: Props) {
 
 
     function getPropertyField(field: string, label: string, isRequired: boolean, span: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12) {
-        return (
-            <GridItem span={span}>
-                <FormGroup label={label} fieldId={key + field} isRequired={isRequired}>
-                    <TextInput className="text-field" type="text" id={key + field} name={key + field}
-                               onChange={(_, value) => setPropertyValue(field, value)}
-                               value={getPropertyValue(field)}/>
-                </FormGroup>
-            </GridItem>
-        )
+       return (<KameletInput elementKey={key + field} label={label} span={span} value={getPropertyValue(field)} setValue={(value: string) => setPropertyValue(field, value)} type='text' isRequired={isRequired}/>);
     }
 
     function getPropertyTypeField(field: string, label: string, isRequired: boolean, span: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12) {

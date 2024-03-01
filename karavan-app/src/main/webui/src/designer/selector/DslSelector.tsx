@@ -219,8 +219,6 @@ export function DslSelector (props: Props) {
         ? filteredComponentElements
         : (navigation === 'kamelets' ? filteredKameletElements : filteredEipElements);
 
-    console.log(parentDsl)
-
     return (
         <Modal
             aria-label={title}

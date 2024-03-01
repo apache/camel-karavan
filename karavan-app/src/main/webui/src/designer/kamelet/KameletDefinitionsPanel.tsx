@@ -23,10 +23,7 @@ import {
     Flex,
     FlexItem,
     Form,
-    FormGroup,
     Grid,
-    GridItem, TextArea,
-    TextInput,
 } from '@patternfly/react-core';
 import '../karavan.css';
 import './kamelet.css';
