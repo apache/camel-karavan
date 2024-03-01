@@ -130,7 +130,7 @@ export const useSelectorStore = createWithEqualityFn<SelectorStateState>((set) =
     clearSelectedLabels: () => {
         set((state: SelectorStateState) => {
             state.selectedLabels.length = 0;
-            return state;
+            return {selectedLabels : [... state.selectedLabels]};
         })
     },
     setSelectedLabels: (selectedLabels: string []) => {

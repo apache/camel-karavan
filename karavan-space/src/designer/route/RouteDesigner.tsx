@@ -23,7 +23,7 @@ import {
     Button
 } from '@patternfly/react-core';
 import '../karavan.css';
-import {DslSelector} from "./DslSelector";
+import {DslSelector} from "../selector/DslSelector";
 import {DslProperties} from "../property/DslProperties";
 import {DslConnections} from "./DslConnections";
 import PlusIcon from "@patternfly/react-icons/dist/esm/icons/plus-icon";

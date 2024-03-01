@@ -226,7 +226,7 @@ export function useRouteDesignerHook () {
         setParentDsl(parentDsl);
         setShowSteps(showSteps);
         setSelectedPosition(position);
-        setSelectorTabIndex((parentId === undefined && parentDsl === undefined) ? 'kamelet' : 'eip');
+        setSelectorTabIndex((parentId === undefined && parentDsl === undefined) ? 'components' : 'eip');
     }
 
     function onDslSelect (dsl: DslMetaModel, parentId: string, position?: number | undefined) {

@@ -79,6 +79,7 @@
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
+    color: var(--pf-v5-global--Color--200);
 }
 .dsl-modal .pf-v5-c-card__footer {
     padding-bottom: 1em;
@@ -89,6 +90,11 @@
     flex-direction: row;
     margin-top: 6px;
     flex-wrap: wrap;
+}
+
+.dsl-modal .dsl-card .dsl-card-title {
+    color: var(--pf-v5-global--Color--100);
+    font-weight: bold;
 }
 
 .dsl-modal .dsl-card .header-labels {
@@ -119,4 +125,18 @@
 
 .dsl-modal .dsl-card:hover .labels {
     opacity: 1;
+}
+
+.dsl-modal .dsl-card:hover p {
+    color: var(--pf-v5-global--Color--100);
+}
+
+.dsl-modal .dsl-fast-card .header p {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.dsl-modal .dsl-fast-card .header {
+    padding: 10px;
 }
