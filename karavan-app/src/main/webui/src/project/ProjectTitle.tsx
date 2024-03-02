@@ -23,56 +23,89 @@ import {
     Text,
     TextContent,
     Flex,
-    FlexItem,
+    FlexItem, Button
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
 import {getProjectFileType} from "../api/ProjectModels";
-import {useAppConfigStore, useFileStore, useProjectStore} from "../api/ProjectStore";
+import {useFileStore, useProjectStore} from "../api/ProjectStore";
+import TopologyIcon from "@patternfly/react-icons/dist/js/icons/topology-icon";
+import FilesIcon from "@patternfly/react-icons/dist/js/icons/folder-open-icon";
+import {shallow} from "zustand/shallow";
 
-export function ProjectTitle () {
+export function ProjectTitle() {
 
-    const {project} = useProjectStore();
-    const {file, operation, setFile} = useFileStore();
-    const {config} = useAppConfigStore();
+    const [project, tabIndex, setTabIndex] =
+        useProjectStore((s) => [s.project, s.tabIndex, s.setTabIndex], shallow);
+    const [file,setFile, operation] = useFileStore((s) => [s.file, s.setFile, s.operation], shallow);
 
     const isFile = file !== undefined;
     const isLog = file !== undefined && file.name.endsWith("log");
     const filename = file ? file.name.substring(0, file.name.lastIndexOf('.')) : "";
-    return (<div className="dsl-title project-title">
-        {isFile && <Flex direction={{default: "column"}} >
-            <FlexItem>
-                <Breadcrumb>
-                    <BreadcrumbItem to="#" onClick={event => {
-                        useFileStore.setState({file: undefined, operation: 'none'});
-                    }}>
-                        <div className={"project-breadcrumb"}>{project?.name + " (" + project?.projectId + ")"}</div>
-                    </BreadcrumbItem>
-                </Breadcrumb>
-            </FlexItem>
-            <FlexItem>
-                <Flex direction={{default: "row"}}>
-                    <FlexItem>
-                        <Badge>{getProjectFileType(file)}</Badge>
-                    </FlexItem>
-                    <FlexItem>
-                        <TextContent className="description">
-                            <Text>{isLog ? filename : file.name}</Text>
-                        </TextContent>
-                    </FlexItem>
+
+    function getProjectTitle() {
+        return (
+            <Flex direction={{default: "column"}}>
+                <FlexItem>
+                    <TextContent className="title">
+                        <Text component="h2">{project?.name + " (" + project?.projectId + ")"}</Text>
+                    </TextContent>
+                </FlexItem>
+                <FlexItem>
+                    <TextContent className="description">
+                        <Text>{project?.description}</Text>
+                    </TextContent>
+                </FlexItem>
+            </Flex>
+        )
+    }
+
+    function getFileTitle() {
+        return (isFile ?
+                <Flex alignItems={{default: "alignItemsCenter"}}>
+                    <Flex direction={{default: "column"}}>
+                        <FlexItem>
+                            <Breadcrumb>
+                                <BreadcrumbItem to="#" onClick={event => {
+                                    setFile('none', undefined);
+                                }}>
+                                    <div className={"project-breadcrumb"}>{'Back to ' +project?.name + " project"}</div>
+                                </BreadcrumbItem>
+                                <BreadcrumbItem to="#" onClick={_ => {
+                                    setTabIndex('topology');
+                                    setFile('none', undefined);
+                                }}>
+                                    <TopologyIcon/>
+                                </BreadcrumbItem>
+                                <BreadcrumbItem to="#files" onClick={_ => {
+                                    setTabIndex('files');
+                                    setFile('none', undefined);
+                                }}>
+                                    <FilesIcon/>
+                                </BreadcrumbItem>
+                            </Breadcrumb>
+                        </FlexItem>
+                        <FlexItem>
+                            <Flex direction={{default: "row"}}>
+                                <FlexItem>
+                                    <Badge>{getProjectFileType(file)}</Badge>
+                                </FlexItem>
+                                <FlexItem>
+                                    <TextContent className="description">
+                                        <Text>{isLog ? filename : file.name}</Text>
+                                    </TextContent>
+                                </FlexItem>
+                            </Flex>
+                        </FlexItem>
+                    </Flex>
                 </Flex>
-            </FlexItem>
-        </Flex>}
-        {!isFile && <Flex direction={{default: "column"}} >
-            <FlexItem>
-                <TextContent className="title">
-                    <Text component="h2">{project?.name + " (" + project?.projectId + ")"}</Text>
-                </TextContent>
-            </FlexItem>
-            <FlexItem>
-                <TextContent className="description">
-                    <Text>{project?.description}</Text>
-                </TextContent>
-            </FlexItem>
-        </Flex>}
-    </div>)
+                : <></>
+        )
+    }
+
+    return (
+        <div className="dsl-title project-title">
+            {isFile && getFileTitle()}
+            {!isFile && getProjectTitle()}
+        </div>
+    )
 }

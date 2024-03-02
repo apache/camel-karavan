@@ -53,7 +53,7 @@ export function ProjectPanel() {
     function onRefresh() {
         if (project.projectId) {
             ProjectService.refreshProjectData(project.projectId);
-            setTab(project.type === ProjectType.normal ? 'topology' : 'files');
+            setTab(project.type !== ProjectType.normal ? 'files' : tab);
         }
     }
 

@@ -29,7 +29,7 @@ import {useAppConfigStore, useFilesStore, useFileStore, useProjectsStore, usePro
 import {MainToolbar} from "../designer/MainToolbar";
 import {ProjectTitle} from "./ProjectTitle";
 import {ProjectPanel} from "./ProjectPanel";
-import {FileEditor} from "./FileEditor";
+import {FileEditor} from "../editor/FileEditor";
 import {shallow} from "zustand/shallow";
 import {useParams} from "react-router-dom";
 import {KaravanApi} from "../api/KaravanApi";
@@ -91,15 +91,19 @@ export function ProjectPage() {
             <PageSection className="tools-section" padding={{default: 'noPadding'}}>
                 <Flex direction={{default: "column"}} spaceItems={{default: "spaceItemsNone"}}>
                     <FlexItem className="project-tabs">
-                        {showTabs() && <Tabs activeKey={tabIndex} onSelect={(event, tabIndex) => setTabIndex(tabIndex)}>
-                            {!ephemeral && <Tab eventKey="topology" title="Topology"/>}
-                            <Tab eventKey="files" title="Files"/>
-                            {!ephemeral && <Tab eventKey="dashboard" title="Dashboard"/>}
-                            {!ephemeral && <Tab eventKey="trace" title="Trace"/>}
-                            {!ephemeral && <Tab eventKey="build" title="Build"/>}
-                            <Tab eventKey="container" title="Container"/>
-                            {hasReadme() && <Tab eventKey="readme" title="Readme"/>}
-                        </Tabs>}
+                        {showTabs() &&
+                            <Tabs activeKey={tabIndex} onSelect={(event, tabIndex) => {
+                                setTabIndex(tabIndex);
+                            }}>
+                                {!ephemeral && <Tab eventKey="topology" title="Topology"/>}
+                                <Tab eventKey="files" title="Files"/>
+                                {!ephemeral && <Tab eventKey="dashboard" title="Dashboard"/>}
+                                {!ephemeral && <Tab eventKey="trace" title="Trace"/>}
+                                {!ephemeral && <Tab eventKey="build" title="Build"/>}
+                                <Tab eventKey="container" title="Container"/>
+                                {hasReadme() && <Tab eventKey="readme" title="Readme"/>}
+                            </Tabs>
+                        }
                     </FlexItem>
                 </Flex>
             </PageSection>

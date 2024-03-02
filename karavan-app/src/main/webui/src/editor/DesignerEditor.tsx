@@ -17,7 +17,6 @@
 import React, {useEffect, useState} from 'react';
 import '../designer/karavan.css';
 import Editor from "@monaco-editor/react";
-import {CamelDefinitionYaml} from "karavan-core/lib/api/CamelDefinitionYaml";
 import {ProjectFile} from "../api/ProjectModels";
 import {useFilesStore, useFileStore} from "../api/ProjectStore";
 import {KaravanDesigner} from "../designer/KaravanDesigner";
@@ -25,21 +24,16 @@ import {ProjectService} from "../api/ProjectService";
 import {shallow} from "zustand/shallow";
 import {CodeUtils} from "../util/CodeUtils";
 import {RegistryBeanDefinition} from "karavan-core/lib/model/CamelDefinition";
+import {KameletApi} from "karavan-core/lib/api/KameletApi";
+import {CamelDefinitionYaml} from "karavan-core/lib/api/CamelDefinitionYaml";
 import {TopologyUtils} from "karavan-core/lib/api/TopologyUtils";
 import {IntegrationFile} from "karavan-core/lib/model/IntegrationDefinition";
-import { KameletApi } from 'karavan-core/lib/api/KameletApi';
 
 interface Props {
     projectId: string
 }
 
-const languages = new Map<string, string>([
-    ['sh', 'shell'],
-    ['md', 'markdown'],
-    ['properties', 'ini']
-])
-
-export function FileEditor(props: Props) {
+export function DesignerEditor(props: Props) {
 
     const [file, designerTab, setFile] = useFileStore((s) => [s.file, s.designerTab, s.setFile], shallow)
     const [files] = useFilesStore((s) => [s.files], shallow);
@@ -67,7 +61,7 @@ export function FileEditor(props: Props) {
             if (props.projectId.includes('kamelets') && file) {
                 KameletApi.saveKamelet(file?.code);
             }
-          };
+        };
     }, []);
 
     function save(name: string, code: string) {
@@ -117,9 +111,7 @@ export function FileEditor(props: Props) {
         }
     }
 
-    function getDesigner() {
-        return (
-            file !== undefined &&
+    return (file !== undefined ?
             <KaravanDesigner key={key}
                              showCodeTab={true}
                              dark={false}
@@ -136,38 +128,6 @@ export function FileEditor(props: Props) {
                              onInternalConsumerClick={internalConsumerClick}
                              files={files.map(f => new IntegrationFile(f.name, f.code))}
             />
-        )
-    }
-
-    function getEditor() {
-        const extension = file?.name.split('.').pop();
-        const language = extension && languages.has(extension) ? languages.get(extension) : extension;
-        return (
-            file !== undefined &&
-            <Editor
-                height="100vh"
-                defaultLanguage={language}
-                theme={'light'}
-                value={code}
-                className={'code-editor'}
-                onChange={(value, ev) => {
-                    if (value) {
-                        save(file?.name, value)
-                    }
-                }}
-            />
-        )
-    }
-
-    const isCamelYaml = file !== undefined && file.name.endsWith(".camel.yaml");
-    const isKameletYaml = file !== undefined && file.name.endsWith(".kamelet.yaml");
-    const isIntegration = isCamelYaml && file?.code && CamelDefinitionYaml.yamlIsIntegration(file.code);
-    const showDesigner = (isCamelYaml && isIntegration) || isKameletYaml;
-    const showEditor = !showDesigner;
-    return (
-        <>
-            {showDesigner && getDesigner()}
-            {showEditor && getEditor()}
-        </>
+            : <></>
     )
 }

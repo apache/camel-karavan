@@ -23,33 +23,17 @@ import {
     ToolbarContent,
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
-import {DevModeToolbar} from "./DevModeToolbar";
 import {useFileStore, useProjectStore} from "../api/ProjectStore";
 import {shallow} from "zustand/shallow";
-import {BuildToolbar} from "./BuildToolbar";
-import {EditorToolbar} from "../editor/EditorToolbar";
+import {DevModeToolbar} from "../project/DevModeToolbar";
 
-export function ProjectToolbar() {
+export function EditorToolbar() {
 
     const [project, tabIndex] = useProjectStore((s) => [s.project, s.tabIndex], shallow)
     const [file] = useFileStore((state) => [state.file], shallow)
 
     useEffect(() => {
     }, [project, file]);
-
-    function isFile(): boolean {
-        return file !== undefined;
-    }
-
-
-    function getProjectToolbar() {
-        return (<Toolbar id="toolbar-group-types">
-            <ToolbarContent>
-                {isRunnable() && <DevModeToolbar/>}
-                {isBuildContainer() && <BuildToolbar/>}
-            </ToolbarContent>
-        </Toolbar>)
-    }
 
     function isKameletsProject(): boolean {
         return project.projectId === 'kamelets';
@@ -67,9 +51,19 @@ export function ProjectToolbar() {
         return !isKameletsProject() && !isTemplatesProject() && !isServicesProject() && !['build', 'container'].includes(tabIndex.toString());
     }
 
-    function isBuildContainer(): boolean {
-        return !isKameletsProject() && !isTemplatesProject() && !isServicesProject() && ['build', 'container'].includes(tabIndex.toString());
-    }
-
-    return isFile() ? <EditorToolbar/> : getProjectToolbar()
+    return (
+        <Toolbar id="toolbar-group-types">
+            <ToolbarContent>
+                <Flex className="" direction={{default: "row"}}
+                      justifyContent={{default: 'justifyContentSpaceBetween'}}
+                      alignItems={{default: "alignItemsCenter"}}>
+                    {isRunnable() &&
+                        <FlexItem align={{default: 'alignRight'}}>
+                            <DevModeToolbar reloadOnly={true}/>
+                        </FlexItem>
+                    }
+                </Flex>
+            </ToolbarContent>
+        </Toolbar>
+    )
 }

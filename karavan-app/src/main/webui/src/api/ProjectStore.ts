@@ -130,7 +130,7 @@ export const useProjectStore = createWithEqualityFn<ProjectState>((set) => ({
     project: new Project(),
     images: [],
     operation: 'none',
-    tabIndex: 'files',
+    tabIndex: 'topology',
     isPushing: false,
     isPulling: false,
     isRunning: false,
@@ -152,9 +152,9 @@ export const useProjectStore = createWithEqualityFn<ProjectState>((set) => ({
         }));
     },
     setTabIndex: (tabIndex: string | number) => {
-        set((state: ProjectState) => ({
-            tabIndex: tabIndex
-        }));
+        set((state: ProjectState) => {
+            return {tabIndex: tabIndex};
+        });
     },
     setImages: (images: string[]) => {
         set((state: ProjectState) => {
