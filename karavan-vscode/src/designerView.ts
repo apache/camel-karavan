@@ -191,8 +191,8 @@ export class DesignerView {
             utils.readBeans(fullPath),
             //Read BlockList
             utils.readBlockTemplates(this.context),
-            // Read integration
-            utils.readCamelYamlFiles(path.dirname(fullPath))
+            // // Read integration
+            // utils.readCamelYamlFiles(path.dirname(fullPath))
         ]).then(results => {
             // Send Kamelets
             panel.webview.postMessage({ command: 'kamelets', kamelets: results[0] });
@@ -206,7 +206,7 @@ export class DesignerView {
             if (results[4]) panel.webview.postMessage({ command: 'supportedComponents', components: results[4] });
             if (results[5] === true) panel.webview.postMessage({ command: 'supportedOnly' });
             // Send integration
-            panel.webview.postMessage({ command: 'files', files: results[8] });
+            // panel.webview.postMessage({ command: 'files', files: results[8] });
             this.sendIntegrationData(panel, filename, relativePath, fullPath, reread, yaml, tab, results[6], results[7]);
             // Send block list
             panel.webview.postMessage({ command: 'blockList', blockList: Object.fromEntries(results[8]) });
@@ -216,26 +216,30 @@ export class DesignerView {
 
     sendIntegrationData(panel: WebviewPanel, filename: string, relativePath: string,
         fullPath: string, reread: boolean, yaml?: string, tab?: string, propertyPlaceholders?: string[], beans?: RegistryBeanDefinition[]) {
-        // Read file if required
-        if (reread) {
-            utils.readFile(path.resolve(fullPath)).then(readData => {
-                const yaml = Buffer.from(readData).toString('utf8');
+        // Read and send Integrations
+        utils.readCamelYamlFiles(path.dirname(fullPath)).then((files) => {
+            panel.webview.postMessage({ command: 'files', files: files });
+        }).finally(() => {
+            // Read file if required
+            if (reread) {
+                utils.readFile(path.resolve(fullPath)).then(readData => {
+                    const yaml = Buffer.from(readData).toString('utf8');
+                    // Send integration
+                    panel.webview.postMessage(
+                        {
+                            command: 'open', page: "designer", filename: filename, relativePath: relativePath,
+                            fullPath: fullPath, yaml: yaml, tab: tab, propertyPlaceholders: propertyPlaceholders, beans: beans
+                        });
+                });
+            } else {
                 // Send integration
                 panel.webview.postMessage(
                     {
                         command: 'open', page: "designer", filename: filename, relativePath: relativePath,
                         fullPath: fullPath, yaml: yaml, tab: tab, propertyPlaceholders: propertyPlaceholders, beans: beans
                     });
-            });
-        } else {
-            // Send integration
-            panel.webview.postMessage(
-                {
-                    command: 'open', page: "designer", filename: filename, relativePath: relativePath,
-                    fullPath: fullPath, yaml: yaml, tab: tab, propertyPlaceholders: propertyPlaceholders, beans: beans
-                });
-        }
-
+            }
+        })
     }
 
     downloadImage(fullPath: string) {
@@ -256,7 +260,7 @@ export class DesignerView {
                     commands.executeCommand("karavan.open", { fsPath: filename })
                 }
             }).catch(err => window.showErrorMessage("Error: " + err?.reason));
-        } else if(routeId) {
+        } else if (routeId) {
             utils.getFileWithInternalProducer(fullPath, routeId).then((filename) => {
                 if (filename !== undefined) {
                     commands.executeCommand("karavan.open", { fsPath: filename })
