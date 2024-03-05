@@ -116,7 +116,7 @@ export function DslPropertyField(props: Props) {
         if (checkChanges) {
             const interval = setInterval(() => {
                 if (props.value !== textValue) {
-                    if (isVariable) {
+                    if (isVariable && textValue !== undefined) {
                         propertyChanged(property.name, variableType.concat(textValue));
                     } else {
                         propertyChanged(property.name, textValue);
@@ -312,7 +312,11 @@ export function DslPropertyField(props: Props) {
                            value={textValue?.toString()}
                            customIcon={property.type !== 'string' ?
                                <Text component={TextVariants.p}>{property.type}</Text> : undefined}
-                           onBlur={_ => propertyChanged(property.name, variableType.concat(textValue))}
+                           onBlur={_ => {
+                               if (textValue !== undefined) {
+                                   propertyChanged(property.name, variableType.concat(textValue))
+                               }
+                           }}
                            onFocus={_ => setCheckChanges(true)}
                            onChange={(_, v) => {
                                setTextValue(v);
