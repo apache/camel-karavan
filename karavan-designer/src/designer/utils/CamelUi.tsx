@@ -402,11 +402,11 @@ export class CamelUi {
         return false;
     }
 
-    static getExpressionTooltip = (element: CamelElement): string => {
+    static getExpressionTooltip = (element: CamelElement): [string, string] => {
         const e = (element as any).expression;
         const language = CamelDefinitionApiExt.getExpressionLanguageName(e) || '';
         const value = CamelDefinitionApiExt.getExpressionValue(e) || '';
-        return language.concat(": ", (value as any)?.expression);
+        return [language, (value as any)?.expression];
     }
 
     static getUriTooltip = (element: CamelElement): string => {

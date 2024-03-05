@@ -28,6 +28,7 @@ import {shallow} from "zustand/shallow";
 import {useRouteDesignerHook} from "../useRouteDesignerHook";
 import {AddElementIcon, DeleteElementIcon, InsertElementIcon} from "../../utils/ElementIcons";
 import { RouteConfigurationDefinition} from "karavan-core/lib/model/CamelDefinition";
+import {ReactComponent} from "*.svg";
 
 interface Props {
     headerRef: React.RefObject<HTMLDivElement>
@@ -214,19 +215,28 @@ export function DslElementHeader(props: Props) {
         )
     }
 
-    function getHeaderWithTooltip(tooltip: string | undefined) {
+    function getHeaderWithTooltip(tooltip: string | React.JSX.Element | undefined) {
         return (
             <>
                 {getHeader()}
-                <Tooltip triggerRef={props.headerRef} position={"left"} content={<div>{tooltip}</div>}/>
+                <Tooltip triggerRef={props.headerRef} position={"left"} content={<div style={{textAlign: 'left'}}>{tooltip}</div>}/>
             </>
 
         )
     }
 
-    function getHeaderTooltip(): string | undefined {
-        if (CamelUi.isShowExpressionTooltip(props.step)) return CamelUi.getExpressionTooltip(props.step);
-        if (CamelUi.isShowUriTooltip(props.step)) return CamelUi.getUriTooltip(props.step);
+    function getHeaderTooltip(): string | React.JSX.Element | undefined {
+        if (CamelUi.isShowExpressionTooltip(props.step)) {
+            const et =  CamelUi.getExpressionTooltip(props.step);
+            const exp = et[1];
+            return (
+                <div>
+                    <div>{et[0]}:</div>
+                    <div>{exp.length > 50 ? (exp.substring(0, 50) + ' ...') : exp}</div>
+                </div>
+            )
+        }
+        if (CamelUi.isShowUriTooltip(props.step)) return  CamelUi.getUriTooltip(props.step);
         return undefined;
     }
 
