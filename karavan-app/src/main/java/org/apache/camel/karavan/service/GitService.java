@@ -19,10 +19,12 @@ package org.apache.camel.karavan.service;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
 import io.quarkus.oidc.UserInfo;
+import io.quarkus.runtime.StartupEvent;
 import io.quarkus.security.identity.SecurityIdentity;
 import io.smallrye.mutiny.tuples.Tuple2;
 import io.vertx.core.Vertx;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
 import org.apache.camel.karavan.model.*;
 import org.eclipse.jgit.api.*;
@@ -71,6 +73,9 @@ public class GitService {
     @ConfigProperty(name = "karavan.known-hosts-path")
     Optional<String> knownHostsPath;
 
+    @ConfigProperty(name = "karavan.git.ephemeral", defaultValue = "false")
+    boolean ephemeral;
+
     @Inject
     Vertx vertx;
 
@@ -95,6 +100,13 @@ public class GitService {
     }
 
     public GitConfig getGitConfig() {
+        if (ephemeral) {
+            repository = "http://karavan.git";
+            username = Optional.of("karavan");
+            password = Optional.of("karavan");
+            privateKeyPath = Optional.empty();
+            knownHostsPath = Optional.empty();
+        }
         return new GitConfig(repository, username.orElse(null), password.orElse(null), branch, privateKeyPath.orElse(null));
     }
 
@@ -121,16 +133,16 @@ public class GitService {
         String uuid = UUID.randomUUID().toString();
         String folder = vertx.fileSystem().createTempDirectoryBlocking(uuid);
         LOGGER.info("Temp folder created " + folder);
-        Git git = null;
-        try {
-            git = clone(folder, gitConfig.getUri(), gitConfig.getBranch());
-            checkout(git, false, null, null, gitConfig.getBranch());
-        } catch (RefNotFoundException | InvalidRemoteException | TransportException e) {
-            LOGGER.error("New repository");
-            git = init(folder, gitConfig.getUri(), gitConfig.getBranch());
-        } catch (Exception e) {
-            LOGGER.error("Error", e);
-        }
+        Git git = getGit(true, folder);
+//        try {
+//            git = clone(folder, gitConfig.getUri(), gitConfig.getBranch());
+//            checkout(git, false, null, null, gitConfig.getBranch());
+//        } catch (RefNotFoundException | InvalidRemoteException | TransportException e) {
+//            LOGGER.error("New repository");
+//            git = init(folder, gitConfig.getUri(), gitConfig.getBranch());
+//        } catch (Exception e) {
+//            LOGGER.error("Error", e);
+//        }
         writeProjectToFolder(folder, project, files);
         addDeletedFilesToIndex(git, folder, project, files);
         return commitAddedAndPush(git, gitConfig.getBranch(), message);
@@ -183,16 +195,21 @@ public class GitService {
         GitConfig gitConfig = getGitConfig();
         LOGGER.info("Temp folder created " + folder);
         Git git = null;
-        try {
-            git = clone(folder, gitConfig.getUri(), gitConfig.getBranch());
-            if (checkout) {
-                checkout(git, false, null, null, gitConfig.getBranch());
-            }
-        } catch (RefNotFoundException | InvalidRemoteException | TransportException e) {
-            LOGGER.error("New repository");
+        if (ephemeral) {
+            LOGGER.error("New ephemeral repository");
             git = init(folder, gitConfig.getUri(), gitConfig.getBranch());
-        } catch (Exception e) {
-            LOGGER.error("Error", e);
+        } else {
+            try {
+                git = clone(folder, gitConfig.getUri(), gitConfig.getBranch());
+                if (checkout) {
+                    checkout(git, false, null, null, gitConfig.getBranch());
+                }
+            } catch (RefNotFoundException | InvalidRemoteException | TransportException e) {
+                LOGGER.error("New repository");
+                git = init(folder, gitConfig.getUri(), gitConfig.getBranch());
+            } catch (Exception e) {
+                LOGGER.error("Error", e);
+            }
         }
         return git;
     }
@@ -270,11 +287,13 @@ public class GitService {
         LOGGER.info("Git add: " + git.add().addFilepattern(".").call());
         RevCommit commit = git.commit().setMessage(message).setAuthor(getPersonIdent()).call();
         LOGGER.info("Git commit: " + commit);
-        PushCommand pushCommand = git.push();
-        pushCommand.add(branch).setRemote("origin");
-        setCredentials(pushCommand);
-        Iterable<PushResult> result = pushCommand.call();
-        LOGGER.info("Git push: " + result);
+        if (!ephemeral) {
+            PushCommand pushCommand = git.push();
+            pushCommand.add(branch).setRemote("origin");
+            setCredentials(pushCommand);
+            Iterable<PushResult> result = pushCommand.call();
+            LOGGER.info("Git push: " + result);
+        }
         return commit;
     }
 
@@ -305,17 +324,17 @@ public class GitService {
         }
     }
 
-    public void deleteProject(String projectId, List<ProjectFile> files) {
+    public void deleteProject(String projectId, List<ProjectFile> files) throws GitAPIException, IOException, URISyntaxException {
         LOGGER.info("Delete and push project " + projectId);
         GitConfig gitConfig = getGitConfig();
         String uuid = UUID.randomUUID().toString();
         String folder = vertx.fileSystem().createTempDirectoryBlocking(uuid);
         String commitMessage = "Project " + projectId + " is deleted";
         LOGGER.infof("Temp folder %s is created for deletion of project %s", folder, projectId);
-        Git git = null;
         try {
-            git = clone(folder, gitConfig.getUri(), gitConfig.getBranch());
-            checkout(git, false, null, null, gitConfig.getBranch());
+            Git git = getGit(true, folder);
+//            git = clone(folder, gitConfig.getUri(), gitConfig.getBranch());
+//            checkout(git, false, null, null, gitConfig.getBranch());
             addDeletedFolderToIndex(git, folder, projectId, files);
             commitAddedAndPush(git, gitConfig.getBranch(), commitMessage);
             LOGGER.info("Delete Temp folder " + folder);
@@ -417,6 +436,9 @@ public class GitService {
 
     public boolean checkGit() throws Exception {
         LOGGER.info("Check git");
+        if (ephemeral) {
+            return true;
+        }
         GitConfig gitConfig = getGitConfig();
         String uuid = UUID.randomUUID().toString();
         String folder = vertx.fileSystem().createTempDirectoryBlocking(uuid);
