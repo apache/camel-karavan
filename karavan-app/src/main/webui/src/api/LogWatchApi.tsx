@@ -32,6 +32,8 @@ export class LogWatchApi {
             } else if (KaravanApi.authType === 'basic' && KaravanApi.basicToken?.length > 0) {
                 headers.Authorization = "Basic " + KaravanApi.basicToken
                 ready = true;
+            } else {
+                ready = KaravanApi.authType === 'public';
             }
             if (ready) {
                 await fetchEventSource("/api/logwatch/" + type + "/" + podName, {
