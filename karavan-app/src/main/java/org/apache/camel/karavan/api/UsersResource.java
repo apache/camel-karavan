@@ -53,7 +53,7 @@ public class UsersResource {
             UserInfo userInfo = (UserInfo) securityIdentity.getAttributes().get("userinfo");
             this.userName = securityIdentity.getPrincipal().getName();
             this.roles = securityIdentity.getRoles();
-            this.displayName = userInfo.getName();
+            this.displayName = userInfo != null ? userInfo.getName() : userName;
         }
 
         public String getDisplayName() {

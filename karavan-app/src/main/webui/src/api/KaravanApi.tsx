@@ -27,6 +27,7 @@ import {
 import {Buffer} from 'buffer';
 import {SsoApi} from "./SsoApi";
 import {v4 as uuidv4} from "uuid";
+import {useAppConfigStore} from "./ProjectStore";
 
 const USER_ID_KEY = 'KARAVAN_USER_ID';
 axios.defaults.headers.common['Accept'] = 'application/json';
@@ -38,6 +39,7 @@ export class KaravanApi {
     static me?: any;
     static authType?: string = undefined;
     static isAuthorized: boolean = false;
+    static basicToken: string = '';
 
     static getInstance() {
         return instance;
@@ -59,6 +61,7 @@ export class KaravanApi {
     }
 
     static setAuthType(authType: string) {
+        console.log("setAuthType", authType)
         KaravanApi.authType = authType;
         switch (authType){
             case "public": {
@@ -69,10 +72,24 @@ export class KaravanApi {
                 KaravanApi.setOidcAuthentication();
                 break;
             }
+            case "basic": {
+                KaravanApi.setBasicAuthentication();
+                break;
+            }
         }
     }
     static setPublicAuthentication() {
 
+    }
+
+    static setBasicAuthentication() {
+        instance.interceptors.request.use(async config => {
+                config.headers.Authorization = 'Basic ' + KaravanApi.basicToken;
+                return config;
+            },
+            error => {
+                Promise.reject(error)
+            });
     }
 
     static setOidcAuthentication() {
@@ -103,6 +120,31 @@ export class KaravanApi {
                 });
             }
             return Promise.reject(error);
+        });
+    }
+
+    static async auth(username: string, password: string, after: (ok: boolean, res: any) => void) {
+        instance.post('/public/auth',
+            {username: username, password: Buffer.from(password).toString('base64')},
+            {headers: {'content-type': 'application/x-www-form-urlencoded'}})
+            .then(res => {
+                if (res.status === 200) {
+                    KaravanApi.isAuthorized = true;
+                    KaravanApi.basicToken = Buffer.from(username + ":" + password).toString('base64');
+                    KaravanApi.setBasicAuthentication();
+                    KaravanApi.getMe(user => {
+                        after(true, res);
+                        useAppConfigStore.setState({isAuthorized: true})
+                    })
+                } else if (res.status === 401) {
+                    useAppConfigStore.setState({isAuthorized: false})
+                    KaravanApi.basicToken = '';
+                    after(false, res);
+                }
+            }).catch(err => {
+            KaravanApi.basicToken = '';
+            useAppConfigStore.setState({isAuthorized: false})
+            after(false, err);
         });
     }
 
@@ -291,7 +333,7 @@ export class KaravanApi {
             .then(res => {
                 after(res);
             }).catch(err => {
-                after(err);
+            after(err);
         });
     }
 

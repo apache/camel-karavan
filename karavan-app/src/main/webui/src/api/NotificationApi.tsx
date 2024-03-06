@@ -18,13 +18,12 @@
 import {SsoApi} from "./SsoApi";
 import {EventStreamContentType, fetchEventSource} from "@microsoft/fetch-event-source";
 import {KaravanApi} from "./KaravanApi";
-import {EventBus} from "../designer/utils/EventBus";
 import {EventSourceMessage} from "@microsoft/fetch-event-source/lib/cjs/parse";
 import {KaravanEvent, NotificationEventBus} from "./NotificationService";
 
 export class NotificationApi {
 
-     static getKaravanEvent (ev: EventSourceMessage, type: 'system' | 'user') {
+    static getKaravanEvent (ev: EventSourceMessage, type: 'system' | 'user') {
         const eventParts = ev.event?.split(':');
         const event = eventParts?.length > 1 ? eventParts[0] : undefined;
         const className = eventParts?.length > 1 ? eventParts[1] : undefined;
@@ -44,13 +43,20 @@ export class NotificationApi {
     static async notification(controller: AbortController) {
         const fetchData = async () => {
             const headers: any = { Accept: "text/event-stream" };
-            if (KaravanApi.authType === 'oidc') {
-                headers.Authorization = "Bearer " + SsoApi.keycloak?.token
+            let ready = false;
+            if (KaravanApi.authType === 'oidc' && SsoApi.keycloak?.token && SsoApi.keycloak?.token?.length > 0) {
+                headers.Authorization = "Bearer " + SsoApi.keycloak?.token;
+                ready = true;
+            } else if (KaravanApi.authType === 'basic' && KaravanApi.basicToken?.length > 0) {
+                headers.Authorization = "Basic " + KaravanApi.basicToken
+                ready = true;
             }
-            NotificationApi.fetch('/api/notification/system', controller, headers,
+            if (ready) {
+                NotificationApi.fetch('/api/notification/system', controller, headers,
                     ev => NotificationApi.onSystemMessage(ev));
-            NotificationApi.fetch('/api/notification/user/' + KaravanApi.getUserId(), controller, headers,
-                ev => NotificationApi.onUserMessage(ev));
+                NotificationApi.fetch('/api/notification/user/' + KaravanApi.getUserId(), controller, headers,
+                    ev => NotificationApi.onUserMessage(ev));
+            }
         };
         return fetchData();
     };

@@ -17,20 +17,18 @@
 package org.apache.camel.karavan.api;
 
 import jakarta.inject.Inject;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import org.apache.camel.karavan.service.KaravanCacheService;
 import org.apache.camel.karavan.kubernetes.KubernetesService;
 import org.apache.camel.karavan.service.AuthService;
 import org.apache.camel.karavan.service.ProjectService;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.health.HealthCheckResponse;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.*;
 
 @Path("/public")
 public class AuthResource {
@@ -44,8 +42,42 @@ public class AuthResource {
     @Inject
     KubernetesService kubernetesService;
 
-    @Inject
-    KaravanCacheService karavanCacheService;
+    @ConfigProperty(name = "quarkus.security.users.embedded.realm-name", defaultValue = "")
+    Optional<String> realm;
+
+    @ConfigProperty(name = "quarkus.security.users.embedded.users")
+    Optional<Map<String,String>> users;
+
+    public static String getMd5Hash(String input) throws NoSuchAlgorithmException {
+        MessageDigest md = MessageDigest.getInstance("MD5");
+        byte[] digest = md.digest(input.getBytes());
+        StringBuilder sb = new StringBuilder();
+        for (byte b : digest) {
+            sb.append(String.format("%02x", b));
+        }
+        return sb.toString();
+    }
+
+    @Path("/auth")
+    @POST
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    public Response authenticateUser(@FormParam("username") String username, @FormParam("password") String password) {
+        try {
+            if (users.isPresent() && users.get().containsKey(username)) {
+                var pwdStored = users.get().get(username);
+                var pwdReceived = new String(Base64.getDecoder().decode(password));
+                var pwdString = username + ":" + realm.orElse("") + ":" + pwdReceived;
+                String pwdToCheck = getMd5Hash(pwdString);
+                if (Objects.equals(pwdToCheck, pwdStored)) {
+                    return Response.ok().build();
+                }
+            }
+            return Response.status(Response.Status.FORBIDDEN).entity("Incorrect Username and/or Password!").build();
+        } catch (Exception e) {
+            return Response.status(Response.Status.FORBIDDEN).entity(e.getMessage()).build();
+        }
+    }
 
     @GET
     @Path("/auth")

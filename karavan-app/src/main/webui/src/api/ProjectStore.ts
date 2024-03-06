@@ -30,6 +30,8 @@ import {createWithEqualityFn} from "zustand/traditional";
 import {shallow} from "zustand/shallow";
 
 interface AppConfigState {
+    isAuthorized: boolean;
+    setAuthorized: (isAuthorized: boolean) => void;
     loading: boolean;
     setLoading: (loading: boolean) => void;
     config: AppConfig;
@@ -42,6 +44,10 @@ interface AppConfigState {
 }
 
 export const useAppConfigStore = createWithEqualityFn<AppConfigState>((set) => ({
+    isAuthorized: false,
+    setAuthorized: (isAuthorized: boolean)  => {
+        set({isAuthorized: isAuthorized})
+    },
     loading: false,
     setLoading: (loading: boolean)  => {
         set({loading: loading})
