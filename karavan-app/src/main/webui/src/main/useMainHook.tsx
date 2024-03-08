@@ -27,13 +27,13 @@ import {ProjectService} from "../api/ProjectService";
 
 export function useMainHook () {
 
-    const [setConfig] = useAppConfigStore((state) => [state.setConfig], shallow)
+    const [setConfig, isAuthorized] = useAppConfigStore((s) => [s.setConfig, s.isAuthorized], shallow)
     const [setProjects] = useProjectsStore((s) => [s.setProjects], shallow)
     const [setContainers] = useStatusesStore((state) => [state.setContainers], shallow);
     const [selectedEnv, selectEnvironment] = useAppConfigStore((state) => [state.selectedEnv, state.selectEnvironment], shallow)
 
     const getStatuses = () =>  {
-        if (KaravanApi.isAuthorized || KaravanApi.authType === 'public') {
+        if (isAuthorized || KaravanApi.authType === 'public') {
             KaravanApi.getAllContainerStatuses((statuses: ContainerStatus[]) => {
                 setContainers(statuses);
             });
@@ -41,7 +41,7 @@ export function useMainHook () {
     }
 
     const getData = () =>  {
-        if (KaravanApi.isAuthorized || KaravanApi.authType === 'public') {
+        if (isAuthorized) {
             KaravanApi.getConfiguration((config: AppConfig) => {
                 setConfig(config);
                 if (!selectedEnv || selectedEnv.length == 0) {

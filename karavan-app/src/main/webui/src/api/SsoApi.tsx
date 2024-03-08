@@ -17,6 +17,7 @@
 
 import Keycloak from "keycloak-js";
 import {KaravanApi} from "./KaravanApi";
+import {useAppConfigStore} from "./ProjectStore";
 
 export class SsoApi {
 
@@ -27,7 +28,6 @@ export class SsoApi {
             SsoApi.keycloak = new Keycloak({url: config.url, realm: config.realm, clientId: config.clientId});
             SsoApi.keycloak.init({onLoad: 'login-required', flow: 'hybrid', checkLoginIframe: false}).then(value => {
                 console.log('SsoApi', 'User is now authenticated.');
-                KaravanApi.isAuthorized = true;
                 after();
             }).catch(reason => {
                 console.log('SsoApi', 'Error:', reason);
@@ -40,7 +40,7 @@ export class SsoApi {
         if (SsoApi.keycloak) {
             SsoApi.keycloak.logout().then(value => {
                 console.log('SsoApi', 'User is now logout.');
-                KaravanApi.isAuthorized = false;
+                useAppConfigStore.setState({isAuthorized: false})
                 window.location.reload();
             }).catch(reason => {
                 console.log('SsoApi', 'Error:', reason);

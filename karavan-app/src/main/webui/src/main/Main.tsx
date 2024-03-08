@@ -34,28 +34,11 @@ import {NotificationApi} from "../api/NotificationApi";
 
 export function Main() {
 
-    const [readiness, setReadiness] = useAppConfigStore((s) => [s.readiness, s.setReadiness], shallow)
+    const [readiness, setReadiness, isAuthorized] = useAppConfigStore((s) => [s.readiness, s.setReadiness, s.isAuthorized], shallow)
     const {getData} = useMainHook();
 
-    const initialized = useRef(false);
-
     useEffect(() => {
-        if (showMain()) {
-            console.log("Start Notification fetcher");
-            const controller = new AbortController();
-            NotificationApi.notification(controller);
-            return () => {
-                console.log("Stop Notification fetcher");
-                controller.abort();
-            };
-        }
-    }, [readiness]);
-
-    useEffect(() => {
-        if (!initialized.current) {
-            initialized.current = true
-            effect()
-        }
+        checkAuthType();
         const interval = setInterval(() => {
             KaravanApi.getReadiness((r: any) => {
                 setReadiness(r);
@@ -64,19 +47,30 @@ export function Main() {
         return () => {
             clearInterval(interval);
         };
-    }, [])
+    }, []);
 
-    function effect() {
-        KaravanApi.getAuthType((authType: string) => {
-            console.log("authType", authType);
-            if (authType === 'oidc') {
-                SsoApi.auth(() => {
-                    KaravanApi.getMe((user: any) => {
-                        getData();
-                    });
-                });
-            }
+    useEffect(() => {
+        if (showMain()) {
             getData();
+            console.log("Start Notification fetcher");
+            const controller = new AbortController();
+            NotificationApi.notification(controller);
+            return () => {
+                console.log("Stop Notification fetcher");
+                controller.abort();
+            };
+        } else if (KaravanApi.authType === 'oidc') {
+            SsoApi.auth(() => {
+                KaravanApi.getMe((user: any) => {
+                    useAppConfigStore.setState({isAuthorized: true});
+                });
+            });
+        }
+    }, [readiness, isAuthorized]);
+
+    function checkAuthType() {
+        KaravanApi.getAuthType((authType: string) => {
+            console.log("Main AuthType", authType);
         });
     }
 
@@ -89,7 +83,7 @@ export function Main() {
     }
 
     function showMain() {
-        return !showStepper() && !showSpinner() && (KaravanApi.isAuthorized || KaravanApi.authType === 'public');
+        return KaravanApi.authType !== undefined && readiness?.status === true && isAuthorized;
     }
 
     return (

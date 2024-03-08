@@ -38,7 +38,6 @@ export class KaravanApi {
 
     static me?: any;
     static authType?: string = undefined;
-    static isAuthorized: boolean = false;
     static basicToken: string = '';
 
     static getInstance() {
@@ -61,7 +60,7 @@ export class KaravanApi {
     }
 
     static setAuthType(authType: string) {
-        console.log("setAuthType", authType)
+        console.log("SetAuthType", authType)
         KaravanApi.authType = authType;
         switch (authType){
             case "public": {
@@ -129,7 +128,6 @@ export class KaravanApi {
             {headers: {'content-type': 'application/x-www-form-urlencoded'}})
             .then(res => {
                 if (res.status === 200) {
-                    KaravanApi.isAuthorized = true;
                     KaravanApi.basicToken = Buffer.from(username + ":" + password).toString('base64');
                     KaravanApi.setBasicAuthentication();
                     KaravanApi.getMe(user => {
@@ -177,7 +175,9 @@ export class KaravanApi {
         instance.get('/public/auth', {headers: {'Accept': 'text/plain'}})
             .then(res => {
                 if (res.status === 200) {
-                    KaravanApi.setAuthType(res.data);
+                    const authType = res.data;
+                    KaravanApi.setAuthType(authType);
+                    useAppConfigStore.setState({isAuthorized: authType === 'public'})
                     after(res.data);
                 }
             }).catch(err => {

@@ -141,18 +141,6 @@ export function PageNavigation () {
                                 <DescriptionListTerm>Display Name</DescriptionListTerm>
                                 <DescriptionListDescription>{KaravanApi.me?.displayName}</DescriptionListDescription>
                             </DescriptionListGroup>
-                            <DescriptionListGroup>
-                                <DescriptionListTerm>Roles</DescriptionListTerm>
-                                <DescriptionListDescription>
-                                    <Flex direction={{default: "row"}} gap={{default: "gapXs"}}>
-                                        {KaravanApi.me?.roles && Array.isArray(KaravanApi.me?.roles)
-                                            && KaravanApi.me?.roles
-                                                .filter((r: string) => ['administrator', 'developer', 'viewer'].includes(r))
-                                                .map((role: string) => <Badge key={role} id={role}
-                                                                              isRead>{role}</Badge>)}
-                                    </Flex>
-                                </DescriptionListDescription>
-                            </DescriptionListGroup>
                         </DescriptionList>
                     }
                     footerContent={
@@ -160,8 +148,6 @@ export function PageNavigation () {
                             <Button size="sm"
                                     variant={"primary"}
                                     icon={<LogoutIcon/>}
-                                // component={'a'}
-                                // href={KaravanApi.me.logoutUrl}
                                     onClick={e => {
                                         setShowUser(false);
                                         SsoApi.logout(() => {});

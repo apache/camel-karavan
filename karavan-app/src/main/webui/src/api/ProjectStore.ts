@@ -364,7 +364,7 @@ export const useLogStore = createWithEqualityFn<LogState>((set) => ({
     },
 }), shallow)
 
-console.log("Start log subscriber");
+console.log("Start Log Subscriber");
 const sub = ProjectEventBus.onLog()?.subscribe((result: ["add" | "set", string]) => {
     if (result[0] === 'add') {
         unstable_batchedUpdates(() => {
