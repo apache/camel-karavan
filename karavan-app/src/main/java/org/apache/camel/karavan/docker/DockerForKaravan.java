@@ -28,6 +28,7 @@ import org.apache.camel.karavan.service.ProjectService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -42,9 +43,6 @@ public class DockerForKaravan {
     @ConfigProperty(name = "karavan.devmode.image")
     String devmodeImage;
 
-    @ConfigProperty(name = "karavan.maven.cache")
-    Optional<String> mavenCache;
-
     @Inject
     DockerService dockerService;
 
@@ -53,8 +51,7 @@ public class DockerForKaravan {
 
     public void runProjectInDevMode(String projectId, String jBangOptions, Map<Integer, Integer> ports,
                                     Map<String, String> files) throws Exception {
-        Map<String, String> volumes = getMavenVolumes();
-        Container c = createDevmodeContainer(projectId, jBangOptions, ports, volumes);
+        Container c = createDevmodeContainer(projectId, jBangOptions, ports, new HashMap<>());
         dockerService.runContainer(projectId);
         dockerService.copyFiles(c.getId(), "/karavan/code", files, true);
     }
@@ -84,9 +81,8 @@ public class DockerForKaravan {
 
     public void runBuildProject(Project project, String script, List<String> env, Map<String, String> sshFiles, String tag) throws Exception {
         String containerName = project.getProjectId() + BUILDER_SUFFIX;
-        Map<String, String> volumes = getMavenVolumes();
         dockerService.deleteContainer(containerName);
-        Container c = createBuildContainer(containerName, project, env, volumes, tag);
+        Container c = createBuildContainer(containerName, project, env, new HashMap<>(0), tag);
         dockerService.copyExecFile(c.getId(), "/karavan/builder", "build.sh", script);
         sshFiles.forEach((name, text) -> {
             dockerService.copyExecFile(c.getId(), "/karavan/.ssh", name, text);
@@ -108,9 +104,4 @@ public class DockerForKaravan {
                 null, null, null, null,
                 "/karavan/builder/build.sh");
     }
-
-    private Map<String,String> getMavenVolumes(){
-        return mavenCache.map(s -> Map.of(s, "/karavan/.m2")).orElseGet(Map::of);
-    }
-
 }
