@@ -38,7 +38,7 @@ import {
     CloudIcon,
     ClusterIcon,
     DatabaseIcon,
-    DebeziumIcon, DirectIcon,
+    DebeziumIcon, DHIS2Icon, DirectIcon,
     DocumentIcon,
     FileIcon,
     GithubIcon,
@@ -609,6 +609,8 @@ export class CamelUi {
             return GithubIcon();
         } else if (title.startsWith("Git")) {
             return GitIcon();
+        } else if (title.startsWith("DHIS2")) {
+            return DHIS2Icon();
         } else if (title.startsWith("Cassandra")) {
             return CassandraIcon();
         } else if (title.startsWith("Hazelcast")) {
