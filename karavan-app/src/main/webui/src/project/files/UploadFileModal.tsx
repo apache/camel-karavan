@@ -130,7 +130,7 @@ export function UploadFileModal(props: Props) {
     const fileNotUploaded = (filename === '' || data === '');
     const accept : Accept = type === 'integration'
         ? {'application/yaml': ['.yaml', '.yml']}
-        :  {'application/yaml': ['.yaml', '.yml'], 'application/json': ['.json'], 'plain/text': ['.sql']};
+        :  {'application/yaml': ['.yaml', '.yml'], 'application/json': ['.json'], 'plain/text': ['.sql'], 'text/x-java': ['.java']};
     return (
         <Modal
             title="Upload"
