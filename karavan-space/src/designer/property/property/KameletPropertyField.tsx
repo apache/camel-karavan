@@ -99,6 +99,7 @@ export function KameletPropertyField(props: Props) {
         const propertyId = infrastructureSelectorProperty;
         if (propertyId){
             if (value.startsWith("config") || value.startsWith("secret")) value = "{{" + value + "}}";
+            setTextValue(value);
             parametersChanged(propertyId, value);
             setInfrastructureSelector(false);
             setInfrastructureSelectorProperty(undefined);

@@ -248,6 +248,7 @@ export function DslPropertyField(props: Props) {
             const propertyName = infrastructureSelectorProperty;
             if (propertyName) {
                 if (value.startsWith("config") || value.startsWith("secret")) value = "{{" + value + "}}";
+                setTextValue(value);
                 propertyChanged(propertyName, value);
                 setInfrastructureSelector(false);
                 setInfrastructureSelectorProperty(undefined);
@@ -402,6 +403,7 @@ export function DslPropertyField(props: Props) {
                              onClose={() => setShowEditor(false)}
                              onSave={(fieldId, value1) => {
                                  propertyChanged(property.name, value1)
+                                 setTextValue(value1);
                                  setShowEditor(false);
                              }}/>
             </InputGroupItem>}
@@ -498,6 +500,7 @@ export function DslPropertyField(props: Props) {
                                  onClose={() => setShowEditor(false)}
                                  onSave={(fieldId, value1) => {
                                      propertyChanged(fieldId, value1);
+                                     setTextValue(value1);
                                      setShowEditor(false);
                                  }}/>
                 </InputGroupItem>}

@@ -226,6 +226,7 @@ export function ComponentPropertyField(props: Props) {
         const propertyName = infrastructureSelectorProperty;
         if (propertyName) {
             if (value.startsWith("config") || value.startsWith("secret")) value = "{{" + value + "}}";
+            setTextValue(value);
             parametersChanged(propertyName, value);
             setInfrastructureSelector(false);
             setInfrastructureSelectorProperty(undefined);
@@ -287,6 +288,7 @@ export function ComponentPropertyField(props: Props) {
                              title={property.displayName}
                              onClose={() => setShowEditor(false)}
                              onSave={(fieldId, value1) => {
+                                 setTextValue(value1);
                                  parametersChanged(property.name, value1, property.kind === 'path')
                                  setShowEditor(false);
                                  setCheckChanges(false);
