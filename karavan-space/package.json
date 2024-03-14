@@ -4,11 +4,12 @@
   "license": "Apache-2.0",
   "scripts": {
     "cp-designer": "cp -r ../karavan-designer/src/designer src",
+    "cp-expression": "cp -r ../karavan-designer/src/expression src",
     "cp-knowledgebase": "cp -r ../karavan-designer/src/knowledgebase src",
     "cp-topology": "cp -r ../karavan-designer/src/topology src",
     "cp-public-kamelets": "cp -r ../karavan-designer/public/kamelets public",
     "cp-public-components": "cp -r ../karavan-designer/public/components public",
-    "copy": "npm run cp-designer && npm run cp-knowledgebase && npm run cp-topology && npm run cp-public-components && npm run cp-public-kamelets",
+    "copy": "npm run cp-designer && npm run cp-expression && npm run cp-knowledgebase && npm run cp-topology && npm run cp-public-components && npm run cp-public-kamelets",
     "start": "npm run copy && react-scripts start",
     "build": "npm run copy && react-scripts build",
     "prod": "npm run copy && react-scripts build --dest && rsync -a build/* ../resources/META-INF/resources"

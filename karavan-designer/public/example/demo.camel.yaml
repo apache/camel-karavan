@@ -23,11 +23,9 @@
             id: setVariable-439c
             name: alc1
             expression:
-              jq:
-                id: jq-c893
+              java:
+                id: java-6ac5
                 expression: .alcohol | rtrimstr("%")
-                source: beer1
-                resultType: float
         - setVariable:
             id: setVariable-14bc
             name: alc2

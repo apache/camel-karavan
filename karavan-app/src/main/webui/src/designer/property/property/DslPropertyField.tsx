@@ -62,7 +62,7 @@ import {ComponentProperty} from "karavan-core/lib/model/ComponentModels";
 import {InfrastructureSelector} from "./InfrastructureSelector";
 import {InfrastructureAPI} from "../../utils/InfrastructureAPI";
 import EditorIcon from "@patternfly/react-icons/dist/js/icons/code-icon";
-import {ModalEditor} from "./ModalEditor";
+import {ExpressionModalEditor} from "../../../expression/ExpressionModalEditor";
 import DockerIcon from "@patternfly/react-icons/dist/js/icons/docker-icon";
 import {useDesignerStore, useIntegrationStore} from "../../DesignerStore";
 import {shallow} from "zustand/shallow";
@@ -394,14 +394,14 @@ export function DslPropertyField(props: Props) {
                 </Tooltip>
             </InputGroupItem>}
             {showEditor && <InputGroupItem>
-                <ModalEditor name={property.name}
-                             customCode={value}
-                             showEditor={showEditor}
-                             dark={dark}
-                             dslLanguage={undefined}
-                             title={property.displayName}
-                             onClose={() => setShowEditor(false)}
-                             onSave={(fieldId, value1) => {
+                <ExpressionModalEditor name={property.name}
+                                       customCode={value}
+                                       showEditor={showEditor}
+                                       dark={dark}
+                                       dslLanguage={undefined}
+                                       title={property.displayName}
+                                       onClose={() => setShowEditor(false)}
+                                       onSave={(fieldId, value1) => {
                                  propertyChanged(property.name, value1)
                                  setTextValue(value1);
                                  setShowEditor(false);
@@ -448,14 +448,14 @@ export function DslPropertyField(props: Props) {
                 </Tooltip>
             </InputGroupItem>
             {showEditor && <InputGroupItem>
-                <ModalEditor name={property.name}
-                             customCode={customCode}
-                             showEditor={showEditor}
-                             dark={dark}
-                             dslLanguage={dslLanguage}
-                             title="Java Class"
-                             onClose={() => setShowEditor(false)}
-                             onSave={(fieldId, value1) => {
+                <ExpressionModalEditor name={property.name}
+                                       customCode={customCode}
+                                       showEditor={showEditor}
+                                       dark={dark}
+                                       dslLanguage={dslLanguage}
+                                       title="Java Class"
+                                       onClose={() => setShowEditor(false)}
+                                       onSave={(fieldId, value1) => {
                                  propertyChanged(fieldId, value);
                                  InfrastructureAPI.onSaveCustomCode?.(value, value1);
                                  setShowEditor(false)
@@ -491,14 +491,14 @@ export function DslPropertyField(props: Props) {
                     </Tooltip>
                 </InputGroupItem>
                 {showEditor && <InputGroupItem>
-                    <ModalEditor name={property.name}
-                                 customCode={value}
-                                 showEditor={showEditor}
-                                 dark={dark}
-                                 dslLanguage={dslLanguage}
-                                 title={`Expression (${dslLanguage?.[0]})`}
-                                 onClose={() => setShowEditor(false)}
-                                 onSave={(fieldId, value1) => {
+                    <ExpressionModalEditor name={property.name}
+                                           customCode={value}
+                                           showEditor={showEditor}
+                                           dark={dark}
+                                           dslLanguage={dslLanguage}
+                                           title={`Expression (${dslLanguage?.[0]})`}
+                                           onClose={() => setShowEditor(false)}
+                                           onSave={(fieldId, value1) => {
                                      propertyChanged(fieldId, value1);
                                      setTextValue(value1);
                                      setShowEditor(false);

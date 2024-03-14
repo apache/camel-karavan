@@ -14,24 +14,55 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-.karavan .properties .property-placeholder-toggle {
-    padding-left: 6px;
-    padding-right: 6px;
+.expression-modal {
+    height: 80%;
 }
 
-.karavan .properties .property-placeholder-toggle .pf-v5-c-button__icon.pf-m-start {
-    margin-inline-end: 0;
+.container {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    justify-content: space-between;
+    align-items: stretch;
 }
 
-.karavan .properties .property-placeholder-toggle .pf-v5-c-menu-toggle__controls {
-    display: none;
+.panel-top {
+    flex: 1;
+    height: 100%;
+    border: 1px solid lightgray;
 }
 
-.pf-v5-c-popover .property-placeholder-toggle-form {
-    width: 300px;
+.panel-middle {
+    /*height: 64px;*/
 }
 
-.pf-v5-c-popover .property-placeholder-toggle-form .pf-v5-c-form__group {
-    grid-template-columns: 1fr 2fr;
+.panel-bottom {
+    flex: 1;
+    height: 100%;
+    overflow-y: auto;
+}
+
+.context {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    gap: 64px;
+}
+
+.context-column {
+    flex: 1;
+}
+
+.context-column-right {
+    margin-left: 12px;
+}
+
+.context-column .pf-v5-c-clipboard-copy.pf-m-inline {
+    display: flex;
+    width: fit-content;
+}
+
+.context-column .pf-v5-c-clipboard-copy__text{
+    white-space: nowrap;
 }

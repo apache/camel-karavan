@@ -16,7 +16,6 @@
  */
 import React, {useEffect, useState} from 'react';
 import '../designer/karavan.css';
-import Editor from "@monaco-editor/react";
 import {ProjectFile} from "../api/ProjectModels";
 import {useFilesStore, useFileStore} from "../api/ProjectStore";
 import {KaravanDesigner} from "../designer/KaravanDesigner";

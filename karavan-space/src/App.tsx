@@ -24,7 +24,6 @@ import {ComponentApi} from "karavan-core/lib/api/ComponentApi";
 import {BlueprintIcon} from "@patternfly/react-icons";
 import KnowledgebaseIcon from "@patternfly/react-icons/dist/js/icons/book-open-icon";
 import TopologyIcon from "@patternfly/react-icons/dist/js/icons/topology-icon";
-import {KaravanIcon} from "./designer/utils/KaravanIcons";
 import './designer/karavan.css';
 import {SpacePage} from "./space/SpacePage";
 import {GithubModal} from "./space/GithubModal";
@@ -34,6 +33,7 @@ import {EventBus} from "./designer/utils/EventBus";
 import {Notification} from "./designer/utils/Notification";
 import {TopologyTab} from "./topology/TopologyTab";
 import {IntegrationFile} from "karavan-core/lib/model/IntegrationDefinition";
+import {KaravanIcon} from "./designer/icons/KaravanIcons";
 
 class MenuItem {
     pageId: string = '';
@@ -137,7 +137,7 @@ class App extends React.Component<Props, State> {
         return (<Flex className="nav-buttons" direction={{default: "column"}} style={{height: "100%"}}
                       spaceItems={{default: "spaceItemsNone"}}>
             <FlexItem alignSelf={{default: "alignSelfCenter"}}>
-                <Tooltip className="logo-tooltip" content={"Apache Camel Karavan"}
+                <Tooltip className="logo-tooltip" content={"Apache Camel Karavan 4.4.1"}
                          position={"right"}>
                     {KaravanIcon()}
                 </Tooltip>

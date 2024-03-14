@@ -14,23 +14,55 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+.expression-modal {
+    height: 80%;
+}
 
-export class KubernetesAPI {
+.container {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    justify-content: space-between;
+    align-items: stretch;
+}
 
-    static inKubernetes: boolean = false;
-    static configMaps: string[] = [];
-    static secrets: string[] = [];
-    static services: string[] = [];
+.panel-top {
+    flex: 1;
+    height: 100%;
+    border: 1px solid lightgray;
+}
 
-    static setConfigMaps(configMaps: string[]){
-        this.configMaps = configMaps
-    }
+.panel-middle {
+    /*height: 64px;*/
+}
 
-    static setSecrets(secrets: string[]){
-        this.secrets = secrets
-    }
+.panel-bottom {
+    flex: 1;
+    height: 100%;
+    overflow-y: auto;
+}
 
-    static setServices(services: string[]){
-        this.services = services
-    }
+.context {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    gap: 64px;
+}
+
+.context-column {
+    flex: 1;
+}
+
+.context-column-right {
+    margin-left: 12px;
+}
+
+.context-column .pf-v5-c-clipboard-copy.pf-m-inline {
+    display: flex;
+    width: fit-content;
+}
+
+.context-column .pf-v5-c-clipboard-copy__text{
+    white-space: nowrap;
 }

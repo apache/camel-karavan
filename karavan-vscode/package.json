@@ -721,7 +721,7 @@
   },
   "scripts": {
     "copy-core": "cp -r ../karavan-core/src/core webview",
-    "copy-designer": "cp -r ../karavan-designer/src/designer webview && cp -r ../karavan-designer/src/knowledgebase webview && cp -r ../karavan-designer/src/topology webview",
+    "copy-designer": "cp -r ../karavan-designer/src/designer webview && cp -r ../karavan-designer/src/expression webview && cp -r ../karavan-designer/src/knowledgebase webview && cp -r ../karavan-designer/src/topology webview",
     "replace-import": "run-script-os",
     "replace-import:darwin": "find webview -type f -name '*.ts*' -exec sed -i '' 's!karavan-core/lib!core!g' {} +",
     "replace-import:linux": "find webview -type f -name '*.ts*' -exec sed -i 's!karavan-core/lib!core!g' {} +",

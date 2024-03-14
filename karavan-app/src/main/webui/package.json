@@ -4,9 +4,10 @@
   "private": true,
   "scripts": {
     "copy-designer": "cp -r ../../../../karavan-designer/src/designer src",
+    "copy-expression": "cp -r ../../../../karavan-designer/src/expression src",
     "copy-knowledgebase": "cp -r ../../../../karavan-designer/src/knowledgebase src",
     "copy-topology": "cp -r ../../../../karavan-designer/src/topology src",
-    "copy-code": " npm run copy-designer &&  npm run copy-knowledgebase &&  npm run copy-topology",
+    "copy-code": " npm run copy-designer && npm run copy-expression && npm run copy-knowledgebase &&  npm run copy-topology",
     "start": "export PORT=3003 && npm run copy-code && react-scripts start",
     "build": "npm run copy-code && DISABLE_ESLINT_PLUGIN=true react-scripts build"
   },

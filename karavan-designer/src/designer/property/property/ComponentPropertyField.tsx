@@ -53,7 +53,7 @@ import {useDesignerStore, useIntegrationStore} from "../../DesignerStore";
 import {shallow} from "zustand/shallow";
 import {KubernetesIcon} from "../../icons/ComponentIcons";
 import EditorIcon from "@patternfly/react-icons/dist/js/icons/code-icon";
-import {ModalEditor} from "./ModalEditor";
+import {ExpressionModalEditor} from "../../../expression/ExpressionModalEditor";
 import {PropertyPlaceholderDropdown} from "./PropertyPlaceholderDropdown";
 
 const prefix = "parameters";
@@ -280,14 +280,14 @@ export function ComponentPropertyField(props: Props) {
                 </Tooltip>
             </InputGroupItem>
             {showEditor && <InputGroupItem>
-                <ModalEditor name={property.name}
-                             customCode={value}
-                             showEditor={showEditor}
-                             dark={dark}
-                             dslLanguage={undefined}
-                             title={property.displayName}
-                             onClose={() => setShowEditor(false)}
-                             onSave={(fieldId, value1) => {
+                <ExpressionModalEditor name={property.name}
+                                       customCode={value}
+                                       showEditor={showEditor}
+                                       dark={dark}
+                                       dslLanguage={undefined}
+                                       title={property.displayName}
+                                       onClose={() => setShowEditor(false)}
+                                       onSave={(fieldId, value1) => {
                                  setTextValue(value1);
                                  parametersChanged(property.name, value1, property.kind === 'path')
                                  setShowEditor(false);

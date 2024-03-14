@@ -16,13 +16,12 @@
  */
 import React, {useEffect, useState} from 'react';
 import {
-    Button,
-    Modal,
-    ModalVariant, Title, TitleSizes
+    Button, Modal, Title, TitleSizes
 } from '@patternfly/react-core';
-import '../../karavan.css';
-import "@patternfly/patternfly/patternfly.css";
 import Editor from "@monaco-editor/react";
+import {ExpressionBottomPanel} from "./ExpressionBottomPanel";
+import './ExpressionModalEditor.css'
+import {Context, ExpressionFunctions, ExpressionVariables} from "./ExpressionContextModel";
 
 interface Props {
     name: string,
@@ -35,11 +34,12 @@ interface Props {
     showEditor: boolean
 }
 
-export function ModalEditor(props: Props) {
+export function ExpressionModalEditor(props: Props) {
 
     const [customCode, setCustomCode] = useState<string | undefined>();
 
     useEffect(() => {
+        console.log(title, dslLanguage)
         setCustomCode(props.customCode)
     },[]);
 
@@ -52,10 +52,16 @@ export function ModalEditor(props: Props) {
     }
 
     const {dark, dslLanguage, title, showEditor} = props;
+    const language = dslLanguage?.[0];
+    const showVars = ExpressionVariables.findIndex(e => e.name === language) > - 1;
+    const showFuncs = ExpressionFunctions.findIndex(e => e.name === language) > - 1;
+    const show = showVars || showFuncs;
+
     return (
         <Modal
-            aria-label={"expression"}
-            variant={ModalVariant.large}
+            aria-label="Expression"
+            className='expression-modal'
+            width={"80%"}
             header={<React.Fragment>
                 <Title id="modal-custom-header-label" headingLevel="h1" size={TitleSizes['2xl']}>
                     {title}
@@ -71,17 +77,31 @@ export function ModalEditor(props: Props) {
                         onClick={e => close()}>Close</Button>
             ]}
             onEscapePress={e => close()}>
-            <Editor
-                height="400px"
-                width="100%"
-                defaultLanguage={'java'}
-                language={'java'}
-                theme={dark ? 'vs-dark' : 'light'}
-                options={{lineNumbers: "off", folding: false, lineNumbersMinChars: 10, showUnused: false, fontSize: 12, minimap: {enabled: false}}}
-                value={customCode?.toString()}
-                className={'code-editor'}
-                onChange={(value,_) => setCustomCode(value)}
-            />
+            <div className='container'>
+                <div className='panel-top'>
+                    <Editor
+                        height="50%"
+                        width="100%"
+                        defaultLanguage={'java'}
+                        language={'java'}
+                        theme={dark ? 'vs-dark' : 'light'}
+                        options={{
+                            lineNumbers: "off",
+                            folding: false,
+                            lineNumbersMinChars: 10,
+                            showUnused: false,
+                            fontSize: 12,
+                            minimap: {enabled: false}
+                        }}
+                        value={customCode?.toString()}
+                        className={'code-editor'}
+                        onChange={(value, _) => setCustomCode(value)}
+                    />
+                </div>
+                {show && <div className='panel-bottom'>
+                    {dslLanguage && <ExpressionBottomPanel dslLanguage={dslLanguage}/>}
+                </div>}
+            </div>
         </Modal>
     )
 }
