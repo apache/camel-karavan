@@ -36,12 +36,21 @@ export function CodeEditor(props: Props) {
     const [file, designerTab, setFile] = useFileStore((s) => [s.file, s.designerTab, s.setFile], shallow)
     const [code, setCode] = useState<string>();
 
-    useEffect(() => {
-        setCode(file?.code);
-    }, []);
+    useEffect(() => setCode(file?.code), []);
 
-    function save(name: string, code: string) {
-        if (file) {
+    useEffect(() => {
+        const interval = setInterval(() => {
+            saveCode();
+        }, 3000);
+        return () => {
+            clearInterval(interval);
+            saveCode();
+        }
+    }, [code]);
+
+
+    function saveCode() {
+        if (file && code && file.code !== code) {
             file.code = code;
             ProjectService.updateFile(file, true);
         }
@@ -59,7 +68,7 @@ export function CodeEditor(props: Props) {
                 className={'code-editor'}
                 onChange={(value, ev) => {
                     if (value) {
-                        save(file?.name, value)
+                        setCode(value)
                     }
                 }}
             />
