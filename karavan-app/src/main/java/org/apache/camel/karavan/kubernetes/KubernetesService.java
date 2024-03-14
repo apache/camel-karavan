@@ -495,11 +495,7 @@ public class KubernetesService implements HealthCheck {
                 .withEnv(new EnvVarBuilder().withName(ENV_VAR_JBANG_OPTIONS).withValue(jbangOptions).build())
                 .build();
 
-
         List<Volume> volumes = new ArrayList<>();
-        volumes.add(new VolumeBuilder().withName("maven-settings")
-                .withConfigMap(new ConfigMapVolumeSourceBuilder()
-                        .withName("karavan").build()).build());
 
         if (devmodePVC) {
             volumes.add(new VolumeBuilder().withName(name)
