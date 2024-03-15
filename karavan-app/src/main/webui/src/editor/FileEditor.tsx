@@ -21,6 +21,7 @@ import {shallow} from "zustand/shallow";
 import {CamelDefinitionYaml} from "karavan-core/lib/api/CamelDefinitionYaml";
 import {DesignerEditor} from "./DesignerEditor";
 import {CodeEditor} from "./CodeEditor";
+import {EventBus} from "../designer/utils/EventBus";
 
 interface Props {
     projectId: string
@@ -36,7 +37,21 @@ export function FileEditor(props: Props) {
 
     const [file] = useFileStore((s) => [s.file], shallow)
 
-    const isCamelYaml = file !== undefined && file.name.endsWith(".camel.yaml");
+    function yamlIsCamel(): boolean {
+        if (file && file.name.endsWith(".camel.yaml")) {
+            try {
+                const i = CamelDefinitionYaml.yamlToIntegration(file.name, file?.code);
+            } catch (e: any) {
+                console.log(e)
+                EventBus.sendAlert(' ' + e?.name, '' + e?.message, 'danger');
+                return false;
+            }
+            return true;
+        }
+        return false;
+    }
+
+    const isCamelYaml = yamlIsCamel();
     const isKameletYaml = file !== undefined && file.name.endsWith(".kamelet.yaml");
     const isIntegration = isCamelYaml && file?.code && CamelDefinitionYaml.yamlIsIntegration(file.code);
     const showDesigner = (isCamelYaml && isIntegration) || isKameletYaml;
