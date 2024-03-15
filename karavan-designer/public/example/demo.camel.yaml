@@ -59,5 +59,3 @@
                       Beer battle: ${jq(variable:beer1,.name)}
                       (${variable.alc1}%) is weaker than
                       ${jq(variable:beer2,.name)} (${variable.alc2}%)
-            otherwise:
-              id: otherwise-03ac

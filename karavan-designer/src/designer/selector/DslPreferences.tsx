@@ -74,3 +74,16 @@ export function addPreferredElement(type: 'eip' | 'components' | 'kamelets', dsl
         console.log(e);
     }
 }
+
+export function deletePreferredElement(type: 'eip' | 'components' | 'kamelets', dsl: DslMetaModel) {
+    try {
+        const dslKey = type === 'eip' ? dsl.dsl : (type === 'components' ? dsl.uri : dsl.name);
+        const local = localStorage.getItem(PREFERRED_ELEMENTS_STORAGE_NAME);
+        const pes = local !== null ? new PreferredElements(JSON.parse(local)) : new PreferredElements();
+        let list: PreferredElement[] = (pes as any)[type];
+        (pes as any)[type] = [...list.filter(l => l.dslKey !== dslKey)];
+        localStorage.setItem(PREFERRED_ELEMENTS_STORAGE_NAME, JSON.stringify(pes));
+    } catch (e) {
+        console.log(e);
+    }
+}

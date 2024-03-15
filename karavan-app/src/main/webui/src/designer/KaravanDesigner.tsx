@@ -73,30 +73,35 @@ export function KaravanDesigner(props: Props) {
     useEffect(() => {
         const sub = EventBus.onIntegrationUpdate()?.subscribe((update: IntegrationUpdate) =>
             save(update.integration, update.propertyOnly));
-        InfrastructureAPI.setOnSaveCustomCode(props.onSaveCustomCode);
-        InfrastructureAPI.setOnGetCustomCode(props.onGetCustomCode);
-        InfrastructureAPI.setOnSave(props.onSave);
-        InfrastructureAPI.setOnSavePropertyPlaceholder(props.onSavePropertyPlaceholder);
-        InfrastructureAPI.setOnInternalConsumerClick(props.onInternalConsumerClick);
+        try {
+            InfrastructureAPI.setOnSaveCustomCode(props.onSaveCustomCode);
+            InfrastructureAPI.setOnGetCustomCode(props.onGetCustomCode);
+            InfrastructureAPI.setOnSave(props.onSave);
+            InfrastructureAPI.setOnSavePropertyPlaceholder(props.onSavePropertyPlaceholder);
+            InfrastructureAPI.setOnInternalConsumerClick(props.onInternalConsumerClick);
 
-        setSelectedStep(undefined);
-        const i = makeIntegration(props.yaml, props.filename);
-        setIntegration(i, false);
-        let designerTab = i.kind === 'Kamelet' ? 'kamelet' : props.tab;
-        if (designerTab === undefined) {
-            const counts = CamelUi.getFlowCounts(i);
-            designerTab = (counts.get('routes') || 0) > 0 ? 'routes' : designerTab;
-            designerTab = (counts.get('rest') || 0) > 0 ? 'rest' : designerTab;
-            designerTab = (counts.get('beans') || 0) > 0 ? 'beans' : designerTab;
+            setSelectedStep(undefined);
+            const i = makeIntegration(props.yaml, props.filename);
+            setIntegration(i, false);
+            let designerTab = i.kind === 'Kamelet' ? 'kamelet' : props.tab;
+            if (designerTab === undefined) {
+                const counts = CamelUi.getFlowCounts(i);
+                designerTab = (counts.get('routes') || 0) > 0 ? 'routes' : designerTab;
+                designerTab = (counts.get('rest') || 0) > 0 ? 'rest' : designerTab;
+                designerTab = (counts.get('beans') || 0) > 0 ? 'beans' : designerTab;
+            }
+            setTab(designerTab || 'routes')
+            reset();
+            setDark(props.dark);
+            setPropertyPlaceholders(props.propertyPlaceholders)
+            setVariables(VariableUtil.findVariables(props.files))
+            setBeans(props.beans)
+            resetFiles(props.files)
+            setHideLogDSL(props.hideLogDSL === true);
+        } catch (e: any) {
+            console.log(e)
+            EventBus.sendAlert(' ' + e?.name, '' + e?.message, 'danger');
         }
-        setTab(designerTab || 'routes')
-        reset();
-        setDark(props.dark);
-        setPropertyPlaceholders(props.propertyPlaceholders)
-        setVariables(VariableUtil.findVariables(props.files))
-        setBeans(props.beans)
-        resetFiles(props.files)
-        setHideLogDSL(props.hideLogDSL === true);
         return () => {
             sub?.unsubscribe();
             setSelectedStep(undefined);
@@ -169,19 +174,6 @@ export function KaravanDesigner(props: Props) {
                     <Tab eventKey='beans' title={getTab("Beans", "Beans Configuration", "beans")}></Tab>
                     {props.showCodeTab && <Tab eventKey='code' title={getTab("YAML", "YAML Code", "code", true)}></Tab>}
                 </Tabs>
-                {/*{tab === 'routes' && <Tooltip content={"Hide Log elements"}>*/}
-                {/*    <Switch*/}
-                {/*        isReversed*/}
-                {/*        isChecked={hideLogDSL}*/}
-                {/*        onChange={(_, checked) => {*/}
-                {/*            setHideLogDSL(checked)*/}
-                {/*        }}*/}
-                {/*        aria-label={"Hide Log"}*/}
-                {/*        id="hideLogDSL"*/}
-                {/*        name="hideLogDSL"*/}
-                {/*        className={"hide-log"}*/}
-                {/*    />*/}
-                {/*</Tooltip>}*/}
             </div>
             {tab === 'kamelet' && <KameletDesigner/>}
             {tab === 'routes' && <RouteDesigner/>}

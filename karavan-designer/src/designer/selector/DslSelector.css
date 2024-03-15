@@ -27,6 +27,8 @@
 .dsl-modal .dsl-card .pf-v5-c-card__header-main {
     display: flex;
     flex-direction: row;
+    justify-content: start;
+    overflow-x: hidden;
 }
 
 .dsl-modal .dsl-card .header-labels .pf-v5-c-card__header-main {
@@ -120,15 +122,23 @@
 .dsl-modal .labels {
     opacity: 0.5;
     font-weight: 200;
-    text-wrap: nowrap;
+    text-wrap: none;
 }
 
-.dsl-modal .dsl-card:hover .labels {
-    opacity: 1;
+.dsl-modal .dsl-card:hover .pf-v5-c-badge {
+    margin-right: 1px;
+}
+
+.dsl-modal .dsl-card:hover {
+    background-color: var(--pf-v5-global--palette--black-200);
+}
+
+.dsl-modal .dsl-card:hover .pf-v5-c-badge.pf-m-read {
+    --pf-v5-c-badge--BackgroundColor: var(--pf-v5-global--palette--black-150);
 }
 
 .dsl-modal .dsl-card:hover p {
-    color: var(--pf-v5-global--Color--100);
+    /*color: var(--pf-v5-global--Color--200);*/
 }
 
 .dsl-modal .dsl-fast-card .header p {
@@ -139,4 +149,26 @@
 
 .dsl-modal .dsl-fast-card .header {
     padding: 10px;
+}
+
+.dsl-modal .dsl-fast-card .fast-delete {
+    padding: 0;
+    margin: 0;
+    width: 16px;
+    height: 16px;
+    vertical-align: text-bottom;
+    position: absolute;
+    right: 0;
+    top: -1px;
+    visibility: hidden;
+}
+
+.dsl-modal .dsl-fast-card .fast-delete .pf-v5-svg {
+    fill: var(--pf-v5-global--danger-color--100);
+    width: 16px;
+    height: 16px;
+}
+
+.dsl-modal .dsl-fast-card:hover .fast-delete {
+    visibility: visible;
 }
