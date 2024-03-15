@@ -16,6 +16,7 @@
 
 .trace-modal .container {
     display: flex;
+    flex-direction: row;
     padding: 0;
     flex: 1;
 }

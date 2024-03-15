@@ -46,11 +46,12 @@ export function RunnerInfoTraceMessage (props: Props) {
     const [tab, setTab] = useState<string | number>('variables');
     const [variableName, setVariableName] = useState<string | number>();
 
-    const type = props.trace?.message?.body?.type;
-    const headers: any[] = [...props.trace?.message?.headers];
-    const properties: any[] = [...props.trace?.message?.exchangeProperties];
-    const variables: any[] = props.trace?.message?.exchangeVariables ? [...props.trace?.message?.exchangeVariables] : [];
-    const body = props.trace?.message?.body?.value;
+    const message = props.trace?.message;
+    const type = message?.body?.type;
+    const headers: any[] = message?.headers ? [...message?.headers] : [];
+    const properties: any[] = message?.exchangeProperties ? [...message?.exchangeProperties] : [];
+    const variables: any[] = message?.exchangeVariables ? [...message?.exchangeVariables] : [];
+    const body = message?.body?.value;
     const variable = variables.filter(v => v.key === variableName)?.at(0);
 
     function getBody() {
@@ -146,10 +147,10 @@ export function RunnerInfoTraceMessage (props: Props) {
             </Tabs>
             {tab === 'variables' && variables.length > 0 &&
                 <>
-                <Tabs key={variableName} activeKey={variableName} onSelect={(event, eventKey) => setVariableName(eventKey)}>
-                    {variables.map(v => (<Tab eventKey={v.key} title={<TabTitleText>{v.key}</TabTitleText>}/>))}
-                </Tabs>
-                {getVariableType()}
+                    <Tabs key={variableName} activeKey={variableName} onSelect={(event, eventKey) => setVariableName(eventKey)}>
+                        {variables.map(v => (<Tab eventKey={v.key} title={<TabTitleText>{v.key}</TabTitleText>}/>))}
+                    </Tabs>
+                    {getVariableType()}
                 </>
             }
             <div className="scrollable">
@@ -159,28 +160,5 @@ export function RunnerInfoTraceMessage (props: Props) {
                 {tab === 'properties' && getProperties()}
             </div>
         </div>
-        // <Panel isScrollable>
-        //         <PanelMain tabIndex={0}>
-        //             <PanelHeader>
-        //                 <DescriptionList isHorizontal>
-        //                     <DescriptionListGroup>
-        //                         <DescriptionListTerm>Headers</DescriptionListTerm>
-        //                     </DescriptionListGroup>
-
-        //                     <DescriptionListGroup>
-        //                         <DescriptionListTerm>Body</DescriptionListTerm>
-        //                         <DescriptionListDescription>
-        //                             {type}
-        //                         </DescriptionListDescription>
-        //                     </DescriptionListGroup>
-        //                 </DescriptionList>
-        //             </PanelHeader>
-        //             <PanelMainBody style={{padding: "0"}}>
-        //                 <CodeBlock title="Body">
-        //                     <CodeBlockCode id="code-content">{body}</CodeBlockCode>
-        //                 </CodeBlock>
-        //             </PanelMainBody>
-        //         </PanelMain>
-        //     </Panel>
     );
 }
