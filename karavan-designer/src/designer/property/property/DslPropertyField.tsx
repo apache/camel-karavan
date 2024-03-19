@@ -208,10 +208,11 @@ export function DslPropertyField(props: Props) {
             const className = value ? "change-button delete-button" : "change-button add-button";
             const x = value ? undefined : CamelDefinitionApi.createStep(property.type, {});
             const meta = CamelMetadataApi.getCamelModelMetadataByClassName(property.type);
+            const title = meta?.title || property.displayName;
             const icon = value ? (<DeleteIcon/>) : (<AddIcon/>);
             return (
                 <div style={{display: "flex"}}>
-                    <Text>{meta?.title} </Text>
+                    <Text>{title}</Text>
                     <Tooltip position={"top"} content={<div>{tooltip}</div>}>
                         <button className={className} onClick={e => props.onPropertyChange?.(property.name, x)}
                                 aria-label="Add element">
