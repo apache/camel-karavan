@@ -27,7 +27,7 @@
 .dsl-modal .dsl-card .pf-v5-c-card__header-main {
     display: flex;
     flex-direction: row;
-    justify-content: start;
+    justify-content: flex-start;
     overflow-x: hidden;
 }
 
