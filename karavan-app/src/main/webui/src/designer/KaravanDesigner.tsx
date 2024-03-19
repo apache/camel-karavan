@@ -53,7 +53,6 @@ interface Props {
     filename: string
     yaml: string
     dark: boolean
-    hideLogDSL?: boolean
     showCodeTab: boolean
     tab?: "routes" | "rest" | "beans"
     propertyPlaceholders: string[]
@@ -64,9 +63,9 @@ interface Props {
 export function KaravanDesigner(props: Props) {
 
     const [tab, setTab] = useState<string>('routes');
-    const [setDark, hideLogDSL, setHideLogDSL, setSelectedStep, reset, badge, message, setPropertyPlaceholders, setBeans] =
+    const [setDark, setSelectedStep, reset, badge, message, setPropertyPlaceholders, setBeans] =
         useDesignerStore((s) =>
-        [s.setDark, s.hideLogDSL, s.setHideLogDSL, s.setSelectedStep, s.reset, s.notificationBadge, s.notificationMessage, s.setPropertyPlaceholders, s.setBeans], shallow)
+        [s.setDark, s.setSelectedStep, s.reset, s.notificationBadge, s.notificationMessage, s.setPropertyPlaceholders, s.setBeans], shallow)
     const [integration, setIntegration, resetFiles, setVariables] = useIntegrationStore((s) =>
         [s.integration, s.setIntegration, s.resetFiles, s.setVariables], shallow)
 
@@ -97,7 +96,6 @@ export function KaravanDesigner(props: Props) {
             setVariables(VariableUtil.findVariables(props.files))
             setBeans(props.beans)
             resetFiles(props.files)
-            setHideLogDSL(props.hideLogDSL === true);
         } catch (e: any) {
             console.log(e)
             EventBus.sendAlert(' ' + e?.name, '' + e?.message, 'danger');

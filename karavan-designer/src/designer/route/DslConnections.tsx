@@ -34,8 +34,8 @@ const overlapGap: number = 40;
 export function DslConnections() {
 
     const [integration, files] = useIntegrationStore((s) => [s.integration, s.files], shallow)
-    const [width, height, top, left, hideLogDSL] = useDesignerStore((s) =>
-        [s.width, s.height, s.top, s.left, s.hideLogDSL], shallow)
+    const [width, height, top, left] = useDesignerStore((s) =>
+        [s.width, s.height, s.top, s.left], shallow)
     const [steps, addStep, deleteStep, clearSteps] =
         useConnectionsStore((s) => [s.steps, s.addStep, s.deleteStep, s.clearSteps], shallow)
 
@@ -285,7 +285,7 @@ export function DslConnections() {
     }
 
     function isSpecial(pos: DslPosition): boolean {
-        return ['ChoiceDefinition', 'MulticastDefinition', 'TryDefinition'].includes(pos.step.dslName);
+        return ['ChoiceDefinition', 'MulticastDefinition', 'TryDefinition', 'RouteConfigurationDefinition'].includes(pos.step.dslName);
     }
 
     function addArrowToList(list: JSX.Element[], from?: DslPosition, to?: DslPosition, fromHeader?: boolean, toHeader?: boolean): JSX.Element[]  {
@@ -299,13 +299,17 @@ export function DslConnections() {
         return result;
     }
 
+    function getParentDsl(uuid?: string): string | undefined {
+        return  uuid ? steps.get(uuid)?.parent?.dslName : undefined;
+    }
+
     function getArrow(pos: DslPosition): JSX.Element[] {
         const list: JSX.Element[] = [];
 
          if (pos.parent && pos.parent.dslName === 'TryDefinition' && pos.position === 0) {
             const parent = steps.get(pos.parent.uuid);
             list.push(...addArrowToList(list, parent, pos, true, false))
-        } else if (pos.parent && pos.parent.dslName === 'MulticastDefinition') {
+        } else if (pos.parent && ['RouteConfigurationDefinition', 'MulticastDefinition'].includes(pos.parent.dslName)) {
             const parent = steps.get(pos.parent.uuid);
             list.push(...addArrowToList(list, parent, pos, true, false))
             if (parent?.nextstep) {
@@ -315,14 +319,17 @@ export function DslConnections() {
         } else if (pos.parent && pos.parent.dslName === 'ChoiceDefinition') {
             const parent = steps.get(pos.parent.uuid);
             list.push(...addArrowToList(list, parent, pos, true, false))
-        } else if (pos.parent && ['WhenDefinition', 'OtherwiseDefinition', 'CatchDefinition', 'FinallyDefinition'].includes(pos.parent.dslName)) {
-            if (pos.position === 0) {
+        } else if (pos.parent && ['WhenDefinition', 'OtherwiseDefinition', 'CatchDefinition', 'FinallyDefinition', 'TryDefinition'].includes(pos.parent.dslName)) {
+             if (pos.position === 0) {
                 const parent = steps.get(pos.parent.uuid);
                 list.push(...addArrowToList(list, parent, pos, true, false))
             }
             if (pos.position === (pos.inStepsLength - 1) && !isSpecial(pos)) {
                 const nextElement = getNext(pos);
-                if (nextElement) {
+                const parentDsl1 = getParentDsl(nextElement?.uuid);
+                if (parentDsl1 && ['RouteConfigurationDefinition', 'MulticastDefinition'].includes(parentDsl1)) {
+                    // do nothing
+                } else if (nextElement) {
                     const next = steps.get(nextElement.uuid);
                     list.push(...addArrowToList(list, pos, next, true, true))
                 }
@@ -341,12 +348,18 @@ export function DslConnections() {
         }
 
         if (['WhenDefinition', 'OtherwiseDefinition'].includes(pos.step.dslName) && pos.step.hasSteps() && (pos.step as any).steps.length === 0) {
-            if (pos.nextstep) {
+            const parentDsl = getParentDsl(pos?.nextstep?.uuid);
+            if (parentDsl && ['RouteConfigurationDefinition', 'MulticastDefinition'].includes(parentDsl)) {
+                // do nothing
+            } else if (pos.nextstep) {
                 const to = steps.get(pos.nextstep.uuid);
                 list.push(...addArrowToList(list, pos, to, true, true))
             } else {
                 const next = getNext(pos);
-                if (next) {
+                const parentDsl1 = getParentDsl(next?.uuid);
+                if (parentDsl1 && ['RouteConfigurationDefinition', 'MulticastDefinition'].includes(parentDsl1)) {
+                    // do nothing
+                } else if (next) {
                     const to = steps.get(next.uuid);
                     list.push(...addArrowToList(list, pos, to, true, true))
                 }

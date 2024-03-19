@@ -41,10 +41,10 @@ export function useRouteDesignerHook () {
     const [integration, setIntegration] = useIntegrationStore((state) => [state.integration, state.setIntegration], shallow)
     const [selectedUuids,clipboardSteps,shiftKeyPressed,
         setShowDeleteConfirmation, setDeleteMessage, setSelectedStep, setSelectedUuids, setClipboardSteps, setShiftKeyPressed,
-        width, height, dark, hideLogDSL] = useDesignerStore((s) =>
+        width, height, dark] = useDesignerStore((s) =>
         [s.selectedUuids,s.clipboardSteps, s.shiftKeyPressed,
             s.setShowDeleteConfirmation, s.setDeleteMessage, s.setSelectedStep, s.setSelectedUuids, s.setClipboardSteps, s.setShiftKeyPressed,
-            s.width, s.height, s.dark, s.hideLogDSL], shallow)
+            s.width, s.height, s.dark], shallow)
     const [setParentId, setShowSelector, setSelectorTabIndex, setParentDsl, setShowSteps, setSelectedPosition] = useSelectorStore((s) =>
         [s.setParentId, s.setShowSelector, s.setSelectorTabIndex, s.setParentDsl, s.setShowSteps, s.setSelectedPosition], shallow)
 

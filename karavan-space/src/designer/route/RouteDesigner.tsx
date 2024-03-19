@@ -44,9 +44,9 @@ export function RouteDesigner() {
         isSourceKamelet, isActionKamelet, isKamelet, isSinkKamelet} = useRouteDesignerHook();
 
     const [integration] = useIntegrationStore((state) => [state.integration], shallow)
-    const [showDeleteConfirmation, setPosition, width, height, top, left, hideLogDSL, showMoveConfirmation, setShowMoveConfirmation] =
+    const [showDeleteConfirmation, setPosition, width, height, top, left, showMoveConfirmation, setShowMoveConfirmation] =
         useDesignerStore((s) =>
-        [s.showDeleteConfirmation, s.setPosition, s.width, s.height, s.top, s.left, s.hideLogDSL, s.showMoveConfirmation, s.setShowMoveConfirmation], shallow)
+        [s.showDeleteConfirmation, s.setPosition, s.width, s.height, s.top, s.left, s.showMoveConfirmation, s.setShowMoveConfirmation], shallow)
 
     const [showSelector] = useSelectorStore((s) => [s.showSelector], shallow)
 

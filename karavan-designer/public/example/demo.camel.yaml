@@ -1,61 +1,60 @@
 - route:
-    id: route-fc08
+    id: route-5676
+    nodePrefixId: route-a26
     from:
-      id: from-4fb2
-      uri: timer
-      parameters:
-        period: '5000'
-        timerName: beers
+      id: from-e7d6
+      uri: aws2-s3
       steps:
-        - to:
-            id: to-2b12
-            variableReceive: beer1
-            uri: https
-            parameters:
-              httpUri: random-data-api.com/api/v2/beers
-        - to:
-            id: to-cd9b
-            variableReceive: beer2
-            uri: https
-            parameters:
-              httpUri: random-data-api.com/api/v2/beers
-        - setVariable:
-            id: setVariable-439c
-            name: alc1
-            expression:
-              java:
-                id: java-6ac5
-                expression: .alcohol | rtrimstr("%")
-        - setVariable:
-            id: setVariable-14bc
-            name: alc2
-            expression:
-              jq:
-                id: jq-73b5
-                expression: .alcohol | rtrimstr("%")
-                source: beer2
-                resultType: float
-        - choice:
-            id: choice-3fc5
-            when:
-              - id: choice
-                expression:
-                  simple:
-                    id: simple-699c
-                    expression: ${variable.alc1} > ${variable.alc2}
-                steps:
-                  - log:
-                      id: log-6ecf
-                      message: >-
-                        Beer battle: ${jq(variable:beer1,.name)}
-                        (${variable.alc1}%) is stronger than
-                        ${jq(variable:beer2,.name)} (${variable.alc2}%)
-            otherwise:
-              id: otherwise-03ac
-              steps:
-                - log:
-                    id: log-2477
-                    message: >-
-                      Beer battle: ${jq(variable:beer1,.name)}
-                      (${variable.alc1}%) is weaker than
-                      ${jq(variable:beer2,.name)} (${variable.alc2}%)
+        - multicast:
+            id: multicast-1032
+            steps:
+              - choice:
+                  id: choice-56ab
+                  when:
+                    - id: when-ff6fa
+                      expression:
+                        simple:
+                          id: simple-25f4
+                      steps:
+                        - log:
+                            id: log-34d4
+                            message: ${body}
+                        - loop:
+                            id: loop-f32d
+                            expression:
+                              simple:
+                                id: simple-2811
+                  otherwise:
+                    id: otherwise-987b
+                    steps:
+                      - log:
+                          id: log-802d
+                          message: ${body}
+              - circuitBreaker:
+                  id: circuitBreaker-64e5
+                  steps:
+                    - loop:
+                        id: loop-4062
+                        expression:
+                          simple:
+                            id: simple-041b
+                        steps:
+                          - multicast:
+                              id: multicast-70ae
+              - convertBodyTo:
+                  id: convertBodyTo-854c
+              - filter:
+                  id: filter-297b
+                  expression:
+                    simple:
+                      id: simple-90b6
+
+- routeConfiguration:
+    intercept:
+      - intercept:
+          id: intercept-5ede
+      - intercept:
+          id: intercept-93ca
+    interceptFrom:
+      - interceptFrom:
+          id: interceptFrom-14ca

@@ -199,7 +199,6 @@ type DesignerState = {
     dark: boolean;
     notificationBadge: boolean;
     notificationMessage: [string, string];
-    hideLogDSL: boolean;
     shiftKeyPressed: boolean;
     showDeleteConfirmation: boolean;
     showMoveConfirmation: boolean;
@@ -220,7 +219,6 @@ const designerState: DesignerState = {
     notificationBadge: false,
     notificationMessage: ['', ''],
     dark: false,
-    hideLogDSL: false,
     shiftKeyPressed: false,
     showDeleteConfirmation: false,
     showMoveConfirmation: false,
@@ -238,7 +236,6 @@ const designerState: DesignerState = {
 
 type DesignerAction = {
     setDark: (dark: boolean) => void;
-    setHideLogDSL: (hideLogDSL: boolean) => void;
     setShiftKeyPressed: (shiftKeyPressed: boolean) => void;
     setShowDeleteConfirmation: (showDeleteConfirmation: boolean) => void;
     setShowMoveConfirmation: (showMoveConfirmation: boolean) => void;
@@ -258,9 +255,6 @@ export const useDesignerStore = createWithEqualityFn<DesignerState & DesignerAct
     ...designerState,
     setDark: (dark: boolean) => {
         set({dark: dark})
-    },
-    setHideLogDSL: (hideLogDSL: boolean) => {
-        set({hideLogDSL: hideLogDSL})
     },
     setShiftKeyPressed: (shiftKeyPressed: boolean) => {
         set({shiftKeyPressed: shiftKeyPressed})

@@ -53,9 +53,9 @@ export function DslElementHeader(props: Props) {
         isActionKamelet
     } = useRouteDesignerHook();
 
-    const [selectedUuids, selectedStep, showMoveConfirmation, setShowMoveConfirmation, hideLogDSL, setMoveElements] =
+    const [selectedUuids, selectedStep, showMoveConfirmation, setShowMoveConfirmation, setMoveElements] =
         useDesignerStore((s) =>
-            [s.selectedUuids, s.selectedStep, s.showMoveConfirmation, s.setShowMoveConfirmation, s.hideLogDSL, s.setMoveElements], shallow)
+            [s.selectedUuids, s.selectedStep, s.showMoveConfirmation, s.setShowMoveConfirmation, s.setMoveElements], shallow)
 
     function onOpenSelector(evt: React.MouseEvent, showSteps: boolean = true, isInsert: boolean = false) {
         evt.stopPropagation();
