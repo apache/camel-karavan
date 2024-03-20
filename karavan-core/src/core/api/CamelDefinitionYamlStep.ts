@@ -4013,7 +4013,6 @@ export class CamelDefinitionYamlStep {
     static readParamDefinition = (element: any): ParamDefinition => {
         
         let def = element ? new ParamDefinition({...element}) : new ParamDefinition();
-        def.allowableValues = element && element?.allowableValues ? element?.allowableValues.map((x:any) => CamelDefinitionYamlStep.readValueDefinition(x)) :[]; 
         def.examples = element && element?.examples ? element?.examples.map((x:any) => CamelDefinitionYamlStep.readRestPropertyDefinition(x)) :[]; 
 
         return def;
@@ -4052,7 +4051,6 @@ export class CamelDefinitionYamlStep {
     static readResponseHeaderDefinition = (element: any): ResponseHeaderDefinition => {
         
         let def = element ? new ResponseHeaderDefinition({...element}) : new ResponseHeaderDefinition();
-        def.allowableValues = element && element?.allowableValues ? element?.allowableValues.map((x:any) => CamelDefinitionYamlStep.readValueDefinition(x)) :[]; 
 
         return def;
     }

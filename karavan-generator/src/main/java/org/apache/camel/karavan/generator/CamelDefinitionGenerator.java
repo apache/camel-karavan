@@ -84,6 +84,8 @@ public final class CamelDefinitionGenerator extends AbstractGenerator {
             if (className.equals("ChoiceDefinition") && name.equals("steps")) { // exception for ChoiceDefinition
             } else if (className.equals("SwitchDefinition") && name.equals("steps")) { // exception for SwitchDefinition
             } else if (className.equals("KameletDefinition") && name.equals("steps")) { // exception for KameletDefinition
+            } else if ((className.equals("ParamDefinition") || className.equals("ResponseHeaderDefinition")) && name.equals("allowableValues")) { // exception for ParamDefinition
+                attrs.add("    " + name + r + ": string [] = []");
             } else if (excludeProperty) {
 
             } else if (!Objects.equals(attributeType, "null")) {

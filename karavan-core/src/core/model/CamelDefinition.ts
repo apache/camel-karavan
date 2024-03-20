@@ -3334,7 +3334,7 @@ export class ParamDefinition extends CamelElement {
     arrayType?: string;
     dataType?: string;
     dataFormat?: string;
-    allowableValues?: ValueDefinition[] = [];
+    allowableValues?: string [] = [];
     examples?: RestPropertyDefinition[] = [];
     public constructor(init?: Partial<ParamDefinition>) {
         super('ParamDefinition');
@@ -3434,7 +3434,7 @@ export class ResponseHeaderDefinition extends CamelElement {
     arrayType?: string;
     dataType?: string;
     dataFormat?: string;
-    allowableValues?: ValueDefinition[] = [];
+    allowableValues?: string [] = [];
     example?: string;
     public constructor(init?: Partial<ResponseHeaderDefinition>) {
         super('ResponseHeaderDefinition');

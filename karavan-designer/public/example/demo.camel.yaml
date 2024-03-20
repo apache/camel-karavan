@@ -1,60 +1,39 @@
-- route:
-    id: route-5676
-    nodePrefixId: route-a26
-    from:
-      id: from-e7d6
-      uri: aws2-s3
-      steps:
-        - multicast:
-            id: multicast-1032
-            steps:
-              - choice:
-                  id: choice-56ab
-                  when:
-                    - id: when-ff6fa
-                      expression:
-                        simple:
-                          id: simple-25f4
-                      steps:
-                        - log:
-                            id: log-34d4
-                            message: ${body}
-                        - loop:
-                            id: loop-f32d
-                            expression:
-                              simple:
-                                id: simple-2811
-                  otherwise:
-                    id: otherwise-987b
-                    steps:
-                      - log:
-                          id: log-802d
-                          message: ${body}
-              - circuitBreaker:
-                  id: circuitBreaker-64e5
-                  steps:
-                    - loop:
-                        id: loop-4062
-                        expression:
-                          simple:
-                            id: simple-041b
-                        steps:
-                          - multicast:
-                              id: multicast-70ae
-              - convertBodyTo:
-                  id: convertBodyTo-854c
-              - filter:
-                  id: filter-297b
-                  expression:
-                    simple:
-                      id: simple-90b6
-
-- routeConfiguration:
-    intercept:
-      - intercept:
-          id: intercept-5ede
-      - intercept:
-          id: intercept-93ca
-    interceptFrom:
-      - interceptFrom:
-          id: interceptFrom-14ca
+- rest:
+    get:
+      - id: "metadata"
+        path: "/metadata"
+        produces: "application/fhir+json,application/fhir+xml"
+        param:
+          - collectionFormat: "multi"
+            dataType: "string"
+            description: "Specify alternative response formats by their MIME-types (when\
+          \ a client is unable acccess accept: header)"
+            name: "_format"
+            required: false
+            type: "query"
+          - collectionFormat: "multi"
+            dataType: "boolean"
+            description: "Ask for a pretty printed response for human convenience"
+            name: "_pretty"
+            required: false
+            type: "query"
+          - collectionFormat: "multi"
+            dataType: "string"
+            description: "Requests the server to return a designated subset of the resource"
+            name: "_summary"
+            required: false
+            type: "query"
+            allowableValues:
+              - "true"
+              - "text"
+              - "data"
+              - "count"
+              - "false"
+          - collectionFormat: "csv"
+            dataType: "array"
+            description: "Requests the server to return a collection of elements from\
+          \ the resource"
+            name: "_elements"
+            required: false
+            type: "query"
+        to: "direct:metadata"

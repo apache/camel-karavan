@@ -149,7 +149,7 @@ public final class CamelDefinitionApiGenerator extends AbstractGenerator {
             String attributeArrayClass = getAttributeArrayClass(name, aValue);
             if (attributeIsArray && name.equals("steps") && ! className.equals("ChoiceDefinition") && ! className.equals("SwitchDefinition") && ! className.equals("KameletDefinition")) {
                 attrs.add("        def.steps = CamelDefinitionApi.createSteps(element?.steps);");
-            } else if (attributeIsArray && !name.equals("steps") && !attributeArrayClass.equals("string")) {
+            } else if (attributeIsArray && !name.equals("steps") && !attributeArrayClass.equals("string") && !Objects.equals(name, "allowableValues")) { // exception for allowableValues
                 String code = String.format(
                         "        def.%1$s = element && element?.%1$s ? element?.%1$s.map((x:any) => CamelDefinitionApi.create%2$s(x)) :[];"
                         , name, attributeArrayClass);

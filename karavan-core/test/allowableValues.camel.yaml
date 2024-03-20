@@ -1,0 +1,19 @@
+- rest:
+    id: rest-b536
+    get:
+      - id: metadata
+        path: /metadata
+        to: direct:metadata
+        param:
+          - description: Requests the server to return a designated subset of the resource
+            name: _summary
+            type: query
+            required: false
+            collectionFormat: multi
+            dataType: string
+            allowableValues:
+              - "true"
+              - text
+              - data
+              - count
+              - "false"

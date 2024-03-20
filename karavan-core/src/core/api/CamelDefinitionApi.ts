@@ -2583,7 +2583,6 @@ export class CamelDefinitionApi {
     static createParamDefinition = (element: any): ParamDefinition => { 
         const def = element ? new ParamDefinition({...element}) : new ParamDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
-        def.allowableValues = element && element?.allowableValues ? element?.allowableValues.map((x:any) => CamelDefinitionApi.createValueDefinition(x)) :[];
         def.examples = element && element?.examples ? element?.examples.map((x:any) => CamelDefinitionApi.createRestPropertyDefinition(x)) :[];
         return def;
     }
@@ -2618,7 +2617,6 @@ export class CamelDefinitionApi {
     static createResponseHeaderDefinition = (element: any): ResponseHeaderDefinition => { 
         const def = element ? new ResponseHeaderDefinition({...element}) : new ResponseHeaderDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
-        def.allowableValues = element && element?.allowableValues ? element?.allowableValues.map((x:any) => CamelDefinitionApi.createValueDefinition(x)) :[];
         return def;
     }
 

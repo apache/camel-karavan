@@ -209,9 +209,11 @@ public final class CamelMetadataGenerator extends AbstractGenerator {
                         defaultValue = defaultValue.length() == 1 && defaultValue.toCharArray()[0] == '\\' ? "\\\\" : defaultValue;
                         String labels = p != null && p.containsKey("label") ? p.getString("label") : "";
                         String javaType = getJavaType(name, p);
-                        if (name.equals("ProcessDefinition") && pname.equals("ref")) {
+                        if (name.equals("ProcessDefinition") && pname.equals("ref")) { // exception for processor
                             javaType = "org.apache.camel.Processor";
-                        } // exception for processor
+                        } else if ((name.equals("ParamDefinition") || name.equals("ResponseHeaderDefinition")) && pname.equals("allowableValues")) { // exception for ParamDefinition
+                            pm.type = "string";
+                        }
                         if (!getDeprecatedClasses().contains(pm.type)) {
                             code.append(String.format(
                                     "        new PropertyMeta('%s', '%s', \"%s\", '%s', '%s', '%s', %b, %b, %b, %b, '%s', '%s'),\n",

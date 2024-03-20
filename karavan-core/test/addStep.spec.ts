@@ -30,7 +30,6 @@ import {CamelDefinitionYaml} from "../src/core/api/CamelDefinitionYaml";
 import {SimpleExpression} from "../src/core/model/CamelDefinition";
 import {Integration} from "../src/core/model/IntegrationDefinition";
 import * as fs from 'fs';
-import {CamelModelMetadata, ElementMeta} from "../lib/model/CamelMetadata";
 
 describe('Add Step', () => {
 

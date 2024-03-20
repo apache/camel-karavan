@@ -110,7 +110,7 @@ public final class CamelDefinitionYamlStepGenerator extends AbstractGenerator {
 
             if (attributeIsArray && aName.equals("steps") && ! className.equals("ChoiceDefinition") && ! className.equals("SwitchDefinition") && ! className.equals("KameletDefinition")) {
                 attrs.put(aName, "        def.steps = CamelDefinitionYamlStep.readSteps(element?.steps);\n");
-            } else if (attributeIsArray && !aName.equals("steps") && !attributeArrayClass.equals("string") && !getDeprecatedClasses().contains(attributeArrayClass)) {
+            } else if (attributeIsArray && !aName.equals("steps") && !attributeArrayClass.equals("string") && !getDeprecatedClasses().contains(attributeArrayClass)&& !Objects.equals(aName, "allowableValues")) { // exception for allowableValues
                 String format = Arrays.asList("intercept", "interceptFrom", "interceptSendToEndpoint", "onCompletion", "onException").contains(aName)
                         ? "        def.%1$s = element && element?.%1$s ? element?.%1$s.map((x:any) => CamelDefinitionYamlStep.read%2$s(x.%1$s)) :[]; \n"
                         : "        def.%1$s = element && element?.%1$s ? element?.%1$s.map((x:any) => CamelDefinitionYamlStep.read%2$s(x)) :[]; \n";

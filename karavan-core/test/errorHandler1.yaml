@@ -5,7 +5,7 @@
       uri: kamelet:timer-source
       parameters:
         period: 1000
-        message: '1'
+        message: "1"
       steps:
         - setBody:
             id: setBody-1

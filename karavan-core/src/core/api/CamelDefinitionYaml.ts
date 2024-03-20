@@ -134,6 +134,8 @@ export class CamelDefinitionYaml {
         return yaml.dump(integration, {
             noRefs: false,
             noArrayIndent: false,
+            // forceQuotes: true,
+            quotingType: '"',
             sortKeys: function(a: any, b: any) {
                 if (a === 'steps') return 1;
                 else if (b === 'steps') return -1;
