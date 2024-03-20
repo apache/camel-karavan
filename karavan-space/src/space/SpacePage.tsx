@@ -85,8 +85,9 @@ export class SpacePage extends React.Component<Props, State> {
     }
 
     addYaml = (yaml: string | undefined) => {
+        let existing = this.props.yaml?.toString()?.trim() === '[]' ? '' : this.props.yaml;
         if (yaml) {
-            this.save(this.props.name, this.props.yaml + "\n" + yaml, false);
+            this.save(this.props.name, yaml + "\n" + existing, false);
         }
         this.setState({showUploadModal: false, key: Math.random().toString()})
     }
