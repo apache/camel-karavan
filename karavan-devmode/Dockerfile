@@ -23,7 +23,7 @@ LABEL "org.opencontainers.image.version"="4.4.1"
 
 RUN apt-get update && apt-get install git && apt-get clean
 
-ENV JBANG_VERSION=0.114.0
+ENV JBANG_VERSION=0.115.0
 ENV CAMEL_VERSION=4.4.0
 ENV KARAVAN="/karavan"
 ENV JBANG_DIR="$KARAVAN/.jbang"
