@@ -221,7 +221,7 @@ export async function readJavaCode(fullPath: string) {
 
 export function parceYaml(filename: string, yaml: string): [boolean, string?] {
     const i = CamelDefinitionYaml.yamlToIntegration(filename, yaml);
-    if (i.kind === 'Integration' && i.metadata.name) {
+    if ((i.kind === 'Integration' || i.kind === 'Kamelet') && i.metadata.name) {
         return [true, yaml];
     } else {
         return [false, undefined];

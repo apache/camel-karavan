@@ -568,7 +568,7 @@
         },
         {
           "command": "karavan.open",
-          "when": "resourceFilename =~ /.camel.yaml$/",
+          "when": "resourceFilename =~ /.camel.yaml$/ || resourceFilename =~ /.kamelet.yaml$/",
           "group": "karavan@4"
         },
         {
@@ -600,7 +600,7 @@
       "editor/title": [
         {
           "command": "karavan.open",
-          "when": "resourceFilename =~ /.camel.yaml$/",
+          "when": "resourceFilename =~ /.camel.yaml$/ || resourceFilename =~ /.kamelet.yaml$/",
           "group": "navigation@1"
         },
         {

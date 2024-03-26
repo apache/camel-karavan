@@ -73,6 +73,7 @@ export function App() {
             fetch("example/demo.camel.yaml"),
             // fetch("components/blocked-components.properties"),
             // fetch("kamelets/blocked-kamelets.properties")
+            // fetch("example/plc4x-ads-source.kamelet.yaml")
             // fetch("example/aws-cloudwatch-sink.kamelet.yaml")
             // fetch("example/aws-s3-cdc-source.kamelet.yaml")
             //fetch("components/supported-components.json"),
@@ -95,6 +96,7 @@ export function App() {
 
             if (data[4]) {
                 setYaml(data[4]);
+                // setName("plc4x-ads-source.kamelet.yaml");
                 setName("demo.camel.yaml");
             }
             if (data[5]) {
