@@ -44,20 +44,24 @@ interface Props {
 
 export function KameletInput(props: Props) {
 
-    const [inputValue, setInputValue] = useState(props.value)
+    const [inputValue, setInputValue] = useState(props.value);
+    const [checkChanges, setCheckChanges] = useState<boolean>(false);
 
     useEffect(()=> {
-        const interval = setInterval(() => {
-            if (props.value !== inputValue) {
-                saveValue(inputValue);
+        if (checkChanges) {
+            const interval = setInterval(() => {
+                if (props.value !== inputValue) {
+                    saveValue(inputValue);
+                }
+            }, 1000);
+            return () => {
+                clearInterval(interval)
             }
-        }, 3000);
-        return () => {
-            clearInterval(interval)
         }
-    }, [inputValue])
+    }, [checkChanges, inputValue])
 
     function saveValue(value?: string) {
+        setCheckChanges(false)
         props.setValue(value ? value : inputValue);
     }
 
@@ -66,7 +70,10 @@ export function KameletInput(props: Props) {
             <InputGroup>
                 <InputGroupItem isFill>
                     <TextInput className="text-field" type="text" id={props.elementKey} name={props.elementKey}
-                               onChange={(_, value) => setInputValue(value)}
+                               onChange={(_, value) => {
+                                   setInputValue(value);
+                                   setCheckChanges(true);
+                               }}
                                onBlur={() => saveValue()}
                                value={inputValue}/>
                 </InputGroupItem>
@@ -77,7 +84,10 @@ export function KameletInput(props: Props) {
     function getTextArea() {
         return (<InputGroup>
             <InputGroupItem isFill> <TextArea type="text" id={props.elementKey} name={props.elementKey} autoResize
-                                              onChange={(_, value) => setInputValue(value)}
+                                              onChange={(_, value) => {
+                                                  setInputValue(value);
+                                                  setCheckChanges(true);
+                                              }}
                                               onBlur={() => saveValue()}
                                               value={inputValue}/></InputGroupItem></InputGroup>)
     }
@@ -108,7 +118,8 @@ export function KameletInput(props: Props) {
                     isSelected={inputValue === option}
                     onChange={(_, selected) => {
                         setInputValue(option);
-                        saveValue(option)
+                        saveValue(option);
+                        setCheckChanges(false);
                     }}
                 />
             )}
