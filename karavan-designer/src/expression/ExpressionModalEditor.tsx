@@ -80,7 +80,7 @@ export function ExpressionModalEditor(props: Props) {
             <div className='container'>
                 <div className='panel-top'>
                     <Editor
-                        height="50%"
+                        height="100%"
                         width="100%"
                         defaultLanguage={'java'}
                         language={'java'}
