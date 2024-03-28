@@ -41,6 +41,7 @@ import UpdateIcon from "@patternfly/react-icons/dist/esm/icons/cog-icon";
 import {ProjectType} from "../../api/ProjectModels";
 import {KaravanApi} from "../../api/KaravanApi";
 import {EventBus} from "../../designer/utils/EventBus";
+import {isEmpty} from "../../util/StringUtils";
 
 export function FileToolbar () {
 
@@ -82,6 +83,16 @@ export function FileToolbar () {
         return project.projectId === 'templates' && project.type === ProjectType.templates;
     }
 
+    function onKeyDown(event: React.KeyboardEvent<HTMLDivElement>): void {
+        event.stopPropagation();
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            if (!isEmpty(commitMessage)) {
+                push();
+            }
+        }
+    }
+
     function getCommitModal() {
         return (
             <Modal
@@ -89,8 +100,9 @@ export function FileToolbar () {
                 variant={ModalVariant.small}
                 isOpen={commitMessageIsOpen}
                 onClose={() => setCommitMessageIsOpen(false)}
+                onKeyDown={onKeyDown}
                 actions={[
-                    <Button key="confirm" variant="primary" onClick={() => push()}>Commit and push</Button>,
+                    <Button key="confirm" variant="primary" isDisabled={isEmpty(commitMessage)} onClick={() => push()}>Commit and push</Button>,
                     <Button key="cancel" variant="secondary" onClick={() => setCommitMessageIsOpen(false)}>Cancel</Button>
                 ]}
             >
