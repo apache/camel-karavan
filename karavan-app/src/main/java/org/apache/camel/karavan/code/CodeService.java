@@ -66,7 +66,7 @@ public class CodeService {
     public static final String PROJECT_DEPLOYMENT_JKUBE_FILENAME = "deployment" + PROJECT_JKUBE_EXTENSION;
     private static final String SNIPPETS_PATH = "/snippets/";
     private static final String DATA_FOLDER = System.getProperty("user.dir") + File.separator + "data";
-    public static final String BUILDER_ENV_MAPPING_FILENAME = "kubernetes-builder-env.properties";
+    public static final String BUILDER_ENV_MAPPING_FILENAME = "builder-env.properties";
     private static final int INTERNAL_PORT = 8080;
 
     @ConfigProperty(name = "karavan.environment")
@@ -89,7 +89,6 @@ public class CodeService {
 
     List<String> blockList = List.of("components-blocklist.txt", "kamelets-blocklist.txt");
     List<String> beansTemplates = List.of("database", "messaging");
-    List<String> targets = List.of("openshift", "kubernetes", "docker");
     List<String> interfaces = List.of("org.apache.camel.AggregationStrategy.java", "org.apache.camel.Processor.java");
 
     public static final Map<String, String> DEFAULT_CONTAINER_RESOURCES = Map.of(
@@ -134,12 +133,7 @@ public class CodeService {
     }
 
     public ProjectFile getApplicationProperties(Project project) {
-        String target = "docker";
-        if (ConfigService.inKubernetes()) {
-            target = kubernetesService.isOpenshift() ? "openshift" : "kubernetes";
-        }
-        String templateName = target + "-" + APPLICATION_PROPERTIES_FILENAME;
-        String templateText = getTemplateText(templateName);
+        String templateText = getTemplateText(APPLICATION_PROPERTIES_FILENAME);
         Template result = engine.parse(templateText);
         TemplateInstance instance = result
                 .data("projectId", project.getProjectId())
@@ -164,17 +158,12 @@ public class CodeService {
             vertx.fileSystem().writeFileBlocking(path, Buffer.buffer(code));
         } catch (Exception e) {
             LOGGER.error(e.getMessage());
-            e.printStackTrace();
         }
     }
 
     public String getBuilderScript() {
-        String target = ConfigService.inKubernetes()
-                ? (kubernetesService.isOpenshift() ? "openshift" : "kubernetes")
-                : "docker";
-        String templateName = target + "-" + BUILD_SCRIPT_FILENAME;
-        String envTemplate = getTemplateText(environment + "." + templateName);
-        return envTemplate != null ? envTemplate : getTemplateText(templateName);
+        String envTemplate = getTemplateText(environment + "." + BUILD_SCRIPT_FILENAME);
+        return envTemplate != null ? envTemplate : getTemplateText(BUILD_SCRIPT_FILENAME);
     }
 
     public String getTemplateText(String fileName) {
@@ -196,12 +185,22 @@ public class CodeService {
     public Map<String, String> getTemplates() {
         Map<String, String> result = new HashMap<>();
 
-        List<String> files = new ArrayList<>(interfaces);
-        files.addAll(targets.stream().map(target -> target + "-" + APPLICATION_PROPERTIES_FILENAME).toList());
-        files.addAll(targets.stream().map(target ->  target + "-" + BUILD_SCRIPT_FILENAME).toList());
-        files.addAll(blockList);
-        files.add(BUILDER_ENV_MAPPING_FILENAME);
+        if (ConfigService.inKubernetes()) {
+            if (kubernetesService.isOpenshift()) {
+                result.put(APPLICATION_PROPERTIES_FILENAME, getResourceFile(SNIPPETS_PATH + "openshift-" + APPLICATION_PROPERTIES_FILENAME));
+                result.put(BUILD_SCRIPT_FILENAME, getResourceFile(SNIPPETS_PATH + "openshift-" + BUILD_SCRIPT_FILENAME));
+            } else {
+                result.put(APPLICATION_PROPERTIES_FILENAME, getResourceFile(SNIPPETS_PATH + "kubernetes-" + APPLICATION_PROPERTIES_FILENAME));
+                result.put(BUILD_SCRIPT_FILENAME, getResourceFile(SNIPPETS_PATH + "kubernetes-" + BUILD_SCRIPT_FILENAME));
+            }
+            result.put(BUILDER_ENV_MAPPING_FILENAME, getResourceFile(SNIPPETS_PATH + BUILDER_ENV_MAPPING_FILENAME));
+        } else {
+            result.put(APPLICATION_PROPERTIES_FILENAME, getResourceFile(SNIPPETS_PATH + "docker-" + APPLICATION_PROPERTIES_FILENAME));
+            result.put(BUILD_SCRIPT_FILENAME, getResourceFile(SNIPPETS_PATH + "docker-" + BUILD_SCRIPT_FILENAME));
+        }
 
+        List<String> files = new ArrayList<>(interfaces);
+        files.addAll(blockList);
         files.addAll(getBeanTemplateNames());
 
         files.forEach(file -> {
