@@ -683,7 +683,7 @@ export class KaravanApi {
     }
 
     static async postOpenApi(file: ProjectFile, generateRest: boolean, generateRoutes: boolean, integrationName: string) {
-        const uri = `/api/file/openapi/${generateRest}/${generateRoutes}/${integrationName}`;
+        const uri = `/ui/file/openapi/${generateRest}/${generateRoutes}/${integrationName}`;
         return instance.post(encodeURI(uri), file);
     }
 }
