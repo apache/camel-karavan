@@ -23,7 +23,7 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import org.apache.camel.karavan.code.CodeService;
 
-@Path("/api/component")
+@Path("/ui/component")
 public class ComponentResources {
     
     @Inject

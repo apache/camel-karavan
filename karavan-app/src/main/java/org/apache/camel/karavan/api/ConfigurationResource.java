@@ -25,7 +25,7 @@ import jakarta.ws.rs.core.Response;
 import org.apache.camel.karavan.docker.DockerService;
 import org.apache.camel.karavan.service.ConfigService;
 
-@Path("/api/configuration")
+@Path("/ui/configuration")
 public class ConfigurationResource {
 
     @Inject

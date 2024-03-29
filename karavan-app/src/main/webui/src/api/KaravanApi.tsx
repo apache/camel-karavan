@@ -186,7 +186,7 @@ export class KaravanApi {
     }
 
     static async getMe(after: (user: {}) => void) {
-        instance.get('/api/users/me')
+        instance.get('/ui/users/me')
             .then(res => {
                 if (res.status === 200) {
                     KaravanApi.me = res.data;
@@ -198,7 +198,7 @@ export class KaravanApi {
     }
 
     static async getConfiguration(after: (config: AppConfig) => void) {
-        instance.get('/api/configuration')
+        instance.get('/ui/configuration')
             .then(res => {
                 if (res.status === 200) {
                     after(res.data);
@@ -209,7 +209,7 @@ export class KaravanApi {
     }
 
     static async getInfrastructureInfo(after: (info: any) => void) {
-        instance.get('/api/configuration/info')
+        instance.get('/ui/configuration/info')
             .then(res => {
                 if (res.status === 200) {
                     after(res.data);
@@ -220,7 +220,7 @@ export class KaravanApi {
     }
 
     static async getProject(projectId: string, after: (project: Project) => void) {
-        instance.get('/api/project/' + projectId)
+        instance.get('/ui/project/' + projectId)
             .then(res => {
                 if (res.status === 200) {
                     after(res.data);
@@ -231,7 +231,7 @@ export class KaravanApi {
     }
 
     static async getProjectDeploymentStatus(projectId: string, env: string, after: (status?: DeploymentStatus) => void) {
-        instance.get('/api/status/deployment/' + projectId + "/" + env)
+        instance.get('/ui/status/deployment/' + projectId + "/" + env)
             .then(res => {
                 if (res.status === 200) {
                     after(res.data);
@@ -244,7 +244,7 @@ export class KaravanApi {
     }
 
     static async getProjectCamelStatus(projectId: string, env: string, after: (status: CamelStatus) => void) {
-        instance.get('/api/status/camel/' + projectId + "/" + env)
+        instance.get('/ui/status/camel/' + projectId + "/" + env)
             .then(res => {
                 if (res.status === 200) {
                     after(res.data);
@@ -255,7 +255,7 @@ export class KaravanApi {
     }
 
     static async getAllCamelContextStatuses(after: (statuses: CamelStatus[]) => void) {
-        instance.get('/api/status/camel/context')
+        instance.get('/ui/status/camel/context')
             .then(res => {
                 if (res.status === 200) {
                     after(res.data);
@@ -266,7 +266,7 @@ export class KaravanApi {
     }
 
     static async getProjects(after: (projects: Project[]) => void, type?: ProjectType.normal) {
-        instance.get('/api/project' + (type !== undefined ? "?type=" + type : ""))
+        instance.get('/ui/project' + (type !== undefined ? "?type=" + type : ""))
             .then(res => {
                 if (res.status === 200) {
                     after(res.data.map((p: Partial<Project> | undefined) => new Project(p)));
@@ -277,15 +277,15 @@ export class KaravanApi {
     }
 
     static async postProject(project: Project) {
-        return instance.post('/api/project', project);
+        return instance.post('/ui/project', project);
     }
 
     static async copyProject(sourceProject: string, project: Project) {
-        return instance.post('/api/project/copy/' + sourceProject, project);
+        return instance.post('/ui/project/copy/' + sourceProject, project);
     }
 
     static async deleteProject(project: Project, deleteContainers: boolean, after: (res: AxiosResponse<any>) => void) {
-        instance.delete('/api/project/' + encodeURI(project.projectId) + (deleteContainers ? '?deleteContainers=true' : ''))
+        instance.delete('/ui/project/' + encodeURI(project.projectId) + (deleteContainers ? '?deleteContainers=true' : ''))
             .then(res => {
                 after(res);
             }).catch(err => {
@@ -294,7 +294,7 @@ export class KaravanApi {
     }
 
     static async buildProject(project: Project, tag: string, after: (res: AxiosResponse<any>) => void) {
-        instance.post('/api/project/build/' + tag, project)
+        instance.post('/ui/project/build/' + tag, project)
             .then(res => {
                 after(res);
             }).catch(err => {
@@ -303,7 +303,7 @@ export class KaravanApi {
     }
 
     static async updateBuildConfigMap(after: (res: AxiosResponse<any>) => void) {
-        instance.post('/api/build/update-config-map', "{}")
+        instance.post('/ui/build/update-config-map', "{}")
             .then(res => {
                 if (res.status === 200) {
                     after(res.data);
@@ -314,7 +314,7 @@ export class KaravanApi {
     }
 
     static async getFiles(projectId: string, after: (files: ProjectFile[]) => void) {
-        instance.get('/api/file/' + projectId)
+        instance.get('/ui/file/' + projectId)
             .then(res => {
                 if (res.status === 200) {
                     after(res.data);
@@ -325,11 +325,11 @@ export class KaravanApi {
     }
 
     static async saveProjectFile(file: ProjectFile) {
-        return instance.post('/api/file', file);
+        return instance.post('/ui/file', file);
     }
 
     static async putProjectFile(file: ProjectFile, after: (res: AxiosResponse<any>) => void) {
-        instance.put('/api/file', file)
+        instance.put('/ui/file', file)
             .then(res => {
                 after(res);
             }).catch(err => {
@@ -338,7 +338,7 @@ export class KaravanApi {
     }
 
     static async deleteProjectFile(file: ProjectFile, after: (res: AxiosResponse<any>) => void) {
-        instance.delete('/api/file/' + file.projectId + '/' + file.name)
+        instance.delete('/ui/file/' + file.projectId + '/' + file.name)
             .then(res => {
                 after(res);
             }).catch(err => {
@@ -347,7 +347,7 @@ export class KaravanApi {
     }
 
     static async push(params: {}, after: (res: AxiosResponse<any>) => void) {
-        instance.post('/api/git', params)
+        instance.post('/ui/git', params)
             .then(res => {
                 after(res);
             }).catch(err => {
@@ -356,7 +356,7 @@ export class KaravanApi {
     }
 
     static async pull(projectId: string, after: (res: AxiosResponse<any> | any) => void) {
-        instance.put('/api/git/' + projectId)
+        instance.put('/ui/git/' + projectId)
             .then(res => {
                 after(res);
             }).catch(err => {
@@ -365,7 +365,7 @@ export class KaravanApi {
     }
 
     static async getTemplatesFiles( after: (files: []) => void) {
-        instance.get('/api/file/templates')
+        instance.get('/ui/file/templates')
             .then(res => {
                 if (res.status === 200) {
                     after(res.data);
@@ -376,7 +376,7 @@ export class KaravanApi {
     }
 
     static async getBeanTemplatesFiles( after: (files: ProjectFile []) => void) {
-        instance.get('/api/file/templates/beans')
+        instance.get('/ui/file/templates/beans')
             .then(res => {
                 if (res.status === 200) {
                     after(res.data);
@@ -387,7 +387,7 @@ export class KaravanApi {
     }
 
     static async getDevModePodStatus(projectId: string, after: (res: AxiosResponse<ContainerStatus>) => void) {
-        instance.get('/api/devmode/container/' + projectId)
+        instance.get('/ui/devmode/container/' + projectId)
             .then(res => {
                 after(res);
             }).catch(err => {
@@ -396,7 +396,7 @@ export class KaravanApi {
     }
 
     static async reloadDevModeCode(projectId: string, after: (res: AxiosResponse<any>) => void) {
-        instance.get('/api/devmode/reload/' + projectId)
+        instance.get('/ui/devmode/reload/' + projectId)
             .then(res => {
                 after(res);
             }).catch(err => {
@@ -405,7 +405,7 @@ export class KaravanApi {
     }
 
     static async getProjectCamelStatuses(projectId: string, env: string, after: (res: AxiosResponse<CamelStatus[]>) => void) {
-        instance.get('/api/project/status/camel/' + projectId + "/" + env)
+        instance.get('/ui/project/status/camel/' + projectId + "/" + env)
             .then(res => {
                 after(res);
             }).catch(err => {
@@ -414,7 +414,7 @@ export class KaravanApi {
     }
 
     static async getProjectCamelTraces(projectId: string, env: string, after: (res: AxiosResponse<CamelStatus[]>) => void) {
-        instance.get('/api/project/traces/' + projectId + "/" + env)
+        instance.get('/ui/project/traces/' + projectId + "/" + env)
             .then(res => {
                 after(res);
             }).catch(err => {
@@ -423,7 +423,7 @@ export class KaravanApi {
     }
 
     static async startDevModeContainer(project: Project, verbose: boolean, after: (res: AxiosResponse<string>) => void) {
-        instance.post('/api/devmode' + (verbose ? '/--verbose' : ''), project)
+        instance.post('/ui/devmode' + (verbose ? '/--verbose' : ''), project)
             .then(res => {
                 after(res);
             }).catch(err => {
@@ -432,7 +432,7 @@ export class KaravanApi {
     }
 
     static async deleteDevModeContainer(name: string, deletePVC: boolean, after: (res: AxiosResponse<any>) => void) {
-        instance.delete('/api/devmode/' +  name + "/" + deletePVC)
+        instance.delete('/ui/devmode/' +  name + "/" + deletePVC)
             .then(res => {
                 after(res);
             }).catch(err => {
@@ -441,7 +441,7 @@ export class KaravanApi {
     }
 
     static async setProjectImage(projectId: string, imageName: string, commit: boolean, message: string, after: (res: AxiosResponse<any>) => void) {
-        instance.post('/api/image/' + projectId, {imageName: imageName, commit: commit, message: message})
+        instance.post('/ui/image/' + projectId, {imageName: imageName, commit: commit, message: message})
             .then(res => {
                 after(res);
             }).catch(err => {
@@ -450,7 +450,7 @@ export class KaravanApi {
     }
 
     static async stopBuild(environment: string, buildName: string, after: (res: AxiosResponse<any>) => void) {
-        instance.delete('/api/project/build/' + environment + "/" + buildName)
+        instance.delete('/ui/project/build/' + environment + "/" + buildName)
             .then(res => {
                 if (res.status === 200) {
                     after(res.data);
@@ -461,7 +461,7 @@ export class KaravanApi {
     }
 
     static async getContainerLog(environment: string, name: string, after: (res: AxiosResponse<string>) => void) {
-        instance.get('/api/container/log/' + environment + "/" + name)
+        instance.get('/ui/container/log/' + environment + "/" + name)
             .then(res => {
                 if (res.status === 200) {
                     after(res.data);
@@ -472,7 +472,7 @@ export class KaravanApi {
     }
 
     static async getAllServiceStatuses(after: (statuses: ServiceStatus[]) => void) {
-        instance.get('/api/infrastructure/service')
+        instance.get('/ui/infrastructure/service')
             .then(res => {
                 if (res.status === 200) {
                     after(res.data);
@@ -483,7 +483,7 @@ export class KaravanApi {
     }
 
     static async getAllContainerStatuses(after: (statuses: ContainerStatus[]) => void) {
-        instance.get('/api/container')
+        instance.get('/ui/container')
             .then(res => {
                 if (res.status === 200) {
                     after(res.data);
@@ -494,7 +494,7 @@ export class KaravanApi {
     }
 
     static async getAllDeploymentStatuses(after: (statuses: DeploymentStatus[]) => void) {
-        instance.get('/api/infrastructure/deployment')
+        instance.get('/ui/infrastructure/deployment')
             .then(res => {
                 if (res.status === 200) {
                     after(res.data);
@@ -505,7 +505,7 @@ export class KaravanApi {
     }
 
     static async getDeploymentStatuses(env: string, after: (statuses: DeploymentStatus[]) => void) {
-        instance.get('/api/infrastructure/deployment/' + env)
+        instance.get('/ui/infrastructure/deployment/' + env)
             .then(res => {
                 if (res.status === 200) {
                     after(res.data);
@@ -516,7 +516,7 @@ export class KaravanApi {
     }
 
     static async rolloutDeployment(name: string, environment: string, after: (res: AxiosResponse<any>) => void) {
-        instance.post('/api/infrastructure/deployment/rollout/' + environment + '/' + name, "")
+        instance.post('/ui/infrastructure/deployment/rollout/' + environment + '/' + name, "")
             .then(res => {
                 after(res);
             }).catch(err => {
@@ -525,7 +525,7 @@ export class KaravanApi {
     }
 
     static async deleteDeployment(environment: string, name: string, after: (res: AxiosResponse<any>) => void) {
-        instance.delete('/api/infrastructure/deployment/' + environment + '/' + name)
+        instance.delete('/ui/infrastructure/deployment/' + environment + '/' + name)
             .then(res => {
                 after(res);
             }).catch(err => {
@@ -539,7 +539,7 @@ export class KaravanApi {
                                  command: 'deploy' | 'run' | 'pause' | 'stop' | 'delete',
                                  pullImage: boolean,
                                  after: (res: AxiosResponse<any> | any) => void) {
-        instance.post('/api/container/' + projectId + '/' + type + "/" + name, {command: command, pullImage: pullImage})
+        instance.post('/ui/container/' + projectId + '/' + type + "/" + name, {command: command, pullImage: pullImage})
             .then(res => {
                 after(res);
             }).catch(err => {
@@ -548,7 +548,7 @@ export class KaravanApi {
     }
 
     static async deleteContainer(projectId: string, type: 'devmode' | 'devservice' | 'project' | 'internal' | 'build' | 'unknown', name: string, after: (res: AxiosResponse<any>) => void) {
-        instance.delete('/api/container/' + projectId + '/' + type + "/" + name)
+        instance.delete('/ui/container/' + projectId + '/' + type + "/" + name)
             .then(res => {
                 after(res);
             }).catch(err => {
@@ -557,7 +557,7 @@ export class KaravanApi {
     }
 
     static async getConfigMaps(after: (any: []) => void) {
-        instance.get('/api/infrastructure/configmaps/')
+        instance.get('/ui/infrastructure/configmaps/')
             .then(res => {
                 if (res.status === 200) {
                     after(res.data);
@@ -568,7 +568,7 @@ export class KaravanApi {
     }
 
     static async getImages(projectId: string, after: (string: []) => void) {
-        instance.get('/api/image/' + projectId)
+        instance.get('/ui/image/' + projectId)
             .then(res => {
                 if (res.status === 200) {
                     after(res.data);
@@ -579,7 +579,7 @@ export class KaravanApi {
     }
 
     static async deleteImage(imageName: string, after: () => void) {
-        instance.delete('/api/image/' + Buffer.from(imageName).toString('base64'))
+        instance.delete('/ui/image/' + Buffer.from(imageName).toString('base64'))
             .then(res => {
                 if (res.status === 200) {
                     after();
@@ -590,7 +590,7 @@ export class KaravanApi {
     }
 
     static async getSecrets(after: (any: []) => void) {
-        instance.get('/api/infrastructure/secrets')
+        instance.get('/ui/infrastructure/secrets')
             .then(res => {
                 if (res.status === 200) {
                     after(res.data);
@@ -601,7 +601,7 @@ export class KaravanApi {
     }
 
     static async getServices(after: (any: []) => void) {
-        instance.get('/api/infrastructure/services')
+        instance.get('/ui/infrastructure/services')
             .then(res => {
                 if (res.status === 200) {
                     after(res.data);
@@ -612,7 +612,7 @@ export class KaravanApi {
     }
 
     static async deleteAllStatuses(after: (res: AxiosResponse<any>) => void) {
-        instance.delete('/api/status/all/')
+        instance.delete('/ui/status/all/')
             .then(res => {
                 after(res);
             }).catch(err => {
@@ -621,7 +621,7 @@ export class KaravanApi {
     }
 
     static async restartInformers(after: (res: AxiosResponse<any>) => void) {
-        instance.put('/api/infrastructure/informers/')
+        instance.put('/ui/infrastructure/informers/')
             .then(res => {
                 after(res);
             }).catch(err => {
@@ -630,7 +630,7 @@ export class KaravanApi {
     }
 
     static async getKamelets(after: (yaml: string) => void) {
-        instance.get('/api/kamelet', {headers: {'Accept': 'text/plain'}})
+        instance.get('/ui/kamelet', {headers: {'Accept': 'text/plain'}})
             .then(res => {
                 if (res.status === 200) {
                     after(res.data);
@@ -641,7 +641,7 @@ export class KaravanApi {
     }
 
     static async getComponents(after: (json: string) => void) {
-        instance.get('/api/component')
+        instance.get('/ui/component')
             .then(res => {
                 if (res.status === 200) {
                     after(JSON.stringify(res.data));
@@ -652,7 +652,7 @@ export class KaravanApi {
     }
 
     static async getSupportedComponents(after: (json: string) => void) {
-        instance.get('/api/supported-component')
+        instance.get('/ui/supported-component')
             .then(res => {
                 if (res.status === 200) {
                     after(JSON.stringify(res.data));
@@ -663,7 +663,7 @@ export class KaravanApi {
     }
 
     static async getOpenApis(after: (openapis: []) => void) {
-        instance.get('/api/openapi')
+        instance.get('/ui/openapi')
             .then(res => {
                 if (res.status === 200) {
                     after(res.data);
@@ -674,7 +674,7 @@ export class KaravanApi {
     }
 
     static async getOpenApi(name: string, after: (res: AxiosResponse<any>) => void) {
-        instance.get('/api/openapi/' + name, {headers: {'Accept': 'text/plain'}})
+        instance.get('/ui/openapi/' + name, {headers: {'Accept': 'text/plain'}})
             .then(res => {
                 after(res);
             }).catch(err => {

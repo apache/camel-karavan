@@ -35,7 +35,7 @@ import org.jboss.logging.Logger;
 
 import static org.apache.camel.karavan.service.ContainerStatusService.CONTAINER_STATUS;
 
-@Path("/api/devmode")
+@Path("/ui/devmode")
 public class DevModeResource {
 
     private static final Logger LOGGER = Logger.getLogger(DevModeResource.class.getName());

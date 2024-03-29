@@ -28,7 +28,7 @@ import org.jboss.logging.Logger;
 
 import java.util.List;
 
-@Path("/api/status")
+@Path("/ui/status")
 public class StatusResource {
 
     private static final Logger LOGGER = Logger.getLogger(StatusResource.class.getName());

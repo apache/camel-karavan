@@ -54,9 +54,9 @@ export class NotificationApi {
                 ready = KaravanApi.authType === 'public';
             }
             if (ready) {
-                NotificationApi.fetch('/api/notification/system', controller, headers,
+                NotificationApi.fetch('/ui/notification/system', controller, headers,
                     ev => NotificationApi.onSystemMessage(ev));
-                NotificationApi.fetch('/api/notification/user/' + KaravanApi.getUserId(), controller, headers,
+                NotificationApi.fetch('/ui/notification/user/' + KaravanApi.getUserId(), controller, headers,
                     ev => NotificationApi.onUserMessage(ev));
             }
         };

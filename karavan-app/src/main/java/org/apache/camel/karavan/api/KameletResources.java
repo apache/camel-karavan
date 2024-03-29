@@ -30,7 +30,7 @@ import org.yaml.snakeyaml.Yaml;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Path("/api/kamelet")
+@Path("/ui/kamelet")
 public class KameletResources {
 
     @Inject

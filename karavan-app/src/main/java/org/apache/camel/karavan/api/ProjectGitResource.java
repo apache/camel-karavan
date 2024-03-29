@@ -29,7 +29,7 @@ import java.util.HashMap;
 
 import static org.apache.camel.karavan.service.ProjectService.PUSH_PROJECT;
 
-@Path("/api/git")
+@Path("/ui/git")
 public class ProjectGitResource {
 
     private static final Logger LOGGER = Logger.getLogger(ProjectGitResource.class.getName());

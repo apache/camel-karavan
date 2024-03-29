@@ -32,7 +32,7 @@ import org.jboss.resteasy.reactive.RestStreamElementType;
 
 import static org.apache.camel.karavan.shared.Constants.*;
 
-@Path("/api/notification")
+@Path("/ui/notification")
 public class NotificationResource {
 
     @Inject

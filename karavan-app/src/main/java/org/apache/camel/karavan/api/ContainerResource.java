@@ -41,7 +41,7 @@ import java.util.stream.Collectors;
 import static org.apache.camel.karavan.service.ContainerStatusService.CONTAINER_STATUS;
 import static org.apache.camel.karavan.shared.Constants.*;
 
-@Path("/api/container")
+@Path("/ui/container")
 public class ContainerResource {
 
     @Inject

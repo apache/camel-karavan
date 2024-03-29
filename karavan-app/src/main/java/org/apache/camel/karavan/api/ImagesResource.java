@@ -31,7 +31,7 @@ import org.jose4j.base64url.Base64;
 import java.util.Comparator;
 import java.util.List;
 
-@Path("/api/image")
+@Path("/ui/image")
 public class ImagesResource {
 
     @Inject

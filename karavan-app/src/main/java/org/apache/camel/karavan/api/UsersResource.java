@@ -28,7 +28,7 @@ import org.jboss.resteasy.reactive.NoCache;
 
 import java.util.Set;
 
-@Path("/api/users")
+@Path("/ui/users")
 @Produces(MediaType.APPLICATION_JSON)
 public class UsersResource {
 

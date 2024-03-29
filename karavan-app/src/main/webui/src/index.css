@@ -106,53 +106,6 @@
   font-weight: initial;
 }
 
-/*Projects*/
-
-.karavan .tools .pf-v5-c-button {
-  font-size: 14px;
-}
-
-.karavan .projects-page {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-}
-
-.karavan .projects-page .pf-v5-c-table tr {
-  --pf-v5-c-table--cell--FontSize: 14px;
-}
-
-.karavan .projects-page .icon-td {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-.karavan .projects-page .icon {
-  height: 21px;
-  width: 21px;
-  margin-top: 8px;
-  position: absolute;
-}
-
-.karavan .project-page .badge,
-.karavan .projects-page .badge {
-  font-size: 14px;
-  font-weight: 400;
-  padding: 4px 8px 4px 8px;
-  min-width: 70px;
-}
-
-.karavan .projects-page .runtime-badge {
-  min-width: 27px;
-  font-size: 14px;
-  font-weight: 400;
-  padding: 2px 8px 2px 8px;
-}
-
-.karavan .projects-page .pf-m-link {
-  font-size: 14px;
-}
-
 .karavan .project-page {
   display: flex;
   flex-direction: column;

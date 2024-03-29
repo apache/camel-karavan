@@ -1,0 +1,68 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+.karavan .tools .pf-v5-c-button {
+    font-size: 14px;
+}
+
+.karavan .projects-page {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.karavan .projects-page .project-section {
+    overflow: auto;
+    flex-shrink: unset;
+    flex-grow: 1;
+    background-color: var(--pf-v5-global--BackgroundColor--light-300);
+}
+
+.karavan .projects-page .pf-v5-c-table tr {
+    --pf-v5-c-table--cell--FontSize: 14px;
+}
+
+.karavan .projects-page .icon-td {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+.karavan .projects-page .icon {
+    height: 21px;
+    width: 21px;
+    margin-top: 8px;
+    position: absolute;
+}
+
+.karavan .project-page .badge,
+.karavan .projects-page .badge {
+    font-size: 14px;
+    font-weight: 400;
+    padding: 4px 8px 4px 8px;
+    min-width: 70px;
+}
+
+.karavan .projects-page .runtime-badge {
+    min-width: 27px;
+    font-size: 14px;
+    font-weight: 400;
+    padding: 2px 8px 2px 8px;
+}
+
+.karavan .projects-page .pf-m-link {
+    font-size: 14px;
+}

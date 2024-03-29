@@ -30,7 +30,7 @@ import {
     EmptyStateVariant,
     EmptyStateIcon, EmptyStateHeader
 } from '@patternfly/react-core';
-import '../designer/karavan.css';
+import './ProjectsPage.css';
 import PlusIcon from '@patternfly/react-icons/dist/esm/icons/plus-icon';
 import {
     Tbody,
@@ -142,11 +142,11 @@ export function ProjectsPage () {
     }
 
     return (
-        <PageSection className="kamelet-section projects-page" padding={{default: 'noPadding'}}>
+        <PageSection className="projects-page" padding={{default: 'noPadding'}}>
             <PageSection className="tools-section" padding={{default: 'noPadding'}}>
                 <MainToolbar title={title()} tools={getTools()}/>
             </PageSection>
-            <PageSection isFilled className="kamelets-page">
+            <PageSection isFilled className="project-section">
                 {getProjectsTable()}
             </PageSection>
             {["create", "copy"].includes(operation) && <CreateProjectModal/>}

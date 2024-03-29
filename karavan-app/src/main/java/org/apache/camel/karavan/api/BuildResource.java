@@ -27,7 +27,7 @@ import org.apache.camel.karavan.service.KaravanCacheService;
 import org.apache.camel.karavan.code.CodeService;
 import org.apache.camel.karavan.kubernetes.KubernetesService;
 
-@Path("/api/build")
+@Path("/ui/build")
 public class BuildResource {
 
     @Inject

@@ -191,8 +191,8 @@ public class GitService {
     }
 
     public Git getGit(boolean checkout, String folder) throws GitAPIException, IOException, URISyntaxException {
-        LOGGER.info("Git checkout");
         GitConfig gitConfig = getGitConfig();
+        LOGGER.info("Git checkout " + gitConfig.getUri());
         LOGGER.info("Temp folder created " + folder);
         Git git = null;
         if (ephemeral) {

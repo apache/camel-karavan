@@ -32,7 +32,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Path("/api/file")
+@Path("/ui/file")
 public class ProjectFileResource {
 
     @Inject

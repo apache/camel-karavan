@@ -36,7 +36,7 @@ export class LogWatchApi {
                 ready = KaravanApi.authType === 'public';
             }
             if (ready) {
-                await fetchEventSource("/api/logwatch/" + type + "/" + podName, {
+                await fetchEventSource('/ui/logwatch/' + type + '/' + podName, {
                     method: "GET",
                     headers: headers,
                     signal: controller.signal,
