@@ -150,9 +150,9 @@ export class TopologyUtils {
         const result:TopologyRestNode[] = [];
         integration.forEach(i => {
             const filename = i.metadata.name;
-            const uris: string[] = [];
             const routes = i.spec.flows?.filter(flow => flow.dslName === 'RestDefinition');
             routes?.forEach((rest: RestDefinition) => {
+                const uris: string[] = [];
                 rest?.get?.forEach((d: GetDefinition) => {
                     if (d.to) uris.push(d.to);
                 });
