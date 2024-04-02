@@ -1,0 +1,12 @@
+.pf-v5-c-modal-box .text-field-with-prefix {
+    gap: 0;
+}
+
+.pf-v5-c-modal-box .text-field-with-prefix .text-field-prefix {
+    margin-top: auto;
+    margin-bottom: auto;
+}
+
+.pf-v5-c-modal-box .text-field-with-prefix .pf-v5-c-text-input-group__text-input {
+    padding-left: 0;
+}

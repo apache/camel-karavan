@@ -48,6 +48,13 @@ import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.SafeConstructor;
 
 import java.io.*;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -169,7 +176,7 @@ public class CodeService {
     public String getTemplateText(String fileName) {
         try {
             List<ProjectFile> files = karavanCacheService.getProjectFiles(Project.Type.templates.name());
-            // replaceAll("\r\n", "\n")) has been add to eliminate the impact of editing the template files from windows machine. 
+            // replaceAll("\r\n", "\n")) has been add to eliminate the impact of editing the template files from windows machine.
             return files.stream().filter(f -> f.getName().equalsIgnoreCase(fileName))
                     .map(file-> file.getCode().replaceAll("\r\n", "\n")).findFirst().orElse(null);
         } catch (Exception e) {
@@ -391,6 +398,43 @@ public class CodeService {
     public String getDataFile(String name) {
         String fileName = DATA_FOLDER + File.separator + name;
         return vertx.fileSystem().readFileBlocking(fileName).toString();
+    }
+
+    public List<String> listResources(String resourceFolder, boolean onlyFolders) {
+        List<String> filePaths = new ArrayList<>();
+        try {
+            URI uri = CodeService.class.getResource(resourceFolder).toURI();
+            Path myPath;
+            FileSystem fileSystem = null;
+            if (uri.getScheme().equals("jar")) {
+                fileSystem = FileSystems.newFileSystem(uri, Collections.emptyMap());
+                myPath = fileSystem.getPath(resourceFolder);
+            } else {
+                myPath = Paths.get(uri);
+            }
+
+            if (onlyFolders) {
+                // Use Files.walk to list and collect directory paths
+                filePaths = Files.walk(myPath, 10)
+                        .filter(Files::isDirectory)
+                        .map(path -> path.getFileName().toString())
+                        .collect(Collectors.toList());
+            } else {
+                // Use Files.walk to list and collect file paths
+                filePaths = Files.walk(myPath, 1)
+                        .filter(Files::isRegularFile)
+                        .map(path -> path.getFileName().toString())
+                        .collect(Collectors.toList());
+            }
+
+            // Close the file system if opened
+            if (fileSystem != null) {
+                fileSystem.close();
+            }
+        } catch (URISyntaxException | IOException e) {
+            e.printStackTrace();
+        }
+        return filePaths;
     }
 
     public String getFileString(String fullName) {
