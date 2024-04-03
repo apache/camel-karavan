@@ -38,7 +38,7 @@ export function DesignerEditor(props: Props) {
     const [files] = useFilesStore((s) => [s.files], shallow);
     const [propertyPlaceholders, setPropertyPlaceholders] = useState<string[]>([]);
     const [beans, setBeans] = useState<RegistryBeanDefinition[]>([]);
-    const [key, setKey] = useState<string>(Math.random().toString());
+    const [key, setKey] = useState<string>();
     const [code, setCode] = useState<string>();
 
     useEffect(() => {
@@ -55,6 +55,7 @@ export function DesignerEditor(props: Props) {
             prevState.push(...bs);
             return prevState;
         });
+        setKey(Math.random().toString());
         return () => {
             //save custom kamelet on page unload
             if (props.projectId.includes('kamelets') && file) {
@@ -110,7 +111,7 @@ export function DesignerEditor(props: Props) {
         }
     }
 
-    return (file !== undefined ?
+    return (file !== undefined && key !== undefined ?
             <KaravanDesigner key={key}
                              showCodeTab={true}
                              dark={false}

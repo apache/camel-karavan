@@ -310,9 +310,7 @@ export const useDesignerStore = createWithEqualityFn<DesignerState & DesignerAct
     },
     setBeans: (beans: RegistryBeanDefinition[]) => {
         set((state: DesignerState) => {
-            state.beans.length = 0;
-            state.beans.push(...beans);
-            return state;
+            return {beans: [...beans]};
         })
     },
 }), shallow)

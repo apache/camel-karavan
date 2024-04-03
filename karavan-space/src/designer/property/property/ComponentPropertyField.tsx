@@ -114,7 +114,7 @@ export function ComponentPropertyField(props: Props) {
     }
 
     function getSelectBean(property: ComponentProperty, value: any) {
-        const selectOptions: JSX.Element[] = [];
+        const selectOptions: React.JSX.Element[] = [];
         if (beans) {
             selectOptions.push(<SelectOption key={0} value={"Select..."} isPlaceholder/>);
             selectOptions.push(...beans.map((bean) => <SelectOption key={bean.name} value={beanPrefix + bean.name}
@@ -270,7 +270,7 @@ export function ComponentPropertyField(props: Props) {
                                setTextValue(v);
                                setCheckChanges(true);
                            }}
-               />
+                />
             }
             <InputGroupItem>
                 <Tooltip position="bottom-end" content={"Show Editor"}>
@@ -288,11 +288,11 @@ export function ComponentPropertyField(props: Props) {
                                        title={property.displayName}
                                        onClose={() => setShowEditor(false)}
                                        onSave={(fieldId, value1) => {
-                                 setTextValue(value1);
-                                 parametersChanged(property.name, value1, property.kind === 'path')
-                                 setShowEditor(false);
-                                 setCheckChanges(false);
-                             }}/>
+                                           setTextValue(value1);
+                                           parametersChanged(property.name, value1, property.kind === 'path')
+                                           setShowEditor(false);
+                                           setCheckChanges(false);
+                                       }}/>
             </InputGroupItem>}
             {property.secret &&
                 <Tooltip position="bottom-end" content={showPassword ? "Hide" : "Show"}>
