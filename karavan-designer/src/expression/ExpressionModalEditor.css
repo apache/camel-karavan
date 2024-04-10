@@ -22,7 +22,6 @@
     height: 100%;
     display: flex;
     flex-direction: column;
-    gap: 16px;
     justify-content: space-between;
     align-items: stretch;
 }
@@ -36,11 +35,19 @@
 .panel-middle {
     /*height: 64px;*/
 }
+@keyframes smooth-appear {
+    to {
+        bottom: 20px;
+        opacity:1;
+    }
+}
 
 .panel-bottom {
     flex: 1;
     height: 100%;
     overflow-y: auto;
+    opacity:0;
+    animation: smooth-appear 1s ease forwards;
 }
 
 .context {

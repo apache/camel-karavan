@@ -16,12 +16,14 @@
  */
 import React, {useEffect, useState} from 'react';
 import {
-    Button, Modal, Title, TitleSizes
+    Button, Modal, Switch, Title, TitleSizes
 } from '@patternfly/react-core';
 import Editor from "@monaco-editor/react";
 import {ExpressionBottomPanel} from "./ExpressionBottomPanel";
 import './ExpressionModalEditor.css'
-import {Context, ExpressionFunctions, ExpressionVariables} from "./ExpressionContextModel";
+import {ExpressionFunctions, ExpressionVariables} from "./ExpressionContextModel";
+import ArrowDown from "@patternfly/react-icons/dist/esm/icons/angle-down-icon";
+import ArrowUp from "@patternfly/react-icons/dist/esm/icons/angle-up-icon";
 
 interface Props {
     name: string,
@@ -37,9 +39,10 @@ interface Props {
 export function ExpressionModalEditor(props: Props) {
 
     const [customCode, setCustomCode] = useState<string | undefined>();
+    const [showVariables, setShowVariables] = useState<boolean>(true);
+    const [key, setKey] = useState<string>('');
 
     useEffect(() => {
-        console.log(title, dslLanguage)
         setCustomCode(props.customCode)
     },[]);
 
@@ -80,7 +83,8 @@ export function ExpressionModalEditor(props: Props) {
             <div className='container'>
                 <div className='panel-top'>
                     <Editor
-                        height="100%"
+                        key={key}
+                        height={"100%"}
                         width="100%"
                         defaultLanguage={'java'}
                         language={'java'}
@@ -98,9 +102,16 @@ export function ExpressionModalEditor(props: Props) {
                         onChange={(value, _) => setCustomCode(value)}
                     />
                 </div>
-                {show && <div className='panel-bottom'>
-                    {dslLanguage && <ExpressionBottomPanel dslLanguage={dslLanguage}/>}
-                </div>}
+                <Button style={{padding:"0"}} variant="link" icon={showVariables ? <ArrowDown/> : <ArrowUp/>} onClick={e => {
+                    setShowVariables(!showVariables);
+                    setKey(Math.random().toString());
+                    }}
+                />
+                {show && showVariables &&
+                    <div className='panel-bottom'>
+                        {dslLanguage && <ExpressionBottomPanel  dslLanguage={dslLanguage}/>}
+                    </div>
+                }
             </div>
         </Modal>
     )
