@@ -22,6 +22,9 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.catalog.CamelCatalog;
+import org.apache.camel.catalog.ConfigurationPropertiesValidationResult;
+import org.apache.camel.catalog.DefaultCamelCatalog;
+import org.apache.camel.catalog.VersionHelper;
 import org.apache.camel.dsl.yaml.YamlRoutesBuilderLoader;
 
 import java.io.BufferedReader;
@@ -30,10 +33,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.file.*;
 import java.util.*;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -380,7 +382,7 @@ public class AbstractGenerator {
 
     protected String getMetaDataFormat(String name) {
         try {
-            InputStream inputStream = RouteBuilder.class.getResourceAsStream("/org/apache/camel/model/dataformat/" + name + ".json");
+            InputStream inputStream = VersionHelper.class.getResourceAsStream("/org/apache/camel/catalog/models/" + name + ".json");
             String data = new BufferedReader(new InputStreamReader(inputStream))
                     .lines().collect(Collectors.joining(System.getProperty("line.separator")));
             return data;
@@ -389,9 +391,34 @@ public class AbstractGenerator {
         }
     }
 
+    protected List<String> listResources(String resourceFolder) {
+        List<Path> filePaths = new ArrayList<>();
+        try {
+            URI uri = VersionHelper.class.getResource(resourceFolder).toURI();
+            Path myPath;
+            FileSystem fileSystem = null;
+            if (uri.getScheme().equals("jar")) {
+                fileSystem = FileSystems.newFileSystem(uri, Collections.emptyMap());
+                myPath = fileSystem.getPath(resourceFolder);
+            } else {
+                myPath = Paths.get(uri);
+            }
+            filePaths = Files.walk(myPath, 10).collect(Collectors.toList());
+
+            // Close the file system if opened
+            if (fileSystem != null) {
+                fileSystem.close();
+            }
+        } catch (URISyntaxException | IOException e) {
+            e.printStackTrace();
+        }
+        return filePaths.stream().map(path -> path.getFileName().toString())
+                .collect(Collectors.toList());
+    }
+
     protected String getMetaLanguage(String name) {
         try {
-            InputStream inputStream = RouteBuilder.class.getResourceAsStream("/org/apache/camel/model/language/" + name + ".json");
+            InputStream inputStream = VersionHelper.class.getResourceAsStream("/org/apache/camel/catalog/models/" + name + ".json");
             String data = new BufferedReader(new InputStreamReader(inputStream))
                     .lines().collect(Collectors.joining(System.getProperty("line.separator")));
             return data;
