@@ -22,8 +22,9 @@ import {CamelElement} from "../model/IntegrationDefinition";
 import {
 
     ProcessorDefinition,
+    ErrorHandlerFactory,
     BeansDeserializer,
-    ErrorHandlerBuilderDeserializer,
+    ErrorHandlerDeserializer,
     OutputAwareFromDefinition,
     AggregateDefinition,
     BeanDefinition,
@@ -696,6 +697,55 @@ export class CamelDefinitionYamlStep {
         return def;
     }
 
+    static readErrorHandlerFactory = (element: any): ErrorHandlerFactory => {
+        
+        let def = element ? new ErrorHandlerFactory({...element}) : new ErrorHandlerFactory();
+        if (element?.deadLetterChannel !== undefined) { 
+            if (Array.isArray(element.deadLetterChannel)) { 
+               def.deadLetterChannel = CamelDefinitionYamlStep.readDeadLetterChannelDefinition(element.deadLetterChannel[0]); 
+            } else { 
+               def.deadLetterChannel = CamelDefinitionYamlStep.readDeadLetterChannelDefinition(element.deadLetterChannel); 
+            } 
+        } 
+        if (element?.noErrorHandler !== undefined) { 
+            if (Array.isArray(element.noErrorHandler)) { 
+               def.noErrorHandler = CamelDefinitionYamlStep.readNoErrorHandlerDefinition(element.noErrorHandler[0]); 
+            } else { 
+               def.noErrorHandler = CamelDefinitionYamlStep.readNoErrorHandlerDefinition(element.noErrorHandler); 
+            } 
+        } 
+        if (element?.jtaTransactionErrorHandler !== undefined) { 
+            if (Array.isArray(element.jtaTransactionErrorHandler)) { 
+               def.jtaTransactionErrorHandler = CamelDefinitionYamlStep.readJtaTransactionErrorHandlerDefinition(element.jtaTransactionErrorHandler[0]); 
+            } else { 
+               def.jtaTransactionErrorHandler = CamelDefinitionYamlStep.readJtaTransactionErrorHandlerDefinition(element.jtaTransactionErrorHandler); 
+            } 
+        } 
+        if (element?.defaultErrorHandler !== undefined) { 
+            if (Array.isArray(element.defaultErrorHandler)) { 
+               def.defaultErrorHandler = CamelDefinitionYamlStep.readDefaultErrorHandlerDefinition(element.defaultErrorHandler[0]); 
+            } else { 
+               def.defaultErrorHandler = CamelDefinitionYamlStep.readDefaultErrorHandlerDefinition(element.defaultErrorHandler); 
+            } 
+        } 
+        if (element?.springTransactionErrorHandler !== undefined) { 
+            if (Array.isArray(element.springTransactionErrorHandler)) { 
+               def.springTransactionErrorHandler = CamelDefinitionYamlStep.readSpringTransactionErrorHandlerDefinition(element.springTransactionErrorHandler[0]); 
+            } else { 
+               def.springTransactionErrorHandler = CamelDefinitionYamlStep.readSpringTransactionErrorHandlerDefinition(element.springTransactionErrorHandler); 
+            } 
+        } 
+        if (element?.refErrorHandler !== undefined) { 
+            if (Array.isArray(element.refErrorHandler)) { 
+               def.refErrorHandler = CamelDefinitionYamlStep.readRefErrorHandlerDefinition(element.refErrorHandler[0]); 
+            } else { 
+               def.refErrorHandler = CamelDefinitionYamlStep.readRefErrorHandlerDefinition(element.refErrorHandler); 
+            } 
+        } 
+
+        return def;
+    }
+
     static readBeansDeserializer = (element: any): BeansDeserializer => {
         
         let def = element ? new BeansDeserializer({...element}) : new BeansDeserializer();
@@ -703,9 +753,9 @@ export class CamelDefinitionYamlStep {
         return def;
     }
 
-    static readErrorHandlerBuilderDeserializer = (element: any): ErrorHandlerBuilderDeserializer => {
+    static readErrorHandlerDeserializer = (element: any): ErrorHandlerDeserializer => {
         
-        let def = element ? new ErrorHandlerBuilderDeserializer({...element}) : new ErrorHandlerBuilderDeserializer();
+        let def = element ? new ErrorHandlerDeserializer({...element}) : new ErrorHandlerDeserializer();
         if (element?.deadLetterChannel !== undefined) { 
             if (Array.isArray(element.deadLetterChannel)) { 
                def.deadLetterChannel = CamelDefinitionYamlStep.readDeadLetterChannelDefinition(element.deadLetterChannel[0]); 

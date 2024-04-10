@@ -161,13 +161,17 @@ public final class CamelDefinitionApiGenerator extends AbstractGenerator {
                     && !getDeprecatedClasses().contains(getAttributeClass(aValue)) // exception for deprecated classes
             ) {
                 String attributeClass = getAttributeClass(aValue);
-                String template = attributeClass.equals("ExpressionDefinition")
-                        ? "        def.%1$s = CamelDefinitionApi.create%2$s(element.%1$s); \n"
-                        : "        if (element?.%1$s !== undefined) { \n" +
-                        "            def.%1$s = CamelDefinitionApi.create%2$s(element.%1$s); \n" +
-                        "        }";
-                String code = String.format(template, name, getAttributeClass(aValue));
-                attrs.add(code);
+
+                var excludeProperty  = excludeProperty(stepName, name, attributeClass);
+                if (!excludeProperty) {
+                    String template = attributeClass.equals("ExpressionDefinition")
+                            ? "        def.%1$s = CamelDefinitionApi.create%2$s(element.%1$s); \n"
+                            : "        if (element?.%1$s !== undefined) { \n" +
+                            "            def.%1$s = CamelDefinitionApi.create%2$s(element.%1$s); \n" +
+                            "        }";
+                    String code = String.format(template, name, getAttributeClass(aValue));
+                    attrs.add(code);
+                }
             }
         });
         String stringToRequired = getStringToRequired(obj, className);

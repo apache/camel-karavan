@@ -92,6 +92,19 @@ export class ProcessorDefinition extends CamelElement {
     }
 }
 
+export class ErrorHandlerFactory extends CamelElement {
+    deadLetterChannel?: DeadLetterChannelDefinition;
+    defaultErrorHandler?: DefaultErrorHandlerDefinition;
+    jtaTransactionErrorHandler?: JtaTransactionErrorHandlerDefinition;
+    noErrorHandler?: NoErrorHandlerDefinition;
+    refErrorHandler?: RefErrorHandlerDefinition | string;
+    springTransactionErrorHandler?: SpringTransactionErrorHandlerDefinition;
+    public constructor(init?: Partial<ErrorHandlerFactory>) {
+        super('ErrorHandlerFactory');
+        Object.assign(this, init);
+    }
+}
+
 export class BeansDeserializer extends CamelElement {
 
     public constructor(init?: Partial<BeansDeserializer>) {
@@ -100,15 +113,15 @@ export class BeansDeserializer extends CamelElement {
     }
 }
 
-export class ErrorHandlerBuilderDeserializer extends CamelElement {
+export class ErrorHandlerDeserializer extends CamelElement {
     deadLetterChannel?: DeadLetterChannelDefinition;
     defaultErrorHandler?: DefaultErrorHandlerDefinition;
     jtaTransactionErrorHandler?: JtaTransactionErrorHandlerDefinition;
     noErrorHandler?: NoErrorHandlerDefinition;
     refErrorHandler?: RefErrorHandlerDefinition | string;
     springTransactionErrorHandler?: SpringTransactionErrorHandlerDefinition;
-    public constructor(init?: Partial<ErrorHandlerBuilderDeserializer>) {
-        super('ErrorHandlerBuilderDeserializer');
+    public constructor(init?: Partial<ErrorHandlerDeserializer>) {
+        super('ErrorHandlerDeserializer');
         Object.assign(this, init);
     }
 }
@@ -1064,6 +1077,8 @@ export class Resilience4jConfigurationDefinition extends CamelElement {
     timeoutExecutorService?: string;
     timeoutDuration?: number;
     timeoutCancelRunningFuture?: boolean;
+    recordException?: string[] = [];
+    ignoreException?: string[] = [];
     public constructor(init?: Partial<Resilience4jConfigurationDefinition>) {
         super('Resilience4jConfigurationDefinition');
         Object.assign(this, init);
@@ -1164,6 +1179,7 @@ export class RouteDefinition extends CamelElement {
     trace?: boolean;
     messageHistory?: boolean;
     logMask?: boolean;
+    errorHandlerRef?: string;
     shutdownRoute?: string;
     shutdownRunningTask?: string;
     precondition?: string;

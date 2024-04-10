@@ -138,16 +138,20 @@ public final class CamelDefinitionYamlStepGenerator extends AbstractGenerator {
                     && !getAttributeClass(aValue).equals("ToDynamicDefinition") // exception for ToDynamicDefinition (in REST Methods)
                     && !getDeprecatedClasses().contains(getAttributeClass(aValue)) // exception for deprecated classes
             ) {
-                String code = String.format(
-                        "        if (element?.%1$s !== undefined) { \n" +
-                                "            if (Array.isArray(element.%1$s)) { \n" +
-                                "               def.%1$s = CamelDefinitionYamlStep.read%2$s(element.%1$s[0]); \n" +
-                                "            } else { \n" +
-                                "               def.%1$s = CamelDefinitionYamlStep.read%2$s(element.%1$s); \n" +
-                                "            } \n" +
-                                "        } \n"
-                        , aName, getAttributeClass(aValue));
-                attrs.put(aName, code);
+                String attributeClass = getAttributeClass(aValue);
+                var excludeProperty  = excludeProperty(stepName, aName, attributeClass);
+                if (!excludeProperty) {
+                    String code = String.format(
+                            "        if (element?.%1$s !== undefined) { \n" +
+                                    "            if (Array.isArray(element.%1$s)) { \n" +
+                                    "               def.%1$s = CamelDefinitionYamlStep.read%2$s(element.%1$s[0]); \n" +
+                                    "            } else { \n" +
+                                    "               def.%1$s = CamelDefinitionYamlStep.read%2$s(element.%1$s); \n" +
+                                    "            } \n" +
+                                    "        } \n"
+                            , aName, getAttributeClass(aValue));
+                    attrs.put(aName, code);
+                }
             } else {
 
             }

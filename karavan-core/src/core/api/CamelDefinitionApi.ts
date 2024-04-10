@@ -21,8 +21,9 @@
 import {CamelElement} from "../model/IntegrationDefinition";
 import {
     ProcessorDefinition,
+    ErrorHandlerFactory,
     BeansDeserializer,
-    ErrorHandlerBuilderDeserializer,
+    ErrorHandlerDeserializer,
     OutputAwareFromDefinition,
     AggregateDefinition,
     BeanDefinition,
@@ -444,14 +445,38 @@ export class CamelDefinitionApi {
         return def;
     }
 
+    static createErrorHandlerFactory = (element: any): ErrorHandlerFactory => { 
+        const def = element ? new ErrorHandlerFactory({...element}) : new ErrorHandlerFactory();
+        def.uuid = element?.uuid ? element.uuid : def.uuid; 
+        if (element?.deadLetterChannel !== undefined) { 
+            def.deadLetterChannel = CamelDefinitionApi.createDeadLetterChannelDefinition(element.deadLetterChannel); 
+        }
+        if (element?.defaultErrorHandler !== undefined) { 
+            def.defaultErrorHandler = CamelDefinitionApi.createDefaultErrorHandlerDefinition(element.defaultErrorHandler); 
+        }
+        if (element?.jtaTransactionErrorHandler !== undefined) { 
+            def.jtaTransactionErrorHandler = CamelDefinitionApi.createJtaTransactionErrorHandlerDefinition(element.jtaTransactionErrorHandler); 
+        }
+        if (element?.noErrorHandler !== undefined) { 
+            def.noErrorHandler = CamelDefinitionApi.createNoErrorHandlerDefinition(element.noErrorHandler); 
+        }
+        if (element?.refErrorHandler !== undefined) { 
+            def.refErrorHandler = CamelDefinitionApi.createRefErrorHandlerDefinition(element.refErrorHandler); 
+        }
+        if (element?.springTransactionErrorHandler !== undefined) { 
+            def.springTransactionErrorHandler = CamelDefinitionApi.createSpringTransactionErrorHandlerDefinition(element.springTransactionErrorHandler); 
+        }
+        return def;
+    }
+
     static createBeansDeserializer = (element: any): BeansDeserializer => { 
         const def = element ? new BeansDeserializer({...element}) : new BeansDeserializer();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
         return def;
     }
 
-    static createErrorHandlerBuilderDeserializer = (element: any): ErrorHandlerBuilderDeserializer => { 
-        const def = element ? new ErrorHandlerBuilderDeserializer({...element}) : new ErrorHandlerBuilderDeserializer();
+    static createErrorHandlerDeserializer = (element: any): ErrorHandlerDeserializer => { 
+        const def = element ? new ErrorHandlerDeserializer({...element}) : new ErrorHandlerDeserializer();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
         if (element?.deadLetterChannel !== undefined) { 
             def.deadLetterChannel = CamelDefinitionApi.createDeadLetterChannelDefinition(element.deadLetterChannel); 
@@ -2909,8 +2934,9 @@ export class CamelDefinitionApi {
        const newBody = CamelUtil.camelizeBody(name, body, clone);
        switch (name) { 
             case 'ProcessorDefinition': return CamelDefinitionApi.createProcessorDefinition(newBody);
+            case 'ErrorHandlerFactory': return CamelDefinitionApi.createErrorHandlerFactory(newBody);
             case 'BeansDeserializer': return CamelDefinitionApi.createBeansDeserializer(newBody);
-            case 'ErrorHandlerBuilderDeserializer': return CamelDefinitionApi.createErrorHandlerBuilderDeserializer(newBody);
+            case 'ErrorHandlerDeserializer': return CamelDefinitionApi.createErrorHandlerDeserializer(newBody);
             case 'OutputAwareFromDefinition': return CamelDefinitionApi.createOutputAwareFromDefinition(newBody);
             case 'AggregateDefinition': return CamelDefinitionApi.createAggregateDefinition(newBody);
             case 'BeanDefinition': return CamelDefinitionApi.createBeanDefinition(newBody);
