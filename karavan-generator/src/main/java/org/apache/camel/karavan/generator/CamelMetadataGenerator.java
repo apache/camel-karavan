@@ -221,6 +221,17 @@ public final class CamelMetadataGenerator extends AbstractGenerator {
                         }
                     }
                 });
+                code.append("    ], [\n");
+//                exchangeProperties
+                JsonObject exchangeProperties = new JsonObject(json).getJsonObject("exchangeProperties");
+                if (exchangeProperties != null) {
+                    exchangeProperties.getMap().forEach((ep, eps) -> {
+                        Map<String, String> vals = (HashMap<String, String>) eps;
+                        code.append(String.format("        new ExchangePropertyMeta('%s', '%s', '%s', '%s', '%s'),\n",
+                                ep, vals.get("displayName"), vals.get("label"), vals.get("javaType"), vals.get("description")));
+                    });
+                }
+
                 code.append("    ]),\n");
             } else {
 //                System.out.println("Empty JSON for class: " + name + " as a stepName " + stepName);
