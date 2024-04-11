@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 import React from 'react';
-import {FormGroup, TextInput, Title} from "@patternfly/react-core";
+import {FormGroup, TextInput} from "@patternfly/react-core";
 import {useIntegrationStore} from "../DesignerStore";
 import {shallow} from "zustand/shallow";
 
@@ -25,22 +25,8 @@ export function IntegrationHeader () {
 
     const isKamelet = integration.type === 'kamelet';
 
-    function getKameletType(): string {
-        // const labels = integration.metadata.labels;
-        // if (labels && labels.l)
-        // "camel.apache.org/kamelet.type"
-        return '';
-    }
-
     return (
         <div className="headers">
-            {/*<Title headingLevel="h1" size="md">Integration</Title>*/}
-            {/*<FormGroup label="Title" fieldId="title" isRequired>*/}
-            {/*    <TextInput className="text-field" type="text" id="title" name="title" isReadOnly*/}
-            {/*               value={*/}
-            {/*                   CamelUi.titleFromName(this.props.integration.metadata.name)*/}
-            {/*               }/>*/}
-            {/*</FormGroup>*/}
             <FormGroup label="Kind" fieldId="kind" isRequired>
                 <TextInput className="text-field" type="text" id="kind" name="kind"
                            value={integration.kind} readOnlyVariant="default"/>

@@ -119,4 +119,8 @@ export class CamelMetadataApi {
     static hasLanguage = (name: string): boolean | undefined => {
         return Languages.filter(value => value[0] === name).length > 0;
     }
+
+    static getExchangeProperties = (className: string): ExchangePropertyMeta [] => {
+        return CamelModelMetadata.find(e => e.className === className)?.exchangeProperties || [];
+    }
 }
