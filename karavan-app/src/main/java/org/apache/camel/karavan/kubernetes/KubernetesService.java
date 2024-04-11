@@ -154,20 +154,22 @@ public class KubernetesService implements HealthCheck {
     }
 
     @ConsumeEvent(value = KARAVAN_STARTED, blocking = true)
-    public void createBuildScriptConfigmap() {
-        try (KubernetesClient client = kubernetesClient()) {
-            String script = codeService.getBuilderScript();
-            ConfigMap configMap = client.configMaps().inNamespace(getNamespace()).withName(BUILD_CONFIG_MAP).get();
-            if (configMap == null) {
-                configMap = getConfigMapForBuilder(BUILD_CONFIG_MAP, getPartOfLabels());
-                configMap.setData(Map.of("build.sh", script));
-                client.resource(configMap).create();
-            } else {
-                configMap.setData(Map.of("build.sh", script));
-                client.resource(configMap).patch();
+    public void createBuildScriptConfigmap(String data) {
+        if (ConfigService.inKubernetes()) {
+            try (KubernetesClient client = kubernetesClient()) {
+                String script = codeService.getBuilderScript();
+                ConfigMap configMap = client.configMaps().inNamespace(getNamespace()).withName(BUILD_CONFIG_MAP).get();
+                if (configMap == null) {
+                    configMap = getConfigMapForBuilder(BUILD_CONFIG_MAP, getPartOfLabels());
+                    configMap.setData(Map.of("build.sh", script));
+                    client.resource(configMap).create();
+                } else {
+                    configMap.setData(Map.of("build.sh", script));
+                    client.resource(configMap).patch();
+                }
+            } catch (Exception e) {
+                LOGGER.error("Error createBuildScriptConfigmap: " + e.getMessage());
             }
-        } catch (Exception e) {
-            LOGGER.error("Error createBuildScriptConfigmap: " + e.getMessage());
         }
     }
 
