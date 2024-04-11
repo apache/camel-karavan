@@ -88,7 +88,6 @@ Karavan provides VS Code extension for local developer experience
 * [Openshift](docs/WEB_OPENSHIFT.md)
 
 ### Developer guide
-* [Architecture](docs/ARCHITECTURE.md)
 * [How to build](docs/DEV.md)
 
 
