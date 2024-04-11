@@ -26,8 +26,8 @@ export NAMESPACE=$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace)
 mvn package jib:build k8s:resource k8s:apply \
   -Djkube.namespace=${NAMESPACE} \
   -Djib.allowInsecureRegistries=true \
-#  -Djib.from.platforms=linux/arm64 \
-#  -Djib.platform.architecture=arm64 \
   -Djib.to.image=${IMAGE_REGISTRY}/${IMAGE_GROUP}/${PROJECT_ID}:${TAG} \
   -Djib.to.auth.username=${IMAGE_REGISTRY_USERNAME} \
   -Djib.to.auth.password=${IMAGE_REGISTRY_PASSWORD}
+  #  -Djib.from.platforms=linux/arm64 \
+  #  -Djib.platform.architecture=arm64 \
