@@ -35,5 +35,8 @@ sed -i.bak 's/TAG:.*/TAG: '"$1"'/g' .github/workflows/app.yml
 echo "Set Github Workflow App TAG version: $1";
 sed -i.bak 's/TAG:.*/TAG: '"$1"'/g' .github/workflows/app-oidc.yml 
 
+echo "Set Github Workflow Vscode TAG version: $1";
+sed -i.bak 's/TAG:.*/TAG: '"$1"'/g' .github/workflows/vscode.yml 
+
 echo "Set application.properties karavan.version=$1";
 sed -i.bak 's/karavan.version.*/karavan.version='"$1"'/g' karavan-app/src/main/resources/application.properties 
