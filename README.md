@@ -59,7 +59,22 @@ It simplifies the Apache Camel experience and accelerates developer performance 
   <img src="images/karavan-dashboard.png"  alt="karavan-dashboard" />
 </p>
 
-### Local
+## Architecture
+
+Apache Camel Karavan components:
+
+1. **Karavan app** acts as the central interface for the platform, allowing users to manage and orchestrate their integration projects.
+2. **Build Container** started by the Karavan app to run integrations in developer mode (dev-mode), package and deploy integrations.
+3. **Integration microservices** delivered by the platform.
+4. **Git repository** stores all essential project files, including integration YAML configurations, application.properties, container configurations, deployment resources, and templates. It is considered the source of truth for the applications.
+5. An **Image Registry** is used by the Apache Camel Karavan to store container images that are generated during the build process.
+
+<p align="center">
+  <img src="images/architecture.png"  alt="architecture" />
+</p>
+
+
+## Local
 Karavan provides VS Code extension for local developer experience
 * Design, code and run integrations on your laptop or PC 
 * Deploy to Kubernetes or Openshift
