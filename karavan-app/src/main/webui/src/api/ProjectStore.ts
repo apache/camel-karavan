@@ -218,17 +218,12 @@ interface FileState {
     operation: "create" | "select" | "delete" | "none" | "copy" | "upload";
     designerTab?: "routes" | "rest" | "beans";
     setFile: (operation:  "create" | "select" | "delete"| "none" | "copy" | "upload", file?: ProjectFile, designerTab?: "routes" | "rest" | "beans") => void;
-    editAdvancedProperties: boolean;
-    setEditAdvancedProperties: (editAdvancedProperties: boolean) => void;
-    addProperty: string;
-    setAddProperty: (addProperty: string) => void;
 }
 
 export const useFileStore = createWithEqualityFn<FileState>((set) => ({
     file: undefined,
     operation: "none",
     designerTab: undefined,
-    editAdvancedProperties: false,
     addProperty: '',
     setFile: (operation:  "create" | "select" | "delete"| "none" | "copy" | "upload", file?: ProjectFile, designerTab?: "routes" | "rest" | "beans") => {
         set((state: FileState) => ({
@@ -236,12 +231,6 @@ export const useFileStore = createWithEqualityFn<FileState>((set) => ({
             operation: operation,
             designerTab: designerTab
         }));
-    },
-    setEditAdvancedProperties: (editAdvancedProperties: boolean) => {
-        set(() => ({editAdvancedProperties: editAdvancedProperties}));
-    },
-    setAddProperty: (addProperty: string) => {
-        set(() => ({addProperty: addProperty}));
     },
 }), shallow)
 

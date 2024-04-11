@@ -17,23 +17,36 @@
 
 import React, {useEffect} from 'react';
 import {
+    Button,
     Flex,
     FlexItem,
     Toolbar,
-    ToolbarContent,
+    ToolbarContent, ToolbarItem, Tooltip,
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
-import {useFileStore, useProjectStore} from "../api/ProjectStore";
+import {useAppConfigStore, useFileStore, useProjectStore} from "../api/ProjectStore";
 import {shallow} from "zustand/shallow";
 import {DevModeToolbar} from "../project/DevModeToolbar";
+import RefreshIcon from "@patternfly/react-icons/dist/esm/icons/sync-alt-icon";
+import {KaravanApi} from "../api/KaravanApi";
+import {EventBus} from "../designer/utils/EventBus";
+import UpdateIcon from "@patternfly/react-icons/dist/esm/icons/cog-icon";
+
 
 export function EditorToolbar() {
 
+    const {config} = useAppConfigStore();
     const [project, tabIndex] = useProjectStore((s) => [s.project, s.tabIndex], shallow)
     const [file] = useFileStore((state) => [state.file], shallow)
 
     useEffect(() => {
     }, [project, file]);
+
+    function updateScripts () {
+        KaravanApi.updateBuildConfigMap(res => {
+            EventBus.sendAlert("Success", "Script updated!", "info")
+        })
+    }
 
     function isKameletsProject(): boolean {
         return project.projectId === 'kamelets';
@@ -61,6 +74,17 @@ export function EditorToolbar() {
                         <FlexItem align={{default: 'alignRight'}}>
                             <DevModeToolbar reloadOnly={true}/>
                         </FlexItem>
+                    }
+                    {file?.name === 'build.sh' && config.infrastructure === 'kubernetes' &&
+                        <FlexItem>
+                        <Tooltip content="Update Build Script in Config Maps" position={"bottom-end"}>
+                            <Button className="dev-action-button"  size="sm" variant={"primary"} icon={<UpdateIcon/>}
+                                    onClick={e => updateScripts()}
+                            >
+                                Update Build Script
+                            </Button>
+                        </Tooltip>
+                    </FlexItem>
                     }
                 </Flex>
             </ToolbarContent>

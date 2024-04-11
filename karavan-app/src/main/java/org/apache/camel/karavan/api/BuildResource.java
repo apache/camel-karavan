@@ -45,8 +45,7 @@ public class BuildResource {
     @Path("/update-config-map")
     public Response updateConfigMaps() {
         if (karavanCacheService.isReady()) {
-            String script = codeService.getBuilderScript();
-            kubernetesService.createBuildScriptConfigmap(script, true);
+            kubernetesService.createBuildScriptConfigmap();
             return Response.ok().build();
         } else {
             return Response.noContent().build();

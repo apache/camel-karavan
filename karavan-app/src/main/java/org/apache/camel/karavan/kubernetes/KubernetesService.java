@@ -25,6 +25,7 @@ import io.fabric8.kubernetes.client.informers.SharedIndexInformer;
 import io.fabric8.openshift.api.model.ImageStream;
 import io.fabric8.openshift.client.OpenShiftClient;
 import io.quarkus.runtime.configuration.ProfileManager;
+import io.quarkus.vertx.ConsumeEvent;
 import io.smallrye.mutiny.tuples.Tuple2;
 import io.smallrye.mutiny.tuples.Tuple3;
 import io.vertx.mutiny.core.eventbus.EventBus;
@@ -48,6 +49,7 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static org.apache.camel.karavan.service.KaravanService.KARAVAN_STARTED;
 import static org.apache.camel.karavan.shared.Constants.*;
 
 @Default
@@ -151,21 +153,24 @@ public class KubernetesService implements HealthCheck {
         informers.clear();
     }
 
-    public void createBuildScriptConfigmap(String script, boolean overwrite) {
+    @ConsumeEvent(value = KARAVAN_STARTED, blocking = true)
+    public void createBuildScriptConfigmap() {
         try (KubernetesClient client = kubernetesClient()) {
+            String script = codeService.getBuilderScript();
             ConfigMap configMap = client.configMaps().inNamespace(getNamespace()).withName(BUILD_CONFIG_MAP).get();
             if (configMap == null) {
                 configMap = getConfigMapForBuilder(BUILD_CONFIG_MAP, getPartOfLabels());
                 configMap.setData(Map.of("build.sh", script));
                 client.resource(configMap).create();
-            } else if (overwrite) {
+            } else {
                 configMap.setData(Map.of("build.sh", script));
                 client.resource(configMap).patch();
             }
         } catch (Exception e) {
-            LOGGER.error("Error starting informers: " + e.getMessage());
+            LOGGER.error("Error createBuildScriptConfigmap: " + e.getMessage());
         }
     }
+
     public void runBuildProject(Project project, String script, List<String> env, String tag) {
         try (KubernetesClient client = kubernetesClient()) {
             String containerName = project.getProjectId() + BUILDER_SUFFIX;

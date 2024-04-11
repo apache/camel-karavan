@@ -33,27 +33,23 @@ import {
 import '../../designer/karavan.css';
 import UploadIcon from "@patternfly/react-icons/dist/esm/icons/upload-icon";
 import PlusIcon from "@patternfly/react-icons/dist/esm/icons/plus-icon";
-import {useAppConfigStore, useFilesStore, useFileStore, useProjectStore} from "../../api/ProjectStore";
+import {useFilesStore, useFileStore, useProjectStore} from "../../api/ProjectStore";
 import {shallow} from "zustand/shallow";
 import {ProjectService} from "../../api/ProjectService";
 import PushIcon from "@patternfly/react-icons/dist/esm/icons/code-branch-icon";
-import UpdateIcon from "@patternfly/react-icons/dist/esm/icons/cog-icon";
 import {ProjectType} from "../../api/ProjectModels";
-import {KaravanApi} from "../../api/KaravanApi";
-import {EventBus} from "../../designer/utils/EventBus";
 import {isEmpty} from "../../util/StringUtils";
 
 export function FileToolbar () {
 
-    const {config} = useAppConfigStore();
     const [commitMessageIsOpen, setCommitMessageIsOpen] = useState(false);
     const [pullIsOpen, setPullIsOpen] = useState(false);
     const [commitMessage, setCommitMessage] = useState('');
     const [project, isPushing, isPulling] =
         useProjectStore((s) => [s.project, s.isPushing, s.isPulling], shallow )
     const {files} = useFilesStore();
-    const [file, editAdvancedProperties, setEditAdvancedProperties, setAddProperty, setFile] = useFileStore((s) =>
-        [s.file, s.editAdvancedProperties, s.setEditAdvancedProperties, s.setAddProperty, s.setFile], shallow )
+    const [file, setFile] = useFileStore((s) =>
+        [s.file, s.setFile], shallow )
 
     useEffect(() => {
     }, [project, file]);
@@ -64,12 +60,6 @@ export function FileToolbar () {
         ProjectService.pushProject(project, commitMessage);
     }
 
-    function updateScripts () {
-        KaravanApi.updateBuildConfigMap(res => {
-            EventBus.sendAlert("Success", "Script updated!", "info")
-        })
-    }
-
     function pull () {
         setPullIsOpen(false);
         ProjectService.pullProject(project.projectId);
@@ -77,10 +67,6 @@ export function FileToolbar () {
 
     function canAddFiles(): boolean {
         return !['templates', 'services'].includes(project.projectId);
-    }
-
-    function isTemplates(): boolean {
-        return project.projectId === 'templates' && project.type === ProjectType.templates;
     }
 
     function onKeyDown(event: React.KeyboardEvent<HTMLDivElement>): void {
@@ -208,15 +194,6 @@ export function FileToolbar () {
                 </Button>
             </Tooltip>
         </FlexItem>
-        {isTemplates() && config.infrastructure === 'kubernetes' && <FlexItem>
-            <Tooltip content="Update Build Script in Config Maps" position={"bottom-end"}>
-                <Button className="dev-action-button"  size="sm" variant={"primary"} icon={<UpdateIcon/>}
-                        onClick={e => updateScripts()}
-                >
-                    Update Script
-                </Button>
-            </Tooltip>
-        </FlexItem>}
         {canAddFiles() && <FlexItem>
             <Button className="dev-action-button" size="sm" variant={"primary"} icon={<PlusIcon/>}
                     onClick={e => setFile("create")}>Create</Button>

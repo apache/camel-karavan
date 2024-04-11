@@ -28,6 +28,7 @@ import {Buffer} from 'buffer';
 import {SsoApi} from "./SsoApi";
 import {v4 as uuidv4} from "uuid";
 import {useAppConfigStore} from "./ProjectStore";
+import {EventBus} from "../designer/utils/EventBus";
 
 const USER_ID_KEY = 'KARAVAN_USER_ID';
 axios.defaults.headers.common['Accept'] = 'application/json';
@@ -308,8 +309,9 @@ export class KaravanApi {
                 if (res.status === 200) {
                     after(res.data);
                 }
-            }).catch(err => {
+            }).catch((err: any) => {
             console.log(err);
+            EventBus.sendAlert("Error", err.message, "danger")
         });
     }
 
