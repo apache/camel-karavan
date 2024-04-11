@@ -34,9 +34,7 @@ jobs:
           restore-keys: ${{ runner.os }}-maven-
 
       - name: Generate Karavan UI model and API, Kamelets and Components
-        run: |
-          mvn clean compile exec:java -f karavan-generator \
-          -Dexec.mainClass="org.apache.camel.karavan.generator.KaravanGenerator"
+        run: mvn clean package -f karavan-generator && java -jar karavan-generator/target/karavan-generator-${{ env.TAG }}.jar
 
       #  Building Karavan Core
       - name: Set up Node

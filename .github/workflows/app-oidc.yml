@@ -38,9 +38,7 @@ jobs:
 
       - name: Generate Karavan UI model and API, Kamelets and Components
         working-directory: ./karavan
-        run: |
-          mvn clean compile exec:java -f karavan-generator \
-          -Dexec.mainClass="org.apache.camel.karavan.generator.KaravanGenerator"
+        run: mvn clean package -f karavan-generator && java -jar karavan-generator/target/karavan-generator-${{ env.TAG }}.jar
 
       - name: Set up Node
         uses: actions/setup-node@v4
