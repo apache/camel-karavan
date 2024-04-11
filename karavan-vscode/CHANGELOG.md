@@ -1,5 +1,13 @@
 # Changelog
 
+## 4.5.0
+0. Camel 4.5.0
+1. Camel-main Runtime
+2. Kamelets 4.5.0
+3. Jkube 1.16.2
+4. JBang v0.116.0
+4. Quarkus 3.8.2
+
 ## 4.4.1
 0. Camel 4.4.1
 1. Camel-main Runtime
