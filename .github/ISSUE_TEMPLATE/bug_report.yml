@@ -1,0 +1,71 @@
+name: Bug Report
+description: File a bug report.
+title: "Bug"
+labels: ["bug"]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: Describe the bug
+      description: A clear and concise description of what the bug is. Add screenshorts if applicable.
+      value: "A bug happened!"
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce the behavior
+      description: Add screenshorts if applicable
+      value: |
+        1. Go to '...'a
+        2. Click on '....'
+        3. Scroll down to '....'
+        4. See error
+    validations:
+      required: true
+  - type: dropdown
+    id: variant
+    attributes:
+      label: Variant
+      description: What Karavan variant are you running?
+      options:
+        - Web Application
+        - Vs Code Extension
+      default: 0
+    validations:
+      required: true
+  - type: dropdown
+    id: container
+    attributes:
+      label: Container Management (if applicable)
+      description: What Container Management System are you running?
+      options:
+        - Docker
+        - Kubernetes
+        - Openshift
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating System (if applicable)
+      description: What Operating System are you running?
+      options:
+        - Linux
+        - MacOS
+        - Windows
+  - type: dropdown
+    id: version
+    attributes:
+      label: Version
+      description: What Karavan version are you running?
+      options:
+        - 4.4.0
+        - 4.5.0
+      default: 0
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant log output
+      description: Please copy and paste any relevant log output. This will be automatically formatted into code, so no need for backticks.
+      render: shell
