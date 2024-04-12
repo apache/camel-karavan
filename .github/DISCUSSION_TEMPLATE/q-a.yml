@@ -1,54 +1,44 @@
 title: "Question"
 body:
-  - type: markdown
-    attributes:
-      value: |
-        This is text that will show up in the template!
   - type: textarea
-    id: improvements
+    id: question
     attributes:
-      label: Top 3 improvements
-      description: "What are the top 3 improvements we could make to this project?"
-      value: |
-        1.
-        2.
-        3.
-        ...
-      render: bash
-    validations:
-      required: true
-  - type: markdown
-    attributes:
-      value: |
-        ## Markdown header
-        And some more markdown
-  - type: input
-    id: has-id
-    attributes:
-      label: Suggestions
-      description: A description about suggestions to help you
+      label: Ask a question
+      description: Please provide a detailed explanation of your objectives and any challenges you are encountering in reaching these goals
+      value: "How can I create a new REST service to get data from Postgres database"
     validations:
       required: true
   - type: dropdown
-    id: download
+    id: variant
     attributes:
-      label: Which area of this project could be most improved?
+      label: Variant
+      description: What Karavan variant are you running?
       options:
-        - Documentation
-        - Pull request review time
-        - Bug fix time
-        - Release cadence
-    validations:
-      required: true
-  - type: checkboxes
+        - Web Application
+        - Vs Code Extension
+  - type: dropdown
+    id: container
     attributes:
-      label: Check that box!
+      label: Container Management (if applicable)
+      description: What Container Management System are you running?
       options:
-        - label: This one!
-          required: true
-        - label: I won't stop you if you check this one, too
-  - type: markdown
+        - Docker
+        - Kubernetes
+        - Openshift
+  - type: dropdown
+    id: os
     attributes:
-      value: |
-        ### The thrilling conclusion
-        _to our template_
+      label: Operating System (if applicable)
+      description: What Operating System are you running?
+      options:
+        - Linux
+        - MacOS
+        - Windows
+  - type: dropdown
+    id: version
+    attributes:
+      label: Version
+      description: What Karavan version are you running?
+      options:
+        - 4.4.0
+        - 4.5.0
