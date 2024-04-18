@@ -1,6 +1,6 @@
 {
   "name": "karavan-space",
-  "version": "4.5.0",
+  "version": "4.5.1",
   "license": "Apache-2.0",
   "scripts": {
     "cp-designer": "cp -r ../karavan-designer/src/designer src",
