@@ -39,7 +39,6 @@ import {useFilesStore, useFileStore, useProjectStore} from "../../api/ProjectSto
 import {
     getProjectFileTypeTitle,
     ProjectFile,
-    ProjectFileTypes
 } from "../../api/ProjectModels";
 import {FileToolbar} from "./FilesToolbar";
 import DownloadIcon from "@patternfly/react-icons/dist/esm/icons/download-icon";
@@ -48,6 +47,7 @@ import {CreateFileModal} from "./CreateFileModal";
 import {DeleteFileModal} from "./DeleteFileModal";
 import {UploadFileModal} from "./UploadFileModal";
 import {shallow} from "zustand/shallow";
+import {CreateIntegrationModal} from "./CreateIntegrationModal";
 
 export function FilesTab () {
 
@@ -76,10 +76,6 @@ export function FilesTab () {
         }
     }
 
-    function isBuildIn(): boolean {
-        return ['kamelets', 'templates', 'services'].includes(project.projectId);
-    }
-
     function canDeleteFiles(): boolean {
         return !['templates', 'services'].includes(project.projectId);
     }
@@ -87,10 +83,6 @@ export function FilesTab () {
     function isKameletsProject(): boolean {
         return project.projectId === 'kamelets';
     }
-
-    const types = isBuildIn()
-        ? (isKameletsProject() ? ['KAMELET'] : ['CODE', 'PROPERTIES'])
-        : ProjectFileTypes.filter(p => !['PROPERTIES', 'KAMELET'].includes(p.name)).map(p => p.name);
 
     return (
         <PageSection className="project-tab-panel" padding={{default: "padding"}}>
@@ -163,7 +155,8 @@ export function FilesTab () {
                 </Table>
             </div>
             <UploadFileModal/>
-            <CreateFileModal/>
+            {!isKameletsProject() && <CreateFileModal/>}
+            {isKameletsProject() && <CreateIntegrationModal/>}
             <DeleteFileModal />
         </PageSection>
     )

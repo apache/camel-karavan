@@ -27,7 +27,7 @@ import {
 import '../../designer/karavan.css';
 import {KameletTypes} from "karavan-core/lib/model/IntegrationDefinition";
 import {useFileStore, useProjectStore} from "../../api/ProjectStore";
-import {getProjectFileTypeName, ProjectFile, ProjectFileTypes} from "../../api/ProjectModels";
+import {getProjectFileTypeName, ProjectFile} from "../../api/ProjectModels";
 import {ProjectService} from "../../api/ProjectService";
 import {shallow} from "zustand/shallow";
 import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
@@ -62,6 +62,8 @@ export function CreateIntegrationModal() {
         reset(new ProjectFile('', project.projectId, '', 0));
         setBackendError(undefined);
         setReset(true);
+        setSelectedKamelet(undefined);
+        setKameletType('source')
     }, [reset, operation]);
 
     React.useEffect(() => {
@@ -85,8 +87,8 @@ export function CreateIntegrationModal() {
         })
     }
 
-    function onSuccess (file: ProjectFile) {
-        EventBus.sendAlert( "Success", "File successfully created", "success");
+    function onSuccess(file: ProjectFile) {
+        EventBus.sendAlert("Success", "File successfully created", "success");
         ProjectService.refreshProjectData(project.projectId);
         if (file.code) {
             setFile('select', file, designerTab);
@@ -103,12 +105,14 @@ export function CreateIntegrationModal() {
 
     const isKamelet = designerTab === 'kamelet';
 
-    const listOfValues: Value[] = KameletApi.getKamelets()
-        .filter(k => k.metadata.labels["camel.apache.org/kamelet.type"] === kameletType)
-        .map(k => {
-            const v: Value = {value: k.metadata.name, children: k.spec.definition.title}
-            return v;
-        })
+    function listOfValues(type: KameletTypes): Value[] {
+        return KameletApi.getKamelets()
+            .filter(k => k.metadata.labels["camel.apache.org/kamelet.type"] === type)
+            .map(k => {
+                const v: Value = {value: k.metadata.name, children: k.spec.definition.title}
+                return v;
+            })
+    }
 
     function getFileExtension() {
         return designerTab === 'kamelet' ? '.kamelet.yaml' : '.camel.yaml';
@@ -152,19 +156,21 @@ export function CreateIntegrationModal() {
                         })}
                     </ToggleGroup>
                 </FormGroup>}
-                {getTextFieldSuffix('name', 'Name',  getFileSuffix(), true, {
+                {getTextFieldSuffix('name', 'Name', getFileSuffix(), true, {
                     regex: v => isValidFileName(v) || 'Only characters, numbers and dashes allowed',
                     length: v => v.length > 3 || 'File name should be longer that 3 characters',
                     name: v => !['templates', 'kamelets', 'karavan'].includes(v) || "'templates', 'kamelets', 'karavan' can't be used as project",
                 })}
-                {isKamelet && <FormGroup label="Copy from" fieldId="kamelet">
-                    <TypeaheadSelect listOfValues={listOfValues} onSelect={value => {
-                        setSelectedKamelet(value)
-                    }}/>
-                </FormGroup>}
+                {isKamelet &&
+                    <FormGroup label="Copy from" fieldId="kamelet">
+                        <TypeaheadSelect key={kameletType} listOfValues={listOfValues(kameletType)} onSelect={value => {
+                            setSelectedKamelet(value)
+                        }}/>
+                    </FormGroup>
+                }
                 {backendError &&
                     <FormAlert>
-                        <Alert variant="danger" title={backendError} aria-live="polite" isInline />
+                        <Alert variant="danger" title={backendError} aria-live="polite" isInline/>
                     </FormAlert>
                 }
             </Form>
