@@ -62,7 +62,7 @@ export function DslProperties(props: Props) {
 
     const [showAdvanced, setShowAdvanced] = useState<boolean>(false);
 
-    function getClonableElementHeader(): JSX.Element {
+    function getClonableElementHeader(): React.JSX.Element {
         const title = selectedStep && CamelDisplayUtil.getTitle(selectedStep);
         const description = selectedStep?.dslName ? CamelMetadataApi.getCamelModelMetadataByClassName(selectedStep?.dslName)?.description : title;
         const descriptionLines: string [] = description ? description?.split("\n") : [""];
