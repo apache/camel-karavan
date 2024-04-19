@@ -15,117 +15,80 @@
  * limitations under the License.
  */
 
-import React, {useState} from 'react';
+import React, {useEffect} from 'react';
 import {
     Alert,
     Button,
-    Divider,
-    Form,
-    FormGroup,
-    Grid,
+    Form, FormAlert,
     Modal,
     ModalVariant,
-    Text,
-    TextInput
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
 import {useProjectStore} from "../api/ProjectStore";
 import {ProjectService} from "../api/ProjectService";
 import {Project} from "../api/ProjectModels";
-import {CamelUi} from "../designer/utils/CamelUi";
-import {isEmpty} from "../util/StringUtils";
+import {isValidProjectId} from "../util/StringUtils";
 import {EventBus} from "../designer/utils/EventBus";
-import {useResponseErrorHandler} from "../shared/error/UseResponseErrorHandler";
-import {useForm} from "react-hook-form";
-import * as yup from 'yup';
-import {yupResolver} from '@hookform/resolvers/yup';
-import {AxiosError} from "axios";
+import {SubmitHandler, useForm} from "react-hook-form";
+import {useFormUtil} from "../util/useFormUtil";
+import {KaravanApi} from "../api/KaravanApi";
+import {AxiosResponse} from "axios";
 
-export function CreateProjectModal () {
-
-    const formValidationSchema = yup.object().shape({
-        name: yup
-            .string()
-            .required("Project name is required"),
-        description: yup
-            .string()
-            .required("Project description is required"),
-        projectId: yup
-            .string()
-            .required("Project ID is required")
-            .notOneOf(['templates', 'kamelets'], "'templates' or 'kamelets' can't be used as project ID")
-    });
-
-    const defaultFormValues = {
-        name: "",
-        description: "",
-        projectId: ""
-    };
-
-    const responseToFormErrorFields = new Map<string, string>([
-        ["projectId", "projectId"],
-        ["name", "name"],
-        ["description", "description"]
-    ]);
-
-    const {
-        register,
-        setError,
-        handleSubmit,
-        formState: { errors },
-        reset
-    } = useForm({
-        resolver: yupResolver(formValidationSchema),
-        mode: "onChange",
-        defaultValues: defaultFormValues
-    });
+export function CreateProjectModal() {
 
     const {project, operation, setOperation} = useProjectStore();
-    const [name, setName] = useState('');
-    const [description, setDescription] = useState('');
-    const [projectId, setProjectId] = useState('');
-    const [globalErrors, registerResponseErrors, resetGlobalErrors] = useResponseErrorHandler(
-        responseToFormErrorFields,
-        setError
-    );
+    const [isReset, setReset] = React.useState(false);
+    const [backendError, setBackendError] = React.useState<string>();
+    const formContext = useForm<Project>({mode: "all"});
+    const {getTextField} = useFormUtil(formContext);
+    const {
+        formState: {errors},
+        handleSubmit,
+        reset,
+        trigger
+    } = formContext;
 
-    function resetForm() {
-        resetGlobalErrors();
-        reset(defaultFormValues);
-    }
+    useEffect(() => {
+        reset(new Project());
+        setBackendError(undefined);
+        setReset(true);
+    }, [reset]);
+
+    React.useEffect(() => {
+        isReset && trigger();
+    }, [trigger, isReset]);
 
     function closeModal() {
         setOperation("none");
-        resetForm();
     }
 
-    function handleFormSubmit() {
-        const action = operation !== "copy" ?
-            ProjectService.createProject(new Project({name: name, description: description, projectId: projectId})) :
-            ProjectService.copyProject(project?.projectId, new Project({name: name, description: description, projectId: projectId}))
-
-        return action
-            .then(() => handleOnFormSubmitSuccess())
-            .catch((error) => handleOnFormSubmitFailure(error));
+    const onSubmit: SubmitHandler<Project> = (data) => {
+        if (operation === 'copy') {
+            KaravanApi.copyProject(data.projectId, project, after)
+        } else {
+            KaravanApi.postProject(data, after)
+        }
     }
 
-    function handleOnFormSubmitSuccess () {
+    function after (result: boolean, res: AxiosResponse<Project> | any) {
+        if (result) {
+            onSuccess(res.projectId);
+        } else {
+            setBackendError(res?.response?.data);
+        }
+    }
+
+    function onSuccess (projectId: string) {
         const message = operation !== "copy" ? "Project successfully created." : "Project successfully copied.";
-
         EventBus.sendAlert( "Success", message, "success");
         ProjectService.refreshProjectData(projectId);
         ProjectService.refreshProjects();
         setOperation("none");
-        resetForm();
-    }
-
-    function handleOnFormSubmitFailure(error: AxiosError) {
-        registerResponseErrors(error);
     }
 
     function onKeyDown(event: React.KeyboardEvent<HTMLDivElement>): void {
-        if (event.key === 'Enter' && !isEmpty(name) && !isEmpty(description) && !isEmpty(projectId)) {
-            handleFormSubmit();
+        if (event.key === 'Enter') {
+            handleSubmit(onSubmit)()
         }
     }
 
@@ -137,56 +100,33 @@ export function CreateProjectModal () {
             onClose={closeModal}
             onKeyDown={onKeyDown}
             actions={[
-                <Button key="confirm" variant="primary" onClick={handleSubmit(handleFormSubmit)}>Save</Button>,
+                <Button key="confirm" variant="primary"
+                        onClick={handleSubmit(onSubmit)}
+                        isDisabled={Object.getOwnPropertyNames(errors).length > 0}
+                >
+                    Save
+                </Button>,
                 <Button key="cancel" variant="secondary" onClick={closeModal}>Cancel</Button>
             ]}
             className="new-project"
         >
             <Form isHorizontal={true} autoComplete="off">
-                <FormGroup label="Name" fieldId="name" isRequired>
-                    <TextInput className="text-field" type="text" id="name"
-                               value={name}
-                               validated={!!errors.name ? 'error' : 'default'}
-                               {...register('name')}
-                               onChange={(e, v) => {
-                                   setName(v);
-                                   register('name').onChange(e);
-                               }}
-                    />
-                    {!!errors.name && <Text  style={{ color: 'red', fontStyle: 'italic'}}>{errors?.name?.message}</Text>}
-                </FormGroup>
-                <FormGroup label="Description" fieldId="description" isRequired>
-                    <TextInput className="text-field" type="text" id="description"
-                               value={description}
-                               validated={!!errors.description ? 'error' : 'default'}
-                               {...register('description')}
-                               onChange={(e, v) => {
-                                   setDescription(v);
-                                   register('description').onChange(e);
-                               }}
-                    />
-                    {!!errors.description && <Text  style={{ color: 'red', fontStyle: 'italic'}}>{errors?.description?.message}</Text>}
-                </FormGroup>
-                <FormGroup label="Project ID" fieldId="projectId" isRequired>
-                    <TextInput className="text-field" type="text" id="projectId"
-                               value={projectId}
-                               onFocus={e => setProjectId(projectId === '' ? CamelUi.nameFromTitle(name) : projectId)}
-                               validated={!!errors.projectId ? 'error' : 'default'}
-                               {...register('projectId')}
-                               onChange={(e, v) => {
-                                   setProjectId(CamelUi.nameFromTitle(v));
-                                   register('projectId').onChange(e);
-                               }}
-                    />
-                    {!!errors.projectId && <Text  style={{ color: 'red', fontStyle: 'italic'}}>{errors?.projectId?.message}</Text>}
-                </FormGroup>
-                <Grid>
-                    {globalErrors &&
-                        globalErrors.map((error) => (
-                            <Alert title={error} key={error} variant="danger"></Alert>
-                        ))}
-                    <Divider role="presentation" />
-                </Grid>
+                {getTextField('name', 'Name', {
+                    length: v => v.length > 5 || 'Project name should be longer that 5 characters',
+                })}
+                {getTextField('description', 'Description', {
+                    length: v => v.length > 5 || 'Description name should be longer that 5 characters',
+                })}
+                {getTextField('projectId', 'ProjectID', {
+                    regex: v => isValidProjectId(v) || 'Only lowercase characters, numbers and dashes allowed',
+                    length: v => v.length > 5 || 'Project ID should be longer that 5 characters',
+                    name: v => !['templates', 'kamelets', 'karavan'].includes(v) || "'templates', 'kamelets', 'karavan' can't be used as project",
+                })}
+                {backendError &&
+                    <FormAlert>
+                        <Alert variant="danger" title={backendError} aria-live="polite" isInline />
+                    </FormAlert>
+                }
             </Form>
         </Modal>
     )

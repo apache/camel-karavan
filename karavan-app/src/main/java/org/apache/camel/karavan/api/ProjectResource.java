@@ -81,8 +81,12 @@ public class ProjectResource {
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Project save(Project project) {
-        return projectService.save(project);
+    public Response save(Project project) {
+        try {
+            return Response.ok(projectService.save(project)).build();
+        } catch (Exception e) {
+            return Response.status(Response.Status.CONFLICT).entity(e.getMessage()).build();
+        }
     }
 
     @DELETE
@@ -159,7 +163,7 @@ public class ProjectResource {
                     camelStatus.setStatuses(stats);
                     return camelStatus;
                 }).toList();
-        if (statuses != null && !statuses.isEmpty()) {
+        if (!statuses.isEmpty()) {
             return Response.ok(statuses).build();
         } else {
             return Response.noContent().build();
@@ -170,7 +174,11 @@ public class ProjectResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/copy/{sourceProject}")
-    public Project copy(@PathParam("sourceProject") String sourceProject, Project project) {
-        return projectService.copy(sourceProject, project);
+    public Response copy(@PathParam("sourceProject") String sourceProject, Project project) {
+        try {
+            return Response.ok(projectService.copy(sourceProject, project)).build();
+        } catch (Exception e) {
+            return Response.serverError().entity(e.getMessage()).build();
+        }
     }
 }

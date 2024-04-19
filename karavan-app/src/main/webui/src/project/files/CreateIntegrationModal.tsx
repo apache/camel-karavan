@@ -15,19 +15,24 @@
  * limitations under the License.
  */
 
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
     Button,
     Modal,
+    FormGroup,
     ModalVariant,
     Form,
-    Alert, FormAlert,
+    ToggleGroupItem, ToggleGroup, Alert, FormAlert, capitalize,
 } from '@patternfly/react-core';
 import '../../designer/karavan.css';
+import {KameletTypes} from "karavan-core/lib/model/IntegrationDefinition";
 import {useFileStore, useProjectStore} from "../../api/ProjectStore";
-import {getProjectFileTypeName, ProjectFile} from "../../api/ProjectModels";
+import {ProjectFile, ProjectFileTypes} from "../../api/ProjectModels";
 import {ProjectService} from "../../api/ProjectService";
 import {shallow} from "zustand/shallow";
+import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
+import {KameletApi} from "karavan-core/lib/api/KameletApi";
+import {TypeaheadSelect, Value} from "../../designer/ui/TypeaheadSelect";
 import {SubmitHandler, useForm} from "react-hook-form";
 import {EventBus} from "../../designer/utils/EventBus";
 import {isValidFileName} from "../../util/StringUtils";
@@ -35,14 +40,22 @@ import {useFormUtil} from "../../util/useFormUtil";
 import {KaravanApi} from "../../api/KaravanApi";
 import {CodeUtils} from "../../util/CodeUtils";
 
-export function CreateFileModal() {
+interface Props {
+    type: string,
+    isKameletsProject: boolean
+}
+
+export function CreateIntegrationModal(props: Props) {
 
     const [project] = useProjectStore((s) => [s.project], shallow);
-    const [operation, setFile] = useFileStore((s) => [s.operation, s.setFile], shallow);
+    const [operation, setFile, designerTab] = useFileStore((s) => [s.operation, s.setFile, s.designerTab], shallow);
+    const [fileType, setFileType] = useState<string>('INTEGRATION');
+    const [kameletType, setKameletType] = useState<KameletTypes>('source');
+    const [selectedKamelet, setSelectedKamelet] = useState<string>();
     const [isReset, setReset] = React.useState(false);
     const [backendError, setBackendError] = React.useState<string>();
     const formContext = useForm<ProjectFile>({mode: "all"});
-    const {getTextField} = useFormUtil(formContext);
+    const {getTextFieldSuffix} = useFormUtil(formContext);
     const {
         formState: {errors},
         handleSubmit,
@@ -66,7 +79,8 @@ export function CreateFileModal() {
 
     const onSubmit: SubmitHandler<ProjectFile> = (data) => {
         data.projectId = project.projectId;
-        data.code = CodeUtils.getCodeForNewFile(data.name, getProjectFileTypeName(data));
+        data.name = getFullFileName(data.name, props.type);
+        data.code = CodeUtils.getCodeForNewFile(data.name, fileType, selectedKamelet);
         KaravanApi.saveProjectFile(data, (result, file) => {
             if (result) {
                 onSuccess(file);
@@ -79,7 +93,11 @@ export function CreateFileModal() {
     function onSuccess (file: ProjectFile) {
         EventBus.sendAlert( "Success", "File successfully created", "success");
         ProjectService.refreshProjectData(project.projectId);
-        setFile('select', file);
+        if (file.code) {
+            setFile('select', file, designerTab);
+        } else {
+            setFile("none");
+        }
     }
 
     function onKeyDown(event: React.KeyboardEvent<HTMLDivElement>): void {
@@ -88,9 +106,28 @@ export function CreateFileModal() {
         }
     }
 
+    const isKamelet = props.isKameletsProject;
+
+    const listOfValues: Value[] = KameletApi.getKamelets()
+        .filter(k => k.metadata.labels["camel.apache.org/kamelet.type"] === kameletType)
+        .map(k => {
+            const v: Value = {value: k.metadata.name, children: k.spec.definition.title}
+            return v;
+        })
+
+    function getFileExtension(type?: string) {
+        let extension = ProjectFileTypes.filter(value => value.name === type)[0]?.extension;
+        extension = extension === '*' ? '' : '.' + extension;
+        return extension;
+    }
+
+    function getFullFileName(name: string, type?: string) {
+        return name + (isKamelet ? '-' + kameletType : '') + getFileExtension(type);
+    }
+
     return (
         <Modal
-            title="Create file"
+            title={"Create " + (isKamelet ? "Kamelet" : capitalize(designerTab || ' '))}
             variant={ModalVariant.small}
             isOpen={["create", "copy"].includes(operation)}
             onClose={closeModal}
@@ -105,11 +142,29 @@ export function CreateFileModal() {
             ]}
         >
             <Form autoComplete="off" isHorizontal className="create-file-form">
-                {getTextField('name', 'Name', {
-                    regex: v => isValidFileName(v) || 'Not a valid filename',
-                    length: v => v.length > 5 || 'File name should be longer that 5 characters',
-                    name: v => !['templates', 'kamelets', 'karavan'].includes(v) || "'templates', 'kamelets', 'karavan' can't be used as filename",
+                {isKamelet && <FormGroup label="Type" fieldId="kameletType" isRequired>
+                    <ToggleGroup aria-label="Kamelet Type">
+                        {['source', 'action', 'sink'].map((type) => {
+                            const title = CamelUtil.capitalizeName(type);
+                            return <ToggleGroupItem key={type} text={title} buttonId={type}
+                                                    isSelected={kameletType === type}
+                                                    onChange={(_, selected) => {
+                                                        setKameletType(type as KameletTypes);
+                                                        setSelectedKamelet(undefined)
+                                                    }}/>
+                        })}
+                    </ToggleGroup>
+                </FormGroup>}
+                {getTextFieldSuffix('name', 'Name',  getFileExtension(props.type), true, {
+                    regex: v => isValidFileName(v) || 'Only characters, numbers and dashes allowed',
+                    length: v => v.length > 3 || 'File name should be longer that 3 characters',
+                    name: v => !['templates', 'kamelets', 'karavan'].includes(v) || "'templates', 'kamelets', 'karavan' can't be used as project",
                 })}
+                {isKamelet && <FormGroup label="Copy from" fieldId="kamelet">
+                    <TypeaheadSelect listOfValues={listOfValues} onSelect={value => {
+                        setSelectedKamelet(value)
+                    }}/>
+                </FormGroup>}
                 {backendError &&
                     <FormAlert>
                         <Alert variant="danger" title={backendError} aria-live="polite" isInline />

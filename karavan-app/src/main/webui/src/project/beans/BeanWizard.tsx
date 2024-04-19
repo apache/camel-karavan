@@ -33,8 +33,6 @@ import {useFilesStore, useFileStore, useProjectStore, useWizardStore} from "../.
 import {shallow} from "zustand/shallow";
 import ExclamationCircleIcon from '@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon';
 import {useForm} from "react-hook-form";
-import {yupResolver} from "@hookform/resolvers/yup";
-import * as yup from "yup";
 import {ProjectService} from "../../api/ProjectService";
 import {EventBus} from "../../designer/utils/EventBus";
 import {useResponseErrorHandler} from "../../shared/error/UseResponseErrorHandler";
@@ -49,13 +47,6 @@ const BEAN_TEMPLATE_SUFFIX_FILENAME = "-bean-template.camel.yaml";
 
 export function BeanWizard() {
 
-    const formValidationSchema = yup.object().shape({
-        filename: yup
-            .string()
-            .matches(/^[a-zA-Z0-9_\-.]+$/, 'Incorrect filename')
-            .required("File name is required"),
-    });
-
     const {
         register,
         setError,
@@ -64,7 +55,6 @@ export function BeanWizard() {
         reset,
         setValue
     } = useForm({
-        resolver: yupResolver(formValidationSchema),
         mode: "onChange",
         defaultValues: {filename: ''}
     });
@@ -74,7 +64,7 @@ export function BeanWizard() {
     ]);
 
     const [project] = useProjectStore((s) => [s.project], shallow);
-    const [operation, setFile, designerTab] = useFileStore((s) => [s.operation, s.setFile, s.designerTab], shallow);
+    const [setFile, designerTab] = useFileStore((s) => [s.setFile, s.designerTab], shallow);
     const [files] = useFilesStore((s) => [s.files], shallow);
     const [showWizard, setShowWizard] = useWizardStore((s) => [s.showWizard, s.setShowWizard], shallow)
     const [templateFiles, setTemplateFiles] = useState<ProjectFile[]>([]);
@@ -116,9 +106,9 @@ export function BeanWizard() {
             }
             const fullFileName = filename + CAMEL_YAML_EXT;
             const file = new ProjectFile(fullFileName, project.projectId, code, Date.now());
-            return ProjectService.createFile(file)
-                .then(() => handleOnFormSubmitSuccess(file))
-                .catch((error) => registerResponseErrors(error));
+            // return ProjectService.createFile(file)
+            //     .then(() => handleOnFormSubmitSuccess(file))
+            //     .catch((error) => registerResponseErrors(error));
         }
     }
 

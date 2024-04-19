@@ -1,5 +1,5 @@
 import React from 'react';
-import {FieldError, UseFormReturn} from "react-hook-form";
+import {Controller, FieldError, UseFormReturn} from "react-hook-form";
 import {
     Flex,
     FormGroup,
@@ -54,7 +54,6 @@ export function useFormUtil(formContext: UseFormReturn<any>) {
                 <TextInputGroup>
                     <TextInputGroupMain className="text-field-with-prefix" type="text" id={fieldName}
                                         value={getValues()[fieldName]}
-                        // validated={!!errors[fieldName] ? 'error' : 'default'}
                                         {...register(fieldName, {required: (required ? "Required field" : false), validate: validate})}
                                         onChange={(e, v) => {
                                             setValue(fieldName, v, {shouldValidate: true});
@@ -62,6 +61,28 @@ export function useFormUtil(formContext: UseFormReturn<any>) {
                     >
                         <Text className='text-field-prefix' component={TextVariants.p}>{prefix}</Text>
                     </TextInputGroupMain>
+                </TextInputGroup>
+                {getHelper((errors as any)[fieldName])}
+            </FormGroup>
+        )
+    }
+
+    function getTextFieldSuffix(fieldName: string, label: string, suffix: string,
+                                required: boolean,
+                                validate?: ((value: string, formValues: any) => boolean | string) | Record<string, (value: string, formValues: any) => boolean | string>) {
+        const {setValue, getValues, register, formState: {errors}} = formContext;
+        return (
+            <FormGroup label={label} fieldId={fieldName} isRequired>
+                <TextInputGroup className="text-field-with-suffix">
+                    <TextInputGroupMain type="text" id={fieldName}
+                                        value={getValues()[fieldName]}
+                                        {...register(fieldName, {required: (required ? "Required field" : false), validate: validate})}
+                                        onChange={(e, v) => {
+                                            setValue(fieldName, v, {shouldValidate: true});
+                                        }}
+                    >
+                    </TextInputGroupMain>
+                    <Text className='text-field-suffix' component={TextVariants.p}>{suffix}</Text>
                 </TextInputGroup>
                 {getHelper((errors as any)[fieldName])}
             </FormGroup>
@@ -125,6 +146,6 @@ export function useFormUtil(formContext: UseFormReturn<any>) {
         )
     }
 
-    return {getFormSelect, getTextField, getSwitches, getTextFieldPrefix}
+    return {getFormSelect, getTextField, getSwitches, getTextFieldPrefix, getTextFieldSuffix}
 }
 

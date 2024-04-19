@@ -95,9 +95,9 @@ export function UploadFileModal(props: Props) {
                 .then(() => handleOnFormSubmitSuccess())
                 .catch((error) => handleOnFormSubmitFailure(error));
         } else {
-            return ProjectService.createFile(file)
-                .then(() => handleOnFormSubmitSuccess())
-                .catch((error) => handleOnFormSubmitFailure(error));
+            // return ProjectService.createFile(file)
+            //     .then(() => handleOnFormSubmitSuccess())
+            //     .catch((error) => handleOnFormSubmitFailure(error));
         }
     }
 

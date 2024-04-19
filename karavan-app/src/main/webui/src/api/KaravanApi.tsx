@@ -277,12 +277,34 @@ export class KaravanApi {
         });
     }
 
-    static async postProject(project: Project) {
-        return instance.post('/ui/project', project);
+    static async postProject(project: Project, after: (result: boolean, res: AxiosResponse<Project> | any) => void) {
+        try {
+            instance.post('/ui/project', project)
+                .then(res => {
+                    if (res.status === 200) {
+                        after(true, res);
+                    }
+                }).catch(err => {
+                after(false, err);
+            });
+        } catch (error: any) {
+            after(false, error);
+        }
     }
 
-    static async copyProject(sourceProject: string, project: Project) {
-        return instance.post('/ui/project/copy/' + sourceProject, project);
+    static copyProject(sourceProject: string, project: Project, after: (result: boolean, res: AxiosResponse<Project> | any) => void) {
+        try {
+            instance.post('/ui/project/copy/' + sourceProject, project)
+                .then(res => {
+                    if (res.status === 200) {
+                        after(true, res);
+                    }
+                }).catch(err => {
+                after(false, err);
+            });
+        } catch (error: any) {
+            after(false, error);
+        }
     }
 
     static async deleteProject(project: Project, deleteContainers: boolean, after: (res: AxiosResponse<any>) => void) {
@@ -326,8 +348,20 @@ export class KaravanApi {
         });
     }
 
-    static async saveProjectFile(file: ProjectFile) {
-        return instance.post('/ui/file', file);
+    static async saveProjectFile(file: ProjectFile, after: (result: boolean, file: ProjectFile | any) => void) {
+        console.log(file)
+        try {
+            instance.post('/ui/file', file)
+                .then(res => {
+                    if (res.status === 200) {
+                        after(true, res.data);
+                    }
+                }).catch(err => {
+                after(false, err);
+            });
+        } catch (error: any) {
+            after(false, error);
+        }
     }
 
     static async putProjectFile(file: ProjectFile, after: (res: AxiosResponse<any>) => void) {

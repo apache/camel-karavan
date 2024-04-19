@@ -44,11 +44,9 @@ import {
 } from '@patternfly/react-table/deprecated';
 import SearchIcon from '@patternfly/react-icons/dist/esm/icons/search-icon';
 import {ServicesTableRow} from "./ServicesTableRow";
-import {DeleteServiceModal} from "./DeleteServiceModal";
-import {CreateServiceModal} from "./CreateServiceModal";
-import {useProjectStore, useStatusesStore} from "../api/ProjectStore";
+import {useStatusesStore} from "../api/ProjectStore";
 import {MainToolbar} from "../designer/MainToolbar";
-import {Project, ProjectType} from "../api/ProjectModels";
+import {ProjectType} from "../api/ProjectModels";
 import {KaravanApi} from "../api/KaravanApi";
 import {DockerComposeService, DockerCompose, ServicesYaml} from "../api/ServiceModels";
 import {shallow} from "zustand/shallow";
@@ -60,7 +58,6 @@ export function ServicesPage () {
 
     const [services, setServices] = useState<DockerCompose>();
     const [containers] = useStatusesStore((state) => [state.containers, state.setContainers], shallow);
-    const [operation] = useState<'create' | 'delete' | 'none'>('none');
     const [loading] = useState<boolean>(false);
 
     useEffect(() => {
@@ -86,12 +83,6 @@ export function ServicesPage () {
             <ToolbarContent>
                 <ToolbarItem>
                     <Button variant="link" icon={<RefreshIcon/>} onClick={e => getServices()}/>
-                </ToolbarItem>
-                <ToolbarItem>
-                    <Button className="dev-action-button" icon={<PlusIcon/>}
-                            onClick={e =>
-                                useProjectStore.setState({operation: "create", project: new Project()})}
-                    >Create</Button>
                 </ToolbarItem>
             </ToolbarContent>
         </Toolbar>
@@ -155,8 +146,6 @@ export function ServicesPage () {
             <PageSection isFilled className="kamelets-page">
                 {getServicesTable()}
             </PageSection>
-            {["create"].includes(operation) && <CreateServiceModal/>}
-            {["delete"].includes(operation) && <DeleteServiceModal/>}
             <ProjectLogPanel/>
         </PageSection>
     )

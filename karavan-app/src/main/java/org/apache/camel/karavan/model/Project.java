@@ -17,8 +17,6 @@
 
 package org.apache.camel.karavan.model;
 
-import jakarta.validation.constraints.NotBlank;
-
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.Instant;
@@ -39,11 +37,8 @@ public class Project implements Serializable {
         ephemeral,
     }
 
-    @NotBlank
     String projectId;
-    @NotBlank
     String name;
-    @NotBlank
     String description;
     String lastCommit;
     Long lastCommitTimestamp;
@@ -127,4 +122,16 @@ public class Project implements Serializable {
         this.type = type;
     }
 
+
+    @Override
+    public String toString() {
+        return "Project{" +
+                "projectId='" + projectId + '\'' +
+                ", name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", lastCommit='" + lastCommit + '\'' +
+                ", lastCommitTimestamp=" + lastCommitTimestamp +
+                ", type=" + type +
+                '}';
+    }
 }

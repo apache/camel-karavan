@@ -235,21 +235,6 @@ export class ProjectService {
         });
     }
 
-    public static async createProject(project: Project) {
-        const result = await KaravanApi.postProject(project);
-        return result.data;
-    }
-
-    public static async copyProject(sourceProject: string, project: Project) {
-        const result = await KaravanApi.copyProject(sourceProject, project);
-        return result.data;
-    }
-
-    public static async createFile(file: ProjectFile) {
-        const result = await KaravanApi.saveProjectFile(file);
-        return result.data;
-    }
-
     public static async createOpenApiFile(file: ProjectFile, generateRest: boolean, generateRoutes: boolean, integrationName: string) {
         const result = await KaravanApi.postOpenApi(file, generateRest, generateRoutes, integrationName);
         return result.data;

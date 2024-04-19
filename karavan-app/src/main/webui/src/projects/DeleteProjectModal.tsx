@@ -24,7 +24,6 @@ import {
 import '../designer/karavan.css';
 import {useProjectStore} from "../api/ProjectStore";
 import {ProjectService} from "../api/ProjectService";
-import ExclamationIcon from '@patternfly/react-icons/dist/esm/icons/exclamation-icon';
 
 export function DeleteProjectModal () {
 

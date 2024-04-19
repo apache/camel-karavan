@@ -23,10 +23,10 @@ import {
     Text,
     TextContent,
     Flex,
-    FlexItem, Button
+    FlexItem,
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
-import {getProjectFileType} from "../api/ProjectModels";
+import {getProjectFileTypeTitle} from "../api/ProjectModels";
 import {useFileStore, useProjectStore} from "../api/ProjectStore";
 import TopologyIcon from "@patternfly/react-icons/dist/js/icons/topology-icon";
 import FilesIcon from "@patternfly/react-icons/dist/js/icons/folder-open-icon";
@@ -87,7 +87,7 @@ export function ProjectTitle() {
                         <FlexItem>
                             <Flex direction={{default: "row"}}>
                                 <FlexItem>
-                                    <Badge>{getProjectFileType(file)}</Badge>
+                                    <Badge>{getProjectFileTypeTitle(file)}</Badge>
                                 </FlexItem>
                                 <FlexItem>
                                     <TextContent className="description">

@@ -36,7 +36,11 @@ import {Table} from '@patternfly/react-table/deprecated';
 import DeleteIcon from "@patternfly/react-icons/dist/js/icons/times-icon";
 import SearchIcon from '@patternfly/react-icons/dist/esm/icons/search-icon';
 import {useFilesStore, useFileStore, useProjectStore} from "../../api/ProjectStore";
-import {getProjectFileType, Project, ProjectFile, ProjectFileTypes} from "../../api/ProjectModels";
+import {
+    getProjectFileTypeTitle,
+    ProjectFile,
+    ProjectFileTypes
+} from "../../api/ProjectModels";
 import {FileToolbar} from "./FilesToolbar";
 import DownloadIcon from "@patternfly/react-icons/dist/esm/icons/download-icon";
 import FileSaver from "file-saver";
@@ -107,7 +111,7 @@ export function FilesTab () {
                     </Thead>
                     <Tbody>
                         {files.map(file => {
-                            const type = getProjectFileType(file)
+                            const type = getProjectFileTypeTitle(file)
                             return <Tr key={file.name}>
                                 <Td>
                                     <Badge>{type}</Badge>
@@ -159,7 +163,7 @@ export function FilesTab () {
                 </Table>
             </div>
             <UploadFileModal projectId={project.projectId}/>
-            <CreateFileModal types={types} isKameletsProject={isKameletsProject()}/>
+            <CreateFileModal/>
             <DeleteFileModal />
         </PageSection>
     )

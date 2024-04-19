@@ -19,11 +19,11 @@ package org.apache.camel.karavan.api;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import org.apache.camel.karavan.code.CodeService;
 import org.apache.camel.karavan.service.KaravanCacheService;
 import org.apache.camel.karavan.model.Project;
 import org.apache.camel.karavan.model.ProjectFile;
-import org.apache.camel.karavan.validation.project.ProjectFileCreateValidator;
 
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
@@ -40,9 +40,6 @@ public class ProjectFileResource {
 
     @Inject
     CodeService codeService;
-
-    @Inject
-    ProjectFileCreateValidator projectFileCreateValidator;
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
@@ -65,11 +62,15 @@ public class ProjectFileResource {
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public ProjectFile create(ProjectFile file) throws Exception {
+    public Response create(ProjectFile file) throws Exception {
         file.setLastUpdate(Instant.now().toEpochMilli());
-        projectFileCreateValidator.validate(file).failOnError();
-        karavanCacheService.saveProjectFile(file);
-        return file;
+        boolean projectFileExists = karavanCacheService.getProjectFile(file.getProjectId(), file.getName()) != null;
+        if (projectFileExists) {
+            return Response.serverError().entity("File with given name already exists").build();
+        } else {
+            karavanCacheService.saveProjectFile(file);
+            return Response.ok(file).build();
+        }
     }
 
     @PUT

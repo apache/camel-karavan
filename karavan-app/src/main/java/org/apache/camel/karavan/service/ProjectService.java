@@ -29,8 +29,6 @@ import org.apache.camel.karavan.docker.DockerForKaravan;
 import org.apache.camel.karavan.kubernetes.KubernetesService;
 import org.apache.camel.karavan.model.*;
 import org.apache.camel.karavan.shared.Constants;
-import org.apache.camel.karavan.shared.Property;
-import org.apache.camel.karavan.validation.project.ProjectModifyValidator;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -59,10 +57,6 @@ public class ProjectService implements HealthCheck {
 
     @ConfigProperty(name = "karavan.environment")
     String environment;
-
-
-    @Inject
-    ProjectModifyValidator projectModifyValidator;
 
     @Inject
     KaravanCacheService karavanCacheService;
@@ -185,59 +179,66 @@ public class ProjectService implements HealthCheck {
         }
     }
 
-    public Project save(Project project) {
-        projectModifyValidator.validate(project).failOnError();
+    public Project save(Project project) throws Exception {
+        boolean projectIdExists = karavanCacheService.getProject(project.getProjectId()) != null;
 
-        karavanCacheService.saveProject(project);
-
-        ProjectFile appProp = codeService.getApplicationProperties(project);
-        karavanCacheService.saveProjectFile(appProp);
-        if (!ConfigService.inKubernetes()) {
-            ProjectFile projectCompose = codeService.createInitialProjectCompose(project);
-            karavanCacheService.saveProjectFile(projectCompose);
-        } else if (kubernetesService.isOpenshift()){
-            ProjectFile projectCompose = codeService.createInitialDeployment(project);
-            karavanCacheService.saveProjectFile(projectCompose);
+        if (projectIdExists) {
+            throw new Exception("Project with id " + project.getProjectId() + " already exists");
+        } else {
+            karavanCacheService.saveProject(project);
+            ProjectFile appProp = codeService.getApplicationProperties(project);
+            karavanCacheService.saveProjectFile(appProp);
+            if (!ConfigService.inKubernetes()) {
+                ProjectFile projectCompose = codeService.createInitialProjectCompose(project);
+                karavanCacheService.saveProjectFile(projectCompose);
+            } else if (kubernetesService.isOpenshift()) {
+                ProjectFile projectCompose = codeService.createInitialDeployment(project);
+                karavanCacheService.saveProjectFile(projectCompose);
+            }
         }
-
         return project;
     }
 
-    public Project copy(String sourceProjectId, Project project) {
-        projectModifyValidator.validate(project).failOnError();
+    public Project copy (String sourceProjectId, Project project) throws Exception {
+        boolean projectIdExists = karavanCacheService.getProject(project.getProjectId()) != null;
 
-        Project sourceProject = karavanCacheService.getProject(sourceProjectId);
+        if (projectIdExists) {
+            throw new Exception("Project with id " + project.getProjectId() + " already exists");
+        } else {
 
-        // Save project
-        karavanCacheService.saveProject(project);
+            Project sourceProject = karavanCacheService.getProject(sourceProjectId);
 
-        // Copy files from the source and make necessary modifications
-        Map<String, ProjectFile> filesMap = karavanCacheService.getProjectFilesMap(sourceProjectId).entrySet().stream()
-                .filter(e -> !Objects.equals(e.getValue().getName(), PROJECT_COMPOSE_FILENAME) &&
-                        !Objects.equals(e.getValue().getName(), PROJECT_DEPLOYMENT_JKUBE_FILENAME)
-                )
-                .collect(Collectors.toMap(
-                        e -> GroupedKey.create(project.getProjectId(), DEFAULT_ENVIRONMENT, e.getValue().getName()),
-                        e -> {
-                            ProjectFile file = e.getValue();
-                            file.setProjectId(project.getProjectId());
-                            if (Objects.equals(file.getName(), APPLICATION_PROPERTIES_FILENAME)) {
-                                modifyPropertyFileOnProjectCopy(file, sourceProject, project);
-                            }
-                            return file;
-                        })
-                );
-        karavanCacheService.saveProjectFiles(filesMap);
+            // Save project
+            karavanCacheService.saveProject(project);
 
-        if (!ConfigService.inKubernetes()) {
-            ProjectFile projectCompose = codeService.createInitialProjectCompose(project);
-            karavanCacheService.saveProjectFile(projectCompose);
-        } else if (kubernetesService.isOpenshift()) {
-            ProjectFile projectCompose = codeService.createInitialDeployment(project);
-            karavanCacheService.saveProjectFile(projectCompose);
+            // Copy files from the source and make necessary modifications
+            Map<String, ProjectFile> filesMap = karavanCacheService.getProjectFilesMap(sourceProjectId).entrySet().stream()
+                    .filter(e -> !Objects.equals(e.getValue().getName(), PROJECT_COMPOSE_FILENAME) &&
+                            !Objects.equals(e.getValue().getName(), PROJECT_DEPLOYMENT_JKUBE_FILENAME)
+                    )
+                    .collect(Collectors.toMap(
+                            e -> GroupedKey.create(project.getProjectId(), DEFAULT_ENVIRONMENT, e.getValue().getName()),
+                            e -> {
+                                ProjectFile file = e.getValue();
+                                file.setProjectId(project.getProjectId());
+                                if (Objects.equals(file.getName(), APPLICATION_PROPERTIES_FILENAME)) {
+                                    modifyPropertyFileOnProjectCopy(file, sourceProject, project);
+                                }
+                                return file;
+                            })
+                    );
+            karavanCacheService.saveProjectFiles(filesMap);
+
+            if (!ConfigService.inKubernetes()) {
+                ProjectFile projectCompose = codeService.createInitialProjectCompose(project);
+                karavanCacheService.saveProjectFile(projectCompose);
+            } else if (kubernetesService.isOpenshift()) {
+                ProjectFile projectCompose = codeService.createInitialDeployment(project);
+                karavanCacheService.saveProjectFile(projectCompose);
+            }
+
+            return project;
         }
-
-        return project;
     }
 
     private void modifyPropertyFileOnProjectCopy(ProjectFile propertyFile, Project sourceProject, Project project) {
@@ -446,5 +447,22 @@ public class ProjectService implements HealthCheck {
 
     public DockerComposeService getProjectDockerComposeService(String projectId) {
         return codeService.getDockerComposeService(projectId);
+    }
+
+    public enum Property {
+        PROJECT_ID("camel.karavan.project-id=%s"),
+        PROJECT_NAME("camel.karavan.project-name=%s"),
+        PROJECT_DESCRIPTION("camel.karavan.project-description=%s"),
+        GAV("camel.jbang.gav=org.camel.karavan.demo:%s:1");
+
+        private final String keyValueFormatter;
+
+        Property(String keyValueFormatter) {
+            this.keyValueFormatter = keyValueFormatter;
+        }
+
+        public String getKeyValueFormatter() {
+            return keyValueFormatter;
+        }
     }
 }

@@ -1,8 +1,10 @@
 import {ProjectFile} from "../api/ProjectModels";
 import {RegistryBeanDefinition} from "karavan-core/lib/model/CamelDefinition";
-import {Integration} from "karavan-core/lib/model/IntegrationDefinition";
+import {Integration, KameletTypes, MetadataLabels} from "karavan-core/lib/model/IntegrationDefinition";
 import {CamelDefinitionYaml} from "karavan-core/lib/api/CamelDefinitionYaml";
 import {CamelUi} from "../designer/utils/CamelUi";
+import {KameletApi} from "karavan-core/lib/api/KameletApi";
+import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
 
 export class CodeUtils {
 
@@ -42,5 +44,30 @@ export class CodeUtils {
     static getPropertyCode(files: ProjectFile[]) {
         const file = files.filter(f => f.name === 'application.properties')?.at(0);
         return file?.code;
+    }
+
+    static getCodeForNewFile(fileName: string, type: string, copyFromKamelet?: string): string {
+        if (type === 'INTEGRATION') {
+            return CamelDefinitionYaml.integrationToYaml(Integration.createNew(fileName, 'plain'));
+        } else if (type === 'KAMELET') {
+            const type: string | undefined = fileName.replace('.kamelet.yaml', '').split('-').pop();
+            const kameletType: KameletTypes | undefined = (type === "sink" || type === "source" || type === "action") ? type : undefined;
+            const integration = Integration.createNew(fileName, 'kamelet');
+            const meta: MetadataLabels = new MetadataLabels({"camel.apache.org/kamelet.type": kameletType});
+            integration.metadata.labels = meta;
+            if (copyFromKamelet !== undefined && copyFromKamelet !== '') {
+                const kamelet= KameletApi.getKamelets().filter(k => k.metadata.name === copyFromKamelet).at(0);
+                if (kamelet) {
+                    (integration as any).spec = kamelet.spec;
+                    (integration as any).metadata.labels = kamelet.metadata.labels;
+                    (integration as any).metadata.annotations = kamelet.metadata.annotations;
+                    const i = CamelUtil.cloneIntegration(integration);
+                    return CamelDefinitionYaml.integrationToYaml(i);
+                }
+            }
+            return CamelDefinitionYaml.integrationToYaml(integration);
+        } else {
+            return '';
+        }
     }
 }

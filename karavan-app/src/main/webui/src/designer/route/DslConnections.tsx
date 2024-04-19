@@ -47,7 +47,7 @@ export function DslConnections() {
         setTons(prevState => {
             const data = new Map<string, string[]>();
             TopologyUtils.findTopologyOutgoingNodes(integrations).forEach(t => {
-                const key = (t.step as any)?.uri + ':' + (t.step as any)?.parameters?.name;
+                const key = (t.step as any)?.uri + ':' + (t.step as any)?.parameters.name;
                 if (data.has(key)) {
                     const list = data.get(key) || [];
                     list.push(t.routeId);

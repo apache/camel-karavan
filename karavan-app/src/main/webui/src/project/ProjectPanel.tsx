@@ -33,10 +33,10 @@ import {ProjectContainerTab} from "./container/ProjectContainerTab";
 import {IntegrationFile} from "karavan-core/lib/model/IntegrationDefinition";
 import {TopologyTab} from "../topology/TopologyTab";
 import {Buffer} from "buffer";
-import {CreateFileModal} from "./files/CreateFileModal";
 import {ProjectType} from "../api/ProjectModels";
 import {ReadmeTab} from "./readme/ReadmeTab";
 import {BeanWizard} from "./beans/BeanWizard";
+import {CreateIntegrationModal} from "./files/CreateIntegrationModal";
 
 export function ProjectPanel() {
 
@@ -89,7 +89,7 @@ export function ProjectPanel() {
                              }}
                              onSetFile={(fileName) => selectFile(fileName)}
                 />
-                <CreateFileModal types={['INTEGRATION']} isKameletsProject={false}/>
+                <CreateIntegrationModal type={'INTEGRATION'} isKameletsProject={false}/>
                 <BeanWizard/>
             </>
         )
