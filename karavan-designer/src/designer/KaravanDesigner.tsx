@@ -54,7 +54,7 @@ interface Props {
     yaml: string
     dark: boolean
     showCodeTab: boolean
-    tab?: "routes" | "rest" | "beans"
+    tab?: "routes" | "rest" | "beans" | "kamelet"
     propertyPlaceholders: string[]
     beans: RegistryBeanDefinition[]
     files: IntegrationFile[]

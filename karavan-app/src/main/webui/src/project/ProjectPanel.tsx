@@ -83,13 +83,14 @@ export function ProjectPanel() {
                              files={files.map(f => new IntegrationFile(f.name, f.code))}
                              onClickAddRoute={() => setFile('create', undefined, 'routes')}
                              onClickAddREST={() => setFile('create', undefined, 'rest')}
+                             onClickAddKamelet={() => setFile('create', undefined, 'kamelet')}
                              onClickAddBean={() => {
                                  // setFile('create', undefined, 'beans');
                                  setShowWizard(true)
                              }}
                              onSetFile={(fileName) => selectFile(fileName)}
                 />
-                <CreateIntegrationModal type={'INTEGRATION'} isKameletsProject={false}/>
+                <CreateIntegrationModal/>
                 <BeanWizard/>
             </>
         )

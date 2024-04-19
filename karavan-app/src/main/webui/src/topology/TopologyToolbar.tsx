@@ -25,6 +25,7 @@ import PlusIcon from "@patternfly/react-icons/dist/esm/icons/plus-icon";
 interface Props {
     onClickAddRoute: () => void
     onClickAddREST: () => void
+    onClickAddKamelet: () => void
     onClickAddBean: () => void
 }
 
@@ -46,7 +47,7 @@ export function TopologyToolbar (props: Props) {
             <ToolbarItem align={{default:"alignRight"}}>
                 <Tooltip content={"Add REST API"} position={"bottom"}>
                     <Button className="dev-action-button" size="sm"
-                            variant={"primary"}
+                            variant={"secondary"}
                             icon={<PlusIcon/>}
                             onClick={e => props.onClickAddREST()}
                     >
@@ -55,9 +56,20 @@ export function TopologyToolbar (props: Props) {
                 </Tooltip>
             </ToolbarItem>
             <ToolbarItem align={{default:"alignRight"}}>
+                <Tooltip content={"Add Kamelet"} position={"bottom"}>
+                    <Button className="dev-action-button" size="sm"
+                            variant={"secondary"}
+                            icon={<PlusIcon/>}
+                            onClick={e => props.onClickAddKamelet()}
+                    >
+                        Kamelet
+                    </Button>
+                </Tooltip>
+            </ToolbarItem>
+            <ToolbarItem align={{default:"alignRight"}}>
                 <Tooltip content={"Add Bean"} position={"bottom"}>
                     <Button className="dev-action-button" size="sm"
-                            variant={"primary"}
+                            variant={"secondary"}
                             icon={<PlusIcon/>}
                             onClick={e => props.onClickAddBean()}
                     >

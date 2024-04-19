@@ -27,7 +27,7 @@ import {
 import '../../designer/karavan.css';
 import {KameletTypes} from "karavan-core/lib/model/IntegrationDefinition";
 import {useFileStore, useProjectStore} from "../../api/ProjectStore";
-import {ProjectFile, ProjectFileTypes} from "../../api/ProjectModels";
+import {getProjectFileTypeName, ProjectFile, ProjectFileTypes} from "../../api/ProjectModels";
 import {ProjectService} from "../../api/ProjectService";
 import {shallow} from "zustand/shallow";
 import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
@@ -40,16 +40,11 @@ import {useFormUtil} from "../../util/useFormUtil";
 import {KaravanApi} from "../../api/KaravanApi";
 import {CodeUtils} from "../../util/CodeUtils";
 
-interface Props {
-    type: string,
-    isKameletsProject: boolean
-}
 
-export function CreateIntegrationModal(props: Props) {
+export function CreateIntegrationModal() {
 
     const [project] = useProjectStore((s) => [s.project], shallow);
     const [operation, setFile, designerTab] = useFileStore((s) => [s.operation, s.setFile, s.designerTab], shallow);
-    const [fileType, setFileType] = useState<string>('INTEGRATION');
     const [kameletType, setKameletType] = useState<KameletTypes>('source');
     const [selectedKamelet, setSelectedKamelet] = useState<string>();
     const [isReset, setReset] = React.useState(false);
@@ -79,8 +74,8 @@ export function CreateIntegrationModal(props: Props) {
 
     const onSubmit: SubmitHandler<ProjectFile> = (data) => {
         data.projectId = project.projectId;
-        data.name = getFullFileName(data.name, props.type);
-        data.code = CodeUtils.getCodeForNewFile(data.name, fileType, selectedKamelet);
+        data.name = getFullFileName(data.name);
+        data.code = CodeUtils.getCodeForNewFile(data.name, getProjectFileTypeName(data), selectedKamelet);
         KaravanApi.saveProjectFile(data, (result, file) => {
             if (result) {
                 onSuccess(file);
@@ -106,7 +101,7 @@ export function CreateIntegrationModal(props: Props) {
         }
     }
 
-    const isKamelet = props.isKameletsProject;
+    const isKamelet = designerTab === 'kamelet';
 
     const listOfValues: Value[] = KameletApi.getKamelets()
         .filter(k => k.metadata.labels["camel.apache.org/kamelet.type"] === kameletType)
@@ -115,14 +110,16 @@ export function CreateIntegrationModal(props: Props) {
             return v;
         })
 
-    function getFileExtension(type?: string) {
-        let extension = ProjectFileTypes.filter(value => value.name === type)[0]?.extension;
-        extension = extension === '*' ? '' : '.' + extension;
-        return extension;
+    function getFileExtension() {
+        return designerTab === 'kamelet' ? '.kamelet.yaml' : '.camel.yaml';
     }
 
-    function getFullFileName(name: string, type?: string) {
-        return name + (isKamelet ? '-' + kameletType : '') + getFileExtension(type);
+    function getFileSuffix() {
+        return (isKamelet ? '-' + kameletType : '') + getFileExtension();
+    }
+
+    function getFullFileName(name: string) {
+        return name + getFileSuffix();
     }
 
     return (
@@ -155,7 +152,7 @@ export function CreateIntegrationModal(props: Props) {
                         })}
                     </ToggleGroup>
                 </FormGroup>}
-                {getTextFieldSuffix('name', 'Name',  getFileExtension(props.type), true, {
+                {getTextFieldSuffix('name', 'Name',  getFileSuffix(), true, {
                     regex: v => isValidFileName(v) || 'Only characters, numbers and dashes allowed',
                     length: v => v.length > 3 || 'File name should be longer that 3 characters',
                     name: v => !['templates', 'kamelets', 'karavan'].includes(v) || "'templates', 'kamelets', 'karavan' can't be used as project",

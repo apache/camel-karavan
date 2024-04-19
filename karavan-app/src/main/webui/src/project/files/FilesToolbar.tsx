@@ -37,7 +37,6 @@ import {useFilesStore, useFileStore, useProjectStore} from "../../api/ProjectSto
 import {shallow} from "zustand/shallow";
 import {ProjectService} from "../../api/ProjectService";
 import PushIcon from "@patternfly/react-icons/dist/esm/icons/code-branch-icon";
-import {ProjectType} from "../../api/ProjectModels";
 import {isEmpty} from "../../util/StringUtils";
 
 export function FileToolbar () {
