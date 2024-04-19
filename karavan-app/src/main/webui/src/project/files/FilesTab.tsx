@@ -162,7 +162,7 @@ export function FilesTab () {
                     </Tbody>
                 </Table>
             </div>
-            <UploadFileModal projectId={project.projectId}/>
+            <UploadFileModal/>
             <CreateFileModal/>
             <DeleteFileModal />
         </PageSection>

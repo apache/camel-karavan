@@ -235,11 +235,6 @@ export class ProjectService {
         });
     }
 
-    public static async createOpenApiFile(file: ProjectFile, generateRest: boolean, generateRoutes: boolean, integrationName: string) {
-        const result = await KaravanApi.postOpenApi(file, generateRest, generateRoutes, integrationName);
-        return result.data;
-    }
-
     public static deleteFile(file: ProjectFile) {
         KaravanApi.deleteProjectFile(file, res => {
             if (res.status === 204) {
