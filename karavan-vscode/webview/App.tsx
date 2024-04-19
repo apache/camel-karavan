@@ -276,6 +276,7 @@ class App extends React.Component<Props, State> {
             onClickAddRoute={() => vscode.postMessage({ command: 'createIntegration' })}
             onClickAddREST={() => vscode.postMessage({ command: 'createIntegration' })}
             onClickAddBean={() => vscode.postMessage({ command: 'createIntegration' })}
+            onClickAddKamelet={() => vscode.postMessage({ command: 'createIntegration' })}
             onSetFile={(fileName) => vscode.postMessage({ command: 'openFile', fileName: fileName })}
           />
         }
