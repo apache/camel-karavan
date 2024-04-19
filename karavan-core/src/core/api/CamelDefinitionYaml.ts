@@ -276,46 +276,31 @@ export class CamelDefinitionYaml {
         return 'none';
     };
     static flowsToCamelElements = (flows: any[]): any[] => {
-        const rules: { [key: string]: (flow: any) => any } = {
-            restConfiguration: (flow: any) =>
-                CamelDefinitionYamlStep.readRestConfigurationDefinition(flow.restConfiguration),
-            rest: (flow: any) => CamelDefinitionYamlStep.readRestDefinition(flow.rest),
-            route: (flow: any) => CamelDefinitionYamlStep.readRouteDefinition(flow.route),
-            from: (flow: any) => CamelDefinitionYamlStep.readRouteDefinition(new RouteDefinition({ from: flow.from })),
-            beans: (flow: any) => CamelDefinitionYaml.readBeanDefinition(flow),
-            routeConfiguration: (flow: any) =>
-                CamelDefinitionYamlStep.readRouteConfigurationDefinition(flow.routeConfiguration),
-            errorHandler: (flow: any) =>
-                CamelDefinitionYamlStep.readRouteConfigurationDefinition(
-                    new RouteConfigurationDefinition({ errorHandler: flow.errorHandler }),
-                ),
-            onException: (flow: any) =>
-                CamelDefinitionYamlStep.readRouteConfigurationDefinition(
-                    new RouteConfigurationDefinition({ onException: flow.onException }),
-                ),
-            intercept: (flow: any) =>
-                CamelDefinitionYamlStep.readRouteConfigurationDefinition(
-                    new RouteConfigurationDefinition({ intercept: flow.intercept }),
-                ),
-            interceptFrom: (flow: any) =>
-                CamelDefinitionYamlStep.readRouteConfigurationDefinition(
-                    new RouteConfigurationDefinition({ interceptFrom: flow.interceptFrom }),
-                ),
-            interceptSendToEndpoint: (flow: any) =>
-                CamelDefinitionYamlStep.readRouteConfigurationDefinition(
-                    new RouteConfigurationDefinition({ interceptSendToEndpoint: flow.interceptSendToEndpoint }),
-                ),
-            onCompletion: (flow: any) =>
-                CamelDefinitionYamlStep.readRouteConfigurationDefinition(
-                    new RouteConfigurationDefinition({ onCompletion: flow.onCompletion }),
-                ),
-        };
-
         const result: any[] = [];
-
-        for (const [rule, func] of Object.entries(rules)) {
-            flows.filter((e: any) => e.hasOwnProperty(rule)).forEach((f: any) => result.push(func(f)));
-        }
+        flows.filter((e: any) => e.hasOwnProperty('restConfiguration'))
+            .forEach((f: any) => result.push(CamelDefinitionYamlStep.readRestConfigurationDefinition(f.restConfiguration)));
+        flows.filter((e: any) => e.hasOwnProperty('rest'))
+            .forEach((f: any) => result.push(CamelDefinitionYamlStep.readRestDefinition(f.rest)));
+        flows.filter((e: any) => e.hasOwnProperty('route'))
+            .forEach((f: any) => result.push(CamelDefinitionYamlStep.readRouteDefinition(f.route)));
+        flows.filter((e: any) => e.hasOwnProperty('from'))
+            .forEach((f: any) =>  result.push(CamelDefinitionYamlStep.readRouteDefinition(new RouteDefinition({from: f.from}))));
+        flows.filter((e: any) => e.hasOwnProperty('beans'))
+            .forEach((b: any) => result.push(CamelDefinitionYaml.readBeanDefinition(b)));
+        flows.filter((e: any) => e.hasOwnProperty('routeConfiguration'))
+            .forEach((e: any) => result.push(CamelDefinitionYamlStep.readRouteConfigurationDefinition(e.routeConfiguration)));
+        flows.filter((e: any) => e.hasOwnProperty('errorHandler'))
+            .forEach((f: any) =>  result.push(CamelDefinitionYamlStep.readRouteConfigurationDefinition(new RouteConfigurationDefinition({errorHandler: f.errorHandler}))));
+        flows.filter((e: any) => e.hasOwnProperty('onException'))
+            .forEach((f: any) =>  result.push(CamelDefinitionYamlStep.readRouteConfigurationDefinition(new RouteConfigurationDefinition({onException: f.onException}))));
+        flows.filter((e: any) => e.hasOwnProperty('intercept'))
+            .forEach((f: any) =>  result.push(CamelDefinitionYamlStep.readRouteConfigurationDefinition(new RouteConfigurationDefinition({intercept: f.intercept}))));
+        flows.filter((e: any) => e.hasOwnProperty('interceptFrom'))
+            .forEach((f: any) =>  result.push(CamelDefinitionYamlStep.readRouteConfigurationDefinition(new RouteConfigurationDefinition({interceptFrom: f.interceptFrom}))));
+        flows.filter((e: any) => e.hasOwnProperty('interceptSendToEndpoint'))
+            .forEach((f: any) =>  result.push(CamelDefinitionYamlStep.readRouteConfigurationDefinition(new RouteConfigurationDefinition({interceptSendToEndpoint: f.interceptSendToEndpoint}))));
+        flows.filter((e: any) => e.hasOwnProperty('onCompletion'))
+            .forEach((f: any) =>  result.push(CamelDefinitionYamlStep.readRouteConfigurationDefinition(new RouteConfigurationDefinition({onCompletion: f.onCompletion}))));
 
         return result;
     };
@@ -331,6 +316,13 @@ export class CamelDefinitionYaml {
                         (v, k) => (props[k] = v),
                     );
                 }
+            }
+            if (bean && bean.property && Array.isArray(bean.property)) {
+                // convert map style to properties if requires
+                Array.from(bean.property).forEach((val: any) => {
+                    props[val.key] = val.value;
+                })
+                delete bean.property;
             }
             bean.properties = props;
             result.beans.push(new RegistryBeanDefinition(bean));

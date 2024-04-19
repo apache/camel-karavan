@@ -20,40 +20,33 @@ import 'mocha';
 import {CamelDefinitionYaml} from "../src/core/api/CamelDefinitionYaml";
 import {FilterDefinition, ToDefinition} from "../src/core/model/CamelDefinition";
 import { RouteDefinition} from "../src/core/model/CamelDefinition";
+import { RegistryBeanDefinition } from '../lib/model/CamelDefinition';
 
-describe('CRD YAML to Integration', () => {
+describe('Integration to YAML', () => {
 
-
-
-    it('YAML <-> Object 1', () => {
-        const yaml = fs.readFileSync('test/integration1.yaml',{encoding:'utf8', flag:'r'});
-        const i = CamelDefinitionYaml.yamlToIntegration("test1.yaml", yaml);
-        expect(i.metadata.name).to.equal('test1.yaml');
-        expect(i.kind).to.equal('Integration');
-        expect(i.spec.flows?.length).to.equal(1);
-        expect(i.type).to.equal('crd');
-        if (i.spec.flows){
-            const f:FilterDefinition = (i.spec.flows[0] as RouteDefinition).from.steps[1];
-            const t:ToDefinition = <ToDefinition> (f.steps ? f.steps[0] : undefined);
-            expect(t.uri).to.equal("log");
-            expect(t.parameters.level).to.equal("OFF");
+    it('YAML <-> Object', () => {
+        const yaml = fs.readFileSync('test/avro-serialize-action.kamelet.yaml',{encoding:'utf8', flag:'r'});
+        const i = CamelDefinitionYaml.yamlToIntegration("avro-serialize-action.kamelet.yaml", yaml);
+        expect(i.metadata.name).to.equal('avro-serialize-action');
+        expect(i.kind).to.equal('Kamelet');
+        if (i.spec.flows?.[1]){
+            const b:RegistryBeanDefinition = (i.spec.flows?.[1].beans[0] as RegistryBeanDefinition);
+            expect(b.properties.validate).to.equal("{{validate}}");
+            expect(b.properties.schema).to.equal("{{schema:}}");
         }
-        console.log(CamelDefinitionYaml.integrationToYaml(i))
     });
 
-    it('YAML <-> Object 2', () => {
-        const yaml = fs.readFileSync('test/integration2.yaml',{encoding:'utf8', flag:'r'});
-        const i = CamelDefinitionYaml.yamlToIntegration("test1.yaml", yaml);
-        expect(i.metadata.name).to.equal('test1.yaml');
-        expect(i.kind).to.equal('Integration');
-        expect(i.spec.flows?.length).to.equal(1);
-        expect(i.type).to.equal('crd');
-
-        if (i.spec.flows){
-            const f:FilterDefinition = (i.spec.flows[0] as RouteDefinition).from.steps[1];
-            const t:ToDefinition = <ToDefinition> (f.steps ? f.steps[0] : undefined);
-            expect(t.uri).to.equal("log");
-            expect(t.parameters.level).to.equal("OFF");
+    it('YAML <-> Object', () => {
+        const yaml = fs.readFileSync('test/postgresql-source.kamelet.yaml',{encoding:'utf8', flag:'r'});
+        const i = CamelDefinitionYaml.yamlToIntegration("postgresql-source.kamelet.yaml", yaml);
+        expect(i.metadata.name).to.equal('postgresql-source');
+        expect(i.kind).to.equal('Kamelet');
+        if (i.spec.flows?.[1]){
+            const b:RegistryBeanDefinition = (i.spec.flows?.[1].beans[0] as RegistryBeanDefinition);
+            expect(b.properties.username).to.equal("{{username}}");
+            expect(b.properties.password).to.equal("{{password}}");
+            expect(b.properties.url).to.equal("jdbc:postgresql://{{serverName}}:{{serverPort}}/{{databaseName}}");
+            expect(b.properties.driverClassName).to.equal("org.postgresql.Driver");
         }
     });
 
