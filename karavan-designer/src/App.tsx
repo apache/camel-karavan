@@ -70,8 +70,8 @@ export function App() {
             fetch("components/components.json"),
             fetch("snippets/org.apache.camel.AggregationStrategy"),
             fetch("snippets/org.apache.camel.Processor"),
-            // fetch("example/demo.camel.yaml"),
-            fetch("example/avro-serialize-action.kamelet.yaml"),
+            fetch("example/demo.camel.yaml"),
+            // fetch("example/avro-serialize-action.kamelet.yaml"),
             // fetch("components/blocked-components.properties"),
             // fetch("kamelets/blocked-kamelets.properties")
             // fetch("example/plc4x-ads-source.kamelet.yaml")
@@ -181,6 +181,7 @@ export function App() {
                         onClickAddRoute={() => {}}
                         onClickAddREST={() => {}}
                         onClickAddBean={() => {}}
+                        onClickAddKamelet={() => {}}
                         hideToolbar={false}
                     />
                 )
