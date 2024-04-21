@@ -18,7 +18,7 @@ import { expect } from 'chai';
 import * as fs from 'fs';
 import 'mocha';
 import { CamelDefinitionYaml } from '../src/core/api/CamelDefinitionYaml';
-import { Integration } from '../lib/model/IntegrationDefinition';
+import { Beans, Integration } from '../lib/model/IntegrationDefinition';
 import { RegistryBeanDefinition } from '../src/core/model/CamelDefinition';
 import * as yaml from 'js-yaml';
 
@@ -38,6 +38,7 @@ describe('bean configuration', () => {
             expect(i.spec.flows[2].beans[0].properties['nested.foo']).to.equal('valueFoo');
             expect(i.spec.flows[2].beans[1].name).to.equal('myProps');
         }
+        CamelDefinitionYaml.integrationToYaml(i)
     });
 
     it('Read beans from Integration', () => {
@@ -55,8 +56,21 @@ describe('bean configuration', () => {
         }
     });
 
-    class Val {
+    function countSubstring(str: string, search: string): number {
+        if (search.length === 0) {
+            return 0; // Avoid infinite loops for empty search strings
+        }
 
+        let count = 0;
+        let pos = 0;
+
+        // Loop to find all occurrences of 'search'
+        while ((pos = str.indexOf(search, pos)) !== -1) {
+            count++; // Increment count for each occurrence found
+            pos += search.length; // Move past the last found substring to find next
+        }
+
+        return count;
     }
 
     it('Bean constructor', () => {
@@ -64,15 +78,17 @@ describe('bean configuration', () => {
         const i = CamelDefinitionYaml.yamlToIntegration('beans.yaml', text);
 
         const b = Integration.createNew('beans');
-        const bean = new RegistryBeanDefinition({
-            name: 'Name', type: 'Type', constructors: {
+        const bean1 = new RegistryBeanDefinition({
+            name: 'Name1', type: 'Type', constructors: {
                 0: 'zero',
                 1: 'one',
                 2: 'two',
-            },
+            }
         });
-        b.spec.flows?.push(bean);
-        // console.log(CamelDefinitionYaml.integrationToYaml(b))
+        const bean2 = new RegistryBeanDefinition({ name: 'Name2', type: 'Type'});
+        b.spec.flows?.push(new Beans({beans: [bean1, bean2]}));
+        const yaml = CamelDefinitionYaml.integrationToYaml(b);
+        expect(countSubstring(yaml, 'constructors')).to.equal(1);
     });
 
 });

@@ -72,6 +72,20 @@ export class CamelDefinitionYaml {
         return value === undefined || (value.trim && value.trim().length === 0);
     };
 
+    static isEmptyObject(obj: any): boolean {
+        // Check if it's an object and not null
+        if (obj && typeof obj === 'object') {
+            // Get all enumerable property names
+            const keys = Object.keys(obj);
+            // Get all non-enumerable property names
+            const nonEnumProps = Object.getOwnPropertyNames(obj);
+            // Check if there are no properties
+            return keys.length === 0 && nonEnumProps.length === 0;
+        }
+        return false;
+    }
+
+
     static cleanupElement = (element: CamelElement, inArray?: boolean, inSteps?: boolean): CamelElement => {
         const result: any = {};
         const object: any = { ...element };
@@ -89,6 +103,9 @@ export class CamelDefinitionYaml {
         } else if (object.dslName === 'RegistryBeanDefinition') {
             if (object.properties && Object.keys(object.properties).length === 0) {
                 delete object.properties;
+            }
+            if (object.constructors && CamelDefinitionYaml.isEmptyObject(object.constructors)) {
+                delete object.constructors;
             }
         }
 
