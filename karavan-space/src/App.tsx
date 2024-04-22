@@ -187,6 +187,7 @@ class App extends React.Component<Props, State> {
                         onClickAddRoute={() => {}}
                         onClickAddREST={() => {}}
                         onClickAddBean={() => {}}
+                        onClickAddKamelet={() => {}}
                         hideToolbar={true}
                     />
                 )
