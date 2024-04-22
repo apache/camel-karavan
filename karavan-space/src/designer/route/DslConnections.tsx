@@ -47,7 +47,7 @@ export function DslConnections() {
         setTons(prevState => {
             const data = new Map<string, string[]>();
             TopologyUtils.findTopologyOutgoingNodes(integrations).forEach(t => {
-                const key = (t.step as any)?.uri + ':' + (t.step as any)?.parameters.name;
+                const key = (t.step as any)?.uri + ':' + (t.step as any)?.parameters?.name;
                 if (data.has(key)) {
                     const list = data.get(key) || [];
                     list.push(t.routeId);
@@ -253,7 +253,7 @@ export function DslConnections() {
                     {name !== undefined &&
                         <Tooltip content={`Go to ${uri}:${name}`} position={"left"}>
                             <Button style={{position: 'absolute', right: 27, top: -12, whiteSpace: 'nowrap', zIndex: 300, padding: 0}}
-                                   variant={'link'}
+                                    variant={'link'}
                                     aria-label="Goto"
                                     onClick={_ => InfrastructureAPI.onInternalConsumerClick(uri, name, undefined)}>
                                 {name}
@@ -306,7 +306,7 @@ export function DslConnections() {
     function getArrow(pos: DslPosition): JSX.Element[] {
         const list: JSX.Element[] = [];
 
-         if (pos.parent && pos.parent.dslName === 'TryDefinition' && pos.position === 0) {
+        if (pos.parent && pos.parent.dslName === 'TryDefinition' && pos.position === 0) {
             const parent = steps.get(pos.parent.uuid);
             list.push(...addArrowToList(list, parent, pos, true, false))
         } else if (pos.parent && ['RouteConfigurationDefinition', 'MulticastDefinition'].includes(pos.parent.dslName)) {
@@ -320,7 +320,7 @@ export function DslConnections() {
             const parent = steps.get(pos.parent.uuid);
             list.push(...addArrowToList(list, parent, pos, true, false))
         } else if (pos.parent && ['WhenDefinition', 'OtherwiseDefinition', 'CatchDefinition', 'FinallyDefinition', 'TryDefinition'].includes(pos.parent.dslName)) {
-             if (pos.position === 0) {
+            if (pos.position === 0) {
                 const parent = steps.get(pos.parent.uuid);
                 list.push(...addArrowToList(list, parent, pos, true, false))
             }
@@ -395,45 +395,45 @@ export function DslConnections() {
     }
 
     function getComplexArrow(key: string, rect1: DOMRect, rect2: DOMRect, toHeader: boolean) {
-            const startX = rect1.x + rect1.width / 2 - left;
-            const startY = rect1.y + rect1.height - top - 2;
-            const endX = rect2.x + rect2.width / 2 - left;
-            const endTempY = rect2.y - top - 9;
+        const startX = rect1.x + rect1.width / 2 - left;
+        const startY = rect1.y + rect1.height - top - 2;
+        const endX = rect2.x + rect2.width / 2 - left;
+        const endTempY = rect2.y - top - 9;
 
-            const gapX = Math.abs(endX - startX);
-            const gapY = Math.abs(endTempY - startY);
+        const gapX = Math.abs(endX - startX);
+        const gapY = Math.abs(endTempY - startY);
 
-            const radX = gapX > 30 ? 20 : gapX/2;
-            const radY = gapY > 30 ? 20 : gapY/2;
-            const endY = rect2.y - top - radY - (toHeader ? 9 : 6);
+        const radX = gapX > 30 ? 20 : gapX/2;
+        const radY = gapY > 30 ? 20 : gapY/2;
+        const endY = rect2.y - top - radY - (toHeader ? 9 : 6);
 
-            const iRadX = startX > endX ? -1 * radX : radX;
-            const iRadY = startY > endY ? -1 * radY : radY;
+        const iRadX = startX > endX ? -1 * radX : radX;
+        const iRadY = startY > endY ? -1 * radY : radY;
 
-            const LX1 = startX;
-            const LY1 = endY - radY;
+        const LX1 = startX;
+        const LY1 = endY - radY;
 
-            const Q1_X1 = startX;
-            const Q1_Y1 = LY1 + radY;
-            const Q1_X2 = startX + iRadX;
-            const Q1_Y2 = LY1 + radY;
+        const Q1_X1 = startX;
+        const Q1_Y1 = LY1 + radY;
+        const Q1_X2 = startX + iRadX;
+        const Q1_Y2 = LY1 + radY;
 
-            const LX2 = startX + (endX - startX) - iRadX;
-            const LY2 = LY1 + radY;
+        const LX2 = startX + (endX - startX) - iRadX;
+        const LY2 = LY1 + radY;
 
-            const Q2_X1 = LX2 + iRadX;
-            const Q2_Y1 = endY;
-            const Q2_X2 = LX2 + iRadX;
-            const Q2_Y2 = endY + radY;
+        const Q2_X1 = LX2 + iRadX;
+        const Q2_Y1 = endY;
+        const Q2_X2 = LX2 + iRadX;
+        const Q2_Y2 = endY + radY;
 
-            const path = `M ${startX} ${startY}`
-                + ` L ${LX1} ${LY1} `
-                + ` Q ${Q1_X1} ${Q1_Y1} ${Q1_X2} ${Q1_Y2}`
-                + ` L ${LX2} ${LY2}`
-                + ` Q ${Q2_X1} ${Q2_Y1} ${Q2_X2} ${Q2_Y2}`
-            return (
-                <path key={uuidv4()} name={key} d={path} className="path" markerEnd="url(#arrowhead)"/>
-            )
+        const path = `M ${startX} ${startY}`
+            + ` L ${LX1} ${LY1} `
+            + ` Q ${Q1_X1} ${Q1_Y1} ${Q1_X2} ${Q1_Y2}`
+            + ` L ${LX2} ${LY2}`
+            + ` Q ${Q2_X1} ${Q2_Y1} ${Q2_X2} ${Q2_Y2}`
+        return (
+            <path key={uuidv4()} name={key} d={path} className="path" markerEnd="url(#arrowhead)"/>
+        )
     }
 
     function getSvg() {
@@ -442,8 +442,8 @@ export function DslConnections() {
         const uniqueArrows = [...new Map(arrows.map(item =>  [(item as any).key, item])).values()]
         return (
             <svg key={svgKey}
-                style={{width: width, height: height, position: "absolute", left: 0, top: 0}}
-                viewBox={"0 0 " + (width) + " " + (height)}>
+                 style={{width: width, height: height, position: "absolute", left: 0, top: 0}}
+                 viewBox={"0 0 " + (width) + " " + (height)}>
                 <defs>
                     <marker id="arrowhead" markerWidth="9" markerHeight="6" refX="0" refY="3" orient="auto" className="arrow">
                         <polygon points="0 0, 9 3, 0 6"/>

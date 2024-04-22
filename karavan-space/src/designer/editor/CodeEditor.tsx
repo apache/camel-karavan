@@ -20,6 +20,7 @@ import Editor from "@monaco-editor/react";
 import {shallow} from "zustand/shallow";
 import {useDesignerStore, useIntegrationStore} from "../DesignerStore";
 import {CamelDefinitionYaml} from "karavan-core/lib/api/CamelDefinitionYaml";
+import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
 
 export function CodeEditor () {
 
@@ -29,7 +30,8 @@ export function CodeEditor () {
 
     useEffect(() => {
         try {
-            const c = CamelDefinitionYaml.integrationToYaml(integration);
+            const clone = CamelUtil.cloneIntegration(integration);
+            const c = CamelDefinitionYaml.integrationToYaml(clone);
             setCode(c);
         } catch (e: any) {
             const message: string = e?.message ? e.message : e.reason;
