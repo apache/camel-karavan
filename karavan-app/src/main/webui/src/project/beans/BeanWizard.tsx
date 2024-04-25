@@ -16,9 +16,10 @@
  */
 import React, {useEffect, useMemo, useState} from 'react';
 import {
+    Alert,
     capitalize,
     Flex,
-    Form, FormGroup, FormHelperText, HelperText, HelperTextItem, InputGroup, InputGroupItem,
+    Form, FormAlert, FormGroup, FormHelperText, HelperText, HelperTextItem, InputGroup, InputGroupItem,
     Modal,
     ModalVariant,
     Radio, Text, TextInput,
@@ -47,21 +48,6 @@ const BEAN_TEMPLATE_SUFFIX_FILENAME = "-bean-template.camel.yaml";
 
 export function BeanWizard() {
 
-    const {
-        register,
-        setError,
-        handleSubmit,
-        formState: {errors},
-        reset,
-        setValue
-    } = useForm({
-        mode: "onChange",
-        defaultValues: {filename: ''}
-    });
-
-    const responseToFormErrorFields = new Map<string, string>([
-        ["filename", "filename"]
-    ]);
 
     const [project] = useProjectStore((s) => [s.project], shallow);
     const [setFile, designerTab] = useFileStore((s) => [s.setFile, s.designerTab], shallow);
@@ -74,11 +60,7 @@ export function BeanWizard() {
     const [bean, setBean] = useState<RegistryBeanDefinition | undefined>();
     const [filename, setFilename] = useState<string>('');
     const [beanName, setBeanName] = useState<string>('');
-
-    const [globalErrors, registerResponseErrors, resetGlobalErrors] = useResponseErrorHandler(
-        responseToFormErrorFields,
-        setError
-    );
+    const [backendError, setBackendError] = React.useState<string>();
 
     function handleOnFormSubmitSuccess(file: ProjectFile) {
         const message = "File successfully created.";
@@ -106,15 +88,19 @@ export function BeanWizard() {
             }
             const fullFileName = filename + CAMEL_YAML_EXT;
             const file = new ProjectFile(fullFileName, project.projectId, code, Date.now());
-            // return ProjectService.createFile(file)
-            //     .then(() => handleOnFormSubmitSuccess(file))
-            //     .catch((error) => registerResponseErrors(error));
+            KaravanApi.saveProjectFile(file, (result, file) => {
+                if (result) {
+                    handleOnFormSubmitSuccess(file);
+                } else {
+                    setBackendError(file?.response?.data);
+                }
+            })
         }
     }
 
     useEffect(() => {
         if (showWizard) {
-            reset({filename: ''})
+            setBackendError(undefined);
             setFilename('')
             setTemplateName('');
             setTemplateBeanName('');
@@ -210,7 +196,7 @@ export function BeanWizard() {
                     </Form>
                 </WizardStep>
                 <WizardStep name={"File"} id={"file"}
-                            footer={{nextButtonText: 'Save', onNext: handleSubmit(handleFormSubmit)}}
+                            footer={{nextButtonText: 'Save', onNext: event => handleFormSubmit()}}
                             isDisabled={(templateName.length == 0 || templateBeanName.length == 0) && templateName !== EMPTY_BEAN}
                 >
                     <Form autoComplete="off">
@@ -221,30 +207,24 @@ export function BeanWizard() {
                                                aria-label="filename"
                                                value={filename}
                                                customIcon={<Text>{CAMEL_YAML_EXT}</Text>}
-                                               validated={!!errors.filename ? 'error' : 'default'}
-                                               {...register('filename')}
                                                onChange={(e, value) => {
                                                    setFilename(value);
-                                                   register('filename').onChange(e);
                                                }}
                                     />
                                 </InputGroupItem>
                                 {templateName !== EMPTY_BEAN && <InputGroupItem>
-                                    <BeanFilesDropdown {...register('filename')} onSelect={(fn, event) => {
-                                        setFilename(fn);
-                                        setValue('filename', fn, {shouldValidate: true});
-                                    }}/>
+                                    <BeanFilesDropdown
+                                        onSelect={(fn, event) => {
+                                            setFilename(fn);
+                                        }}
+                                    />
                                 </InputGroupItem>}
                             </InputGroup>
-                            {!!errors.filename && (
-                                <FormHelperText>
-                                    <HelperText>
-                                        <HelperTextItem icon={<ExclamationCircleIcon/>} variant={"error"}>
-                                            {errors?.filename?.message}
-                                        </HelperTextItem>
-                                    </HelperText>
-                                </FormHelperText>
-                            )}
+                            {backendError &&
+                                <FormAlert>
+                                    <Alert variant="danger" title={backendError} aria-live="polite" isInline/>
+                                </FormAlert>
+                            }
                         </FormGroup>
                     </Form>
                 </WizardStep>

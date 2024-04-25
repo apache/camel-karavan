@@ -1,5 +1,12 @@
 import React from 'react';
-import {Controller, FieldError, UseFormReturn} from "react-hook-form";
+import {
+    Controller,
+    ControllerFieldState, ControllerRenderProps,
+    FieldError,
+    FieldValues,
+    UseFormReturn,
+    UseFormStateReturn
+} from "react-hook-form";
 import {
     Flex,
     FormGroup,
@@ -7,7 +14,7 @@ import {
     FormSelect,
     FormSelectOption,
     HelperText,
-    HelperTextItem, Switch, Text,
+    HelperTextItem, Switch, Text, TextArea,
     TextInput, TextInputGroup, TextInputGroupMain, TextVariants
 } from "@patternfly/react-core";
 import "./form-util.css"
@@ -29,16 +36,48 @@ export function useFormUtil(formContext: UseFormReturn<any>) {
     }
 
     function getTextField(fieldName: string, label: string, validate?: ((value: string, formValues: any) => boolean | string) | Record<string, (value: string, formValues: any) => boolean | string>) {
-        const {setValue, getValues, register, formState: {errors}} = formContext;
+        const {control, setValue, getValues, formState: {errors}} = formContext;
         return (
             <FormGroup label={label} fieldId={fieldName} isRequired>
-                <TextInput className="text-field" type="text" id={fieldName}
-                           value={getValues()[fieldName]}
-                           validated={!!errors[fieldName] ? 'error' : 'default'}
-                           {...register(fieldName, {required: "Required field", validate: validate})}
-                           onChange={(e, v) => {
-                               setValue(fieldName, v, {shouldValidate: true});
-                           }}
+                <Controller
+                    rules={{required: "Required field", validate: validate}}
+                    control={control}
+                    name={fieldName}
+                    render={() => (
+                        <TextInput className="text-field" type="text" id={fieldName}
+                                   value={getValues(fieldName)}
+                                   validated={!!errors[fieldName] ? 'error' : 'default'}
+                                   onChange={(_, v) => {
+                                       setValue(fieldName, v, {shouldValidate: true});
+                                   }}
+                        />
+                    )}
+                />
+                {getHelper((errors as any)[fieldName])}
+            </FormGroup>
+        )
+    }
+
+    function getTextArea(fieldName: string, label: string, validate?: ((value: string, formValues: any) => boolean | string) | Record<string, (value: string, formValues: any) => boolean | string>) {
+        const {setValue, getValues, control, formState: {errors}} = formContext;
+        return (
+            <FormGroup label={label} fieldId={fieldName} isRequired>
+                <Controller
+                    rules={{required: "Required field", validate: validate}}
+                    control={control}
+                    name={fieldName}
+                    render={() => (
+                        <TextArea type="text"
+                                  id={fieldName}
+                                  value={getValues(fieldName)}
+                                  validated={!!errors[fieldName] ? 'error' : 'default'}
+                            // ref={ref}
+                                  onChange={(e, v) => {
+                                      setValue(fieldName, v, {shouldValidate: true});
+                                  }}
+                                  autoResize
+                        />
+                    )}
                 />
                 {getHelper((errors as any)[fieldName])}
             </FormGroup>
@@ -53,8 +92,11 @@ export function useFormUtil(formContext: UseFormReturn<any>) {
             <FormGroup label={label} fieldId={fieldName} isRequired>
                 <TextInputGroup>
                     <TextInputGroupMain className="text-field-with-prefix" type="text" id={fieldName}
-                                        value={getValues()[fieldName]}
-                                        {...register(fieldName, {required: (required ? "Required field" : false), validate: validate})}
+                                        value={getValues(fieldName)}
+                                        {...register(fieldName, {
+                                            required: (required ? "Required field" : false),
+                                            validate: validate
+                                        })}
                                         onChange={(e, v) => {
                                             setValue(fieldName, v, {shouldValidate: true});
                                         }}
@@ -75,8 +117,11 @@ export function useFormUtil(formContext: UseFormReturn<any>) {
             <FormGroup label={label} fieldId={fieldName} isRequired>
                 <TextInputGroup className="text-field-with-suffix">
                     <TextInputGroupMain type="text" id={fieldName}
-                                        value={getValues()[fieldName]}
-                                        {...register(fieldName, {required: (required ? "Required field" : false), validate: validate})}
+                                        value={getValues(fieldName)}
+                                        {...register(fieldName, {
+                                            required: (required ? "Required field" : false),
+                                            validate: validate
+                                        })}
                                         onChange={(e, v) => {
                                             setValue(fieldName, v, {shouldValidate: true});
                                         }}
@@ -119,33 +164,33 @@ export function useFormUtil(formContext: UseFormReturn<any>) {
         return (
             <FormGroup label={label} fieldId={fieldName} isRequired {...register(fieldName)}>
                 <Flex direction={{default: 'column'}}>
-                {options.map((option, index) => {
-                    const key = option[0];
-                    const label = option[0];
-                    return (<Switch
-                        id={key}
-                        label={label}
-                        labelOff={label}
-                        isChecked={watch(fieldName) !== undefined && watch(fieldName).includes(key)}
-                        onChange={(e, v) => {
-                            const vals: string[] = watch(fieldName);
-                            const idx = vals.findIndex(x => x === key);
-                            if (idx > -1 && !v) {
-                                vals.splice(idx, 1);
-                                setValue(fieldName, [...vals]);
-                            } else if (idx === -1 && v) {
-                                vals.push(key);
-                                setValue(fieldName, [...vals]);
-                            }
-                        }}
-                        ouiaId={option[0]}
-                    />)
-                })}
+                    {options.map((option, index) => {
+                        const key = option[0];
+                        const label = option[0];
+                        return (<Switch
+                            id={key}
+                            label={label}
+                            labelOff={label}
+                            isChecked={watch(fieldName) !== undefined && watch(fieldName).includes(key)}
+                            onChange={(e, v) => {
+                                const vals: string[] = watch(fieldName);
+                                const idx = vals.findIndex(x => x === key);
+                                if (idx > -1 && !v) {
+                                    vals.splice(idx, 1);
+                                    setValue(fieldName, [...vals]);
+                                } else if (idx === -1 && v) {
+                                    vals.push(key);
+                                    setValue(fieldName, [...vals]);
+                                }
+                            }}
+                            ouiaId={option[0]}
+                        />)
+                    })}
                 </Flex>
             </FormGroup>
         )
     }
 
-    return {getFormSelect, getTextField, getSwitches, getTextFieldPrefix, getTextFieldSuffix}
+    return {getFormSelect, getTextField, getSwitches, getTextFieldPrefix, getTextFieldSuffix, getTextArea}
 }
 

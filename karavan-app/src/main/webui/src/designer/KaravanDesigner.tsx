@@ -128,8 +128,13 @@ export function KaravanDesigner(props: Props) {
     }
 
     function getCode(integration: Integration): string {
-        const clone = CamelUtil.cloneIntegration(integration);
-        return CamelDefinitionYaml.integrationToYaml(clone);
+        try {
+            const clone = CamelUtil.cloneIntegration(integration);
+            return CamelDefinitionYaml.integrationToYaml(clone);
+        } catch (e) {
+            EventBus.sendAlert('Error parsing Yaml', (e as Error).message, 'danger');
+            return '';
+        }
     }
 
     function getTab(title: string, tooltip: string, icon: string, showBadge: boolean = false) {
