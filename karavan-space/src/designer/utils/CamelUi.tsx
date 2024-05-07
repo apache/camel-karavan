@@ -110,6 +110,7 @@ const StepElements: string[] = [
     "FilterDefinition",
     "IdempotentConsumerDefinition",
     // "KameletDefinition",
+    "LoadBalanceDefinition",
     "LogDefinition",
     "LoopDefinition",
     "MarshalDefinition",

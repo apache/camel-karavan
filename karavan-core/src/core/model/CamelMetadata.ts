@@ -2312,6 +2312,38 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('ref', 'Ref', "Refers to the custom load balancer to lookup from the registry", 'string', '', '', true, false, false, false, '', ''),
     ], [
     ]),
+    new ElementMeta('failover', 'FailoverLoadBalancerDefinition', 'Failover', "In case of failures the exchange will be tried on the next endpoint.", 'eip,routing', [
+        new PropertyMeta('id', 'Id', "The id of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('exception', 'Exception', "A list of class names for specific exceptions to monitor. If no exceptions are configured then all exceptions are monitored", 'string', '', '', false, false, true, true, '', ''),
+        new PropertyMeta('roundRobin', 'Round Robin', "Whether or not the failover load balancer should operate in round robin mode or not. If not, then it will always start from the first endpoint when a new message is to be processed. In other words it restart from the top for every message. If round robin is enabled, then it keeps state and will continue with the next endpoint in a round robin fashion. You can also enable sticky mode together with round robin, if so then it will pick the last known good endpoint to use when starting the load balancing (instead of using the next when starting).", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('sticky', 'Sticky', "Whether or not the failover load balancer should operate in sticky mode or not. If not, then it will always start from the first endpoint when a new message is to be processed. In other words it restart from the top for every message. If sticky is enabled, then it keeps state and will continue with the last known good endpoint. You can also enable sticky mode together with round robin, if so then it will pick the last known good endpoint to use when starting the load balancing (instead of using the next when starting).", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('maximumFailoverAttempts', 'Maximum Failover Attempts', "A value to indicate after X failover attempts we should exhaust (give up). Use -1 to indicate never give up and continuously try to failover. Use 0 to never failover. And use e.g. 3 to failover at most 3 times before giving up. his option can be used whether or not roundRobin is enabled or not.", 'string', '', '-1', false, false, false, false, '', ''),
+    ], [
+    ]),
+    new ElementMeta('random', 'RandomLoadBalancerDefinition', 'Random', "The destination endpoints are selected randomly.", 'eip,routing', [
+        new PropertyMeta('id', 'Id', "The id of this node", 'string', '', '', false, false, false, false, '', ''),
+    ], [
+    ]),
+    new ElementMeta('roundRobin', 'RoundRobinLoadBalancerDefinition', 'Round Robin', "The destination endpoints are selected in a round-robin fashion. This is a well-known and classic policy, which spreads the load evenly.", 'eip,routing', [
+        new PropertyMeta('id', 'Id', "The id of this node", 'string', '', '', false, false, false, false, '', ''),
+    ], [
+    ]),
+    new ElementMeta('sticky', 'StickyLoadBalancerDefinition', 'Sticky', "Sticky load balancing using an expression to calculate a correlation key to perform the sticky load balancing.", 'eip,routing', [
+        new PropertyMeta('id', 'Id', "The id of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('correlationExpression', 'Correlation Expression', "The correlation expression to use to calculate the correlation key", 'ExpressionSubElementDefinition', '', '', true, false, false, true, '', ''),
+    ], [
+    ]),
+    new ElementMeta('topic', 'TopicLoadBalancerDefinition', 'Topic', "Topic which sends to all destinations.", 'eip,routing', [
+        new PropertyMeta('id', 'Id', "The id of this node", 'string', '', '', false, false, false, false, '', ''),
+    ], [
+    ]),
+    new ElementMeta('weighted', 'WeightedLoadBalancerDefinition', 'Weighted', "Uses a weighted load distribution ratio for each server with respect to others.", 'eip,routing', [
+        new PropertyMeta('id', 'Id', "The id of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('distributionRatio', 'Distribution Ratio', "The distribution ratio is a delimited String consisting on integer weights separated by delimiters for example 2,3,5. The distributionRatio must match the number of endpoints and/or processors specified in the load balancer list.", 'string', '', '', true, false, false, false, '', ''),
+        new PropertyMeta('distributionRatioDelimiter', 'Distribution Ratio Delimiter', "Delimiter used to specify the distribution ratio. The default value is , (comma)", 'string', '', ',', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('roundRobin', 'Round Robin', "To enable round robin mode. By default the weighted distribution mode is used. The default value is false.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
+    ], [
+    ]),
     new ElementMeta('apiKey', 'ApiKeyDefinition', 'Api Key', "Rest security basic auth definition", 'rest,security,configuration', [
         new PropertyMeta('description', 'Description', "A short description for security scheme.", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('name', 'Name', "The name of the header or query parameter to be used.", 'string', '', '', true, false, false, false, '', ''),

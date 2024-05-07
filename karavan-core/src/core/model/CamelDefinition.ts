@@ -3123,12 +3123,12 @@ export class CustomLoadBalancerDefinition extends CamelElement {
 }
 
 export class FailoverLoadBalancerDefinition extends CamelElement {
-    stepName?: string = 'failoverLoadBalancer';
+    stepName?: string = 'failover';
+    id?: string = 'failover-' + uuidv4().substring(0,4);
     exception?: string[] = [];
-    id?: string = 'failoverLoadBalancer-' + uuidv4().substring(0,4);
-    maximumFailoverAttempts?: string;
     roundRobin?: string;
     sticky?: string;
+    maximumFailoverAttempts?: string;
     public constructor(init?: Partial<FailoverLoadBalancerDefinition>) {
         super('FailoverLoadBalancerDefinition');
         Object.assign(this, init);
@@ -3136,8 +3136,8 @@ export class FailoverLoadBalancerDefinition extends CamelElement {
 }
 
 export class RandomLoadBalancerDefinition extends CamelElement {
-    stepName?: string = 'randomLoadBalancer';
-    id?: string = 'randomLoadBalancer-' + uuidv4().substring(0,4);
+    stepName?: string = 'random';
+    id?: string = 'random-' + uuidv4().substring(0,4);
     public constructor(init?: Partial<RandomLoadBalancerDefinition>) {
         super('RandomLoadBalancerDefinition');
         Object.assign(this, init);
@@ -3145,8 +3145,8 @@ export class RandomLoadBalancerDefinition extends CamelElement {
 }
 
 export class RoundRobinLoadBalancerDefinition extends CamelElement {
-    stepName?: string = 'roundRobinLoadBalancer';
-    id?: string = 'roundRobinLoadBalancer-' + uuidv4().substring(0,4);
+    stepName?: string = 'roundRobin';
+    id?: string = 'roundRobin-' + uuidv4().substring(0,4);
     public constructor(init?: Partial<RoundRobinLoadBalancerDefinition>) {
         super('RoundRobinLoadBalancerDefinition');
         Object.assign(this, init);
@@ -3154,9 +3154,9 @@ export class RoundRobinLoadBalancerDefinition extends CamelElement {
 }
 
 export class StickyLoadBalancerDefinition extends CamelElement {
-    stepName?: string = 'stickyLoadBalancer';
+    stepName?: string = 'sticky';
+    id?: string = 'sticky-' + uuidv4().substring(0,4);
     correlationExpression?: ExpressionSubElementDefinition;
-    id?: string = 'stickyLoadBalancer-' + uuidv4().substring(0,4);
     public constructor(init?: Partial<StickyLoadBalancerDefinition>) {
         super('StickyLoadBalancerDefinition');
         Object.assign(this, init);
@@ -3164,8 +3164,8 @@ export class StickyLoadBalancerDefinition extends CamelElement {
 }
 
 export class TopicLoadBalancerDefinition extends CamelElement {
-    stepName?: string = 'topicLoadBalancer';
-    id?: string = 'topicLoadBalancer-' + uuidv4().substring(0,4);
+    stepName?: string = 'topic';
+    id?: string = 'topic-' + uuidv4().substring(0,4);
     public constructor(init?: Partial<TopicLoadBalancerDefinition>) {
         super('TopicLoadBalancerDefinition');
         Object.assign(this, init);
@@ -3173,10 +3173,10 @@ export class TopicLoadBalancerDefinition extends CamelElement {
 }
 
 export class WeightedLoadBalancerDefinition extends CamelElement {
-    stepName?: string = 'weightedLoadBalancer';
+    stepName?: string = 'weighted';
+    id?: string = 'weighted-' + uuidv4().substring(0,4);
     distributionRatio: string = '';
     distributionRatioDelimiter?: string;
-    id?: string = 'weightedLoadBalancer-' + uuidv4().substring(0,4);
     roundRobin?: boolean;
     public constructor(init?: Partial<WeightedLoadBalancerDefinition>) {
         super('WeightedLoadBalancerDefinition');
