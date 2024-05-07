@@ -17,7 +17,7 @@
 import '../karavan.css';
 import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
 import {
-    DataFormatDefinition, ExpressionDefinition, FromDefinition, ToDefinition,
+    DataFormatDefinition, ExpressionDefinition, ToDefinition,
 } from "karavan-core/lib/model/CamelDefinition";
 import {CamelElement} from "karavan-core/lib/model/IntegrationDefinition";
 import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt";

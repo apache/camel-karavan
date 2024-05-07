@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import { KnowledgebasePage } from "./knowledgebase/KnowledgebasePage"
 import { ComponentApi } from "karavan-core/lib/api/ComponentApi";
 import { KameletApi } from "karavan-core/lib/api/KameletApi";

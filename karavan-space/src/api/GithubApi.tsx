@@ -76,7 +76,7 @@ export class GithubApi {
                 StorageApi.setSessionSha(param, value.data.content.sha);
             }
             onSuccess(value);
-        }).catch(reason => {
+        }).catch((reason : any) => {
             console.log("Error", reason);
             onError(reason)
             StorageApi.setSessionSha(param, undefined);

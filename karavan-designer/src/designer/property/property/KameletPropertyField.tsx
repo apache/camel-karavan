@@ -19,7 +19,7 @@ import {
     FormGroup,
     TextInput,
     Popover,
-    Switch, InputGroup, Button, TextArea, Tooltip, capitalize, Text, TextVariants, InputGroupItem
+    Switch, InputGroup, Button, TextArea, Tooltip, capitalize, Text, TextVariants
 } from '@patternfly/react-core';
 import '../../karavan.css';
 import "@patternfly/patternfly/patternfly.css";
@@ -209,7 +209,7 @@ export function KameletPropertyField(props: Props) {
     }
 
     function isNumeric (num: any) {
-        return (typeof(num) === 'number' || typeof(num) === "string" && num.trim() !== '') && !isNaN(num as number);
+        return (typeof(num) === 'number' || (typeof(num) === "string" && num.trim() !== '')) && !isNaN(num as number);
     }
 
     function getNumberInput() {

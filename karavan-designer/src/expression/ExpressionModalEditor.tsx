@@ -16,7 +16,7 @@
  */
 import React, {useEffect, useState} from 'react';
 import {
-    Button, Modal, Switch, Title, TitleSizes
+    Button, Modal, Title, TitleSizes
 } from '@patternfly/react-core';
 import Editor from "@monaco-editor/react";
 import {ExpressionBottomPanel} from "./ExpressionBottomPanel";

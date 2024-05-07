@@ -19,7 +19,7 @@ import {
     Toolbar,
     ToolbarContent,
     ToolbarItem,
-    PageSection, TextContent, Text, Flex, FlexItem, Button, Tooltip, ToggleGroup, ToggleGroupItem
+    PageSection, TextContent, Text, Flex, FlexItem, Button, Tooltip
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
 import CopyIcon from "@patternfly/react-icons/dist/esm/icons/copy-icon";

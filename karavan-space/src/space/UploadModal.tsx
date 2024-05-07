@@ -62,7 +62,7 @@ export class UploadModal extends React.Component<Props, State> {
             EventBus.sendAlert('Success', 'Generated REST DSL');
             this.setState({generating: false});
             this.closeModal(value);
-        }).catch(reason => {
+        }).catch((reason : any) => {
             EventBus.sendAlert('Error', reason.toString(), 'danger');
             this.setState({generating: false});
         })

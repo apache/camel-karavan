@@ -28,7 +28,6 @@ import {shallow} from "zustand/shallow";
 import {useRouteDesignerHook} from "../useRouteDesignerHook";
 import {AddElementIcon, DeleteElementIcon, InsertElementIcon} from "../../utils/ElementIcons";
 import { RouteConfigurationDefinition} from "karavan-core/lib/model/CamelDefinition";
-import {ReactComponent} from "*.svg";
 
 interface Props {
     headerRef: React.RefObject<HTMLDivElement>

@@ -34,7 +34,6 @@ import '../../karavan.css';
 import './PropertyPlaceholderDropdown.css';
 import "@patternfly/patternfly/patternfly.css";
 import {ComponentProperty} from "karavan-core/lib/model/ComponentModels";
-import {usePropertiesHook} from "../usePropertiesHook";
 import {useDesignerStore} from "../../DesignerStore";
 import {shallow} from "zustand/shallow";
 import EllipsisVIcon from "@patternfly/react-icons/dist/esm/icons/ellipsis-v-icon";

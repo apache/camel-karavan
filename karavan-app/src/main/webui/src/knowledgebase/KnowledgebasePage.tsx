@@ -16,7 +16,7 @@
  */
 import React, {useState} from 'react';
 import '../designer/karavan.css';
-import {Flex, FlexItem, PageSection, Switch, Tab, Tabs, Text, TextContent, TextInput, Toolbar, ToolbarContent, ToolbarItem} from "@patternfly/react-core";
+import {Flex, FlexItem, PageSection, Switch, Tab, Tabs, Text, TextContent, TextInput, Toolbar, ToolbarContent} from "@patternfly/react-core";
 import {MainToolbar} from "../designer/MainToolbar";
 import {KameletsTab} from "./kamelets/KameletsTab";
 import {EipTab} from "./eip/EipTab";

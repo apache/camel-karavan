@@ -21,7 +21,7 @@ import {
     ActionGroup,
     Text,
     CardHeader,
-    Badge, Flex, CardTitle, Tabs, Tab, TabTitleText,
+    Badge, Flex, Tabs, Tab, TabTitleText,
 } from '@patternfly/react-core';
 import '../../designer/karavan.css';
 import {Table, Tbody, Td, Th, Thead, Tr} from "@patternfly/react-table";
