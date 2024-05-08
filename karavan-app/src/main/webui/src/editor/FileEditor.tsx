@@ -27,12 +27,6 @@ interface Props {
     projectId: string
 }
 
-const languages = new Map<string, string>([
-    ['sh', 'shell'],
-    ['md', 'markdown'],
-    ['properties', 'ini']
-])
-
 export function FileEditor(props: Props) {
 
     const [file] = useFileStore((s) => [s.file], shallow)
@@ -59,7 +53,7 @@ export function FileEditor(props: Props) {
     return (
         <>
             {showDesigner && <DesignerEditor projectId={props.projectId}/>}
-            {showEditor && <CodeEditor projectId={props.projectId}/>}
+            {showEditor && <CodeEditor/>}
         </>
     )
 }
