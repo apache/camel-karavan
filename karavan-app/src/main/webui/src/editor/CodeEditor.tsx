@@ -21,19 +21,15 @@ import {useFileStore} from "../api/ProjectStore";
 import {ProjectService} from "../api/ProjectService";
 import {shallow} from "zustand/shallow";
 
-interface Props {
-    projectId: string
-}
-
 const languages = new Map<string, string>([
     ['sh', 'shell'],
     ['md', 'markdown'],
     ['properties', 'ini']
 ])
 
-export function CodeEditor(props: Props) {
+export function CodeEditor() {
 
-    const [file, designerTab, setFile] = useFileStore((s) => [s.file, s.designerTab, s.setFile], shallow)
+    const [file] = useFileStore((s) => [s.file], shallow)
     const [code, setCode] = useState<string>();
 
     useEffect(() => setCode(file?.code), []);
@@ -41,7 +37,7 @@ export function CodeEditor(props: Props) {
     useEffect(() => {
         const interval = setInterval(() => {
             saveCode();
-        }, 3000);
+        }, 700);
         return () => {
             clearInterval(interval);
             saveCode();
