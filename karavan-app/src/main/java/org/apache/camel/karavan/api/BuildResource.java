@@ -24,7 +24,6 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.apache.camel.karavan.service.KaravanCacheService;
-import org.apache.camel.karavan.code.CodeService;
 import org.apache.camel.karavan.kubernetes.KubernetesService;
 
 @Path("/ui/build")
@@ -35,9 +34,6 @@ public class BuildResource {
 
     @Inject
     KubernetesService kubernetesService;
-
-    @Inject
-    CodeService codeService;
 
     @POST
     @Produces(MediaType.APPLICATION_JSON)

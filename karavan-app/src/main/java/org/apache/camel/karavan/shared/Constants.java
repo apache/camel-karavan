@@ -27,6 +27,7 @@ public class Constants {
     public static final String LABEL_CAMEL_RUNTIME = "org.apache.camel.karavan/runtime";
     public static final String LABEL_KUBERNETES_RUNTIME = "app.kubernetes.io/runtime";
     public static final String LABEL_TAG = "org.apache.camel.karavan/tag";
+    public static final String ANNOTATION_COMMIT = "jkube.eclipse.org/git-commit";
 
     public static final String BUILDER_SUFFIX = "-builder";
 

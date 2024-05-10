@@ -20,3 +20,7 @@ export function splitByBraces(input: string): string[] {
 export function getPathParams(input: string): string[] {
     return splitByBraces(input).filter(p => p.startsWith('{')).map(p => p.replace('{', '').replace('}', ''));
 }
+
+export function getShortCommit(commitId: string): string {
+    return commitId ? commitId?.substring(0, 7) : "-";
+}

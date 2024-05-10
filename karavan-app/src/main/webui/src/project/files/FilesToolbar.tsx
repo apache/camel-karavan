@@ -37,7 +37,7 @@ import {useFilesStore, useFileStore, useProjectStore} from "../../api/ProjectSto
 import {shallow} from "zustand/shallow";
 import {ProjectService} from "../../api/ProjectService";
 import PushIcon from "@patternfly/react-icons/dist/esm/icons/code-branch-icon";
-import {isEmpty} from "../../util/StringUtils";
+import {getShortCommit, isEmpty} from "../../util/StringUtils";
 
 export function FileToolbar () {
 
@@ -157,7 +157,7 @@ export function FileToolbar () {
                     <FlexItem>
                         <Tooltip content={commit} position={TooltipPosition.bottom}>
                             <Label
-                                color={color}>{commit ? commit?.substring(0, 18) : "-"}</Label>
+                                color={color}>{getShortCommit(commit)}</Label>
                         </Tooltip>
                     </FlexItem>}
             </Flex>

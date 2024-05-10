@@ -140,6 +140,7 @@ export function DeploymentPanel (props: Props) {
                         </Tooltip>
                     }
                     <Button
+                        isDanger
                         icon={<DeleteIcon/>}
                         className="labeled-button"
                         variant="link" onClick={e => {

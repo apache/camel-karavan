@@ -72,6 +72,7 @@ public class ContainerStatus implements Serializable {
     String initDate;
     String podIP;
     String camelRuntime;
+    String commit;
 
     public ContainerStatus(String projectId, String containerName, String containerId, String image, List<ContainerPort> ports, String env, ContainerType type, String memoryInfo, String cpuInfo, String created, String finished, List<Command> commands, String state, String phase, Boolean codeLoaded, Boolean inTransit, String initDate, String podIP, String camelRuntime) {
         this.projectId = projectId;
@@ -325,6 +326,14 @@ public class ContainerStatus implements Serializable {
         this.camelRuntime = camelRuntime;
     }
 
+    public String getCommit() {
+        return commit;
+    }
+
+    public void setCommit(String commit) {
+        this.commit = commit;
+    }
+
     @Override
     public String toString() {
         return "ContainerStatus{" +
@@ -346,6 +355,7 @@ public class ContainerStatus implements Serializable {
                 ", inTransit=" + inTransit +
                 ", initDate='" + initDate + '\'' +
                 ", podIP='" + podIP + '\'' +
+                ", commit='" + commit + '\'' +
                 '}';
     }
 }

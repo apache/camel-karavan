@@ -100,6 +100,7 @@ export class ContainerStatus {
     created: string = '';
     finished: string = '';
     image: string = '';
+    commit: string = '';
     ports: ContainerPort [] = [];
     commands: string [] = [];
     inTransit: boolean = false;

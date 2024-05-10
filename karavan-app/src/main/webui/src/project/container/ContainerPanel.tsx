@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      http:www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,10 +19,13 @@ import React, {useState} from 'react';
 import {
     Badge,
     Button,
+    Card,
+    CardBody,
+    CardHeader,
     Flex,
     FlexItem,
     Label,
-    LabelGroup, Modal,
+    Modal, ClipboardCopy,
 } from '@patternfly/react-core';
 import '../../designer/karavan.css';
 import UpIcon from "@patternfly/react-icons/dist/esm/icons/running-icon";
@@ -32,14 +35,17 @@ import {shallow} from "zustand/shallow";
 import {ContainerStatus} from "../../api/ProjectModels";
 import {ContainerButtons} from "./ContainerButtons";
 import DeleteIcon from "@patternfly/react-icons/dist/esm/icons/times-circle-icon";
+import ImageIcon from "@patternfly/react-icons/dist/esm/icons/cube-icon";
+import CommitIcon from "@patternfly/react-icons/dist/esm/icons/code-branch-icon";
 import {KaravanApi} from "../../api/KaravanApi";
 import {EventBus} from "../../designer/utils/EventBus";
+import {getShortCommit} from "../../util/StringUtils";
 
 interface Props {
     env: string,
 }
 
-export function ContainerPanel (props: Props) {
+export function ContainerPanel(props: Props) {
 
     const {config} = useAppConfigStore();
     const [project] = useProjectStore((s) => [s.project], shallow);
@@ -80,10 +86,8 @@ export function ContainerPanel (props: Props) {
         </Modal>)
     }
 
-    function getBadge(cs: ContainerStatus) {
-        return config.infrastructure === 'kubernetes'
-            ? <Badge isRead>{cs.phase}</Badge>
-            : <Badge isRead>{cs.state}</Badge>
+    function getStatusBadge(cs: ContainerStatus) {
+        return config.infrastructure === 'kubernetes' ? cs.phase : cs.state
     }
 
     const env = props.env;
@@ -95,32 +99,93 @@ export function ContainerPanel (props: Props) {
               alignItems={{default: "alignItemsFlexStart"}}>
             <FlexItem>
                 {conts.length === 0 && <Label icon={<DownIcon/>} color={"grey"}>No pods</Label>}
-                <LabelGroup numLabels={10} isVertical>
-                    {conts.map((cs: ContainerStatus) => {
+                <Flex direction={{default: 'column'}}>
+                    {conts.map((cs: ContainerStatus, index) => {
                             const ready = cs.state === 'running';
                             return (
-                                <Label icon={ready ? <UpIcon/> : <DownIcon/>} color={ready ? "green" : "grey"}>
-                                    <Button variant="link" className="dev-action-button labeled-button"
-                                            onClick={e => {
-                                                setShowLog(true, 'container', cs.containerName);
-                                            }}>
-                                        {cs.containerName}
-                                    </Button>
-                                    {getBadge(cs)}
-                                    <Button
-                                        icon={<DeleteIcon/>}
-                                        className="labeled-button"
-                                        variant="link" onClick={e => {
-                                        setShowDeleteConfirmation(true);
-                                        setDeleteEntityName(cs.containerName);
-                                    }}></Button>
-                                </Label>
+                                <Card isCompact isRounded isFlat isPlain>
+                                    <CardBody>
+                                        <Flex justifyContent={{default: 'justifyContentSpaceBetween'}}>
+                                            <Label icon={ready ? <UpIcon/> : <DownIcon/>} color={ready ? "green" : "grey"}>
+                                                <Button variant="link" className="dev-action-button labeled-button"
+                                                        onClick={e => {
+                                                            setShowLog(true, 'container', cs.containerName);
+                                                        }}>
+                                                    {cs.containerName}
+                                                </Button>
+                                                <Badge isRead>{cs.type}</Badge>
+                                            </Label>
+                                            <Label icon={ready ? <UpIcon/> : <DownIcon/>} color={ready ? "green" : "grey"}>
+                                                {getStatusBadge(cs)}
+                                            </Label>
+                                            <Label icon={<ImageIcon/>} color={ready ? "green" : "grey"} variant='outline'>
+                                                Image:
+                                                <ClipboardCopy hoverTip="Copy" clickTip="Copied" variant="inline-compact" style={{backgroundColor: 'transparent'}}>
+                                                    {cs.image}
+                                                </ClipboardCopy>
+                                            </Label>
+                                            <Label icon={<CommitIcon/>} color={ready ? "green" : "grey"} variant='outline'>
+                                                Commit:
+                                                <ClipboardCopy hoverTip="Copy" clickTip="Copied" variant="inline-compact" style={{backgroundColor: 'transparent'}}>
+                                                    {getShortCommit(cs.commit)}
+                                                </ClipboardCopy>
+                                            </Label>
+                                            <Button
+                                                isDanger
+                                                icon={<DeleteIcon/>}
+                                                className="labeled-button"
+                                                variant="link" onClick={e => {
+                                                setShowDeleteConfirmation(true);
+                                                setDeleteEntityName(cs.containerName);
+                                            }}></Button>
+                                        </Flex>
+                                    </CardBody>
+                                </Card>
+
+                                // <Flex>
+                                //     <Label icon={ready ? <UpIcon/> : <DownIcon/>} color={ready ? "green" : "grey"}>
+                                //         <Button variant="link" className="dev-action-button labeled-button"
+                                //                 onClick={e => {
+                                //                     setShowLog(true, 'container', cs.containerName);
+                                //                 }}>
+                                //             {cs.containerName}
+                                //         </Button>
+                                //         <Label icon=<ImageIcon/> isCompact>
+                                //             <Button variant="link" className="dev-action-button labeled-button"
+                                //                     onClick={e => {
+                                //                         setShowLog(true, 'container', cs.containerName);
+                                //                     }}>
+                                //                 Image: {cs.image}
+                                //             </Button>
+                                //         </Label>
+                                //         {getBadge(cs)}
+                                //         <Button
+                                //             icon={<DeleteIcon/>}
+                                //             className="labeled-button"
+                                //             variant="link" onClick={e => {
+                                //             setShowDeleteConfirmation(true);
+                                //             setDeleteEntityName(cs.containerName);
+                                //         }}
+                                //         >
+                                //         </Button>
+                                //     </Label>
+                                //     <Label icon=<ImageIcon/> color={ready ? "green" : "grey"}>
+                                //         <Button variant="link" className="dev-action-button labeled-button"
+                                //                 onClick={e => {
+                                //                     setShowLog(true, 'container', cs.containerName);
+                                //                 }}>
+                                //             {cs.image}
+                                //         </Button>
+                                //     </Label>
+                                // </Flex>
                             )
                         }
                     )}
-                </LabelGroup>
+                </Flex>
             </FlexItem>
-            <FlexItem>{env === "dev" && config.infrastructure !== 'kubernetes' && <ContainerButtons env={env}/>}</FlexItem>
+            <FlexItem>
+                {env === "dev" && config.infrastructure !== 'kubernetes' && <ContainerButtons env={env}/>}
+            </FlexItem>
             {showDeleteConfirmation && getDeleteConfirmation()}
         </Flex>
     )

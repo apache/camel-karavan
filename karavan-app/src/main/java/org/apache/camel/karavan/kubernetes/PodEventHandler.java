@@ -96,6 +96,7 @@ public class PodEventHandler implements ResourceEventHandler<Pod> {
         String camel = deployment != null ? deployment : pod.getMetadata().getLabels().get(LABEL_KUBERNETES_RUNTIME);
         String runtime = deployment != null ? deployment : pod.getMetadata().getLabels().get(LABEL_CAMEL_RUNTIME);
         String type = pod.getMetadata().getLabels().get(LABEL_TYPE);
+        String commit = pod.getMetadata().getAnnotations().get(ANNOTATION_COMMIT);
         ContainerStatus.ContainerType containerType = deployment != null
                 ? ContainerStatus.ContainerType.project
                 : (type != null ? ContainerStatus.ContainerType.valueOf(type) : ContainerStatus.ContainerType.unknown);
@@ -123,6 +124,8 @@ public class PodEventHandler implements ResourceEventHandler<Pod> {
                     requestMemory + " / " + limitMemory,
                     requestCpu + " / " + limitCpu,
                     creationTimestamp);
+            status.setImage(pod.getSpec().getContainers().get(0).getImage());
+            status.setCommit(commit);
             status.setContainerId(pod.getMetadata().getName());
             status.setPhase(pod.getStatus().getPhase());
             status.setPodIP(pod.getStatus().getPodIP());

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import {
     Button,
     DescriptionList,
@@ -31,13 +31,13 @@ import DownIcon from "@patternfly/react-icons/dist/esm/icons/error-circle-o-icon
 import ClockIcon from "@patternfly/react-icons/dist/esm/icons/clock-icon";
 import TagIcon from "@patternfly/react-icons/dist/esm/icons/tag-icon";
 import DeleteIcon from "@patternfly/react-icons/dist/esm/icons/times-circle-icon";
-import {useAppConfigStore, useLogStore, useProjectStore, useStatusesStore} from "../../api/ProjectStore";
+import { useLogStore, useProjectStore, useStatusesStore} from "../../api/ProjectStore";
 import {shallow} from "zustand/shallow";
 import {EventBus} from "../../designer/utils/EventBus";
+import {getShortCommit} from "../../util/StringUtils";
 
 export function BuildPanel () {
 
-    const [config] = useAppConfigStore((state) => [state.config], shallow)
     const [project] = useProjectStore((s) => [s.project], shallow);
     const [setShowLog] = useLogStore((s) => [s.setShowLog], shallow);
     const [containers, deployments, camels] =
@@ -46,7 +46,7 @@ export function BuildPanel () {
     const [isBuilding, setIsBuilding] = useState<boolean>(false);
     const [showDeleteConfirmation, setShowDeleteConfirmation] = useState<boolean>(false);
     const [deleteEntityName, setDeleteEntityName] = useState<string>();
-    const [tag, setTag] = useState<string>('dev');
+    const [tag, setTag] = useState<string>(getShortCommit(project.lastCommit));
 
     function deleteEntity() {
         const buildName = getBuildName();
@@ -78,7 +78,7 @@ export function BuildPanel () {
             <Button isLoading={isBuilding ? true : undefined}
                     isDisabled={isBuilding || isRunning || isPushing}
                     size="sm"
-                    variant="secondary"
+                    variant="primary"
                     className="project-button dev-action-button"
                     icon={!isBuilding ? <BuildIcon/> : <div></div>}
                     onClick={e => build()}>
@@ -127,6 +127,7 @@ export function BuildPanel () {
                                 : "No builder"}
                             {status !== undefined && <Tooltip content={"Delete build"}>
                                 <Button
+                                    isDanger
                                     icon={<DeleteIcon/>}
                                     className="labeled-button dev-action-button"
                                     variant="link" onClick={e => {
