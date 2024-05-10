@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 
 git config --global credential.helper 'cache --timeout=3600'
-git_credential_fill() 
+git_credential_fill() {
     echo url=$GIT_REPOSITORY
     echo username=$GIT_USERNAME
     echo password=$GIT_PASSWORD
-
+}
 git_credential_fill | git credential approve
 git clone --depth 1 --branch $GIT_BRANCH $GIT_REPOSITORY $CODE_DIR
 
