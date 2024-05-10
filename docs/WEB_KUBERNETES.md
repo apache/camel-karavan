@@ -30,3 +30,7 @@
     kubectl create namespace karavan
     kubectl apply -k .
     ```
+7. Expose karavan service
+    ```
+    minikube service karavan --url --namespace karavan
+    ```

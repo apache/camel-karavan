@@ -1,29 +1,19 @@
 #!/usr/bin/env bash
 ENV _JAVA_OPTIONS="-Duser.home=$KARAVAN"
+export NAMESPACE=$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace)
 
-if  [[ ${GIT_REPOSITORY} == https* ]] ;
-then
-    replacer=https://${GIT_USERNAME}:${GIT_PASSWORD}@
-    prefix=https://
-    url="${GIT_REPOSITORY/$prefix/$replacer}"
-    git clone --depth 1 --branch ${GIT_BRANCH} $url ${CODE_DIR}
-elif [[ ${GIT_REPOSITORY} == http* ]] ;
-then
-  replacer=http://${GIT_USERNAME}:${GIT_PASSWORD}@
-      prefix=http://
-      url="${GIT_REPOSITORY/$prefix/$replacer}"
-      git clone --depth 1 --branch ${GIT_BRANCH} $url ${CODE_DIR}
-else
-    git clone --depth 1 --branch ${GIT_BRANCH} ${GIT_REPOSITORY} ${CODE_DIR}
-fi
+git config --global credential.helper 'cache --timeout=3600'
+git_credential_fill() {
+    echo url=$GIT_REPOSITORY
+    echo username=$GIT_USERNAME
+    echo password=$GIT_PASSWORD
+}
+git_credential_fill | git credential approve
+git clone --depth 1 --branch $GIT_BRANCH $GIT_REPOSITORY $CODE_DIR
 
 cd ${CODE_DIR}/${PROJECT_ID}
 
 jbang -Dcamel.jbang.version=${CAMEL_VERSION} camel@apache/camel export --local-kamelet-dir=${KAMELETS_DIR}
-
-export CERT=$(cat /var/run/secrets/kubernetes.io/serviceaccount/service-ca.crt)
-export TOKEN=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
-export NAMESPACE=$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace)
 
 sed -i 's/kubernetes-maven-plugin/openshift-maven-plugin/g' pom.xml
 
