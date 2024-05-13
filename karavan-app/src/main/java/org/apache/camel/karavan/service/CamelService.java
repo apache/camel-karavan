@@ -154,18 +154,22 @@ public class CamelService {
         }
     }
 
-    public String getContainerAddressForStatus(ContainerStatus containerStatus) {
+    public String getContainerAddressForStatus(ContainerStatus containerStatus) throws Exception {
         if (ConfigService.inKubernetes()) {
             return "http://" + containerStatus.getPodIP() + ":8080";
         } else if (ConfigService.inDocker()) {
             return "http://" + containerStatus.getContainerName() + ":8080";
         } else {
             Integer port = projectService.getProjectPort(containerStatus.getContainerName());
-            return "http://localhost:" + port;
+            if (port != null) {
+                return "http://localhost:" + port;
+            } else {
+                throw new Exception("No port configured for project " + containerStatus.getContainerName());
+            }
         }
     }
 
-    public String getCamelStatus(ContainerStatus containerStatus, CamelStatusValue.Name statusName) {
+    public String getCamelStatus(ContainerStatus containerStatus, CamelStatusValue.Name statusName) throws Exception {
         String url = getContainerAddressForStatus(containerStatus) + "/q/dev/" + statusName.name();
         try {
             return getResult(url, 500);
@@ -177,20 +181,24 @@ public class CamelService {
 
     @ConsumeEvent(value = CMD_COLLECT_CAMEL_STATUS, blocking = true, ordered = true)
     public void collectCamelStatuses(JsonObject data) {
-        CamelStatusRequest dms = data.getJsonObject("camelStatusRequest").mapTo(CamelStatusRequest.class);
-        ContainerStatus containerStatus = data.getJsonObject("containerStatus").mapTo(ContainerStatus.class);
-        LOGGER.debug("Collect Camel Status for " + containerStatus.getContainerName());
-        String projectId = dms.getProjectId();
-        String containerName = dms.getContainerName();
-        List<CamelStatusValue> statuses = new ArrayList<>();
-        Arrays.stream(CamelStatusValue.Name.values()).forEach(statusName -> {
-            String status = getCamelStatus(containerStatus, statusName);
-            if (status != null) {
-                statuses.add(new CamelStatusValue(statusName, status));
+        try {
+            CamelStatusRequest dms = data.getJsonObject("camelStatusRequest").mapTo(CamelStatusRequest.class);
+            ContainerStatus containerStatus = data.getJsonObject("containerStatus").mapTo(ContainerStatus.class);
+            LOGGER.debug("Collect Camel Status for " + containerStatus.getContainerName());
+            String projectId = dms.getProjectId();
+            String containerName = dms.getContainerName();
+            List<CamelStatusValue> statuses = new ArrayList<>();
+            for (CamelStatusValue.Name statusName : CamelStatusValue.Name.values()) {
+                String status = getCamelStatus(containerStatus, statusName);
+                if (status != null) {
+                    statuses.add(new CamelStatusValue(statusName, status));
+                }
             }
-        });
-        CamelStatus cs = new CamelStatus(projectId, containerName, statuses, environment);
-        karavanCacheService.saveCamelStatus(cs);
+            CamelStatus cs = new CamelStatus(projectId, containerName, statuses, environment);
+            karavanCacheService.saveCamelStatus(cs);
+        } catch (Exception ex) {
+            LOGGER.error("collectCamelStatuses " + (ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage()));
+        }
     }
 
     @CircuitBreaker(requestVolumeThreshold = 10, failureRatio = 0.5, delay = 1000)
@@ -203,6 +211,7 @@ public class CamelService {
                 return res.encodePrettily();
             }
         } catch (Exception ex) {
+            LOGGER.error("getResult " + url);
             LOGGER.error("getResult " + (ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage()));
         }
         return null;
