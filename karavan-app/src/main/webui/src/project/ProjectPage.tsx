@@ -25,7 +25,7 @@ import '../designer/karavan.css';
 import {ProjectToolbar} from "./ProjectToolbar";
 import {ProjectLogPanel} from "./log/ProjectLogPanel";
 import {Project, ProjectType} from "../api/ProjectModels";
-import {useAppConfigStore, useFilesStore, useFileStore, useProjectsStore, useProjectStore} from "../api/ProjectStore";
+import {useFilesStore, useFileStore, useProjectsStore, useProjectStore} from "../api/ProjectStore";
 import {MainToolbar} from "../designer/MainToolbar";
 import {ProjectTitle} from "./ProjectTitle";
 import {ProjectPanel} from "./ProjectPanel";
@@ -41,8 +41,8 @@ export function ProjectPage() {
     const {file, operation} = useFileStore();
     const [files] = useFilesStore((s) => [s.files], shallow);
     const [projects] = useProjectsStore((state) => [state.projects], shallow)
-    const [project, setProject, tabIndex, setTabIndex, refreshTrace] =
-        useProjectStore((s) => [s.project, s.setProject, s.tabIndex, s.setTabIndex, s.refreshTrace], shallow);
+    const [project, setProject, tabIndex, setTabIndex] =
+        useProjectStore((s) => [s.project, s.setProject, s.tabIndex, s.setTabIndex], shallow);
 
     let {projectId} = useParams();
 
@@ -61,7 +61,6 @@ export function ProjectPage() {
     useEffect(() => {
         const interval = setInterval(() => {
             if (tabIndex === 'build' || tabIndex === 'container') {
-                ProjectService.refreshAllContainerStatuses();
                 ProjectService.refreshAllDeploymentStatuses();
                 ProjectService.refreshImages(project.projectId);
             }

@@ -529,6 +529,15 @@ export class KaravanApi {
         });
     }
 
+    static async getContainerStatus(projectId: string, env: string, after: (res: AxiosResponse<ContainerStatus[]>) => void) {
+        instance.get('/ui/container/' + projectId + "/" + env)
+            .then(res => {
+                after(res);
+            }).catch(err => {
+                after(err);
+        });
+    }
+
     static async getAllDeploymentStatuses(after: (statuses: DeploymentStatus[]) => void) {
         instance.get('/ui/infrastructure/deployment')
             .then(res => {

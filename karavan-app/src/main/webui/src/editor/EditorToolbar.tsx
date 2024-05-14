@@ -27,7 +27,6 @@ import '../designer/karavan.css';
 import {useAppConfigStore, useFileStore, useProjectStore} from "../api/ProjectStore";
 import {shallow} from "zustand/shallow";
 import {DevModeToolbar} from "../project/DevModeToolbar";
-import RefreshIcon from "@patternfly/react-icons/dist/esm/icons/sync-alt-icon";
 import {KaravanApi} from "../api/KaravanApi";
 import {EventBus} from "../designer/utils/EventBus";
 import UpdateIcon from "@patternfly/react-icons/dist/esm/icons/cog-icon";

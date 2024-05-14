@@ -16,11 +16,10 @@
  */
 
 import {KaravanApi} from "../api/KaravanApi";
-import {KameletApi} from "karavan-core/lib/api/KameletApi";
 import '../designer/karavan.css';
 import {ComponentApi} from "karavan-core/lib/api/ComponentApi";
-import {AppConfig, ContainerStatus, Project} from "../api/ProjectModels";
-import {useAppConfigStore, useProjectsStore, useStatusesStore} from "../api/ProjectStore";
+import {AppConfig, Project} from "../api/ProjectModels";
+import {useAppConfigStore, useProjectsStore} from "../api/ProjectStore";
 import {InfrastructureAPI} from "../designer/utils/InfrastructureAPI";
 import {shallow} from "zustand/shallow";
 import {ProjectService} from "../api/ProjectService";
@@ -29,16 +28,7 @@ export function useMainHook () {
 
     const [setConfig, isAuthorized] = useAppConfigStore((s) => [s.setConfig, s.isAuthorized], shallow)
     const [setProjects] = useProjectsStore((s) => [s.setProjects], shallow)
-    const [setContainers] = useStatusesStore((state) => [state.setContainers], shallow);
     const [selectedEnv, selectEnvironment] = useAppConfigStore((state) => [state.selectedEnv, state.selectEnvironment], shallow)
-
-    const getStatuses = () =>  {
-        if (isAuthorized || KaravanApi.authType === 'public') {
-            KaravanApi.getAllContainerStatuses((statuses: ContainerStatus[]) => {
-                setContainers(statuses);
-            });
-        }
-    }
 
     const getData = () =>  {
         if (isAuthorized) {
@@ -70,13 +60,5 @@ export function useMainHook () {
         });
     }
 
-    async function updateSupportedComponents(): Promise<void> {
-        await new Promise(resolve => {
-            KaravanApi.getSupportedComponents(jsons => {
-                ComponentApi.saveSupportedComponents(jsons);
-            })
-        });
-    }
-
-    return { getData, getStatuses }
+    return { getData }
 }

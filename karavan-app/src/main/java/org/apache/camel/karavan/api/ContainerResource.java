@@ -173,7 +173,6 @@ public class ContainerResource {
     @Path("/{projectId}/{env}")
     public List<ContainerStatus> getContainerStatusesByProjectAndEnv(@PathParam("projectId") String projectId, @PathParam("env") String env) throws Exception {
         return karavanCacheService.getContainerStatuses(projectId, env).stream()
-                .filter(podStatus -> Objects.equals(podStatus.getType(), ContainerStatus.ContainerType.project))
                 .sorted(Comparator.comparing(ContainerStatus::getContainerName))
                 .collect(Collectors.toList());
     }

@@ -49,6 +49,7 @@ public class Constants {
     public static final String NOTIFICATION_HEADER_CLASS_NAME = "className";
 
     public static final String NOTIFICATION_EVENT_COMMIT = "commit";
+    public static final String NOTIFICATION_EVENT_CONTAINER_STATUS = "container_status";
 
     public enum CamelRuntime {
         CAMEL_MAIN("camel-main"),

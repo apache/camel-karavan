@@ -94,10 +94,15 @@ public class ContainerStatusService {
                     .filter(cs -> !namesInDocker.contains(cs.getContainerName()))
                     .forEach(containerStatus -> {
                         eventBus.publish(ContainerStatusService.CONTAINER_DELETED, JsonObject.mapFrom(containerStatus));
-                        karavanCacheService.deleteContainerStatus(containerStatus);
-                        karavanCacheService.deleteCamelStatuses(containerStatus.getProjectId(), containerStatus.getEnv());
                     });
         }
+    }
+
+    @ConsumeEvent(value = CONTAINER_DELETED, blocking = true, ordered = true)
+    public void cleanContainersStatus(JsonObject data) {
+        ContainerStatus containerStatus = data.mapTo(ContainerStatus.class);
+        karavanCacheService.deleteContainerStatus(containerStatus);
+        karavanCacheService.deleteCamelStatuses(containerStatus.getProjectId(), containerStatus.getEnv());
     }
 
     private boolean checkTransit(ContainerStatus cs) {

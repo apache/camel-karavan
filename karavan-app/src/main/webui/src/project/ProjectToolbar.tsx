@@ -17,8 +17,6 @@
 
 import React, {useEffect} from 'react';
 import {
-    Flex,
-    FlexItem,
     Toolbar,
     ToolbarContent,
 } from '@patternfly/react-core';
@@ -26,12 +24,11 @@ import '../designer/karavan.css';
 import {DevModeToolbar} from "./DevModeToolbar";
 import {useFileStore, useProjectStore} from "../api/ProjectStore";
 import {shallow} from "zustand/shallow";
-import {BuildToolbar} from "./BuildToolbar";
 import {EditorToolbar} from "../editor/EditorToolbar";
 
 export function ProjectToolbar() {
 
-    const [project, tabIndex] = useProjectStore((s) => [s.project, s.tabIndex], shallow)
+    const [project] = useProjectStore((s) => [s.project, s.tabIndex], shallow)
     const [file] = useFileStore((state) => [state.file], shallow)
 
     useEffect(() => {
@@ -45,8 +42,7 @@ export function ProjectToolbar() {
     function getProjectToolbar() {
         return (<Toolbar id="toolbar-group-types">
             <ToolbarContent>
-                {isRunnable() && <DevModeToolbar/>}
-                {isBuildContainer() && <BuildToolbar/>}
+                {!isKameletsProject() && !isTemplatesProject() && !isServicesProject() && <DevModeToolbar/>}
             </ToolbarContent>
         </Toolbar>)
     }
@@ -63,13 +59,5 @@ export function ProjectToolbar() {
         return project.projectId === 'services';
     }
 
-    function isRunnable(): boolean {
-        return !isKameletsProject() && !isTemplatesProject() && !isServicesProject() && !['build', 'container'].includes(tabIndex.toString());
-    }
-
-    function isBuildContainer(): boolean {
-        return !isKameletsProject() && !isTemplatesProject() && !isServicesProject() && ['build', 'container'].includes(tabIndex.toString());
-    }
-
-    return isFile() ? <EditorToolbar/> : getProjectToolbar()
+    return isFile() ? <EditorToolbar/> : getProjectToolbar();
 }

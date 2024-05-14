@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import React, {useEffect, useRef} from "react";
+import React, {useEffect} from "react";
 import {KaravanApi} from "../api/KaravanApi";
 import {
     Flex,
@@ -72,14 +72,6 @@ export function Main() {
         KaravanApi.getAuthType((authType: string) => {
             console.log("Main AuthType", authType);
         });
-    }
-
-    function showSpinner() {
-        return KaravanApi.authType === undefined || readiness === undefined;
-    }
-
-    function showStepper() {
-        return readiness !== undefined && readiness.status !== true;
     }
 
     function showMain() {

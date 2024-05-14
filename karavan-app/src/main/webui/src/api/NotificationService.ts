@@ -16,9 +16,8 @@
  */
 
 import {Subject} from "rxjs";
-import {ProjectEventBus} from "./ProjectEventBus";
 import {unstable_batchedUpdates} from "react-dom";
-import {useLogStore, useProjectStore} from "./ProjectStore";
+import {useProjectStore} from "./ProjectStore";
 import {ProjectService} from "./ProjectService";
 
 export class KaravanEvent {
@@ -42,7 +41,6 @@ export const NotificationEventBus = {
 
 console.log("Start Notification subscriber");
 const sub = NotificationEventBus.onEvent()?.subscribe((event: KaravanEvent) => {
-    // console.log('KaravanEvent', event);
     if (event.event === 'commit' && event.className === 'Project') {
         const projectId = event.data?.projectId;
         if (useProjectStore.getState().project?.projectId === projectId) {

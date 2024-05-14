@@ -174,6 +174,23 @@ export class ProjectService {
         });
     }
 
+    public static refreshContainerStatus(projectId: string, env: string) {
+        KaravanApi.getContainerStatus(projectId, env, (res) => {
+            if (res.status === 200) {
+                const oldContainers = useStatusesStore.getState().containers;
+                const newContainers = res.data;
+                const newMap = new Map<string, ContainerStatus>(
+                    newContainers.map(container => [container.containerName, container])
+                );
+                const containers =  oldContainers
+                    .filter(container => newMap.has(container.containerName))  // Filter out old containers not in new
+                    .map(container => newMap.get(container.containerName)!)     // Replace with new containers
+                    .concat(newContainers.filter(container => !oldContainers.some(old => old.containerName === container.containerName)));
+                useStatusesStore.setState({containers: containers});
+            }
+        })
+    }
+
     public static refreshAllServicesStatuses() {
         KaravanApi.getAllServiceStatuses((statuses: ServiceStatus[]) => {
             useStatusesStore.setState({services: statuses});
