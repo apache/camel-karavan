@@ -60,6 +60,7 @@ body:
       options:
         - 4.4.0
         - 4.5.0
+        - 4.6.0
       default: 0
     validations:
       required: true
