@@ -72,8 +72,6 @@ export function DevModeToolbar(props: Props) {
     useEffect(() => {
         if (showSpinner && currentContainerStatus === undefined && containerStatus === undefined) {
             setShowSpinner(false);
-        // } else if (showSpinner && currentContainerStatus == undefined) {
-        //     setShowSpinner(false);
         }
     }, [currentContainerStatus]);
 
