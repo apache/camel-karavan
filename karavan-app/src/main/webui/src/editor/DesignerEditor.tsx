@@ -22,7 +22,7 @@ import {KaravanDesigner} from "../designer/KaravanDesigner";
 import {ProjectService} from "../api/ProjectService";
 import {shallow} from "zustand/shallow";
 import {CodeUtils} from "../util/CodeUtils";
-import {RegistryBeanDefinition} from "karavan-core/lib/model/CamelDefinition";
+import {BeanFactoryDefinition} from "karavan-core/lib/model/CamelDefinition";
 import {KameletApi} from "karavan-core/lib/api/KameletApi";
 import {CamelDefinitionYaml} from "karavan-core/lib/api/CamelDefinitionYaml";
 import {TopologyUtils} from "karavan-core/lib/api/TopologyUtils";
@@ -37,7 +37,7 @@ export function DesignerEditor(props: Props) {
     const [file, designerTab, setFile] = useFileStore((s) => [s.file, s.designerTab, s.setFile], shallow)
     const [files] = useFilesStore((s) => [s.files], shallow);
     const [propertyPlaceholders, setPropertyPlaceholders] = useState<string[]>([]);
-    const [beans, setBeans] = useState<RegistryBeanDefinition[]>([]);
+    const [beans, setBeans] = useState<BeanFactoryDefinition[]>([]);
     const [key, setKey] = useState<string>();
     const [code, setCode] = useState<string>();
 

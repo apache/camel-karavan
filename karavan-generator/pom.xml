@@ -28,10 +28,9 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <surefire-plugin.version>3.0.0-M5</surefire-plugin.version>
-        <version.camel-core>4.5.0</version.camel-core>
-        <version.camel-kamelet>4.5.0</version.camel-kamelet>
-        <camel.k.extension.version>6.7.2</camel.k.extension.version>
-        <version.vertx>4.5.3</version.vertx>
+        <version.camel-core>4.6.0</version.camel-core>
+        <version.camel-kamelet>4.6.0</version.camel-kamelet>
+        <version.vertx>4.5.7</version.vertx>
     </properties>
     <dependencies>
         <dependency>
@@ -58,11 +57,6 @@
             <groupId>org.apache.camel.kamelets</groupId>
             <artifactId>camel-kamelets-catalog</artifactId>
             <version>${version.camel-kamelet}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.fabric8</groupId>
-            <artifactId>camel-k-model-v1</artifactId>
-            <version>${camel.k.extension.version}</version>
         </dependency>
     </dependencies>
     <build>

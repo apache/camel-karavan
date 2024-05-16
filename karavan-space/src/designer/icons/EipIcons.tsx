@@ -16,6 +16,22 @@
  */
 import React from 'react';
 
+export function LoadBalanceIcon() {
+    return (
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" className="icon" width="32px" height="32px">
+            <path
+                d="M4 26h4v4H4zM14 26h4v4h-4zM24 26h4v4h-4zM25 16h-8v-2h-2v2H7a2.002 2.002 0 0 0-2 2v6h2v-6h8v6h2v-6h8v6h2v-6a2.002 2.002 0 0 0-2-2ZM9 2v10h14V2Zm2 2h2v6h-2Zm10 6h-6V4h6Z"/>
+            <path
+                d="M0 0h32v32H0z"
+                data-name="&lt;Transparent Rectangle&gt;"
+                style={{
+                    fill: "none",
+                }}
+            />
+        </svg>
+    );
+}
+
 export function AggregateIcon() {
     return (
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 700" className="icon" width="32px" height="32px">

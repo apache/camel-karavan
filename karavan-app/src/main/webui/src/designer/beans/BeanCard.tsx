@@ -19,15 +19,15 @@ import {
     Button, Flex, FlexItem
 } from '@patternfly/react-core';
 import './bean.css';
-import {RegistryBeanDefinition} from "karavan-core/lib/model/CamelDefinition";
+import {BeanFactoryDefinition} from "karavan-core/lib/model/CamelDefinition";
 import {DeleteElementIcon} from "../utils/ElementIcons";
 import {CamelElement} from "karavan-core/lib/model/IntegrationDefinition";
 
 interface Props {
-    bean: RegistryBeanDefinition
+    bean: BeanFactoryDefinition
     selectedStep?: CamelElement
-    selectElement: (element: RegistryBeanDefinition) => void
-    deleteElement: (element: RegistryBeanDefinition) => void
+    selectElement: (element: BeanFactoryDefinition) => void
+    deleteElement: (element: BeanFactoryDefinition) => void
 }
 
 export function BeanCard (props: Props) {

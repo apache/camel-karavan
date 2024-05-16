@@ -18,9 +18,7 @@ import {expect} from 'chai';
 import * as fs from 'fs';
 import 'mocha';
 import {CamelDefinitionYaml} from "../src/core/api/CamelDefinitionYaml";
-import {FilterDefinition, ToDefinition} from "../src/core/model/CamelDefinition";
-import { RouteDefinition} from "../src/core/model/CamelDefinition";
-import { RegistryBeanDefinition } from '../lib/model/CamelDefinition';
+import { BeanFactoryDefinition } from '../lib/model/CamelDefinition';
 
 describe('Integration to YAML', () => {
 
@@ -30,7 +28,7 @@ describe('Integration to YAML', () => {
         expect(i.metadata.name).to.equal('avro-serialize-action');
         expect(i.kind).to.equal('Kamelet');
         if (i.spec.flows?.[1]){
-            const b:RegistryBeanDefinition = (i.spec.flows?.[1].beans[0] as RegistryBeanDefinition);
+            const b:BeanFactoryDefinition = (i.spec.flows?.[1].beans[0] as BeanFactoryDefinition);
             expect(b.properties.validate).to.equal("{{validate}}");
             expect(b.properties.schema).to.equal("{{schema:}}");
         }
@@ -42,7 +40,7 @@ describe('Integration to YAML', () => {
         expect(i.metadata.name).to.equal('postgresql-source');
         expect(i.kind).to.equal('Kamelet');
         if (i.spec.flows?.[1]){
-            const b:RegistryBeanDefinition = (i.spec.flows?.[1].beans[0] as RegistryBeanDefinition);
+            const b:BeanFactoryDefinition = (i.spec.flows?.[1].beans[0] as BeanFactoryDefinition);
             expect(b.properties.username).to.equal("{{username}}");
             expect(b.properties.password).to.equal("{{password}}");
             expect(b.properties.url).to.equal("jdbc:postgresql://{{serverName}}:{{serverPort}}/{{databaseName}}");

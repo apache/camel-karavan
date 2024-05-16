@@ -22,7 +22,7 @@ import {CamelMetadataApi} from "karavan-core/lib/model/CamelMetadata";
 import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
 import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt";
 import {
-    RegistryBeanDefinition,
+    BeanFactoryDefinition,
     RouteConfigurationDefinition,
     RouteDefinition,
     ToDefinition
@@ -83,7 +83,7 @@ import {
     FilterIcon,
     Intercept,
     InterceptFrom,
-    InterceptSendToEndpoint,
+    InterceptSendToEndpoint, LoadBalanceIcon,
     OnCompletion,
     SagaIcon,
     SortIcon,
@@ -133,6 +133,7 @@ const StepElements: string[] = [
     "SetHeaderDefinition",
     "SetHeadersDefinition",
     "SetVariableDefinition",
+    "SetVariablesDefinition",
     "SetPropertyDefinition",
     "SortDefinition",
     "ScriptDefinition",
@@ -480,6 +481,8 @@ export class CamelUi {
                 return "data:image/svg+xml,%3Csvg width='32' height='32' xmlns='http://www.w3.org/2000/svg' xmlns:svg='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3Cstyle%3E.cls-1 %7B fill: none; %7D%3C/style%3E%3C/defs%3E%3Cg class='layer'%3E%3Ctitle%3ELayer 1%3C/title%3E%3Cpath d='m24,30l-20,0a2.0021,2.0021 0 0 1 -2,-2l0,-6a2.0021,2.0021 0 0 1 2,-2l20,0a2.0021,2.0021 0 0 1 2,2l0,6a2.0021,2.0021 0 0 1 -2,2zm-20,-8l-0.0015,0l0.0015,6l20,0l0,-6l-20,0z' id='svg_1'/%3E%3Cpolygon id='svg_2' points='32.009655237197876,7.0889304876327515 32.009655237197876,5.094889521598816 26.932628870010376,5.094889521598816 26.932628870010376,0.017862439155578613 24.938587427139282,0.017862558364868164 24.938587427139282,5.094889521598816 19.861561059951782,5.094889521598816 19.861561059951782,7.0889304876327515 24.938587427139282,7.0889304876327515 24.938587427139282,12.165956854820251 26.932628870010376,12.165956854820251 26.932628870010376,7.0889304876327515 32.009655237197876,7.0889304876327515 '/%3E%3Cpath d='m4,14l0,-6l14,0l0,-2l-14,0a2.0023,2.0023 0 0 0 -2,2l0,6a2.0023,2.0023 0 0 0 2,2l22,0l0,-2l-22,0z' id='svg_3' transform='matrix(1 0 0 1 0 0)'/%3E%3C/g%3E%3C/svg%3E";
             case "SetVariableDefinition":
                 return "data:image/svg+xml,%3Csvg width='32' height='32' xmlns='http://www.w3.org/2000/svg' xmlns:svg='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3Cstyle%3E.cls-1 %7B fill: none; %7D%3C/style%3E%3C/defs%3E%3Cg class='layer'%3E%3Ctitle%3ELayer 1%3C/title%3E%3Cpath d='m24,30l-20,0a2.0021,2.0021 0 0 1 -2,-2l0,-6a2.0021,2.0021 0 0 1 2,-2l20,0a2.0021,2.0021 0 0 1 2,2l0,6a2.0021,2.0021 0 0 1 -2,2zm-20,-8l-0.0015,0l0.0015,6l20,0l0,-6l-20,0z' id='svg_1'/%3E%3Cpolygon id='svg_2' points='32.009655237197876,7.0889304876327515 32.009655237197876,5.094889521598816 26.932628870010376,5.094889521598816 26.932628870010376,0.017862439155578613 24.938587427139282,0.017862558364868164 24.938587427139282,5.094889521598816 19.861561059951782,5.094889521598816 19.861561059951782,7.0889304876327515 24.938587427139282,7.0889304876327515 24.938587427139282,12.165956854820251 26.932628870010376,12.165956854820251 26.932628870010376,7.0889304876327515 32.009655237197876,7.0889304876327515 '/%3E%3Cpath d='m4,14l0,-6l14,0l0,-2l-14,0a2.0023,2.0023 0 0 0 -2,2l0,6a2.0023,2.0023 0 0 0 2,2l22,0l0,-2l-22,0z' id='svg_3' transform='matrix(1 0 0 1 0 0)'/%3E%3C/g%3E%3C/svg%3E";
+            case "SetVariablesDefinition":
+                return "data:image/svg+xml,%3Csvg width='32' height='32' xmlns='http://www.w3.org/2000/svg' xmlns:svg='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3Cstyle%3E.cls-1 %7B fill: none; %7D%3C/style%3E%3C/defs%3E%3Cg class='layer'%3E%3Ctitle%3ELayer 1%3C/title%3E%3Cpath d='m24,30l-20,0a2.0021,2.0021 0 0 1 -2,-2l0,-6a2.0021,2.0021 0 0 1 2,-2l20,0a2.0021,2.0021 0 0 1 2,2l0,6a2.0021,2.0021 0 0 1 -2,2zm-20,-8l-0.0015,0l0.0015,6l20,0l0,-6l-20,0z' id='svg_1'/%3E%3Cpolygon id='svg_2' points='32.009655237197876,7.0889304876327515 32.009655237197876,5.094889521598816 26.932628870010376,5.094889521598816 26.932628870010376,0.017862439155578613 24.938587427139282,0.017862558364868164 24.938587427139282,5.094889521598816 19.861561059951782,5.094889521598816 19.861561059951782,7.0889304876327515 24.938587427139282,7.0889304876327515 24.938587427139282,12.165956854820251 26.932628870010376,12.165956854820251 26.932628870010376,7.0889304876327515 32.009655237197876,7.0889304876327515 '/%3E%3Cpath d='m4,14l0,-6l14,0l0,-2l-14,0a2.0023,2.0023 0 0 0 -2,2l0,6a2.0023,2.0023 0 0 0 2,2l22,0l0,-2l-22,0z' id='svg_3' transform='matrix(1 0 0 1 0 0)'/%3E%3C/g%3E%3C/svg%3E";
             case "SetHeadersDefinition":
                 return "data:image/svg+xml,%3Csvg width='32' height='32' xmlns='http://www.w3.org/2000/svg' xmlns:svg='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3Cstyle%3E.cls-1 %7B fill: none; %7D%3C/style%3E%3C/defs%3E%3Cg class='layer'%3E%3Ctitle%3ELayer 1%3C/title%3E%3Cpath d='m24,30l-20,0a2.0021,2.0021 0 0 1 -2,-2l0,-6a2.0021,2.0021 0 0 1 2,-2l20,0a2.0021,2.0021 0 0 1 2,2l0,6a2.0021,2.0021 0 0 1 -2,2zm-20,-8l-0.0015,0l0.0015,6l20,0l0,-6l-20,0z' id='svg_1'/%3E%3Cpolygon id='svg_2' points='32.009655237197876,7.0889304876327515 32.009655237197876,5.094889521598816 26.932628870010376,5.094889521598816 26.932628870010376,0.017862439155578613 24.938587427139282,0.017862558364868164 24.938587427139282,5.094889521598816 19.861561059951782,5.094889521598816 19.861561059951782,7.0889304876327515 24.938587427139282,7.0889304876327515 24.938587427139282,12.165956854820251 26.932628870010376,12.165956854820251 26.932628870010376,7.0889304876327515 32.009655237197876,7.0889304876327515 '/%3E%3Cpath d='m4,14l0,-6l14,0l0,-2l-14,0a2.0023,2.0023 0 0 0 -2,2l0,6a2.0023,2.0023 0 0 0 2,2l22,0l0,-2l-22,0z' id='svg_3' transform='matrix(1 0 0 1 0 0)'/%3E%3C/g%3E%3C/svg%3E";
             case "SetPropertyDefinition":
@@ -705,6 +708,8 @@ export class CamelUi {
                 return <SplitIcon/>;
             case 'SagaDefinition' :
                 return <SagaIcon/>;
+            case 'LoadBalanceDefinition' :
+                return <LoadBalanceIcon/>;
             case 'FilterDefinition' :
                 return <FilterIcon/>;
             case 'SortDefinition' :
@@ -799,8 +804,8 @@ export class CamelUi {
         return result;
     }
 
-    static getBeans = (integration: Integration): RegistryBeanDefinition[] => {
-        const result: RegistryBeanDefinition[] = [];
+    static getBeans = (integration: Integration): BeanFactoryDefinition[] => {
+        const result: BeanFactoryDefinition[] = [];
         const beans = integration.spec.flows?.filter((e: any) => e.dslName === 'Beans');
         if (beans && beans.length > 0 && beans[0].beans) {
             result.push(...beans[0].beans);

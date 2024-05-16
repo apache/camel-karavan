@@ -1,5 +1,5 @@
 import {ProjectFile} from "../api/ProjectModels";
-import {RegistryBeanDefinition} from "karavan-core/lib/model/CamelDefinition";
+import {BeanFactoryDefinition} from "karavan-core/lib/model/CamelDefinition";
 import {Integration, KameletTypes, MetadataLabels} from "karavan-core/lib/model/IntegrationDefinition";
 import {CamelDefinitionYaml} from "karavan-core/lib/api/CamelDefinitionYaml";
 import {CamelUi} from "../designer/utils/CamelUi";
@@ -8,8 +8,8 @@ import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
 
 export class CodeUtils {
 
-    static getBeans(files: ProjectFile[]): RegistryBeanDefinition[] {
-        const result: RegistryBeanDefinition[] = [];
+    static getBeans(files: ProjectFile[]): BeanFactoryDefinition[] {
+        const result: BeanFactoryDefinition[] = [];
         CodeUtils.getIntegrations(files).forEach(integration => {
             const beans = CamelUi.getBeans(integration);
             result.push(...beans);

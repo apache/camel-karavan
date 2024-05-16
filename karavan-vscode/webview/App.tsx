@@ -26,7 +26,7 @@ import { TemplateApi } from "./core/api/TemplateApi";
 import { EventBus } from "./designer/utils/EventBus";
 import { KnowledgebasePage } from "./knowledgebase/KnowledgebasePage";
 import { TopologyTab } from "./topology/TopologyTab";
-import {RegistryBeanDefinition} from "core/model/CamelDefinition";
+import {BeanFactoryDefinition} from "core/model/CamelDefinition";
 import { IntegrationFile } from "core/model/IntegrationDefinition";
 
 interface Props {
@@ -49,7 +49,7 @@ interface State {
   tab?: "routes" | "rest" | "beans"
   files: IntegrationFile[],
   propertyPlaceholders: string[],
-  beans: RegistryBeanDefinition[]
+  beans: BeanFactoryDefinition[]
 }
 
 class App extends React.Component<Props, State> {

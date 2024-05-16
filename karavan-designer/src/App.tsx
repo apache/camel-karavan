@@ -111,8 +111,10 @@ export function App() {
                 ComponentApi.setSupportedOnly(true);
             }
            
-        }).catch(err =>
-            EventBus.sendAlert("Error", err.text, 'danger')
+        }).catch(err => {
+                console.log(err);
+                EventBus.sendAlert("Error", err.text, 'danger')
+            }
         );
     });
 

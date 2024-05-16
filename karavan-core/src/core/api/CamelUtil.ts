@@ -18,7 +18,7 @@ import { Integration, CamelElement, Beans, MetadataLabels, KameletTypes } from '
 import { CamelDefinitionApi } from './CamelDefinitionApi';
 import {
     KameletDefinition,
-    RegistryBeanDefinition,
+    BeanFactoryDefinition,
     RouteConfigurationDefinition,
     ToDefinition,
 } from '../model/CamelDefinition';
@@ -72,9 +72,9 @@ export class CamelUtil {
         return CamelDefinitionApi.createStep(step.dslName, clone, true);
     };
 
-    static cloneBean = (bean: RegistryBeanDefinition): RegistryBeanDefinition => {
+    static cloneBean = (bean: BeanFactoryDefinition): BeanFactoryDefinition => {
         const clone = JSON.parse(JSON.stringify(bean));
-        const newBean = new RegistryBeanDefinition(clone);
+        const newBean = new BeanFactoryDefinition(clone);
         newBean.uuid = bean.uuid;
         return newBean;
     };

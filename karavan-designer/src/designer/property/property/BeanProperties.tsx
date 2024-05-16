@@ -21,7 +21,7 @@ import {
 import '../../karavan.css';
 import "@patternfly/patternfly/patternfly.css";
 import {
-    RegistryBeanDefinition,
+    BeanFactoryDefinition,
 } from "karavan-core/lib/model/CamelDefinition";
 import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
 import {SensitiveKeys} from "karavan-core/lib/model/CamelMetadata";
@@ -41,8 +41,8 @@ import {KubernetesIcon} from "../../icons/ComponentIcons";
 
 interface Props {
     type: 'constructors' | 'properties'
-    onChange: (bean: RegistryBeanDefinition) => void
-    onClone: (bean: RegistryBeanDefinition) => void
+    onChange: (bean: BeanFactoryDefinition) => void
+    onClone: (bean: BeanFactoryDefinition) => void
 }
 
 export function BeanProperties (props: Props) {
@@ -55,8 +55,8 @@ export function BeanProperties (props: Props) {
     const [constructors, setConstructors] = useState<Map<string, [number, string, boolean]>>(new Map<string, [number, string, boolean]>());
 
     useEffect(()=> {
-        setProperties(preparePropertiesMap((selectedStep as RegistryBeanDefinition)?.properties))
-        setConstructors(prepareConstructorsMap((selectedStep as RegistryBeanDefinition)?.constructors))
+        setProperties(preparePropertiesMap((selectedStep as BeanFactoryDefinition)?.properties))
+        setConstructors(prepareConstructorsMap((selectedStep as BeanFactoryDefinition)?.constructors))
     }, [selectedStep?.uuid])
 
     function preparePropertiesMap (properties: any): Map<string, [string, string, boolean]>  {
@@ -77,7 +77,7 @@ export function BeanProperties (props: Props) {
 
     function onBeanPropertyUpdate ()  {
         if (selectedStep) {
-            const bean = CamelUtil.cloneBean(selectedStep as RegistryBeanDefinition);
+            const bean = CamelUtil.cloneBean(selectedStep as BeanFactoryDefinition);
             const beanProperties: any = {};
             properties.forEach((p: any) => beanProperties[p[0]] = p[1]);
             bean.properties = beanProperties;
@@ -87,7 +87,7 @@ export function BeanProperties (props: Props) {
 
     function onBeanConstructorsUpdate ()  {
         if (selectedStep) {
-            const bean = CamelUtil.cloneBean(selectedStep as RegistryBeanDefinition);
+            const bean = CamelUtil.cloneBean(selectedStep as BeanFactoryDefinition);
             const beanConstructors: any = {};
             constructors.forEach((p: any) => beanConstructors[p[0]] = p[1]);
             bean.constructors = beanConstructors;
@@ -97,7 +97,7 @@ export function BeanProperties (props: Props) {
 
     function beanFieldChanged (fieldId: string, value: string) {
         if (selectedStep) {
-            const bean = CamelUtil.cloneBean(selectedStep as RegistryBeanDefinition);
+            const bean = CamelUtil.cloneBean(selectedStep as BeanFactoryDefinition);
             (bean as any)[fieldId] = value;
             props.onChange(bean);
         }
@@ -167,7 +167,7 @@ export function BeanProperties (props: Props) {
 
     function cloneBean ()  {
         if (selectedStep) {
-            const bean = CamelUtil.cloneBean(selectedStep as RegistryBeanDefinition);
+            const bean = CamelUtil.cloneBean(selectedStep as BeanFactoryDefinition);
             bean.uuid = uuidv4();
             props.onClone(bean);
         }
@@ -296,7 +296,7 @@ export function BeanProperties (props: Props) {
         )
     }
 
-    const bean = (selectedStep as RegistryBeanDefinition);
+    const bean = (selectedStep as BeanFactoryDefinition);
     return (
         <div className='properties' key={bean ? bean.uuid : 'integration'}>
             {props.type === 'constructors' && getBeanConstructors()}

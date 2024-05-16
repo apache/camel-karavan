@@ -41,7 +41,7 @@ import {BeansDesigner} from "./beans/BeansDesigner";
 import {CodeEditor} from "./editor/CodeEditor";
 import BellIcon from '@patternfly/react-icons/dist/esm/icons/bell-icon';
 import {KameletDesigner} from "./kamelet/KameletDesigner";
-import {RegistryBeanDefinition} from "karavan-core/lib/model/CamelDefinition";
+import {BeanFactoryDefinition} from "karavan-core/lib/model/CamelDefinition";
 import {VariableUtil} from "karavan-core/lib/api/VariableUtil";
 
 interface Props {
@@ -56,7 +56,7 @@ interface Props {
     showCodeTab: boolean
     tab?: "routes" | "rest" | "beans" | "kamelet"
     propertyPlaceholders: string[]
-    beans: RegistryBeanDefinition[]
+    beans: BeanFactoryDefinition[]
     files: IntegrationFile[]
 }
 

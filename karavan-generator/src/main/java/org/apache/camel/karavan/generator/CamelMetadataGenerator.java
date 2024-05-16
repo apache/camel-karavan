@@ -167,7 +167,7 @@ public final class CamelMetadataGenerator extends AbstractGenerator {
             String stepName = getStepNameForClass(name);
 //            String json = folder.equals("model") ? getMetaModel(stepName) : (folder.equals("language") ? getMetaLanguage(stepName) : getMetaDataFormat(stepName));
             String json = null;
-            if (Objects.equals(name, "RegistryBeanDefinition")) {
+            if (Objects.equals(name, "BeanFactoryDefinition")) {
                 json = getMetaModelApp("bean");
             } else if (folder.equals("model")) {
                 json = getMetaModel(stepName);

@@ -19,8 +19,8 @@ import 'mocha';
 import {CamelDefinitionYaml} from "../src/core/api/CamelDefinitionYaml";
 import { FromDefinition, LogDefinition, } from '../src/core/model/CamelDefinition';
 import { RouteDefinition} from "../src/core/model/CamelDefinition";
-import { Beans, Definition, Integration } from '../src/core/model/IntegrationDefinition';
-import { RegistryBeanDefinition } from '../src/core/model/CamelDefinition';
+import { Beans, Integration } from '../src/core/model/IntegrationDefinition';
+import { BeanFactoryDefinition } from '../src/core/model/CamelDefinition';
 import { MetadataAnnotations } from '../src/core/model/IntegrationDefinition';
 
 describe('Kamelet <=> YAML', () => {
@@ -38,8 +38,8 @@ describe('Kamelet <=> YAML', () => {
         i.spec.flows?.push(new RouteDefinition({from:flow1}));
 
         const b = new Beans();
-        b.beans.push(new RegistryBeanDefinition({name: "beanDS1", type: "String.class"}));
-        b.beans.push(new RegistryBeanDefinition({name: "beanDS2", type: "String.class"}));
+        b.beans.push(new BeanFactoryDefinition({name: "beanDS1", type: "String.class"}));
+        b.beans.push(new BeanFactoryDefinition({name: "beanDS2", type: "String.class"}));
         i.spec.flows?.push(b);
         const a = new MetadataAnnotations({"camel.apache.org/kamelet.group" : "hello world"})
         i.metadata.annotations = a

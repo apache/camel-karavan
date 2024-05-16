@@ -19,9 +19,7 @@ import * as fs from 'fs';
 import 'mocha';
 import { CamelDefinitionYaml } from '../src/core/api/CamelDefinitionYaml';
 import { Beans, Integration } from '../lib/model/IntegrationDefinition';
-import { RegistryBeanDefinition } from '../src/core/model/CamelDefinition';
-import * as yaml from 'js-yaml';
-
+import { BeanFactoryDefinition } from '../src/core/model/CamelDefinition';
 
 describe('bean configuration', () => {
 
@@ -78,14 +76,14 @@ describe('bean configuration', () => {
         const i = CamelDefinitionYaml.yamlToIntegration('beans.yaml', text);
 
         const b = Integration.createNew('beans');
-        const bean1 = new RegistryBeanDefinition({
+        const bean1 = new BeanFactoryDefinition({
             name: 'Name1', type: 'Type', constructors: {
                 0: 'zero',
                 1: 'one',
                 2: 'two',
             }
         });
-        const bean2 = new RegistryBeanDefinition({ name: 'Name2', type: 'Type'});
+        const bean2 = new BeanFactoryDefinition({ name: 'Name2', type: 'Type'});
         b.spec.flows?.push(new Beans({beans: [bean1, bean2]}));
         const yaml = CamelDefinitionYaml.integrationToYaml(b);
         expect(countSubstring(yaml, 'constructors')).to.equal(1);

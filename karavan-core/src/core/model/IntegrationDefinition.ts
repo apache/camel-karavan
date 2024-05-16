@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 import { v4 as uuidv4 } from 'uuid';
-import { RegistryBeanDefinition } from './CamelDefinition';
+import { BeanFactoryDefinition } from './CamelDefinition';
 
 export class IntegrationFile {
     name: string = '';
@@ -167,7 +167,7 @@ export class CamelElement {
 }
 
 export class Beans extends CamelElement {
-    beans: RegistryBeanDefinition[] = [];
+    beans: BeanFactoryDefinition[] = [];
 
     public constructor(init?: Partial<Beans>) {
         super('Beans');

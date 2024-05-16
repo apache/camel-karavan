@@ -27,16 +27,13 @@ import {
     WizardStep
 } from '@patternfly/react-core';
 import {KaravanApi} from "../../api/KaravanApi";
-import {RegistryBeanDefinition} from "karavan-core/lib/model/CamelDefinition";
+import {BeanFactoryDefinition} from "karavan-core/lib/model/CamelDefinition";
 import {CodeUtils} from "../../util/CodeUtils";
 import {ProjectFile} from "../../api/ProjectModels";
 import {useFilesStore, useFileStore, useProjectStore, useWizardStore} from "../../api/ProjectStore";
 import {shallow} from "zustand/shallow";
-import ExclamationCircleIcon from '@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon';
-import {useForm} from "react-hook-form";
 import {ProjectService} from "../../api/ProjectService";
 import {EventBus} from "../../designer/utils/EventBus";
-import {useResponseErrorHandler} from "../../shared/error/UseResponseErrorHandler";
 import {Integration} from "karavan-core/lib/model/IntegrationDefinition";
 import {CamelDefinitionYaml} from "karavan-core/lib/api/CamelDefinitionYaml";
 import {BeanFilesDropdown} from "./BeanFilesDropdown";
@@ -57,7 +54,7 @@ export function BeanWizard() {
     const [templateNames, setTemplateNames] = useState<string[]>([]);
     const [templateName, setTemplateName] = useState<string>('');
     const [templateBeanName, setTemplateBeanName] = useState<string>('');
-    const [bean, setBean] = useState<RegistryBeanDefinition | undefined>();
+    const [bean, setBean] = useState<BeanFactoryDefinition | undefined>();
     const [filename, setFilename] = useState<string>('');
     const [beanName, setBeanName] = useState<string>('');
     const [backendError, setBackendError] = React.useState<string>();
@@ -121,19 +118,19 @@ export function BeanWizard() {
         setBeanName(templateBeanName);
         getBeans.filter(b => b.name === templateBeanName).forEach(b => {
             Object.getOwnPropertyNames(b.properties).forEach(prop => {
-                setBean(new RegistryBeanDefinition({...b}))
+                setBean(new BeanFactoryDefinition({...b}))
             })
         });
     }, [templateBeanName]);
 
 
-    function getRegistryBeanDefinitions(): RegistryBeanDefinition[] {
+    function getBeanFactoryDefinitions(): BeanFactoryDefinition[] {
         const fs = templateFiles
             .filter(f => f.name === templateName.concat(BEAN_TEMPLATE_SUFFIX_FILENAME));
         return CodeUtils.getBeans(fs);
     }
 
-    const getBeans = useMemo(() => getRegistryBeanDefinitions(), [templateName]);
+    const getBeans = useMemo(() => getBeanFactoryDefinitions(), [templateName]);
 
     return (
         <Modal title={"Bean"} onClose={_ => setShowWizard(false)}
@@ -184,7 +181,7 @@ export function BeanWizard() {
                                             id={prop}
                                             aria-describedby={prop}
                                             onChange={(_, value) => {
-                                                const b = new RegistryBeanDefinition({...bean});
+                                                const b = new BeanFactoryDefinition({...bean});
                                                 b.properties[prop] = value;
                                                 setBean(b);
                                             }}

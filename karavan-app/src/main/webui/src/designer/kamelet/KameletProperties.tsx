@@ -21,7 +21,7 @@ import {
 import '../karavan.css';
 import "@patternfly/patternfly/patternfly.css";
 import {
-    RegistryBeanDefinition,
+    BeanFactoryDefinition,
 } from "karavan-core/lib/model/CamelDefinition";
 import {Integration} from "karavan-core/lib/model/IntegrationDefinition";
 import {IntegrationHeader} from "../utils/IntegrationHeader";
@@ -30,8 +30,8 @@ import {IntegrationHeader} from "../utils/IntegrationHeader";
 interface Props {
     integration: Integration
     dark: boolean
-    onChange: (bean: RegistryBeanDefinition) => void
-    onClone: (bean: RegistryBeanDefinition) => void
+    onChange: (bean: BeanFactoryDefinition) => void
+    onClone: (bean: BeanFactoryDefinition) => void
 }
 
 export function KameletProperties (props: Props) {

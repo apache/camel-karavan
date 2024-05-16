@@ -69,7 +69,7 @@ import {shallow} from "zustand/shallow";
 import {
     DataFormatDefinition,
     ExpressionDefinition,
-    RegistryBeanDefinition
+    BeanFactoryDefinition
 } from "karavan-core/lib/model/CamelDefinition";
 import {TemplateApi} from "karavan-core/lib/api/TemplateApi";
 import {KubernetesIcon} from "../../icons/ComponentIcons";
@@ -915,7 +915,7 @@ export function DslPropertyField(props: Props) {
     }
 
 
-    function changeBean(bean: RegistryBeanDefinition) {
+    function changeBean(bean: BeanFactoryDefinition) {
         const clone = CamelUtil.cloneIntegration(integration);
         const i = CamelDefinitionApiExt.addBeanToIntegration(clone, bean);
         setIntegration(i, false);
@@ -968,8 +968,8 @@ export function DslPropertyField(props: Props) {
     const property: PropertyMeta = props.property;
     const value = props.value;
     const isVariable = getIsVariable();
-    const beanConstructors = element?.dslName === 'RegistryBeanDefinition' && property.name === 'constructors'
-    const beanProperties = element?.dslName === 'RegistryBeanDefinition' && property.name === 'properties'
+    const beanConstructors = element?.dslName === 'BeanFactoryDefinition' && property.name === 'constructors'
+    const beanProperties = element?.dslName === 'BeanFactoryDefinition' && property.name === 'properties'
     return (
         <div>
             <FormGroup

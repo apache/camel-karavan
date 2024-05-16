@@ -61,16 +61,15 @@
     </repository>
   </repositories>
   <properties>
-    <version.camel-kamelet>4.5.0</version.camel-kamelet>
+    <maven.compiler.source>17</maven.compiler.source>
+    <version.camel-kamelet>4.6.0</version.camel-kamelet>
     <compiler-plugin.version>3.8.1</compiler-plugin.version>
-    <version.vertx>4.5.3</version.vertx>
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    <version.vertx>4.5.7</version.vertx>
     <surefire-plugin.version>3.0.0-M5</surefire-plugin.version>
-    <version.camel-core>4.5.0</version.camel-core>
+    <maven.compiler.target>17</maven.compiler.target>
+    <version.camel-core>4.6.0</version.camel-core>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.parameters>true</maven.compiler.parameters>
-    <maven.compiler.source>17</maven.compiler.source>
-    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <maven.compiler.target>17</maven.compiler.target>
-    <camel.k.extension.version>6.7.2</camel.k.extension.version>
   </properties>
 </project>

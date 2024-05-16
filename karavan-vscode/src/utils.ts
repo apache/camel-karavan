@@ -18,7 +18,7 @@ import * as path from "path";
 import { workspace, Uri, window, ExtensionContext, FileType } from "vscode";
 import { CamelDefinitionYaml } from "core/api/CamelDefinitionYaml";
 import { Integration, KameletTypes } from "core/model/IntegrationDefinition";
-import { RegistryBeanDefinition } from "core/model/CamelDefinition";
+import { BeanFactoryDefinition } from "core/model/CamelDefinition";
 import { TopologyUtils } from "core/api/TopologyUtils";
 
 export function getRoot(): string | undefined {
@@ -152,8 +152,8 @@ export async function readPropertyPlaceholders(context: ExtensionContext) {
     return result;
 }
 
-function getBeans (integration: Integration): RegistryBeanDefinition[] {
-    const result: RegistryBeanDefinition[] = [];
+function getBeans (integration: Integration): BeanFactoryDefinition[] {
+    const result: BeanFactoryDefinition[] = [];
     const beans = integration.spec.flows?.filter((e: any) => e.dslName === 'Beans');
     if (beans && beans.length > 0 && beans[0].beans) {
         result.push(...beans[0].beans);
@@ -162,7 +162,7 @@ function getBeans (integration: Integration): RegistryBeanDefinition[] {
 }
 
 export async function readBeans(fullPath: string) {
-    const result: RegistryBeanDefinition[] = [];
+    const result: BeanFactoryDefinition[] = [];
     try {
         const codePath = path.dirname(fullPath);
         const files = await getCamelYamlFiles(codePath);

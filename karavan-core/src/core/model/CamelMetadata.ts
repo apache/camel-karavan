@@ -1196,7 +1196,7 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('steps', 'steps', "steps", 'CamelElement', '', '', false, false, true, true, '', ''),
     ], [
     ]),
-    new ElementMeta('log', 'LogDefinition', 'Log', "Logs the defined message to the logger", 'eip,routing', [
+    new ElementMeta('log', 'LogDefinition', 'Logger', "Used for printing custom messages to the logger.", 'eip,routing', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('disabled', 'Disabled', "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
@@ -1528,6 +1528,13 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('expression', 'Expression', "Expression to return the value of the variable", 'ExpressionDefinition', '', '', true, false, false, true, '', ''),
     ], [
     ]),
+    new ElementMeta('setVariables', 'SetVariablesDefinition', 'Set Variables', "Allows setting multiple variables at the same time.", 'eip,transformation', [
+        new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('disabled', 'Disabled', "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('variables', 'variables', "variables", 'SetVariableDefinition', '', '', false, false, true, true, '', ''),
+    ], [
+    ]),
     new ElementMeta('sort', 'SortDefinition', 'Sort', "Sorts the contents of the message", 'eip,routing', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
@@ -1844,6 +1851,7 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('routeConfigurationId', 'Route Configuration Id', "The route configuration id or pattern this route should use for configuration. Multiple id/pattern can be separated by comma.", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('autoStartup', 'Auto Startup', "Whether to auto start this route", 'boolean', '', 'true', false, false, false, false, '', ''),
         new PropertyMeta('startupOrder', 'Startup Order', "To configure the ordering of the routes being started", 'number', '', '', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('streamCache', 'Stream Cache', "Whether stream caching is enabled on this route.", 'boolean', '', '', false, false, false, false, '', ''),
         new PropertyMeta('trace', 'Trace', "Whether tracing is enabled on this route.", 'boolean', '', '', false, false, false, false, '', ''),
         new PropertyMeta('messageHistory', 'Message History', "Whether message history is enabled on this route.", 'boolean', '', '', false, false, false, false, '', ''),
         new PropertyMeta('logMask', 'Log Mask', "Whether security mask for Logging is enabled on this route.", 'boolean', '', 'false', false, false, false, false, '', ''),
@@ -1851,19 +1859,18 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('shutdownRoute', 'Shutdown Route', "To control how to shutdown the route.", 'string', 'Default, Defer', '', false, false, false, false, 'advanced', ''),
         new PropertyMeta('shutdownRunningTask', 'Shutdown Running Task', "To control how to shut down the route.", 'string', 'CompleteCurrentTaskOnly, CompleteAllTasks', '', false, false, false, false, 'advanced', ''),
         new PropertyMeta('precondition', 'Precondition', "The predicate of the precondition in simple language to evaluate in order to determine if this route should be included or not.", 'string', '', '', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('errorHandler', 'Error Handler', "Sets the error handler to use for this route", 'ErrorHandlerDefinition', '', '', false, false, false, true, 'error', ''),
         new PropertyMeta('inputType', 'Input Type', "Declare the expected data type of the input message. If the actual message type is different at runtime, camel look for a required org.apache.camel.spi.Transformer and apply if exists. The type name consists of two parts, 'scheme' and 'name' connected with ':'. For Java type 'name' is a fully qualified class name. For example {code java:java.lang.String} , {code json:ABCOrder} .", 'InputTypeDefinition', '', '', false, false, false, true, 'advanced', ''),
         new PropertyMeta('outputType', 'Output Type', "Declare the expected data type of the output message. If the actual message type is different at runtime, camel look for a required org.apache.camel.spi.Transformer and apply if exists. The type name consists of two parts, 'scheme' and 'name' connected with ':'. For Java type 'name' is a fully qualified class name. For example {code java:java.lang.String} , {code json:ABCOrder} .", 'OutputTypeDefinition', '', '', false, false, false, true, 'advanced', ''),
-        new PropertyMeta('errorHandler', 'errorHandler', "errorHandler", 'ErrorHandlerFactory', '', '', false, false, false, true, '', ''),
         new PropertyMeta('from', 'from', "from", 'FromDefinition', '', '', false, false, false, true, '', ''),
         new PropertyMeta('routePolicy', 'routePolicy', "routePolicy", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('streamCaching', 'streamCaching', "streamCaching", 'boolean', '', '', false, false, false, false, '', ''),
     ], [
     ]),
     new ElementMeta('routeTemplate', 'RouteTemplateDefinition', 'Route Template', "Defines a route template (parameterized routes)", 'configuration', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('route', 'Route', "To define the route in the template", 'RouteDefinition', '', '', true, false, false, true, '', ''),
-        new PropertyMeta('beans', 'beans', "beans", 'RouteTemplateBeanDefinition', '', '', false, false, true, true, '', ''),
+        new PropertyMeta('beans', 'beans', "beans", 'BeanFactoryDefinition', '', '', false, false, true, true, '', ''),
         new PropertyMeta('from', 'from', "from", 'FromDefinition', '', '', false, false, false, true, '', ''),
         new PropertyMeta('parameters', 'parameters', "parameters", 'RouteTemplateParameterDefinition', '', '', false, false, true, true, '', ''),
     ], [
@@ -1872,7 +1879,7 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('routeTemplateRef', 'Route Template Ref', "Sets the id of the route template to use to build the route.", 'string', '', '', true, false, false, false, '', ''),
         new PropertyMeta('routeId', 'Route Id', "Sets the id of the route built from the route template.", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('prefixId', 'Prefix Id', "Sets a prefix to use for all node ids (not route id).", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('beans', 'beans', "beans", 'TemplatedRouteBeanDefinition', '', '', false, false, true, true, '', ''),
+        new PropertyMeta('beans', 'beans', "beans", 'BeanFactoryDefinition', '', '', false, false, true, true, '', ''),
         new PropertyMeta('parameters', 'parameters', "parameters", 'TemplatedRouteParameterDefinition', '', '', false, false, true, true, '', ''),
     ], [
     ]),
@@ -1887,11 +1894,12 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('useXForwardHeaders', 'Use XForward Headers', "Whether to use X-Forward headers to set host etc. for OpenApi. This may be needed in special cases involving reverse-proxy and networking going from HTTP to HTTPS etc. Then the proxy can send X-Forward headers (X-Forwarded-Proto) that influences the host names in the OpenAPI schema that camel-openapi-java generates from Rest DSL routes.", 'boolean', '', 'false', false, false, false, false, 'consumer,advanced', ''),
         new PropertyMeta('producerApiDoc', 'Producer Api Doc', "Sets the location of the api document the REST producer will use to validate the REST uri and query parameters are valid accordingly to the api document. The location of the api document is loaded from classpath by default, but you can use file: or http: to refer to resources to load from file or http url.", 'string', '', '', false, false, false, false, 'producer,advanced', ''),
         new PropertyMeta('contextPath', 'Context Path', "Sets a leading context-path the REST services will be using. This can be used when using components such as camel-servlet where the deployed web application is deployed using a context-path. Or for components such as camel-jetty or camel-netty-http that includes a HTTP server.", 'string', '', '', false, false, false, false, 'consumer', ''),
-        new PropertyMeta('apiContextPath', 'Api Context Path', "Sets a leading API context-path the REST API services will be using. This can be used when using components such as camel-servlet where the deployed web application is deployed using a context-path.", 'string', '', '', false, false, false, false, 'consumer', ''),
+        new PropertyMeta('apiContextPath', 'Api Context Path', "Sets a leading context-path the REST API will be using. This can be used when using components such as camel-servlet where the deployed web application is deployed using a context-path.", 'string', '', '', false, false, false, false, 'consumer', ''),
         new PropertyMeta('apiContextRouteId', 'Api Context Route Id', "Sets the route id to use for the route that services the REST API. The route will by default use an auto assigned route id.", 'string', '', '', false, false, false, false, 'consumer,advanced', ''),
         new PropertyMeta('apiVendorExtension', 'Api Vendor Extension', "Whether vendor extension is enabled in the Rest APIs. If enabled then Camel will include additional information as vendor extension (eg keys starting with x-) such as route ids, class names etc. Not all 3rd party API gateways and tools supports vendor-extensions when importing your API docs.", 'boolean', '', 'false', false, false, false, false, 'consumer,advanced', ''),
         new PropertyMeta('hostNameResolver', 'Host Name Resolver', "If no hostname has been explicit configured, then this resolver is used to compute the hostname the REST service will be using.", 'string', 'allLocalIp, localHostName, localIp', 'allLocalIp', false, false, false, false, 'consumer,advanced', ''),
         new PropertyMeta('bindingMode', 'Binding Mode', "Sets the binding mode to use. The default value is off", 'string', 'off, auto, json, xml, json_xml', 'off', false, false, false, false, '', ''),
+        new PropertyMeta('bindingPackageScan', 'Binding Package Scan', "Package name to use as base (offset) for classpath scanning of POJO classes are located when using binding mode is enabled for JSon or XML. Multiple package names can be separated by comma.", 'string', '', '', false, false, false, false, 'consumer,advanced', ''),
         new PropertyMeta('skipBindingOnErrorCode', 'Skip Binding On Error Code', "Whether to skip binding on output if there is a custom HTTP error code header. This allows to build custom error messages that do not bind to json / xml etc, as success messages otherwise will do.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('clientRequestValidation', 'Client Request Validation', "Whether to enable validation of the client request to check: 1) Content-Type header matches what the Rest DSL consumes; returns HTTP Status 415 if validation error. 2) Accept header matches what the Rest DSL produces; returns HTTP Status 406 if validation error. 3) Missing required data (query parameters, HTTP headers, body); returns HTTP Status 400 if validation error. 4) Parsing error of the message body (JSon, XML or Auto binding mode must be enabled); returns HTTP Status 400 if validation error.", 'boolean', '', 'false', false, false, false, false, 'consumer,advanced', ''),
         new PropertyMeta('enableCORS', 'Enable CORS', "Whether to enable CORS headers in the HTTP response. The default value is false.", 'boolean', '', 'false', false, false, false, false, 'consumer,advanced', ''),
@@ -1921,6 +1929,7 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('enableNoContentResponse', 'Enable No Content Response', "Whether to return HTTP 204 with an empty body when a response contains an empty JSON object or XML root object. The default value is false.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('apiDocs', 'Api Docs', "Whether to include or exclude this rest operation in API documentation. This option will override what may be configured on a parent level. The default value is true.", 'boolean', '', 'true', false, false, false, false, 'advanced', ''),
         new PropertyMeta('tag', 'Tag', "To configure a special tag for the operations within this rest definition.", 'string', '', '', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('openApi', 'Open Api', "To use an existing OpenAPI specification as contract-first for Camel Rest DSL.", 'OpenApiDefinition', '', '', false, false, false, true, '', ''),
         new PropertyMeta('securityDefinitions', 'Security Definitions', "Sets the security definitions such as Basic, OAuth2 etc.", 'RestSecuritiesDefinition', '', '', false, false, false, true, 'security', ''),
         new PropertyMeta('securityRequirements', 'Security Requirements', "Sets the security requirement(s) for all endpoints.", 'SecurityDefinition', '', '', false, false, true, true, 'security', ''),
         new PropertyMeta('delete', 'delete', "delete", 'DeleteDefinition', '', '', false, false, true, true, '', ''),
@@ -1929,6 +1938,21 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('patch', 'patch', "patch", 'PatchDefinition', '', '', false, false, true, true, '', ''),
         new PropertyMeta('post', 'post', "post", 'PostDefinition', '', '', false, false, true, true, '', ''),
         new PropertyMeta('put', 'put', "put", 'PutDefinition', '', '', false, false, true, true, '', ''),
+    ], [
+    ]),
+    new ElementMeta('beanFactory', 'BeanFactoryDefinition', 'Bean', "Define custom beans that can be used in your Camel routes and in general.", 'configuration', [
+        new PropertyMeta('name', 'Name', "The name of the bean (bean id)", 'string', '', '', true, false, false, false, '', ''),
+        new PropertyMeta('type', 'Type', "The class name (fully qualified) of the bean", 'string', '', '', true, false, false, false, '', ''),
+        new PropertyMeta('initMethod', 'Init Method', "The name of the custom initialization method to invoke after setting bean properties. The method must have no arguments, but may throw any exception.", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('destroyMethod', 'Destroy Method', "The name of the custom destroy method to invoke on bean shutdown, such as when Camel is shutting down. The method must have no arguments, but may throw any exception.", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('factoryMethod', 'Factory Method', "Name of method to invoke when creating the bean via a factory bean.", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('factoryBean', 'Factory Bean', "Name of factory bean (bean id) to use for creating the bean.", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('builderClass', 'Builder Class', "Fully qualified class name of builder class to use for creating and configuring the bean. The builder will use the properties values to configure the bean.", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('builderMethod', 'Builder Method', "Name of method when using builder class. This method is invoked after configuring to create the actual bean. This method is often named build (used by default).", 'string', '', 'build', false, false, false, false, '', ''),
+        new PropertyMeta('scriptLanguage', 'Script Language', "The script language to use when using inlined script for creating the bean, such as groovy, java, javascript etc.", 'string', '', '', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('constructors', 'Constructors', "Optional constructor arguments for creating the bean. Arguments correspond to specific index of the constructor argument list, starting from zero.", 'object', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('properties', 'Properties', "Optional properties to set on the created bean.", 'object', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('script', 'Script', "The script to execute that creates the bean when using scripting languages. If the script use the prefix resource: such as resource:classpath:com/foo/myscript.groovy, resource:file:/var/myscript.groovy, then its loaded from the external resource.", 'string', '', '', false, false, false, false, 'advanced', ''),
     ], [
     ]),
     new ElementMeta('contextScan', 'ContextScanDefinition', 'Context Scan', "Scans for Java org.apache.camel.builder.RouteBuilder instances in the context org.apache.camel.spi.Registry .", 'configuration', [
@@ -1943,6 +1967,7 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('defaultErrorHandler', 'defaultErrorHandler', "defaultErrorHandler", 'DefaultErrorHandlerDefinition', '', '', false, false, false, true, '', ''),
         new PropertyMeta('jtaTransactionErrorHandler', 'jtaTransactionErrorHandler', "jtaTransactionErrorHandler", 'JtaTransactionErrorHandlerDefinition', '', '', false, false, false, true, '', ''),
         new PropertyMeta('noErrorHandler', 'noErrorHandler', "noErrorHandler", 'NoErrorHandlerDefinition', '', '', false, false, false, true, '', ''),
+        new PropertyMeta('refErrorHandler', 'refErrorHandler', "refErrorHandler", 'RefErrorHandlerDefinition', '', '', false, false, false, true, '', ''),
         new PropertyMeta('springTransactionErrorHandler', 'springTransactionErrorHandler', "springTransactionErrorHandler", 'SpringTransactionErrorHandlerDefinition', '', '', false, false, false, true, '', ''),
     ], [
         new ExchangePropertyMeta('CamelExceptionCaught', 'Exception Caught', 'producer', 'java.lang.Exception', 'Stores the caught exception due to a processing error of the current Exchange'),
@@ -2093,15 +2118,6 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('ref', 'Ref', "Reference to the routes in the xml dsl", 'string', '', '', true, false, false, false, '', ''),
     ], [
     ]),
-    new ElementMeta('templatedRouteBean', 'TemplatedRouteBeanDefinition', 'Templated Route Bean', "A bean as input of a route template (local bean)", 'configuration', [
-        new PropertyMeta('name', 'Name', "Bean name", 'string', '', '', true, false, false, false, '', ''),
-        new PropertyMeta('type', 'Type', "What type to use for creating the bean (FQN classname). Can be prefixed with: #class or #type #class or #type then the bean is created via the fully qualified classname, such as #class:com.foo.MyBean", 'string', '', '', true, false, false, false, '', ''),
-        new PropertyMeta('scriptLanguage', 'Script Language', "The script language to use when using inlined script for creating the bean, such as groovy, java, javascript etc.", 'string', '', '', false, false, false, false, 'advanced', ''),
-        new PropertyMeta('property', 'Property', "Optional properties to set on the created local bean", 'PropertyDefinition', '', '', false, false, true, true, '', ''),
-        new PropertyMeta('properties', 'Properties', "Optional properties to set on the created local bean", 'object', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('script', 'Script', "The script to execute that creates the bean when using scripting languages. If the script use the prefix resource: such as resource:classpath:com/foo/myscript.groovy, resource:file:/var/myscript.groovy, then its loaded from the external resource.", 'string', '', '', false, false, false, false, 'advanced', ''),
-    ], [
-    ]),
     new ElementMeta('templatedRouteParameter', 'TemplatedRouteParameterDefinition', 'Templated Route Parameter', "An input parameter of a route template.", 'configuration', [
         new PropertyMeta('name', 'Name', "The name of the parameter", 'string', '', '', true, false, false, false, '', ''),
         new PropertyMeta('value', 'Value', "The value of the parameter.", 'string', '', '', true, false, false, false, '', ''),
@@ -2122,21 +2138,6 @@ export const CamelModelMetadata: ElementMeta[] = [
     ]),
     new ElementMeta('value', 'ValueDefinition', 'Value', "A single value", 'configuration', [
         new PropertyMeta('value', 'Value', "Property value", 'string', '', '', true, false, false, false, '', ''),
-    ], [
-    ]),
-    new ElementMeta('registryBean', 'RegistryBeanDefinition', 'Bean', "Define custom beans that can be used in your Camel routes and in general.", 'configuration', [
-        new PropertyMeta('name', 'Name', "The name of the bean (bean id)", 'string', '', '', true, false, false, false, '', ''),
-        new PropertyMeta('type', 'Type', "The class name (fully qualified) of the bean", 'string', '', '', true, false, false, false, '', ''),
-        new PropertyMeta('initMethod', 'Init Method', "The name of the custom initialization method to invoke after setting bean properties. The method must have no arguments, but may throw any exception.", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('destroyMethod', 'Destroy Method', "The name of the custom destroy method to invoke on bean shutdown, such as when Camel is shutting down. The method must have no arguments, but may throw any exception.", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('factoryMethod', 'Factory Method', "Name of method to invoke when creating the bean via a factory bean.", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('factoryBean', 'Factory Bean', "Name of factory bean (bean id) to use for creating the bean.", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('builderClass', 'Builder Class', "Fully qualified class name of builder class to use for creating and configuring the bean. The builder will use the properties values to configure the bean.", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('builderMethod', 'Builder Method', "Name of method when using builder class. This method is invoked after configuring to create the actual bean. This method is often named build (used by default).", 'string', '', 'build', false, false, false, false, '', ''),
-        new PropertyMeta('scriptLanguage', 'Script Language', "The script language to use when using inlined script for creating the bean, such as groovy, java, javascript etc.", 'string', '', '', false, false, false, false, 'advanced', ''),
-        new PropertyMeta('constructors', 'Constructors', "Optional constructor arguments for creating the bean. Arguments correspond to specific index of the constructor argument list, starting from zero.", 'object', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('properties', 'Properties', "Optional properties to set on the created bean.", 'object', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('script', 'Script', "The script to execute that creates the bean when using scripting languages. If the script use the prefix resource: such as resource:classpath:com/foo/myscript.groovy, resource:file:/var/myscript.groovy, then its loaded from the external resource.", 'string', '', '', false, false, false, false, 'advanced', ''),
     ], [
     ]),
     new ElementMeta('batchConfig', 'BatchResequencerConfig', 'Batch Config', "Configures batch-processing resequence eip.", 'configuration,eip', [
@@ -2436,6 +2437,16 @@ export const CamelModelMetadata: ElementMeta[] = [
     new ElementMeta('mutualTLS', 'MutualTLSDefinition', 'Mutual TLS', "Rest security mutual TLS authentication definition", 'rest,security,configuration', [
         new PropertyMeta('description', 'Description', "A short description for security scheme.", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('key', 'Key', "Key used to refer to this security definition", 'string', '', '', true, false, false, false, '', ''),
+    ], [
+    ]),
+    new ElementMeta('openApi', 'OpenApiDefinition', 'Open Api', "To use OpenApi as contract-first with Camel Rest DSL.", 'rest', [
+        new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('disabled', 'Disabled', "Whether to disable all the REST services from the OpenAPI contract from the route during build time. Once an REST service has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('specification', 'Specification', "Path to the OpenApi specification file.", 'string', '', '', true, false, false, false, '', ''),
+        new PropertyMeta('routeId', 'Route Id', "Sets the id of the route", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('missingOperation', 'Missing Operation', "Whether to fail, ignore or return a mock response for OpenAPI operations that are not mapped to a corresponding route.", 'string', 'fail, ignore, mock', 'fail', false, false, false, false, '', ''),
+        new PropertyMeta('mockIncludePattern', 'Mock Include Pattern', "Used for inclusive filtering of mock data from directories. The pattern is using Ant-path style pattern. Multiple patterns can be specified separated by comma.", 'string', '', 'classpath:camel-mock/**', false, false, false, false, 'advanced', ''),
     ], [
     ]),
     new ElementMeta('openIdConnect', 'OpenIdConnectDefinition', 'Open Id Connect', "Rest security OpenID Connect definition", 'rest,security,configuration', [

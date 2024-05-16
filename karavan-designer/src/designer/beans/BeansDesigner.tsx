@@ -26,7 +26,7 @@ import {
 } from '@patternfly/react-core';
 import '../karavan.css';
 import './bean.css';
-import {RegistryBeanDefinition} from "karavan-core/lib/model/CamelDefinition";
+import {BeanFactoryDefinition} from "karavan-core/lib/model/CamelDefinition";
 import {CamelUi} from "../utils/CamelUi";
 import PlusIcon from "@patternfly/react-icons/dist/esm/icons/plus-icon";
 import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt";
@@ -49,13 +49,13 @@ export function BeansDesigner() {
         }
     }, []);
 
-    function onShowDeleteConfirmation(bean: RegistryBeanDefinition) {
+    function onShowDeleteConfirmation(bean: BeanFactoryDefinition) {
         setSelectedStep(bean);
         setShowDeleteConfirmation(true);
     }
 
     function deleteBean() {
-        const i = CamelDefinitionApiExt.deleteBeanFromIntegration(integration, selectedStep as RegistryBeanDefinition);
+        const i = CamelDefinitionApiExt.deleteBeanFromIntegration(integration, selectedStep as BeanFactoryDefinition);
         setIntegration(i, false);
         setShowDeleteConfirmation(false);
         setSelectedStep(undefined);
@@ -81,7 +81,7 @@ export function BeansDesigner() {
         </Modal>)
     }
 
-    function selectBean(bean?: RegistryBeanDefinition) {
+    function selectBean(bean?: BeanFactoryDefinition) {
         setSelectedStep(bean);
     }
 
@@ -93,7 +93,7 @@ export function BeansDesigner() {
     };
 
     function createBean() {
-        const bean = new RegistryBeanDefinition();
+        const bean = new BeanFactoryDefinition();
         const clone = CamelUtil.cloneIntegration(integration);
         const i = CamelDefinitionApiExt.addBeanToIntegration(clone, bean);
         setIntegration(i, false);
