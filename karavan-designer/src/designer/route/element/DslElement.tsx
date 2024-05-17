@@ -181,6 +181,8 @@ export function DslElement(props: Props) {
                 const cc = CamelDefinitionApiExt.getElementChildrenDefinition(child.className);
                 return child.name === 'steps' || cc.filter(c => c.multiple).length > 0;
             })
+        } else {
+            children = children.filter(child => child.className === 'FromDefinition')
         }
         if (step.dslName === 'CatchDefinition') { // exception
             children = children.filter(value => value.name !== 'onWhen')

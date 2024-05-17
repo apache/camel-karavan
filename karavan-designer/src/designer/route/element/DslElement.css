@@ -125,6 +125,12 @@
     align-items: center;
 }
 
+.karavan .step-element .route-icons {
+    position: absolute;
+    top: 0;
+    display: flex;
+}
+
 .karavan .step-element .header .icon,
 .element-builder .header .icon {
     height: 20px;

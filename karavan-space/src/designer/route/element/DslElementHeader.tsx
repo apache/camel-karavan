@@ -28,6 +28,7 @@ import {shallow} from "zustand/shallow";
 import {useRouteDesignerHook} from "../useRouteDesignerHook";
 import {AddElementIcon, DeleteElementIcon, InsertElementIcon} from "../../utils/ElementIcons";
 import { RouteConfigurationDefinition} from "karavan-core/lib/model/CamelDefinition";
+import {AutoStartupIcon, ErrorHandlerIcon} from "../../icons/OtherIcons";
 
 interface Props {
     headerRef: React.RefObject<HTMLDivElement>
@@ -103,8 +104,8 @@ export function DslElementHeader(props: Props) {
         return [hasStepsField, stepsChildrenCount, hasNonStepsFields, nonStepChildrenCount, childrenCount]
     }
 
-    function hasWideChildrenElement() {
-        const [hasStepsField, stepsChildrenCount, hasNonStepsFields, nonStepChildrenCount, childrenCount] = getChildrenInfo(props.step);
+    function getHasWideChildrenElement(childrenInfo: [boolean, number, boolean, number, number]) {
+        const [hasStepsField, stepsChildrenCount, hasNonStepsFields, nonStepChildrenCount, childrenCount] = childrenInfo;
         if (props.step.dslName === 'SetHeadersDefinition') return false;
         else if (isHorizontal() && stepsChildrenCount > 1) return true;
         else if (hasStepsField && stepsChildrenCount > 0 && hasNonStepsFields && nonStepChildrenCount > 0) return true;
@@ -169,6 +170,8 @@ export function DslElementHeader(props: Props) {
             !['FromDefinition', 'RouteConfigurationDefinition', 'RouteDefinition', 'CatchDefinition', 'FinallyDefinition', 'WhenDefinition', 'OtherwiseDefinition'].includes(step.dslName)
             && !inRouteConfiguration;
         const headerClasses = getHeaderClasses();
+        const childrenInfo = getChildrenInfo(props.step) || [];
+        const hasWideChildrenElement = getHasWideChildrenElement(childrenInfo)
         return (
             <div className={"dsl-element " + headerClasses} style={getHeaderStyle()} ref={props.headerRef}>
                 {!['RouteConfigurationDefinition', 'RouteDefinition'].includes(props.step.dslName) &&
@@ -178,9 +181,20 @@ export function DslElementHeader(props: Props) {
                         {CamelUi.getIconForElement(step)}
                     </div>
                 }
-                <div className={hasWideChildrenElement() ? "header-text" : ""}>
-                    {hasWideChildrenElement() && <div className="spacer"/>}
-                    {getHeaderTextWithTooltip(step)}
+                {'RouteDefinition' === step.dslName&&
+                    <div className={"route-icons"}>
+                        {(step as any).autoStartup !== false && <AutoStartupIcon/>}
+                        {(step as any).errorHandler !== undefined && <ErrorHandlerIcon/>}
+                    </div>
+                }
+                {'RouteConfigurationDefinition' === step.dslName&&
+                    <div className={"route-icons"}>
+                        {(step as any).errorHandler !== undefined && <ErrorHandlerIcon/>}
+                    </div>
+                }
+                <div className={hasWideChildrenElement ? "header-text" : ""}>
+                    {hasWideChildrenElement && <div className="spacer"/>}
+                    {getHeaderTextWithTooltip(step, hasWideChildrenElement)}
                 </div>
                 {showInsertButton && getInsertElementButton()}
                 {getDeleteButton()}
@@ -199,10 +213,10 @@ export function DslElementHeader(props: Props) {
         }
     }
 
-    function getHeaderTextWithTooltip(step: CamelElement) {
+    function getHeaderTextWithTooltip(step: CamelElement, hasWideChildrenElement: boolean) {
         const title = getHeaderText(step);
         const checkRequired = CamelUtil.checkRequired(step);
-        let className = hasWideChildrenElement() ? "text text-right" : "text text-bottom";
+        let className = hasWideChildrenElement ? "text text-right" : "text text-bottom";
         if (!checkRequired[0]) className = className + " header-text-required";
         if (checkRequired[0]) {
             return <Text className={className}>{title}</Text>
