@@ -10,7 +10,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  TAG: 4.6.0
+  TAG: 4.7.0
 
 jobs:
   build:
