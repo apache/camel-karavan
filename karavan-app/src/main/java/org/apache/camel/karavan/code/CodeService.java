@@ -18,8 +18,6 @@ package org.apache.camel.karavan.code;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import io.apicurio.datamodels.Library;
-import io.apicurio.datamodels.models.openapi.OpenApiDocument;
 import io.quarkus.qute.Engine;
 import io.quarkus.qute.Template;
 import io.quarkus.qute.TemplateInstance;
@@ -28,9 +26,6 @@ import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import org.apache.camel.CamelContext;
-import org.apache.camel.generator.openapi.RestDslGenerator;
-import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.camel.karavan.api.KameletResources;
 import org.apache.camel.karavan.model.DockerComposeService;
 import org.apache.camel.karavan.docker.DockerService;
@@ -242,14 +237,6 @@ public class CodeService {
     public String getPropertyValue(String propFileText, String key) {
         Optional<String> data = propFileText.lines().filter(p -> p.startsWith(key)).findFirst();
         return data.map(s -> s.split("=")[1]).orElse(null);
-    }
-
-    public String generate(String fileName, String openApi, boolean generateRoutes) throws Exception {
-        final ObjectNode node = fileName.endsWith("json") ? readNodeFromJson(openApi) : readNodeFromYaml(openApi);
-        OpenApiDocument document = (OpenApiDocument) Library.readDocument(node);
-        try (CamelContext context = new DefaultCamelContext()) {
-            return RestDslGenerator.toYaml(document).generate(context, generateRoutes);
-        }
     }
 
     private ObjectNode readNodeFromJson(String openApi) throws Exception {

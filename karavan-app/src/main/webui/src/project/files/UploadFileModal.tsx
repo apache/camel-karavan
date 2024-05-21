@@ -20,13 +20,10 @@ import {
     Modal,
     FormGroup,
     ModalVariant,
-    Switch,
     Form,
     FileUpload,
-    Radio,
     FormAlert,
     Alert,
-    TextInputGroupMain, Text, TextVariants, TextInputGroup
 } from '@patternfly/react-core';
 import '../../designer/karavan.css';
 import { ProjectFile} from "../../api/ProjectModels";
@@ -38,19 +35,13 @@ import {ProjectService} from "../../api/ProjectService";
 import {SubmitHandler, useForm} from "react-hook-form";
 import {KaravanApi} from "../../api/KaravanApi";
 import {AxiosResponse} from "axios";
-import {useFormUtil} from "../../util/useFormUtil";
 
 export function UploadFileModal() {
 
-    const integrationExtension = '.camel.yaml'
     const [project] = useProjectStore((s) => [s.project], shallow);
     const [operation, setFile] = useFileStore((s) => [s.operation, s.setFile], shallow);
-    const [type, setType] = useState<'integration' | 'openapi' | 'other'>('integration');
-    const [integrationName, setIntegrationName] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [isRejected, setIsRejected] = useState(false);
-    const [generateRest, setGenerateRest] = useState(true);
-    const [generateRoutes, setGenerateRoutes] = useState(true);
     const [isReset, setReset] = React.useState(false);
     const [backendError, setBackendError] = React.useState<string>();
     const formContext = useForm<ProjectFile>({mode: "all"});
@@ -67,7 +58,6 @@ export function UploadFileModal() {
         reset(new ProjectFile('', project.projectId, '', 0));
         setBackendError(undefined);
         setReset(true);
-        setType('integration')
     }, [reset, operation]);
 
     React.useEffect(() => {
@@ -76,11 +66,7 @@ export function UploadFileModal() {
 
     const onSubmit: SubmitHandler<ProjectFile> = (data) => {
         data.projectId = project.projectId;
-        if (type === "openapi") {
-            KaravanApi.postOpenApi(data, generateRest, generateRoutes, integrationName + integrationExtension, after)
-        } else {
-            KaravanApi.saveProjectFile(data, after)
-        }
+        KaravanApi.saveProjectFile(data, after)
     }
 
     function after (result: boolean, file: AxiosResponse<ProjectFile> | any) {
@@ -115,12 +101,7 @@ export function UploadFileModal() {
     };
 
     const fileNotUploaded = (getValues('name') === '' || getValues('code') === '');
-    const accept : Accept = type === 'integration'
-        ? {'application/yaml': ['.yaml', '.yml']}
-        : ( type === 'openapi'
-                ? {'application/yaml': ['.yaml', '.yml'], 'application/json': ['.json']}
-                : {}
-        );
+    const accept : Accept = {};
     return (
         <Modal
             title="Upload"
@@ -130,7 +111,7 @@ export function UploadFileModal() {
             actions={[
                 <Button key="confirm" variant="primary"
                         onClick={handleSubmit(onSubmit)}
-                        isDisabled={Object.getOwnPropertyNames(errors).length > 0 || fileNotUploaded || (type === "openapi" && integrationName?.length < 3)}
+                        isDisabled={Object.getOwnPropertyNames(errors).length > 0 || fileNotUploaded}
                 >
                     Save
                 </Button>,
@@ -138,23 +119,6 @@ export function UploadFileModal() {
             ]}
         >
             <Form>
-                <FormGroup fieldId="type">
-                    <Radio value="Integration" label="Integration yaml" name="Integration" id="Integration" isChecked={type === 'integration'}
-                           onChange={(event, _) => {
-                               setType(_ ? 'integration': 'openapi' );
-                           }}
-                    />{' '}
-                    <Radio value="OpenAPI" label="OpenAPI json/yaml" name="OpenAPI" id="OpenAPI" isChecked={type === 'openapi'}
-                           onChange={(event, _) => {
-                               setType( _ ? 'openapi' : 'integration' );
-                           }}
-                    />
-                    <Radio value="Other" label="Other" name="Other" id="Other" isChecked={type === 'other'}
-                           onChange={(event, _) => {
-                               setType( _ ? 'other' : 'integration' );
-                           }}
-                    />
-                </FormGroup>
                 <FormGroup fieldId="upload">
                     <FileUpload
                         id="file-upload"
@@ -180,37 +144,6 @@ export function UploadFileModal() {
                         dropzoneProps={{accept: accept, onDropRejected: handleFileRejected}}
                     />
                 </FormGroup>
-                {type === 'openapi' && <FormGroup fieldId="generateRest">
-                    <Switch
-                        id="generate-rest"
-                        label="Generate REST DSL"
-                        labelOff="Do not generate REST DSL"
-                        isChecked={generateRest}
-                        onChange={(_, checked) => setGenerateRest(checked)}
-                    />
-                </FormGroup>}
-                {type === 'openapi' && generateRest && <FormGroup fieldId="generateRoutes">
-                    <Switch
-                        id="generate-routes"
-                        label="Generate Routes"
-                        labelOff="Do not generate Routes"
-                        isChecked={generateRoutes}
-                        onChange={(_, checked) => setGenerateRoutes(checked)}
-                    />
-                </FormGroup>}
-                {type === 'openapi' && generateRest &&
-                    <FormGroup fieldId="integrationName" label="Integration name">
-                        <TextInputGroup className="text-field-with-suffix">
-                            <TextInputGroupMain type="text" id={"integrationName"} autoComplete="off"
-                                                value={integrationName}
-                                                required
-                                                onChange={(_, value) => setIntegrationName(value)}
-                            >
-                            </TextInputGroupMain>
-                            <Text className='text-field-suffix' component={TextVariants.p}>{integrationExtension}</Text>
-                        </TextInputGroup>
-                    </FormGroup>
-                }
                 {backendError &&
                     <FormAlert>
                         <Alert variant="danger" title={backendError} aria-live="polite" isInline />

@@ -93,22 +93,4 @@ public class ProjectFileResource {
                 URLDecoder.decode(filename, StandardCharsets.UTF_8.toString())
         );
     }
-
-    @POST
-    @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Path("/openapi/{generateRest}/{generateRoutes}/{integrationName}")
-    public ProjectFile saveOpenapi(@HeaderParam("username") String username,
-                                   @PathParam("integrationName") String integrationName,
-                                   @PathParam("generateRest") boolean generateRest,
-                                   @PathParam("generateRoutes") boolean generateRoutes, ProjectFile file) throws Exception {
-        karavanCacheService.saveProjectFile(file);
-        if (generateRest) {
-            String yaml = codeService.generate(file.getName(), file.getCode(), generateRoutes);
-            ProjectFile integration = new ProjectFile(integrationName, yaml, file.getProjectId(), Instant.now().toEpochMilli());
-            karavanCacheService.saveProjectFile(integration);
-            return file;
-        }
-        return file;
-    }
 }

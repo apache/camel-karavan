@@ -145,12 +145,6 @@
             <version>${docker-java.version}</version>
             <optional>false</optional>
         </dependency>
-        <!-- Code generator -->
-        <dependency>
-            <groupId>org.apache.camel</groupId>
-            <artifactId>camel-openapi-rest-dsl-generator</artifactId>
-            <version>${camel.version}</version>
-        </dependency>
         <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-container-image-docker</artifactId>
