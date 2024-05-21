@@ -22,8 +22,6 @@ import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClientBuilder;
 import io.fabric8.kubernetes.client.dsl.LogWatch;
 import io.fabric8.kubernetes.client.informers.SharedIndexInformer;
-import io.fabric8.openshift.api.model.ImageStream;
-import io.fabric8.openshift.client.OpenShiftClient;
 import io.quarkus.runtime.configuration.ProfileManager;
 import io.quarkus.vertx.ConsumeEvent;
 import io.smallrye.mutiny.tuples.Tuple2;
@@ -47,7 +45,6 @@ import org.jboss.logging.Logger;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static org.apache.camel.karavan.service.KaravanService.KARAVAN_STARTED;
 import static org.apache.camel.karavan.shared.Constants.*;
@@ -76,11 +73,6 @@ public class KubernetesService implements HealthCheck {
         return new KubernetesClientBuilder().build();
     }
 
-    @Produces
-    public OpenShiftClient openshiftClient() {
-        return kubernetesClient().adapt(OpenShiftClient.class);
-    }
-
     @ConfigProperty(name = "karavan.environment")
     public String environment;
 
@@ -101,6 +93,9 @@ public class KubernetesService implements HealthCheck {
 
     @ConfigProperty(name = "karavan.private-key-path")
     Optional<String> privateKeyPath;
+
+    @ConfigProperty(name = "karavan.openshift")
+    Optional<Boolean> isOpenShift;
 
     List<SharedIndexInformer> informers = new ArrayList<>(INFORMERS);
 
@@ -407,23 +402,6 @@ public class KubernetesService implements HealthCheck {
         return result;
     }
 
-    public List<String> getProjectImageTags(String projectId, String namespace) {
-        List<String> result = new ArrayList<>();
-        try {
-            if (isOpenshift()) {
-                ImageStream is = openshiftClient().imageStreams().inNamespace(namespace).withName(projectId).get();
-                if (is != null) {
-                    result.addAll(is.getSpec().getTags().stream().map(t -> t.getName()).sorted(Comparator.reverseOrder()).collect(Collectors.toList()));
-                }
-            } else {
-                // TODO: Implement for Kubernetes/Minikube
-            }
-        } catch (Exception ex) {
-            LOGGER.error(ex.getMessage());
-        }
-        return result;
-    }
-
     public void runDevModeContainer(Project project, String jBangOptions, Map<String, String> files) {
         String name = project.getProjectId();
         Map<String, String> labels = getLabels(name, project, ContainerStatus.ContainerType.devmode);
@@ -589,9 +567,7 @@ public class KubernetesService implements HealthCheck {
     }
 
     public boolean isOpenshift() {
-        try (KubernetesClient client = kubernetesClient()) {
-            return ConfigService.inKubernetes() ? client.isAdaptable(OpenShiftClient.class) : false;
-        }
+        return isOpenShift.isPresent() && isOpenShift.get();
     }
 
     public String getCluster() {

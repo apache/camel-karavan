@@ -104,13 +104,6 @@ public class InfrastructureResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/imagetag/{env}/{projectId}")
-    public Response getProjectImageTags(@PathParam("env") String env, @PathParam("projectId") String projectId) throws Exception {
-        return Response.ok(kubernetesService.getProjectImageTags(projectId, kubernetesService.getNamespace())).build();
-    }
-
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
     @Path("/configmaps")
     public Response getConfigMaps() throws Exception {
         if (ConfigService.inKubernetes()) {
