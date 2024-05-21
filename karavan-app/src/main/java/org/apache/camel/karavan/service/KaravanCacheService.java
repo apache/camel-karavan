@@ -16,13 +16,6 @@
  */
 package org.apache.camel.karavan.service;
 
-import com.hazelcast.config.ClasspathYamlConfig;
-import com.hazelcast.config.Config;
-import com.hazelcast.core.Hazelcast;
-import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.map.IMap;
-import com.hazelcast.query.Predicate;
-import com.hazelcast.query.Predicates;
 import io.quarkus.runtime.ShutdownEvent;
 import jakarta.enterprise.event.Observes;
 import jakarta.enterprise.inject.Default;
@@ -34,10 +27,8 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
@@ -45,49 +36,31 @@ import java.util.stream.Collectors;
 @Singleton
 public class KaravanCacheService {
 
-    private HazelcastInstance hz;
-    private IMap<String, Project> projects;
-    private IMap<String, ProjectFile> files;
-    private IMap<String, DeploymentStatus> deploymentStatuses;
-    private IMap<String, ContainerStatus> containerStatuses;
-    private IMap<String, Boolean> transits;
-    private IMap<String, ServiceStatus> serviceStatuses;
-    private IMap<String, CamelStatus> camelStatuses;
+    private final Map<String, Project> projects = new ConcurrentHashMap<>();
+    private final Map<String, ProjectFile> files = new ConcurrentHashMap<>();
+    private final Map<String, DeploymentStatus> deploymentStatuses = new ConcurrentHashMap<>();
+    private final Map<String, ContainerStatus> containerStatuses = new ConcurrentHashMap<>();
+    private final Map<String, Boolean> transits = new ConcurrentHashMap<>();
+    private final Map<String, ServiceStatus> serviceStatuses = new ConcurrentHashMap<>();
+    private final Map<String, CamelStatus> camelStatuses = new ConcurrentHashMap<>();
 
     private final AtomicBoolean ready = new AtomicBoolean(false);
     private static final Logger LOGGER = Logger.getLogger(KaravanCacheService.class.getName());
 
     public static final String DEFAULT_ENVIRONMENT = "dev";
 
-    public HazelcastInstance getHz() {
-        return hz;
-    }
-
     void start() {
-        LOGGER.info("KaravanCacheService is starting");
-        Config config = new ClasspathYamlConfig("hazelcast.yaml");
-        hz = Hazelcast.getOrCreateHazelcastInstance(config);
-        projects = hz.getMap(Project.CACHE);
-        files = hz.getMap(ProjectFile.CACHE);
-        deploymentStatuses = hz.getMap(DeploymentStatus.CACHE);
-        containerStatuses = hz.getMap(ContainerStatus.CACHE);
-        transits = hz.getMap("transits");
-        serviceStatuses = hz.getMap(ServiceStatus.CACHE);
-        camelStatuses = hz.getMap(CamelStatus.CACHE);
         LOGGER.info("KaravanCacheService is started");
         ready.set(true);
     }
 
     void onStop(@Observes ShutdownEvent ev) {
-        LOGGER.info("KaravanCacheService is stopping");
-        if (hz != null){
-            hz.shutdown();
-        }
+        LOGGER.info("KaravanCacheService is stopped");
         ready.set(false);
     }
 
     public List<Project> getProjects() {
-        return projects.values().stream().collect(Collectors.toList());
+        return new ArrayList<>(projects.values());
     }
 
     public void saveProject(Project project) {
@@ -96,28 +69,21 @@ public class KaravanCacheService {
     }
 
     public List<ProjectFile> getProjectFiles(String projectId) {
-        Predicate<String, ProjectFile> predicate = Predicates.equal("projectId", projectId);
-        return files.values(predicate).stream().toList();
+        return files.values().stream().filter(pf -> Objects.equals(pf.getProjectId(), projectId)).toList();
     }
 
     public Map<String, ProjectFile> getProjectFilesMap(String projectId) {
-        Predicate<String, ProjectFile> predicate = Predicates.equal("projectId", projectId);
-        return files.entrySet(predicate).stream()
+        return files.entrySet().stream().filter(es -> !Objects.isNull(es.getValue()) && Objects.equals(es.getValue().getProjectId(), projectId))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
     public ProjectFile getProjectFile(String projectId, String filename) {
-        Predicate<String, ProjectFile> predicate = Predicates.and(
-                Predicates.equal("name", filename),
-                Predicates.equal("projectId", projectId)
-        );
-        List<ProjectFile> list = files.values(predicate).stream().toList();
+        List<ProjectFile> list = files.values().stream().filter(pf -> Objects.equals(pf.getProjectId(), projectId) && Objects.equals(pf.getName(), filename)).toList();
         return !list.isEmpty() ? list.get(0) : null;
     }
 
     public List<ProjectFile> getProjectFilesByName(String filename) {
-        Predicate<String, ProjectFile> predicate = Predicates.equal("name", filename);
-        return files.values(predicate).stream().toList();
+        return files.values().stream().filter(pf -> Objects.equals(pf.getName(), filename)).toList();
     }
 
     public void saveProjectFile(ProjectFile file) {
@@ -159,8 +125,7 @@ public class KaravanCacheService {
     }
 
     public List<DeploymentStatus> getDeploymentStatuses(String env) {
-        Predicate<String, DeploymentStatus> predicate = Predicates.equal("env", env);
-        return deploymentStatuses.values(predicate).stream().toList();
+        return deploymentStatuses.values().stream().filter(pf -> Objects.equals(pf.getEnv(), env)).toList();
     }
 
     public void deleteAllDeploymentsStatuses() {
@@ -196,11 +161,7 @@ public class KaravanCacheService {
     }
 
     public List<ContainerStatus> getContainerStatuses(String projectId, String env) {
-        Predicate<String, ContainerStatus> predicate = Predicates.and(
-                Predicates.equal("projectId", projectId),
-                Predicates.equal("env", env)
-        );
-        return containerStatuses.values(predicate).stream().toList();
+        return containerStatuses.values().stream().filter(el -> Objects.equals(el.getProjectId(), projectId) && Objects.equals(el.getEnv(), env)).toList();
     }
 
     public ContainerStatus getContainerStatus(String projectId, String env, String containerName) {
@@ -216,10 +177,7 @@ public class KaravanCacheService {
     }
 
     public List<ContainerStatus> getContainerStatuses(String env) {
-        Predicate<String, ContainerStatus> predicate = Predicates.and(
-                Predicates.equal("env", env)
-        );
-        return containerStatuses.values(predicate).stream().toList();
+        return containerStatuses.values().stream().filter(el -> Objects.equals(el.getEnv(), env)).toList();
     }
 
     public List<ContainerStatus> getAllContainerStatuses() {
@@ -260,11 +218,7 @@ public class KaravanCacheService {
     }
 
     public List<CamelStatus> getCamelStatusesByProjectAndEnv(String projectId, String env) {
-        Predicate<String, CamelStatus> predicate = Predicates.and(
-                Predicates.equal("projectId", projectId),
-                Predicates.equal("env", env)
-        );
-        return camelStatuses.values(predicate).stream().toList();
+        return camelStatuses.values().stream().filter(el -> Objects.equals(el.getProjectId(), projectId) && Objects.equals(el.getEnv(), env)).toList();
     }
 
     public void saveCamelStatus(CamelStatus status) {
@@ -278,14 +232,11 @@ public class KaravanCacheService {
     }
 
     public void deleteCamelStatuses(String projectId, String env) {
-        Predicate<String, CamelStatus> predicate = Predicates.and(
-                Predicates.equal("projectId", projectId),
-                Predicates.equal("env", env)
-        );
-        camelStatuses.values(predicate).forEach(s -> {
-            var key = GroupedKey.create(projectId, env, s.getContainerName());
-            camelStatuses.remove(key);
-        });
+        camelStatuses.values().stream().filter(el -> Objects.equals(el.getProjectId(), projectId) && Objects.equals(el.getEnv(), env))
+                .forEach(s -> {
+                    var key = GroupedKey.create(projectId, env, s.getContainerName());
+                    camelStatuses.remove(key);
+                });
     }
 
     public void deleteAllCamelStatuses() {
@@ -293,25 +244,15 @@ public class KaravanCacheService {
     }
 
     public List<ContainerStatus> getLoadedDevModeStatuses() {
-        Predicate<String, ContainerStatus> predicate = Predicates.and(
-                Predicates.equal("type", ContainerStatus.ContainerType.devmode),
-                Predicates.equal("codeLoaded", true)
-        );
-        return containerStatuses.values(predicate).stream().toList();
+        return containerStatuses.values().stream().filter(el -> Objects.equals(el.getType(), ContainerStatus.ContainerType.devmode) && Objects.equals(el.getCodeLoaded(), true)).toList();
     }
 
     public List<ContainerStatus> getDevModeStatuses() {
-        Predicate<String, ContainerStatus> predicate = Predicates.and(
-                Predicates.equal("type", ContainerStatus.ContainerType.devmode)
-        );
-        return containerStatuses.values(predicate).stream().toList();
+        return containerStatuses.values().stream().filter(el -> Objects.equals(el.getType(), ContainerStatus.ContainerType.devmode)).toList();
     }
 
     public List<ContainerStatus> getContainerStatusByEnv(String env) {
-        Predicate<String, ContainerStatus> predicate = Predicates.and(
-                Predicates.equal("env", env)
-        );
-        return containerStatuses.values(predicate).stream().toList();
+        return containerStatuses.values().stream().filter(el -> Objects.equals(el.getEnv(), env)).toList();
     }
 
     public void clearAllStatuses() {
