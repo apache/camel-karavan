@@ -1,18 +1,9 @@
 - route:
-    id: route-3d00
-    nodePrefixId: route-01c
+    id: route-d1dc
+    nodePrefixId: route-0f1
     from:
-      id: from-4a08
+      id: from-852d
       uri: direct
-      parameters:
-        name: adsdasdas
       steps:
         - loadBalance:
-            id: loadBalance-55de
-            steps:
-              - to:
-                  id: to-87b5
-                  uri: direct
-              - to:
-                  id: to-f061
-                  uri: direct
+            id: loadBalance-d8f0

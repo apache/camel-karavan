@@ -339,8 +339,11 @@ export class CamelUi {
             .forEach((r: RouteDefinition) => {
                 const uri = r.from.uri;
                 const name = r.from.parameters.name;
-                if (showComponentName) result.push(uri + ":" + name);
-                else result.push(name);
+                if (showComponentName && name) {
+                    result.push(uri + ":" + name);
+                } else if (name){
+                    result.push(name);
+                }
             });
         return result;
     }
