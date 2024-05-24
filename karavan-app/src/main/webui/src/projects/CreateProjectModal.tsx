@@ -64,7 +64,7 @@ export function CreateProjectModal() {
 
     const onSubmit: SubmitHandler<Project> = (data) => {
         if (operation === 'copy') {
-            KaravanApi.copyProject(data.projectId, project, after)
+            KaravanApi.copyProject(project.projectId, data, after)
         } else {
             KaravanApi.postProject(data, after)
         }
