@@ -76,12 +76,13 @@ export function DslElementHeader(props: Props) {
     }
 
     function isWide(): boolean {
-        return ['RouteConfigurationDefinition', 'RouteDefinition', 'ChoiceDefinition', 'MulticastDefinition', 'TryDefinition', 'CircuitBreakerDefinition']
+        return ['RouteConfigurationDefinition', 'RouteDefinition', 'ChoiceDefinition', 'MulticastDefinition',
+            'LoadBalanceDefinition', 'TryDefinition', 'CircuitBreakerDefinition']
             .includes(props.step.dslName);
     }
 
     function isHorizontal(): boolean {
-        return ['MulticastDefinition'].includes(props.step.dslName);
+        return ['MulticastDefinition', 'LoadBalanceDefinition'].includes(props.step.dslName);
     }
 
     function getChildrenInfo(step: CamelElement): [boolean, number, boolean, number, number] {

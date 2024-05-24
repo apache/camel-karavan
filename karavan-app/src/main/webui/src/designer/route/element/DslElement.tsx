@@ -102,7 +102,6 @@ export function DslElement(props: Props) {
         if ([
             'FromDefinition',
             'TryDefinition',
-            'MulticastDefinition',
             'CatchDefinition', 'FinallyDefinition',
             'ChoiceDefinition',
             'SwitchDefinition', 'WhenDefinition', 'OtherwiseDefinition'
@@ -117,12 +116,12 @@ export function DslElement(props: Props) {
     }
 
     function isAddStepButtonLeft(): boolean {
-        return ['MulticastDefinition']
+        return ['MulticastDefinition', 'LoadBalanceDefinition']
             .includes(props.step.dslName);
     }
 
     function isHorizontal(): boolean {
-        return ['MulticastDefinition'].includes(props.step.dslName);
+        return ['MulticastDefinition', 'LoadBalanceDefinition'].includes(props.step.dslName);
     }
 
 

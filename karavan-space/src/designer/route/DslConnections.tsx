@@ -285,7 +285,7 @@ export function DslConnections() {
     }
 
     function isSpecial(pos: DslPosition): boolean {
-        return ['ChoiceDefinition', 'MulticastDefinition', 'TryDefinition', 'RouteConfigurationDefinition'].includes(pos.step.dslName);
+        return ['ChoiceDefinition', 'MulticastDefinition', 'LoadBalanceDefinition', 'TryDefinition', 'RouteConfigurationDefinition'].includes(pos.step.dslName);
     }
 
     function addArrowToList(list: JSX.Element[], from?: DslPosition, to?: DslPosition, fromHeader?: boolean, toHeader?: boolean): JSX.Element[]  {
@@ -309,7 +309,7 @@ export function DslConnections() {
         if (pos.parent && pos.parent.dslName === 'TryDefinition' && pos.position === 0) {
             const parent = steps.get(pos.parent.uuid);
             list.push(...addArrowToList(list, parent, pos, true, false))
-        } else if (pos.parent && ['RouteConfigurationDefinition', 'MulticastDefinition'].includes(pos.parent.dslName)) {
+        } else if (pos.parent && ['RouteConfigurationDefinition', 'MulticastDefinition', 'LoadBalanceDefinition'].includes(pos.parent.dslName)) {
             const parent = steps.get(pos.parent.uuid);
             list.push(...addArrowToList(list, parent, pos, true, false))
             if (parent?.nextstep) {
@@ -327,7 +327,7 @@ export function DslConnections() {
             if (pos.position === (pos.inStepsLength - 1) && !isSpecial(pos)) {
                 const nextElement = getNext(pos);
                 const parentDsl1 = getParentDsl(nextElement?.uuid);
-                if (parentDsl1 && ['RouteConfigurationDefinition', 'MulticastDefinition'].includes(parentDsl1)) {
+                if (parentDsl1 && ['RouteConfigurationDefinition', 'MulticastDefinition', 'LoadBalanceDefinition'].includes(parentDsl1)) {
                     // do nothing
                 } else if (nextElement) {
                     const next = steps.get(nextElement.uuid);
@@ -349,7 +349,7 @@ export function DslConnections() {
 
         if (['WhenDefinition', 'OtherwiseDefinition'].includes(pos.step.dslName) && pos.step.hasSteps() && (pos.step as any).steps.length === 0) {
             const parentDsl = getParentDsl(pos?.nextstep?.uuid);
-            if (parentDsl && ['RouteConfigurationDefinition', 'MulticastDefinition'].includes(parentDsl)) {
+            if (parentDsl && ['RouteConfigurationDefinition', 'MulticastDefinition', 'LoadBalanceDefinition'].includes(parentDsl)) {
                 // do nothing
             } else if (pos.nextstep) {
                 const to = steps.get(pos.nextstep.uuid);
@@ -357,7 +357,7 @@ export function DslConnections() {
             } else {
                 const next = getNext(pos);
                 const parentDsl1 = getParentDsl(next?.uuid);
-                if (parentDsl1 && ['RouteConfigurationDefinition', 'MulticastDefinition'].includes(parentDsl1)) {
+                if (parentDsl1 && ['RouteConfigurationDefinition', 'MulticastDefinition', 'LoadBalanceDefinition'].includes(parentDsl1)) {
                     // do nothing
                 } else if (next) {
                     const to = steps.get(next.uuid);
@@ -374,7 +374,8 @@ export function DslConnections() {
             }
         }
 
-        if (!isSpecial(pos) && pos.inSteps && pos.nextstep && pos.parent?.dslName !== 'MulticastDefinition') {
+        if (!isSpecial(pos) && pos.inSteps && pos.nextstep && (pos.parent?.dslName &&
+            !['MulticastDefinition', 'LoadBalanceDefinition'].includes(pos.parent?.dslName))) {
             const next = steps.get(pos.nextstep.uuid);
             if (pos.step.hasSteps() && pos.prevStep) {
             } else {
@@ -382,7 +383,8 @@ export function DslConnections() {
             }
         }
 
-        if (!isSpecial(pos) && pos.inSteps && pos.nextstep && pos.parent?.dslName !== 'MulticastDefinition') {
+        if (!isSpecial(pos) && pos.inSteps && pos.nextstep && (pos.parent?.dslName &&
+            !['MulticastDefinition', 'LoadBalanceDefinition'].includes(pos.parent?.dslName))) {
             const next = steps.get(pos.nextstep.uuid);
             if (next && !isSpecial(next) && next.inSteps) {
                 // console.log(pos)
