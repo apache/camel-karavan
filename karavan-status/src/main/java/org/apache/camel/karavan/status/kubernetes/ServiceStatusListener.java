@@ -21,26 +21,26 @@ import io.quarkus.vertx.ConsumeEvent;
 import io.vertx.core.json.JsonObject;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import org.apache.camel.karavan.status.KaravanStatusCache;
+import org.apache.camel.karavan.status.StatusCache;
 import org.apache.camel.karavan.status.model.ServiceStatus;
 
-import static org.apache.camel.karavan.status.KaravanStatusEvents.*;
+import static org.apache.camel.karavan.status.StatusEvents.*;
 
 @ApplicationScoped
 public class ServiceStatusListener {
 
     @Inject
-    KaravanStatusCache karavanStatusCache;
+    StatusCache statusCache;
 
     @ConsumeEvent(value = SERVICE_DELETED, blocking = true, ordered = true)
     public void cleanServiceStatus(JsonObject data) {
         ServiceStatus ds = data.mapTo(ServiceStatus.class);
-        karavanStatusCache.deleteServiceStatus(ds);
+        statusCache.deleteServiceStatus(ds);
     }
 
     @ConsumeEvent(value = SERVICE_UPDATED, blocking = true, ordered = true)
     public void saveServiceStatus(JsonObject data) {
         ServiceStatus ds = data.mapTo(ServiceStatus.class);
-        karavanStatusCache.saveServiceStatus(ds);
+        statusCache.saveServiceStatus(ds);
     }
 }

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.camel.karavan.status.model;
+package org.apache.camel.karavan.project.model;
 
 public class GroupedKey {
 

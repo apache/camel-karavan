@@ -8,6 +8,7 @@
   <packaging>pom</packaging>
   <modules>
     <module>karavan-status</module>
+    <module>karavan-projects</module>
     <module>karavan-app</module>
   </modules>
 

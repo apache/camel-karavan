@@ -22,18 +22,18 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import org.apache.camel.karavan.service.CamelService;
-import org.apache.camel.karavan.model.Project;
-import org.apache.camel.karavan.docker.DockerAPI;
-import org.apache.camel.karavan.kubernetes.KubernetesAPI;
-import org.apache.camel.karavan.project.ProjectService;
-import org.apache.camel.karavan.status.ConfigService;
-import org.apache.camel.karavan.status.KaravanStatusCache;
+import org.apache.camel.karavan.project.model.Project;
+import org.apache.camel.karavan.manager.CamelManager;
+import org.apache.camel.karavan.manager.docker.DockerManager;
+import org.apache.camel.karavan.manager.kubernetes.KubernetesManager;
+import org.apache.camel.karavan.manager.ProjectManager;
+import org.apache.camel.karavan.config.ConfigService;
+import org.apache.camel.karavan.status.StatusCache;
 import org.apache.camel.karavan.status.model.ContainerStatus;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
-import static org.apache.camel.karavan.status.KaravanStatusEvents.CONTAINER_UPDATED;
+import static org.apache.camel.karavan.status.StatusEvents.CONTAINER_UPDATED;
 
 @Path("/ui/devmode")
 public class DevModeResource {
@@ -44,19 +44,19 @@ public class DevModeResource {
     String environment;
 
     @Inject
-    CamelService camelService;
+    CamelManager camelManager;
 
     @Inject
-    KaravanStatusCache karavanStatusCache;
+    StatusCache statusCache;
 
     @Inject
-    KubernetesAPI kubernetesAPI;
+    KubernetesManager kubernetesManager;
 
     @Inject
-    DockerAPI dockerAPI;
+    DockerManager dockerManager;
 
     @Inject
-    ProjectService projectService;
+    ProjectManager projectManager;
 
     @Inject
     EventBus eventBus;
@@ -67,7 +67,7 @@ public class DevModeResource {
     @Path("/{jBangOptions}")
     public Response runProjectWithJBangOptions(Project project, @PathParam("jBangOptions") String jBangOptions) {
         try {
-            String containerName = projectService.runProjectWithJBangOptions(project, jBangOptions);
+            String containerName = projectManager.runProjectWithJBangOptions(project, jBangOptions);
             if (containerName != null) {
                 return Response.ok(containerName).build();
             } else {
@@ -90,7 +90,7 @@ public class DevModeResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/reload/{projectId}")
     public Response reload(@PathParam("projectId") String projectId) {
-        camelService.reloadProjectCode(projectId);
+        camelManager.reloadProjectCode(projectId);
         return Response.ok().build();
     }
 
@@ -101,15 +101,15 @@ public class DevModeResource {
     public Response deleteDevMode(@PathParam("projectId") String projectId, @PathParam("deletePVC") boolean deletePVC) {
         setContainerStatusTransit(projectId, ContainerStatus.ContainerType.devmode.name());
         if (ConfigService.inKubernetes()) {
-            kubernetesAPI.deleteDevModePod(projectId, deletePVC);
+            kubernetesManager.deleteDevModePod(projectId, deletePVC);
         } else {
-            dockerAPI.deleteContainer(projectId);
+            dockerManager.deleteContainer(projectId);
         }
         return Response.accepted().build();
     }
 
     private void setContainerStatusTransit(String name, String type) {
-        ContainerStatus status = karavanStatusCache.getContainerStatus(name, environment, name);
+        ContainerStatus status = statusCache.getContainerStatus(name, environment, name);
         if (status == null) {
             status = ContainerStatus.createByType(name, environment, ContainerStatus.ContainerType.valueOf(type));
         }
@@ -121,7 +121,7 @@ public class DevModeResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/container/{projectId}")
     public Response getPodStatus(@PathParam("projectId") String projectId) throws RuntimeException {
-        ContainerStatus cs = karavanStatusCache.getDevModeContainerStatus(projectId, environment);
+        ContainerStatus cs = statusCache.getDevModeContainerStatus(projectId, environment);
         if (cs != null) {
             return Response.ok(cs).build();
         } else {

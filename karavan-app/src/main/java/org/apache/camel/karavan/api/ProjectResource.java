@@ -20,15 +20,15 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import org.apache.camel.karavan.docker.DockerAPI;
+import org.apache.camel.karavan.manager.docker.DockerManager;
 import org.apache.camel.karavan.project.GitService;
-import org.apache.camel.karavan.project.KaravanProjectsCache;
-import org.apache.camel.karavan.model.Project;
-import org.apache.camel.karavan.kubernetes.KubernetesAPI;
-
 import org.apache.camel.karavan.project.ProjectService;
-import org.apache.camel.karavan.status.ConfigService;
-import org.apache.camel.karavan.status.KaravanStatusCache;
+import org.apache.camel.karavan.project.ProjectsCache;
+import org.apache.camel.karavan.manager.kubernetes.KubernetesManager;
+import org.apache.camel.karavan.config.ConfigService;
+import org.apache.camel.karavan.project.model.Project;
+import org.apache.camel.karavan.manager.ProjectManager;
+import org.apache.camel.karavan.status.StatusCache;
 import org.apache.camel.karavan.status.model.CamelStatus;
 import org.apache.camel.karavan.status.model.CamelStatusValue;
 import org.apache.camel.karavan.status.model.ContainerStatus;
@@ -44,16 +44,16 @@ public class ProjectResource {
     private static final Logger LOGGER = Logger.getLogger(ProjectResource.class.getName());
 
     @Inject
-    KaravanProjectsCache karavanProjectsCache;
+    ProjectsCache projectsCache;
 
     @Inject
-    KaravanStatusCache karavanStatusCache;
+    StatusCache statusCache;
 
     @Inject
-    KubernetesAPI kubernetesAPI;
+    KubernetesManager kubernetesManager;
 
     @Inject
-    DockerAPI dockerAPI;
+    DockerManager dockerManager;
 
     @Inject
     GitService gitService;
@@ -70,6 +70,9 @@ public class ProjectResource {
     @Inject
     ProjectService projectService;
 
+    @Inject
+    ProjectManager projectManager;
+
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public List<Project> getAll(@QueryParam("type") String type) {
@@ -80,7 +83,7 @@ public class ProjectResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/{project}")
     public Project get(@PathParam("project") String project) throws Exception {
-        return karavanProjectsCache.getProject(project);
+        return projectsCache.getProject(project);
     }
 
     @POST
@@ -107,9 +110,9 @@ public class ProjectResource {
             LOGGER.info("Deleting deployments");
             Response res4 = infrastructureResource.deleteDeployment(null, projectId);
         }
-        gitService.deleteProject(projectId, karavanProjectsCache.getProjectFiles(projectId));
-        karavanProjectsCache.getProjectFiles(projectId).forEach(file -> karavanProjectsCache.deleteProjectFile(projectId, file.getName()));
-        karavanProjectsCache.deleteProject(projectId);
+        gitService.deleteProject(projectId, projectsCache.getProjectFiles(projectId));
+        projectsCache.getProjectFiles(projectId).forEach(file -> projectsCache.deleteProjectFile(projectId, file.getName()));
+        projectsCache.deleteProject(projectId);
         LOGGER.info("Project deleted");
     }
 
@@ -119,7 +122,7 @@ public class ProjectResource {
     @Path("/build/{tag}")
     public Response build(Project project, @PathParam("tag") String tag) throws Exception {
         try {
-            projectService.buildProject(project, tag);
+            projectManager.buildProject(project, tag);
             return Response.ok().entity(project).build();
         } catch (Exception e) {
             LOGGER.error(e.getMessage());
@@ -133,10 +136,10 @@ public class ProjectResource {
     public Response deleteBuild(@PathParam("env") String env, @PathParam("buildName") String buildName) {
         buildName = URLDecoder.decode(buildName, StandardCharsets.UTF_8);
         if (ConfigService.inKubernetes()) {
-            kubernetesAPI.deletePod(buildName);
+            kubernetesManager.deletePod(buildName);
             return Response.ok().build();
         } else {
-            dockerAPI.deleteContainer(buildName);
+            dockerManager.deleteContainer(buildName);
             return Response.ok().build();
         }
     }
@@ -145,7 +148,7 @@ public class ProjectResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/status/camel/{projectId}/{env}")
     public Response getCamelStatusForProjectAndEnv(@PathParam("projectId") String projectId, @PathParam("env") String env) {
-        List<CamelStatus> statuses = karavanStatusCache.getCamelStatusesByProjectAndEnv(projectId, env)
+        List<CamelStatus> statuses = statusCache.getCamelStatusesByProjectAndEnv(projectId, env)
                 .stream().map(camelStatus -> {
                     var stats = camelStatus.getStatuses().stream().filter(s -> !Objects.equals(s.getName(), CamelStatusValue.Name.trace)).toList();
                     camelStatus.setStatuses(stats);
@@ -162,7 +165,7 @@ public class ProjectResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/traces/{projectId}/{env}")
     public Response getCamelTracesForProjectAndEnv(@PathParam("projectId") String projectId, @PathParam("env") String env) {
-        List<CamelStatus> statuses = karavanStatusCache.getCamelStatusesByProjectAndEnv(projectId, env)
+        List<CamelStatus> statuses = statusCache.getCamelStatusesByProjectAndEnv(projectId, env)
                 .stream().map(camelStatus -> {
                     var stats = camelStatus.getStatuses().stream().filter(s -> Objects.equals(s.getName(), CamelStatusValue.Name.trace)).toList();
                     camelStatus.setStatuses(stats);

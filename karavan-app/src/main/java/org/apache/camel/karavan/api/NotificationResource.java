@@ -30,7 +30,7 @@ import jakarta.ws.rs.sse.OutboundSseEvent;
 import jakarta.ws.rs.sse.Sse;
 import org.jboss.resteasy.reactive.RestStreamElementType;
 
-import static org.apache.camel.karavan.shared.Constants.*;
+import static org.apache.camel.karavan.manager.NotificationManager.*;
 
 @Path("/ui/notification")
 public class NotificationResource {

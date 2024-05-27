@@ -31,11 +31,11 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.SecurityContext;
 import jakarta.ws.rs.sse.Sse;
 import jakarta.ws.rs.sse.SseEventSink;
-import org.apache.camel.karavan.docker.DockerAPI;
-import org.apache.camel.karavan.docker.LogCallback;
-import org.apache.camel.karavan.kubernetes.KubernetesAPI;
+import org.apache.camel.karavan.manager.docker.DockerManager;
+import org.apache.camel.karavan.manager.docker.DockerLogCallback;
+import org.apache.camel.karavan.manager.kubernetes.KubernetesManager;
 
-import org.apache.camel.karavan.status.ConfigService;
+import org.apache.camel.karavan.config.ConfigService;
 import org.eclipse.microprofile.context.ManagedExecutor;
 import org.jboss.logging.Logger;
 
@@ -51,10 +51,10 @@ public class LogWatchResource {
     private static final ConcurrentHashMap<String, LogWatch> logWatches = new ConcurrentHashMap<>();
 
     @Inject
-    KubernetesAPI kubernetesAPI;
+    KubernetesManager kubernetesManager;
 
     @Inject
-    DockerAPI dockerAPI;
+    DockerManager dockerManager;
 
     @Inject
     @ManagedExecutorConfig()
@@ -83,13 +83,13 @@ public class LogWatchResource {
     private void getDockerLogs(String type, String name, SseEventSink eventSink, Sse sse) {
         LOGGER.info("LogCallback for " + name + " starting");
         try (SseEventSink sink = eventSink) {
-            LogCallback logCallback = new LogCallback(line -> {
+            DockerLogCallback dockerLogCallback = new DockerLogCallback(line -> {
                 if (!sink.isClosed()) {
                     sink.send(sse.newEvent(line));
                 }
             });
-            dockerAPI.logContainer(name, logCallback);
-            logCallback.close();
+            dockerManager.logContainer(name, dockerLogCallback);
+            dockerLogCallback.close();
             sink.close();
             LOGGER.info("LogCallback for " + name + " closed");
         } catch (Exception e) {
@@ -99,7 +99,7 @@ public class LogWatchResource {
 
     private void getKubernetesLogs(String name, SseEventSink eventSink, Sse sse) {
         try (SseEventSink sink = eventSink) {
-            Tuple2<LogWatch, KubernetesClient> request = kubernetesAPI.getContainerLogWatch(name);
+            Tuple2<LogWatch, KubernetesClient> request = kubernetesManager.getContainerLogWatch(name);
             LogWatch logWatch = request.getItem1();
             BufferedReader reader = new BufferedReader(new InputStreamReader(logWatch.getOutput()));
             try {

@@ -28,7 +28,7 @@ import org.jboss.logging.Logger;
 
 import java.util.*;
 
-import static org.apache.camel.karavan.status.KaravanStatusEvents.CMD_COLLECT_CAMEL_STATUS;
+import static org.apache.camel.karavan.status.StatusEvents.CMD_COLLECT_CAMEL_STATUS;
 
 @ApplicationScoped
 public class CamelStatusService {
@@ -36,7 +36,7 @@ public class CamelStatusService {
     private static final Logger LOGGER = Logger.getLogger(CamelStatusService.class.getName());
 
     @Inject
-    KaravanStatusCache karavanStatusCache;
+    StatusCache statusCache;
 
     @ConfigProperty(name = "karavan.environment")
     String environment;
@@ -47,7 +47,7 @@ public class CamelStatusService {
     @Scheduled(every = "{karavan.camel.status.interval}", concurrentExecution = Scheduled.ConcurrentExecution.SKIP)
     public void collectCamelStatuses() {
         LOGGER.debug("Collect Camel Statuses");
-        karavanStatusCache.getContainerStatuses(environment).stream()
+        statusCache.getContainerStatuses(environment).stream()
                 .filter(cs ->
                         cs.getType() == ContainerStatus.ContainerType.project
                                 || cs.getType() == ContainerStatus.ContainerType.devmode

@@ -33,7 +33,7 @@ import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
 import org.apache.camel.karavan.project.CodeService;
 import org.apache.camel.karavan.project.model.DockerComposeService;
-import org.apache.camel.karavan.status.ConfigService;
+import org.apache.camel.karavan.config.ConfigService;
 import org.apache.camel.karavan.status.model.ContainerStatus;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;

@@ -19,16 +19,15 @@ package org.apache.camel.karavan.status.docker;
 
 import io.quarkus.scheduler.Scheduled;
 import io.vertx.mutiny.core.eventbus.EventBus;
-import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import org.apache.camel.karavan.status.ConfigService;
+import org.apache.camel.karavan.config.ConfigService;
 import org.apache.camel.karavan.status.model.ContainerStatus;
 
 import java.util.List;
 
-import static org.apache.camel.karavan.status.KaravanStatusEvents.*;
+import static org.apache.camel.karavan.status.StatusEvents.*;
 
 @ApplicationScoped
 public class DockerStatusService {

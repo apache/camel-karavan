@@ -27,7 +27,7 @@ import org.jboss.logging.Logger;
 
 import java.util.HashMap;
 
-import static org.apache.camel.karavan.project.ProjectService.PUSH_PROJECT;
+import static org.apache.camel.karavan.project.ProjectEvents.CMD_PUSH_PROJECT;
 
 @Path("/ui/git")
 public class ProjectGitResource {
@@ -44,7 +44,7 @@ public class ProjectGitResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public HashMap<String, String> push(HashMap<String, String> params) throws Exception {
-        eventBus.publish(PUSH_PROJECT, JsonObject.mapFrom(params));
+        eventBus.publish(CMD_PUSH_PROJECT, JsonObject.mapFrom(params));
         return params;
     }
 

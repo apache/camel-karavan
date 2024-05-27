@@ -33,7 +33,7 @@ import org.apache.camel.karavan.project.model.Project;
 import org.apache.camel.karavan.status.StatusConstants;
 import org.apache.camel.karavan.status.model.ContainerStatus;
 
-import org.apache.camel.karavan.status.ConfigService;
+import org.apache.camel.karavan.config.ConfigService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
@@ -41,8 +41,8 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import java.util.*;
 
-import static org.apache.camel.karavan.project.KaravanProjectEvents.PROJECTS_STARTED;
 import static org.apache.camel.karavan.manager.ManagerConstants.*;
+import static org.apache.camel.karavan.project.ProjectEvents.PROJECTS_STARTED;
 
 @Default
 @ApplicationScoped

@@ -33,7 +33,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Objects;
 
-import static org.apache.camel.karavan.status.KaravanStatusEvents.*;
+import static org.apache.camel.karavan.status.StatusEvents.*;
 
 @ApplicationScoped
 public class ContainerStatusListener {
@@ -43,7 +43,7 @@ public class ContainerStatusListener {
     String environment;
 
     @Inject
-    KaravanStatusCache karavanStatusCache;
+    StatusCache statusCache;
 
     @Inject
     DockerAPI dockerAPI;
@@ -62,7 +62,7 @@ public class ContainerStatusListener {
     void cleanContainersStatuses(JsonArray list) {
         List<ContainerStatus> statusesInDocker = list.stream().map(o -> ((JsonObject)o).mapTo(ContainerStatus.class)).toList();
         List<String> namesInDocker = statusesInDocker.stream().map(ContainerStatus::getContainerName).toList();
-        List<ContainerStatus> statusesInCache = karavanStatusCache.getContainerStatuses(environment);
+        List<ContainerStatus> statusesInCache = statusCache.getContainerStatuses(environment);
         // clean deleted
         statusesInCache.stream()
                 .filter(cs -> !checkTransit(cs))
@@ -75,8 +75,8 @@ public class ContainerStatusListener {
     @ConsumeEvent(value = CONTAINER_DELETED, blocking = true, ordered = true)
     public void cleanContainersStatus(JsonObject data) {
         ContainerStatus containerStatus = data.mapTo(ContainerStatus.class);
-        karavanStatusCache.deleteContainerStatus(containerStatus);
-        karavanStatusCache.deleteCamelStatuses(containerStatus.getProjectId(), containerStatus.getEnv());
+        statusCache.deleteContainerStatus(containerStatus);
+        statusCache.deleteCamelStatuses(containerStatus.getProjectId(), containerStatus.getEnv());
     }
 
     private boolean checkTransit(ContainerStatus cs) {
@@ -89,10 +89,10 @@ public class ContainerStatusListener {
     @ConsumeEvent(value = CONTAINER_UPDATED, blocking = true, ordered = true)
     public void saveContainerStatus(JsonObject data) {
         ContainerStatus newStatus = data.mapTo(ContainerStatus.class);
-        ContainerStatus oldStatus = karavanStatusCache.getContainerStatus(newStatus.getProjectId(), newStatus.getEnv(), newStatus.getContainerName());
+        ContainerStatus oldStatus = statusCache.getContainerStatus(newStatus.getProjectId(), newStatus.getEnv(), newStatus.getContainerName());
 
         if (oldStatus == null) {
-            karavanStatusCache.saveContainerStatus(newStatus);
+            statusCache.saveContainerStatus(newStatus);
         } else if (Objects.equals(oldStatus.getInTransit(), Boolean.FALSE)) {
             saveContainerStatus(newStatus, oldStatus);
         } else if (Objects.equals(oldStatus.getInTransit(), Boolean.TRUE)) {
@@ -116,6 +116,6 @@ public class ContainerStatusListener {
             newStatus.setCpuInfo(oldStatus.getCpuInfo());
             newStatus.setMemoryInfo(oldStatus.getMemoryInfo());
         }
-        karavanStatusCache.saveContainerStatus(newStatus);
+        statusCache.saveContainerStatus(newStatus);
     }
 }

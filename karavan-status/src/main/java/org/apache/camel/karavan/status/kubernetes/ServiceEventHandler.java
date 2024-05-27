@@ -24,7 +24,7 @@ import io.vertx.core.json.JsonObject;
 import org.apache.camel.karavan.status.model.ServiceStatus;
 import org.jboss.logging.Logger;
 
-import static org.apache.camel.karavan.status.KaravanStatusEvents.*;
+import static org.apache.camel.karavan.status.StatusEvents.*;
 
 public class ServiceEventHandler implements ResourceEventHandler<Service> {
 

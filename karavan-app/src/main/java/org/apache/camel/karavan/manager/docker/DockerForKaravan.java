@@ -21,9 +21,9 @@ import com.github.dockerjava.api.model.HealthCheck;
 import com.github.dockerjava.api.model.RestartPolicy;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import org.apache.camel.karavan.project.ProjectService;
 import org.apache.camel.karavan.project.model.DockerComposeService;
 import org.apache.camel.karavan.project.model.Project;
-import org.apache.camel.karavan.manager.ProjectManager;
 import org.apache.camel.karavan.status.StatusConstants;
 import org.apache.camel.karavan.status.model.ContainerStatus;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -47,7 +47,7 @@ public class DockerForKaravan {
     DockerManager dockerManager;
 
     @Inject
-    ProjectManager projectManager;
+    ProjectService projectService;
 
     public void runProjectInDevMode(String projectId, String jBangOptions, Map<Integer, Integer> ports,
                                     Map<String, String> files) throws Exception {
@@ -66,7 +66,7 @@ public class DockerForKaravan {
                 ? List.of(ENV_VAR_JBANG_OPTIONS + "=" + jBangOptions)
                 : List.of();
 
-        DockerComposeService composeService = projectManager.getProjectDockerComposeService(projectId);
+        DockerComposeService composeService = projectService.getProjectDockerComposeService(projectId);
 
         return dockerManager.createContainer(projectId, devmodeImage,
                 env, ports, healthCheck,

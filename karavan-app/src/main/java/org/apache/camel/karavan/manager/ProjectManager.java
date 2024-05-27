@@ -29,15 +29,15 @@ import org.apache.camel.karavan.project.CodeService;
 import org.apache.camel.karavan.project.GitService;
 import org.apache.camel.karavan.project.model.DockerComposeService;
 import org.apache.camel.karavan.project.model.Project;
-import org.apache.camel.karavan.status.ConfigService;
-import org.apache.camel.karavan.status.KaravanStatusCache;
+import org.apache.camel.karavan.config.ConfigService;
+import org.apache.camel.karavan.status.StatusCache;
 import org.apache.camel.karavan.status.model.ContainerStatus;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import java.time.Instant;
 import java.util.*;
 
-import static org.apache.camel.karavan.status.KaravanStatusEvents.CONTAINER_UPDATED;
+import static org.apache.camel.karavan.status.StatusEvents.CONTAINER_UPDATED;
 
 @Default
 @ApplicationScoped
@@ -47,7 +47,7 @@ public class ProjectManager {
     String environment;
 
     @Inject
-    KaravanStatusCache karavanStatusCache;
+    StatusCache statusCache;
 
     @Inject
     KubernetesManager kubernetesManager;
@@ -69,7 +69,7 @@ public class ProjectManager {
 
     public String runProjectWithJBangOptions(Project project, String jBangOptions) throws Exception {
         String containerName = project.getProjectId();
-        ContainerStatus status = karavanStatusCache.getDevModeContainerStatus(project.getProjectId(), environment);
+        ContainerStatus status = statusCache.getDevModeContainerStatus(project.getProjectId(), environment);
         if (status == null) {
             status = ContainerStatus.createDevMode(project.getProjectId(), environment);
         }

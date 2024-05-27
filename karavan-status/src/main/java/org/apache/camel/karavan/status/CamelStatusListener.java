@@ -24,6 +24,7 @@ import io.vertx.mutiny.ext.web.client.HttpResponse;
 import io.vertx.mutiny.ext.web.client.WebClient;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import org.apache.camel.karavan.config.ConfigService;
 import org.apache.camel.karavan.status.model.CamelStatus;
 import org.apache.camel.karavan.status.model.CamelStatusRequest;
 import org.apache.camel.karavan.status.model.CamelStatusValue;
@@ -36,7 +37,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import static org.apache.camel.karavan.status.KaravanStatusEvents.CMD_COLLECT_CAMEL_STATUS;
+import static org.apache.camel.karavan.status.StatusEvents.CMD_COLLECT_CAMEL_STATUS;
 
 @ApplicationScoped
 public class CamelStatusListener {
@@ -44,7 +45,7 @@ public class CamelStatusListener {
     private static final Logger LOGGER = Logger.getLogger(CamelStatusListener.class.getName());
 
     @Inject
-    KaravanStatusCache karavanStatusCache;
+    StatusCache statusCache;
 
     @ConfigProperty(name = "karavan.environment")
     String environment;
@@ -77,7 +78,7 @@ public class CamelStatusListener {
                 }
             }
             CamelStatus cs = new CamelStatus(projectId, containerName, statuses, environment);
-            karavanStatusCache.saveCamelStatus(cs);
+            statusCache.saveCamelStatus(cs);
         } catch (Exception ex) {
             LOGGER.error("collectCamelStatuses " + (ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage()));
         }

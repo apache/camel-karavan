@@ -32,8 +32,8 @@ import java.util.Map;
 import java.util.Objects;
 
 import static org.apache.camel.karavan.status.StatusConstants.*;
-import static org.apache.camel.karavan.status.KaravanStatusEvents.CONTAINER_DELETED;
-import static org.apache.camel.karavan.status.KaravanStatusEvents.CONTAINER_UPDATED;
+import static org.apache.camel.karavan.status.StatusEvents.CONTAINER_DELETED;
+import static org.apache.camel.karavan.status.StatusEvents.CONTAINER_UPDATED;
 
 public class PodEventHandler implements ResourceEventHandler<Pod> {
 

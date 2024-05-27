@@ -23,7 +23,7 @@ import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import org.apache.camel.karavan.manager.docker.DockerManager;
-import org.apache.camel.karavan.status.ConfigService;
+import org.apache.camel.karavan.config.ConfigService;
 import org.eclipse.microprofile.health.HealthCheck;
 import org.eclipse.microprofile.health.HealthCheckResponse;
 import org.eclipse.microprofile.health.Liveness;
