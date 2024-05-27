@@ -59,8 +59,8 @@ public class ContainerStatusListener {
     }
 
     @ConsumeEvent(value = CMD_CLEAN_STATUSES, blocking = true)
-    void cleanContainersStatuses(JsonArray list) {
-        List<ContainerStatus> statusesInDocker = list.stream().map(o -> ((JsonObject)o).mapTo(ContainerStatus.class)).toList();
+    void cleanContainersStatuses(String data) {
+        List<ContainerStatus> statusesInDocker = dockerAPI.collectContainersStatuses();
         List<String> namesInDocker = statusesInDocker.stream().map(ContainerStatus::getContainerName).toList();
         List<ContainerStatus> statusesInCache = statusCache.getContainerStatuses(environment);
         // clean deleted

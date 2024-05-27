@@ -53,7 +53,7 @@ public class DockerStatusService {
             statusesInDocker.forEach(containerStatus -> {
                 eventBus.publish(CONTAINER_UPDATED, JsonObject.mapFrom(containerStatus));
             });
-//            eventBus.publish(CMD_CLEAN_STATUSES, new JsonArray(statusesInDocker));
+            eventBus.publish(CMD_CLEAN_STATUSES, "");
         }
     }
 }
