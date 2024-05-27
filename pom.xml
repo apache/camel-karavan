@@ -7,7 +7,7 @@
   <version>4.7.0</version>
   <packaging>pom</packaging>
   <modules>
-    <module>karavan-status</module>
+    <module>karavan-statuses</module>
     <module>karavan-projects</module>
     <module>karavan-app</module>
   </modules>

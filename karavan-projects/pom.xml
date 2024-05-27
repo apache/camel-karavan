@@ -57,7 +57,7 @@
     <dependencies>
         <dependency>
             <groupId>org.apache.camel.karavan</groupId>
-            <artifactId>karavan-status</artifactId>
+            <artifactId>karavan-statuses</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

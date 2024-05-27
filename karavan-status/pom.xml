@@ -24,7 +24,7 @@
         <artifactId>karavan-parent</artifactId>
         <version>4.7.0</version>
     </parent>
-    <artifactId>karavan-status</artifactId>
+    <artifactId>karavan-statuses</artifactId>
 
     <properties>
         <compiler-plugin.version>3.11.0</compiler-plugin.version>
