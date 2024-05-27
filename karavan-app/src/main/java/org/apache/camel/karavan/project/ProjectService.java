@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.camel.karavan.service;
+package org.apache.camel.karavan.project;
 
 import io.quarkus.vertx.ConsumeEvent;
 import io.smallrye.mutiny.tuples.Tuple2;
@@ -26,9 +26,15 @@ import jakarta.inject.Inject;
 import org.apache.camel.karavan.code.CodeService;
 import org.apache.camel.karavan.code.DockerComposeConverter;
 import org.apache.camel.karavan.docker.DockerForKaravan;
-import org.apache.camel.karavan.kubernetes.KubernetesService;
+import org.apache.camel.karavan.kubernetes.KubernetesAPI;
 import org.apache.camel.karavan.model.*;
+import org.apache.camel.karavan.service.NotificationService;
+import org.apache.camel.karavan.service.RegistryService;
 import org.apache.camel.karavan.shared.Constants;
+import org.apache.camel.karavan.status.ConfigService;
+import org.apache.camel.karavan.status.KaravanStatusCache;
+import org.apache.camel.karavan.status.model.ContainerStatus;
+import org.apache.camel.karavan.status.model.GroupedKey;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -43,8 +49,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 import static org.apache.camel.karavan.code.CodeService.*;
-import static org.apache.camel.karavan.service.KaravanCacheService.DEFAULT_ENVIRONMENT;
+import static org.apache.camel.karavan.project.KaravanProjectsCache.DEFAULT_ENVIRONMENT;
 import static org.apache.camel.karavan.shared.Constants.NOTIFICATION_EVENT_COMMIT;
+import static org.apache.camel.karavan.status.KaravanStatusEvents.CONTAINER_UPDATED;
 
 @Default
 @Readiness
@@ -59,13 +66,16 @@ public class ProjectService implements HealthCheck {
     String environment;
 
     @Inject
-    KaravanCacheService karavanCacheService;
+    KaravanProjectsCache karavanProjectsCache;
+
+    @Inject
+    KaravanStatusCache karavanStatusCache;
 
     @Inject
     NotificationService notificationService;
 
     @Inject
-    KubernetesService kubernetesService;
+    KubernetesAPI kubernetesAPI;
 
     @Inject
     DockerForKaravan dockerForKaravan;
@@ -95,17 +105,17 @@ public class ProjectService implements HealthCheck {
 
     public String runProjectWithJBangOptions(Project project, String jBangOptions) throws Exception {
         String containerName = project.getProjectId();
-        ContainerStatus status = karavanCacheService.getDevModeContainerStatus(project.getProjectId(), environment);
+        ContainerStatus status = karavanStatusCache.getDevModeContainerStatus(project.getProjectId(), environment);
         if (status == null) {
             status = ContainerStatus.createDevMode(project.getProjectId(), environment);
         }
         if (!Objects.equals(status.getState(), ContainerStatus.State.running.name())) {
             status.setInTransit(true);
-            eventBus.publish(ContainerStatusService.CONTAINER_STATUS, JsonObject.mapFrom(status));
+            eventBus.publish(CONTAINER_UPDATED, JsonObject.mapFrom(status));
 
             Map<String, String> files = codeService.getProjectFilesForDevMode(project.getProjectId(), true);
             if (ConfigService.inKubernetes()) {
-                kubernetesService.runDevModeContainer(project, jBangOptions, files);
+                kubernetesAPI.runDevModeContainer(project, jBangOptions, files);
             } else {
                 DockerComposeService dcs = codeService.getDockerComposeService(project.getProjectId());
                 dockerForKaravan.runProjectInDevMode(project.getProjectId(), jBangOptions, dcs.getPortsMap(), files);
@@ -123,7 +133,7 @@ public class ProjectService implements HealthCheck {
         String script = codeService.getBuilderScript();
         List<String> env = getProjectEnvForBuild(project, tag);
         if (ConfigService.inKubernetes()) {
-            kubernetesService.runBuildProject(project, script, env, tag);
+            kubernetesAPI.runBuildProject(project, script, env, tag);
         } else {
             env.addAll(getConnectionsEnvForBuild());
             Map<String, String> sshFiles = getSshFiles();
@@ -158,14 +168,10 @@ public class ProjectService implements HealthCheck {
     }
 
     public List<Project> getAllProjects(String type) {
-        if (karavanCacheService.isReady()) {
-            return karavanCacheService.getProjects().stream()
-                    .filter(p -> type == null || Objects.equals(p.getType().name(), type))
-                    .sorted(Comparator.comparing(Project::getProjectId))
-                    .collect(Collectors.toList());
-        } else {
-            return List.of();
-        }
+        return karavanProjectsCache.getProjects().stream()
+                .filter(p -> type == null || Objects.equals(p.getType().name(), type))
+                .sorted(Comparator.comparing(Project::getProjectId))
+                .collect(Collectors.toList());
     }
 
     private String getImage(List<ProjectFile> files, String projectId) {
@@ -180,39 +186,39 @@ public class ProjectService implements HealthCheck {
     }
 
     public Project save(Project project) throws Exception {
-        boolean projectIdExists = karavanCacheService.getProject(project.getProjectId()) != null;
+        boolean projectIdExists = karavanProjectsCache.getProject(project.getProjectId()) != null;
 
         if (projectIdExists) {
             throw new Exception("Project with id " + project.getProjectId() + " already exists");
         } else {
-            karavanCacheService.saveProject(project);
+            karavanProjectsCache.saveProject(project);
             ProjectFile appProp = codeService.getApplicationProperties(project);
-            karavanCacheService.saveProjectFile(appProp);
+            karavanProjectsCache.saveProjectFile(appProp);
             if (!ConfigService.inKubernetes()) {
                 ProjectFile projectCompose = codeService.createInitialProjectCompose(project);
-                karavanCacheService.saveProjectFile(projectCompose);
-            } else if (kubernetesService.isOpenshift()) {
+                karavanProjectsCache.saveProjectFile(projectCompose);
+            } else if (kubernetesAPI.isOpenshift()) {
                 ProjectFile projectCompose = codeService.createInitialDeployment(project);
-                karavanCacheService.saveProjectFile(projectCompose);
+                karavanProjectsCache.saveProjectFile(projectCompose);
             }
         }
         return project;
     }
 
     public Project copy (String sourceProjectId, Project project) throws Exception {
-        boolean projectIdExists = karavanCacheService.getProject(project.getProjectId()) != null;
+        boolean projectIdExists = karavanProjectsCache.getProject(project.getProjectId()) != null;
 
         if (projectIdExists) {
             throw new Exception("Project with id " + project.getProjectId() + " already exists");
         } else {
 
-            Project sourceProject = karavanCacheService.getProject(sourceProjectId);
+            Project sourceProject = karavanProjectsCache.getProject(sourceProjectId);
 
             // Save project
-            karavanCacheService.saveProject(project);
+            karavanProjectsCache.saveProject(project);
 
             // Copy files from the source and make necessary modifications
-            Map<String, ProjectFile> filesMap = karavanCacheService.getProjectFilesMap(sourceProjectId).entrySet().stream()
+            Map<String, ProjectFile> filesMap = karavanProjectsCache.getProjectFilesMap(sourceProjectId).entrySet().stream()
                     .filter(e -> !Objects.equals(e.getValue().getName(), PROJECT_COMPOSE_FILENAME) &&
                             !Objects.equals(e.getValue().getName(), PROJECT_DEPLOYMENT_JKUBE_FILENAME)
                     )
@@ -227,14 +233,14 @@ public class ProjectService implements HealthCheck {
                                 return file;
                             })
                     );
-            karavanCacheService.saveProjectFiles(filesMap);
+            karavanProjectsCache.saveProjectFiles(filesMap);
 
             if (!ConfigService.inKubernetes()) {
                 ProjectFile projectCompose = codeService.createInitialProjectCompose(project);
-                karavanCacheService.saveProjectFile(projectCompose);
-            } else if (kubernetesService.isOpenshift()) {
+                karavanProjectsCache.saveProjectFile(projectCompose);
+            } else if (kubernetesAPI.isOpenshift()) {
                 ProjectFile projectCompose = codeService.createInitialDeployment(project);
-                karavanCacheService.saveProjectFile(projectCompose);
+                karavanProjectsCache.saveProjectFile(projectCompose);
             }
 
             return project;
@@ -271,7 +277,7 @@ public class ProjectService implements HealthCheck {
         boolean git = gitService.checkGit();
         LOGGER.info("Starting Project service: git is " + (git ? "ready" : "not ready"));
         if (gitService.checkGit()) {
-            if (karavanCacheService.getProjects().isEmpty()) {
+            if (karavanProjectsCache.getProjects().isEmpty()) {
                 importAllProjects();
             }
             if (Objects.equals(environment, Constants.DEV_ENV)) {
@@ -302,11 +308,11 @@ public class ProjectService implements HealthCheck {
                 } else {
                     project = getProjectFromRepo(repo);
                 }
-                karavanCacheService.saveProject(project);
+                karavanProjectsCache.saveProject(project);
 
                 repo.getFiles().forEach(repoFile -> {
                     ProjectFile file = new ProjectFile(repoFile.getName(), repoFile.getBody(), folderName, repoFile.getLastCommitTimestamp());
-                    karavanCacheService.saveProjectFile(file);
+                    karavanProjectsCache.saveProjectFile(file);
                 });
             });
         } catch (Exception e) {
@@ -324,10 +330,10 @@ public class ProjectService implements HealthCheck {
         LOGGER.info("Import project from GitRepo " + repo.getName());
         try {
             Project project = getProjectFromRepo(repo);
-            karavanCacheService.saveProject(project);
+            karavanProjectsCache.saveProject(project);
             repo.getFiles().forEach(repoFile -> {
                 ProjectFile file = new ProjectFile(repoFile.getName(), repoFile.getBody(), repo.getName(), repoFile.getLastCommitTimestamp());
-                karavanCacheService.saveProjectFile(file);
+                karavanProjectsCache.saveProjectFile(file);
             });
             return project;
         } catch (Exception e) {
@@ -356,14 +362,14 @@ public class ProjectService implements HealthCheck {
         String message = event.getString("message");
         String userId = event.getString("userId");
         String eventId = event.getString("eventId");
-        Project p = karavanCacheService.getProject(projectId);
-        List<ProjectFile> files = karavanCacheService.getProjectFiles(projectId);
+        Project p = karavanProjectsCache.getProject(projectId);
+        List<ProjectFile> files = karavanProjectsCache.getProjectFiles(projectId);
         RevCommit commit = gitService.commitAndPushProject(p, files, message);
         String commitId = commit.getId().getName();
         Long lastUpdate = commit.getCommitTime() * 1000L;
         p.setLastCommit(commitId);
         p.setLastCommitTimestamp(lastUpdate);
-        karavanCacheService.saveProject(p);
+        karavanProjectsCache.saveProject(p);
         if (userId != null) {
             notificationService.sendSystem(eventId, NOTIFICATION_EVENT_COMMIT, Project.class.getSimpleName(), JsonObject.mapFrom(p));
         }
@@ -372,10 +378,10 @@ public class ProjectService implements HealthCheck {
     void addKameletsProject() {
         LOGGER.info("Add custom kamelets project if not exists");
         try {
-            Project kamelets = karavanCacheService.getProject(Project.Type.kamelets.name());
+            Project kamelets = karavanProjectsCache.getProject(Project.Type.kamelets.name());
             if (kamelets == null) {
                 kamelets = new Project(Project.Type.kamelets.name(), "Custom Kamelets", "Custom Kamelets", "", Instant.now().toEpochMilli(), Project.Type.kamelets);
-                karavanCacheService.saveProject(kamelets);
+                karavanProjectsCache.saveProject(kamelets);
             }
         } catch (Exception e) {
             LOGGER.error("Error during custom kamelets project creation", e);
@@ -385,23 +391,23 @@ public class ProjectService implements HealthCheck {
     void addTemplatesProject() {
         LOGGER.info("Add templates project if not exists");
         try {
-            Project templates = karavanCacheService.getProject(Project.Type.templates.name());
+            Project templates = karavanProjectsCache.getProject(Project.Type.templates.name());
             if (templates == null) {
                 templates = new Project(Project.Type.templates.name(), "Templates", "Templates", "", Instant.now().toEpochMilli(), Project.Type.templates);
-                karavanCacheService.saveProject(templates);
+                karavanProjectsCache.saveProject(templates);
 
                 codeService.getTemplates().forEach((name, value) -> {
                     ProjectFile file = new ProjectFile(name, value, Project.Type.templates.name(), Instant.now().toEpochMilli());
-                    karavanCacheService.saveProjectFile(file);
+                    karavanProjectsCache.saveProjectFile(file);
                 });
                 commitAndPushProject(JsonObject.of("projectId", Project.Type.templates.name(), "message", "Add custom templates"));
             } else {
                 LOGGER.info("Add new templates if any");
                 codeService.getTemplates().forEach((name, value) -> {
-                    ProjectFile f = karavanCacheService.getProjectFile(Project.Type.templates.name(), name);
+                    ProjectFile f = karavanProjectsCache.getProjectFile(Project.Type.templates.name(), name);
                     if (f == null) {
                         ProjectFile file = new ProjectFile(name, value, Project.Type.templates.name(), Instant.now().toEpochMilli());
-                        karavanCacheService.saveProjectFile(file);
+                        karavanProjectsCache.saveProjectFile(file);
                     }
                 });
             }
@@ -413,14 +419,14 @@ public class ProjectService implements HealthCheck {
     void addServicesProject() {
         LOGGER.info("Add services project if not exists");
         try {
-            Project services = karavanCacheService.getProject(Project.Type.services.name());
+            Project services = karavanProjectsCache.getProject(Project.Type.services.name());
             if (services == null) {
                 services = new Project(Project.Type.services.name(), "Services", "Development Services", "", Instant.now().toEpochMilli(), Project.Type.services);
-                karavanCacheService.saveProject(services);
+                karavanProjectsCache.saveProject(services);
 
                 codeService.getServices().forEach((name, value) -> {
                     ProjectFile file = new ProjectFile(name, value, Project.Type.services.name(), Instant.now().toEpochMilli());
-                    karavanCacheService.saveProjectFile(file);
+                    karavanProjectsCache.saveProjectFile(file);
                 });
                 commitAndPushProject(JsonObject.of("projectId", Project.Type.services.name(), "message", "Add services"));
             }
@@ -430,7 +436,7 @@ public class ProjectService implements HealthCheck {
     }
 
     public String getDevServiceCode() {
-        List<ProjectFile> files = karavanCacheService.getProjectFiles(Project.Type.services.name());
+        List<ProjectFile> files = karavanProjectsCache.getProjectFiles(Project.Type.services.name());
         Optional<ProjectFile> file = files.stream().filter(f -> f.getName().equals(DEV_SERVICES_FILENAME)).findFirst();
         return file.orElse(new ProjectFile()).getCode();
     }

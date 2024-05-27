@@ -17,16 +17,10 @@
 
 package org.apache.camel.karavan.model;
 
-import java.io.Serial;
-import java.io.Serializable;
 import java.time.Instant;
 import java.util.Arrays;
 
-public class Project implements Serializable {
-
-    @Serial
-    private static final long serialVersionUID = 7777777L;
-    public static final String CACHE = "projects";
+public class Project {
 
     public enum Type {
 

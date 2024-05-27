@@ -23,8 +23,8 @@ import com.github.dockerjava.api.model.Event;
 import com.github.dockerjava.api.model.EventType;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import org.apache.camel.karavan.model.ContainerStatus;
 import org.apache.camel.karavan.service.RegistryService;
+import org.apache.camel.karavan.status.model.ContainerStatus;
 import org.jboss.logging.Logger;
 
 import java.io.Closeable;
@@ -37,7 +37,7 @@ import static org.apache.camel.karavan.shared.Constants.*;
 public class DockerEventListener implements ResultCallback<Event> {
 
     @Inject
-    DockerService dockerService;
+    DockerAPI dockerAPI;
 
     @Inject
     RegistryService registryService;
@@ -53,7 +53,7 @@ public class DockerEventListener implements ResultCallback<Event> {
     public void onNext(Event event) {
         try {
             if (Objects.equals(event.getType(), EventType.CONTAINER)) {
-                Container container = dockerService.getContainer(event.getId());
+                Container container = dockerAPI.getContainer(event.getId());
                 if (container != null) {
                     onContainerEvent(event, container);
                 }
@@ -74,7 +74,7 @@ public class DockerEventListener implements ResultCallback<Event> {
 
     private void syncImage(String projectId, String tag) throws InterruptedException {
         String image = registryService.getRegistryWithGroupForSync() + "/" + projectId + ":" + tag;
-        dockerService.pullImage(image, true);
+        dockerAPI.pullImage(image, true);
     }
 
     @Override

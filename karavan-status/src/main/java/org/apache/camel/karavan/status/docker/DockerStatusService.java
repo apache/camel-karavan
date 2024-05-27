@@ -18,7 +18,7 @@
 package org.apache.camel.karavan.status.docker;
 
 import io.quarkus.scheduler.Scheduled;
-import io.vertx.core.eventbus.EventBus;
+import io.vertx.mutiny.core.eventbus.EventBus;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -54,7 +54,7 @@ public class DockerStatusService {
             statusesInDocker.forEach(containerStatus -> {
                 eventBus.publish(CONTAINER_UPDATED, JsonObject.mapFrom(containerStatus));
             });
-            eventBus.publish(CMD_CLEAN_STATUSES, new JsonArray(statusesInDocker));
+//            eventBus.publish(CMD_CLEAN_STATUSES, new JsonArray(statusesInDocker));
         }
     }
 }

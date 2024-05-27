@@ -18,13 +18,13 @@
 package org.apache.camel.karavan.status;
 
 import io.quarkus.vertx.ConsumeEvent;
-import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import io.vertx.mutiny.core.eventbus.EventBus;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import org.apache.camel.karavan.status.model.ContainerStatus;
 import org.apache.camel.karavan.status.docker.DockerAPI;
+import org.apache.camel.karavan.status.model.ContainerStatus;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 

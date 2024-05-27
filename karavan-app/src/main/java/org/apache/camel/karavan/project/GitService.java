@@ -14,17 +14,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.camel.karavan.service;
+package org.apache.camel.karavan.project;
 
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
 import io.quarkus.oidc.UserInfo;
-import io.quarkus.runtime.StartupEvent;
 import io.quarkus.security.identity.SecurityIdentity;
 import io.smallrye.mutiny.tuples.Tuple2;
 import io.vertx.core.Vertx;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
 import org.apache.camel.karavan.model.*;
 import org.eclipse.jgit.api.*;

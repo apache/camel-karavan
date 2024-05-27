@@ -22,8 +22,8 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import org.apache.camel.karavan.docker.DockerService;
-import org.apache.camel.karavan.service.ConfigService;
+import org.apache.camel.karavan.docker.DockerAPI;
+import org.apache.camel.karavan.status.ConfigService;
 
 @Path("/ui/configuration")
 public class ConfigurationResource {
@@ -32,7 +32,7 @@ public class ConfigurationResource {
     ConfigService configService;
 
     @Inject
-    DockerService dockerService;
+    DockerAPI dockerAPI;
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
@@ -47,7 +47,7 @@ public class ConfigurationResource {
         if (ConfigService.inKubernetes()) {
             return Response.ok().build();
         } else {
-            return Response.ok(dockerService.getInfo()).build();
+            return Response.ok(dockerAPI.getInfo()).build();
         }
     }
 

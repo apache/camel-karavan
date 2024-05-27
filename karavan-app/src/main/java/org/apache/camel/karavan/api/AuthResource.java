@@ -20,9 +20,9 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import org.apache.camel.karavan.kubernetes.KubernetesService;
 import org.apache.camel.karavan.service.AuthService;
-import org.apache.camel.karavan.service.ProjectService;
+import org.apache.camel.karavan.project.ProjectService;
+import org.apache.camel.karavan.status.kubernetes.KubernetesStatusService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.health.HealthCheckResponse;
 
@@ -40,7 +40,7 @@ public class AuthResource {
     ProjectService projectService;
 
     @Inject
-    KubernetesService kubernetesService;
+    KubernetesStatusService kubernetesStatusService;
 
     @ConfigProperty(name = "quarkus.security.users.embedded.realm-name", defaultValue = "")
     Optional<String> realm;
@@ -98,7 +98,7 @@ public class AuthResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getConfiguration() throws Exception {
         List<HealthCheckResponse> list = List.of(
-                kubernetesService.call(),
+                kubernetesStatusService.call(),
                 projectService.call()
         );
         return Response.ok(Map.of(

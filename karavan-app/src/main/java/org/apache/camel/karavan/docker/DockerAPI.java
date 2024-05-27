@@ -17,13 +17,11 @@
 package org.apache.camel.karavan.docker;
 
 import com.github.dockerjava.api.DockerClient;
-import com.github.dockerjava.api.async.ResultCallback;
 import com.github.dockerjava.api.command.*;
 import com.github.dockerjava.api.model.*;
 import com.github.dockerjava.core.DefaultDockerClientConfig;
 import com.github.dockerjava.core.DockerClientConfig;
 import com.github.dockerjava.core.DockerClientImpl;
-import com.github.dockerjava.core.InvocationBuilder;
 import com.github.dockerjava.transport.DockerHttpClient;
 import com.github.dockerjava.zerodep.ZerodepDockerHttpClient;
 import io.vertx.core.Vertx;
@@ -32,7 +30,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.apache.camel.karavan.code.CodeService;
 import org.apache.camel.karavan.model.DockerComposeService;
-import org.apache.camel.karavan.model.ContainerStatus;
+import org.apache.camel.karavan.status.model.ContainerStatus;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
 import org.apache.commons.io.IOUtils;
@@ -50,15 +48,11 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.apache.camel.karavan.shared.Constants.LABEL_PROJECT_ID;
-import static org.apache.camel.karavan.shared.Constants.LABEL_TYPE;
 
 @ApplicationScoped
-public class DockerService extends DockerServiceUtils {
+public class DockerAPI {
 
-    private static final Logger LOGGER = Logger.getLogger(DockerService.class.getName());
-
-    @ConfigProperty(name = "karavan.environment")
-    String environment;
+    private static final Logger LOGGER = Logger.getLogger(DockerAPI.class.getName());
 
     @ConfigProperty(name = "karavan.docker.network")
     String networkName;
@@ -98,32 +92,6 @@ public class DockerService extends DockerServiceUtils {
         return getDockerClient().infoCmd().exec();
     }
 
-    public List<ContainerStatus> collectContainersStatuses() {
-        List<ContainerStatus> result = new ArrayList<>();
-        getDockerClient().listContainersCmd().withShowAll(true).exec().forEach(container -> {
-            ContainerStatus containerStatus = getContainerStatus(container, environment);
-            result.add(containerStatus);
-        });
-        return result;
-    }
-
-    public List<ContainerStatus> collectContainersStatistics() {
-        List<ContainerStatus> result = new ArrayList<>();
-        getDockerClient().listContainersCmd().withShowAll(true).exec().forEach(container -> {
-            ContainerStatus containerStatus = getContainerStatus(container, environment);
-            Statistics stats = getContainerStats(container.getId());
-            updateStatistics(containerStatus, stats);
-            result.add(containerStatus);
-        });
-        return result;
-    }
-
-    public ContainerStatus collectContainerStatistics(ContainerStatus containerStatus) {
-        Container container = getContainerByName(containerStatus.getContainerName());
-        Statistics stats = getContainerStats(container.getId());
-        updateStatistics(containerStatus, stats);
-        return containerStatus;
-    }
 
     public void startListeners() {
         getDockerClient().eventsCmd().exec(dockerEventListener);
@@ -131,21 +99,6 @@ public class DockerService extends DockerServiceUtils {
 
     public void stopListeners() throws IOException {
         dockerEventListener.close();
-    }
-
-    public void createNetwork() {
-        if (!getDockerClient().listNetworksCmd().exec().stream()
-                .filter(n -> n.getName().equals(networkName))
-                .findFirst().isPresent()) {
-            CreateNetworkResponse res = getDockerClient().createNetworkCmd()
-                    .withName(networkName)
-                    .withDriver("bridge")
-                    .withInternal(false)
-                    .withAttachable(true).exec();
-            LOGGER.info("Network created: " + networkName);
-        } else {
-            LOGGER.info("Network already exists with name: " + networkName);
-        }
     }
 
     public Container getContainer(String id) {
@@ -158,28 +111,6 @@ public class DockerService extends DockerServiceUtils {
         return !containers.isEmpty() ? containers.get(0) : null;
     }
 
-    public Statistics getContainerStats(String containerId) {
-        InvocationBuilder.AsyncResultCallback<Statistics> callback = new InvocationBuilder.AsyncResultCallback<>();
-        getDockerClient().statsCmd(containerId).withContainerId(containerId).withNoStream(true).exec(callback);
-        Statistics stats = null;
-        try {
-            stats = callback.awaitResult();
-            callback.close();
-        } catch (RuntimeException | IOException e) {
-            // you may want to throw an exception here
-        }
-        return stats;
-    }
-
-    public Container createContainerFromCompose(DockerComposeService compose, ContainerStatus.ContainerType type, Boolean pull, String... command) throws InterruptedException {
-        return createContainerFromCompose(compose, type, Map.of(), pull, command);
-    }
-
-    public Container createContainerFromCompose(DockerComposeService compose, ContainerStatus.ContainerType type, Map<String, String> volumes, Boolean pullAlways, String... command) throws InterruptedException {
-        Map<String,String> labels = new HashMap<>();
-        labels.put(LABEL_TYPE, type.name());
-        return createContainerFromCompose(compose, labels, volumes, pullAlways, command);
-    }
 
     public Container createContainerFromCompose(DockerComposeService compose, Map<String, String> labels, Boolean pullAlways, String... command) throws InterruptedException {
         return createContainerFromCompose(compose, labels, Map.of(), pullAlways, command);
@@ -188,7 +119,7 @@ public class DockerService extends DockerServiceUtils {
     public Container createContainerFromCompose(DockerComposeService compose, Map<String, String> labels, Map<String, String> volumes, Boolean pullAlways, String... command) throws InterruptedException {
         List<Container> containers = findContainer(compose.getContainer_name());
         if (containers.isEmpty()) {
-            HealthCheck healthCheck = getHealthCheck(compose.getHealthcheck());
+            HealthCheck healthCheck = DockerUtils.getHealthCheck(compose.getHealthcheck());
 
             List<String> env = new ArrayList<>();
             if (compose.getEnv_file() != null) {
@@ -233,7 +164,7 @@ public class DockerService extends DockerServiceUtils {
             CreateContainerCmd createContainerCmd = getDockerClient().createContainerCmd(image)
                     .withName(name).withLabels(labels).withEnv(env).withHostName(name).withHealthcheck(healthCheck);
 
-            Ports portBindings = getPortBindings(ports);
+            Ports portBindings = DockerUtils.getPortBindings(ports);
 
             List<Mount> mounts = new ArrayList<>();
             if (volumes != null && !volumes.isEmpty()) {
@@ -251,8 +182,8 @@ public class DockerService extends DockerServiceUtils {
                             .withRestartPolicy(restartPolicy)
                     .withPortBindings(portBindings)
                     .withMounts(mounts)
-                    .withMemory(parseMemory(mem_limit))
-                    .withMemoryReservation(parseMemory(mem_reservation))
+                    .withMemory(DockerUtils.parseMemory(mem_limit))
+                    .withMemoryReservation(DockerUtils.parseMemory(mem_reservation))
                     .withCpuPercent(NumberUtils.toLong(cpu_percent))
                     .withNanoCPUs(NumberUtils.toLong(cpus))
                     .withNetworkMode(network != null ? network : networkName));
@@ -280,43 +211,6 @@ public class DockerService extends DockerServiceUtils {
         } else if (!container.getState().equals("running")) {
             getDockerClient().startContainerCmd(container.getId()).exec();
         }
-    }
-
-    public void execCommandInContainer(Container container, String... cmd) {
-        ExecCreateCmdResponse res = getDockerClient().execCreateCmd(container.getId())
-                .withAttachStdout(true)
-                .withAttachStdout(true).withCmd(cmd).exec();
-    }
-
-    public List<Container> listContainers(Boolean showAll) {
-        return getDockerClient().listContainersCmd().withShowAll(showAll).exec();
-    }
-
-    public List<InspectVolumeResponse> listVolumes() {
-        return getDockerClient().listVolumesCmd().exec().getVolumes();
-    }
-
-    public InspectVolumeResponse getVolume(String name) {
-        return getDockerClient().inspectVolumeCmd(name).exec();
-    }
-
-    public CreateVolumeResponse createVolume(String name) {
-        return getDockerClient().createVolumeCmd().withName(name).exec();
-    }
-
-    public InspectContainerResponse inspectContainer(String id) {
-        return getDockerClient().inspectContainerCmd(id).exec();
-    }
-
-    public ExecCreateCmdResponse execCreate(String id, String... cmd) {
-        return getDockerClient().execCreateCmd(id)
-                .withAttachStdout(true).withAttachStderr(true)
-                .withCmd(cmd)
-                .exec();
-    }
-
-    public void execStart(String id, ResultCallback.Adapter<Frame> callBack) throws InterruptedException {
-        dockerClient.execStartCmd(id).exec(callBack).awaitCompletion();
     }
 
     protected void copyFiles(String containerId, String containerPath, Map<String, String> files, boolean dirChildrenOnly) throws IOException {

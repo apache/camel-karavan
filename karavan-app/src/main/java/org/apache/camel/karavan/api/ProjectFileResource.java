@@ -21,7 +21,7 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.apache.camel.karavan.code.CodeService;
-import org.apache.camel.karavan.service.KaravanCacheService;
+import org.apache.camel.karavan.project.KaravanProjectsCache;
 import org.apache.camel.karavan.model.Project;
 import org.apache.camel.karavan.model.ProjectFile;
 
@@ -36,7 +36,7 @@ import java.util.stream.Collectors;
 public class ProjectFileResource {
 
     @Inject
-    KaravanCacheService karavanCacheService;
+    KaravanProjectsCache karavanProjectsCache;
 
     @Inject
     CodeService codeService;
@@ -45,7 +45,7 @@ public class ProjectFileResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/{projectId}")
     public List<ProjectFile> get(@PathParam("projectId") String projectId) throws Exception {
-        return karavanCacheService.getProjectFiles(projectId).stream()
+        return karavanProjectsCache.getProjectFiles(projectId).stream()
                 .sorted(Comparator.comparing(ProjectFile::getName))
                 .collect(Collectors.toList());
     }
@@ -55,7 +55,7 @@ public class ProjectFileResource {
     @Path("/templates/beans")
     public List<ProjectFile> getBeanTemplates() throws Exception {
         return  codeService.getBeanTemplateNames().stream()
-                .map(s -> karavanCacheService.getProjectFile(Project.Type.templates.name(), s))
+                .map(s -> karavanProjectsCache.getProjectFile(Project.Type.templates.name(), s))
                 .toList();
     }
 
@@ -64,11 +64,11 @@ public class ProjectFileResource {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response create(ProjectFile file) throws Exception {
         file.setLastUpdate(Instant.now().toEpochMilli());
-        boolean projectFileExists = karavanCacheService.getProjectFile(file.getProjectId(), file.getName()) != null;
+        boolean projectFileExists = karavanProjectsCache.getProjectFile(file.getProjectId(), file.getName()) != null;
         if (projectFileExists) {
             return Response.serverError().entity("File with given name already exists").build();
         } else {
-            karavanCacheService.saveProjectFile(file);
+            karavanProjectsCache.saveProjectFile(file);
             return Response.ok(file).build();
         }
     }
@@ -78,7 +78,7 @@ public class ProjectFileResource {
     @Consumes(MediaType.APPLICATION_JSON)
     public ProjectFile update(ProjectFile file) throws Exception {
         file.setLastUpdate(Instant.now().toEpochMilli());
-        karavanCacheService.saveProjectFile(file);
+        karavanProjectsCache.saveProjectFile(file);
         return file;
     }
 
@@ -88,7 +88,7 @@ public class ProjectFileResource {
     public void delete(@HeaderParam("username") String username,
                        @PathParam("project") String project,
                        @PathParam("filename") String filename) throws Exception {
-        karavanCacheService.deleteProjectFile(
+        karavanProjectsCache.deleteProjectFile(
                 URLDecoder.decode(project, StandardCharsets.UTF_8.toString()),
                 URLDecoder.decode(filename, StandardCharsets.UTF_8.toString())
         );

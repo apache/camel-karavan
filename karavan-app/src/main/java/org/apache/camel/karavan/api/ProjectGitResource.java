@@ -22,12 +22,12 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import org.apache.camel.karavan.service.ProjectService;
+import org.apache.camel.karavan.project.ProjectService;
 import org.jboss.logging.Logger;
 
 import java.util.HashMap;
 
-import static org.apache.camel.karavan.service.ProjectService.PUSH_PROJECT;
+import static org.apache.camel.karavan.project.ProjectService.PUSH_PROJECT;
 
 @Path("/ui/git")
 public class ProjectGitResource {

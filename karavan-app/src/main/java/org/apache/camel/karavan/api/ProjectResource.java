@@ -20,16 +20,18 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import org.apache.camel.karavan.docker.DockerService;
-import org.apache.camel.karavan.service.GitService;
-import org.apache.camel.karavan.service.KaravanCacheService;
-import org.apache.camel.karavan.model.CamelStatus;
-import org.apache.camel.karavan.model.CamelStatusValue;
-import org.apache.camel.karavan.model.ContainerStatus;
+import org.apache.camel.karavan.docker.DockerAPI;
+import org.apache.camel.karavan.project.GitService;
+import org.apache.camel.karavan.project.KaravanProjectsCache;
 import org.apache.camel.karavan.model.Project;
-import org.apache.camel.karavan.kubernetes.KubernetesService;
-import org.apache.camel.karavan.service.ConfigService;
-import org.apache.camel.karavan.service.ProjectService;
+import org.apache.camel.karavan.kubernetes.KubernetesAPI;
+
+import org.apache.camel.karavan.project.ProjectService;
+import org.apache.camel.karavan.status.ConfigService;
+import org.apache.camel.karavan.status.KaravanStatusCache;
+import org.apache.camel.karavan.status.model.CamelStatus;
+import org.apache.camel.karavan.status.model.CamelStatusValue;
+import org.apache.camel.karavan.status.model.ContainerStatus;
 import org.jboss.logging.Logger;
 
 import java.net.URLDecoder;
@@ -42,13 +44,16 @@ public class ProjectResource {
     private static final Logger LOGGER = Logger.getLogger(ProjectResource.class.getName());
 
     @Inject
-    KaravanCacheService karavanCacheService;
+    KaravanProjectsCache karavanProjectsCache;
 
     @Inject
-    KubernetesService kubernetesService;
+    KaravanStatusCache karavanStatusCache;
 
     @Inject
-    DockerService dockerService;
+    KubernetesAPI kubernetesAPI;
+
+    @Inject
+    DockerAPI dockerAPI;
 
     @Inject
     GitService gitService;
@@ -75,7 +80,7 @@ public class ProjectResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/{project}")
     public Project get(@PathParam("project") String project) throws Exception {
-        return karavanCacheService.getProject(project);
+        return karavanProjectsCache.getProject(project);
     }
 
     @POST
@@ -102,9 +107,9 @@ public class ProjectResource {
             LOGGER.info("Deleting deployments");
             Response res4 = infrastructureResource.deleteDeployment(null, projectId);
         }
-        gitService.deleteProject(projectId, karavanCacheService.getProjectFiles(projectId));
-        karavanCacheService.getProjectFiles(projectId).forEach(file -> karavanCacheService.deleteProjectFile(projectId, file.getName()));
-        karavanCacheService.deleteProject(projectId);
+        gitService.deleteProject(projectId, karavanProjectsCache.getProjectFiles(projectId));
+        karavanProjectsCache.getProjectFiles(projectId).forEach(file -> karavanProjectsCache.deleteProjectFile(projectId, file.getName()));
+        karavanProjectsCache.deleteProject(projectId);
         LOGGER.info("Project deleted");
     }
 
@@ -128,10 +133,10 @@ public class ProjectResource {
     public Response deleteBuild(@PathParam("env") String env, @PathParam("buildName") String buildName) {
         buildName = URLDecoder.decode(buildName, StandardCharsets.UTF_8);
         if (ConfigService.inKubernetes()) {
-            kubernetesService.deletePod(buildName);
+            kubernetesAPI.deletePod(buildName);
             return Response.ok().build();
         } else {
-            dockerService.deleteContainer(buildName);
+            dockerAPI.deleteContainer(buildName);
             return Response.ok().build();
         }
     }
@@ -140,7 +145,7 @@ public class ProjectResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/status/camel/{projectId}/{env}")
     public Response getCamelStatusForProjectAndEnv(@PathParam("projectId") String projectId, @PathParam("env") String env) {
-        List<CamelStatus> statuses = karavanCacheService.getCamelStatusesByProjectAndEnv(projectId, env)
+        List<CamelStatus> statuses = karavanStatusCache.getCamelStatusesByProjectAndEnv(projectId, env)
                 .stream().map(camelStatus -> {
                     var stats = camelStatus.getStatuses().stream().filter(s -> !Objects.equals(s.getName(), CamelStatusValue.Name.trace)).toList();
                     camelStatus.setStatuses(stats);
@@ -157,7 +162,7 @@ public class ProjectResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/traces/{projectId}/{env}")
     public Response getCamelTracesForProjectAndEnv(@PathParam("projectId") String projectId, @PathParam("env") String env) {
-        List<CamelStatus> statuses = karavanCacheService.getCamelStatusesByProjectAndEnv(projectId, env)
+        List<CamelStatus> statuses = karavanStatusCache.getCamelStatusesByProjectAndEnv(projectId, env)
                 .stream().map(camelStatus -> {
                     var stats = camelStatus.getStatuses().stream().filter(s -> Objects.equals(s.getName(), CamelStatusValue.Name.trace)).toList();
                     camelStatus.setStatuses(stats);

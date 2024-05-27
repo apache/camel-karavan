@@ -31,10 +31,11 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.SecurityContext;
 import jakarta.ws.rs.sse.Sse;
 import jakarta.ws.rs.sse.SseEventSink;
-import org.apache.camel.karavan.docker.DockerService;
+import org.apache.camel.karavan.docker.DockerAPI;
 import org.apache.camel.karavan.docker.LogCallback;
-import org.apache.camel.karavan.kubernetes.KubernetesService;
-import org.apache.camel.karavan.service.ConfigService;
+import org.apache.camel.karavan.kubernetes.KubernetesAPI;
+
+import org.apache.camel.karavan.status.ConfigService;
 import org.eclipse.microprofile.context.ManagedExecutor;
 import org.jboss.logging.Logger;
 
@@ -50,10 +51,10 @@ public class LogWatchResource {
     private static final ConcurrentHashMap<String, LogWatch> logWatches = new ConcurrentHashMap<>();
 
     @Inject
-    KubernetesService kubernetesService;
+    KubernetesAPI kubernetesAPI;
 
     @Inject
-    DockerService dockerService;
+    DockerAPI dockerAPI;
 
     @Inject
     @ManagedExecutorConfig()
@@ -87,7 +88,7 @@ public class LogWatchResource {
                     sink.send(sse.newEvent(line));
                 }
             });
-            dockerService.logContainer(name, logCallback);
+            dockerAPI.logContainer(name, logCallback);
             logCallback.close();
             sink.close();
             LOGGER.info("LogCallback for " + name + " closed");
@@ -98,7 +99,7 @@ public class LogWatchResource {
 
     private void getKubernetesLogs(String name, SseEventSink eventSink, Sse sse) {
         try (SseEventSink sink = eventSink) {
-            Tuple2<LogWatch, KubernetesClient> request = kubernetesService.getContainerLogWatch(name);
+            Tuple2<LogWatch, KubernetesClient> request = kubernetesAPI.getContainerLogWatch(name);
             LogWatch logWatch = request.getItem1();
             BufferedReader reader = new BufferedReader(new InputStreamReader(logWatch.getOutput()));
             try {

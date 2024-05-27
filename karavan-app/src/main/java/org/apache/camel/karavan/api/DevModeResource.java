@@ -22,18 +22,18 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import org.apache.camel.karavan.service.KaravanCacheService;
-import org.apache.camel.karavan.model.ContainerStatus;
-import org.apache.camel.karavan.model.Project;
-import org.apache.camel.karavan.docker.DockerService;
-import org.apache.camel.karavan.kubernetes.KubernetesService;
 import org.apache.camel.karavan.service.CamelService;
-import org.apache.camel.karavan.service.ConfigService;
-import org.apache.camel.karavan.service.ProjectService;
+import org.apache.camel.karavan.model.Project;
+import org.apache.camel.karavan.docker.DockerAPI;
+import org.apache.camel.karavan.kubernetes.KubernetesAPI;
+import org.apache.camel.karavan.project.ProjectService;
+import org.apache.camel.karavan.status.ConfigService;
+import org.apache.camel.karavan.status.KaravanStatusCache;
+import org.apache.camel.karavan.status.model.ContainerStatus;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
-import static org.apache.camel.karavan.service.ContainerStatusService.CONTAINER_STATUS;
+import static org.apache.camel.karavan.status.KaravanStatusEvents.CONTAINER_UPDATED;
 
 @Path("/ui/devmode")
 public class DevModeResource {
@@ -47,13 +47,13 @@ public class DevModeResource {
     CamelService camelService;
 
     @Inject
-    KaravanCacheService karavanCacheService;
+    KaravanStatusCache karavanStatusCache;
 
     @Inject
-    KubernetesService kubernetesService;
+    KubernetesAPI kubernetesAPI;
 
     @Inject
-    DockerService dockerService;
+    DockerAPI dockerAPI;
 
     @Inject
     ProjectService projectService;
@@ -90,12 +90,8 @@ public class DevModeResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/reload/{projectId}")
     public Response reload(@PathParam("projectId") String projectId) {
-        if (karavanCacheService.isReady()) {
-            camelService.reloadProjectCode(projectId);
-            return Response.ok().build();
-        } else {
-            return Response.noContent().build();
-        }
+        camelService.reloadProjectCode(projectId);
+        return Response.ok().build();
     }
 
     @DELETE
@@ -105,33 +101,29 @@ public class DevModeResource {
     public Response deleteDevMode(@PathParam("projectId") String projectId, @PathParam("deletePVC") boolean deletePVC) {
         setContainerStatusTransit(projectId, ContainerStatus.ContainerType.devmode.name());
         if (ConfigService.inKubernetes()) {
-            kubernetesService.deleteDevModePod(projectId, deletePVC);
+            kubernetesAPI.deleteDevModePod(projectId, deletePVC);
         } else {
-            dockerService.deleteContainer(projectId);
+            dockerAPI.deleteContainer(projectId);
         }
         return Response.accepted().build();
     }
 
     private void setContainerStatusTransit(String name, String type) {
-        ContainerStatus status = karavanCacheService.getContainerStatus(name, environment, name);
+        ContainerStatus status = karavanStatusCache.getContainerStatus(name, environment, name);
         if (status == null) {
             status = ContainerStatus.createByType(name, environment, ContainerStatus.ContainerType.valueOf(type));
         }
         status.setInTransit(true);
-        eventBus.publish(CONTAINER_STATUS, JsonObject.mapFrom(status));
+        eventBus.publish(CONTAINER_UPDATED, JsonObject.mapFrom(status));
     }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/container/{projectId}")
     public Response getPodStatus(@PathParam("projectId") String projectId) throws RuntimeException {
-        if (karavanCacheService.isReady()) {
-            ContainerStatus cs = karavanCacheService.getDevModeContainerStatus(projectId, environment);
-            if (cs != null) {
-                return Response.ok(cs).build();
-            } else {
-                return Response.noContent().build();
-            }
+        ContainerStatus cs = karavanStatusCache.getDevModeContainerStatus(projectId, environment);
+        if (cs != null) {
+            return Response.ok(cs).build();
         } else {
             return Response.noContent().build();
         }

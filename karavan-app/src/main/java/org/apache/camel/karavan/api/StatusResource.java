@@ -20,10 +20,10 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import org.apache.camel.karavan.service.KaravanCacheService;
-import org.apache.camel.karavan.model.CamelStatus;
-import org.apache.camel.karavan.model.CamelStatusValue;
-import org.apache.camel.karavan.model.DeploymentStatus;
+import org.apache.camel.karavan.status.KaravanStatusCache;
+import org.apache.camel.karavan.status.model.CamelStatus;
+import org.apache.camel.karavan.status.model.CamelStatusValue;
+import org.apache.camel.karavan.status.model.DeploymentStatus;
 import org.jboss.logging.Logger;
 
 import java.util.List;
@@ -34,13 +34,13 @@ public class StatusResource {
     private static final Logger LOGGER = Logger.getLogger(StatusResource.class.getName());
 
     @Inject
-    KaravanCacheService karavanCacheService;
+    KaravanStatusCache karavanStatusCache;
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/deployment/{name}/{env}")
     public Response getDeploymentStatus(@PathParam("name") String name, @PathParam("env") String env) {
-        DeploymentStatus status = karavanCacheService.getDeploymentStatus(name, env);
+        DeploymentStatus status = karavanStatusCache.getDeploymentStatus(name, env);
         if (status != null) {
             return Response.ok(status).build();
         }
@@ -51,58 +51,38 @@ public class StatusResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/camel/context")
     public List<CamelStatus> getCamelContextStatusByEnv() {
-        if (karavanCacheService.isReady()) {
-            return karavanCacheService.getCamelStatusesByEnv(CamelStatusValue.Name.context);
-        } else {
-            return List.of();
-        }
+        return karavanStatusCache.getCamelStatusesByEnv(CamelStatusValue.Name.context);
     }
 
     @DELETE
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/deployment")
     public Response deleteDeploymentStatuses() {
-        if (karavanCacheService.isReady()) {
-            karavanCacheService.deleteAllDeploymentsStatuses();
-            return Response.ok().build();
-        } else {
-            return Response.noContent().build();
-        }
+        karavanStatusCache.deleteAllDeploymentsStatuses();
+        return Response.ok().build();
     }
 
     @DELETE
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/container")
     public Response deleteContainerStatuses() {
-        if (karavanCacheService.isReady()) {
-            karavanCacheService.deleteAllContainersStatuses();
-            return Response.ok().build();
-        } else {
-            return Response.noContent().build();
-        }
+        karavanStatusCache.deleteAllContainersStatuses();
+        return Response.ok().build();
     }
 
     @DELETE
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/camel")
     public Response deleteCamelStatuses() {
-        if (karavanCacheService.isReady()) {
-            karavanCacheService.deleteAllCamelStatuses();
-            return Response.ok().build();
-        } else {
-            return Response.noContent().build();
-        }
+        karavanStatusCache.deleteAllCamelStatuses();
+        return Response.ok().build();
     }
 
     @DELETE
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/all")
     public Response deleteAllStatuses() {
-        if (karavanCacheService.isReady()) {
-            karavanCacheService.clearAllStatuses();
-            return Response.ok().build();
-        } else {
-            return Response.noContent().build();
-        }
+        karavanStatusCache.clearAllStatuses();
+        return Response.ok().build();
     }
 }

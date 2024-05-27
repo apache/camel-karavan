@@ -16,7 +16,6 @@
  */
 package org.apache.camel.karavan.service;
 
-import io.quarkus.scheduler.Scheduled;
 import io.quarkus.vertx.ConsumeEvent;
 import io.vertx.core.json.JsonObject;
 import io.vertx.mutiny.core.Vertx;
@@ -26,12 +25,12 @@ import io.vertx.mutiny.ext.web.client.HttpResponse;
 import io.vertx.mutiny.ext.web.client.WebClient;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import org.apache.camel.karavan.model.CamelStatus;
-import org.apache.camel.karavan.model.CamelStatusValue;
-import org.apache.camel.karavan.model.ContainerStatus;
 import org.apache.camel.karavan.code.CodeService;
-import org.apache.camel.karavan.kubernetes.KubernetesService;
-import org.apache.camel.karavan.shared.Constants;
+import org.apache.camel.karavan.kubernetes.KubernetesAPI;
+import org.apache.camel.karavan.status.ConfigService;
+import org.apache.camel.karavan.status.KaravanStatusCache;
+import org.apache.camel.karavan.status.model.CamelStatusValue;
+import org.apache.camel.karavan.status.model.ContainerStatus;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.faulttolerance.CircuitBreaker;
 import org.jboss.logging.Logger;
@@ -39,24 +38,22 @@ import org.jboss.logging.Logger;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 
+import static org.apache.camel.karavan.status.KaravanStatusEvents.CONTAINER_UPDATED;
+
 @ApplicationScoped
 public class CamelService {
 
     private static final Logger LOGGER = Logger.getLogger(CamelService.class.getName());
-    public static final String CMD_COLLECT_CAMEL_STATUS = "collect-camel-status";
     public static final String RELOAD_PROJECT_CODE = "RELOAD_PROJECT_CODE";
 
     @Inject
-    KaravanCacheService karavanCacheService;
+    KaravanStatusCache karavanStatusCache;
 
     @Inject
     CodeService codeService;
 
     @Inject
-    KubernetesService kubernetesService;
-
-    @Inject
-    ProjectService projectService;
+    KubernetesAPI kubernetesAPI;
 
     @ConfigProperty(name = "karavan.environment")
     String environment;
@@ -76,44 +73,26 @@ public class CamelService {
         return webClient;
     }
 
-    @Scheduled(every = "{karavan.camel.status.interval}", concurrentExecution = Scheduled.ConcurrentExecution.SKIP)
-    public void collectCamelStatuses() {
-        LOGGER.debug("Collect Camel Statuses");
-        if (karavanCacheService.isReady()) {
-            karavanCacheService.getContainerStatuses(environment).stream()
-                    .filter(cs ->
-                            cs.getType() == ContainerStatus.ContainerType.project
-                                    || cs.getType() == ContainerStatus.ContainerType.devmode
-                    ).filter(cs -> Objects.equals(cs.getCamelRuntime(), Constants.CamelRuntime.CAMEL_MAIN.getValue()))
-                    .forEach(cs -> {
-                        CamelStatusRequest csr = new CamelStatusRequest(cs.getProjectId(), cs.getContainerName());
-                        eventBus.publish(CMD_COLLECT_CAMEL_STATUS,
-                                JsonObject.mapFrom(Map.of("containerStatus", cs, "camelStatusRequest", csr))
-                        );
-                    });
-        }
-    }
-
     @ConsumeEvent(value = RELOAD_PROJECT_CODE, blocking = true, ordered = true)
     public void reloadProjectCode(String projectId) {
         LOGGER.debug("Reload project code " + projectId);
         try {
-            deleteRequest(projectId);
+            ContainerStatus containerStatus = karavanStatusCache.getDevModeContainerStatus(projectId, environment);
+            deleteRequest(containerStatus);
             Map<String, String> files = codeService.getProjectFilesForDevMode(projectId, true);
-            files.forEach((name, code) -> putRequest(projectId, name, code, 1000));
-            reloadRequest(projectId);
-            ContainerStatus containerStatus = karavanCacheService.getDevModeContainerStatus(projectId, environment);
+            files.forEach((name, code) -> putRequest(containerStatus, name, code, 1000));
+            reloadRequest(containerStatus);
             containerStatus.setCodeLoaded(true);
-            eventBus.publish(ContainerStatusService.CONTAINER_STATUS, JsonObject.mapFrom(containerStatus));
+            eventBus.publish(CONTAINER_UPDATED, JsonObject.mapFrom(containerStatus));
         } catch (Exception ex) {
             LOGGER.error("ReloadProjectCode " + (ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage()));
         }
     }
 
     @CircuitBreaker(requestVolumeThreshold = 10, failureRatio = 0.5, delay = 1000)
-    public boolean putRequest(String containerName, String fileName, String body, int timeout) {
+    public boolean putRequest(ContainerStatus containerStatus, String fileName, String body, int timeout) {
         try {
-            String url = getContainerAddressForReload(containerName) + "/q/upload/" + fileName;
+            String url = getContainerAddressForReload(containerStatus) + "/q/upload/" + fileName;
             HttpResponse<Buffer> result = getWebClient().putAbs(url)
                     .timeout(timeout).sendBuffer(Buffer.buffer(body)).subscribeAsCompletionStage().toCompletableFuture().get();
             return result.statusCode() == 200;
@@ -123,8 +102,8 @@ public class CamelService {
         return false;
     }
 
-    public String deleteRequest(String containerName) {
-        String url = getContainerAddressForReload(containerName) + "/q/upload/*";
+    public String deleteRequest(ContainerStatus containerStatus) throws Exception {
+        String url = getContainerAddressForReload(containerStatus) + "/q/upload/*";
         try {
             return deleteResult(url, 1000);
         } catch (InterruptedException | ExecutionException ex) {
@@ -133,8 +112,8 @@ public class CamelService {
         return null;
     }
 
-    public String reloadRequest(String containerName) {
-        String url = getContainerAddressForReload(containerName) + "/q/dev/reload?reload=true";
+    public String reloadRequest(ContainerStatus containerStatus) throws Exception {
+        String url = getContainerAddressForReload(containerStatus) + "/q/dev/reload?reload=true";
         try {
             return getResult(url, 1000);
         } catch (InterruptedException | ExecutionException ex) {
@@ -143,62 +122,18 @@ public class CamelService {
         return null;
     }
 
-    public String getContainerAddressForReload(String containerName) {
+    public String getContainerAddressForReload(ContainerStatus containerStatus) throws Exception {
         if (ConfigService.inKubernetes()) {
-            return "http://" + containerName + "." + kubernetesService.getNamespace();
+            return "http://" + containerStatus.getProjectId() + "." + kubernetesAPI.getNamespace();
         } else if (ConfigService.inDocker()) {
-            return "http://" + containerName + ":8080";
-        } else {
-            Integer port = projectService.getProjectPort(containerName);
-            return "http://localhost:" + port;
-        }
-    }
-
-    public String getContainerAddressForStatus(ContainerStatus containerStatus) throws Exception {
-        if (ConfigService.inKubernetes()) {
-            return "http://" + containerStatus.getPodIP() + ":8080";
-        } else if (ConfigService.inDocker()) {
-            return "http://" + containerStatus.getContainerName() + ":8080";
-        } else {
-            Integer port = projectService.getProjectPort(containerStatus.getContainerName());
+            return "http://" + containerStatus.getProjectId() + ":8080";
+        } else if (containerStatus.getPorts() != null && !containerStatus.getPorts().isEmpty()) {
+            Integer port = containerStatus.getPorts().get(0).getPublicPort();
             if (port != null) {
                 return "http://localhost:" + port;
-            } else {
-                throw new Exception("No port configured for project " + containerStatus.getContainerName());
             }
         }
-    }
-
-    public String getCamelStatus(ContainerStatus containerStatus, CamelStatusValue.Name statusName) throws Exception {
-        String url = getContainerAddressForStatus(containerStatus) + "/q/dev/" + statusName.name();
-        try {
-            return getResult(url, 500);
-        } catch (InterruptedException | ExecutionException ex) {
-            LOGGER.error("getCamelStatus " + (ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage()));
-        }
-        return null;
-    }
-
-    @ConsumeEvent(value = CMD_COLLECT_CAMEL_STATUS, blocking = true, ordered = true)
-    public void collectCamelStatuses(JsonObject data) {
-        try {
-            CamelStatusRequest dms = data.getJsonObject("camelStatusRequest").mapTo(CamelStatusRequest.class);
-            ContainerStatus containerStatus = data.getJsonObject("containerStatus").mapTo(ContainerStatus.class);
-            LOGGER.debug("Collect Camel Status for " + containerStatus.getContainerName());
-            String projectId = dms.getProjectId();
-            String containerName = dms.getContainerName();
-            List<CamelStatusValue> statuses = new ArrayList<>();
-            for (CamelStatusValue.Name statusName : CamelStatusValue.Name.values()) {
-                String status = getCamelStatus(containerStatus, statusName);
-                if (status != null) {
-                    statuses.add(new CamelStatusValue(statusName, status));
-                }
-            }
-            CamelStatus cs = new CamelStatus(projectId, containerName, statuses, environment);
-            karavanCacheService.saveCamelStatus(cs);
-        } catch (Exception ex) {
-            LOGGER.error("collectCamelStatuses " + (ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage()));
-        }
+        throw new Exception("No port configured for project " + containerStatus.getContainerName());
     }
 
     @CircuitBreaker(requestVolumeThreshold = 10, failureRatio = 0.5, delay = 1000)
@@ -227,35 +162,5 @@ public class CamelService {
             LOGGER.error("deleteResult " + (ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage()));
         }
         return null;
-    }
-
-    public static class CamelStatusRequest {
-        private String projectId;
-        private String containerName;
-
-        public CamelStatusRequest() {
-        }
-
-        public CamelStatusRequest(String projectId, String containerName) {
-            this.projectId = projectId;
-            this.containerName = containerName;
-        }
-
-        public String getProjectId() {
-            return projectId;
-        }
-
-        public void setProjectId(String projectId) {
-            this.projectId = projectId;
-        }
-
-        public String getContainerName() {
-            return containerName;
-        }
-
-        public void setContainerName(String containerName) {
-            this.containerName = containerName;
-        }
-
     }
 }

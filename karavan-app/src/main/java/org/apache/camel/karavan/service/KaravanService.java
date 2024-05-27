@@ -20,12 +20,15 @@ import io.quarkus.runtime.Quarkus;
 import io.quarkus.runtime.ShutdownEvent;
 import io.quarkus.runtime.Startup;
 import io.quarkus.runtime.StartupEvent;
-import io.vertx.core.eventbus.EventBus;
+import io.vertx.mutiny.core.eventbus.EventBus;
 import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
-import org.apache.camel.karavan.docker.DockerService;
-import org.apache.camel.karavan.kubernetes.KubernetesService;
+import org.apache.camel.karavan.docker.DockerAPI;
+import org.apache.camel.karavan.kubernetes.KubernetesAPI;
+import org.apache.camel.karavan.project.KaravanProjectsCache;
+import org.apache.camel.karavan.project.ProjectService;
+import org.apache.camel.karavan.status.ConfigService;
 import org.eclipse.microprofile.health.HealthCheck;
 import org.eclipse.microprofile.health.HealthCheckResponse;
 import org.eclipse.microprofile.health.Liveness;
@@ -41,10 +44,10 @@ public class KaravanService implements HealthCheck {
     private static final Logger LOGGER = Logger.getLogger(KaravanService.class.getName());
 
     @Inject
-    KubernetesService kubernetesService;
+    KubernetesAPI kubernetesAPI;
 
     @Inject
-    DockerService dockerService;
+    DockerAPI dockerAPI;
 
     @Inject
     EventBus eventBus;
@@ -53,7 +56,7 @@ public class KaravanService implements HealthCheck {
     ProjectService projectService;
 
     @Inject
-    KaravanCacheService karavanCacheService;
+    KaravanProjectsCache karavanProjectsCache;
 
     public static final String KARAVAN_STARTED = "KARAVAN_STARTED";
 
@@ -63,26 +66,21 @@ public class KaravanService implements HealthCheck {
     }
 
     void onStart(@Observes StartupEvent ev) throws Exception {
-        if (!ConfigService.inKubernetes() && !dockerService.checkDocker()){
+        if (!ConfigService.inKubernetes() && !dockerAPI.checkDocker()){
             Quarkus.asyncExit();
         }
         LOGGER.info("Starting Karavan services");
-        karavanCacheService.start();
         projectService.tryStart();
         eventBus.publish(KARAVAN_STARTED, null);
         if (!ConfigService.inKubernetes()) {
-            dockerService.startListeners();
-        } else {
-            kubernetesService.startInformers(null);
+            dockerAPI.startListeners();
         }
     }
 
     void onStop(@Observes ShutdownEvent ev) throws IOException  {
         LOGGER.info("Stopping Listeners");
-        if (ConfigService.inKubernetes()) {
-            kubernetesService.stopInformers();
-        } else {
-            dockerService.stopListeners();
+        if (!ConfigService.inKubernetes()) {
+            dockerAPI.stopListeners();
         }
         LOGGER.info("Karavan stopped");
     }

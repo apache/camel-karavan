@@ -19,9 +19,12 @@
          xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.apache.camel.karavan</groupId>
+    <parent>
+        <groupId>org.apache.camel.karavan</groupId>
+        <artifactId>karavan-parent</artifactId>
+        <version>4.7.0</version>
+    </parent>
     <artifactId>karavan-status</artifactId>
-    <version>4.7.0</version>
 
     <properties>
         <compiler-plugin.version>3.11.0</compiler-plugin.version>
@@ -35,7 +38,6 @@
         <quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
         <quarkus.platform.version>3.8.2</quarkus.platform.version>
         <surefire-plugin.version>3.1.0</surefire-plugin.version>
-        <resources-plugin.version>3.3.0</resources-plugin.version>
         <docker-java.version>3.3.6</docker-java.version>
     </properties>
 
@@ -44,13 +46,6 @@
             <dependency>
                 <groupId>${quarkus.platform.group-id}</groupId>
                 <artifactId>${quarkus.platform.artifact-id}</artifactId>
-                <version>${quarkus.platform.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-            <dependency>
-                <groupId>${quarkus.platform.group-id}</groupId>
-                <artifactId>quarkus-camel-bom</artifactId>
                 <version>${quarkus.platform.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
@@ -68,24 +63,12 @@
             <artifactId>quarkus-scheduler</artifactId>
         </dependency>
         <dependency>
-            <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-resteasy-reactive-jackson</artifactId>
-        </dependency>
-        <dependency>
             <groupId>io.smallrye.reactive</groupId>
             <artifactId>smallrye-mutiny-vertx-web-client</artifactId>
         </dependency>
         <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-smallrye-fault-tolerance</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-arc</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-smallrye-openapi</artifactId>
         </dependency>
         <dependency>
             <groupId>io.quarkus</groupId>
@@ -116,30 +99,16 @@
         </dependency>
     </dependencies>
     <build>
-        <resources>
-            <resource>
-                <directory>src/main/resources</directory>
-                <filtering>true</filtering>
-                <includes>
-                    <include>**/**</include>
-                </includes>
-                <excludes>
-                    <exclude>**/.gitignore</exclude>
-                </excludes>
-            </resource>
-        </resources>
         <plugins>
             <plugin>
-                <groupId>${quarkus.platform.group-id}</groupId>
-                <artifactId>quarkus-maven-plugin</artifactId>
-                <version>${quarkus.platform.version}</version>
-                <extensions>true</extensions>
+                <groupId>io.smallrye</groupId>
+                <artifactId>jandex-maven-plugin</artifactId>
+                <version>3.1.7</version>
                 <executions>
                     <execution>
+                        <id>make-index</id>
                         <goals>
-                            <goal>build</goal>
-                            <goal>generate-code</goal>
-                            <goal>generate-code-tests</goal>
+                            <goal>jandex</goal>
                         </goals>
                     </execution>
                 </executions>

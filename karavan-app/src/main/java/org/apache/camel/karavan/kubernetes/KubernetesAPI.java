@@ -17,29 +17,23 @@
 package org.apache.camel.karavan.kubernetes;
 
 import io.fabric8.kubernetes.api.model.*;
-import io.fabric8.kubernetes.api.model.apps.Deployment;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClientBuilder;
 import io.fabric8.kubernetes.client.dsl.LogWatch;
-import io.fabric8.kubernetes.client.informers.SharedIndexInformer;
 import io.quarkus.runtime.configuration.ProfileManager;
 import io.quarkus.vertx.ConsumeEvent;
 import io.smallrye.mutiny.tuples.Tuple2;
 import io.smallrye.mutiny.tuples.Tuple3;
-import io.vertx.mutiny.core.eventbus.EventBus;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Default;
 import jakarta.enterprise.inject.Produces;
 import jakarta.inject.Inject;
 import org.apache.camel.karavan.code.CodeService;
-import org.apache.camel.karavan.service.KaravanCacheService;
-import org.apache.camel.karavan.model.ContainerStatus;
 import org.apache.camel.karavan.model.Project;
-import org.apache.camel.karavan.service.ConfigService;
+import org.apache.camel.karavan.status.model.ContainerStatus;
+
+import org.apache.camel.karavan.status.ConfigService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.eclipse.microprofile.health.HealthCheck;
-import org.eclipse.microprofile.health.HealthCheckResponse;
-import org.eclipse.microprofile.health.Readiness;
 import org.jboss.logging.Logger;
 
 import java.nio.charset.StandardCharsets;
@@ -50,18 +44,10 @@ import static org.apache.camel.karavan.service.KaravanService.KARAVAN_STARTED;
 import static org.apache.camel.karavan.shared.Constants.*;
 
 @Default
-@Readiness
 @ApplicationScoped
-public class KubernetesService implements HealthCheck {
+public class KubernetesAPI {
 
-    private static final Logger LOGGER = Logger.getLogger(KubernetesService.class.getName());
-    protected static final int INFORMERS = 3;
-
-    @Inject
-    EventBus eventBus;
-
-    @Inject
-    KaravanCacheService karavanCacheService;
+    private static final Logger LOGGER = Logger.getLogger(KubernetesAPI.class.getName());
 
     @Inject
     CodeService codeService;
@@ -96,57 +82,6 @@ public class KubernetesService implements HealthCheck {
 
     @ConfigProperty(name = "karavan.openshift")
     Optional<Boolean> isOpenShift;
-
-    List<SharedIndexInformer> informers = new ArrayList<>(INFORMERS);
-
-    public void startInformers(String data) {
-        try {
-            stopInformers();
-            LOGGER.info("Starting Kubernetes Informers");
-
-            Map<String, String> labels = getRuntimeLabels();
-            KubernetesClient client = kubernetesClient();
-
-            SharedIndexInformer<Deployment> deploymentInformer = client.apps().deployments().inNamespace(getNamespace())
-                    .withLabels(labels).inform();
-            deploymentInformer.addEventHandlerWithResyncPeriod(new DeploymentEventHandler(karavanCacheService, this), 30 * 1000L);
-            informers.add(deploymentInformer);
-
-            SharedIndexInformer<Service> serviceInformer = client.services().inNamespace(getNamespace())
-                    .withLabels(labels).inform();
-            serviceInformer.addEventHandlerWithResyncPeriod(new ServiceEventHandler(karavanCacheService, this), 30 * 1000L);
-            informers.add(serviceInformer);
-
-            SharedIndexInformer<Pod> podRunInformer = client.pods().inNamespace(getNamespace())
-                    .withLabels(labels).inform();
-            podRunInformer.addEventHandlerWithResyncPeriod(new PodEventHandler(karavanCacheService, this, eventBus), 30 * 1000L);
-            informers.add(podRunInformer);
-
-            LOGGER.info("Started Kubernetes Informers");
-        } catch (Exception e) {
-            LOGGER.error("Error starting informers: " + e.getMessage());
-        }
-    }
-
-
-    @Override
-    public HealthCheckResponse call() {
-        if (ConfigService.inKubernetes()) {
-            if (informers.size() == INFORMERS) {
-                return HealthCheckResponse.named("Kubernetes").up().build();
-            } else {
-                return HealthCheckResponse.named("Kubernetes").down().build();
-            }
-        } else {
-            return HealthCheckResponse.named("Kubernetesless").up().build();
-        }
-    }
-
-    public void stopInformers() {
-        LOGGER.info("Stop Kubernetes Informers");
-        informers.forEach(SharedIndexInformer::close);
-        informers.clear();
-    }
 
     @ConsumeEvent(value = KARAVAN_STARTED, blocking = true)
     public void createBuildScriptConfigmap(String data) {

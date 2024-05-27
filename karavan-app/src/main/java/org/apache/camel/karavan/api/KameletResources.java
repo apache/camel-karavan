@@ -21,11 +21,10 @@ import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
-import org.apache.camel.karavan.service.KaravanCacheService;
+import org.apache.camel.karavan.project.KaravanProjectsCache;
 import org.apache.camel.karavan.model.Project;
 import org.apache.camel.karavan.model.ProjectFile;
 import org.apache.camel.karavan.code.CodeService;
-import org.yaml.snakeyaml.Yaml;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -34,7 +33,7 @@ import java.util.stream.Collectors;
 public class KameletResources {
 
     @Inject
-    KaravanCacheService karavanCacheService;
+    KaravanProjectsCache karavanProjectsCache;
 
     @Inject
     CodeService codeService;
@@ -43,14 +42,12 @@ public class KameletResources {
     @Produces(MediaType.TEXT_PLAIN)
     public String getKamelets() {
         StringBuilder kamelets = new StringBuilder(codeService.getResourceFile("/kamelets/kamelets.yaml"));
-        if (karavanCacheService.isReady()) {
-            List<ProjectFile> custom = karavanCacheService.getProjectFiles(Project.Type.kamelets.name());
-            if (!custom.isEmpty()) {
-                kamelets.append("\n---\n");
-                kamelets.append(custom.stream()
-                        .map(ProjectFile::getCode)
-                        .collect(Collectors.joining("\n---\n")));
-            }
+        List<ProjectFile> custom = karavanProjectsCache.getProjectFiles(Project.Type.kamelets.name());
+        if (!custom.isEmpty()) {
+            kamelets.append("\n---\n");
+            kamelets.append(custom.stream()
+                    .map(ProjectFile::getCode)
+                    .collect(Collectors.joining("\n---\n")));
         }
         return kamelets.toString();
     }

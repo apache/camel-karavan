@@ -25,14 +25,15 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.apache.camel.karavan.api.KameletResources;
 import org.apache.camel.karavan.model.DockerComposeService;
-import org.apache.camel.karavan.docker.DockerService;
+import org.apache.camel.karavan.docker.DockerAPI;
 import org.apache.camel.karavan.model.GitRepo;
 import org.apache.camel.karavan.model.GitRepoFile;
-import org.apache.camel.karavan.service.KaravanCacheService;
+import org.apache.camel.karavan.project.KaravanProjectsCache;
 import org.apache.camel.karavan.model.Project;
 import org.apache.camel.karavan.model.ProjectFile;
-import org.apache.camel.karavan.kubernetes.KubernetesService;
-import org.apache.camel.karavan.service.ConfigService;
+import org.apache.camel.karavan.kubernetes.KubernetesAPI;
+
+import org.apache.camel.karavan.status.ConfigService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 import org.yaml.snakeyaml.LoaderOptions;
@@ -72,13 +73,13 @@ public class CodeService {
     String environment;
 
     @Inject
-    KubernetesService kubernetesService;
+    KubernetesAPI kubernetesAPI;
 
     @Inject
-    DockerService dockerService;
+    DockerAPI dockerAPI;
 
     @Inject
-    KaravanCacheService karavanCacheService;
+    KaravanProjectsCache karavanProjectsCache;
 
     @Inject
     Vertx vertx;
@@ -95,14 +96,14 @@ public class CodeService {
     );
 
     public Map<String, String> getProjectFilesForDevMode(String projectId, Boolean withKamelets) {
-        Map<String, String> files = karavanCacheService.getProjectFiles(projectId).stream()
+        Map<String, String> files = karavanProjectsCache.getProjectFiles(projectId).stream()
                 .filter(f -> !f.getName().endsWith(MARKDOWN_EXTENSION))
                 .filter(f -> !Objects.equals(f.getName(), PROJECT_COMPOSE_FILENAME))
                 .filter(f -> !f.getName().endsWith(PROJECT_JKUBE_EXTENSION))
                 .collect(Collectors.toMap(ProjectFile::getName, ProjectFile::getCode));
 
         if (withKamelets) {
-            karavanCacheService.getProjectFiles(Project.Type.kamelets.name())
+            karavanProjectsCache.getProjectFiles(Project.Type.kamelets.name())
                     .forEach(file -> files.put(file.getName(), file.getCode()));
         }
         return files;
@@ -110,7 +111,7 @@ public class CodeService {
 
     public List<Tuple3<String, String, String>> getBuilderEnvMapping() {
         List<Tuple3<String, String, String>> result = new ArrayList<>();
-        ProjectFile projectFile = karavanCacheService.getProjectFile(Project.Type.templates.name(), BUILDER_ENV_MAPPING_FILENAME);
+        ProjectFile projectFile = karavanProjectsCache.getProjectFile(Project.Type.templates.name(), BUILDER_ENV_MAPPING_FILENAME);
         if (projectFile != null) {
             String text = projectFile.getCode();
             text.lines().forEach(line -> {
@@ -135,7 +136,7 @@ public class CodeService {
             code = code.replace("{projectName}", project.getName());
             code = code.replace("{projectDescription}", project.getDescription());
             if (ConfigService.inKubernetes()) {
-                code = code.replace("{namespace}", kubernetesService.getNamespace());
+                code = code.replace("{namespace}", kubernetesAPI.getNamespace());
             }
         }
         return new ProjectFile(APPLICATION_PROPERTIES_FILENAME, code, project.getProjectId(), Instant.now().toEpochMilli());
@@ -163,7 +164,7 @@ public class CodeService {
 
     public String getTemplateText(String fileName) {
         try {
-            List<ProjectFile> files = karavanCacheService.getProjectFiles(Project.Type.templates.name());
+            List<ProjectFile> files = karavanProjectsCache.getProjectFiles(Project.Type.templates.name());
             // replaceAll("\r\n", "\n")) has been add to eliminate the impact of editing the template files from windows machine.
             return files.stream().filter(f -> f.getName().equalsIgnoreCase(fileName))
                     .map(file-> file.getCode().replaceAll("\r\n", "\n")).findFirst().orElse(null);
@@ -181,7 +182,7 @@ public class CodeService {
         Map<String, String> result = new HashMap<>();
 
         if (ConfigService.inKubernetes()) {
-            if (kubernetesService.isOpenshift()) {
+            if (kubernetesAPI.isOpenshift()) {
                 result.put(APPLICATION_PROPERTIES_FILENAME, getResourceFile(TEMPLATES_PATH + "openshift-" + APPLICATION_PROPERTIES_FILENAME));
                 result.put(BUILD_SCRIPT_FILENAME, getResourceFile(TEMPLATES_PATH + "openshift-" + BUILD_SCRIPT_FILENAME));
             } else {
@@ -296,14 +297,14 @@ public class CodeService {
     }
 
     private int getNextAvailablePort() {
-        int dockerPort = dockerService.getMaxPortMapped(INTERNAL_PORT);
+        int dockerPort = dockerAPI.getMaxPortMapped(INTERNAL_PORT);
         int projectPort = getMaxPortMappedInProjects();
         return Math.max(projectPort, dockerPort) + 1;
     }
 
 
     private int getMaxPortMappedInProjects() {
-        List<ProjectFile> files =  karavanCacheService.getProjectFilesByName(PROJECT_COMPOSE_FILENAME).stream()
+        List<ProjectFile> files =  karavanProjectsCache.getProjectFilesByName(PROJECT_COMPOSE_FILENAME).stream()
                 .filter(f -> !Objects.equals(f.getProjectId(), Project.Type.templates.name())).toList();
         if (!files.isEmpty()) {
             return files.stream().map(this::getProjectPort)
@@ -326,13 +327,13 @@ public class CodeService {
     }
 
     public Integer getProjectPort(String projectId) {
-        ProjectFile composeFile = karavanCacheService.getProjectFile(projectId, PROJECT_COMPOSE_FILENAME);
+        ProjectFile composeFile = karavanProjectsCache.getProjectFile(projectId, PROJECT_COMPOSE_FILENAME);
         return getProjectPort(composeFile);
     }
 
 
     public DockerComposeService getDockerComposeService(String projectId) {
-        ProjectFile compose = karavanCacheService.getProjectFile(projectId, PROJECT_COMPOSE_FILENAME);
+        ProjectFile compose = karavanProjectsCache.getProjectFile(projectId, PROJECT_COMPOSE_FILENAME);
         if (compose != null) {
             return DockerComposeConverter.fromCode(compose.getCode(), projectId);
         }
@@ -340,13 +341,13 @@ public class CodeService {
     }
 
     public void updateDockerComposeImage(String projectId, String imageName) {
-        ProjectFile compose = karavanCacheService.getProjectFile(projectId, PROJECT_COMPOSE_FILENAME);
+        ProjectFile compose = karavanProjectsCache.getProjectFile(projectId, PROJECT_COMPOSE_FILENAME);
         if (compose != null) {
             DockerComposeService service = DockerComposeConverter.fromCode(compose.getCode(), projectId);
             service.setImage(imageName);
             String code = DockerComposeConverter.toCode(service);
             compose.setCode(code);
-            karavanCacheService.saveProjectFile(compose);
+            karavanProjectsCache.saveProjectFile(compose);
         }
     }
 

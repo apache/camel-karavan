@@ -21,17 +21,16 @@ import com.github.dockerjava.api.model.HealthCheck;
 import com.github.dockerjava.api.model.RestartPolicy;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import org.apache.camel.karavan.model.ContainerStatus;
 import org.apache.camel.karavan.model.DockerComposeService;
 import org.apache.camel.karavan.model.Project;
-import org.apache.camel.karavan.service.ProjectService;
+import org.apache.camel.karavan.project.ProjectService;
+import org.apache.camel.karavan.status.model.ContainerStatus;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import static org.apache.camel.karavan.shared.Constants.*;
 
@@ -44,7 +43,7 @@ public class DockerForKaravan {
     String devmodeImage;
 
     @Inject
-    DockerService dockerService;
+    DockerAPI dockerAPI;
 
     @Inject
     ProjectService projectService;
@@ -52,8 +51,8 @@ public class DockerForKaravan {
     public void runProjectInDevMode(String projectId, String jBangOptions, Map<Integer, Integer> ports,
                                     Map<String, String> files) throws Exception {
         Container c = createDevmodeContainer(projectId, jBangOptions, ports, new HashMap<>());
-        dockerService.runContainer(projectId);
-        dockerService.copyFiles(c.getId(), "/karavan/code", files, true);
+        dockerAPI.runContainer(projectId);
+        dockerAPI.copyFiles(c.getId(), "/karavan/code", files, true);
     }
 
     protected Container createDevmodeContainer(String projectId, String jBangOptions, Map<Integer, Integer> ports, Map<String, String> volumes) throws InterruptedException {
@@ -68,7 +67,7 @@ public class DockerForKaravan {
 
         DockerComposeService composeService = projectService.getProjectDockerComposeService(projectId);
 
-        return dockerService.createContainer(projectId, devmodeImage,
+        return dockerAPI.createContainer(projectId, devmodeImage,
                 env, ports, healthCheck,
                 Map.of(LABEL_TYPE, ContainerStatus.ContainerType.devmode.name(),
                         LABEL_PROJECT_ID, projectId,
@@ -81,19 +80,19 @@ public class DockerForKaravan {
 
     public void runBuildProject(Project project, String script, List<String> env, Map<String, String> sshFiles, String tag) throws Exception {
         String containerName = project.getProjectId() + BUILDER_SUFFIX;
-        dockerService.deleteContainer(containerName);
+        dockerAPI.deleteContainer(containerName);
         Container c = createBuildContainer(containerName, project, env, new HashMap<>(0), tag);
-        dockerService.copyExecFile(c.getId(), "/karavan/builder", "build.sh", script);
+        dockerAPI.copyExecFile(c.getId(), "/karavan/builder", "build.sh", script);
         sshFiles.forEach((name, text) -> {
-            dockerService.copyExecFile(c.getId(), "/karavan/.ssh", name, text);
+            dockerAPI.copyExecFile(c.getId(), "/karavan/.ssh", name, text);
         });
-        dockerService.runContainer(c);
+        dockerAPI.runContainer(c);
     }
 
     protected Container createBuildContainer(String containerName, Project project, List<String> env, Map<String, String> volumes, String tag) throws InterruptedException {
         LOGGER.infof("Starting Build Container ", containerName);
 
-        return dockerService.createContainer(containerName, devmodeImage,
+        return dockerAPI.createContainer(containerName, devmodeImage,
                 env, Map.of(), new HealthCheck(),
                 Map.of(
                         LABEL_TYPE, ContainerStatus.ContainerType.build.name(),

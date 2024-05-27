@@ -19,9 +19,12 @@
          xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.apache.camel.karavan</groupId>
+    <parent>
+        <groupId>org.apache.camel.karavan</groupId>
+        <artifactId>karavan-parent</artifactId>
+        <version>4.7.0</version>
+    </parent>
     <artifactId>karavan</artifactId>
-    <version>4.7.0</version>
 
     <properties>
         <compiler-plugin.version>3.11.0</compiler-plugin.version>
@@ -52,17 +55,15 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-            <dependency>
-                <groupId>${quarkus.platform.group-id}</groupId>
-                <artifactId>quarkus-camel-bom</artifactId>
-                <version>${quarkus.platform.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
         </dependencies>
     </dependencyManagement>
 
     <dependencies>
+        <dependency>
+            <groupId>org.apache.camel.karavan</groupId>
+            <artifactId>karavan-status</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-smallrye-reactive-messaging</artifactId>
@@ -74,6 +75,10 @@
         <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-resteasy-reactive-jackson</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-vertx</artifactId>
         </dependency>
         <dependency>
             <groupId>io.smallrye.reactive</groupId>
