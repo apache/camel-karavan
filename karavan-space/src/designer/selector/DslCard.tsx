@@ -20,6 +20,8 @@ import {
     Card, CardBody, CardFooter,
     CardHeader,
     Text,
+    Tooltip,
+    TooltipPosition,
 } from '@patternfly/react-core';
 import './DslSelector.css';
 import {CamelUi} from "../utils/CamelUi";
@@ -57,7 +59,9 @@ export function DslCard (props: Props) {
             </CardHeader>
             <CardBody>
                 {/*<Text>{dsl.description}</Text>*/}
-                <Text className="pf-v5-u-color-200">{dsl.description}</Text>
+                <Tooltip content={dsl.description} position={TooltipPosition.bottom}>
+                    <Text className="pf-v5-u-color-200">{dsl.description}</Text>
+                </Tooltip>
             </CardBody>
             <CardFooter className="footer-labels">
                 <div style={{display: "flex", flexDirection: "row", justifyContent: "start"}}>
