@@ -135,15 +135,18 @@ public class StatusCache {
     }
 
     public List<CamelStatus> getCamelStatusesByEnv(CamelStatusValue.Name name) {
-        return camelStatuses.values().stream().map(cs -> {
+        List<CamelStatus> copy = new ArrayList<>(camelStatuses.size());
+        camelStatuses.values().forEach(camelStatus -> copy.add(camelStatus.clone()));
+        return copy.stream().peek(cs -> {
             var values = cs.getStatuses();
             cs.setStatuses(values.stream().filter(v -> Objects.equals(v.getName(), name)).toList());
-            return cs;
         }).toList();
     }
 
     public List<CamelStatus> getCamelStatusesByProjectAndEnv(String projectId, String env) {
-        return camelStatuses.values().stream().filter(el -> Objects.equals(el.getProjectId(), projectId) && Objects.equals(el.getEnv(), env)).toList();
+        List<CamelStatus> copy = new ArrayList<>(camelStatuses.size());
+        camelStatuses.values().forEach(camelStatus -> copy.add(camelStatus.clone()));
+        return copy.stream().filter(el -> Objects.equals(el.getProjectId(), projectId) && Objects.equals(el.getEnv(), env)).toList();
     }
 
     public void saveCamelStatus(CamelStatus status) {

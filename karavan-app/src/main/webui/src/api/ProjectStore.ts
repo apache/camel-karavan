@@ -171,17 +171,13 @@ export const useProjectStore = createWithEqualityFn<ProjectState>((set) => ({
     camelStatuses: [],
     setCamelStatuses: (camelStatuses: CamelStatus[])  => {
         set((state: ProjectState) => {
-            state.camelStatuses.length = 0;
-            state.camelStatuses.push(...camelStatuses);
-            return {camelStatuses: state.camelStatuses};
+            return {camelStatuses: camelStatuses};
         });
     },
     camelTraces: [],
     setCamelTraces: (camelTraces: CamelStatus[])  => {
         set((state: ProjectState) => {
-            state.camelTraces.length = 0;
-            state.camelTraces.push(...camelTraces);
-            return {camelTraces: state.camelTraces};
+            return {camelTraces: camelTraces};
         });
     },
     refreshTrace: false,

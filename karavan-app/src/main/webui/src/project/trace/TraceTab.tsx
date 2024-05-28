@@ -14,13 +14,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import {
-    Bullseye,
-    Button,
-    EmptyState,
-    EmptyStateIcon,
-    EmptyStateVariant,
     Flex,
     FlexItem,
     Panel,
@@ -30,33 +25,11 @@ import {
     TextContent,
     TextVariants,
     PageSection,
-    EmptyStateHeader,
-    Card,
-    CardBody,
-    Divider,
-    Tabs,
-    Tab,
-    TabTitleText,
     ToggleGroup, ToggleGroupItem,
 } from '@patternfly/react-core';
 import '../../designer/karavan.css';
-import {RunnerInfoTraceModal} from "./RunnerInfoTraceModal";
-import {
-    Tbody,
-    Td,
-    Th,
-    Thead,
-    Tr
-} from '@patternfly/react-table';
-import {
-    Table
-} from '@patternfly/react-table/deprecated';
-import SearchIcon from "@patternfly/react-icons/dist/esm/icons/search-icon";
 import {useProjectStore, useStatusesStore} from "../../api/ProjectStore";
 import {shallow} from "zustand/shallow";
-import {InfoContainer} from "../dashboard/InfoContainer";
-import {InfoMemory} from "../dashboard/InfoMemory";
-import {InfoContext} from "../dashboard/InfoContext";
 import {TraceTable} from "./TraceTable";
 
 export function TraceTab() {

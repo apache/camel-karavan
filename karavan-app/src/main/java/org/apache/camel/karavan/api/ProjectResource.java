@@ -150,7 +150,7 @@ public class ProjectResource {
     public Response getCamelStatusForProjectAndEnv(@PathParam("projectId") String projectId, @PathParam("env") String env) {
         List<CamelStatus> statuses = statusCache.getCamelStatusesByProjectAndEnv(projectId, env)
                 .stream().map(camelStatus -> {
-                    var stats = camelStatus.getStatuses().stream().filter(s -> !Objects.equals(s.getName(), CamelStatusValue.Name.trace)).toList();
+                    var stats = List.copyOf(camelStatus.getStatuses()).stream().filter(s -> !Objects.equals(s.getName(), CamelStatusValue.Name.trace)).toList();
                     camelStatus.setStatuses(stats);
                     return camelStatus;
                 }).toList();
@@ -166,10 +166,9 @@ public class ProjectResource {
     @Path("/traces/{projectId}/{env}")
     public Response getCamelTracesForProjectAndEnv(@PathParam("projectId") String projectId, @PathParam("env") String env) {
         List<CamelStatus> statuses = statusCache.getCamelStatusesByProjectAndEnv(projectId, env)
-                .stream().map(camelStatus -> {
-                    var stats = camelStatus.getStatuses().stream().filter(s -> Objects.equals(s.getName(), CamelStatusValue.Name.trace)).toList();
+                .stream().peek(camelStatus -> {
+                    var stats = List.copyOf(camelStatus.getStatuses()).stream().filter(s -> Objects.equals(s.getName(), CamelStatusValue.Name.trace)).toList();
                     camelStatus.setStatuses(stats);
-                    return camelStatus;
                 }).toList();
         if (!statuses.isEmpty()) {
             return Response.ok(statuses).build();

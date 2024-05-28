@@ -64,4 +64,9 @@ public class CamelStatus {
     public void setEnv(String env) {
         this.env = env;
     }
+
+    @Override
+    public CamelStatus clone() {
+        return new CamelStatus(this.projectId, this.containerName, List.copyOf(this.statuses), this.env);
+    }
 }
