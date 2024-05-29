@@ -16,13 +16,17 @@
  */
 package org.apache.camel.karavan.manager;
 
+import io.quarkus.vertx.ConsumeEvent;
 import io.vertx.core.eventbus.DeliveryOptions;
 import io.vertx.core.json.JsonObject;
 import io.vertx.mutiny.core.eventbus.EventBus;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import org.apache.camel.karavan.project.model.Project;
 
 import java.util.UUID;
+
+import static org.apache.camel.karavan.project.ProjectEvents.COMMIT_HAPPENED;
 
 @ApplicationScoped
 public class NotificationManager {
@@ -35,19 +39,27 @@ public class NotificationManager {
     @Inject
     EventBus eventBus;
 
+    @ConsumeEvent(value = COMMIT_HAPPENED, blocking = true, ordered = true)
+    public void onCommitHappened(JsonObject event) throws Exception {
+        JsonObject pj = event.getJsonObject("project");
+        Project p = pj.mapTo(Project.class);
+        String eventId = event.getString("eventId");
+        sendSystem(eventId, "commit", Project.class.getSimpleName(), JsonObject.mapFrom(p));
+    }
+
     public void send(String userId, String eventId, String evenName, String className, JsonObject data) {
         eventBus.publish(userId, data, new DeliveryOptions()
-                        .addHeader(NOTIFICATION_HEADER_EVENT_ID, eventId != null ? eventId : UUID.randomUUID().toString())
-                        .addHeader(NOTIFICATION_HEADER_EVENT_NAME, evenName)
-                        .addHeader(NOTIFICATION_HEADER_CLASS_NAME, className)
+                .addHeader(NOTIFICATION_HEADER_EVENT_ID, eventId != null ? eventId : UUID.randomUUID().toString())
+                .addHeader(NOTIFICATION_HEADER_EVENT_NAME, evenName)
+                .addHeader(NOTIFICATION_HEADER_CLASS_NAME, className)
         );
     }
 
     public void sendSystem(String eventId, String evenName, String className, JsonObject data) {
         eventBus.publish(NOTIFICATION_ADDRESS_SYSTEM, data, new DeliveryOptions()
-                        .addHeader(NOTIFICATION_HEADER_EVENT_ID, eventId != null ? eventId : UUID.randomUUID().toString())
-                        .addHeader(NOTIFICATION_HEADER_EVENT_NAME, evenName)
-                        .addHeader(NOTIFICATION_HEADER_CLASS_NAME, className)
+                .addHeader(NOTIFICATION_HEADER_EVENT_ID, eventId != null ? eventId : UUID.randomUUID().toString())
+                .addHeader(NOTIFICATION_HEADER_EVENT_NAME, evenName)
+                .addHeader(NOTIFICATION_HEADER_CLASS_NAME, className)
         );
     }
 }

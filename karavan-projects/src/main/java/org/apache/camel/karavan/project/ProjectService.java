@@ -74,8 +74,7 @@ public class ProjectService {
         p.setLastCommitTimestamp(lastUpdate);
         projectsCache.saveProject(p);
         if (userId != null) {
-//            notificationService.sendSystem(eventId, COMMIT_HAPPENED, Project.class.getSimpleName(), JsonObject.mapFrom(p));
-            eventBus.publish(COMMIT_HAPPENED, JsonObject.mapFrom(p));
+            eventBus.publish(COMMIT_HAPPENED, JsonObject.of("eventId", eventId, "project", JsonObject.mapFrom(p)));
         }
     }
 
