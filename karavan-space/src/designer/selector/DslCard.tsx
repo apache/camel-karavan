@@ -59,7 +59,7 @@ export function DslCard (props: Props) {
             </CardHeader>
             <CardBody>
                 {/*<Text>{dsl.description}</Text>*/}
-                <Tooltip content={dsl.description} position={TooltipPosition.bottom}>
+                <Tooltip content={dsl.description} position={TooltipPosition.bottom} entryDelay={1000}>
                     <Text className="pf-v5-u-color-200">{dsl.description}</Text>
                 </Tooltip>
             </CardBody>
