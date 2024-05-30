@@ -29,6 +29,9 @@ public class ServiceStatus {
     String clusterIP;
     String type;
 
+    public ServiceStatus() {
+    }
+
     public ServiceStatus(String projectId, String namespace, String env, String cluster, Integer port, Integer targetPort, String clusterIP, String type) {
         this.projectId = projectId;
         this.namespace = namespace;

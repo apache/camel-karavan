@@ -23,6 +23,9 @@ public class ContainerPort {
     Integer publicPort;
     String type;
 
+    public ContainerPort() {
+    }
+
     public ContainerPort(Integer privatePort, Integer publicPort, String type) {
         this.privatePort = privatePort;
         this.publicPort = publicPort;

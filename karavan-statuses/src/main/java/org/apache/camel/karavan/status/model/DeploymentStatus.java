@@ -28,6 +28,9 @@ public class DeploymentStatus {
     Integer readyReplicas;
     Integer unavailableReplicas;
 
+    public DeploymentStatus() {
+    }
+
     public DeploymentStatus(String projectId, String namespace, String cluster, String env) {
         this.projectId = projectId;
         this.namespace = namespace;

@@ -26,6 +26,9 @@ public class CamelStatus {
     List<CamelStatusValue> statuses;
     String env;
 
+    public CamelStatus() {
+    }
+
     public CamelStatus(String projectId, String containerName, List<CamelStatusValue> statuses, String env) {
         this.projectId = projectId;
         this.containerName = containerName;

@@ -23,6 +23,9 @@ public class GroupedKey {
     private String env;
     private String key;
 
+    public GroupedKey() {
+    }
+
     public GroupedKey(String projectId, String env, String key) {
         this.projectId = projectId;
         this.env = env;

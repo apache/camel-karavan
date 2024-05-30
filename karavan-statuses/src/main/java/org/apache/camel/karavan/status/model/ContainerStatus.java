@@ -69,6 +69,8 @@ public class ContainerStatus {
     String camelRuntime;
     String commit;
 
+
+
     public ContainerStatus(String projectId, String containerName, String containerId, String image, List<ContainerPort> ports, String env, ContainerType type, String memoryInfo, String cpuInfo, String created, String finished, List<Command> commands, String state, String phase, Boolean codeLoaded, Boolean inTransit, String initDate, String podIP, String camelRuntime) {
         this.projectId = projectId;
         this.containerName = containerName;

@@ -34,6 +34,9 @@ public class CamelStatusValue {
     Name name;
     String status;
 
+    public CamelStatusValue() {
+    }
+
     public CamelStatusValue(Name name, String status) {
         this.name = name;
         this.status = status;
