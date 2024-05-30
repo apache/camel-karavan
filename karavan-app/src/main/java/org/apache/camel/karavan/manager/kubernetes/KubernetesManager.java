@@ -412,7 +412,7 @@ public class KubernetesManager {
                 .withImage(devmodeImage)
                 .withPorts(port)
                 .withResources(resources)
-                .withImagePullPolicy("Always")
+                .withImagePullPolicy("IfNotPresent")
                 .withEnv(new EnvVarBuilder().withName(ENV_VAR_JBANG_OPTIONS).withValue(jbangOptions).build())
                 .build();
 
