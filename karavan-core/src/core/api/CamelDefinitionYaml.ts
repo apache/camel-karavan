@@ -173,6 +173,8 @@ export class CamelDefinitionYaml {
             delete newValue.dslName;
             delete newValue[stepNameField];
 
+            if (stepName === 'errorHandler') { delete newValue.id} // until https://issues.apache.org/jira/browse/CAMEL-20818
+
             if (
                 value.inArray &&
                 !value.inSteps &&

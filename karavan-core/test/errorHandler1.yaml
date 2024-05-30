@@ -19,7 +19,6 @@
 - routeConfiguration:
     id: routeConfiguration-1
     errorHandler:
-      id: errorHandler-1
       deadLetterChannel:
         id: deadLetterChannel-1
         deadLetterUri: log:dlq
