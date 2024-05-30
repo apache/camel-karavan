@@ -21,7 +21,6 @@ import {
     Button,
     Card,
     CardBody,
-    CardHeader,
     Flex,
     FlexItem,
     Label,
@@ -122,12 +121,6 @@ export function ContainerPanel(props: Props) {
                                                 Image:
                                                 <ClipboardCopy hoverTip="Copy" clickTip="Copied" variant="inline-compact" style={{backgroundColor: 'transparent'}}>
                                                     {cs.image}
-                                                </ClipboardCopy>
-                                            </Label>
-                                            <Label icon={<CommitIcon/>} color={ready ? "green" : "grey"} variant='outline'>
-                                                Commit:
-                                                <ClipboardCopy hoverTip="Copy" clickTip="Copied" variant="inline-compact" style={{backgroundColor: 'transparent'}}>
-                                                    {getShortCommit(cs.commit)}
                                                 </ClipboardCopy>
                                             </Label>
                                             <Button

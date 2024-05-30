@@ -91,7 +91,7 @@ public class PodEventHandler implements ResourceEventHandler<Pod> {
 
             ContainerStatus cs = new ContainerStatus();
             cs.setProjectId(projectId);
-            cs.setContainerName(projectId);
+            cs.setContainerName(pod.getMetadata().getName());
             cs.setEnv(kubernetesStatusService.environment);
 
             eventBus.publish(CONTAINER_DELETED, JsonObject.mapFrom(cs));
