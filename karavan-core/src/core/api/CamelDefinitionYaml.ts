@@ -210,6 +210,7 @@ export class CamelDefinitionYaml {
                 stepName === 'mutualTls' ||
                 stepName === 'oauth2' ||
                 stepName === 'openIdConnect' ||
+                stepName === 'openApi' ||
                 key === 'from'
             ) {
                 delete newValue.inArray;

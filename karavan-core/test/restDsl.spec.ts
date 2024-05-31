@@ -23,7 +23,6 @@ import {GetDefinition, PostDefinition, RestDefinition, RouteDefinition} from "..
 import {FromDefinition} from "../src/core/model/CamelDefinition";
 import {CamelDefinitionApiExt} from "../src/core/api/CamelDefinitionApiExt";
 import {RestConfigurationDefinition} from "../src/core/model/CamelDefinition";
-import {SagaDefinition, ToDefinition} from "../lib/model/CamelDefinition";
 
 describe('REST DSL', () => {
 

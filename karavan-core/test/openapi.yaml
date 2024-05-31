@@ -1,0 +1,7 @@
+- rest:
+    id: rest-1
+    description: Hello World
+    path: /demo
+    openApi:
+      id: openapi-1
+      specification: openapi.json
