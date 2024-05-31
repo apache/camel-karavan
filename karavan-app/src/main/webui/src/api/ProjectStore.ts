@@ -41,6 +41,8 @@ interface AppConfigState {
     selectedEnv: string[];
     setSelectedEnv: (selectedEnv: string[]) => void;
     selectEnvironment: (name: string, selected: boolean) => void;
+    notificationFetcherId?: string;
+    resetNotificationFetcher: () => void
 }
 
 export const useAppConfigStore = createWithEqualityFn<AppConfigState>((set) => ({
@@ -85,7 +87,10 @@ export const useAppConfigStore = createWithEqualityFn<AppConfigState>((set) => (
             }
             return {selectedEnv: state.selectedEnv};
         });
-    }
+    },
+    resetNotificationFetcher: ()  => {
+        set({notificationFetcherId: Math.random().toString()})
+    },
 }), shallow)
 
 

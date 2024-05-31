@@ -34,7 +34,8 @@ import {NotificationApi} from "../api/NotificationApi";
 
 export function Main() {
 
-    const [readiness, setReadiness, isAuthorized] = useAppConfigStore((s) => [s.readiness, s.setReadiness, s.isAuthorized], shallow)
+    const [readiness, setReadiness, isAuthorized, notificationFetcherId, resetNotificationFetcher] =
+        useAppConfigStore((s) => [s.readiness, s.setReadiness, s.isAuthorized, s.notificationFetcherId, s.resetNotificationFetcher], shallow)
     const {getData} = useMainHook();
 
     useEffect(() => {
@@ -52,13 +53,7 @@ export function Main() {
     useEffect(() => {
         if (showMain()) {
             getData();
-            console.log("Start Notification fetcher");
-            const controller = new AbortController();
-            NotificationApi.notification(controller);
-            return () => {
-                console.log("Stop Notification fetcher");
-                controller.abort();
-            };
+            resetNotificationFetcher();
         } else if (KaravanApi.authType === 'oidc') {
             SsoApi.auth(() => {
                 KaravanApi.getMe((user: any) => {
@@ -67,6 +62,16 @@ export function Main() {
             });
         }
     }, [readiness, isAuthorized]);
+
+    useEffect(() => {
+        console.log("Notification fetcher: start")
+        const controller = new AbortController();
+        NotificationApi.notification(controller);
+        return () => {
+            console.log("Notification fetcher: stop")
+            controller.abort();
+        };
+    }, [notificationFetcherId]);
 
     function checkAuthType() {
         KaravanApi.getAuthType((authType: string) => {

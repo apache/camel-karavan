@@ -39,7 +39,6 @@ export const NotificationEventBus = {
     onEvent: () => karavanEvents.asObservable(),
 }
 
-console.log("Start Notification subscriber");
 const sub = NotificationEventBus.onEvent()?.subscribe((event: KaravanEvent) => {
     if (event.event === 'commit' && event.className === 'Project') {
         const projectId = event.data?.projectId;

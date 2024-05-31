@@ -25,7 +25,7 @@ import {
     useStatusesStore,
     useFileStore, useLogStore,
     useProjectsStore,
-    useProjectStore, useDevModeStore
+    useProjectStore, useDevModeStore, useAppConfigStore
 } from './ProjectStore';
 import {ProjectEventBus} from './ProjectEventBus';
 import {EventBus} from "../designer/utils/EventBus";
@@ -98,6 +98,7 @@ export class ProjectService {
     }
 
     public static pushProject(project: Project, commitMessage: string) {
+        useAppConfigStore.setState({notificationFetcherId: Math.random().toString()});
         const params = {
             'projectId': project.projectId,
             'message': commitMessage,
@@ -296,9 +297,9 @@ export class ProjectService {
             useProjectStore.setState({images: images})
         });
     }
-    
+
     public static reloadBlockedTemplates() {
-      KaravanApi.getTemplatesFiles((files: ProjectFile[]) => {
+        KaravanApi.getTemplatesFiles((files: ProjectFile[]) => {
             files.filter(f => f.name.endsWith('blocklist.txt')).forEach(file => {
                 if (file.name === 'components-blocklist.txt') {
                     ComponentApi.saveBlockedComponentNames(file.code.split(/\r?\n/));
@@ -307,6 +308,6 @@ export class ProjectService {
                     KameletApi.saveBlockedKameletNames(file.code.split(/\r?\n/));
                 }
             });
-       });
+        });
     }
 }
