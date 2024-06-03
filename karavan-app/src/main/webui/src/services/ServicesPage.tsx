@@ -50,7 +50,7 @@ import {ProjectType} from "../api/ProjectModels";
 import {KaravanApi} from "../api/KaravanApi";
 import {DockerComposeService, DockerCompose, ServicesYaml} from "../api/ServiceModels";
 import {shallow} from "zustand/shallow";
-import {ProjectLogPanel} from "../project/log/ProjectLogPanel";
+import {ProjectLogPanel} from "../log/ProjectLogPanel";
 import {ProjectService} from "../api/ProjectService";
 
 

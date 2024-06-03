@@ -23,7 +23,7 @@ import {
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
 import {ProjectToolbar} from "./ProjectToolbar";
-import {ProjectLogPanel} from "./log/ProjectLogPanel";
+import {ProjectLogPanel} from "../log/ProjectLogPanel";
 import {Project, ProjectType} from "../api/ProjectModels";
 import {useFilesStore, useFileStore, useProjectsStore, useProjectStore} from "../api/ProjectStore";
 import {MainToolbar} from "../designer/MainToolbar";

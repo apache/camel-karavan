@@ -16,9 +16,9 @@
  */
 
 import React, {useState} from 'react';
-import '../../designer/karavan.css';
+import '../designer/karavan.css';
 import {LogViewer} from '@patternfly/react-log-viewer';
-import {useLogStore} from "../../api/ProjectStore";
+import {useLogStore} from "../api/ProjectStore";
 import {shallow} from "zustand/shallow"
 
 interface Props {

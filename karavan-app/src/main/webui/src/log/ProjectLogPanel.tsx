@@ -17,17 +17,17 @@
 
 import React, {useEffect, useState} from 'react';
 import {Button, Checkbox, Label, PageSection, Tooltip, TooltipPosition} from '@patternfly/react-core';
-import '../../designer/karavan.css';
+import '../designer/karavan.css';
 import CloseIcon from '@patternfly/react-icons/dist/esm/icons/times-icon';
 import ExpandIcon from '@patternfly/react-icons/dist/esm/icons/expand-icon';
 import CollapseIcon from '@patternfly/react-icons/dist/esm/icons/compress-icon';
 import CleanIcon from '@patternfly/react-icons/dist/esm/icons/trash-alt-icon';
-import {useLogStore, useStatusesStore} from "../../api/ProjectStore";
-import {KaravanApi} from "../../api/KaravanApi";
+import {useLogStore, useStatusesStore} from "../api/ProjectStore";
+import {KaravanApi} from "../api/KaravanApi";
 import {shallow} from "zustand/shallow";
-import {ProjectEventBus} from "../../api/ProjectEventBus";
+import {ProjectEventBus} from "../api/ProjectEventBus";
 import {ProjectLog} from "./ProjectLog";
-import {LogWatchApi} from "../../api/LogWatchApi";
+import {LogWatchApi} from "../api/LogWatchApi";
 
 const INITIAL_LOG_HEIGHT = "50%";
 
