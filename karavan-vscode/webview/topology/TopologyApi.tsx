@@ -263,7 +263,7 @@ export function getModel(files: IntegrationFile[], grouping?: boolean): Model {
     const nodes: NodeModel[] = [];
     const groups: NodeModel[] = [];
 
-    const children1 = []
+    const children1: string[] = [];
     children1.push(...tins.filter(i => i.type === 'external').map(i => i.id));
     children1.push(...trestns.map(i => i.id));
     groups.push({
