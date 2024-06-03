@@ -99,7 +99,7 @@ export function DesignerEditor(props: Props) {
                 }
             }
         } else {
-            const nodes = TopologyUtils.findTopologyOutgoingNodes(integrations)
+            const nodes = TopologyUtils.findTopologyRouteOutgoingNodes(integrations)
                 .filter(t => t.routeId === routeId);
             for (const node of nodes) {
                 const switchToFile = files.filter(f => f.name === node.fileName).at(0);

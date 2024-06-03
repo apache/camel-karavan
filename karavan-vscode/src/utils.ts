@@ -512,7 +512,7 @@ export async function getFileWithIntegnalConsumer(fullPath: string, uri: string,
 export async function getFileWithInternalProducer(fullPath: string, routeId: string) {
     try {
         const integrations = await getIntegrations(path.dirname(fullPath))
-        const route = TopologyUtils.findTopologyOutgoingNodes(integrations)
+        const route = TopologyUtils.findTopologyRouteOutgoingNodes(integrations)
                 .filter(t => t.routeId === routeId).at(0);
         if (route) {
             return path.join(path.dirname(fullPath), route.fileName);

@@ -173,10 +173,11 @@ public class CodeService {
 //                result.put(APPLICATION_PROPERTIES_FILENAME, getResourceFile(TEMPLATES_PATH + "openshift-" + APPLICATION_PROPERTIES_FILENAME));
 //                result.put(BUILD_SCRIPT_FILENAME, getResourceFile(TEMPLATES_PATH + "openshift-" + BUILD_SCRIPT_FILENAME));
 //            } else {
-                result.put(APPLICATION_PROPERTIES_FILENAME, getResourceFile(TEMPLATES_PATH + "kubernetes-" + APPLICATION_PROPERTIES_FILENAME));
-                result.put(BUILD_SCRIPT_FILENAME, getResourceFile(TEMPLATES_PATH + "kubernetes-" + BUILD_SCRIPT_FILENAME));
+            result.put(APPLICATION_PROPERTIES_FILENAME, getResourceFile(TEMPLATES_PATH + "kubernetes-" + APPLICATION_PROPERTIES_FILENAME));
+            result.put(BUILD_SCRIPT_FILENAME, getResourceFile(TEMPLATES_PATH + "kubernetes-" + BUILD_SCRIPT_FILENAME));
 //            }
             result.put(BUILDER_ENV_MAPPING_FILENAME, getResourceFile(TEMPLATES_PATH + BUILDER_ENV_MAPPING_FILENAME));
+            result.put(PROJECT_DEPLOYMENT_JKUBE_FILENAME, getResourceFile(TEMPLATES_PATH + PROJECT_DEPLOYMENT_JKUBE_FILENAME));
         } else {
             result.put(APPLICATION_PROPERTIES_FILENAME, getResourceFile(TEMPLATES_PATH + "docker-" + APPLICATION_PROPERTIES_FILENAME));
             result.put(BUILD_SCRIPT_FILENAME, getResourceFile(TEMPLATES_PATH + "docker-" + BUILD_SCRIPT_FILENAME));

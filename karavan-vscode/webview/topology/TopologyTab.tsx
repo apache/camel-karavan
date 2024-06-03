@@ -49,8 +49,8 @@ interface Props {
 
 export function TopologyTab(props: Props) {
 
-    const [selectedIds, setSelectedIds, setFileName, ranker, setRanker, setNodeData] = useTopologyStore((s) =>
-        [s.selectedIds, s.setSelectedIds, s.setFileName, s.ranker, s.setRanker, s.setNodeData], shallow);
+    const [selectedIds, setSelectedIds, setFileName, ranker, setRanker, setNodeData, showGroups] = useTopologyStore((s) =>
+        [s.selectedIds, s.setSelectedIds, s.setFileName, s.ranker, s.setRanker, s.setNodeData, s.showGroups], shallow);
     const [setSelectedStep] = useDesignerStore((s) => [s.setSelectedStep], shallow)
 
     function setTopologySelected(model: Model, ids: string []) {
@@ -60,8 +60,8 @@ export function TopologyTab(props: Props) {
             if (node && node.length > 0) {
                 const data = node[0].data;
                 setNodeData(data);
-                setFileName(data.fileName)
-                if (data.step) {
+                if (data && data.step) {
+                    setFileName(data.fileName)
                     setSelectedStep(data.step)
                 } else {
                     setSelectedStep(undefined);
@@ -72,7 +72,7 @@ export function TopologyTab(props: Props) {
     }
 
     const controller = React.useMemo(() => {
-        const model = getModel(props.files);
+        const model = getModel(props.files, showGroups);
         const newController = new Visualization();
         newController.registerLayoutFactory((_, graph) =>
             new DagreLayout(graph, {
@@ -99,9 +99,9 @@ export function TopologyTab(props: Props) {
 
     React.useEffect(() => {
         setSelectedIds([])
-        const model = getModel(props.files);
+        const model = getModel(props.files, showGroups);
         controller.fromModel(model, false);
-    }, [ranker, controller, setSelectedIds, props.files]);
+    }, [ranker, controller, setSelectedIds, props.files, showGroups]);
 
     const controlButtons = React.useMemo(() => {
         // const customButtons = [
