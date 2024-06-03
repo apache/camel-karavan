@@ -17,10 +17,12 @@
 
 import * as React from 'react';
 import {
-    Button, ToolbarContent,
+    Button, Switch, ToolbarContent,
     ToolbarItem, Tooltip
 } from '@patternfly/react-core';
 import PlusIcon from "@patternfly/react-icons/dist/esm/icons/plus-icon";
+import {useTopologyStore} from "./TopologyStore";
+import {shallow} from "zustand/shallow";
 
 interface Props {
     onClickAddRoute: () => void
@@ -31,8 +33,22 @@ interface Props {
 
 export function TopologyToolbar (props: Props) {
 
+    const [showGroups, setShowGroups] = useTopologyStore((s) =>
+        [s.showGroups, s.setShowGroups], shallow);
+
     return (
-        <ToolbarContent>
+        <div className='topology-toolbar'>
+            <ToolbarItem className="group-switch">
+                <Tooltip content={"Show Consumer and Producer Groups"} position={"bottom-start"}>
+                    <Switch
+                        id="reversed-switch"
+                        label="Groups"
+                        isChecked={showGroups}
+                        onChange={(_, checked) => setShowGroups(checked)}
+                        isReversed
+                    />
+                </Tooltip>
+            </ToolbarItem>
             <ToolbarItem align={{default:"alignRight"}}>
                 <Tooltip content={"Add Integration Route"} position={"bottom"}>
                     <Button className="dev-action-button" size="sm"
@@ -77,6 +93,6 @@ export function TopologyToolbar (props: Props) {
                     </Button>
                 </Tooltip>
             </ToolbarItem>
-        </ToolbarContent>
+        </div>
     )
 }

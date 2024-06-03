@@ -28,6 +28,8 @@ interface TopologyState {
     setRanker: (ranker: string) => void
     nodeData: any
     setNodeData: (nodeData: any) => void
+    showGroups?: boolean
+    setShowGroups: (showGroups: boolean) => void
 }
 
 export const useTopologyStore = createWithEqualityFn<TopologyState>((set) => ({
@@ -50,8 +52,13 @@ export const useTopologyStore = createWithEqualityFn<TopologyState>((set) => ({
     },
     nodeData: undefined,
     setNodeData: (nodeData: any) => {
-    set((state: TopologyState) => {
-        return {nodeData: nodeData};
-    });
-},
+        set((state: TopologyState) => {
+            return {nodeData: nodeData};
+        });
+    },
+    setShowGroups: (showGroups: boolean) => {
+        set((state: TopologyState) => {
+            return {showGroups: showGroups};
+        });
+    },
 }), shallow)

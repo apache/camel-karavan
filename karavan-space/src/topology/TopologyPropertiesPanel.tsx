@@ -48,6 +48,14 @@ export function TopologyPropertiesPanel(props: Props) {
         return false;
     }
 
+    function isRouteConfiguration() {
+        return (nodeData && nodeData.type === 'routeConfiguration');
+    }
+
+    function isRest() {
+        return (nodeData && nodeData.type === 'rest');
+    }
+
     function isKamelet() {
         if (nodeData && nodeData.type === 'step') {
             const uri: string = nodeData?.step?.uri || '';
@@ -70,7 +78,16 @@ export function TopologyPropertiesPanel(props: Props) {
     }
 
     function getTitle () {
-        return isRoute() ? "Route" : (isKamelet() ? "Kamelet" : "Component");
+        if (isRoute()) {
+            return "Route";
+        } else if (isKamelet()) {
+            return "Kamelet";
+        } else if (isRouteConfiguration()) {
+            return "Route Configuration";
+        } else if (isRest()) {
+            return "REST";
+        }
+        return "Component";
     }
 
     function getHeader() {
@@ -118,7 +135,7 @@ export function TopologyPropertiesPanel(props: Props) {
     return (
         <TopologySideBar
             className="topology-sidebar"
-            show={selectedIds.length > 0}
+            show={selectedIds.length > 0 && nodeData}
             header={getHeader()}
         >
             <DslProperties designerType={'routes'}/>

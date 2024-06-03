@@ -26,20 +26,21 @@ import {
     NodeModel,
     NodeShape,
     NodeStatus,
-    withPanZoom, withSelection
+    withPanZoom,
+    withSelection
 } from '@patternfly/react-topology';
 import CustomNode from "./CustomNode";
-import {Integration} from "karavan-core/lib/model/IntegrationDefinition";
+import {Integration, IntegrationFile} from "karavan-core/lib/model/IntegrationDefinition";
 import {CamelDefinitionYaml} from "karavan-core/lib/api/CamelDefinitionYaml";
 import {TopologyUtils} from "karavan-core/lib/api/TopologyUtils";
 import {
     TopologyIncomingNode,
     TopologyOutgoingNode,
     TopologyRestNode,
+    TopologyRouteConfigurationNode,
     TopologyRouteNode
 } from "karavan-core/lib/model/TopologyDefinition";
 import CustomEdge from "./CustomEdge";
-import {IntegrationFile} from "karavan-core/lib/model/IntegrationDefinition";
 import CustomGroup from "./CustomGroup";
 
 const NODE_DIAMETER = 60;
@@ -88,6 +89,28 @@ export function getRoutes(tins: TopologyRouteNode[]): NodeModel[] {
                 icon: 'route',
                 step: tin.route,
                 routeId: tin.routeId,
+                fileName: tin.fileName,
+            }
+        }
+        return node;
+    });
+}
+export function getRouteConfigurations(trcs: TopologyRouteConfigurationNode[]): NodeModel[] {
+    return trcs.map(tin => {
+        const node: NodeModel = {
+            id: tin.id,
+            type: 'node',
+            label: tin.title,
+            width: NODE_DIAMETER,
+            height: NODE_DIAMETER,
+            shape: NodeShape.rect,
+            status: NodeStatus.default,
+            data: {
+                isAlternate: false,
+                type: 'routeConfiguration',
+                icon: 'routeConfiguration',
+                step: tin.routeConfiguration,
+                routeConfigurationId: tin.routeConfigurationId,
                 fileName: tin.fileName,
             }
         }
@@ -227,41 +250,64 @@ export function getInternalEdges(tons: TopologyOutgoingNode[], tins: TopologyInc
     return result;
 }
 
-export function getModel(files: IntegrationFile[]): Model {
+export function getModel(files: IntegrationFile[], grouping?: boolean): Model {
     const integrations = getIntegrations(files);
     const tins = TopologyUtils.findTopologyIncomingNodes(integrations);
     const troutes = TopologyUtils.findTopologyRouteNodes(integrations);
-    const tons = TopologyUtils.findTopologyOutgoingNodes(integrations);
+    const tons = TopologyUtils.findTopologyRouteOutgoingNodes(integrations);
     const trestns = TopologyUtils.findTopologyRestNodes(integrations);
 
+    const trcs = TopologyUtils.findTopologyRouteConfigurationNodes(integrations);
+    const trcons = TopologyUtils.findTopologyRouteConfigurationOutgoingNodes(integrations);
+
     const nodes: NodeModel[] = [];
-    const groups: NodeModel[] = troutes.map(r => {
-        const children = [r.id]
-        children.push(...tins.filter(i => i.routeId === r.routeId && i.type === 'external').map(i => i.id));
-        children.push(...tons.filter(i => i.routeId === r.routeId && i.type === 'external').map(i => i.id));
-        return   {
-            id: 'group-' + r.routeId,
-            children: children,
-            type: 'group',
-            group: true,
-            label: r.title,
-            style: {
-                padding: 40
-            }
+    const groups: NodeModel[] = [];
+
+    const children1 = []
+    children1.push(...tins.filter(i => i.type === 'external').map(i => i.id));
+    children1.push(...trestns.map(i => i.id));
+    groups.push({
+        id: 'consumer-group',
+        children: children1,
+        type: 'group',
+        group: true,
+        label: 'Consumer group',
+        style: {
+            padding: 10,
+            strokeWidth: "2px",
+        }
+    })
+
+    const children2 = [...tons.filter(i => i.type === 'external').map(i => i.id)];
+    groups.push({
+        id: 'producer-group',
+        children: children2,
+        type: 'group',
+        group: true,
+        label: 'Producer group',
+        style: {
+            padding: 10,
+            strokeWidth: "2px"
         }
     })
 
     nodes.push(...getRestNodes(trestns))
     nodes.push(...getIncomingNodes(tins))
     nodes.push(...getRoutes(troutes))
+    nodes.push(...getRouteConfigurations(trcs))
     nodes.push(...getOutgoingNodes(tons))
-    // nodes.push(...groups)
+    nodes.push(...getOutgoingNodes(trcons))
+
+    if (grouping === true) {
+        nodes.push(...groups)
+    }
 
     const edges: EdgeModel[] = [];
     edges.push(...getIncomingEdges(tins));
     edges.push(...getOutgoingEdges(tons));
     edges.push(...getRestEdges(trestns, tins));
     edges.push(...getInternalEdges(tons, tins));
+    edges.push(...getInternalEdges(trcons, tins));
     edges.push(...getExternalEdges(tons,tins));
 
     return {nodes: nodes, edges: edges, graph: {id: 'g1', type: 'graph', layout: 'Dagre'}};
