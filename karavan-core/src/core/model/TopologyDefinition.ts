@@ -16,7 +16,7 @@
  */
 
 import { CamelElement } from './IntegrationDefinition';
-import { FromDefinition, RestDefinition, RouteDefinition } from './CamelDefinition';
+import { FromDefinition, RestDefinition, RouteConfigurationDefinition, RouteDefinition } from './CamelDefinition';
 
 export class TopologyRestNode {
     path: string;
@@ -74,6 +74,22 @@ export class TopologyRouteNode {
         this.fileName = fileName;
         this.from = from;
         this.route = route;
+    }
+}
+
+export class TopologyRouteConfigurationNode {
+    id: string;
+    routeConfigurationId: string;
+    title: string;
+    fileName: string;
+    routeConfiguration: RouteConfigurationDefinition
+
+    constructor(id: string, routeConfigurationId: string, title: string, fileName: string, routeConfiguration: RouteConfigurationDefinition) {
+        this.id = id;
+        this.routeConfigurationId = routeConfigurationId;
+        this.title = title;
+        this.fileName = fileName;
+        this.routeConfiguration = routeConfiguration;
     }
 }
 

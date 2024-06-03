@@ -29,7 +29,7 @@ describe('Topology functions', () => {
         const i2 = CamelDefinitionYaml.yamlToIntegration("test1.yaml", yaml2);
         const tin = TopologyUtils.findTopologyIncomingNodes([i1, i2]);
         const trn = TopologyUtils.findTopologyRestNodes([i1, i2]);
-        const ton = TopologyUtils.findTopologyOutgoingNodes([i1, i2]);
+        const ton = TopologyUtils.findTopologyRouteOutgoingNodes([i1, i2]);
     });
 
 });

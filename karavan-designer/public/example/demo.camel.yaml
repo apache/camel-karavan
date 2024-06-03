@@ -1,9 +1,257 @@
+- rest:
+    id: rest-328e
+    get:
+      - id: get-5ab7
+        to: direct:hello
+- beans:
+    - name: RebateDatabase
+      type: "#class:org.apache.commons.dbcp2.BasicDataSource"
+      properties:
+        username: "{{secret:database-secret/username}}"
+        password: "{{secret:database-secret/password}}"
+        url: "{{secret:database-secret/url}}"
+        driverClassName: org.postgresql.Driver
 - route:
-    id: route-d1dc
-    nodePrefixId: route-0f1
+    id: route-0dc7
+    description: Audit Start
+    nodePrefixId: route-972
     from:
-      id: from-852d
+      id: from-846a
+      description: Audit Start
       uri: direct
+      parameters:
+        name: start
       steps:
-        - loadBalance:
-            id: loadBalance-d8f0
+        - to:
+            id: to-3597
+            uri: kafka
+            parameters:
+              topic: audit
+- route:
+    id: route-a54e
+    description: Audit Finish
+    nodePrefixId: route-1d1
+    from:
+      id: from-47d5
+      description: Audit Finish
+      uri: direct
+      parameters:
+        name: finish
+      steps:
+        - to:
+            id: to-3cf2
+            uri: kafka
+            parameters:
+              topic: audit
+- route:
+    id: route-07ed
+    description: Audit Step
+    nodePrefixId: route-833
+    from:
+      id: from-e007
+      uri: direct
+      parameters:
+        name: step
+      steps:
+        - to:
+            id: to-fa9e
+            uri: kafka
+            parameters:
+              topic: audit
+- route:
+    id: route-715c
+    description: Consume Orders
+    nodePrefixId: route-4f3
+    routeConfigurationId: auditedRoute
+    from:
+      id: from-7adf
+      description: From Kafka
+      uri: kamelet:kafka-scram-source
+      variableReceive: orderJson
+      parameters:
+        bootstrapServers: "{{secret:kafka-secret/bootstrapServers}}"
+        securityProtocol: "{{secret:kafka-secret/securityProtocol}}"
+        saslMechanism: "{{secret:kafka-secret/saslMechanism}}"
+        user: "{{secret:kafka-secret/userName}}"
+        password: "{{secret:kafka-secret/password}}"
+        topic: orders
+        autoCommitEnable: true
+        autoOffsetReset: earliest
+        consumerGroup: ordrer-consumer-1
+      steps:
+        - removeHeaders:
+            id: removeHeaders-c67b
+            pattern: "*"
+        - unmarshal:
+            id: unmarshal-9c0d
+            variableSend: orderJson
+            variableReceive: order
+            json:
+              id: json-0b83
+        - choice:
+            id: choice-f872
+            when:
+              - id: when-c007
+                description: Special Orders
+                expression:
+                  groovy:
+                    id: groovy-15e2
+                    expression: variables.order.type == 'SPECIAL'
+                steps:
+                  - log:
+                      id: log-735e
+                      message: "SPECIAL:  ${variable.order}"
+                  - to:
+                      id: to-7a02
+                      uri: direct
+                      parameters:
+                        name: special
+            otherwise:
+              id: otherwise-d9a2
+              steps:
+                - log:
+                    id: log-f600
+                    message: "ORDINAL: ${variable.order}"
+                - to:
+                    id: to-c45b
+                    uri: direct
+                    parameters:
+                      name: ordinal
+- route:
+    id: route-1695
+    description: Enrich Ordinal Order
+    nodePrefixId: route-f1b
+    from:
+      id: from-471d
+      uri: direct
+      parameters:
+        name: ordinal
+      steps:
+        - log:
+            id: log-202b
+            message: ${body}
+        - to:
+            id: to-f1b3
+            uri: direct
+            parameters:
+              name: send
+- route:
+    id: route-9a71
+    description: Send to HTTP
+    nodePrefixId: route-fdf
+    from:
+      id: from-b83d
+      uri: direct
+      parameters:
+        name: send
+      steps:
+        - log:
+            id: log-ca7f
+            message: "send: ${variable.order}"
+        - marshal:
+            id: marshal-a102
+            variableSend: order
+            variableReceive: orderOut
+            json:
+              id: json-d9be
+        - setHeaders:
+            id: setHeaders-2a6c
+            headers:
+              - id: setHeader-7dd5
+                name: X-API-Key
+                expression:
+                  simple:
+                    id: simple-e2a5
+                    expression: "{{secret:http-secret/X-API-Key}}"
+        - to:
+            id: to-fb94
+            description: Send to HTTP Service
+            variableSend: orderOut
+            uri: http
+            parameters:
+              httpUri: http-to-database.talisman/order
+              httpMethod: POST
+- route:
+    id: route-e9e4
+    description: Enrich Special Order
+    nodePrefixId: route-3ca
+    from:
+      id: from-b883
+      uri: direct
+      parameters:
+        name: special
+      steps:
+        - to:
+            id: to-6000
+            description: Get Rebate
+            variableReceive: rebate
+            uri: sql
+            parameters:
+              dataSource: "#bean:RebateDatabase"
+              query: SELECT * FROM REBATES WHERE NAME = 'SPECIAL'
+              outputType: SelectOne
+        - log:
+            id: log-8558
+            message: ${variable.rebate}
+        - setVariable:
+            id: setVariable-d9a6
+            description: Update Order
+            name: order
+            expression:
+              groovy:
+                id: groovy-a753
+                expression: >-
+                  def updatedOrder = variables.order;
+
+                  updatedOrder.amount = updatedOrder.amount * (1 -
+                  variables.rebate.rebate);
+
+                  return updatedOrder;
+        - to:
+            id: to-20bb
+            uri: direct
+            parameters:
+              name: send
+- route:
+    id: hello
+    from:
+      id: from-3f49
+      uri: direct
+      parameters:
+        name: hello
+      steps:
+        - to:
+            id: to-428d
+            uri: activemq
+        - to:
+            id: to-fed7
+            uri: kafka
+- routeConfiguration:
+    id: auditedRoute
+    intercept:
+      - intercept:
+          id: intercept-0deb
+          steps:
+            - to:
+                id: to-b470
+                uri: direct
+                parameters:
+                  name: step
+    interceptFrom:
+      - interceptFrom:
+          id: interceptFrom-4041
+          steps:
+            - to:
+                id: to-6861
+                uri: direct
+                parameters:
+                  name: start
+    onCompletion:
+      - onCompletion:
+          id: onCompletion-3dab
+          steps:
+            - to:
+                id: to-dd4e
+                uri: direct
+                parameters:
+                  name: finish

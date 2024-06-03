@@ -22,7 +22,7 @@ import {
     PatchDefinition,
     PostDefinition,
     PutDefinition,
-    RestDefinition, SagaDefinition,
+    RestDefinition, RouteConfigurationDefinition, SagaDefinition,
 } from '../model/CamelDefinition';
 import {
     CamelElement,
@@ -31,7 +31,7 @@ import {
 import {
     TopologyIncomingNode,
     TopologyOutgoingNode,
-    TopologyRestNode,
+    TopologyRestNode, TopologyRouteConfigurationNode,
     TopologyRouteNode,
 } from '../model/TopologyDefinition';
 import { ComponentApi } from './ComponentApi';
@@ -211,7 +211,22 @@ export class TopologyUtils {
         return result;
     }
 
-    static findTopologyOutgoingNodes = (integrations: Integration[]): TopologyOutgoingNode[] => {
+    static findTopologyRouteConfigurationNodes = (integration: Integration[]): TopologyRouteConfigurationNode[] => {
+        const result:TopologyRouteConfigurationNode[] = [];
+        integration.forEach(i => {
+            const filename = i.metadata.name;
+            const routes = i.spec.flows?.filter(flow => flow.dslName === 'RouteConfigurationDefinition');
+            const routeElements = routes?.map(r => {
+                const id = 'route-' + r.id;
+                const title = '' + (r.description ? r.description : r.id)
+                return new TopologyRouteConfigurationNode(id, r.id, title, filename, r);
+            }) || [];
+            result.push(...routeElements)
+        })
+        return result;
+    }
+
+    static findTopologyRouteOutgoingNodes = (integrations: Integration[]): TopologyOutgoingNode[] => {
         const result:TopologyOutgoingNode[] = [];
         integrations.forEach(i => {
             const filename = i.metadata.name;
@@ -226,6 +241,35 @@ export class TopologyUtils {
                     const connectorType = TopologyUtils.getConnectorType(e);
                     const uniqueUri = TopologyUtils.getUniqueUri(e);
                     result.push(new TopologyOutgoingNode(id, type, connectorType, route.id, title, filename, e, uniqueUri));
+                })
+            })
+
+        })
+        return result;
+    }
+
+    static findTopologyRouteConfigurationOutgoingNodes = (integrations: Integration[]): TopologyOutgoingNode[] => {
+        const result:TopologyOutgoingNode[] = [];
+        integrations.forEach(i => {
+            const filename = i.metadata.name;
+            const rcs = i.spec.flows?.filter(flow => flow.dslName === 'RouteConfigurationDefinition');
+            rcs?.forEach((rc: RouteConfigurationDefinition) => {
+                const children: CamelElement[] = [];
+                children.push(...rc.intercept || []);
+                children.push(...rc.interceptFrom || []);
+                children.push(...rc.interceptSendToEndpoint || []);
+                children.push(...rc.onCompletion || []);
+                children.push(...rc.onException || []);
+                children.forEach(child => {
+                    const elements = TopologyUtils.findOutgoingInStep(child, []);
+                    elements.forEach((e: any) => {
+                        const id = 'outgoing-' + rc.id + '-' + e.id;
+                        const title = CamelDisplayUtil.getStepDescription(e);
+                        const type = TopologyUtils.isElementInternalComponent(e) ? 'internal' : 'external';
+                        const connectorType = TopologyUtils.getConnectorType(e);
+                        const uniqueUri = TopologyUtils.getUniqueUri(e);
+                        result.push(new TopologyOutgoingNode(id, type, connectorType, rc.id || 'default', title, filename, e, uniqueUri));
+                    })
                 })
             })
 
