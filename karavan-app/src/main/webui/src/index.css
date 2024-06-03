@@ -182,51 +182,6 @@
   padding-bottom: 0;
 }
 
-.karavan .project-log {
-  position: absolute;
-  bottom: 0;
-  right: 0;
-  width: 100%;
-  z-index: 200;
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-}
-
-.karavan .project-log .buttons {
-  display: flex;
-  flex-direction: row;
-  justify-content: flex-end;
-  border-top: 1px solid var(--pf-v5-global--BorderColor--100);
-  padding-right: 6px;
-}
-
-.karavan .project-log .buttons button,
-.karavan .project-log .buttons .pf-v5-c-check {
-  padding: 8px;
-}
-
-.karavan .project-log .buttons .pf-v5-c-check .pf-v5-c-check__label{
-  font-size: 12px;
-  line-height: 20px;
-  padding: 0;
-}
-
-.karavan .project-log .pf-v5-c-log-viewer__scroll-container {
-  /*height: 100% !important;*/
-}
-
-.karavan .project-log .pf-v5-c-log-viewer__text {
-  font-size: 12px;
-}
-
-.karavan .project-log .log-name {
-  --pf-v5-c-label__content--before--BorderWidth: 0;
-  --pf-v5-c-label--BackgroundColor: transparent;
-  margin-right: auto;
-  font-size: 12px;
-}
-
 .karavan .project-page .project-button {
   width: 100px;
 }
@@ -281,7 +236,7 @@
 }
 
 .create-file-form .pf-v5-c-form__group {
-    grid-template-columns: 80px 1fr !important;
+  grid-template-columns: 80px 1fr !important;
 }
 
 .logo-tooltip {

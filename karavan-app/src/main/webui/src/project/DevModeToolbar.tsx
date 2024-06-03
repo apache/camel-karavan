@@ -22,7 +22,6 @@ import {
     Flex,
     FlexItem,
     Label,
-    Skeleton,
     Spinner,
     Switch,
     Tooltip,
@@ -54,13 +53,18 @@ export function DevModeToolbar(props: Props) {
     const [setShowLog] = useLogStore((s) => [s.setShowLog], shallow);
     const [currentContainerStatus, setCurrentContainerStatus] = useState<ContainerStatus>();
 
-    const containerStatus = containers.filter(c => c.containerName === project.projectId).at(0);
-    const commands = containerStatus?.commands || ['run'];
-    const isRunning = containerStatus?.state === 'running';
-    const inTransit = containerStatus?.inTransit;
-    const color = containerStatus?.state === 'running' ? "green" : "grey";
-    const icon = isRunning ? <UpIcon/> : <DownIcon/>;
-    const inDevMode = containerStatus?.type === 'devmode';
+    const containerStatuses = containers.filter(c => c.projectId === project.projectId) || [];
+
+    const containersProject = containerStatuses.filter(c => c.type === 'project') || [];
+    const allRunning = containersProject.filter(c => c.state === 'running').length === containersProject.length;
+
+    const containerDevMode = containerStatuses.filter(c => c.type === 'devmode').at(0);
+    const commands = containerDevMode?.commands || ['run'];
+    const isRunning = containerDevMode?.state === 'running';
+    const inTransit = containerDevMode?.inTransit;
+    const color = (isRunning || allRunning) ? "green" : "grey";
+    const icon = (isRunning || allRunning) ? <UpIcon/> : <DownIcon/>;
+    const inDevMode = containerDevMode?.type === 'devmode';
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -70,7 +74,7 @@ export function DevModeToolbar(props: Props) {
     }, [currentContainerStatus, containers]);
 
     useEffect(() => {
-        if (showSpinner && currentContainerStatus === undefined && containerStatus === undefined) {
+        if (showSpinner && currentContainerStatus === undefined && containerDevMode === undefined) {
             setShowSpinner(false);
         }
     }, [currentContainerStatus]);
@@ -82,23 +86,35 @@ export function DevModeToolbar(props: Props) {
         if (refreshTrace) {
             ProjectService.refreshCamelTraces(project.projectId, config.environment);
         }
-        setCurrentContainerStatus(containerStatus);
+        setCurrentContainerStatus(containerDevMode);
     }
 
     return (<Flex className="toolbar" direction={{default: "row"}} alignItems={{default: "alignItemsCenter"}}>
         {showSpinner && inDevMode && <FlexItem className="dev-action-button-place refresher">
             <Spinner className="spinner" aria-label="Refresh"/>
         </FlexItem>}
-        {containerStatus?.containerId && <FlexItem>
+        {containersProject.length > 0 && <FlexItem>
+            <Label icon={icon} color={color}>
+                <Tooltip content={"Show log"} position={TooltipPosition.bottom}>
+                    <Button className='labeled-button' variant="link" isDisabled={!allRunning}
+                            onClick={e => {}}>
+                        {project.projectId}
+                    </Button>
+                </Tooltip>
+                {containersProject.length > 1 && <Badge isRead={!allRunning}>{containersProject.length}</Badge>}
+                <Badge isRead>{'project'}</Badge>
+            </Label>
+        </FlexItem>}
+        {containerDevMode?.containerId && <FlexItem>
             <Label icon={icon} color={color}>
                 <Tooltip content={"Show log"} position={TooltipPosition.bottom}>
                     <Button className='labeled-button' variant="link" isDisabled={!isRunning}
                             onClick={e =>
-                                setShowLog(true, 'container', containerStatus.containerName)}>
-                        {containerStatus.containerName}
+                                setShowLog(true, 'container', containerDevMode.containerName)}>
+                        {containerDevMode.containerName}
                     </Button>
                 </Tooltip>
-                <Badge isRead>{containerStatus.type}</Badge>
+                <Badge isRead>{containerDevMode.type}</Badge>
             </Label>
         </FlexItem>}
         {!isRunning && <FlexItem className="dev-action-button-place">

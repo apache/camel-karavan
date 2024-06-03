@@ -25,7 +25,7 @@ import '../designer/karavan.css';
 import {ProjectToolbar} from "./ProjectToolbar";
 import {ProjectLogPanel} from "../log/ProjectLogPanel";
 import {Project, ProjectType} from "../api/ProjectModels";
-import {useFilesStore, useFileStore, useProjectsStore, useProjectStore} from "../api/ProjectStore";
+import {useAppConfigStore, useFilesStore, useFileStore, useProjectsStore, useProjectStore} from "../api/ProjectStore";
 import {MainToolbar} from "../designer/MainToolbar";
 import {ProjectTitle} from "./ProjectTitle";
 import {ProjectPanel} from "./ProjectPanel";
@@ -38,6 +38,7 @@ import {ProjectService} from "../api/ProjectService";
 
 export function ProjectPage() {
 
+    const [config] = useAppConfigStore((state) => [state.config], shallow);
     const {file, operation} = useFileStore();
     const [files] = useFilesStore((s) => [s.files], shallow);
     const [projects] = useProjectsStore((state) => [state.projects], shallow)
@@ -82,6 +83,7 @@ export function ProjectPage() {
 
     const ephemeral = project.type === ProjectType.ephemeral
     const showFilePanel = file !== undefined && operation === 'select';
+    const containerTabName = config.infrastructure === 'kubernetes' ? "Pods" : "Containers"
     return (
         <PageSection className="project-page" padding={{default: 'noPadding'}}>
             <PageSection className="tools-section" padding={{default: 'noPadding'}}>
@@ -99,7 +101,7 @@ export function ProjectPage() {
                                 {!ephemeral && <Tab eventKey="dashboard" title="Dashboard"/>}
                                 {!ephemeral && <Tab eventKey="trace" title="Trace"/>}
                                 {!ephemeral && <Tab eventKey="build" title="Build"/>}
-                                <Tab eventKey="container" title="Container"/>
+                                <Tab eventKey="container" title={containerTabName}/>
                                 {hasReadme() && <Tab eventKey="readme" title="Readme"/>}
                             </Tabs>
                         }
