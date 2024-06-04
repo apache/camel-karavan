@@ -92,7 +92,17 @@
     pointer-events: none;
     opacity: 0.7;
 }
+
 .karavan .topology-sidebar .properties .pf-v5-c-form .pf-v5-c-form__group-label-help {
     pointer-events: auto;
     opacity: 1;
+}
+
+.karavan .topology-panel .pf-topology__group .pf-topology__group__background {
+    stroke-width: 2px;
+    stroke-dasharray: 3;
+}
+
+.karavan .topology-panel .pf-topology__group .pf-topology__node__label__background {
+    opacity: 0.5;
 }

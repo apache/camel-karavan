@@ -273,8 +273,7 @@ export function getModel(files: IntegrationFile[], grouping?: boolean): Model {
         group: true,
         label: 'Consumer group',
         style: {
-            padding: 10,
-            strokeWidth: "2px",
+            padding: 25,
         }
     })
 
@@ -286,8 +285,7 @@ export function getModel(files: IntegrationFile[], grouping?: boolean): Model {
         group: true,
         label: 'Producer group',
         style: {
-            padding: 10,
-            strokeWidth: "2px"
+            padding: 25,
         }
     })
 
