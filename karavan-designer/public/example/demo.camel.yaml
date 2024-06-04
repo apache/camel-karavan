@@ -3,14 +3,6 @@
     get:
       - id: get-5ab7
         to: direct:hello
-- beans:
-    - name: RebateDatabase
-      type: "#class:org.apache.commons.dbcp2.BasicDataSource"
-      properties:
-        username: "{{secret:database-secret/username}}"
-        password: "{{secret:database-secret/password}}"
-        url: "{{secret:database-secret/url}}"
-        driverClassName: org.postgresql.Driver
 - route:
     id: route-0dc7
     description: Audit Start
