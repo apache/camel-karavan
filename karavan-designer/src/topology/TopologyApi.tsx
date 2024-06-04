@@ -204,7 +204,8 @@ export function getRestNodes(tins: TopologyRestNode[]): NodeModel[] {
                 icon: 'rest',
                 type: 'rest',
                 step: tin.rest,
-                fileName: tin.fileName
+                fileName: tin.fileName,
+                secondaryLabel: tin.title
             }
         }
     });

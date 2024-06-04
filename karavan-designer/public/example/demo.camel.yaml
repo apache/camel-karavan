@@ -1,5 +1,8 @@
 - rest:
     id: rest-328e
+    description: >-
+      It has a broken design for long endpoint descriptions and a dual topology
+      view rendering
     get:
       - id: get-5ab7
         to: direct:hello
