@@ -1,0 +1,5 @@
+data:
+  application.properties: |
+    # application properties file
+    welcome = Hello from Kubernetes ConfigMap!!!
+    dummy = some value

@@ -1,0 +1,9 @@
+- beans:
+    - name: JMSArtemis
+      properties:
+        brokerURL: 'tcp://serverHost:serverPort'
+      type: '#class:org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory'
+    - name: AMQP
+      properties:
+        brokerURL: 'amqp://serverHost:serverPort'
+      type: "#class:org.apache.qpid.jms.JmsConnectionFactory"
