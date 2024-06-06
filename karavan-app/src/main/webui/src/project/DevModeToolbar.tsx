@@ -56,7 +56,8 @@ export function DevModeToolbar(props: Props) {
     const containerStatuses = containers.filter(c => c.projectId === project.projectId) || [];
 
     const containersProject = containerStatuses.filter(c => c.type === 'project') || [];
-    const allRunning = containersProject.filter(c => c.state === 'running').length === containersProject.length;
+    const allRunning = containersProject.length > 0
+        && (containersProject.filter(c => c.state === 'running').length === containersProject.length);
 
     const containerDevMode = containerStatuses.filter(c => c.type === 'devmode').at(0);
     const commands = containerDevMode?.commands || ['run'];

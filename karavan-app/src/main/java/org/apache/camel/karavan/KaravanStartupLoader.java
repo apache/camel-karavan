@@ -49,9 +49,9 @@ import static org.apache.camel.karavan.KaravanEvents.*;
 @Default
 @Readiness
 @ApplicationScoped
-public class StartupLoader implements HealthCheck {
+public class KaravanStartupLoader implements HealthCheck {
 
-    private static final Logger LOGGER = Logger.getLogger(StartupLoader.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(KaravanStartupLoader.class.getName());
 
     @ConfigProperty(name = "karavan.environment")
     String environment;
