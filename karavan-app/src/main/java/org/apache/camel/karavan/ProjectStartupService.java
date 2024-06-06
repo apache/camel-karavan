@@ -110,11 +110,11 @@ public class ProjectStartupService implements HealthCheck {
                 Project project;
                 String folderName = repo.getName();
                 if (folderName.equals(Project.Type.templates.name())) {
-                    project = new Project(Project.Type.templates.name(), "Templates", "Templates", repo.getCommitId(), repo.getLastCommitTimestamp(), Project.Type.templates);
+                    project = new Project(Project.Type.templates.name(), "Templates", repo.getCommitId(), repo.getLastCommitTimestamp(), Project.Type.templates);
                 } else if (folderName.equals(Project.Type.kamelets.name())) {
-                    project = new Project(Project.Type.kamelets.name(), "Custom Kamelets", "Custom Kamelets", repo.getCommitId(), repo.getLastCommitTimestamp(), Project.Type.kamelets);
+                    project = new Project(Project.Type.kamelets.name(), "Custom Kamelets", repo.getCommitId(), repo.getLastCommitTimestamp(), Project.Type.kamelets);
                 } else if (folderName.equals(Project.Type.services.name())) {
-                    project = new Project(Project.Type.services.name(), "Services", "Development Services", repo.getCommitId(), repo.getLastCommitTimestamp(), Project.Type.services);
+                    project = new Project(Project.Type.services.name(), "Services", repo.getCommitId(), repo.getLastCommitTimestamp(), Project.Type.services);
                 } else {
                     project = projectService.getProjectFromRepo(repo);
                 }
@@ -135,7 +135,7 @@ public class ProjectStartupService implements HealthCheck {
         try {
             Project kamelets = karavanCache.getProject(Project.Type.kamelets.name());
             if (kamelets == null) {
-                kamelets = new Project(Project.Type.kamelets.name(), "Custom Kamelets", "Custom Kamelets", "", Instant.now().toEpochMilli(), Project.Type.kamelets);
+                kamelets = new Project(Project.Type.kamelets.name(), "Custom Kamelets", "", Instant.now().toEpochMilli(), Project.Type.kamelets);
                 karavanCache.saveProject(kamelets);
             }
         } catch (Exception e) {
@@ -148,7 +148,7 @@ public class ProjectStartupService implements HealthCheck {
         try {
             Project templates = karavanCache.getProject(Project.Type.templates.name());
             if (templates == null) {
-                templates = new Project(Project.Type.templates.name(), "Templates", "Templates", "", Instant.now().toEpochMilli(), Project.Type.templates);
+                templates = new Project(Project.Type.templates.name(), "Templates", "", Instant.now().toEpochMilli(), Project.Type.templates);
                 karavanCache.saveProject(templates);
 
                 codeService.getTemplates().forEach((name, value) -> {
@@ -176,7 +176,7 @@ public class ProjectStartupService implements HealthCheck {
         try {
             Project services = karavanCache.getProject(Project.Type.services.name());
             if (services == null) {
-                services = new Project(Project.Type.services.name(), "Services", "Development Services", "", Instant.now().toEpochMilli(), Project.Type.services);
+                services = new Project(Project.Type.services.name(), "Development Services", "", Instant.now().toEpochMilli(), Project.Type.services);
                 karavanCache.saveProject(services);
 
                 codeService.getServices().forEach((name, value) -> {

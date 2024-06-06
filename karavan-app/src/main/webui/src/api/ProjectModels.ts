@@ -35,12 +35,11 @@ export enum ProjectType {
 export class Project {
     projectId: string = '';
     name: string = '';
-    description: string = '';
     lastCommit: string = '';
     lastCommitTimestamp: number = 0;
     type: string = ProjectType.normal;
 
-    public constructor(projectId: string, name: string, description: string, lastCommit: string, type: string);
+    public constructor(projectId: string, name: string, lastCommit: string, type: string);
     public constructor(init?: Partial<Project>);
     public constructor(...args: any[]) {
         if (args.length === 1) {
@@ -49,10 +48,9 @@ export class Project {
         } else {
             this.projectId = args[0];
             this.name = args[1];
-            this.description = args[2];
-            this.lastCommit = args[3];
-            this.lastCommitTimestamp = args[4];
-            this.type = args[5];
+            this.lastCommit = args[2];
+            this.lastCommitTimestamp = args[3];
+            this.type = args[4];
             return;
         }
     }

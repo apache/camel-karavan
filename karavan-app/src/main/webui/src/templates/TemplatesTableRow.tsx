@@ -56,7 +56,6 @@ export function TemplatesTableRow (props: Props) {
                 </Button>
             </Td>
             <Td>{project.name}</Td>
-            <Td>{project.description}</Td>
             <Td>
                 <Tooltip content={project.lastCommit} position={"bottom"}>
                     <Badge className="badge">{commit}</Badge>

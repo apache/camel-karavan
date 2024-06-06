@@ -33,33 +33,29 @@ public class Project {
 
     String projectId;
     String name;
-    String description;
     String lastCommit;
     Long lastCommitTimestamp;
     Type type;
 
-    public Project(String projectId, String name, String description, String lastCommit, Long lastCommitTimestamp, Type type) {
+    public Project(String projectId, String name, String lastCommit, Long lastCommitTimestamp, Type type) {
         this.projectId = projectId;
         this.name = name;
-        this.description = description;
         this.lastCommit = lastCommit;
         this.lastCommitTimestamp = lastCommitTimestamp;
         this.type = type;
     }
 
-    public Project(String projectId, String name, String description, String lastCommit, Long lastCommitTimestamp) {
+    public Project(String projectId, String name, String lastCommit, Long lastCommitTimestamp) {
         this.projectId = projectId;
         this.name = name;
-        this.description = description;
         this.lastCommit = lastCommit;
         this.lastCommitTimestamp = lastCommitTimestamp;
         this.type = Arrays.stream(Type.values()).anyMatch(t -> t.name().equals(projectId)) ? Type.valueOf(projectId) : Type.normal;
     }
 
-    public Project(String projectId, String name, String description) {
+    public Project(String projectId, String name) {
         this.projectId = projectId;
         this.name = name;
-        this.description = description;
         this.lastCommitTimestamp = Instant.now().toEpochMilli();
         this.type = Arrays.stream(Type.values()).anyMatch(t -> t.name().equals(projectId)) ? Type.valueOf(projectId) : Type.normal;
     }
@@ -82,14 +78,6 @@ public class Project {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
     }
 
     public String getLastCommit() {
@@ -122,7 +110,6 @@ public class Project {
         return "Project{" +
                 "projectId='" + projectId + '\'' +
                 ", name='" + name + '\'' +
-                ", description='" + description + '\'' +
                 ", lastCommit='" + lastCommit + '\'' +
                 ", lastCommitTimestamp=" + lastCommitTimestamp +
                 ", type=" + type +

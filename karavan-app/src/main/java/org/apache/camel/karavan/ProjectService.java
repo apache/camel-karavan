@@ -182,10 +182,9 @@ public class ProjectService {
         String propertiesFile = codeService.getPropertiesFile(repo);
         if (propertiesFile != null) {
             String projectName = codeService.getProjectName(propertiesFile);
-            String projectDescription = codeService.getProjectDescription(propertiesFile);
-            return new Project(folderName, projectName, projectDescription, repo.getCommitId(), repo.getLastCommitTimestamp());
+            return new Project(folderName, projectName, repo.getCommitId(), repo.getLastCommitTimestamp());
         } else {
-            return new Project(folderName, folderName, folderName, repo.getCommitId(), repo.getLastCommitTimestamp());
+            return new Project(folderName, folderName, repo.getCommitId(), repo.getLastCommitTimestamp());
         }
     }
 
@@ -204,17 +203,15 @@ public class ProjectService {
 
         String sourceProjectIdProperty = String.format(Property.PROJECT_ID.getKeyValueFormatter(), sourceProject.getProjectId());
         String sourceProjectNameProperty = String.format(Property.PROJECT_NAME.getKeyValueFormatter(), sourceProject.getName());
-        String sourceProjectDescriptionProperty = String.format(Property.PROJECT_DESCRIPTION.getKeyValueFormatter(), sourceProject.getDescription());
         String sourceGavProperty = String.format(Property.GAV.getKeyValueFormatter(), sourceProject.getProjectId());
 
-        String[] searchValues = {sourceProjectIdProperty, sourceProjectNameProperty, sourceProjectDescriptionProperty, sourceGavProperty};
+        String[] searchValues = {sourceProjectIdProperty, sourceProjectNameProperty, sourceGavProperty};
 
         String updatedProjectIdProperty = String.format(Property.PROJECT_ID.getKeyValueFormatter(), project.getProjectId());
         String updatedProjectNameProperty = String.format(Property.PROJECT_NAME.getKeyValueFormatter(), project.getName());
-        String updatedProjectDescriptionProperty = String.format(Property.PROJECT_DESCRIPTION.getKeyValueFormatter(), project.getDescription());
         String updatedGavProperty = String.format(Property.GAV.getKeyValueFormatter(), project.getProjectId());
 
-        String[] replacementValues = {updatedProjectIdProperty, updatedProjectNameProperty, updatedProjectDescriptionProperty, updatedGavProperty};
+        String[] replacementValues = {updatedProjectIdProperty, updatedProjectNameProperty, updatedGavProperty};
 
         String updatedCode = StringUtils.replaceEach(fileContent, searchValues, replacementValues);
 
@@ -337,7 +334,6 @@ public class ProjectService {
     public enum Property {
         PROJECT_ID("camel.karavan.project-id=%s"),
         PROJECT_NAME("camel.karavan.project-name=%s"),
-        PROJECT_DESCRIPTION("camel.karavan.project-description=%s"),
         GAV("camel.jbang.gav=org.camel.karavan.demo:%s:1");
 
         private final String keyValueFormatter;

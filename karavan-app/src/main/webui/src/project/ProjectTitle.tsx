@@ -47,12 +47,12 @@ export function ProjectTitle() {
             <Flex direction={{default: "column"}}>
                 <FlexItem>
                     <TextContent className="title">
-                        <Text component="h2">{project?.name + " (" + project?.projectId + ")"}</Text>
+                        <Text component="h2">{project?.projectId}</Text>
                     </TextContent>
                 </FlexItem>
                 <FlexItem>
-                    <TextContent className="description">
-                        <Text>{project?.description}</Text>
+                    <TextContent>
+                        <Text>{project?.name}</Text>
                     </TextContent>
                 </FlexItem>
             </Flex>

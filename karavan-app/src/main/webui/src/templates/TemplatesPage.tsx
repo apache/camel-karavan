@@ -24,15 +24,13 @@ import {
     PageSection,
     TextContent,
     Text,
-    Button,
     Bullseye,
     EmptyState,
     EmptyStateVariant,
     EmptyStateIcon,
-    EmptyStateHeader, Panel, PanelMain, PanelMainBody
+    EmptyStateHeader
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
-import PlusIcon from '@patternfly/react-icons/dist/esm/icons/plus-icon';
 import {
     Tbody,
     Td,
@@ -92,14 +90,13 @@ export function TemplatesPage () {
     function getProjectsTable() {
         const projs = projects
             .filter(p => p.type !== ProjectType.normal && p.type !== ProjectType.ephemeral)
-            .filter(p => p.name.toLowerCase().includes(filter) || p.description.toLowerCase().includes(filter));
+            .filter(p => p.name.toLowerCase().includes(filter));
         return (
             <Table aria-label="Templates" variant={"compact"}>
                 <Thead>
                     <Tr>
                         <Th key='projectId'>Project ID</Th>
                         <Th key='name'>Name</Th>
-                        <Th key='description'>Description</Th>
                         <Th key='commit'>Commit</Th>
                     </Tr>
                 </Thead>

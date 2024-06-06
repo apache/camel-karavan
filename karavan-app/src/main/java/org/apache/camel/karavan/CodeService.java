@@ -117,7 +117,6 @@ public class CodeService {
         if (code != null) {
             code = code.replace("{projectId}", project.getProjectId());
             code = code.replace("{projectName}", project.getName());
-            code = code.replace("{projectDescription}", project.getDescription());
         }
         return new ProjectFile(APPLICATION_PROPERTIES_FILENAME, code, project.getProjectId(), Instant.now().toEpochMilli());
     }
@@ -249,11 +248,6 @@ public class CodeService {
     public static String getValueForProperty(String line, String property) {
         String prefix = property + "=";
         return  line.replace(prefix, "");
-    }
-
-    public String getProjectDescription(String file) {
-        String description = getProperty(file, "camel.jbang.project-description");
-        return description != null && !description.isBlank() ? description : getProperty(file, "camel.karavan.project-description");
     }
 
     public String getProjectName(String file) {

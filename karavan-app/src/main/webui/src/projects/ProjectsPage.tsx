@@ -116,14 +116,13 @@ export function ProjectsPage () {
     function getProjectsTable() {
         const projs = projects
             .filter(p => p.type === ProjectType.normal || p.type === ProjectType.ephemeral)
-            .filter(p => p.name.toLowerCase().includes(filter) || p.description.toLowerCase().includes(filter));
+            .filter(p => p.name.toLowerCase().includes(filter));
         return (
             <Table aria-label="Projects" variant={"compact"}>
                 <Thead>
                     <Tr>
                         <Th key='projectId'>Project ID</Th>
                         <Th key='name'>Name</Th>
-                        <Th key='description'>Description</Th>
                         <Th key='commit' modifier={"fitContent"}>Commit</Th>
                         <Th key='deployment' modifier={"fitContent"}>Environment</Th>
                         <Th key='action'></Th>

@@ -111,16 +111,13 @@ export function CreateProjectModal() {
             className="new-project"
         >
             <Form isHorizontal={true} autoComplete="off">
-                {getTextField('name', 'Name', {
-                    length: v => v.length > 5 || 'Project name should be longer that 5 characters',
-                })}
-                {getTextField('description', 'Description', {
-                    length: v => v.length > 5 || 'Description name should be longer that 5 characters',
-                })}
                 {getTextField('projectId', 'ProjectID', {
                     regex: v => isValidProjectId(v) || 'Only lowercase characters, numbers and dashes allowed',
                     length: v => v.length > 5 || 'Project ID should be longer that 5 characters',
                     name: v => !['templates', 'kamelets', 'karavan'].includes(v) || "'templates', 'kamelets', 'karavan' can't be used as project",
+                })}
+                {getTextField('name', 'Name', {
+                    length: v => v.length > 5 || 'Project name should be longer that 5 characters',
                 })}
                 {backendError &&
                     <FormAlert>
