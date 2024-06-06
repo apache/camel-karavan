@@ -14,24 +14,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.camel.karavan.api;
 
-import jakarta.inject.Inject;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.core.MediaType;
-import org.apache.camel.karavan.CodeService;
+package org.apache.camel.karavan.model;
 
-@Path("/ui/component")
-public class ComponentResources {
-    
-    @Inject
-    CodeService codeService;
 
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    public String getJson() {
-        return codeService.getResourceFile("/components/components.json");
+public class DockerComposeNetwork {
+
+    private String name;
+    private Boolean external;
+
+    public DockerComposeNetwork() {
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Boolean getExternal() {
+        return external;
+    }
+
+    public void setExternal(Boolean external) {
+        this.external = external;
     }
 }

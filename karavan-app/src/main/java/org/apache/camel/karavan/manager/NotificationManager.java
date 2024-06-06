@@ -22,11 +22,11 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.mutiny.core.eventbus.EventBus;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import org.apache.camel.karavan.project.model.Project;
+import org.apache.camel.karavan.model.Project;
 
 import java.util.UUID;
 
-import static org.apache.camel.karavan.project.ProjectEvents.COMMIT_HAPPENED;
+import static org.apache.camel.karavan.KaravanEvents.COMMIT_HAPPENED;
 
 @ApplicationScoped
 public class NotificationManager {

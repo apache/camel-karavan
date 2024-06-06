@@ -26,7 +26,7 @@ import io.vertx.mutiny.ext.web.client.WebClient;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.apache.camel.karavan.manager.kubernetes.KubernetesManager;
-import org.apache.camel.karavan.project.CodeService;
+import org.apache.camel.karavan.CodeService;
 import org.apache.camel.karavan.config.ConfigService;
 import org.apache.camel.karavan.status.StatusCache;
 import org.apache.camel.karavan.status.model.ContainerStatus;

@@ -61,11 +61,6 @@
     <dependencies>
         <dependency>
             <groupId>org.apache.camel.karavan</groupId>
-            <artifactId>karavan-projects</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.camel.karavan</groupId>
             <artifactId>karavan-statuses</artifactId>
             <version>${project.version}</version>
         </dependency>

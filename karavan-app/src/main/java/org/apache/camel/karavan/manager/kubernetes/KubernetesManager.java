@@ -28,8 +28,8 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Default;
 import jakarta.enterprise.inject.Produces;
 import jakarta.inject.Inject;
-import org.apache.camel.karavan.project.CodeService;
-import org.apache.camel.karavan.project.model.Project;
+import org.apache.camel.karavan.CodeService;
+import org.apache.camel.karavan.model.Project;
 import org.apache.camel.karavan.status.StatusConstants;
 import org.apache.camel.karavan.status.model.ContainerStatus;
 
@@ -42,7 +42,7 @@ import java.nio.file.Paths;
 import java.util.*;
 
 import static org.apache.camel.karavan.manager.ManagerConstants.*;
-import static org.apache.camel.karavan.project.ProjectEvents.PROJECTS_STARTED;
+import static org.apache.camel.karavan.KaravanEvents.PROJECTS_STARTED;
 
 @Default
 @ApplicationScoped

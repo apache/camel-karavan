@@ -19,7 +19,6 @@ package org.apache.camel.karavan.project;
 public class ProjectEvents {
 
     public static final String CMD_PUSH_PROJECT = "CMD_PUSH_PROJECT";
-
     public static final String PROJECTS_STARTED = "PROJECTS_STARTED";
     public static final String COMMIT_HAPPENED = "COMMIT_HAPPENED";
 

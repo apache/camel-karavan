@@ -17,7 +17,7 @@
 package org.apache.camel.karavan.manager.docker;
 
 import com.github.dockerjava.api.model.*;
-import org.apache.camel.karavan.project.model.DockerComposeHealthCheck;
+import org.apache.camel.karavan.model.DockerComposeHealthCheck;
 
 import java.time.Duration;
 import java.util.*;

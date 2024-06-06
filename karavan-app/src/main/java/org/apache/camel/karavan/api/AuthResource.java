@@ -20,7 +20,7 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import org.apache.camel.karavan.project.ProjectStarter;
+import org.apache.camel.karavan.ProjectStarter;
 import org.apache.camel.karavan.status.kubernetes.KubernetesStatusService;
 import org.eclipse.microprofile.config.ConfigProvider;
 import org.eclipse.microprofile.config.inject.ConfigProperty;

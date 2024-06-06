@@ -14,24 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.camel.karavan.api;
+package org.apache.camel.karavan;
 
-import jakarta.inject.Inject;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.core.MediaType;
-import org.apache.camel.karavan.CodeService;
+public class KaravanEvents {
 
-@Path("/ui/component")
-public class ComponentResources {
-    
-    @Inject
-    CodeService codeService;
+    public static final String CMD_PUSH_PROJECT = "CMD_PUSH_PROJECT";
+    public static final String PROJECTS_STARTED = "PROJECTS_STARTED";
+    public static final String COMMIT_HAPPENED = "COMMIT_HAPPENED";
 
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    public String getJson() {
-        return codeService.getResourceFile("/components/components.json");
-    }
 }

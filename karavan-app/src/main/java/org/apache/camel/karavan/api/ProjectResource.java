@@ -21,12 +21,12 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.apache.camel.karavan.manager.docker.DockerManager;
-import org.apache.camel.karavan.project.GitService;
-import org.apache.camel.karavan.project.ProjectService;
-import org.apache.camel.karavan.project.ProjectsCache;
+import org.apache.camel.karavan.GitService;
+import org.apache.camel.karavan.ProjectService;
+import org.apache.camel.karavan.KaravanCache;
 import org.apache.camel.karavan.manager.kubernetes.KubernetesManager;
 import org.apache.camel.karavan.config.ConfigService;
-import org.apache.camel.karavan.project.model.Project;
+import org.apache.camel.karavan.model.Project;
 import org.apache.camel.karavan.manager.ProjectManager;
 import org.apache.camel.karavan.status.StatusCache;
 import org.apache.camel.karavan.status.model.CamelStatus;
@@ -44,7 +44,7 @@ public class ProjectResource {
     private static final Logger LOGGER = Logger.getLogger(ProjectResource.class.getName());
 
     @Inject
-    ProjectsCache projectsCache;
+    KaravanCache karavanCache;
 
     @Inject
     StatusCache statusCache;
@@ -83,7 +83,7 @@ public class ProjectResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/{project}")
     public Project get(@PathParam("project") String project) throws Exception {
-        return projectsCache.getProject(project);
+        return karavanCache.getProject(project);
     }
 
     @POST
@@ -110,9 +110,9 @@ public class ProjectResource {
             LOGGER.info("Deleting deployments");
             Response res4 = infrastructureResource.deleteDeployment(null, projectId);
         }
-        gitService.deleteProject(projectId, projectsCache.getProjectFiles(projectId));
-        projectsCache.getProjectFiles(projectId).forEach(file -> projectsCache.deleteProjectFile(projectId, file.getName()));
-        projectsCache.deleteProject(projectId);
+        gitService.deleteProject(projectId, karavanCache.getProjectFiles(projectId));
+        karavanCache.getProjectFiles(projectId).forEach(file -> karavanCache.deleteProjectFile(projectId, file.getName()));
+        karavanCache.deleteProject(projectId);
         LOGGER.info("Project deleted");
     }
 

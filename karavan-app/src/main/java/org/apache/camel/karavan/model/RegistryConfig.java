@@ -14,24 +14,38 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.camel.karavan.api;
 
-import jakarta.inject.Inject;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.core.MediaType;
-import org.apache.camel.karavan.CodeService;
+package org.apache.camel.karavan.model;
 
-@Path("/ui/component")
-public class ComponentResources {
-    
-    @Inject
-    CodeService codeService;
+public class RegistryConfig {
+    private String registry;
+    private String group;
+    private String username;
+    private String password;
 
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    public String getJson() {
-        return codeService.getResourceFile("/components/components.json");
+    public RegistryConfig() {
+    }
+
+    public RegistryConfig(String registry, String group, String username, String password) {
+        this.registry = registry;
+        this.group = group;
+        this.username = username;
+        this.password = password;
+    }
+
+    public String getRegistry() {
+        return registry;
+    }
+
+    public String getGroup() {
+        return group;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public String getPassword() {
+        return password;
     }
 }

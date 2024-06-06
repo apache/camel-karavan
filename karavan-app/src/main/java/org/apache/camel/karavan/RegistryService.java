@@ -19,7 +19,7 @@ package org.apache.camel.karavan;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.apache.camel.karavan.manager.kubernetes.KubernetesManager;
-import org.apache.camel.karavan.project.model.RegistryConfig;
+import org.apache.camel.karavan.model.RegistryConfig;
 import org.apache.camel.karavan.config.ConfigService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
