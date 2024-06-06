@@ -15,16 +15,15 @@
  * limitations under the License.
  */
 
-package org.apache.camel.karavan.status;
+package org.apache.camel.karavan;
 
 import io.quarkus.vertx.ConsumeEvent;
-import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.mutiny.core.eventbus.EventBus;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import org.apache.camel.karavan.status.docker.DockerAPI;
-import org.apache.camel.karavan.status.model.ContainerStatus;
+import org.apache.camel.karavan.docker.DockerService;
+import org.apache.camel.karavan.model.PodContainerStatus;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
@@ -33,7 +32,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Objects;
 
-import static org.apache.camel.karavan.status.StatusEvents.*;
+import static org.apache.camel.karavan.KaravanEvents.*;
 
 @ApplicationScoped
 public class ContainerStatusListener {
@@ -43,66 +42,40 @@ public class ContainerStatusListener {
     String environment;
 
     @Inject
-    StatusCache statusCache;
+    KaravanCache karavanCache;
 
     @Inject
-    DockerAPI dockerAPI;
+    DockerService dockerService;
 
     @Inject
     EventBus eventBus;
 
-    @ConsumeEvent(value = CMD_COLLECT_CONTAINER_STATISTIC, blocking = true)
-    void collectContainersStatistics(JsonObject data) {
-        ContainerStatus status = data.mapTo(ContainerStatus.class);
-        ContainerStatus newStatus = dockerAPI.collectContainerStatistics(status);
-        eventBus.publish(CONTAINER_UPDATED, JsonObject.mapFrom(newStatus));
-    }
 
-    @ConsumeEvent(value = CMD_CLEAN_STATUSES, blocking = true)
-    void cleanContainersStatuses(String data) {
-        List<ContainerStatus> statusesInDocker = dockerAPI.collectContainersStatuses();
-        List<String> namesInDocker = statusesInDocker.stream().map(ContainerStatus::getContainerName).toList();
-        List<ContainerStatus> statusesInCache = statusCache.getContainerStatuses(environment);
-        // clean deleted
-        statusesInCache.stream()
-                .filter(cs -> !checkTransit(cs))
-                .filter(cs -> !namesInDocker.contains(cs.getContainerName()))
-                .forEach(containerStatus -> {
-                    eventBus.publish(CONTAINER_DELETED, JsonObject.mapFrom(containerStatus));
-                });
-    }
 
     @ConsumeEvent(value = CONTAINER_DELETED, blocking = true, ordered = true)
     public void cleanContainersStatus(JsonObject data) {
-        ContainerStatus containerStatus = data.mapTo(ContainerStatus.class);
-        statusCache.deleteContainerStatus(containerStatus);
-        statusCache.deleteCamelStatuses(containerStatus.getProjectId(), containerStatus.getEnv());
-    }
-
-    private boolean checkTransit(ContainerStatus cs) {
-        if (cs.getContainerId() == null && cs.getInTransit()) {
-            return Instant.parse(cs.getInitDate()).until(Instant.now(), ChronoUnit.SECONDS) < 10;
-        }
-        return false;
+        PodContainerStatus containerStatus = data.mapTo(PodContainerStatus.class);
+        karavanCache.deletePodContainerStatus(containerStatus);
+        karavanCache.deleteCamelStatuses(containerStatus.getProjectId(), containerStatus.getEnv());
     }
 
     @ConsumeEvent(value = CONTAINER_UPDATED, blocking = true, ordered = true)
-    public void saveContainerStatus(JsonObject data) {
-        ContainerStatus newStatus = data.mapTo(ContainerStatus.class);
-        ContainerStatus oldStatus = statusCache.getContainerStatus(newStatus.getProjectId(), newStatus.getEnv(), newStatus.getContainerName());
+    public void savePodContainerStatus(JsonObject data) {
+        PodContainerStatus newStatus = data.mapTo(PodContainerStatus.class);
+        PodContainerStatus oldStatus = karavanCache.getPodContainerStatus(newStatus.getProjectId(), newStatus.getEnv(), newStatus.getContainerName());
 
         if (oldStatus == null) {
-            statusCache.saveContainerStatus(newStatus);
+            karavanCache.savePodContainerStatus(newStatus);
         } else if (Objects.equals(oldStatus.getInTransit(), Boolean.FALSE)) {
-            saveContainerStatus(newStatus, oldStatus);
+            savePodContainerStatus(newStatus, oldStatus);
         } else if (Objects.equals(oldStatus.getInTransit(), Boolean.TRUE)) {
             if (!Objects.equals(oldStatus.getState(), newStatus.getState()) || newStatus.getCpuInfo() == null || newStatus.getCpuInfo().isEmpty()) {
-                saveContainerStatus(newStatus, oldStatus);
+                savePodContainerStatus(newStatus, oldStatus);
             }
         }
     }
 
-    private void saveContainerStatus(ContainerStatus newStatus, ContainerStatus oldStatus) {
+    private void savePodContainerStatus(PodContainerStatus newStatus, PodContainerStatus oldStatus) {
         if (Objects.equals("exited", newStatus.getState()) || Objects.equals("dead", newStatus.getState())) {
             if (Objects.isNull(oldStatus.getFinished())) {
                 newStatus.setFinished(Instant.now().toString());
@@ -116,6 +89,6 @@ public class ContainerStatusListener {
             newStatus.setCpuInfo(oldStatus.getCpuInfo());
             newStatus.setMemoryInfo(oldStatus.getMemoryInfo());
         }
-        statusCache.saveContainerStatus(newStatus);
+        karavanCache.savePodContainerStatus(newStatus);
     }
 }

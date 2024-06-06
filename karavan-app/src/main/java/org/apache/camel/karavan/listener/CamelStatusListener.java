@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.camel.karavan.status;
+package org.apache.camel.karavan;
 
 import io.quarkus.vertx.ConsumeEvent;
 import io.vertx.core.json.JsonObject;
@@ -24,11 +24,10 @@ import io.vertx.mutiny.ext.web.client.HttpResponse;
 import io.vertx.mutiny.ext.web.client.WebClient;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import org.apache.camel.karavan.config.ConfigService;
-import org.apache.camel.karavan.status.model.CamelStatus;
-import org.apache.camel.karavan.status.model.CamelStatusRequest;
-import org.apache.camel.karavan.status.model.CamelStatusValue;
-import org.apache.camel.karavan.status.model.ContainerStatus;
+import org.apache.camel.karavan.model.CamelStatus;
+import org.apache.camel.karavan.model.CamelStatusRequest;
+import org.apache.camel.karavan.model.CamelStatusValue;
+import org.apache.camel.karavan.model.PodContainerStatus;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.faulttolerance.CircuitBreaker;
 import org.jboss.logging.Logger;
@@ -37,7 +36,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import static org.apache.camel.karavan.status.StatusEvents.CMD_COLLECT_CAMEL_STATUS;
+import static org.apache.camel.karavan.KaravanEvents.CMD_COLLECT_CAMEL_STATUS;
 
 @ApplicationScoped
 public class CamelStatusListener {
@@ -45,7 +44,7 @@ public class CamelStatusListener {
     private static final Logger LOGGER = Logger.getLogger(CamelStatusListener.class.getName());
 
     @Inject
-    StatusCache statusCache;
+    KaravanCache karavanCache;
 
     @ConfigProperty(name = "karavan.environment")
     String environment;
@@ -66,7 +65,7 @@ public class CamelStatusListener {
     public void collectCamelStatuses(JsonObject data) {
         try {
             CamelStatusRequest dms = data.getJsonObject("camelStatusRequest").mapTo(CamelStatusRequest.class);
-            ContainerStatus containerStatus = data.getJsonObject("containerStatus").mapTo(ContainerStatus.class);
+            PodContainerStatus containerStatus = data.getJsonObject("containerStatus").mapTo(PodContainerStatus.class);
             LOGGER.debug("Collect Camel Status for " + containerStatus.getContainerName());
             String projectId = dms.getProjectId();
             String containerName = dms.getContainerName();
@@ -78,13 +77,13 @@ public class CamelStatusListener {
                 }
             }
             CamelStatus cs = new CamelStatus(projectId, containerName, statuses, environment);
-            statusCache.saveCamelStatus(cs);
+            karavanCache.saveCamelStatus(cs);
         } catch (Exception ex) {
             LOGGER.error("collectCamelStatuses " + (ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage()));
         }
     }
 
-    public String getContainerAddressForStatus(ContainerStatus containerStatus) throws Exception {
+    public String getContainerAddressForStatus(PodContainerStatus containerStatus) throws Exception {
         if (ConfigService.inKubernetes()) {
             return "http://" + containerStatus.getPodIP() + ":8080";
         } else if (ConfigService.inDocker()) {
@@ -98,7 +97,7 @@ public class CamelStatusListener {
         throw new Exception("No port configured for project " + containerStatus.getContainerName());
     }
 
-    public String getCamelStatus(ContainerStatus containerStatus, CamelStatusValue.Name statusName) throws Exception {
+    public String getCamelStatus(PodContainerStatus containerStatus, CamelStatusValue.Name statusName) throws Exception {
         String url = getContainerAddressForStatus(containerStatus) + "/q/dev/" + statusName.name();
         try {
             return getResult(url, 500);

@@ -25,8 +25,8 @@ import io.vertx.mutiny.ext.web.client.HttpResponse;
 import io.vertx.mutiny.ext.web.client.WebClient;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import org.apache.camel.karavan.kubernetes.KubernetesManager;
-import org.apache.camel.karavan.model.ContainerStatus;
+import org.apache.camel.karavan.kubernetes.KubernetesService;
+import org.apache.camel.karavan.model.PodContainerStatus;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.faulttolerance.CircuitBreaker;
 import org.jboss.logging.Logger;
@@ -34,12 +34,12 @@ import org.jboss.logging.Logger;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 
-import static org.apache.camel.karavan.KaravanEvents.CONTAINER_UPDATED;
+import static org.apache.camel.karavan.KaravanEvents.POD_CONTAINER_UPDATED;
 
 @ApplicationScoped
-public class CamelManager {
+public class CamelService {
 
-    private static final Logger LOGGER = Logger.getLogger(CamelManager.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(CamelService.class.getName());
     public static final String RELOAD_PROJECT_CODE = "RELOAD_PROJECT_CODE";
 
     @Inject
@@ -49,7 +49,7 @@ public class CamelManager {
     CodeService codeService;
 
     @Inject
-    KubernetesManager kubernetesManager;
+    KubernetesService kubernetesService;
 
     @ConfigProperty(name = "karavan.environment")
     String environment;
@@ -73,22 +73,22 @@ public class CamelManager {
     public void reloadProjectCode(String projectId) {
         LOGGER.debug("Reload project code " + projectId);
         try {
-            ContainerStatus containerStatus = karavanCache.getDevModeContainerStatus(projectId, environment);
-            deleteRequest(containerStatus);
+            PodContainerStatus podContainerStatus = karavanCache.getDevModePodContainerStatus(projectId, environment);
+            deleteRequest(podContainerStatus);
             Map<String, String> files = codeService.getProjectFilesForDevMode(projectId, true);
-            files.forEach((name, code) -> putRequest(containerStatus, name, code, 1000));
-            reloadRequest(containerStatus);
-            containerStatus.setCodeLoaded(true);
-            eventBus.publish(CONTAINER_UPDATED, JsonObject.mapFrom(containerStatus));
+            files.forEach((name, code) -> putRequest(podContainerStatus, name, code, 1000));
+            reloadRequest(podContainerStatus);
+            podContainerStatus.setCodeLoaded(true);
+            eventBus.publish(POD_CONTAINER_UPDATED, JsonObject.mapFrom(podContainerStatus));
         } catch (Exception ex) {
             LOGGER.error("ReloadProjectCode " + (ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage()));
         }
     }
 
     @CircuitBreaker(requestVolumeThreshold = 10, failureRatio = 0.5, delay = 1000)
-    public boolean putRequest(ContainerStatus containerStatus, String fileName, String body, int timeout) {
+     boolean putRequest(PodContainerStatus podContainerStatus, String fileName, String body, int timeout) {
         try {
-            String url = getContainerAddressForReload(containerStatus) + "/q/upload/" + fileName;
+            String url = getContainerAddressForReload(podContainerStatus) + "/q/upload/" + fileName;
             HttpResponse<Buffer> result = getWebClient().putAbs(url)
                     .timeout(timeout).sendBuffer(Buffer.buffer(body)).subscribeAsCompletionStage().toCompletableFuture().get();
             return result.statusCode() == 200;
@@ -98,8 +98,8 @@ public class CamelManager {
         return false;
     }
 
-    public String deleteRequest(ContainerStatus containerStatus) throws Exception {
-        String url = getContainerAddressForReload(containerStatus) + "/q/upload/*";
+     String deleteRequest(PodContainerStatus podContainerStatus) throws Exception {
+        String url = getContainerAddressForReload(podContainerStatus) + "/q/upload/*";
         try {
             return deleteResult(url, 1000);
         } catch (InterruptedException | ExecutionException ex) {
@@ -108,8 +108,8 @@ public class CamelManager {
         return null;
     }
 
-    public String reloadRequest(ContainerStatus containerStatus) throws Exception {
-        String url = getContainerAddressForReload(containerStatus) + "/q/dev/reload?reload=true";
+     String reloadRequest(PodContainerStatus podContainerStatus) throws Exception {
+        String url = getContainerAddressForReload(podContainerStatus) + "/q/dev/reload?reload=true";
         try {
             return getResult(url, 1000);
         } catch (InterruptedException | ExecutionException ex) {
@@ -118,22 +118,22 @@ public class CamelManager {
         return null;
     }
 
-    public String getContainerAddressForReload(ContainerStatus containerStatus) throws Exception {
+     String getContainerAddressForReload(PodContainerStatus podContainerStatus) throws Exception {
         if (ConfigService.inKubernetes()) {
-            return "http://" + containerStatus.getProjectId() + "." + kubernetesManager.getNamespace();
+            return "http://" + podContainerStatus.getProjectId() + "." + kubernetesService.getNamespace();
         } else if (ConfigService.inDocker()) {
-            return "http://" + containerStatus.getProjectId() + ":8080";
-        } else if (containerStatus.getPorts() != null && !containerStatus.getPorts().isEmpty()) {
-            Integer port = containerStatus.getPorts().get(0).getPublicPort();
+            return "http://" + podContainerStatus.getProjectId() + ":8080";
+        } else if (podContainerStatus.getPorts() != null && !podContainerStatus.getPorts().isEmpty()) {
+            Integer port = podContainerStatus.getPorts().get(0).getPublicPort();
             if (port != null) {
                 return "http://localhost:" + port;
             }
         }
-        throw new Exception("No port configured for project " + containerStatus.getContainerName());
+        throw new Exception("No port configured for project " + podContainerStatus.getContainerName());
     }
 
     @CircuitBreaker(requestVolumeThreshold = 10, failureRatio = 0.5, delay = 1000)
-    public String getResult(String url, int timeout) throws InterruptedException, ExecutionException {
+     String getResult(String url, int timeout) throws InterruptedException, ExecutionException {
         try {
             HttpResponse<Buffer> result = getWebClient().getAbs(url).putHeader("Accept", "application/json")
                     .timeout(timeout).send().subscribeAsCompletionStage().toCompletableFuture().get();
@@ -148,7 +148,7 @@ public class CamelManager {
         return null;
     }
 
-    public String deleteResult(String url, int timeout) throws InterruptedException, ExecutionException {
+     String deleteResult(String url, int timeout) throws InterruptedException, ExecutionException {
         try {
             HttpResponse<Buffer> result = getWebClient().deleteAbs(url)
                     .timeout(timeout).send().subscribeAsCompletionStage().toCompletableFuture().get();

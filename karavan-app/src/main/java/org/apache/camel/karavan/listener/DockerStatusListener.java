@@ -21,15 +21,19 @@ import com.github.dockerjava.api.model.Container;
 import com.github.dockerjava.api.model.Statistics;
 import com.github.dockerjava.core.InvocationBuilder;
 import io.quarkus.scheduler.Scheduled;
+import io.quarkus.vertx.ConsumeEvent;
 import io.vertx.core.json.JsonObject;
 import io.vertx.mutiny.core.eventbus.EventBus;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.apache.camel.karavan.ConfigService;
-import org.apache.camel.karavan.model.ContainerStatus;
+import org.apache.camel.karavan.KaravanCache;
+import org.apache.camel.karavan.model.PodContainerStatus;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import java.io.IOException;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,11 +49,14 @@ public class DockerStatusScheduler {
     DockerService dockerService;
 
     @Inject
+    KaravanCache karavanCache;
+
+    @Inject
     EventBus eventBus;
 
     @Scheduled(every = "{karavan.container.statistics.interval}", concurrentExecution = Scheduled.ConcurrentExecution.SKIP)
     void collectContainersStatistics() {
-        List<ContainerStatus> statusesInDocker = getContainersStatuses();
+        List<PodContainerStatus> statusesInDocker = getContainersStatuses();
         statusesInDocker.forEach(containerStatus -> {
             eventBus.publish(CMD_COLLECT_CONTAINER_STATISTIC, JsonObject.mapFrom(containerStatus));
         });
@@ -58,28 +65,56 @@ public class DockerStatusScheduler {
     @Scheduled(every = "{karavan.container.status.interval}", concurrentExecution = Scheduled.ConcurrentExecution.SKIP)
     void collectContainersStatuses() {
         if (!ConfigService.inKubernetes()) {
-            List<ContainerStatus> statusesInDocker = getContainersStatuses();
+            List<PodContainerStatus> statusesInDocker = getContainersStatuses();
             statusesInDocker.forEach(containerStatus -> {
-                eventBus.publish(CONTAINER_UPDATED, JsonObject.mapFrom(containerStatus));
+                eventBus.publish(POD_CONTAINER_UPDATED, JsonObject.mapFrom(containerStatus));
             });
             eventBus.publish(CMD_CLEAN_STATUSES, "");
         }
     }
 
-    public List<ContainerStatus> getContainersStatuses() {
-        List<ContainerStatus> result = new ArrayList<>();
+    @ConsumeEvent(value = CMD_COLLECT_CONTAINER_STATISTIC, blocking = true)
+    void collectContainersStatistics(JsonObject data) {
+        PodContainerStatus status = data.mapTo(PodContainerStatus.class);
+        PodContainerStatus newStatus = getContainerStatistics(status);
+        eventBus.publish(POD_CONTAINER_UPDATED, JsonObject.mapFrom(newStatus));
+    }
+
+    @ConsumeEvent(value = CMD_CLEAN_STATUSES, blocking = true)
+    void cleanContainersStatuses(String data) {
+        List<PodContainerStatus> statusesInDocker = getContainersStatuses();
+        List<String> namesInDocker = statusesInDocker.stream().map(PodContainerStatus::getContainerName).toList();
+        List<PodContainerStatus> statusesInCache = karavanCache.getPodContainerStatuses(environment);
+        // clean deleted
+        statusesInCache.stream()
+                .filter(cs -> !checkTransit(cs))
+                .filter(cs -> !namesInDocker.contains(cs.getContainerName()))
+                .forEach(containerStatus -> {
+                    eventBus.publish(POD_CONTAINER_DELETED, JsonObject.mapFrom(containerStatus));
+                });
+    }
+
+    private boolean checkTransit(PodContainerStatus cs) {
+        if (cs.getContainerId() == null && cs.getInTransit()) {
+            return Instant.parse(cs.getInitDate()).until(Instant.now(), ChronoUnit.SECONDS) < 10;
+        }
+        return false;
+    }
+
+    public List<PodContainerStatus> getContainersStatuses() {
+        List<PodContainerStatus> result = new ArrayList<>();
         dockerService.getAllContainers().forEach(container -> {
-            ContainerStatus containerStatus = DockerUtils.getContainerStatus(container, environment);
-            result.add(containerStatus);
+            PodContainerStatus podContainerStatus = DockerUtils.getContainerStatus(container, environment);
+            result.add(podContainerStatus);
         });
         return result;
     }
 
-    public ContainerStatus getContainerStatistics(ContainerStatus containerStatus) {
-        Container container = dockerService.getContainerByName(containerStatus.getContainerName());
+    public PodContainerStatus getContainerStatistics(PodContainerStatus podContainerStatus) {
+        Container container = dockerService.getContainerByName(podContainerStatus.getContainerName());
         Statistics stats = getContainerStats(container.getId());
-        DockerUtils.updateStatistics(containerStatus, stats);
-        return containerStatus;
+        DockerUtils.updateStatistics(podContainerStatus, stats);
+        return podContainerStatus;
     }
 
     public Statistics getContainerStats(String containerId) {

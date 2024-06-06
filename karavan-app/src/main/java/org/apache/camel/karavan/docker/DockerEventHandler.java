@@ -24,7 +24,7 @@ import com.github.dockerjava.api.model.EventType;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.apache.camel.karavan.RegistryService;
-import org.apache.camel.karavan.model.ContainerStatus;
+import org.apache.camel.karavan.model.PodContainerStatus;
 import org.jboss.logging.Logger;
 
 import java.io.Closeable;
@@ -65,7 +65,7 @@ public class DockerEventListener implements ResultCallback<Event> {
 
     public void onContainerEvent(Event event, Container container) throws InterruptedException {
         if ("exited".equalsIgnoreCase(container.getState())
-                && Objects.equals(container.getLabels().get(LABEL_TYPE), ContainerStatus.ContainerType.build.name())) {
+                && Objects.equals(container.getLabels().get(LABEL_TYPE), PodContainerStatus.ContainerType.build.name())) {
             String tag = container.getLabels().get(LABEL_TAG);
             String projectId = container.getLabels().get(LABEL_PROJECT_ID);
             syncImage(projectId, tag);

@@ -14,21 +14,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.camel.karavan.status;
+package org.apache.camel.karavan;
 
 import io.quarkus.scheduler.Scheduled;
 import io.vertx.core.json.JsonObject;
 import io.vertx.mutiny.core.eventbus.EventBus;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import org.apache.camel.karavan.status.model.CamelStatusRequest;
-import org.apache.camel.karavan.status.model.ContainerStatus;
+import org.apache.camel.karavan.model.CamelStatusRequest;
+import org.apache.camel.karavan.model.PodContainerStatus;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
-import java.util.*;
+import java.util.Map;
+import java.util.Objects;
 
-import static org.apache.camel.karavan.status.StatusEvents.CMD_COLLECT_CAMEL_STATUS;
+import static org.apache.camel.karavan.KaravanEvents.CMD_COLLECT_CAMEL_STATUS;
 
 @ApplicationScoped
 public class CamelStatusService {
@@ -36,7 +37,7 @@ public class CamelStatusService {
     private static final Logger LOGGER = Logger.getLogger(CamelStatusService.class.getName());
 
     @Inject
-    StatusCache statusCache;
+    KaravanCache karavanCache;
 
     @ConfigProperty(name = "karavan.environment")
     String environment;
@@ -47,11 +48,11 @@ public class CamelStatusService {
     @Scheduled(every = "{karavan.camel.status.interval}", concurrentExecution = Scheduled.ConcurrentExecution.SKIP)
     public void collectCamelStatuses() {
         LOGGER.debug("Collect Camel Statuses");
-        statusCache.getContainerStatuses(environment).stream()
+        karavanCache.getPodContainerStatuses(environment).stream()
                 .filter(cs ->
-                        cs.getType() == ContainerStatus.ContainerType.project
-                                || cs.getType() == ContainerStatus.ContainerType.devmode
-                ).filter(cs -> Objects.equals(cs.getCamelRuntime(), StatusConstants.CamelRuntime.CAMEL_MAIN.getValue()))
+                        cs.getType() == PodContainerStatus.ContainerType.project
+                                || cs.getType() == PodContainerStatus.ContainerType.devmode
+                ).filter(cs -> Objects.equals(cs.getCamelRuntime(), KaravanConstants.CamelRuntime.CAMEL_MAIN.getValue()))
                 .forEach(cs -> {
                     CamelStatusRequest csr = new CamelStatusRequest(cs.getProjectId(), cs.getContainerName());
                     eventBus.publish(CMD_COLLECT_CAMEL_STATUS,

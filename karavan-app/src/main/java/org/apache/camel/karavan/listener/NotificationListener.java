@@ -29,7 +29,7 @@ import java.util.UUID;
 import static org.apache.camel.karavan.KaravanEvents.COMMIT_HAPPENED;
 
 @ApplicationScoped
-public class NotificationManager {
+public class NotificationService {
 
     public static final String NOTIFICATION_ADDRESS_SYSTEM = "karavanSystem";
     public static final String NOTIFICATION_HEADER_EVENT_ID = "id";
@@ -47,7 +47,7 @@ public class NotificationManager {
         sendSystem(eventId, "commit", Project.class.getSimpleName(), JsonObject.mapFrom(p));
     }
 
-    public void send(String userId, String eventId, String evenName, String className, JsonObject data) {
+    void send(String userId, String eventId, String evenName, String className, JsonObject data) {
         eventBus.publish(userId, data, new DeliveryOptions()
                 .addHeader(NOTIFICATION_HEADER_EVENT_ID, eventId != null ? eventId : UUID.randomUUID().toString())
                 .addHeader(NOTIFICATION_HEADER_EVENT_NAME, evenName)
@@ -55,7 +55,7 @@ public class NotificationManager {
         );
     }
 
-    public void sendSystem(String eventId, String evenName, String className, JsonObject data) {
+    void sendSystem(String eventId, String evenName, String className, JsonObject data) {
         eventBus.publish(NOTIFICATION_ADDRESS_SYSTEM, data, new DeliveryOptions()
                 .addHeader(NOTIFICATION_HEADER_EVENT_ID, eventId != null ? eventId : UUID.randomUUID().toString())
                 .addHeader(NOTIFICATION_HEADER_EVENT_NAME, evenName)
