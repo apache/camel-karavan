@@ -52,18 +52,6 @@ jobs:
       - name: Create Multi Platfrom Builder
         run: docker buildx create --use --platform=linux/arm64,linux/amd64 --name multi-platform-builder        
 
-      - name: Build parent
-        working-directory: ./karavan/
-        run: mvn clean install -N 
-
-      - name: Build statuses
-        working-directory: ./karavan/karavan-statuses
-        run: mvn clean install
-
-      - name: Build projects
-        working-directory: ./karavan/karavan-projects
-        run: mvn clean install
-
       - name: Build application
         working-directory: ./karavan/karavan-app
         run: |
