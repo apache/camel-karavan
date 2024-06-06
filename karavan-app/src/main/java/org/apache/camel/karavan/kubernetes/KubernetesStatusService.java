@@ -30,7 +30,7 @@ import jakarta.enterprise.event.Observes;
 import jakarta.enterprise.inject.Default;
 import jakarta.enterprise.inject.Produces;
 import jakarta.inject.Inject;
-import org.apache.camel.karavan.ConfigService;
+import org.apache.camel.karavan.service.ConfigService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.health.HealthCheck;
 import org.eclipse.microprofile.health.HealthCheckResponse;

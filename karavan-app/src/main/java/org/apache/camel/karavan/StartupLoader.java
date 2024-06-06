@@ -16,6 +16,7 @@
  */
 package org.apache.camel.karavan;
 
+import io.quarkus.runtime.Quarkus;
 import io.quarkus.runtime.StartupEvent;
 import io.vertx.core.json.JsonObject;
 import io.vertx.mutiny.core.eventbus.EventBus;
@@ -23,9 +24,14 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
 import jakarta.enterprise.inject.Default;
 import jakarta.inject.Inject;
+import org.apache.camel.karavan.docker.DockerService;
 import org.apache.camel.karavan.model.GitRepo;
 import org.apache.camel.karavan.model.Project;
 import org.apache.camel.karavan.model.ProjectFile;
+import org.apache.camel.karavan.service.CodeService;
+import org.apache.camel.karavan.service.ConfigService;
+import org.apache.camel.karavan.service.GitService;
+import org.apache.camel.karavan.service.ProjectService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.health.HealthCheck;
 import org.eclipse.microprofile.health.HealthCheckResponse;
@@ -43,9 +49,9 @@ import static org.apache.camel.karavan.KaravanEvents.*;
 @Default
 @Readiness
 @ApplicationScoped
-public class ProjectStartupService implements HealthCheck {
+public class StartupLoader implements HealthCheck {
 
-    private static final Logger LOGGER = Logger.getLogger(ProjectStartupService.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(StartupLoader.class.getName());
 
     @ConfigProperty(name = "karavan.environment")
     String environment;
@@ -55,6 +61,9 @@ public class ProjectStartupService implements HealthCheck {
 
     @Inject
     KaravanCache karavanCache;
+
+    @Inject
+    DockerService dockerService;
 
     @Inject
     GitService gitService;
@@ -77,10 +86,14 @@ public class ProjectStartupService implements HealthCheck {
     }
 
     void onStart(@Observes StartupEvent ev) throws Exception {
-        LOGGER.info("Projects services: starting...");
-        tryStart();
-        eventBus.publish(PROJECTS_STARTED, null);
-        LOGGER.info("Projects services: started");
+        if (!ConfigService.inKubernetes() && !dockerService.checkDocker()){
+            Quarkus.asyncExit();
+        } else {
+            LOGGER.info("Projects loading...");
+            tryStart();
+            eventBus.publish(PROJECTS_STARTED, null);
+            LOGGER.info("Projects loaded");
+        }
     }
 
     public void tryStart() throws Exception {

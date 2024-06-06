@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.camel.karavan;
+package org.apache.camel.karavan.service;
 
 import io.quarkus.vertx.ConsumeEvent;
 import io.smallrye.mutiny.tuples.Tuple2;
@@ -23,6 +23,7 @@ import io.vertx.mutiny.core.eventbus.EventBus;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Default;
 import jakarta.inject.Inject;
+import org.apache.camel.karavan.KaravanCache;
 import org.apache.camel.karavan.docker.DockerComposeConverter;
 import org.apache.camel.karavan.docker.DockerForKaravan;
 import org.apache.camel.karavan.kubernetes.KubernetesService;
@@ -36,10 +37,9 @@ import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.apache.camel.karavan.CodeService.*;
-import static org.apache.camel.karavan.CodeService.INTERNAL_PORT;
 import static org.apache.camel.karavan.KaravanConstants.DEFAULT_ENVIRONMENT;
 import static org.apache.camel.karavan.KaravanEvents.*;
+import static org.apache.camel.karavan.service.CodeService.*;
 
 @Default
 @ApplicationScoped

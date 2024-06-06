@@ -21,11 +21,11 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import org.apache.camel.karavan.ProjectService;
 import org.apache.camel.karavan.docker.DockerService;
 import org.apache.camel.karavan.model.RegistryConfig;
-import org.apache.camel.karavan.RegistryService;
-import org.apache.camel.karavan.ConfigService;
+import org.apache.camel.karavan.service.ConfigService;
+import org.apache.camel.karavan.service.ProjectService;
+import org.apache.camel.karavan.service.RegistryService;
 import org.jose4j.base64url.Base64;
 
 import java.util.Comparator;

@@ -21,7 +21,7 @@ import com.github.dockerjava.api.model.HealthCheck;
 import com.github.dockerjava.api.model.RestartPolicy;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import org.apache.camel.karavan.ProjectService;
+import org.apache.camel.karavan.service.ProjectService;
 import org.apache.camel.karavan.model.DockerComposeService;
 import org.apache.camel.karavan.model.Project;
 import org.apache.camel.karavan.KaravanConstants;

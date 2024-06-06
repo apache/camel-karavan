@@ -21,7 +21,7 @@ import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
-import org.apache.camel.karavan.CodeService;
+import org.apache.camel.karavan.service.CodeService;
 import org.apache.camel.karavan.KaravanCache;
 import org.apache.camel.karavan.model.Project;
 import org.apache.camel.karavan.model.ProjectFile;

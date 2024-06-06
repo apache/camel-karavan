@@ -20,7 +20,7 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import org.apache.camel.karavan.CodeService;
+import org.apache.camel.karavan.service.CodeService;
 import org.apache.camel.karavan.KaravanCache;
 import org.apache.camel.karavan.model.Project;
 import org.apache.camel.karavan.model.ProjectFile;

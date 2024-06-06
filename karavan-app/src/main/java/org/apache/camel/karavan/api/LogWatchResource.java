@@ -35,7 +35,7 @@ import org.apache.camel.karavan.docker.DockerService;
 import org.apache.camel.karavan.docker.DockerLogCallback;
 import org.apache.camel.karavan.kubernetes.KubernetesService;
 
-import org.apache.camel.karavan.ConfigService;
+import org.apache.camel.karavan.service.ConfigService;
 import org.eclipse.microprofile.context.ManagedExecutor;
 import org.jboss.logging.Logger;
 

@@ -23,7 +23,7 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.apache.camel.karavan.docker.DockerService;
-import org.apache.camel.karavan.ConfigService;
+import org.apache.camel.karavan.service.ConfigService;
 
 @Path("/ui/configuration")
 public class ConfigurationResource {

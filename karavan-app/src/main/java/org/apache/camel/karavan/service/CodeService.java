@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.camel.karavan;
+package org.apache.camel.karavan.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -23,7 +23,8 @@ import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import org.apache.camel.karavan.ConfigService;
+import org.apache.camel.karavan.KaravanCache;
+import org.apache.camel.karavan.service.ConfigService;
 import org.apache.camel.karavan.docker.DockerComposeConverter;
 import org.apache.camel.karavan.model.*;
 import org.eclipse.microprofile.config.inject.ConfigProperty;

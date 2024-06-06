@@ -28,12 +28,12 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Default;
 import jakarta.enterprise.inject.Produces;
 import jakarta.inject.Inject;
-import org.apache.camel.karavan.CodeService;
+import org.apache.camel.karavan.service.CodeService;
 import org.apache.camel.karavan.model.Project;
 import org.apache.camel.karavan.KaravanConstants;
 import org.apache.camel.karavan.model.PodContainerStatus;
 
-import org.apache.camel.karavan.ConfigService;
+import org.apache.camel.karavan.service.ConfigService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 

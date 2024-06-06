@@ -22,7 +22,7 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.apache.camel.karavan.kubernetes.KubernetesService;
 
-import org.apache.camel.karavan.ConfigService;
+import org.apache.camel.karavan.service.ConfigService;
 import org.apache.camel.karavan.KaravanCache;
 import org.apache.camel.karavan.kubernetes.KubernetesStatusService;
 import org.apache.camel.karavan.model.DeploymentStatus;

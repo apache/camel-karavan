@@ -22,7 +22,7 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.mutiny.core.eventbus.EventBus;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import org.apache.camel.karavan.ConfigService;
+import org.apache.camel.karavan.service.ConfigService;
 import org.apache.camel.karavan.docker.DockerService;
 import org.apache.camel.karavan.docker.DockerUtils;
 import org.apache.camel.karavan.model.PodContainerStatus;
