@@ -40,7 +40,7 @@ import org.jboss.logging.Logger;
 import java.io.IOException;
 import java.util.*;
 
-import static org.apache.camel.karavan.manager.ManagerConstants.CAMEL_PREFIX;
+import static org.apache.camel.karavan.KaravanConstants.CAMEL_PREFIX;
 
 @Default
 @Readiness

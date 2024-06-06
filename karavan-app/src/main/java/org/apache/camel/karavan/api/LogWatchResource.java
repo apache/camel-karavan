@@ -31,7 +31,7 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.SecurityContext;
 import jakarta.ws.rs.sse.Sse;
 import jakarta.ws.rs.sse.SseEventSink;
-import org.apache.camel.karavan.docker.DockerManager;
+import org.apache.camel.karavan.docker.DockerService;
 import org.apache.camel.karavan.docker.DockerLogCallback;
 import org.apache.camel.karavan.kubernetes.KubernetesManager;
 
@@ -54,7 +54,7 @@ public class LogWatchResource {
     KubernetesManager kubernetesManager;
 
     @Inject
-    DockerManager dockerManager;
+    DockerService dockerService;
 
     @Inject
     @ManagedExecutorConfig()
@@ -88,7 +88,7 @@ public class LogWatchResource {
                     sink.send(sse.newEvent(line));
                 }
             });
-            dockerManager.logContainer(name, dockerLogCallback);
+            dockerService.logContainer(name, dockerLogCallback);
             dockerLogCallback.close();
             sink.close();
             LOGGER.info("LogCallback for " + name + " closed");

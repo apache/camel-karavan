@@ -37,16 +37,15 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import static org.apache.camel.karavan.KaravanConstants.DEFAULT_ENVIRONMENT;
 import static org.apache.camel.karavan.KaravanEvents.*;
 
 @Default
 @Readiness
 @ApplicationScoped
-public class ProjectStarter implements HealthCheck {
+public class ProjectStartupService implements HealthCheck {
 
-    private static final Logger LOGGER = Logger.getLogger(ProjectStarter.class.getName());
-
-    private static final String DEV_ENV = "dev";
+    private static final Logger LOGGER = Logger.getLogger(ProjectStartupService.class.getName());
 
     @ConfigProperty(name = "karavan.environment")
     String environment;
@@ -91,7 +90,7 @@ public class ProjectStarter implements HealthCheck {
             if (karavanCache.getProjects().isEmpty()) {
                 importAllProjects();
             }
-            if (Objects.equals(environment, DEV_ENV)) {
+            if (Objects.equals(environment, DEFAULT_ENVIRONMENT)) {
                 addKameletsProject();
                 addTemplatesProject();
                 addServicesProject();

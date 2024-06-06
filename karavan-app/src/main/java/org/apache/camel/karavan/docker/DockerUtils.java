@@ -31,7 +31,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static org.apache.camel.karavan.StatusConstants.*;
+import static org.apache.camel.karavan.KaravanConstants.*;
 
 public class DockerUtils {
 

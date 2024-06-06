@@ -20,14 +20,13 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import org.apache.camel.karavan.docker.DockerManager;
+import org.apache.camel.karavan.docker.DockerService;
 import org.apache.camel.karavan.GitService;
 import org.apache.camel.karavan.ProjectService;
 import org.apache.camel.karavan.KaravanCache;
 import org.apache.camel.karavan.kubernetes.KubernetesManager;
 import org.apache.camel.karavan.ConfigService;
 import org.apache.camel.karavan.model.Project;
-import org.apache.camel.karavan.manager.ProjectManager;
 import org.apache.camel.karavan.model.CamelStatus;
 import org.apache.camel.karavan.model.CamelStatusValue;
 import org.apache.camel.karavan.model.ContainerStatus;
@@ -49,7 +48,7 @@ public class ProjectResource {
     KubernetesManager kubernetesManager;
 
     @Inject
-    DockerManager dockerManager;
+    DockerService dockerService;
 
     @Inject
     GitService gitService;
@@ -65,9 +64,6 @@ public class ProjectResource {
 
     @Inject
     ProjectService projectService;
-
-    @Inject
-    ProjectManager projectManager;
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
@@ -118,7 +114,7 @@ public class ProjectResource {
     @Path("/build/{tag}")
     public Response build(Project project, @PathParam("tag") String tag) throws Exception {
         try {
-            projectManager.buildProject(project, tag);
+            projectService.buildProject(project, tag);
             return Response.ok().entity(project).build();
         } catch (Exception e) {
             LOGGER.error(e.getMessage());
@@ -135,7 +131,7 @@ public class ProjectResource {
             kubernetesManager.deletePod(buildName);
             return Response.ok().build();
         } else {
-            dockerManager.deleteContainer(buildName);
+            dockerService.deleteContainer(buildName);
             return Response.ok().build();
         }
     }

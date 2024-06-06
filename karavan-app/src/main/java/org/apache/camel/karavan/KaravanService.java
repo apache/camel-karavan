@@ -22,8 +22,7 @@ import io.quarkus.runtime.StartupEvent;
 import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
-import org.apache.camel.karavan.docker.DockerManager;
-import org.apache.camel.karavan.ConfigService;
+import org.apache.camel.karavan.docker.DockerService;
 import org.eclipse.microprofile.health.HealthCheck;
 import org.eclipse.microprofile.health.HealthCheckResponse;
 import org.eclipse.microprofile.health.Liveness;
@@ -34,7 +33,7 @@ import org.eclipse.microprofile.health.Liveness;
 public class KaravanService implements HealthCheck {
 
     @Inject
-    DockerManager dockerManager;
+    DockerService dockerService;
 
     @Override
     public HealthCheckResponse call() {
@@ -42,7 +41,7 @@ public class KaravanService implements HealthCheck {
     }
 
     void onStart(@Observes StartupEvent ev) throws Exception {
-        if (!ConfigService.inKubernetes() && !dockerManager.checkDocker()){
+        if (!ConfigService.inKubernetes() && !dockerService.checkDocker()){
             Quarkus.asyncExit();
         }
     }

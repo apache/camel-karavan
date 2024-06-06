@@ -28,6 +28,8 @@ import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
+import static org.apache.camel.karavan.KaravanConstants.DEFAULT_ENVIRONMENT;
+
 @Default
 @Singleton
 public class KaravanCache {
@@ -40,8 +42,6 @@ public class KaravanCache {
     private final Map<String, Boolean> transits = new ConcurrentHashMap<>();
     private final Map<String, ServiceStatus> serviceStatuses = new ConcurrentHashMap<>();
     private final Map<String, CamelStatus> camelStatuses = new ConcurrentHashMap<>();
-
-    public static final String DEFAULT_ENVIRONMENT = "dev";
 
     public List<Project> getProjects() {
         return new ArrayList<>(projects.values());

@@ -23,17 +23,17 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.apache.camel.karavan.KaravanCache;
+import org.apache.camel.karavan.ProjectService;
 import org.apache.camel.karavan.model.Project;
-import org.apache.camel.karavan.manager.CamelManager;
-import org.apache.camel.karavan.docker.DockerManager;
+import org.apache.camel.karavan.CamelManager;
+import org.apache.camel.karavan.docker.DockerService;
 import org.apache.camel.karavan.kubernetes.KubernetesManager;
-import org.apache.camel.karavan.manager.ProjectManager;
 import org.apache.camel.karavan.ConfigService;
 import org.apache.camel.karavan.model.ContainerStatus;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
-import static org.apache.camel.karavan.StatusEvents.CONTAINER_UPDATED;
+import static org.apache.camel.karavan.KaravanEvents.CONTAINER_UPDATED;
 
 @Path("/ui/devmode")
 public class DevModeResource {
@@ -53,10 +53,10 @@ public class DevModeResource {
     KubernetesManager kubernetesManager;
 
     @Inject
-    DockerManager dockerManager;
+    DockerService dockerService;
 
     @Inject
-    ProjectManager projectManager;
+    ProjectService projectService;
 
     @Inject
     EventBus eventBus;
@@ -67,7 +67,7 @@ public class DevModeResource {
     @Path("/{jBangOptions}")
     public Response runProjectWithJBangOptions(Project project, @PathParam("jBangOptions") String jBangOptions) {
         try {
-            String containerName = projectManager.runProjectWithJBangOptions(project, jBangOptions);
+            String containerName = projectService.runProjectWithJBangOptions(project, jBangOptions);
             if (containerName != null) {
                 return Response.ok(containerName).build();
             } else {
@@ -103,7 +103,7 @@ public class DevModeResource {
         if (ConfigService.inKubernetes()) {
             kubernetesManager.deleteDevModePod(projectId, deletePVC);
         } else {
-            dockerManager.deleteContainer(projectId);
+            dockerService.deleteContainer(projectId);
         }
         return Response.accepted().build();
     }

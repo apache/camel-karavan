@@ -17,34 +17,38 @@
 package org.apache.camel.karavan;
 
 import io.quarkus.vertx.ConsumeEvent;
+import io.smallrye.mutiny.tuples.Tuple2;
 import io.vertx.core.json.JsonObject;
 import io.vertx.mutiny.core.eventbus.EventBus;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Default;
 import jakarta.inject.Inject;
 import org.apache.camel.karavan.docker.DockerComposeConverter;
-import org.apache.camel.karavan.model.DockerComposeService;
-import org.apache.camel.karavan.model.GitRepo;
-import org.apache.camel.karavan.model.Project;
-import org.apache.camel.karavan.model.ProjectFile;
-import org.apache.camel.karavan.model.GroupedKey;
+import org.apache.camel.karavan.docker.DockerForKaravan;
+import org.apache.camel.karavan.kubernetes.KubernetesManager;
+import org.apache.camel.karavan.model.*;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
+import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.apache.camel.karavan.CodeService.*;
 import static org.apache.camel.karavan.CodeService.INTERNAL_PORT;
+import static org.apache.camel.karavan.KaravanConstants.DEFAULT_ENVIRONMENT;
 import static org.apache.camel.karavan.KaravanEvents.*;
-import static org.apache.camel.karavan.KaravanCache.DEFAULT_ENVIRONMENT;
 
 @Default
 @ApplicationScoped
 public class ProjectService {
 
     private static final Logger LOGGER = Logger.getLogger(ProjectService.class.getName());
+
+    @ConfigProperty(name = "karavan.environment")
+    String environment;
 
     @Inject
     KaravanCache karavanCache;
@@ -54,6 +58,15 @@ public class ProjectService {
 
     @Inject
     CodeService codeService;
+
+    @Inject
+    RegistryService registryService;
+
+    @Inject
+    KubernetesManager kubernetesManager;
+
+    @Inject
+    DockerForKaravan dockerForKaravan;
 
     @Inject
     EventBus eventBus;
@@ -76,6 +89,70 @@ public class ProjectService {
         if (userId != null) {
             eventBus.publish(COMMIT_HAPPENED, JsonObject.of("eventId", eventId, "project", JsonObject.mapFrom(p)));
         }
+    }
+
+    public String runProjectWithJBangOptions(Project project, String jBangOptions) throws Exception {
+        String containerName = project.getProjectId();
+        ContainerStatus status = karavanCache.getDevModeContainerStatus(project.getProjectId(), environment);
+        if (status == null) {
+            status = ContainerStatus.createDevMode(project.getProjectId(), environment);
+        }
+        if (!Objects.equals(status.getState(), ContainerStatus.State.running.name())) {
+            status.setInTransit(true);
+            eventBus.publish(CONTAINER_UPDATED, JsonObject.mapFrom(status));
+
+            Map<String, String> files = codeService.getProjectFilesForDevMode(project.getProjectId(), true);
+            if (ConfigService.inKubernetes()) {
+                kubernetesManager.runDevModeContainer(project, jBangOptions, files);
+            } else {
+                DockerComposeService dcs = codeService.getDockerComposeService(project.getProjectId());
+                dockerForKaravan.runProjectInDevMode(project.getProjectId(), jBangOptions, dcs.getPortsMap(), files);
+            }
+            return containerName;
+        } else {
+            return null;
+        }
+    }
+
+    public void buildProject(Project project, String tag) throws Exception {
+        tag = tag != null && !tag.isEmpty() && !tag.isBlank()
+                ? tag
+                : Instant.now().toString().substring(0, 19).replace(":", "-");
+        String script = codeService.getBuilderScript();
+        List<String> env = getProjectEnvForBuild(project, tag);
+        if (ConfigService.inKubernetes()) {
+            kubernetesManager.runBuildProject(project, script, env, tag);
+        } else {
+            env.addAll(getConnectionsEnvForBuild());
+            Map<String, String> sshFiles = getSshFiles();
+            dockerForKaravan.runBuildProject(project, script, env, sshFiles, tag);
+        }
+    }
+
+    private Map<String, String> getSshFiles() {
+        Map<String, String> sshFiles = new HashMap<>(2);
+        Tuple2<String,String> sshFileNames = gitService.getSShFiles();
+        if (sshFileNames.getItem1() != null) {
+            sshFiles.put("id_rsa", codeService.getFileString(sshFileNames.getItem1()));
+        }
+        if (sshFileNames.getItem2() != null) {
+            sshFiles.put("known_hosts", codeService.getFileString(sshFileNames.getItem2()));
+        }
+        return sshFiles;
+    }
+
+    private List<String> getProjectEnvForBuild(Project project, String tag) {
+        return new ArrayList<>(List.of(
+                "PROJECT_ID=" + project.getProjectId(),
+                "TAG=" + tag
+        ));
+    }
+
+    private List<String> getConnectionsEnvForBuild() {
+        List<String> env = new ArrayList<>();
+        env.addAll(registryService.getEnvForBuild());
+        env.addAll(gitService.getEnvForBuild());
+        return env;
     }
 
     public Project importProject(String projectId) throws Exception {

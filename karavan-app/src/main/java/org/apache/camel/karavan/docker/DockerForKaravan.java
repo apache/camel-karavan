@@ -24,7 +24,7 @@ import jakarta.inject.Inject;
 import org.apache.camel.karavan.ProjectService;
 import org.apache.camel.karavan.model.DockerComposeService;
 import org.apache.camel.karavan.model.Project;
-import org.apache.camel.karavan.StatusConstants;
+import org.apache.camel.karavan.KaravanConstants;
 import org.apache.camel.karavan.model.ContainerStatus;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
@@ -33,7 +33,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.apache.camel.karavan.manager.ManagerConstants.*;
+import static org.apache.camel.karavan.KaravanConstants.*;
 
 @ApplicationScoped
 public class DockerForKaravan {
@@ -44,7 +44,7 @@ public class DockerForKaravan {
     String devmodeImage;
 
     @Inject
-    DockerManager dockerManager;
+    DockerService dockerService;
 
     @Inject
     ProjectService projectService;
@@ -52,8 +52,8 @@ public class DockerForKaravan {
     public void runProjectInDevMode(String projectId, String jBangOptions, Map<Integer, Integer> ports,
                                     Map<String, String> files) throws Exception {
         Container c = createDevmodeContainer(projectId, jBangOptions, ports, new HashMap<>());
-        dockerManager.runContainer(projectId);
-        dockerManager.copyFiles(c.getId(), "/karavan/code", files, true);
+        dockerService.runContainer(projectId);
+        dockerService.copyFiles(c.getId(), "/karavan/code", files, true);
     }
 
     protected Container createDevmodeContainer(String projectId, String jBangOptions, Map<Integer, Integer> ports, Map<String, String> volumes) throws InterruptedException {
@@ -68,11 +68,11 @@ public class DockerForKaravan {
 
         DockerComposeService composeService = projectService.getProjectDockerComposeService(projectId);
 
-        return dockerManager.createContainer(projectId, devmodeImage,
+        return dockerService.createContainer(projectId, devmodeImage,
                 env, ports, healthCheck,
                 Map.of(LABEL_TYPE, ContainerStatus.ContainerType.devmode.name(),
                         LABEL_PROJECT_ID, projectId,
-                        LABEL_CAMEL_RUNTIME, StatusConstants.CamelRuntime.CAMEL_MAIN.getValue()
+                        LABEL_CAMEL_RUNTIME, KaravanConstants.CamelRuntime.CAMEL_MAIN.getValue()
                 ),
                 volumes, null, RestartPolicy.noRestart(), false,
                 composeService.getCpus(), composeService.getCpu_percent(), composeService.getMem_limit(), composeService.getMem_reservation());
@@ -81,19 +81,19 @@ public class DockerForKaravan {
 
     public void runBuildProject(Project project, String script, List<String> env, Map<String, String> sshFiles, String tag) throws Exception {
         String containerName = project.getProjectId() + BUILDER_SUFFIX;
-        dockerManager.deleteContainer(containerName);
+        dockerService.deleteContainer(containerName);
         Container c = createBuildContainer(containerName, project, env, new HashMap<>(0), tag);
-        dockerManager.copyExecFile(c.getId(), "/karavan/builder", "build.sh", script);
+        dockerService.copyExecFile(c.getId(), "/karavan/builder", "build.sh", script);
         sshFiles.forEach((name, text) -> {
-            dockerManager.copyExecFile(c.getId(), "/karavan/.ssh", name, text);
+            dockerService.copyExecFile(c.getId(), "/karavan/.ssh", name, text);
         });
-        dockerManager.runContainer(c);
+        dockerService.runContainer(c);
     }
 
     protected Container createBuildContainer(String containerName, Project project, List<String> env, Map<String, String> volumes, String tag) throws InterruptedException {
         LOGGER.infof("Starting Build Container ", containerName);
 
-        return dockerManager.createContainer(containerName, devmodeImage,
+        return dockerService.createContainer(containerName, devmodeImage,
                 env, Map.of(), new HealthCheck(),
                 Map.of(
                         LABEL_TYPE, ContainerStatus.ContainerType.build.name(),

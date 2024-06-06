@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.camel.karavan.manager;
+package org.apache.camel.karavan;
 
 import io.quarkus.vertx.ConsumeEvent;
 import io.vertx.core.json.JsonObject;
@@ -26,9 +26,6 @@ import io.vertx.mutiny.ext.web.client.WebClient;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.apache.camel.karavan.kubernetes.KubernetesManager;
-import org.apache.camel.karavan.CodeService;
-import org.apache.camel.karavan.ConfigService;
-import org.apache.camel.karavan.KaravanCache;
 import org.apache.camel.karavan.model.ContainerStatus;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.faulttolerance.CircuitBreaker;
@@ -37,7 +34,7 @@ import org.jboss.logging.Logger;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 
-import static org.apache.camel.karavan.StatusEvents.CONTAINER_UPDATED;
+import static org.apache.camel.karavan.KaravanEvents.CONTAINER_UPDATED;
 
 @ApplicationScoped
 public class CamelManager {

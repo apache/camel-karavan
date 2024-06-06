@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.camel.karavan.manager;
+package org.apache.camel.karavan;
 
 import io.quarkus.vertx.ConsumeEvent;
 import io.vertx.core.eventbus.DeliveryOptions;

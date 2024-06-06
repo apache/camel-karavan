@@ -22,7 +22,7 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.apache.camel.karavan.ProjectService;
-import org.apache.camel.karavan.docker.DockerManager;
+import org.apache.camel.karavan.docker.DockerService;
 import org.apache.camel.karavan.model.RegistryConfig;
 import org.apache.camel.karavan.RegistryService;
 import org.apache.camel.karavan.ConfigService;
@@ -35,7 +35,7 @@ import java.util.List;
 public class ImagesResource {
 
     @Inject
-    DockerManager dockerManager;
+    DockerService dockerService;
 
     @Inject
     RegistryService registryService;
@@ -52,7 +52,7 @@ public class ImagesResource {
         } else {
             RegistryConfig registryConfig = registryService.getRegistryConfig();
             String pattern = registryConfig.getGroup() + "/" + projectId;
-            return dockerManager.getImages()
+            return dockerService.getImages()
                     .stream().filter(s -> s.contains(pattern)).sorted(Comparator.reverseOrder()).toList();
         }
     }
@@ -78,7 +78,7 @@ public class ImagesResource {
         if (ConfigService.inKubernetes()) {
             return Response.ok().build();
         } else {
-            dockerManager.deleteImage(imageName);
+            dockerService.deleteImage(imageName);
             return Response.ok().build();
         }
     }

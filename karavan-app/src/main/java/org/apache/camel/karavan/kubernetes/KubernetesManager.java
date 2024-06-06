@@ -30,7 +30,7 @@ import jakarta.enterprise.inject.Produces;
 import jakarta.inject.Inject;
 import org.apache.camel.karavan.CodeService;
 import org.apache.camel.karavan.model.Project;
-import org.apache.camel.karavan.StatusConstants;
+import org.apache.camel.karavan.KaravanConstants;
 import org.apache.camel.karavan.model.ContainerStatus;
 
 import org.apache.camel.karavan.ConfigService;
@@ -41,7 +41,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import java.util.*;
 
-import static org.apache.camel.karavan.manager.ManagerConstants.*;
+import static org.apache.camel.karavan.KaravanConstants.*;
 import static org.apache.camel.karavan.KaravanEvents.PROJECTS_STARTED;
 
 @Default
@@ -137,7 +137,7 @@ public class KubernetesManager {
             labels.put(LABEL_TYPE, type.name());
         }
         if (Objects.equals(type, ContainerStatus.ContainerType.devmode)) {
-            labels.put(LABEL_CAMEL_RUNTIME, StatusConstants.CamelRuntime.CAMEL_MAIN.getValue());
+            labels.put(LABEL_CAMEL_RUNTIME, KaravanConstants.CamelRuntime.CAMEL_MAIN.getValue());
         }
         return labels;
     }

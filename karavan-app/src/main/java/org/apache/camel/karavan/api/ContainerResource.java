@@ -25,14 +25,13 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.apache.camel.karavan.docker.DockerComposeConverter;
-import org.apache.camel.karavan.docker.DockerManager;
+import org.apache.camel.karavan.docker.DockerService;
 import org.apache.camel.karavan.kubernetes.KubernetesManager;
 import org.apache.camel.karavan.ProjectService;
 import org.apache.camel.karavan.model.DockerComposeService;
-import org.apache.camel.karavan.manager.ProjectManager;
 import org.apache.camel.karavan.ConfigService;
 import org.apache.camel.karavan.KaravanCache;
-import org.apache.camel.karavan.StatusConstants;
+import org.apache.camel.karavan.KaravanConstants;
 import org.apache.camel.karavan.model.ContainerStatus;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
@@ -40,8 +39,8 @@ import org.jboss.logging.Logger;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.apache.camel.karavan.manager.ManagerConstants.*;
-import static org.apache.camel.karavan.StatusEvents.CONTAINER_UPDATED;
+import static org.apache.camel.karavan.KaravanConstants.*;
+import static org.apache.camel.karavan.KaravanEvents.CONTAINER_UPDATED;
 
 @Path("/ui/container")
 public class ContainerResource {
@@ -56,10 +55,7 @@ public class ContainerResource {
     KubernetesManager kubernetesManager;
 
     @Inject
-    DockerManager dockerManager;
-
-    @Inject
-    ProjectManager projectManager;
+    DockerService dockerService;
 
     @Inject
     ProjectService projectService;
@@ -96,13 +92,13 @@ public class ContainerResource {
                     if (command.getString("command").equalsIgnoreCase("deploy")) {
                         deployContainer(projectId, type, command);
                     } else if (command.getString("command").equalsIgnoreCase("run")) {
-                        dockerManager.runContainer(name);
+                        dockerService.runContainer(name);
                     } else if (command.getString("command").equalsIgnoreCase("stop")) {
-                        dockerManager.stopContainer(name);
+                        dockerService.stopContainer(name);
                     } else if (command.getString("command").equalsIgnoreCase("pause")) {
-                        dockerManager.pauseContainer(name);
+                        dockerService.pauseContainer(name);
                     } else if (command.getString("command").equalsIgnoreCase("delete")) {
-                        dockerManager.deleteContainer(name);
+                        dockerService.deleteContainer(name);
                     }
                     return Response.ok().build();
                 }
@@ -120,20 +116,20 @@ public class ContainerResource {
             if (dockerComposeService != null) {
                 Map<String, String> labels = new HashMap<>();
                 labels.put(LABEL_TYPE, ContainerStatus.ContainerType.devservice.name());
-                labels.put(LABEL_CAMEL_RUNTIME, StatusConstants.CamelRuntime.CAMEL_MAIN.getValue());
+                labels.put(LABEL_CAMEL_RUNTIME, KaravanConstants.CamelRuntime.CAMEL_MAIN.getValue());
                 labels.put(LABEL_PROJECT_ID, projectId);
-                dockerManager.createContainerFromCompose(dockerComposeService, labels, needPull(command));
-                dockerManager.runContainer(dockerComposeService.getContainer_name());
+                dockerService.createContainerFromCompose(dockerComposeService, labels, needPull(command));
+                dockerService.runContainer(dockerComposeService.getContainer_name());
             }
         } else if (Objects.equals(type, ContainerStatus.ContainerType.project.name())) {
             DockerComposeService dockerComposeService = projectService.getProjectDockerComposeService(projectId);
             if (dockerComposeService != null) {
                 Map<String, String> labels = new HashMap<>();
                 labels.put(LABEL_TYPE, ContainerStatus.ContainerType.project.name());
-                labels.put(LABEL_CAMEL_RUNTIME, StatusConstants.CamelRuntime.CAMEL_MAIN.getValue());
+                labels.put(LABEL_CAMEL_RUNTIME, KaravanConstants.CamelRuntime.CAMEL_MAIN.getValue());
                 labels.put(LABEL_PROJECT_ID, projectId);
-                dockerManager.createContainerFromCompose(dockerComposeService, labels, needPull(command));
-                dockerManager.runContainer(dockerComposeService.getContainer_name());
+                dockerService.createContainerFromCompose(dockerComposeService, labels, needPull(command));
+                dockerService.runContainer(dockerComposeService.getContainer_name());
             }
         } else if (Objects.equals(type, ContainerStatus.ContainerType.devmode.name())) {
 //                        TODO: merge with DevMode service
@@ -187,7 +183,7 @@ public class ContainerResource {
             if (ConfigService.inKubernetes()) {
                 kubernetesManager.deletePod(name);
             } else {
-                dockerManager.deleteContainer(name);
+                dockerService.deleteContainer(name);
             }
             return Response.accepted().build();
         } catch (Exception e) {

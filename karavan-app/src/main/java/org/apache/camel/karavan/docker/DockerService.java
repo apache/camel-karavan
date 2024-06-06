@@ -51,12 +51,12 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.apache.camel.karavan.manager.ManagerConstants.LABEL_PROJECT_ID;
+import static org.apache.camel.karavan.KaravanConstants.LABEL_PROJECT_ID;
 
 @ApplicationScoped
-public class DockerManager {
+public class DockerService {
 
-    private static final Logger LOGGER = Logger.getLogger(DockerManager.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(DockerService.class.getName());
 
     @ConfigProperty(name = "karavan.docker.network")
     String networkName;
@@ -118,6 +118,9 @@ public class DockerManager {
         return !containers.isEmpty() ? containers.get(0) : null;
     }
 
+    public List<Container> getAllContainers() {
+        return getDockerClient().listContainersCmd().withShowAll(true).exec();
+    }
 
     public Container createContainerFromCompose(DockerComposeService compose, Map<String, String> labels, Boolean pullAlways, String... command) throws InterruptedException {
         return createContainerFromCompose(compose, labels, Map.of(), pullAlways, command);

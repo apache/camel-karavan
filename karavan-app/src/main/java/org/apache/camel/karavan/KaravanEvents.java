@@ -22,4 +22,17 @@ public class KaravanEvents {
     public static final String PROJECTS_STARTED = "PROJECTS_STARTED";
     public static final String COMMIT_HAPPENED = "COMMIT_HAPPENED";
 
+    public static final String CMD_COLLECT_CAMEL_STATUS = "CMD_COLLECT_CAMEL_STATUS";
+    public static final String CMD_COLLECT_CONTAINER_STATISTIC = "CMD_COLLECT_CONTAINER_STATISTIC";
+    public static final String CMD_CLEAN_STATUSES = "CMD_CLEAN_STATUSES";
+
+    public static final String CONTAINER_UPDATED = "CONTAINER_UPDATED";
+    public static final String CONTAINER_DELETED = "CONTAINER_DELETED";
+
+    public static final String DEPLOYMENT_UPDATED = "DEPLOYMENT_UPDATED";
+    public static final String DEPLOYMENT_DELETED = "DEPLOYMENT_DELETED";
+
+    public static final String SERVICE_UPDATED = "SERVICE_UPDATED";
+    public static final String SERVICE_DELETED = "SERVICE_DELETED";
+
 }

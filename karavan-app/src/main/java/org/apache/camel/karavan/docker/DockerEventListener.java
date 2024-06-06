@@ -31,13 +31,13 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.util.Objects;
 
-import static org.apache.camel.karavan.manager.ManagerConstants.*;
+import static org.apache.camel.karavan.KaravanConstants.*;
 
 @ApplicationScoped
 public class DockerEventListener implements ResultCallback<Event> {
 
     @Inject
-    DockerManager dockerManager;
+    DockerService dockerService;
 
     @Inject
     RegistryService registryService;
@@ -53,7 +53,7 @@ public class DockerEventListener implements ResultCallback<Event> {
     public void onNext(Event event) {
         try {
             if (Objects.equals(event.getType(), EventType.CONTAINER)) {
-                Container container = dockerManager.getContainer(event.getId());
+                Container container = dockerService.getContainer(event.getId());
                 if (container != null) {
                     onContainerEvent(event, container);
                 }
@@ -74,7 +74,7 @@ public class DockerEventListener implements ResultCallback<Event> {
 
     private void syncImage(String projectId, String tag) throws InterruptedException {
         String image = registryService.getRegistryWithGroupForSync() + "/" + projectId + ":" + tag;
-        dockerManager.pullImage(image, true);
+        dockerService.pullImage(image, true);
     }
 
     @Override

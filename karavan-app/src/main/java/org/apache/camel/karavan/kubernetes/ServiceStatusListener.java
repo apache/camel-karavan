@@ -24,7 +24,7 @@ import jakarta.inject.Inject;
 import org.apache.camel.karavan.KaravanCache;
 import org.apache.camel.karavan.model.ServiceStatus;
 
-import static org.apache.camel.karavan.StatusEvents.*;
+import static org.apache.camel.karavan.KaravanEvents.*;
 
 @ApplicationScoped
 public class ServiceStatusListener {
