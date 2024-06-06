@@ -18,7 +18,7 @@ package org.apache.camel.karavan;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import org.apache.camel.karavan.kubernetes.KubernetesManager;
+import org.apache.camel.karavan.kubernetes.KubernetesService;
 import org.apache.camel.karavan.model.RegistryConfig;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
@@ -42,7 +42,7 @@ public class RegistryService {
     Optional<String> password;
 
     @Inject
-    KubernetesManager kubernetesManager;
+    KubernetesService kubernetesService;
 
     public RegistryConfig getRegistryConfig() {
         String registryUrl = registry;
@@ -50,11 +50,11 @@ public class RegistryService {
         String registryUsername = username.orElse(null);
         String registryPassword = password.orElse(null);
         if (ConfigService.inKubernetes()) {
-            registryUrl = kubernetesManager.getKaravanSecret("image-registry");
-            String i = kubernetesManager.getKaravanSecret("image-group");
+            registryUrl = kubernetesService.getKaravanSecret("image-registry");
+            String i = kubernetesService.getKaravanSecret("image-group");
             imageGroup = i != null ? i : group;
-            registryUsername = kubernetesManager.getKaravanSecret("image-registry-username");
-            registryPassword = kubernetesManager.getKaravanSecret("image-registry-password");
+            registryUsername = kubernetesService.getKaravanSecret("image-registry-username");
+            registryPassword = kubernetesService.getKaravanSecret("image-registry-password");
         }
         return new RegistryConfig(registryUrl, imageGroup, registryUsername, registryPassword);
     }

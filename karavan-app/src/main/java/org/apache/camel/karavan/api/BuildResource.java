@@ -23,20 +23,20 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import org.apache.camel.karavan.kubernetes.KubernetesManager;
+import org.apache.camel.karavan.kubernetes.KubernetesService;
 
 @Path("/ui/build")
 public class BuildResource {
 
     @Inject
-    KubernetesManager kubernetesManager;
+    KubernetesService kubernetesService;
 
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/update-config-map")
     public Response updateConfigMaps() {
-        kubernetesManager.createBuildScriptConfigmap(null);
+        kubernetesService.createBuildScriptConfigmap(null);
         return Response.ok().build();
     }
 

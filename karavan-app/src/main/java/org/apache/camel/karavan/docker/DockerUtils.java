@@ -20,7 +20,7 @@ import com.github.dockerjava.api.model.*;
 import io.smallrye.mutiny.tuples.Tuple2;
 import org.apache.camel.karavan.model.DockerComposeHealthCheck;
 import org.apache.camel.karavan.model.ContainerPort;
-import org.apache.camel.karavan.model.ContainerStatus;
+import org.apache.camel.karavan.model.PodContainerStatus;
 
 
 import java.text.DecimalFormat;
@@ -85,7 +85,7 @@ public class DockerUtils {
         return new HealthCheck();
     }
 
-     static long durationNanos(String s) {
+     public static long durationNanos(String s) {
         if (Pattern.compile("\\d+d\\s").matcher(s).find()) {
             int idxSpace = s.indexOf(" ");
             s = "P" + s.substring(0, idxSpace) + "T" + s.substring(idxSpace + 1);
@@ -105,29 +105,29 @@ public class DockerUtils {
         return portBindings;
     }
 
-    static ContainerStatus getContainerStatus(Container container, String environment) {
+    public static PodContainerStatus getContainerStatus(Container container, String environment) {
         String name = container.getNames()[0].replace("/", "");
         List<ContainerPort> ports = Arrays.stream(container.getPorts())
                 .map(p -> new ContainerPort(p.getPrivatePort(), p.getPublicPort(), p.getType()))
                 .collect(Collectors.toList());
-        List<ContainerStatus.Command> commands = getContainerCommand(container.getState());
-        ContainerStatus.ContainerType type = getContainerType(container.getLabels());
+        List<PodContainerStatus.Command> commands = getContainerCommand(container.getState());
+        PodContainerStatus.ContainerType type = getContainerType(container.getLabels());
         String created = Instant.ofEpochSecond(container.getCreated()).toString();
         String projectId = container.getLabels().getOrDefault(LABEL_PROJECT_ID, name);
         String camelRuntime = container.getLabels().getOrDefault(LABEL_CAMEL_RUNTIME, "");
-        return ContainerStatus.createWithId(projectId, name, environment, container.getId(), container.getImage(),
+        return PodContainerStatus.createWithId(projectId, name, environment, container.getId(), container.getImage(),
                 ports, type, commands, container.getState(), created, camelRuntime);
     }
 
-    static void updateStatistics(ContainerStatus containerStatus, Statistics stats) {
+    public static void updateStatistics(PodContainerStatus podContainerStatus, Statistics stats) {
         if (stats != null && stats.getMemoryStats() != null) {
             String memoryUsageString = formatMemory(stats.getMemoryStats().getUsage());
             String memoryLimitString = formatMemory(stats.getMemoryStats().getLimit());
-            containerStatus.setMemoryInfo(memoryUsageString + " / " + memoryLimitString);
-            containerStatus.setCpuInfo(formatCpu(containerStatus.getContainerName(), stats));
+            podContainerStatus.setMemoryInfo(memoryUsageString + " / " + memoryLimitString);
+            podContainerStatus.setCpuInfo(formatCpu(podContainerStatus.getContainerName(), stats));
         } else {
-            containerStatus.setMemoryInfo("0MiB/0MiB");
-            containerStatus.setCpuInfo("0%");
+            podContainerStatus.setMemoryInfo("0MiB/0MiB");
+            podContainerStatus.setCpuInfo("0%");
         }
     }
 
@@ -161,40 +161,40 @@ public class DockerUtils {
         }
     }
 
-    static ContainerStatus.ContainerType getContainerType(Map<String, String> labels) {
+    static PodContainerStatus.ContainerType getContainerType(Map<String, String> labels) {
         String type = labels.get(LABEL_TYPE);
-        if (Objects.equals(type, ContainerStatus.ContainerType.devmode.name())) {
-            return ContainerStatus.ContainerType.devmode;
-        } else if (Objects.equals(type, ContainerStatus.ContainerType.devservice.name())) {
-            return ContainerStatus.ContainerType.devservice;
-        } else if (Objects.equals(type, ContainerStatus.ContainerType.project.name())) {
-            return ContainerStatus.ContainerType.project;
-        } else if (Objects.equals(type, ContainerStatus.ContainerType.internal.name())) {
-            return ContainerStatus.ContainerType.internal;
-        } else if (Objects.equals(type, ContainerStatus.ContainerType.build.name())) {
-            return ContainerStatus.ContainerType.build;
+        if (Objects.equals(type, PodContainerStatus.ContainerType.devmode.name())) {
+            return PodContainerStatus.ContainerType.devmode;
+        } else if (Objects.equals(type, PodContainerStatus.ContainerType.devservice.name())) {
+            return PodContainerStatus.ContainerType.devservice;
+        } else if (Objects.equals(type, PodContainerStatus.ContainerType.project.name())) {
+            return PodContainerStatus.ContainerType.project;
+        } else if (Objects.equals(type, PodContainerStatus.ContainerType.internal.name())) {
+            return PodContainerStatus.ContainerType.internal;
+        } else if (Objects.equals(type, PodContainerStatus.ContainerType.build.name())) {
+            return PodContainerStatus.ContainerType.build;
         }
-        return ContainerStatus.ContainerType.unknown;
+        return PodContainerStatus.ContainerType.unknown;
     }
 
-    static List<ContainerStatus.Command> getContainerCommand(String state) {
-        List<ContainerStatus.Command> result = new ArrayList<>();
-        if (Objects.equals(state, ContainerStatus.State.created.name())) {
-            result.add(ContainerStatus.Command.run);
-            result.add(ContainerStatus.Command.delete);
-        } else if (Objects.equals(state, ContainerStatus.State.exited.name())) {
-            result.add(ContainerStatus.Command.run);
-            result.add(ContainerStatus.Command.delete);
-        } else if (Objects.equals(state, ContainerStatus.State.running.name())) {
-            result.add(ContainerStatus.Command.pause);
-            result.add(ContainerStatus.Command.stop);
-            result.add(ContainerStatus.Command.delete);
-        } else if (Objects.equals(state, ContainerStatus.State.paused.name())) {
-            result.add(ContainerStatus.Command.run);
-            result.add(ContainerStatus.Command.stop);
-            result.add(ContainerStatus.Command.delete);
-        } else if (Objects.equals(state, ContainerStatus.State.dead.name())) {
-            result.add(ContainerStatus.Command.delete);
+    static List<PodContainerStatus.Command> getContainerCommand(String state) {
+        List<PodContainerStatus.Command> result = new ArrayList<>();
+        if (Objects.equals(state, PodContainerStatus.State.created.name())) {
+            result.add(PodContainerStatus.Command.run);
+            result.add(PodContainerStatus.Command.delete);
+        } else if (Objects.equals(state, PodContainerStatus.State.exited.name())) {
+            result.add(PodContainerStatus.Command.run);
+            result.add(PodContainerStatus.Command.delete);
+        } else if (Objects.equals(state, PodContainerStatus.State.running.name())) {
+            result.add(PodContainerStatus.Command.pause);
+            result.add(PodContainerStatus.Command.stop);
+            result.add(PodContainerStatus.Command.delete);
+        } else if (Objects.equals(state, PodContainerStatus.State.paused.name())) {
+            result.add(PodContainerStatus.Command.run);
+            result.add(PodContainerStatus.Command.stop);
+            result.add(PodContainerStatus.Command.delete);
+        } else if (Objects.equals(state, PodContainerStatus.State.dead.name())) {
+            result.add(PodContainerStatus.Command.delete);
         }
         return result;
     }

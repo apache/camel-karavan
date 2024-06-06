@@ -34,7 +34,7 @@ import jakarta.inject.Inject;
 import org.apache.camel.karavan.CodeService;
 import org.apache.camel.karavan.model.DockerComposeService;
 import org.apache.camel.karavan.ConfigService;
-import org.apache.camel.karavan.model.ContainerStatus;
+import org.apache.camel.karavan.model.PodContainerStatus;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
 import org.apache.commons.io.IOUtils;
@@ -71,7 +71,7 @@ public class DockerService {
     Optional<String> password;
 
     @Inject
-    DockerEventListener dockerEventListener;
+    DockerEventHandler dockerEventHandler;
 
     @Inject
     CodeService codeService;
@@ -83,13 +83,13 @@ public class DockerService {
 
     void onStart(@Observes StartupEvent ev) {
         if (!ConfigService.inKubernetes()) {
-            getDockerClient().eventsCmd().exec(dockerEventListener);
+            getDockerClient().eventsCmd().exec(dockerEventHandler);
         }
     }
 
     void onStop(@Observes ShutdownEvent ev) throws IOException  {
         if (!ConfigService.inKubernetes()) {
-            dockerEventListener.close();
+            dockerEventHandler.close();
         }
     }
 
@@ -185,7 +185,7 @@ public class DockerService {
             if (command.length > 0) {
                 createContainerCmd.withCmd(command);
             }
-            if (Objects.equals(labels.get(LABEL_PROJECT_ID), ContainerStatus.ContainerType.build.name())) {
+            if (Objects.equals(labels.get(LABEL_PROJECT_ID), PodContainerStatus.ContainerType.build.name())) {
                 mounts.add(new Mount().withType(MountType.BIND).withSource("/var/run/docker.sock").withTarget("/var/run/docker.sock"));
             }
             createContainerCmd.withHostConfig(new HostConfig()

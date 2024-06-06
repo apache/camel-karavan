@@ -25,7 +25,7 @@ import org.apache.camel.karavan.ProjectService;
 import org.apache.camel.karavan.model.DockerComposeService;
 import org.apache.camel.karavan.model.Project;
 import org.apache.camel.karavan.KaravanConstants;
-import org.apache.camel.karavan.model.ContainerStatus;
+import org.apache.camel.karavan.model.PodContainerStatus;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
@@ -70,7 +70,7 @@ public class DockerForKaravan {
 
         return dockerService.createContainer(projectId, devmodeImage,
                 env, ports, healthCheck,
-                Map.of(LABEL_TYPE, ContainerStatus.ContainerType.devmode.name(),
+                Map.of(LABEL_TYPE, PodContainerStatus.ContainerType.devmode.name(),
                         LABEL_PROJECT_ID, projectId,
                         LABEL_CAMEL_RUNTIME, KaravanConstants.CamelRuntime.CAMEL_MAIN.getValue()
                 ),
@@ -96,7 +96,7 @@ public class DockerForKaravan {
         return dockerService.createContainer(containerName, devmodeImage,
                 env, Map.of(), new HealthCheck(),
                 Map.of(
-                        LABEL_TYPE, ContainerStatus.ContainerType.build.name(),
+                        LABEL_TYPE, PodContainerStatus.ContainerType.build.name(),
                         LABEL_PROJECT_ID, project.getProjectId(),
                         LABEL_TAG, tag
                 ),

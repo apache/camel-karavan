@@ -31,7 +31,7 @@ import jakarta.inject.Inject;
 import org.apache.camel.karavan.CodeService;
 import org.apache.camel.karavan.model.Project;
 import org.apache.camel.karavan.KaravanConstants;
-import org.apache.camel.karavan.model.ContainerStatus;
+import org.apache.camel.karavan.model.PodContainerStatus;
 
 import org.apache.camel.karavan.ConfigService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -46,9 +46,9 @@ import static org.apache.camel.karavan.KaravanEvents.PROJECTS_STARTED;
 
 @Default
 @ApplicationScoped
-public class KubernetesManager {
+public class KubernetesService {
 
-    private static final Logger LOGGER = Logger.getLogger(KubernetesManager.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(KubernetesService.class.getName());
 
     @Inject
     CodeService codeService;
@@ -107,7 +107,7 @@ public class KubernetesManager {
     public void runBuildProject(Project project, String script, List<String> env, String tag) {
         try (KubernetesClient client = kubernetesClient()) {
             String containerName = project.getProjectId() + BUILDER_SUFFIX;
-            Map<String, String> labels = getLabels(containerName, project, ContainerStatus.ContainerType.build);
+            Map<String, String> labels = getLabels(containerName, project, PodContainerStatus.ContainerType.build);
 //        createPVC(containerName, labels);
 //            createBuildScriptConfigmap(script, false);
 
@@ -127,7 +127,7 @@ public class KubernetesManager {
         }
     }
 
-    private Map<String, String> getLabels(String name, Project project, ContainerStatus.ContainerType type) {
+    private Map<String, String> getLabels(String name, Project project, PodContainerStatus.ContainerType type) {
         Map<String, String> labels = new HashMap<>();
         labels.putAll(getRuntimeLabels());
         labels.putAll(getPartOfLabels());
@@ -136,7 +136,7 @@ public class KubernetesManager {
         if (type != null) {
             labels.put(LABEL_TYPE, type.name());
         }
-        if (Objects.equals(type, ContainerStatus.ContainerType.devmode)) {
+        if (Objects.equals(type, PodContainerStatus.ContainerType.devmode)) {
             labels.put(LABEL_CAMEL_RUNTIME, KaravanConstants.CamelRuntime.CAMEL_MAIN.getValue());
         }
         return labels;
@@ -340,7 +340,7 @@ public class KubernetesManager {
 
     public void runDevModeContainer(Project project, String jBangOptions, Map<String, String> files) {
         String name = project.getProjectId();
-        Map<String, String> labels = getLabels(name, project, ContainerStatus.ContainerType.devmode);
+        Map<String, String> labels = getLabels(name, project, PodContainerStatus.ContainerType.devmode);
 
         try (KubernetesClient client = kubernetesClient()) {
             if (devmodePVC) {

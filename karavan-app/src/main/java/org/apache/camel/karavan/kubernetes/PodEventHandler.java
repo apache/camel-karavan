@@ -24,7 +24,7 @@ import io.fabric8.kubernetes.api.model.ResourceRequirements;
 import io.fabric8.kubernetes.client.informers.ResourceEventHandler;
 import io.vertx.core.json.JsonObject;
 import io.vertx.mutiny.core.eventbus.EventBus;
-import org.apache.camel.karavan.model.ContainerStatus;
+import org.apache.camel.karavan.model.PodContainerStatus;
 import org.jboss.logging.Logger;
 
 import java.util.List;
@@ -32,8 +32,8 @@ import java.util.Map;
 import java.util.Objects;
 
 import static org.apache.camel.karavan.KaravanConstants.*;
-import static org.apache.camel.karavan.KaravanEvents.CONTAINER_DELETED;
-import static org.apache.camel.karavan.KaravanEvents.CONTAINER_UPDATED;
+import static org.apache.camel.karavan.KaravanEvents.POD_CONTAINER_DELETED;
+import static org.apache.camel.karavan.KaravanEvents.POD_CONTAINER_UPDATED;
 
 public class PodEventHandler implements ResourceEventHandler<Pod> {
 
@@ -58,9 +58,9 @@ public class PodEventHandler implements ResourceEventHandler<Pod> {
     public void onAdd(Pod pod) {
         try {
             LOGGER.info("onAdd " + pod.getMetadata().getName());
-            ContainerStatus ps = getPodStatus(pod);
+            PodContainerStatus ps = getPodStatus(pod);
             if (ps != null) {
-                eventBus.publish(CONTAINER_UPDATED, JsonObject.mapFrom(ps));
+                eventBus.publish(POD_CONTAINER_UPDATED, JsonObject.mapFrom(ps));
             }
         } catch (Exception e) {
             LOGGER.error(e.getMessage(), e.getCause());
@@ -72,9 +72,9 @@ public class PodEventHandler implements ResourceEventHandler<Pod> {
         try {
             LOGGER.info("onUpdate " + newPod.getMetadata().getName());
             if (!newPod.isMarkedForDeletion() && newPod.getMetadata().getDeletionTimestamp() == null) {
-                ContainerStatus ps = getPodStatus(newPod);
+                PodContainerStatus ps = getPodStatus(newPod);
                 if (ps != null) {
-                    eventBus.publish(CONTAINER_UPDATED, JsonObject.mapFrom(ps));
+                    eventBus.publish(POD_CONTAINER_UPDATED, JsonObject.mapFrom(ps));
                 }
             }
         } catch (Exception e) {
@@ -89,28 +89,28 @@ public class PodEventHandler implements ResourceEventHandler<Pod> {
             String deployment = pod.getMetadata().getLabels().get("app");
             String projectId = deployment != null ? deployment : pod.getMetadata().getLabels().get(LABEL_PROJECT_ID);
 
-            ContainerStatus cs = new ContainerStatus();
+            PodContainerStatus cs = new PodContainerStatus();
             cs.setProjectId(projectId);
             cs.setContainerName(pod.getMetadata().getName());
             cs.setEnv(kubernetesStatusService.environment);
 
-            eventBus.publish(CONTAINER_DELETED, JsonObject.mapFrom(cs));
+            eventBus.publish(POD_CONTAINER_DELETED, JsonObject.mapFrom(cs));
         } catch (Exception e) {
             LOGGER.error(e.getMessage(), e.getCause());
         }
     }
 
 
-    public ContainerStatus getPodStatus(Pod pod) {
+    public PodContainerStatus getPodStatus(Pod pod) {
         String deployment = pod.getMetadata().getLabels().get("app");
         String projectId = deployment != null ? deployment : pod.getMetadata().getLabels().get(LABEL_PROJECT_ID);
         String camel = deployment != null ? deployment : pod.getMetadata().getLabels().get(LABEL_KUBERNETES_RUNTIME);
         String runtime = deployment != null ? deployment : pod.getMetadata().getLabels().get(LABEL_CAMEL_RUNTIME);
         String type = pod.getMetadata().getLabels().get(LABEL_TYPE);
         String commit = pod.getMetadata().getAnnotations().get(ANNOTATION_COMMIT);
-        ContainerStatus.ContainerType containerType = deployment != null
-                ? ContainerStatus.ContainerType.project
-                : (type != null ? ContainerStatus.ContainerType.valueOf(type) : ContainerStatus.ContainerType.unknown);
+        PodContainerStatus.ContainerType containerType = deployment != null
+                ? PodContainerStatus.ContainerType.project
+                : (type != null ? PodContainerStatus.ContainerType.valueOf(type) : PodContainerStatus.ContainerType.unknown);
         try {
             boolean ready = pod.getStatus().getConditions().stream().anyMatch(c -> c.getType().equals("Ready") && c.getStatus().equals("True"));
             boolean running = Objects.equals(pod.getStatus().getPhase(), "Running");
@@ -126,9 +126,9 @@ public class PodEventHandler implements ResourceEventHandler<Pod> {
             String requestCpu = resourceRequirements.getRequests().getOrDefault("cpu", new Quantity()).toString();
             String limitMemory = resourceRequirements.getLimits().getOrDefault("memory", new Quantity()).toString();
             String limitCpu = resourceRequirements.getLimits().getOrDefault("cpu", new Quantity()).toString();
-            ContainerStatus status = new ContainerStatus(
+            PodContainerStatus status = new PodContainerStatus(
                     pod.getMetadata().getName(),
-                    List.of(ContainerStatus.Command.delete),
+                    List.of(PodContainerStatus.Command.delete),
                     projectId,
                     kubernetesStatusService.environment,
                     containerType,
@@ -142,13 +142,13 @@ public class PodEventHandler implements ResourceEventHandler<Pod> {
             status.setPodIP(pod.getStatus().getPodIP());
             status.setCamelRuntime(runtime != null ? runtime : (camel != null ? CamelRuntime.CAMEL_MAIN.getValue() : ""));
             if (running) {
-                status.setState(ContainerStatus.State.running.name());
+                status.setState(PodContainerStatus.State.running.name());
             } else if (failed) {
-                status.setState(ContainerStatus.State.dead.name());
+                status.setState(PodContainerStatus.State.dead.name());
             } else if (succeeded) {
-                status.setState(ContainerStatus.State.exited.name());
+                status.setState(PodContainerStatus.State.exited.name());
             } else {
-                status.setState(ContainerStatus.State.created.name());
+                status.setState(PodContainerStatus.State.created.name());
             }
             return status;
         } catch (Exception ex) {

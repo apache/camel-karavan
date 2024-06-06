@@ -15,51 +15,34 @@
  * limitations under the License.
  */
 
-package org.apache.camel.karavan;
+package org.apache.camel.karavan.listener;
 
 import io.quarkus.vertx.ConsumeEvent;
 import io.vertx.core.json.JsonObject;
-import io.vertx.mutiny.core.eventbus.EventBus;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import org.apache.camel.karavan.docker.DockerService;
+import org.apache.camel.karavan.KaravanCache;
 import org.apache.camel.karavan.model.PodContainerStatus;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.jboss.logging.Logger;
 
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.List;
 import java.util.Objects;
 
 import static org.apache.camel.karavan.KaravanEvents.*;
 
 @ApplicationScoped
-public class ContainerStatusListener {
-
-    private static final Logger LOGGER = Logger.getLogger(ContainerStatusListener.class.getName());
-    @ConfigProperty(name = "karavan.environment")
-    String environment;
+public class PodContainerStatusListener {
 
     @Inject
     KaravanCache karavanCache;
 
-    @Inject
-    DockerService dockerService;
-
-    @Inject
-    EventBus eventBus;
-
-
-
-    @ConsumeEvent(value = CONTAINER_DELETED, blocking = true, ordered = true)
+    @ConsumeEvent(value = POD_CONTAINER_DELETED, blocking = true, ordered = true)
     public void cleanContainersStatus(JsonObject data) {
         PodContainerStatus containerStatus = data.mapTo(PodContainerStatus.class);
         karavanCache.deletePodContainerStatus(containerStatus);
         karavanCache.deleteCamelStatuses(containerStatus.getProjectId(), containerStatus.getEnv());
     }
 
-    @ConsumeEvent(value = CONTAINER_UPDATED, blocking = true, ordered = true)
+    @ConsumeEvent(value = POD_CONTAINER_UPDATED, blocking = true, ordered = true)
     public void savePodContainerStatus(JsonObject data) {
         PodContainerStatus newStatus = data.mapTo(PodContainerStatus.class);
         PodContainerStatus oldStatus = karavanCache.getPodContainerStatus(newStatus.getProjectId(), newStatus.getEnv(), newStatus.getContainerName());

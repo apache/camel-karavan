@@ -34,7 +34,7 @@ import java.util.Objects;
 import static org.apache.camel.karavan.KaravanConstants.*;
 
 @ApplicationScoped
-public class DockerEventListener implements ResultCallback<Event> {
+public class DockerEventHandler implements ResultCallback<Event> {
 
     @Inject
     DockerService dockerService;
@@ -42,7 +42,7 @@ public class DockerEventListener implements ResultCallback<Event> {
     @Inject
     RegistryService registryService;
 
-    private static final Logger LOGGER = Logger.getLogger(DockerEventListener.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(DockerEventHandler.class.getName());
 
     @Override
     public void onStart(Closeable closeable) {

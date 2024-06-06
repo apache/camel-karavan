@@ -66,7 +66,7 @@ public class StatusResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/container")
     public Response deleteContainerStatuses() {
-        karavanCache.deleteAllContainersStatuses();
+        karavanCache.deleteAllPodContainersStatuses();
         return Response.ok().build();
     }
 

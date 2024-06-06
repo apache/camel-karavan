@@ -33,7 +33,7 @@ import jakarta.ws.rs.sse.Sse;
 import jakarta.ws.rs.sse.SseEventSink;
 import org.apache.camel.karavan.docker.DockerService;
 import org.apache.camel.karavan.docker.DockerLogCallback;
-import org.apache.camel.karavan.kubernetes.KubernetesManager;
+import org.apache.camel.karavan.kubernetes.KubernetesService;
 
 import org.apache.camel.karavan.ConfigService;
 import org.eclipse.microprofile.context.ManagedExecutor;
@@ -51,7 +51,7 @@ public class LogWatchResource {
     private static final ConcurrentHashMap<String, LogWatch> logWatches = new ConcurrentHashMap<>();
 
     @Inject
-    KubernetesManager kubernetesManager;
+    KubernetesService kubernetesService;
 
     @Inject
     DockerService dockerService;
@@ -99,7 +99,7 @@ public class LogWatchResource {
 
     private void getKubernetesLogs(String name, SseEventSink eventSink, Sse sse) {
         try (SseEventSink sink = eventSink) {
-            Tuple2<LogWatch, KubernetesClient> request = kubernetesManager.getContainerLogWatch(name);
+            Tuple2<LogWatch, KubernetesClient> request = kubernetesService.getContainerLogWatch(name);
             LogWatch logWatch = request.getItem1();
             BufferedReader reader = new BufferedReader(new InputStreamReader(logWatch.getOutput()));
             try {

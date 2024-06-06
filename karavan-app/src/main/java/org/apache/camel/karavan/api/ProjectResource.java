@@ -24,12 +24,12 @@ import org.apache.camel.karavan.docker.DockerService;
 import org.apache.camel.karavan.GitService;
 import org.apache.camel.karavan.ProjectService;
 import org.apache.camel.karavan.KaravanCache;
-import org.apache.camel.karavan.kubernetes.KubernetesManager;
+import org.apache.camel.karavan.kubernetes.KubernetesService;
 import org.apache.camel.karavan.ConfigService;
 import org.apache.camel.karavan.model.Project;
 import org.apache.camel.karavan.model.CamelStatus;
 import org.apache.camel.karavan.model.CamelStatusValue;
-import org.apache.camel.karavan.model.ContainerStatus;
+import org.apache.camel.karavan.model.PodContainerStatus;
 import org.jboss.logging.Logger;
 
 import java.net.URLDecoder;
@@ -45,7 +45,7 @@ public class ProjectResource {
     KaravanCache karavanCache;
 
     @Inject
-    KubernetesManager kubernetesManager;
+    KubernetesService kubernetesService;
 
     @Inject
     DockerService dockerService;
@@ -97,8 +97,8 @@ public class ProjectResource {
         if (deleteContainers) {
             LOGGER.info("Deleting containers");
             Response res1 = devModeResource.deleteDevMode(projectId, true);
-            Response res2 = containerResource.deleteContainer(projectId, ContainerStatus.ContainerType.devmode.name(), projectId);
-            Response res3 = containerResource.deleteContainer(projectId, ContainerStatus.ContainerType.project.name(), projectId);
+            Response res2 = containerResource.deleteContainer(projectId, PodContainerStatus.ContainerType.devmode.name(), projectId);
+            Response res3 = containerResource.deleteContainer(projectId, PodContainerStatus.ContainerType.project.name(), projectId);
             LOGGER.info("Deleting deployments");
             Response res4 = infrastructureResource.deleteDeployment(null, projectId);
         }
@@ -128,7 +128,7 @@ public class ProjectResource {
     public Response deleteBuild(@PathParam("env") String env, @PathParam("buildName") String buildName) {
         buildName = URLDecoder.decode(buildName, StandardCharsets.UTF_8);
         if (ConfigService.inKubernetes()) {
-            kubernetesManager.deletePod(buildName);
+            kubernetesService.deletePod(buildName);
             return Response.ok().build();
         } else {
             dockerService.deleteContainer(buildName);

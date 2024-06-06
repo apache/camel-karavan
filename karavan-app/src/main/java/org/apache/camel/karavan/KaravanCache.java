@@ -38,7 +38,7 @@ public class KaravanCache {
     private final Map<String, ProjectFile> files = new ConcurrentHashMap<>();
 
     private final Map<String, DeploymentStatus> deploymentStatuses = new ConcurrentHashMap<>();
-    private final Map<String, ContainerStatus> containerStatuses = new ConcurrentHashMap<>();
+    private final Map<String, PodContainerStatus> podContainerStatuses = new ConcurrentHashMap<>();
     private final Map<String, Boolean> transits = new ConcurrentHashMap<>();
     private final Map<String, ServiceStatus> serviceStatuses = new ConcurrentHashMap<>();
     private final Map<String, CamelStatus> camelStatuses = new ConcurrentHashMap<>();
@@ -140,48 +140,48 @@ public class KaravanCache {
         transits.put(GroupedKey.create(projectId, env, containerName), true);
     }
 
-    public List<ContainerStatus> getContainerStatuses() {
-        return new ArrayList<>(containerStatuses.values());
+    public List<PodContainerStatus> getPodContainerStatuses() {
+        return new ArrayList<>(podContainerStatuses.values());
     }
 
-    public List<ContainerStatus> getContainerStatuses(String projectId, String env) {
-        return containerStatuses.values().stream().filter(el -> Objects.equals(el.getProjectId(), projectId) && Objects.equals(el.getEnv(), env)).toList();
+    public List<PodContainerStatus> getPodContainerStatuses(String projectId, String env) {
+        return podContainerStatuses.values().stream().filter(el -> Objects.equals(el.getProjectId(), projectId) && Objects.equals(el.getEnv(), env)).toList();
     }
 
-    public ContainerStatus getContainerStatus(String projectId, String env, String containerName) {
-        return getContainerStatus(GroupedKey.create(projectId, env, containerName));
+    public PodContainerStatus getPodContainerStatus(String projectId, String env, String containerName) {
+        return getPodContainerStatus(GroupedKey.create(projectId, env, containerName));
     }
 
-    public ContainerStatus getContainerStatus(String key) {
-        return containerStatuses.get(key);
+    public PodContainerStatus getPodContainerStatus(String key) {
+        return podContainerStatuses.get(key);
     }
 
-    public ContainerStatus getDevModeContainerStatus(String projectId, String env) {
-        return containerStatuses.get(GroupedKey.create(projectId, env, projectId));
+    public PodContainerStatus getDevModePodContainerStatus(String projectId, String env) {
+        return podContainerStatuses.get(GroupedKey.create(projectId, env, projectId));
     }
 
-    public List<ContainerStatus> getContainerStatuses(String env) {
-        return containerStatuses.values().stream().filter(el -> Objects.equals(el.getEnv(), env)).toList();
+    public List<PodContainerStatus> getPodContainerStatuses(String env) {
+        return podContainerStatuses.values().stream().filter(el -> Objects.equals(el.getEnv(), env)).toList();
     }
 
-    public List<ContainerStatus> getAllContainerStatuses() {
-        return new ArrayList<>(containerStatuses.values());
+    public List<PodContainerStatus> getAllContainerStatuses() {
+        return new ArrayList<>(podContainerStatuses.values());
     }
 
-    public void saveContainerStatus(ContainerStatus status) {
-        containerStatuses.put(GroupedKey.create(status.getProjectId(), status.getEnv(), status.getContainerName()), status);
+    public void savePodContainerStatus(PodContainerStatus status) {
+        podContainerStatuses.put(GroupedKey.create(status.getProjectId(), status.getEnv(), status.getContainerName()), status);
     }
 
-    public void deleteContainerStatus(ContainerStatus status) {
-        containerStatuses.remove(GroupedKey.create(status.getProjectId(), status.getEnv(), status.getContainerName()));
+    public void deletePodContainerStatus(PodContainerStatus status) {
+        podContainerStatuses.remove(GroupedKey.create(status.getProjectId(), status.getEnv(), status.getContainerName()));
     }
 
-    public void deleteAllContainersStatuses() {
-        containerStatuses.clear();
+    public void deleteAllPodContainersStatuses() {
+        podContainerStatuses.clear();
     }
 
-    public void deleteContainerStatus(String projectId, String env, String containerName) {
-        containerStatuses.remove(GroupedKey.create(projectId, env, containerName));
+    public void deletePodContainerStatus(String projectId, String env, String containerName) {
+        podContainerStatuses.remove(GroupedKey.create(projectId, env, containerName));
     }
 
     public CamelStatus getCamelStatus(String projectId, String env, String containerName) {
@@ -230,21 +230,21 @@ public class KaravanCache {
         camelStatuses.clear();
     }
 
-    public List<ContainerStatus> getLoadedDevModeStatuses() {
-        return containerStatuses.values().stream().filter(el -> Objects.equals(el.getType(), ContainerStatus.ContainerType.devmode) && Objects.equals(el.getCodeLoaded(), true)).toList();
+    public List<PodContainerStatus> getLoadedDevModeStatuses() {
+        return podContainerStatuses.values().stream().filter(el -> Objects.equals(el.getType(), PodContainerStatus.ContainerType.devmode) && Objects.equals(el.getCodeLoaded(), true)).toList();
     }
 
-    public List<ContainerStatus> getDevModeStatuses() {
-        return containerStatuses.values().stream().filter(el -> Objects.equals(el.getType(), ContainerStatus.ContainerType.devmode)).toList();
+    public List<PodContainerStatus> getDevModeStatuses() {
+        return podContainerStatuses.values().stream().filter(el -> Objects.equals(el.getType(), PodContainerStatus.ContainerType.devmode)).toList();
     }
 
-    public List<ContainerStatus> getContainerStatusByEnv(String env) {
-        return containerStatuses.values().stream().filter(el -> Objects.equals(el.getEnv(), env)).toList();
+    public List<PodContainerStatus> getContainerStatusByEnv(String env) {
+        return podContainerStatuses.values().stream().filter(el -> Objects.equals(el.getEnv(), env)).toList();
     }
 
     public void clearAllStatuses() {
         deploymentStatuses.clear();
-        containerStatuses.clear();
+        podContainerStatuses.clear();
         camelStatuses.clear();
     }
 }

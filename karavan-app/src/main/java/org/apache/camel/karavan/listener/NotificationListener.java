@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.camel.karavan;
+package org.apache.camel.karavan.listener;
 
 import io.quarkus.vertx.ConsumeEvent;
 import io.vertx.core.eventbus.DeliveryOptions;
@@ -29,7 +29,7 @@ import java.util.UUID;
 import static org.apache.camel.karavan.KaravanEvents.COMMIT_HAPPENED;
 
 @ApplicationScoped
-public class NotificationService {
+public class NotificationListener {
 
     public static final String NOTIFICATION_ADDRESS_SYSTEM = "karavanSystem";
     public static final String NOTIFICATION_HEADER_EVENT_ID = "id";

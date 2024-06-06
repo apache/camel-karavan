@@ -14,13 +14,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.camel.karavan;
+package org.apache.camel.karavan.scheduler;
 
 import io.quarkus.scheduler.Scheduled;
 import io.vertx.core.json.JsonObject;
 import io.vertx.mutiny.core.eventbus.EventBus;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import org.apache.camel.karavan.KaravanCache;
+import org.apache.camel.karavan.KaravanConstants;
 import org.apache.camel.karavan.model.CamelStatusRequest;
 import org.apache.camel.karavan.model.PodContainerStatus;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -32,9 +34,9 @@ import java.util.Objects;
 import static org.apache.camel.karavan.KaravanEvents.CMD_COLLECT_CAMEL_STATUS;
 
 @ApplicationScoped
-public class CamelStatusService {
+public class CamelStatusScheduler {
 
-    private static final Logger LOGGER = Logger.getLogger(CamelStatusService.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(CamelStatusScheduler.class.getName());
 
     @Inject
     KaravanCache karavanCache;

@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.camel.karavan;
+package org.apache.camel.karavan.listener;
 
 import io.quarkus.vertx.ConsumeEvent;
 import io.vertx.core.json.JsonObject;
@@ -25,6 +25,9 @@ import io.vertx.mutiny.ext.web.client.HttpResponse;
 import io.vertx.mutiny.ext.web.client.WebClient;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import org.apache.camel.karavan.CodeService;
+import org.apache.camel.karavan.ConfigService;
+import org.apache.camel.karavan.KaravanCache;
 import org.apache.camel.karavan.kubernetes.KubernetesService;
 import org.apache.camel.karavan.model.PodContainerStatus;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -37,9 +40,9 @@ import java.util.concurrent.ExecutionException;
 import static org.apache.camel.karavan.KaravanEvents.POD_CONTAINER_UPDATED;
 
 @ApplicationScoped
-public class CamelService {
+public class CamelReloadListener {
 
-    private static final Logger LOGGER = Logger.getLogger(CamelService.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(CamelReloadListener.class.getName());
     public static final String RELOAD_PROJECT_CODE = "RELOAD_PROJECT_CODE";
 
     @Inject
@@ -70,7 +73,7 @@ public class CamelService {
     }
 
     @ConsumeEvent(value = RELOAD_PROJECT_CODE, blocking = true, ordered = true)
-    public void reloadProjectCode(String projectId) {
+    void reloadProjectCode(String projectId) {
         LOGGER.debug("Reload project code " + projectId);
         try {
             PodContainerStatus podContainerStatus = karavanCache.getDevModePodContainerStatus(projectId, environment);

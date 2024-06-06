@@ -25,7 +25,7 @@ import jakarta.enterprise.inject.Default;
 import jakarta.inject.Inject;
 import org.apache.camel.karavan.docker.DockerComposeConverter;
 import org.apache.camel.karavan.docker.DockerForKaravan;
-import org.apache.camel.karavan.kubernetes.KubernetesManager;
+import org.apache.camel.karavan.kubernetes.KubernetesService;
 import org.apache.camel.karavan.model.*;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jgit.revwalk.RevCommit;
@@ -63,7 +63,7 @@ public class ProjectService {
     RegistryService registryService;
 
     @Inject
-    KubernetesManager kubernetesManager;
+    KubernetesService kubernetesService;
 
     @Inject
     DockerForKaravan dockerForKaravan;
@@ -93,17 +93,17 @@ public class ProjectService {
 
     public String runProjectWithJBangOptions(Project project, String jBangOptions) throws Exception {
         String containerName = project.getProjectId();
-        ContainerStatus status = karavanCache.getDevModeContainerStatus(project.getProjectId(), environment);
+        PodContainerStatus status = karavanCache.getDevModePodContainerStatus(project.getProjectId(), environment);
         if (status == null) {
-            status = ContainerStatus.createDevMode(project.getProjectId(), environment);
+            status = PodContainerStatus.createDevMode(project.getProjectId(), environment);
         }
-        if (!Objects.equals(status.getState(), ContainerStatus.State.running.name())) {
+        if (!Objects.equals(status.getState(), PodContainerStatus.State.running.name())) {
             status.setInTransit(true);
-            eventBus.publish(CONTAINER_UPDATED, JsonObject.mapFrom(status));
+            eventBus.publish(POD_CONTAINER_UPDATED, JsonObject.mapFrom(status));
 
             Map<String, String> files = codeService.getProjectFilesForDevMode(project.getProjectId(), true);
             if (ConfigService.inKubernetes()) {
-                kubernetesManager.runDevModeContainer(project, jBangOptions, files);
+                kubernetesService.runDevModeContainer(project, jBangOptions, files);
             } else {
                 DockerComposeService dcs = codeService.getDockerComposeService(project.getProjectId());
                 dockerForKaravan.runProjectInDevMode(project.getProjectId(), jBangOptions, dcs.getPortsMap(), files);
@@ -121,7 +121,7 @@ public class ProjectService {
         String script = codeService.getBuilderScript();
         List<String> env = getProjectEnvForBuild(project, tag);
         if (ConfigService.inKubernetes()) {
-            kubernetesManager.runBuildProject(project, script, env, tag);
+            kubernetesService.runBuildProject(project, script, env, tag);
         } else {
             env.addAll(getConnectionsEnvForBuild());
             Map<String, String> sshFiles = getSshFiles();

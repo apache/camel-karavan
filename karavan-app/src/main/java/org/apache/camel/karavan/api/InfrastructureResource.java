@@ -20,7 +20,7 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import org.apache.camel.karavan.kubernetes.KubernetesManager;
+import org.apache.camel.karavan.kubernetes.KubernetesService;
 
 import org.apache.camel.karavan.ConfigService;
 import org.apache.camel.karavan.KaravanCache;
@@ -41,7 +41,7 @@ public class InfrastructureResource {
     KaravanCache karavanCache;
 
     @Inject
-    KubernetesManager kubernetesManager;
+    KubernetesService kubernetesService;
 
     @Inject
     KubernetesStatusService kubernetesStatusService;
@@ -73,7 +73,7 @@ public class InfrastructureResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/deployment/rollout/{env}/{name}")
     public Response rollout(@PathParam("env") String env, @PathParam("name") String name) throws Exception {
-        kubernetesManager.rolloutDeployment(name, kubernetesManager.getNamespace());
+        kubernetesService.rolloutDeployment(name, kubernetesService.getNamespace());
         return Response.ok().build();
     }
 
@@ -82,7 +82,7 @@ public class InfrastructureResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/deployment/{env}/{name}")
     public Response deleteDeployment(@PathParam("env") String env, @PathParam("name") String name) throws Exception {
-        kubernetesManager.deleteDeployment(name, kubernetesManager.getNamespace());
+        kubernetesService.deleteDeployment(name, kubernetesService.getNamespace());
         return Response.ok().build();
     }
 
@@ -100,7 +100,7 @@ public class InfrastructureResource {
     @Path("/configmaps")
     public Response getConfigMaps() throws Exception {
         if (ConfigService.inKubernetes()) {
-            return Response.ok(kubernetesManager.getConfigMaps(kubernetesManager.getNamespace())).build();
+            return Response.ok(kubernetesService.getConfigMaps(kubernetesService.getNamespace())).build();
         } else {
             return Response.ok(List.of()).build();
         }
@@ -111,7 +111,7 @@ public class InfrastructureResource {
     @Path("/secrets")
     public Response getSecrets() throws Exception {
         if (ConfigService.inKubernetes()) {
-            return Response.ok(kubernetesManager.getSecrets(kubernetesManager.getNamespace())).build();
+            return Response.ok(kubernetesService.getSecrets(kubernetesService.getNamespace())).build();
         } else {
             return Response.ok(List.of()).build();
         }
@@ -122,9 +122,9 @@ public class InfrastructureResource {
     @Path("/services")
     public Response getServices() throws Exception {
         if (ConfigService.inKubernetes()) {
-            return Response.ok(kubernetesManager.getServices(kubernetesManager.getNamespace())).build();
+            return Response.ok(kubernetesService.getServices(kubernetesService.getNamespace())).build();
         } else {
-            List<String> list = karavanCache.getContainerStatuses(environment).stream()
+            List<String> list = karavanCache.getPodContainerStatuses(environment).stream()
                     .filter(ci -> ci.getPorts() != null && !ci.getPorts().isEmpty())
                     .map(ci -> ci.getPorts().stream().map(i -> ci.getContainerName() + "|" + ci.getContainerName() + ":" + i.getPrivatePort()).collect(Collectors.toList()))
                     .flatMap(List::stream).collect(Collectors.toList());

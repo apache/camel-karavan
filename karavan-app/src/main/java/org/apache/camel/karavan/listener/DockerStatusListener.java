@@ -15,19 +15,19 @@
  * limitations under the License.
  */
 
-package org.apache.camel.karavan.docker;
+package org.apache.camel.karavan.listener;
 
 import com.github.dockerjava.api.model.Container;
 import com.github.dockerjava.api.model.Statistics;
 import com.github.dockerjava.core.InvocationBuilder;
-import io.quarkus.scheduler.Scheduled;
 import io.quarkus.vertx.ConsumeEvent;
 import io.vertx.core.json.JsonObject;
 import io.vertx.mutiny.core.eventbus.EventBus;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import org.apache.camel.karavan.ConfigService;
 import org.apache.camel.karavan.KaravanCache;
+import org.apache.camel.karavan.docker.DockerService;
+import org.apache.camel.karavan.docker.DockerUtils;
 import org.apache.camel.karavan.model.PodContainerStatus;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
@@ -40,7 +40,7 @@ import java.util.List;
 import static org.apache.camel.karavan.KaravanEvents.*;
 
 @ApplicationScoped
-public class DockerStatusScheduler {
+public class DockerStatusListener {
 
     @ConfigProperty(name = "karavan.environment")
     String environment;
@@ -53,25 +53,6 @@ public class DockerStatusScheduler {
 
     @Inject
     EventBus eventBus;
-
-    @Scheduled(every = "{karavan.container.statistics.interval}", concurrentExecution = Scheduled.ConcurrentExecution.SKIP)
-    void collectContainersStatistics() {
-        List<PodContainerStatus> statusesInDocker = getContainersStatuses();
-        statusesInDocker.forEach(containerStatus -> {
-            eventBus.publish(CMD_COLLECT_CONTAINER_STATISTIC, JsonObject.mapFrom(containerStatus));
-        });
-    }
-
-    @Scheduled(every = "{karavan.container.status.interval}", concurrentExecution = Scheduled.ConcurrentExecution.SKIP)
-    void collectContainersStatuses() {
-        if (!ConfigService.inKubernetes()) {
-            List<PodContainerStatus> statusesInDocker = getContainersStatuses();
-            statusesInDocker.forEach(containerStatus -> {
-                eventBus.publish(POD_CONTAINER_UPDATED, JsonObject.mapFrom(containerStatus));
-            });
-            eventBus.publish(CMD_CLEAN_STATUSES, "");
-        }
-    }
 
     @ConsumeEvent(value = CMD_COLLECT_CONTAINER_STATISTIC, blocking = true)
     void collectContainersStatistics(JsonObject data) {
