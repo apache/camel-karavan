@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.camel.karavan.manager.docker;
+package org.apache.camel.karavan.docker;
 
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.*;
@@ -33,8 +33,8 @@ import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
 import org.apache.camel.karavan.CodeService;
 import org.apache.camel.karavan.model.DockerComposeService;
-import org.apache.camel.karavan.config.ConfigService;
-import org.apache.camel.karavan.status.model.ContainerStatus;
+import org.apache.camel.karavan.ConfigService;
+import org.apache.camel.karavan.model.ContainerStatus;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
 import org.apache.commons.io.IOUtils;

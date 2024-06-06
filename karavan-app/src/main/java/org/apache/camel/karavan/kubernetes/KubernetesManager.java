@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.camel.karavan.manager.kubernetes;
+package org.apache.camel.karavan.kubernetes;
 
 import io.fabric8.kubernetes.api.model.*;
 import io.fabric8.kubernetes.client.KubernetesClient;
@@ -30,10 +30,10 @@ import jakarta.enterprise.inject.Produces;
 import jakarta.inject.Inject;
 import org.apache.camel.karavan.CodeService;
 import org.apache.camel.karavan.model.Project;
-import org.apache.camel.karavan.status.StatusConstants;
-import org.apache.camel.karavan.status.model.ContainerStatus;
+import org.apache.camel.karavan.StatusConstants;
+import org.apache.camel.karavan.model.ContainerStatus;
 
-import org.apache.camel.karavan.config.ConfigService;
+import org.apache.camel.karavan.ConfigService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 

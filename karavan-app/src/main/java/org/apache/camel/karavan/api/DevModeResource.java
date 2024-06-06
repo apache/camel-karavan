@@ -22,18 +22,18 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import org.apache.camel.karavan.KaravanCache;
 import org.apache.camel.karavan.model.Project;
 import org.apache.camel.karavan.manager.CamelManager;
-import org.apache.camel.karavan.manager.docker.DockerManager;
-import org.apache.camel.karavan.manager.kubernetes.KubernetesManager;
+import org.apache.camel.karavan.docker.DockerManager;
+import org.apache.camel.karavan.kubernetes.KubernetesManager;
 import org.apache.camel.karavan.manager.ProjectManager;
-import org.apache.camel.karavan.config.ConfigService;
-import org.apache.camel.karavan.status.StatusCache;
-import org.apache.camel.karavan.status.model.ContainerStatus;
+import org.apache.camel.karavan.ConfigService;
+import org.apache.camel.karavan.model.ContainerStatus;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
-import static org.apache.camel.karavan.status.StatusEvents.CONTAINER_UPDATED;
+import static org.apache.camel.karavan.StatusEvents.CONTAINER_UPDATED;
 
 @Path("/ui/devmode")
 public class DevModeResource {
@@ -47,7 +47,7 @@ public class DevModeResource {
     CamelManager camelManager;
 
     @Inject
-    StatusCache statusCache;
+    KaravanCache karavanCache;
 
     @Inject
     KubernetesManager kubernetesManager;
@@ -109,7 +109,7 @@ public class DevModeResource {
     }
 
     private void setContainerStatusTransit(String name, String type) {
-        ContainerStatus status = statusCache.getContainerStatus(name, environment, name);
+        ContainerStatus status = karavanCache.getContainerStatus(name, environment, name);
         if (status == null) {
             status = ContainerStatus.createByType(name, environment, ContainerStatus.ContainerType.valueOf(type));
         }
@@ -121,7 +121,7 @@ public class DevModeResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/container/{projectId}")
     public Response getPodStatus(@PathParam("projectId") String projectId) throws RuntimeException {
-        ContainerStatus cs = statusCache.getDevModeContainerStatus(projectId, environment);
+        ContainerStatus cs = karavanCache.getDevModeContainerStatus(projectId, environment);
         if (cs != null) {
             return Response.ok(cs).build();
         } else {

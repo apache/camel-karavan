@@ -15,24 +15,46 @@
  * limitations under the License.
  */
 
-package org.apache.camel.karavan.manager.docker;
+package org.apache.camel.karavan.model;
 
-import com.github.dockerjava.api.async.ResultCallback;
-import com.github.dockerjava.api.model.Frame;
+public class CamelStatusValue {
 
-import java.util.function.Consumer;
+    public enum Name {
 
-public class DockerLogCallback extends ResultCallback.Adapter<Frame> {
-
-    private final Consumer<String> action;
-
-    public DockerLogCallback(Consumer<String> action) {
-        this.action = action;
+        context,
+        inflight,
+        memory,
+        properties,
+        route,
+        trace,
+        jvm,
+        source
     }
 
-    @Override
-    public void onNext(Frame frame) {
-        action.accept(new String(frame.getPayload()));
+    Name name;
+    String status;
+
+    public CamelStatusValue() {
     }
 
+    public CamelStatusValue(Name name, String status) {
+        this.name = name;
+        this.status = status;
+    }
+
+    public Name getName() {
+        return name;
+    }
+
+    public void setName(Name name) {
+        this.name = name;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
 }

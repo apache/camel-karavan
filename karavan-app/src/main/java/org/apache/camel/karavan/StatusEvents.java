@@ -14,30 +14,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.camel.karavan.api;
+package org.apache.camel.karavan;
 
-import jakarta.inject.Inject;
-import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
-import org.apache.camel.karavan.kubernetes.KubernetesManager;
+public class StatusEvents {
 
-@Path("/ui/build")
-public class BuildResource {
+    public static final String CMD_COLLECT_CAMEL_STATUS = "CMD_COLLECT_CAMEL_STATUS";
+    public static final String CMD_COLLECT_CONTAINER_STATISTIC = "CMD_COLLECT_CONTAINER_STATISTIC";
+    public static final String CMD_CLEAN_STATUSES = "CMD_CLEAN_STATUSES";
 
-    @Inject
-    KubernetesManager kubernetesManager;
+    public static final String CONTAINER_UPDATED = "CONTAINER_UPDATED";
+    public static final String CONTAINER_DELETED = "CONTAINER_DELETED";
 
-    @POST
-    @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Path("/update-config-map")
-    public Response updateConfigMaps() {
-        kubernetesManager.createBuildScriptConfigmap(null);
-        return Response.ok().build();
-    }
+    public static final String DEPLOYMENT_UPDATED = "DEPLOYMENT_UPDATED";
+    public static final String DEPLOYMENT_DELETED = "DEPLOYMENT_DELETED";
 
+    public static final String SERVICE_UPDATED = "SERVICE_UPDATED";
+    public static final String SERVICE_DELETED = "SERVICE_DELETED";
 }

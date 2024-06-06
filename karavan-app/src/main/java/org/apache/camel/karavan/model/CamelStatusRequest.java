@@ -14,30 +14,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.camel.karavan.api;
+package org.apache.camel.karavan.model;
 
-import jakarta.inject.Inject;
-import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
-import org.apache.camel.karavan.kubernetes.KubernetesManager;
+public class CamelStatusRequest {
 
-@Path("/ui/build")
-public class BuildResource {
+    private String projectId;
+    private String containerName;
 
-    @Inject
-    KubernetesManager kubernetesManager;
-
-    @POST
-    @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Path("/update-config-map")
-    public Response updateConfigMaps() {
-        kubernetesManager.createBuildScriptConfigmap(null);
-        return Response.ok().build();
+    public CamelStatusRequest() {
     }
 
+    public CamelStatusRequest(String projectId, String containerName) {
+        this.projectId = projectId;
+        this.containerName = containerName;
+    }
+
+    public String getProjectId() {
+        return projectId;
+    }
+
+    public void setProjectId(String projectId) {
+        this.projectId = projectId;
+    }
+
+    public String getContainerName() {
+        return containerName;
+    }
+
+    public void setContainerName(String containerName) {
+        this.containerName = containerName;
+    }
 }

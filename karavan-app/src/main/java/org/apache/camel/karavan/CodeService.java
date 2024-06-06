@@ -23,7 +23,7 @@ import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import org.apache.camel.karavan.config.ConfigService;
+import org.apache.camel.karavan.ConfigService;
 import org.apache.camel.karavan.docker.DockerComposeConverter;
 import org.apache.camel.karavan.model.*;
 import org.eclipse.microprofile.config.inject.ConfigProperty;

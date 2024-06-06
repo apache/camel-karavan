@@ -15,33 +15,24 @@
  * limitations under the License.
  */
 
-package org.apache.camel.karavan.manager.docker;
+package org.apache.camel.karavan.docker;
 
 import com.github.dockerjava.api.async.ResultCallback;
-import com.github.dockerjava.api.model.PullResponseItem;
+import com.github.dockerjava.api.model.Frame;
 
 import java.util.function.Consumer;
 
-public class DockerPullCallback extends ResultCallback.Adapter<PullResponseItem> {
+public class DockerLogCallback extends ResultCallback.Adapter<Frame> {
 
     private final Consumer<String> action;
 
-    public DockerPullCallback(Consumer<String> action) {
+    public DockerLogCallback(Consumer<String> action) {
         this.action = action;
     }
 
     @Override
-    public void onNext(PullResponseItem item) {
-        StringBuilder line = new StringBuilder();
-        if (item.getId() != null) {
-            line.append("Layer ").append(item.getId()).append(", ");
-        }
-        line.append(item.getStatus()).append(" ");
-        if (item.getProgressDetail() != null && item.getProgressDetail().getCurrent() != null && item.getProgressDetail().getTotal() != null) {
-            long progress = (long) ((item.getProgressDetail().getCurrent().doubleValue() / item.getProgressDetail().getTotal().doubleValue()) * 100);
-            line.append(" ").append(progress).append("%");
-        }
-        action.accept(line.toString());
+    public void onNext(Frame frame) {
+        action.accept(new String(frame.getPayload()));
     }
 
 }

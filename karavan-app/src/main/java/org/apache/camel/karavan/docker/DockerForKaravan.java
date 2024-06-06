@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.camel.karavan.manager.docker;
+package org.apache.camel.karavan.docker;
 
 import com.github.dockerjava.api.model.Container;
 import com.github.dockerjava.api.model.HealthCheck;
@@ -24,8 +24,8 @@ import jakarta.inject.Inject;
 import org.apache.camel.karavan.ProjectService;
 import org.apache.camel.karavan.model.DockerComposeService;
 import org.apache.camel.karavan.model.Project;
-import org.apache.camel.karavan.status.StatusConstants;
-import org.apache.camel.karavan.status.model.ContainerStatus;
+import org.apache.camel.karavan.StatusConstants;
+import org.apache.camel.karavan.model.ContainerStatus;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 

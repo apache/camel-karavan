@@ -22,10 +22,10 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.apache.camel.karavan.ProjectService;
-import org.apache.camel.karavan.manager.docker.DockerManager;
+import org.apache.camel.karavan.docker.DockerManager;
 import org.apache.camel.karavan.model.RegistryConfig;
 import org.apache.camel.karavan.RegistryService;
-import org.apache.camel.karavan.config.ConfigService;
+import org.apache.camel.karavan.ConfigService;
 import org.jose4j.base64url.Base64;
 
 import java.util.Comparator;

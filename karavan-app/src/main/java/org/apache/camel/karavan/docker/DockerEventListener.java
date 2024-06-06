@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.camel.karavan.manager.docker;
+package org.apache.camel.karavan.docker;
 
 import com.github.dockerjava.api.async.ResultCallback;
 import com.github.dockerjava.api.model.Container;
@@ -24,7 +24,7 @@ import com.github.dockerjava.api.model.EventType;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.apache.camel.karavan.RegistryService;
-import org.apache.camel.karavan.status.model.ContainerStatus;
+import org.apache.camel.karavan.model.ContainerStatus;
 import org.jboss.logging.Logger;
 
 import java.io.Closeable;

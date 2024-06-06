@@ -25,15 +25,15 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.apache.camel.karavan.docker.DockerComposeConverter;
-import org.apache.camel.karavan.manager.docker.DockerManager;
-import org.apache.camel.karavan.manager.kubernetes.KubernetesManager;
+import org.apache.camel.karavan.docker.DockerManager;
+import org.apache.camel.karavan.kubernetes.KubernetesManager;
 import org.apache.camel.karavan.ProjectService;
 import org.apache.camel.karavan.model.DockerComposeService;
 import org.apache.camel.karavan.manager.ProjectManager;
-import org.apache.camel.karavan.config.ConfigService;
-import org.apache.camel.karavan.status.StatusCache;
-import org.apache.camel.karavan.status.StatusConstants;
-import org.apache.camel.karavan.status.model.ContainerStatus;
+import org.apache.camel.karavan.ConfigService;
+import org.apache.camel.karavan.KaravanCache;
+import org.apache.camel.karavan.StatusConstants;
+import org.apache.camel.karavan.model.ContainerStatus;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
@@ -41,7 +41,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.apache.camel.karavan.manager.ManagerConstants.*;
-import static org.apache.camel.karavan.status.StatusEvents.CONTAINER_UPDATED;
+import static org.apache.camel.karavan.StatusEvents.CONTAINER_UPDATED;
 
 @Path("/ui/container")
 public class ContainerResource {
@@ -50,7 +50,7 @@ public class ContainerResource {
     EventBus eventBus;
 
     @Inject
-    StatusCache statusCache;
+    KaravanCache karavanCache;
 
     @Inject
     KubernetesManager kubernetesManager;
@@ -72,7 +72,7 @@ public class ContainerResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public List<ContainerStatus> getAllContainerStatuses() throws Exception {
-        return statusCache.getContainerStatuses().stream()
+        return karavanCache.getContainerStatuses().stream()
                 .sorted(Comparator.comparing(ContainerStatus::getProjectId))
                 .collect(Collectors.toList());
     }
@@ -150,7 +150,7 @@ public class ContainerResource {
     }
 
     private void setContainerStatusTransit(String projectId, String name, String type) {
-        ContainerStatus status = statusCache.getContainerStatus(projectId, environment, name);
+        ContainerStatus status = karavanCache.getContainerStatus(projectId, environment, name);
         if (status == null) {
             status = ContainerStatus.createByType(projectId, environment, ContainerStatus.ContainerType.valueOf(type));
         }
@@ -162,7 +162,7 @@ public class ContainerResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/{env}")
     public List<ContainerStatus> getContainerStatusesByEnv(@PathParam("env") String env) throws Exception {
-        return statusCache.getContainerStatuses(env).stream()
+        return karavanCache.getContainerStatuses(env).stream()
                 .sorted(Comparator.comparing(ContainerStatus::getProjectId))
                 .collect(Collectors.toList());
     }
@@ -171,7 +171,7 @@ public class ContainerResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/{projectId}/{env}")
     public List<ContainerStatus> getContainerStatusesByProjectAndEnv(@PathParam("projectId") String projectId, @PathParam("env") String env) throws Exception {
-        return statusCache.getContainerStatuses(projectId, env).stream()
+        return karavanCache.getContainerStatuses(projectId, env).stream()
                 .sorted(Comparator.comparing(ContainerStatus::getContainerName))
                 .collect(Collectors.toList());
     }

@@ -25,11 +25,11 @@ import io.vertx.mutiny.ext.web.client.HttpResponse;
 import io.vertx.mutiny.ext.web.client.WebClient;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import org.apache.camel.karavan.manager.kubernetes.KubernetesManager;
+import org.apache.camel.karavan.kubernetes.KubernetesManager;
 import org.apache.camel.karavan.CodeService;
-import org.apache.camel.karavan.config.ConfigService;
-import org.apache.camel.karavan.status.StatusCache;
-import org.apache.camel.karavan.status.model.ContainerStatus;
+import org.apache.camel.karavan.ConfigService;
+import org.apache.camel.karavan.KaravanCache;
+import org.apache.camel.karavan.model.ContainerStatus;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.faulttolerance.CircuitBreaker;
 import org.jboss.logging.Logger;
@@ -37,7 +37,7 @@ import org.jboss.logging.Logger;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 
-import static org.apache.camel.karavan.status.StatusEvents.CONTAINER_UPDATED;
+import static org.apache.camel.karavan.StatusEvents.CONTAINER_UPDATED;
 
 @ApplicationScoped
 public class CamelManager {
@@ -46,7 +46,7 @@ public class CamelManager {
     public static final String RELOAD_PROJECT_CODE = "RELOAD_PROJECT_CODE";
 
     @Inject
-    StatusCache statusCache;
+    KaravanCache karavanCache;
 
     @Inject
     CodeService codeService;
@@ -76,7 +76,7 @@ public class CamelManager {
     public void reloadProjectCode(String projectId) {
         LOGGER.debug("Reload project code " + projectId);
         try {
-            ContainerStatus containerStatus = statusCache.getDevModeContainerStatus(projectId, environment);
+            ContainerStatus containerStatus = karavanCache.getDevModeContainerStatus(projectId, environment);
             deleteRequest(containerStatus);
             Map<String, String> files = codeService.getProjectFilesForDevMode(projectId, true);
             files.forEach((name, code) -> putRequest(containerStatus, name, code, 1000));

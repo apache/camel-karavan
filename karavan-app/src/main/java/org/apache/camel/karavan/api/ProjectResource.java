@@ -20,18 +20,17 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import org.apache.camel.karavan.manager.docker.DockerManager;
+import org.apache.camel.karavan.docker.DockerManager;
 import org.apache.camel.karavan.GitService;
 import org.apache.camel.karavan.ProjectService;
 import org.apache.camel.karavan.KaravanCache;
-import org.apache.camel.karavan.manager.kubernetes.KubernetesManager;
-import org.apache.camel.karavan.config.ConfigService;
+import org.apache.camel.karavan.kubernetes.KubernetesManager;
+import org.apache.camel.karavan.ConfigService;
 import org.apache.camel.karavan.model.Project;
 import org.apache.camel.karavan.manager.ProjectManager;
-import org.apache.camel.karavan.status.StatusCache;
-import org.apache.camel.karavan.status.model.CamelStatus;
-import org.apache.camel.karavan.status.model.CamelStatusValue;
-import org.apache.camel.karavan.status.model.ContainerStatus;
+import org.apache.camel.karavan.model.CamelStatus;
+import org.apache.camel.karavan.model.CamelStatusValue;
+import org.apache.camel.karavan.model.ContainerStatus;
 import org.jboss.logging.Logger;
 
 import java.net.URLDecoder;
@@ -45,9 +44,6 @@ public class ProjectResource {
 
     @Inject
     KaravanCache karavanCache;
-
-    @Inject
-    StatusCache statusCache;
 
     @Inject
     KubernetesManager kubernetesManager;
@@ -148,7 +144,7 @@ public class ProjectResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/status/camel/{projectId}/{env}")
     public Response getCamelStatusForProjectAndEnv(@PathParam("projectId") String projectId, @PathParam("env") String env) {
-        List<CamelStatus> statuses = statusCache.getCamelStatusesByProjectAndEnv(projectId, env)
+        List<CamelStatus> statuses = karavanCache.getCamelStatusesByProjectAndEnv(projectId, env)
                 .stream().map(camelStatus -> {
                     var stats = List.copyOf(camelStatus.getStatuses()).stream().filter(s -> !Objects.equals(s.getName(), CamelStatusValue.Name.trace)).toList();
                     camelStatus.setStatuses(stats);
@@ -165,7 +161,7 @@ public class ProjectResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/traces/{projectId}/{env}")
     public Response getCamelTracesForProjectAndEnv(@PathParam("projectId") String projectId, @PathParam("env") String env) {
-        List<CamelStatus> statuses = statusCache.getCamelStatusesByProjectAndEnv(projectId, env)
+        List<CamelStatus> statuses = karavanCache.getCamelStatusesByProjectAndEnv(projectId, env)
                 .stream().peek(camelStatus -> {
                     var stats = List.copyOf(camelStatus.getStatuses()).stream().filter(s -> Objects.equals(s.getName(), CamelStatusValue.Name.trace)).toList();
                     camelStatus.setStatuses(stats);

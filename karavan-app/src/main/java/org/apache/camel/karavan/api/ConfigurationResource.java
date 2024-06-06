@@ -22,8 +22,8 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import org.apache.camel.karavan.manager.docker.DockerManager;
-import org.apache.camel.karavan.config.ConfigService;
+import org.apache.camel.karavan.docker.DockerManager;
+import org.apache.camel.karavan.ConfigService;
 
 @Path("/ui/configuration")
 public class ConfigurationResource {

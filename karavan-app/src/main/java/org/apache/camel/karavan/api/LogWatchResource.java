@@ -31,11 +31,11 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.SecurityContext;
 import jakarta.ws.rs.sse.Sse;
 import jakarta.ws.rs.sse.SseEventSink;
-import org.apache.camel.karavan.manager.docker.DockerManager;
-import org.apache.camel.karavan.manager.docker.DockerLogCallback;
-import org.apache.camel.karavan.manager.kubernetes.KubernetesManager;
+import org.apache.camel.karavan.docker.DockerManager;
+import org.apache.camel.karavan.docker.DockerLogCallback;
+import org.apache.camel.karavan.kubernetes.KubernetesManager;
 
-import org.apache.camel.karavan.config.ConfigService;
+import org.apache.camel.karavan.ConfigService;
 import org.eclipse.microprofile.context.ManagedExecutor;
 import org.jboss.logging.Logger;
 
