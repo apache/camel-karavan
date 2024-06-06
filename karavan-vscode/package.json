@@ -235,7 +235,6 @@
             "camel.health.exposure-level=full",
             "camel.karavan.project-id=$NAME",
             "camel.karavan.project-name=$NAME",
-            "camel.karavan.project-description=$NAME",
             "camel.karavan.target=$TARGET",
             "camel.jbang.gav=$GAV",
             "camel.jbang.quarkusVersion=3.8.1",
@@ -257,7 +256,6 @@
             "camel.health.exposure-level=full",
             "camel.karavan.project-id=$NAME",
             "camel.karavan.project-name=$NAME",
-            "camel.karavan.project-description=$NAME",
             "camel.karavan.target=$TARGET",
             "camel.jbang.gav=$GAV",
             "camel.jbang.camelSpringBootVersion=4.6.0",
@@ -281,7 +279,6 @@
           "default": [
             "camel.karavan.project-id=$NAME",
             "camel.karavan.project-name=$NAME",
-            "camel.karavan.project-description=$NAME",
             "camel.karavan.target=$TARGET",
             "camel.jbang.gav=$GAV",
             "camel.jbang.version=4.6.0",
