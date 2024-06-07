@@ -56,6 +56,12 @@ public class KaravanCache {
         return copy;
     }
 
+    private List<ProjectFile> getCopyProjectFilesCommited() {
+        List<ProjectFile> copy = new ArrayList<>(filesCommited.size());
+        filesCommited.values().forEach(e -> copy.add(e.copy()));
+        return copy;
+    }
+
     public List<CamelStatus> getCopyCamelStatuses() {
         List<CamelStatus> copy = new ArrayList<>(camelStatuses.size());
         camelStatuses.values().forEach(e -> copy.add(e.copy()));
@@ -111,7 +117,7 @@ public class KaravanCache {
 
     public void syncFilesCommited(String projectId) {
         List<String> currentFileNames = new ArrayList<>();
-        filesCommited.values().stream()
+        getCopyProjectFilesCommited().stream()
                 .filter(pf -> Objects.equals(pf.getProjectId(), projectId))
                 .forEach(pf -> currentFileNames.add(pf.getName()));
 
@@ -132,16 +138,11 @@ public class KaravanCache {
     }
 
     public List<ProjectFile> getProjectFilesCommited(String projectId) {
-        return filesCommited.values().stream().filter(pf -> Objects.equals(pf.getProjectId(), projectId)).toList();
-    }
-
-    public Map<String, ProjectFile> getProjectFilesCommitedMap(String projectId) {
-        return filesCommited.entrySet().stream().filter(es -> !Objects.isNull(es.getValue()) && Objects.equals(es.getValue().getProjectId(), projectId))
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        return getCopyProjectFilesCommited().stream().filter(pf -> Objects.equals(pf.getProjectId(), projectId)).toList();
     }
 
     public ProjectFile getProjectFileCommited(String projectId, String filename) {
-        List<ProjectFile> list = filesCommited.values().stream().filter(pf -> Objects.equals(pf.getProjectId(), projectId) && Objects.equals(pf.getName(), filename)).toList();
+        List<ProjectFile> list = getCopyProjectFilesCommited().stream().filter(pf -> Objects.equals(pf.getProjectId(), projectId) && Objects.equals(pf.getName(), filename)).toList();
         return !list.isEmpty() ? list.get(0) : null;
     }
 

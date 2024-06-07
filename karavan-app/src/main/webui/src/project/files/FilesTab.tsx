@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import React from 'react';
+import React, {useState} from 'react';
 import {
     Badge,
     Bullseye,
@@ -44,27 +44,22 @@ import {
 } from "../../api/ProjectModels";
 import {FileToolbar} from "./FilesToolbar";
 import DownloadIcon from "@patternfly/react-icons/dist/esm/icons/download-icon";
+import DiffIcon from "@patternfly/react-icons/dist/esm/icons/outlined-copy-icon";
 import FileSaver from "file-saver";
 import {CreateFileModal} from "./CreateFileModal";
 import {DeleteFileModal} from "./DeleteFileModal";
 import {UploadFileModal} from "./UploadFileModal";
 import {shallow} from "zustand/shallow";
 import {CreateIntegrationModal} from "./CreateIntegrationModal";
+import {DiffFileModal} from "./DiffFileModal";
 
 export function FilesTab () {
 
     const [files, diff] = useFilesStore((s) => [s.files, s.diff], shallow);
     const [project] = useProjectStore((s) => [s.project], shallow);
     const [setFile] = useFileStore((s) => [s.setFile], shallow);
+    const [id, setId] = useState<string>('');
 
-    function getDate(lastUpdate: number): string {
-        if (lastUpdate) {
-            const date = new Date(lastUpdate);
-            return date.toISOString().slice(0, 19).replace('T',' ');
-        } else {
-            return "N/A"
-        }
-    }
 
     function needCommit(filename: string): boolean {
         return diff && diff[filename] !== undefined;
@@ -93,6 +88,7 @@ export function FilesTab () {
                     <FileToolbar/>
                 </PanelHeader>
             </Panel>
+            <DiffFileModal id={id}/>
             <div style={{height:"100%", overflow:"auto"}}>
                 <Table aria-label="Files" variant={"compact"} className={"table"}>
                     <Thead>
@@ -106,6 +102,7 @@ export function FilesTab () {
                     <Tbody>
                         {files.map(file => {
                             const type = getProjectFileTypeTitle(file)
+                            const diffType = diff[file.name];
                             return <Tr key={file.name}>
                                 <Td>
                                     <Badge>{type}</Badge>
@@ -119,8 +116,22 @@ export function FilesTab () {
                                     </Button>
                                 </Td>
                                 <Td>
-                                    {needCommit(file.name) &&
-                                        <Label color="grey">{diff[file.name]}</Label>
+                                    {needCommit(file.name) && diffType === 'CHANGED' &&
+                                        <Tooltip content="Show diff" position={"right"}>
+                                            <Label color="grey">
+                                                <Button size="sm" variant="link" className='labeled-button'
+                                                        icon={<DiffIcon/>}
+                                                        onClick={e => {
+                                                            setFile('diff', file, undefined);
+                                                            setId(Math.random().toString());
+                                                        }}>
+                                                    {diffType}
+                                                </Button>
+                                            </Label>
+                                        </Tooltip>
+                                    }
+                                    {needCommit(file.name) && diffType !== 'CHANGED' &&
+                                        <Label color="grey">{diffType}</Label>
                                     }
                                     {!needCommit(file.name) &&
                                         <Label color="green" icon={<CheckIcon/>}/>
@@ -142,7 +153,7 @@ export function FilesTab () {
                                 </Td>
                             </Tr>
                         })}
-                        {diff && Object.keys(diff).map(fileName => {
+                        {diff && Object.keys(diff).filter(f => diff[f] === 'DELETE').map(fileName => {
                             const type = getProjectFileTypeByNameTitle(fileName)
                             return <Tr key={fileName}>
                                 <Td><Badge>{type}</Badge></Td>

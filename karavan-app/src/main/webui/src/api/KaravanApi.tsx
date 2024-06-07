@@ -349,8 +349,8 @@ export class KaravanApi {
         });
     }
 
-    static async getFilesCommited(projectId: string, after: (files: ProjectFile[]) => void) {
-        instance.get('/ui/file/commited/' + projectId)
+    static async getFileCommited(projectId: string, filename: string, after: (file: ProjectFile) => void) {
+        instance.get('/ui/file/commited/' + projectId + '/' + filename)
             .then(res => {
                 if (res.status === 200) {
                     after(res.data);

@@ -44,11 +44,9 @@ export function FileToolbar () {
     const [commitMessageIsOpen, setCommitMessageIsOpen] = useState(false);
     const [pullIsOpen, setPullIsOpen] = useState(false);
     const [commitMessage, setCommitMessage] = useState('');
-    const [project, isPushing, isPulling] =
-        useProjectStore((s) => [s.project, s.isPushing, s.isPulling], shallow )
-    const [files, diff] = useFilesStore((s) => [s.files, s.diff], shallow);
-    const [file, setFile] = useFileStore((s) =>
-        [s.file, s.setFile], shallow )
+    const [project, isPushing, isPulling] = useProjectStore((s) => [s.project, s.isPushing, s.isPulling], shallow )
+    const [diff] = useFilesStore((s) => [s.diff], shallow);
+    const [file, setFile] = useFileStore((s) => [s.file, s.setFile], shallow )
 
     useEffect(() => {
     }, [project, file]);

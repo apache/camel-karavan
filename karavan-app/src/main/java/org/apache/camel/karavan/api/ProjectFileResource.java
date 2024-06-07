@@ -51,11 +51,9 @@ public class ProjectFileResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/commited/{projectId}")
-    public List<ProjectFile> getCommited(@PathParam("projectId") String projectId) {
-        return karavanCache.getProjectFilesCommited(projectId).stream()
-                .sorted(Comparator.comparing(ProjectFile::getName))
-                .collect(Collectors.toList());
+    @Path("/commited/{projectId}/{filename}")
+    public ProjectFile getCommited(@PathParam("projectId") String projectId, @PathParam("filename") String filename) {
+        return karavanCache.getProjectFileCommited(projectId, filename);
     }
 
     @GET
