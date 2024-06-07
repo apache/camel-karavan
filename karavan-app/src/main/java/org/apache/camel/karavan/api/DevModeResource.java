@@ -23,13 +23,12 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.apache.camel.karavan.KaravanCache;
-import org.apache.camel.karavan.service.ProjectService;
-import org.apache.camel.karavan.model.Project;
-import org.apache.camel.karavan.listener.CamelReloadListener;
 import org.apache.camel.karavan.docker.DockerService;
 import org.apache.camel.karavan.kubernetes.KubernetesService;
-import org.apache.camel.karavan.service.ConfigService;
 import org.apache.camel.karavan.model.PodContainerStatus;
+import org.apache.camel.karavan.model.Project;
+import org.apache.camel.karavan.service.ConfigService;
+import org.apache.camel.karavan.service.ProjectService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 

@@ -20,16 +20,16 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import org.apache.camel.karavan.docker.DockerService;
-import org.apache.camel.karavan.service.GitService;
-import org.apache.camel.karavan.service.ProjectService;
 import org.apache.camel.karavan.KaravanCache;
+import org.apache.camel.karavan.docker.DockerService;
 import org.apache.camel.karavan.kubernetes.KubernetesService;
-import org.apache.camel.karavan.service.ConfigService;
-import org.apache.camel.karavan.model.Project;
 import org.apache.camel.karavan.model.CamelStatus;
 import org.apache.camel.karavan.model.CamelStatusValue;
 import org.apache.camel.karavan.model.PodContainerStatus;
+import org.apache.camel.karavan.model.Project;
+import org.apache.camel.karavan.service.ConfigService;
+import org.apache.camel.karavan.service.GitService;
+import org.apache.camel.karavan.service.ProjectService;
 import org.jboss.logging.Logger;
 
 import java.net.URLDecoder;
@@ -83,7 +83,7 @@ public class ProjectResource {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response save(Project project) {
         try {
-            return Response.ok(projectService.save(project)).build();
+            return Response.ok(projectService.create(project)).build();
         } catch (Exception e) {
             return Response.status(Response.Status.CONFLICT).entity(e.getMessage()).build();
         }

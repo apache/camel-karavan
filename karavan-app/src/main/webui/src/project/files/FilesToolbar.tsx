@@ -46,7 +46,7 @@ export function FileToolbar () {
     const [commitMessage, setCommitMessage] = useState('');
     const [project, isPushing, isPulling] =
         useProjectStore((s) => [s.project, s.isPushing, s.isPulling], shallow )
-    const {files} = useFilesStore();
+    const [files, diff] = useFilesStore((s) => [s.files, s.diff], shallow);
     const [file, setFile] = useFileStore((s) =>
         [s.file, s.setFile], shallow )
 
@@ -126,7 +126,7 @@ export function FileToolbar () {
     }
 
     function needCommit(): boolean {
-        return project ? files.filter(f => f.lastUpdate > project.lastCommitTimestamp).length > 0 : false;
+        return diff && Object.keys(diff).length > 0;
     }
 
     function isKameletsProject(): boolean {

@@ -284,6 +284,10 @@ export class ProjectService {
             useFilesStore.setState({files: files});
         });
 
+        KaravanApi.getFilesDiff(projectId, (diff: any) => {
+            useFilesStore.setState({diff: diff});
+        });
+
         KaravanApi.getConfigMaps((any: []) => {
             InfrastructureAPI.setConfigMaps(any);
         });

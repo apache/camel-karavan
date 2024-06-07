@@ -193,12 +193,14 @@ export const useProjectStore = createWithEqualityFn<ProjectState>((set) => ({
 
 interface FilesState {
     files: ProjectFile[];
+    diff: any;
     setFiles: (files: ProjectFile[]) => void;
     upsertFile: (file: ProjectFile) => void;
 }
 
 export const useFilesStore = createWithEqualityFn<FilesState>((set) => ({
     files: [],
+    diff: {},
     setFiles: (files: ProjectFile[]) => {
         set((state: FilesState) => ({
             files: files

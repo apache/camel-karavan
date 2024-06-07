@@ -60,6 +60,10 @@ public class Project {
         this.type = Arrays.stream(Type.values()).anyMatch(t -> t.name().equals(projectId)) ? Type.valueOf(projectId) : Type.normal;
     }
 
+    public Project copy() {
+        return new Project(projectId, name, lastCommit, lastCommitTimestamp, type);
+    }
+
     public Project() {
         this.type = Type.normal;
     }

@@ -27,7 +27,8 @@ import org.apache.camel.karavan.model.PodContainerStatus;
 import java.time.Instant;
 import java.util.Objects;
 
-import static org.apache.camel.karavan.KaravanEvents.*;
+import static org.apache.camel.karavan.KaravanEvents.POD_CONTAINER_DELETED;
+import static org.apache.camel.karavan.KaravanEvents.POD_CONTAINER_UPDATED;
 
 @ApplicationScoped
 public class PodContainerStatusListener {

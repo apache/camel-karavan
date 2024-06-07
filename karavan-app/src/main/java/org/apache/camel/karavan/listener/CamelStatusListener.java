@@ -85,22 +85,22 @@ public class CamelStatusListener {
         }
     }
 
-    public String getContainerAddressForStatus(PodContainerStatus containerStatus) throws Exception {
+    public String getContainerAddressForStatus(PodContainerStatus podContainerStatus) throws Exception {
         if (ConfigService.inKubernetes()) {
-            return "http://" + containerStatus.getPodIP() + ":8080";
+            return "http://" + podContainerStatus.getPodIP() + ":8080";
         } else if (ConfigService.inDocker()) {
-            return "http://" + containerStatus.getContainerName() + ":8080";
-        } else if (containerStatus.getPorts() != null && !containerStatus.getPorts().isEmpty()) {
-            Integer port = containerStatus.getPorts().get(0).getPublicPort();
+            return "http://" + podContainerStatus.getContainerName() + ":8080";
+        } else if (podContainerStatus.getPorts() != null && !podContainerStatus.getPorts().isEmpty()) {
+            Integer port = podContainerStatus.getPorts().get(0).getPublicPort();
             if (port != null) {
                 return "http://localhost:" + port;
             }
         }
-        throw new Exception("No port configured for project " + containerStatus.getContainerName());
+        throw new Exception("No port configured for project " + podContainerStatus.getContainerName());
     }
 
-    public String getCamelStatus(PodContainerStatus containerStatus, CamelStatusValue.Name statusName) throws Exception {
-        String url = getContainerAddressForStatus(containerStatus) + "/q/dev/" + statusName.name();
+    public String getCamelStatus(PodContainerStatus podContainerStatus, CamelStatusValue.Name statusName) throws Exception {
+        String url = getContainerAddressForStatus(podContainerStatus) + "/q/dev/" + statusName.name();
         try {
             return getResult(url, 500);
         } catch (InterruptedException | ExecutionException ex) {

@@ -24,7 +24,8 @@ import io.vertx.mutiny.core.eventbus.EventBus;
 import org.apache.camel.karavan.model.ServiceStatus;
 import org.jboss.logging.Logger;
 
-import static org.apache.camel.karavan.KaravanEvents.*;
+import static org.apache.camel.karavan.KaravanEvents.SERVICE_DELETED;
+import static org.apache.camel.karavan.KaravanEvents.SERVICE_UPDATED;
 
 public class ServiceEventHandler implements ResourceEventHandler<Service> {
 

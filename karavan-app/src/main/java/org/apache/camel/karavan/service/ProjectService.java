@@ -16,7 +16,6 @@
  */
 package org.apache.camel.karavan.service;
 
-import io.quarkus.vertx.ConsumeEvent;
 import io.smallrye.mutiny.tuples.Tuple2;
 import io.vertx.core.json.JsonObject;
 import io.vertx.mutiny.core.eventbus.EventBus;
@@ -71,16 +70,12 @@ public class ProjectService {
     @Inject
     EventBus eventBus;
 
-    @ConsumeEvent(value = CMD_PUSH_PROJECT, blocking = true, ordered = true)
-    public void commitAndPushProject(JsonObject event) throws Exception {
-        LOGGER.info("Commit: " + event.encodePrettily());
-        String projectId = event.getString("projectId");
-        String message = event.getString("message");
-        String userId = event.getString("userId");
-        String eventId = event.getString("eventId");
+    public void commitAndPushProject(String projectId, String message, String userId, String eventId) throws Exception {
+        LOGGER.info("Commit project: " + projectId);
         Project p = karavanCache.getProject(projectId);
         List<ProjectFile> files = karavanCache.getProjectFiles(projectId);
         RevCommit commit = gitService.commitAndPushProject(p, files, message);
+        karavanCache.syncFilesCommited(projectId);
         String commitId = commit.getId().getName();
         Long lastUpdate = commit.getCommitTime() * 1000L;
         p.setLastCommit(commitId);
@@ -168,7 +163,7 @@ public class ProjectService {
             karavanCache.saveProject(project);
             repo.getFiles().forEach(repoFile -> {
                 ProjectFile file = new ProjectFile(repoFile.getName(), repoFile.getBody(), repo.getName(), repoFile.getLastCommitTimestamp());
-                karavanCache.saveProjectFile(file);
+                karavanCache.saveProjectFile(file, true);
             });
             return project;
         } catch (Exception e) {
@@ -235,7 +230,7 @@ public class ProjectService {
                 .collect(Collectors.toList());
     }
 
-    public Project save(Project project) throws Exception {
+    public Project create(Project project) throws Exception {
         boolean projectIdExists = karavanCache.getProject(project.getProjectId()) != null;
 
         if (projectIdExists) {
@@ -243,13 +238,13 @@ public class ProjectService {
         } else {
             karavanCache.saveProject(project);
             ProjectFile appProp = codeService.getApplicationProperties(project);
-            karavanCache.saveProjectFile(appProp);
+            karavanCache.saveProjectFile(appProp, false);
             if (!ConfigService.inKubernetes()) {
                 ProjectFile projectCompose = codeService.createInitialProjectCompose(project, getMaxPortMappedInProjects() + 1);
-                karavanCache.saveProjectFile(projectCompose);
+                karavanCache.saveProjectFile(projectCompose, false);
             } else {
                 ProjectFile projectCompose = codeService.createInitialDeployment(project);
-                karavanCache.saveProjectFile(projectCompose);
+                karavanCache.saveProjectFile(projectCompose, false);
             }
         }
         return project;
@@ -287,10 +282,10 @@ public class ProjectService {
 
             if (!ConfigService.inKubernetes()) {
                 ProjectFile projectCompose = codeService.createInitialProjectCompose(project, getMaxPortMappedInProjects() + 1);
-                karavanCache.saveProjectFile(projectCompose);
+                karavanCache.saveProjectFile(projectCompose, false);
             } else {
                 ProjectFile projectCompose = codeService.createInitialDeployment(project);
-                karavanCache.saveProjectFile(projectCompose);
+                karavanCache.saveProjectFile(projectCompose, false);
             }
 
             return project;

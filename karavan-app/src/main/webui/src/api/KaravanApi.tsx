@@ -349,6 +349,28 @@ export class KaravanApi {
         });
     }
 
+    static async getFilesCommited(projectId: string, after: (files: ProjectFile[]) => void) {
+        instance.get('/ui/file/commited/' + projectId)
+            .then(res => {
+                if (res.status === 200) {
+                    after(res.data);
+                }
+            }).catch(err => {
+            console.log(err);
+        });
+    }
+
+    static async getFilesDiff(projectId: string, after: (diff: any) => void) {
+        instance.get('/ui/file/diff/' + projectId)
+            .then(res => {
+                if (res.status === 200) {
+                    after(res.data);
+                }
+            }).catch(err => {
+            console.log(err);
+        });
+    }
+
     static async saveProjectFile(file: ProjectFile, after: (result: boolean, file: ProjectFile | any) => void) {
         try {
             instance.post('/ui/file', file)

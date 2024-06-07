@@ -66,6 +66,10 @@ public class ProjectFile {
         this.lastUpdate = lastUpdate;
     }
 
+    public ProjectFile copy() {
+        return new ProjectFile(name, code, projectId, lastUpdate);
+    }
+
     @Override
     public String toString() {
         return "ProjectFile{" +

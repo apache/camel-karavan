@@ -14,34 +14,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.camel.karavan.listener;
 
 import io.quarkus.vertx.ConsumeEvent;
 import io.vertx.core.json.JsonObject;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.Default;
 import jakarta.inject.Inject;
-import org.apache.camel.karavan.KaravanCache;
-import org.apache.camel.karavan.model.ServiceStatus;
+import org.apache.camel.karavan.service.ProjectService;
+import org.jboss.logging.Logger;
 
-import static org.apache.camel.karavan.KaravanEvents.SERVICE_DELETED;
-import static org.apache.camel.karavan.KaravanEvents.SERVICE_UPDATED;
+import static org.apache.camel.karavan.KaravanEvents.CMD_PUSH_PROJECT;
 
+@Default
 @ApplicationScoped
-public class ServiceStatusListener {
+public class CommitListener {
+
+    private static final Logger LOGGER = Logger.getLogger(CommitListener.class.getName());
 
     @Inject
-    KaravanCache karavanCache;
+    ProjectService projectService;
 
-    @ConsumeEvent(value = SERVICE_DELETED, blocking = true, ordered = true)
-    public void cleanServiceStatus(JsonObject data) {
-        ServiceStatus ds = data.mapTo(ServiceStatus.class);
-        karavanCache.deleteServiceStatus(ds);
-    }
-
-    @ConsumeEvent(value = SERVICE_UPDATED, blocking = true, ordered = true)
-    public void saveServiceStatus(JsonObject data) {
-        ServiceStatus ds = data.mapTo(ServiceStatus.class);
-        karavanCache.saveServiceStatus(ds);
+    @ConsumeEvent(value = CMD_PUSH_PROJECT, blocking = true, ordered = true)
+    public void onCommitAndPush(JsonObject event) throws Exception {
+        LOGGER.info("Commit event: " + event.encodePrettily());
+        String projectId = event.getString("projectId");
+        String message = event.getString("message");
+        String userId = event.getString("userId");
+        String eventId = event.getString("eventId");
+        projectService.commitAndPushProject(projectId, message, userId, eventId);
     }
 }

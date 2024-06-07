@@ -21,11 +21,10 @@ import com.github.dockerjava.api.model.HealthCheck;
 import com.github.dockerjava.api.model.RestartPolicy;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import org.apache.camel.karavan.service.ProjectService;
 import org.apache.camel.karavan.model.DockerComposeService;
-import org.apache.camel.karavan.model.Project;
-import org.apache.camel.karavan.KaravanConstants;
 import org.apache.camel.karavan.model.PodContainerStatus;
+import org.apache.camel.karavan.model.Project;
+import org.apache.camel.karavan.service.ProjectService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
@@ -72,7 +71,7 @@ public class DockerForKaravan {
                 env, ports, healthCheck,
                 Map.of(LABEL_TYPE, PodContainerStatus.ContainerType.devmode.name(),
                         LABEL_PROJECT_ID, projectId,
-                        LABEL_CAMEL_RUNTIME, KaravanConstants.CamelRuntime.CAMEL_MAIN.getValue()
+                        LABEL_CAMEL_RUNTIME, CamelRuntime.CAMEL_MAIN.getValue()
                 ),
                 volumes, null, RestartPolicy.noRestart(), false,
                 composeService.getCpus(), composeService.getCpu_percent(), composeService.getMem_limit(), composeService.getMem_reservation());

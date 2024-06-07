@@ -17,7 +17,8 @@
 package org.apache.camel.karavan.docker;
 
 import com.github.dockerjava.api.DockerClient;
-import com.github.dockerjava.api.command.*;
+import com.github.dockerjava.api.command.CreateContainerCmd;
+import com.github.dockerjava.api.command.CreateContainerResponse;
 import com.github.dockerjava.api.model.*;
 import com.github.dockerjava.core.DefaultDockerClientConfig;
 import com.github.dockerjava.core.DockerClientConfig;
@@ -31,10 +32,10 @@ import io.vertx.core.buffer.Buffer;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
-import org.apache.camel.karavan.service.CodeService;
 import org.apache.camel.karavan.model.DockerComposeService;
-import org.apache.camel.karavan.service.ConfigService;
 import org.apache.camel.karavan.model.PodContainerStatus;
+import org.apache.camel.karavan.service.CodeService;
+import org.apache.camel.karavan.service.ConfigService;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
 import org.apache.commons.io.IOUtils;

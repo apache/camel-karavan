@@ -24,7 +24,8 @@ import jakarta.inject.Inject;
 import org.apache.camel.karavan.KaravanCache;
 import org.apache.camel.karavan.model.DeploymentStatus;
 
-import static org.apache.camel.karavan.KaravanEvents.*;
+import static org.apache.camel.karavan.KaravanEvents.DEPLOYMENT_DELETED;
+import static org.apache.camel.karavan.KaravanEvents.DEPLOYMENT_UPDATED;
 
 @ApplicationScoped
 public class DeploymentStatusListener {

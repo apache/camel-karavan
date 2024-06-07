@@ -25,16 +25,16 @@ import io.vertx.mutiny.ext.web.client.HttpResponse;
 import io.vertx.mutiny.ext.web.client.WebClient;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import org.apache.camel.karavan.service.CodeService;
-import org.apache.camel.karavan.service.ConfigService;
 import org.apache.camel.karavan.KaravanCache;
 import org.apache.camel.karavan.kubernetes.KubernetesService;
 import org.apache.camel.karavan.model.PodContainerStatus;
+import org.apache.camel.karavan.service.CodeService;
+import org.apache.camel.karavan.service.ConfigService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.faulttolerance.CircuitBreaker;
 import org.jboss.logging.Logger;
 
-import java.util.*;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 import static org.apache.camel.karavan.KaravanEvents.POD_CONTAINER_UPDATED;

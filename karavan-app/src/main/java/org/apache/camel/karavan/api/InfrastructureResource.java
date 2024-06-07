@@ -20,13 +20,12 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import org.apache.camel.karavan.kubernetes.KubernetesService;
-
-import org.apache.camel.karavan.service.ConfigService;
 import org.apache.camel.karavan.KaravanCache;
+import org.apache.camel.karavan.kubernetes.KubernetesService;
 import org.apache.camel.karavan.kubernetes.KubernetesStatusService;
 import org.apache.camel.karavan.model.DeploymentStatus;
 import org.apache.camel.karavan.model.ServiceStatus;
+import org.apache.camel.karavan.service.ConfigService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 

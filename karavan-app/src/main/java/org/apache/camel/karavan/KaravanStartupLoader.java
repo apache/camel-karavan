@@ -18,7 +18,6 @@ package org.apache.camel.karavan;
 
 import io.quarkus.runtime.Quarkus;
 import io.quarkus.runtime.StartupEvent;
-import io.vertx.core.json.JsonObject;
 import io.vertx.mutiny.core.eventbus.EventBus;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
@@ -44,7 +43,7 @@ import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.apache.camel.karavan.KaravanConstants.DEFAULT_ENVIRONMENT;
-import static org.apache.camel.karavan.KaravanEvents.*;
+import static org.apache.camel.karavan.KaravanEvents.PROJECTS_STARTED;
 
 @Default
 @Readiness
@@ -135,7 +134,7 @@ public class KaravanStartupLoader implements HealthCheck {
 
                 repo.getFiles().forEach(repoFile -> {
                     ProjectFile file = new ProjectFile(repoFile.getName(), repoFile.getBody(), folderName, repoFile.getLastCommitTimestamp());
-                    karavanCache.saveProjectFile(file);
+                    karavanCache.saveProjectFile(file, true);
                 });
             });
         } catch (Exception e) {
@@ -166,16 +165,16 @@ public class KaravanStartupLoader implements HealthCheck {
 
                 codeService.getTemplates().forEach((name, value) -> {
                     ProjectFile file = new ProjectFile(name, value, Project.Type.templates.name(), Instant.now().toEpochMilli());
-                    karavanCache.saveProjectFile(file);
+                    karavanCache.saveProjectFile(file, false);
                 });
-                projectService.commitAndPushProject(JsonObject.of("projectId", Project.Type.templates.name(), "message", "Add custom templates"));
+                projectService.commitAndPushProject(Project.Type.templates.name(), "Add custom templates", null, null);
             } else {
                 LOGGER.info("Add new templates if any");
                 codeService.getTemplates().forEach((name, value) -> {
                     ProjectFile f = karavanCache.getProjectFile(Project.Type.templates.name(), name);
                     if (f == null) {
                         ProjectFile file = new ProjectFile(name, value, Project.Type.templates.name(), Instant.now().toEpochMilli());
-                        karavanCache.saveProjectFile(file);
+                        karavanCache.saveProjectFile(file, false);
                     }
                 });
             }
@@ -194,9 +193,9 @@ public class KaravanStartupLoader implements HealthCheck {
 
                 codeService.getServices().forEach((name, value) -> {
                     ProjectFile file = new ProjectFile(name, value, Project.Type.services.name(), Instant.now().toEpochMilli());
-                    karavanCache.saveProjectFile(file);
+                    karavanCache.saveProjectFile(file, false);
                 });
-                projectService.commitAndPushProject(JsonObject.of("projectId", Project.Type.services.name(), "message", "Add services"));
+                projectService.commitAndPushProject(Project.Type.services.name(), "Add services", null, null);
             }
         } catch (Exception e) {
             LOGGER.error("Error during services project creation", e);

@@ -68,8 +68,7 @@ public class CamelStatus {
         this.env = env;
     }
 
-    @Override
-    public CamelStatus clone() {
+    public CamelStatus copy() {
         return new CamelStatus(this.projectId, this.containerName, List.copyOf(this.statuses), this.env);
     }
 }

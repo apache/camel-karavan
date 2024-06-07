@@ -20,16 +20,15 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import org.apache.camel.karavan.service.CodeService;
 import org.apache.camel.karavan.KaravanCache;
 import org.apache.camel.karavan.model.Project;
 import org.apache.camel.karavan.model.ProjectFile;
+import org.apache.camel.karavan.service.CodeService;
 
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Path("/ui/file")
@@ -52,6 +51,41 @@ public class ProjectFileResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
+    @Path("/commited/{projectId}")
+    public List<ProjectFile> getCommited(@PathParam("projectId") String projectId) {
+        return karavanCache.getProjectFilesCommited(projectId).stream()
+                .sorted(Comparator.comparing(ProjectFile::getName))
+                .collect(Collectors.toList());
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/diff/{projectId}")
+    public Map<String, String> getChanged(@PathParam("projectId") String projectId) {
+        Map<String, String> result = new HashMap<>();
+        List<ProjectFile> files = karavanCache.getProjectFiles(projectId);
+        List<ProjectFile> filesCommited = karavanCache.getProjectFilesCommited(projectId);
+        files.forEach(pf -> {
+            var pfc = filesCommited.stream().filter(f -> Objects.equals(f.getName(), pf.getName())).findFirst();
+            if (pfc.isPresent()) {
+                if (!Objects.equals(pfc.get().getCode(), pf.getCode())){
+                    result.put(pf.getName(), "CHANGED");
+                }
+            } else {
+                result.put(pf.getName(), "NEW");
+            }
+        });
+        filesCommited.forEach(pfc -> {
+            var pf = files.stream().filter(f -> Objects.equals(f.getName(), pfc.getName())).findFirst();
+            if (pf.isEmpty()) {
+                result.put(pfc.getName(), "DELETED");
+            }
+        });
+        return result;
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
     @Path("/templates/beans")
     public List<ProjectFile> getBeanTemplates() throws Exception {
         return  codeService.getBeanTemplateNames().stream()
@@ -68,7 +102,7 @@ public class ProjectFileResource {
         if (projectFileExists) {
             return Response.serverError().entity("File with given name already exists").build();
         } else {
-            karavanCache.saveProjectFile(file);
+            karavanCache.saveProjectFile(file, false);
             return Response.ok(file).build();
         }
     }
@@ -78,7 +112,7 @@ public class ProjectFileResource {
     @Consumes(MediaType.APPLICATION_JSON)
     public ProjectFile update(ProjectFile file) throws Exception {
         file.setLastUpdate(Instant.now().toEpochMilli());
-        karavanCache.saveProjectFile(file);
+        karavanCache.saveProjectFile(file, false);
         return file;
     }
 

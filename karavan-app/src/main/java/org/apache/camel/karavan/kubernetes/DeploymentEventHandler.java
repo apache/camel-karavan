@@ -24,7 +24,8 @@ import io.vertx.mutiny.core.eventbus.EventBus;
 import org.apache.camel.karavan.model.DeploymentStatus;
 import org.jboss.logging.Logger;
 
-import static org.apache.camel.karavan.KaravanEvents.*;
+import static org.apache.camel.karavan.KaravanEvents.DEPLOYMENT_DELETED;
+import static org.apache.camel.karavan.KaravanEvents.DEPLOYMENT_UPDATED;
 
 public class DeploymentEventHandler implements ResourceEventHandler<Deployment> {
 

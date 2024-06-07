@@ -22,7 +22,6 @@ import java.util.List;
 
 public class PodContainerStatus {
 
-
     public enum State {
         created,
         running,
@@ -69,7 +68,28 @@ public class PodContainerStatus {
     String camelRuntime;
     String commit;
 
-
+    public PodContainerStatus(String projectId, String containerName, String containerId, String image, List<ContainerPort> ports, String env, ContainerType type, String memoryInfo, String cpuInfo, String created, String finished, List<Command> commands, String state, String phase, Boolean codeLoaded, Boolean inTransit, String initDate, String podIP, String camelRuntime, String commit) {
+        this.projectId = projectId;
+        this.containerName = containerName;
+        this.containerId = containerId;
+        this.image = image;
+        this.ports = ports;
+        this.env = env;
+        this.type = type;
+        this.memoryInfo = memoryInfo;
+        this.cpuInfo = cpuInfo;
+        this.created = created;
+        this.finished = finished;
+        this.commands = commands;
+        this.state = state;
+        this.phase = phase;
+        this.codeLoaded = codeLoaded;
+        this.inTransit = inTransit;
+        this.initDate = initDate;
+        this.podIP = podIP;
+        this.camelRuntime = camelRuntime;
+        this.commit = commit;
+    }
 
     public PodContainerStatus(String projectId, String containerName, String containerId, String image, List<ContainerPort> ports, String env, ContainerType type, String memoryInfo, String cpuInfo, String created, String finished, List<Command> commands, String state, String phase, Boolean codeLoaded, Boolean inTransit, String initDate, String podIP, String camelRuntime) {
         this.projectId = projectId;
@@ -169,6 +189,12 @@ public class PodContainerStatus {
     }
 
     public PodContainerStatus() {
+    }
+
+    public PodContainerStatus copy() {
+        return new PodContainerStatus(
+                projectId, containerName, containerId, image, ports, env, type, memoryInfo, cpuInfo, created, finished, commands, state, phase, codeLoaded, inTransit, initDate, podIP, camelRuntime, commit
+        );
     }
 
     public String getPodIP() {

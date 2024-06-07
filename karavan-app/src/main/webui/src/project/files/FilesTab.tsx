@@ -34,11 +34,13 @@ import '../../designer/karavan.css';
 import {Tbody, Td, Th, Thead, Tr} from '@patternfly/react-table';
 import {Table} from '@patternfly/react-table/deprecated';
 import DeleteIcon from "@patternfly/react-icons/dist/js/icons/times-icon";
+import CheckIcon from "@patternfly/react-icons/dist/js/icons/check-icon";
 import SearchIcon from '@patternfly/react-icons/dist/esm/icons/search-icon';
 import {useFilesStore, useFileStore, useProjectStore} from "../../api/ProjectStore";
 import {
     getProjectFileTypeTitle,
-    ProjectFile,
+    getProjectFileTypeByNameTitle,
+    ProjectFile
 } from "../../api/ProjectModels";
 import {FileToolbar} from "./FilesToolbar";
 import DownloadIcon from "@patternfly/react-icons/dist/esm/icons/download-icon";
@@ -51,7 +53,7 @@ import {CreateIntegrationModal} from "./CreateIntegrationModal";
 
 export function FilesTab () {
 
-    const [files] = useFilesStore((s) => [s.files], shallow);
+    const [files, diff] = useFilesStore((s) => [s.files, s.diff], shallow);
     const [project] = useProjectStore((s) => [s.project], shallow);
     const [setFile] = useFileStore((s) => [s.setFile], shallow);
 
@@ -64,8 +66,8 @@ export function FilesTab () {
         }
     }
 
-    function needCommit(lastUpdate: number): boolean {
-        return lastUpdate > project.lastCommitTimestamp;
+    function needCommit(filename: string): boolean {
+        return diff && diff[filename] !== undefined;
     }
 
     function download (file: ProjectFile) {
@@ -97,7 +99,7 @@ export function FilesTab () {
                         <Tr>
                             <Th key='type' width={20}>Type</Th>
                             <Th key='filename' width={40}>Filename</Th>
-                            <Th key='lastUpdate' width={30}>Updated</Th>
+                            <Th key='status' width={30}>Status</Th>
                             <Th key='action'></Th>
                         </Tr>
                     </Thead>
@@ -117,12 +119,12 @@ export function FilesTab () {
                                     </Button>
                                 </Td>
                                 <Td>
-                                    {needCommit(file.lastUpdate) &&
-                                        <Tooltip content="Updated after last commit" position={"right"}>
-                                            <Label color="grey">{getDate(file.lastUpdate)}</Label>
-                                        </Tooltip>
+                                    {needCommit(file.name) &&
+                                        <Label color="grey">{diff[file.name]}</Label>
                                     }
-                                    {!needCommit(file.lastUpdate) && getDate(file.lastUpdate)}
+                                    {!needCommit(file.name) &&
+                                        <Label color="green" icon={<CheckIcon/>}/>
+                                    }
                                 </Td>
                                 <Td modifier={"fitContent"}>
                                     {canDeleteFiles() &&
@@ -138,6 +140,15 @@ export function FilesTab () {
                                         <Button className="dev-action-button"  size="sm" variant="plain" icon={<DownloadIcon/>} onClick={e => download(file)}/>
                                     </Tooltip>
                                 </Td>
+                            </Tr>
+                        })}
+                        {diff && Object.keys(diff).map(fileName => {
+                            const type = getProjectFileTypeByNameTitle(fileName)
+                            return <Tr key={fileName}>
+                                <Td><Badge>{type}</Badge></Td>
+                                <Td>{fileName}</Td>
+                                <Td><Label color="grey">{diff[fileName]}</Label></Td>
+                                <Td modifier={"fitContent"}></Td>
                             </Tr>
                         })}
                         {files.length === 0 &&

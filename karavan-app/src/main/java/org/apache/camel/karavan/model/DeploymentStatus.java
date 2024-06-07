@@ -116,4 +116,8 @@ public class DeploymentStatus {
     public void setCluster(String cluster) {
         this.cluster = cluster;
     }
+
+    public DeploymentStatus copy() {
+        return new DeploymentStatus(projectId, namespace, cluster, env, image, replicas, readyReplicas, unavailableReplicas);
+    }
 }

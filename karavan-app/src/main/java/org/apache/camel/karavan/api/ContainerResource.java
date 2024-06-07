@@ -24,15 +24,14 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import org.apache.camel.karavan.KaravanCache;
 import org.apache.camel.karavan.docker.DockerComposeConverter;
 import org.apache.camel.karavan.docker.DockerService;
 import org.apache.camel.karavan.kubernetes.KubernetesService;
-import org.apache.camel.karavan.service.ProjectService;
 import org.apache.camel.karavan.model.DockerComposeService;
-import org.apache.camel.karavan.service.ConfigService;
-import org.apache.camel.karavan.KaravanCache;
-import org.apache.camel.karavan.KaravanConstants;
 import org.apache.camel.karavan.model.PodContainerStatus;
+import org.apache.camel.karavan.service.ConfigService;
+import org.apache.camel.karavan.service.ProjectService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
@@ -116,7 +115,7 @@ public class ContainerResource {
             if (dockerComposeService != null) {
                 Map<String, String> labels = new HashMap<>();
                 labels.put(LABEL_TYPE, PodContainerStatus.ContainerType.devservice.name());
-                labels.put(LABEL_CAMEL_RUNTIME, KaravanConstants.CamelRuntime.CAMEL_MAIN.getValue());
+                labels.put(LABEL_CAMEL_RUNTIME, CamelRuntime.CAMEL_MAIN.getValue());
                 labels.put(LABEL_PROJECT_ID, projectId);
                 dockerService.createContainerFromCompose(dockerComposeService, labels, needPull(command));
                 dockerService.runContainer(dockerComposeService.getContainer_name());
@@ -126,7 +125,7 @@ public class ContainerResource {
             if (dockerComposeService != null) {
                 Map<String, String> labels = new HashMap<>();
                 labels.put(LABEL_TYPE, PodContainerStatus.ContainerType.project.name());
-                labels.put(LABEL_CAMEL_RUNTIME, KaravanConstants.CamelRuntime.CAMEL_MAIN.getValue());
+                labels.put(LABEL_CAMEL_RUNTIME, CamelRuntime.CAMEL_MAIN.getValue());
                 labels.put(LABEL_PROJECT_ID, projectId);
                 dockerService.createContainerFromCompose(dockerComposeService, labels, needPull(command));
                 dockerService.runContainer(dockerComposeService.getContainer_name());

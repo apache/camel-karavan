@@ -24,7 +24,6 @@ import io.vertx.core.buffer.Buffer;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.apache.camel.karavan.KaravanCache;
-import org.apache.camel.karavan.service.ConfigService;
 import org.apache.camel.karavan.docker.DockerComposeConverter;
 import org.apache.camel.karavan.model.*;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -302,7 +301,7 @@ public class CodeService {
             service.setImage(imageName);
             String code = DockerComposeConverter.toCode(service);
             compose.setCode(code);
-            karavanCache.saveProjectFile(compose);
+            karavanCache.saveProjectFile(compose, false);
         }
     }
 
