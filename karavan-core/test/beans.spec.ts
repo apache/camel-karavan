@@ -18,7 +18,7 @@ import { expect } from 'chai';
 import * as fs from 'fs';
 import 'mocha';
 import { CamelDefinitionYaml } from '../src/core/api/CamelDefinitionYaml';
-import { Beans, Integration } from '../lib/model/IntegrationDefinition';
+import { Beans, Integration } from '../src/core/model/IntegrationDefinition';
 import { BeanFactoryDefinition } from '../src/core/model/CamelDefinition';
 
 describe('bean configuration', () => {

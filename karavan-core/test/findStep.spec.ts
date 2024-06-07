@@ -30,7 +30,7 @@ import {CamelDefinitionApiExt} from "../src/core/api/CamelDefinitionApiExt";
 import {Integration} from "../src/core/model/IntegrationDefinition";
 import * as fs from 'fs';
 import {CamelDefinitionYaml} from "../src/core/api/CamelDefinitionYaml";
-import {StepDefinition} from "../lib/model/CamelDefinition";
+import {StepDefinition} from "../src/core/model/CamelDefinition";
 
 describe('Find Step', () => {
 

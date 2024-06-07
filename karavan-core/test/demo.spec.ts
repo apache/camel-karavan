@@ -21,7 +21,7 @@ import {CamelUtil} from "../src/core/api/CamelUtil";
 import {CamelDefinitionApiExt} from "../src/core/api/CamelDefinitionApiExt";
 import {CatchDefinition, FromDefinition} from "../src/core/model/CamelDefinition";
 import {expect} from "chai";
-import {TryDefinition} from "../lib/model/CamelDefinition";
+import {TryDefinition} from "../src/core/model/CamelDefinition";
 
 describe('Demo', () => {
 

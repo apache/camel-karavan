@@ -16,12 +16,10 @@
       "ES2021",
       "ES2021.String"
     ],
-      /* Bundler mode */
       "moduleResolution": "node",
       "resolveJsonModule": true,
       "isolatedModules": true,
-      "noEmit": true,
-      "jsx": "react-jsx"
+      "noEmit": true
   },
   "tsc-alias": {
     "resolveFullPaths": true,

@@ -19,7 +19,7 @@ import 'mocha';
 import {FromDefinition, ExpressionDefinition, PropertyExpressionDefinition} from "../src/core/model/CamelDefinition";
 import {Integration} from "../src/core/model/IntegrationDefinition";
 import {CamelDefinitionYaml} from "../src/core/api/CamelDefinitionYaml";
-import {RouteDefinition, SagaDefinition, ToDefinition} from "../lib/model/CamelDefinition";
+import {RouteDefinition, SagaDefinition, ToDefinition} from "../src/core/model/CamelDefinition";
 import * as fs from 'fs';
 
 describe('Multi object property', () => {

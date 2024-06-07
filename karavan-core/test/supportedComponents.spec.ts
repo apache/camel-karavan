@@ -18,7 +18,7 @@ import {expect} from 'chai';
 import * as fs from 'fs';
 import 'mocha';
 import {CamelDefinitionYaml} from "../src/core/api/CamelDefinitionYaml";
-import {ComponentApi} from "../lib/api/ComponentApi";
+import {ComponentApi} from "../src/core/api/ComponentApi";
 import {SupportedComponent} from "../src/core/model/ComponentModels";
 
 

@@ -21,7 +21,7 @@ import {CamelUtil} from "../src/core/api/CamelUtil";
 import {CamelDefinitionApiExt} from "../src/core/api/CamelDefinitionApiExt";
 import {FilterDefinition, SimpleExpression} from "../src/core/model/CamelDefinition";
 import {Integration} from "../src/core/model/IntegrationDefinition";
-import {RouteDefinition} from "../lib/model/CamelDefinition";
+import {RouteDefinition} from "../src/core/model/CamelDefinition";
 
 describe('Update Step', () => {
 

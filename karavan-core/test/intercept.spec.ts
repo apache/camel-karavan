@@ -33,8 +33,8 @@ import {
     SagaDefinition,
     ToDefinition,
     TryDefinition
-} from "../lib/model/CamelDefinition";
-import {Integration} from "../lib/model/IntegrationDefinition";
+} from "../src/core/model/CamelDefinition";
+import {Integration} from "../src/core/model/IntegrationDefinition";
 
 describe('Intercept', () => {
 

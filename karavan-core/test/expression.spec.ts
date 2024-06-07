@@ -30,7 +30,7 @@ import {
 } from "../src/core/model/CamelDefinition";
 import { RouteDefinition} from "../src/core/model/CamelDefinition";
 import {Integration} from "../src/core/model/IntegrationDefinition";
-import {AggregateDefinition, ExpressionSubElementDefinition, FilterDefinition} from "../lib/model/CamelDefinition";
+import {AggregateDefinition, ExpressionSubElementDefinition, FilterDefinition} from "../src/core/model/CamelDefinition";
 
 describe('Expression to yaml', () => {
 

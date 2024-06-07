@@ -17,7 +17,7 @@
 
 import * as React from 'react';
 import {
-    Button, Switch, ToolbarContent,
+    Button, Switch,
     ToolbarItem, Tooltip
 } from '@patternfly/react-core';
 import PlusIcon from "@patternfly/react-icons/dist/esm/icons/plus-icon";

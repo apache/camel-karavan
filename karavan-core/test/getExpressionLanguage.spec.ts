@@ -20,7 +20,7 @@ import {
     ExpressionDefinition
 } from "../src/core/model/CamelDefinition";
 import {CamelDefinitionApiExt} from "../src/core/api/CamelDefinitionApiExt";
-import {SimpleExpression} from "../lib/model/CamelDefinition";
+import {SimpleExpression} from "../src/core/model/CamelDefinition";
 
 describe('Get Expression Language', () => {
 

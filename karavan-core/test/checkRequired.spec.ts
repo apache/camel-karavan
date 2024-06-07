@@ -21,7 +21,7 @@ import {
 } from "../src/core/model/CamelDefinition";
 import {CamelDefinitionApi} from "../src/core/api/CamelDefinitionApi";
 import {CamelUtil} from "../src/core/api/CamelUtil";
-import { SetHeaderDefinition } from '../lib/model/CamelDefinition';
+import { SetHeaderDefinition } from '../src/core/model/CamelDefinition';
 
 describe('Check required properties', () => {
 

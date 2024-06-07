@@ -30,8 +30,8 @@ import {CamelDefinitionYaml} from "../src/core/api/CamelDefinitionYaml";
 import {SimpleExpression} from "../src/core/model/CamelDefinition";
 import {Integration} from "../src/core/model/IntegrationDefinition";
 import * as fs from 'fs';
-import {CamelModelMetadata, ElementMeta} from "../lib/model/CamelMetadata";
-import {CircuitBreakerDefinition, Resilience4jConfigurationDefinition} from "../lib/model/CamelDefinition";
+import {CamelModelMetadata, ElementMeta} from "../src/core/model/CamelMetadata";
+import {CircuitBreakerDefinition, Resilience4jConfigurationDefinition} from "../src/core/model/CamelDefinition";
 
 describe('Circuit Breaker', () => {
 
