@@ -175,7 +175,7 @@ export function ContainerPanel(props: Props) {
                 </Flex>
             </FlexItem>
             <FlexItem>
-                {env === "dev" && config.infrastructure !== 'kubernetes' && <ContainerButtons env={env}/>}
+                {env === config.environment && config.infrastructure !== 'kubernetes' && <ContainerButtons env={env}/>}
             </FlexItem>
             {showDeleteConfirmation && getDeleteConfirmation()}
         </Flex>
