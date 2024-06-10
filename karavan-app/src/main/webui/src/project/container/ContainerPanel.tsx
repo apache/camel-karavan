@@ -89,7 +89,7 @@ export function ContainerPanel(props: Props) {
 
     const env = props.env;
     const conts = containers
-        .filter(c => c.env == env)
+        .filter(c => c.env === env)
         .filter(d => d.projectId === project?.projectId && d.type === 'project');
     return (
         <Flex justifyContent={{default: "justifyContentSpaceBetween"}}

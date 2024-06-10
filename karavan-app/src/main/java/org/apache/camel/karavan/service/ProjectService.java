@@ -314,14 +314,18 @@ public class ProjectService {
     }
 
     private int getMaxPortMappedInProjects() {
-        List<ProjectFile> files =  karavanCache.getProjectFilesByName(PROJECT_COMPOSE_FILENAME).stream()
-                .filter(f -> !Objects.equals(f.getProjectId(), Project.Type.templates.name())).toList();
-        if (!files.isEmpty()) {
-            return files.stream().map(this::getProjectPort)
-                    .filter(Objects::nonNull)
-                    .mapToInt(Integer::intValue)
-                    .max().orElse(INTERNAL_PORT);
-        } else {
+        try {
+            List<ProjectFile> files = karavanCache.getProjectFilesByName(PROJECT_COMPOSE_FILENAME).stream()
+                    .filter(f -> !Objects.equals(f.getProjectId(), Project.Type.templates.name())).toList();
+            if (!files.isEmpty()) {
+                return files.stream().map(this::getProjectPort)
+                        .filter(Objects::nonNull)
+                        .mapToInt(Integer::intValue)
+                        .max().orElse(INTERNAL_PORT);
+            } else {
+                return INTERNAL_PORT;
+            }
+        } catch (Exception e) {
             return INTERNAL_PORT;
         }
     }
