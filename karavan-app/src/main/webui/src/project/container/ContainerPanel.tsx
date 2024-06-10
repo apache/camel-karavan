@@ -35,10 +35,8 @@ import {ContainerStatus} from "../../api/ProjectModels";
 import {ContainerButtons} from "./ContainerButtons";
 import DeleteIcon from "@patternfly/react-icons/dist/esm/icons/times-circle-icon";
 import ImageIcon from "@patternfly/react-icons/dist/esm/icons/cube-icon";
-import CommitIcon from "@patternfly/react-icons/dist/esm/icons/code-branch-icon";
 import {KaravanApi} from "../../api/KaravanApi";
 import {EventBus} from "../../designer/utils/EventBus";
-import {getShortCommit} from "../../util/StringUtils";
 
 interface Props {
     env: string,

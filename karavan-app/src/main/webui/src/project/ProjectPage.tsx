@@ -83,7 +83,10 @@ export function ProjectPage() {
 
     const ephemeral = project.type === ProjectType.ephemeral
     const showFilePanel = file !== undefined && operation === 'select';
-    const containerTabName = config.infrastructure === 'kubernetes' ? "Pods" : "Containers"
+    const isKubernetes = config.infrastructure === 'kubernetes'
+    const containerTabName = isKubernetes ? "Pods" : "Containers"
+    const isDevEnvironment = config.environment === 'dev';
+    const showBuildTab = isKubernetes || isDevEnvironment;
     return (
         <PageSection className="project-page" padding={{default: 'noPadding'}}>
             <PageSection className="tools-section" padding={{default: 'noPadding'}}>
@@ -100,7 +103,7 @@ export function ProjectPage() {
                                 <Tab eventKey="files" title="Files"/>
                                 {!ephemeral && <Tab eventKey="dashboard" title="Dashboard"/>}
                                 {!ephemeral && <Tab eventKey="trace" title="Trace"/>}
-                                {!ephemeral && <Tab eventKey="build" title="Build"/>}
+                                {!ephemeral && showBuildTab && <Tab eventKey="build" title="Build"/>}
                                 <Tab eventKey="container" title={containerTabName}/>
                                 {hasReadme() && <Tab eventKey="readme" title="Readme"/>}
                             </Tabs>

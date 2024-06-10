@@ -42,7 +42,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static org.apache.camel.karavan.KaravanConstants.DEFAULT_ENVIRONMENT;
+import static org.apache.camel.karavan.KaravanConstants.DEV_ENVIRONMENT;
 import static org.apache.camel.karavan.KaravanEvents.PROJECTS_STARTED;
 
 @Default
@@ -102,7 +102,7 @@ public class KaravanStartupLoader implements HealthCheck {
             if (karavanCache.getProjects().isEmpty()) {
                 importAllProjects();
             }
-            if (Objects.equals(environment, DEFAULT_ENVIRONMENT)) {
+            if (Objects.equals(environment, DEV_ENVIRONMENT)) {
                 addKameletsProject();
                 addTemplatesProject();
                 addServicesProject();

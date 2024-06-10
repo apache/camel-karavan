@@ -28,7 +28,7 @@ import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
-import static org.apache.camel.karavan.KaravanConstants.DEFAULT_ENVIRONMENT;
+import static org.apache.camel.karavan.KaravanConstants.DEV_ENVIRONMENT;
 
 @Default
 @Singleton
@@ -86,7 +86,7 @@ public class KaravanCache {
     }
 
     public void saveProject(Project project) {
-        var key = GroupedKey.create(project.getProjectId(), DEFAULT_ENVIRONMENT, project.getProjectId());
+        var key = GroupedKey.create(project.getProjectId(), DEV_ENVIRONMENT, project.getProjectId());
         projects.put(key, project);
     }
 
@@ -109,9 +109,9 @@ public class KaravanCache {
     }
 
     public void saveProjectFile(ProjectFile file, boolean commited) {
-        files.put(GroupedKey.create(file.getProjectId(), DEFAULT_ENVIRONMENT, file.getName()), file);
+        files.put(GroupedKey.create(file.getProjectId(), DEV_ENVIRONMENT, file.getName()), file);
         if (commited) {
-            filesCommited.put(GroupedKey.create(file.getProjectId(), DEFAULT_ENVIRONMENT, file.getName()), file);
+            filesCommited.put(GroupedKey.create(file.getProjectId(), DEV_ENVIRONMENT, file.getName()), file);
         }
     }
 
@@ -134,7 +134,7 @@ public class KaravanCache {
     }
 
     public void deleteProjectFile(String projectId, String filename) {
-        files.remove(GroupedKey.create(projectId, DEFAULT_ENVIRONMENT, filename));
+        files.remove(GroupedKey.create(projectId, DEV_ENVIRONMENT, filename));
     }
 
     public List<ProjectFile> getProjectFilesCommited(String projectId) {
@@ -147,15 +147,15 @@ public class KaravanCache {
     }
 
     public void deleteProjectFileCommited(String projectId, String filename) {
-        filesCommited.remove(GroupedKey.create(projectId, DEFAULT_ENVIRONMENT, filename));
+        filesCommited.remove(GroupedKey.create(projectId, DEV_ENVIRONMENT, filename));
     }
 
     public void deleteProject(String projectId) {
-        projects.remove(GroupedKey.create(projectId, DEFAULT_ENVIRONMENT, projectId));
+        projects.remove(GroupedKey.create(projectId, DEV_ENVIRONMENT, projectId));
     }
 
     public Project getProject(String projectId) {
-        return projects.get(GroupedKey.create(projectId, DEFAULT_ENVIRONMENT, projectId));
+        return projects.get(GroupedKey.create(projectId, DEV_ENVIRONMENT, projectId));
     }
 
     public DeploymentStatus getDeploymentStatus(String projectId, String environment) {

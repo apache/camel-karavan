@@ -18,7 +18,7 @@ package org.apache.camel.karavan;
 
 public class KaravanConstants {
 
-    public static final String DEFAULT_ENVIRONMENT = "dev";
+    public static final String DEV_ENVIRONMENT = "dev";
     public static final String ENV_VAR_JBANG_OPTIONS = "JBANG_OPTIONS";
 
     public static final String LABEL_PART_OF = "app.kubernetes.io/part-of";

@@ -36,7 +36,7 @@ import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.apache.camel.karavan.KaravanConstants.DEFAULT_ENVIRONMENT;
+import static org.apache.camel.karavan.KaravanConstants.DEV_ENVIRONMENT;
 import static org.apache.camel.karavan.KaravanEvents.*;
 import static org.apache.camel.karavan.service.CodeService.*;
 
@@ -268,7 +268,7 @@ public class ProjectService {
                             !Objects.equals(e.getValue().getName(), PROJECT_DEPLOYMENT_JKUBE_FILENAME)
                     )
                     .collect(Collectors.toMap(
-                            e -> GroupedKey.create(project.getProjectId(), DEFAULT_ENVIRONMENT, e.getValue().getName()),
+                            e -> GroupedKey.create(project.getProjectId(), DEV_ENVIRONMENT, e.getValue().getName()),
                             e -> {
                                 ProjectFile file = e.getValue();
                                 file.setProjectId(project.getProjectId());

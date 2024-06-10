@@ -14,24 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import {
     CodeBlock,
-    CodeBlockCode,
-    DataList,
-    DataListCell,
-    DataListItem,
-    DataListItemCells,
-    DataListItemRow,
-    DataListWrapModifier,
-    DescriptionList,
-    DescriptionListDescription,
-    DescriptionListGroup,
-    DescriptionListTerm, Flex,
-    Panel,
-    PanelHeader,
-    PanelMain,
-    PanelMainBody, Tab,
+    CodeBlockCode, Flex,
+    Tab,
     Tabs, TabTitleText, Text, TextContent, TextVariants
 } from '@patternfly/react-core';
 import '../../designer/karavan.css';
@@ -47,7 +34,6 @@ export function RunnerInfoTraceMessage (props: Props) {
     const [variableName, setVariableName] = useState<string | number>();
 
     const message = props.trace?.message;
-    const type = message?.body?.type;
     const headers: any[] = message?.headers ? [...message?.headers] : [];
     const properties: any[] = message?.exchangeProperties ? [...message?.exchangeProperties] : [];
     const variables: any[] = message?.exchangeVariables ? [...message?.exchangeVariables] : [];

@@ -45,7 +45,6 @@ export function ContainerButtons (props: Props) {
 
     const containerStatus = containers.filter(c => c.containerName === project.projectId).at(0);
     const commands = containerStatus?.commands || ['deploy'];
-    const exists = containerStatus != undefined;
     const isRunning = containerStatus?.state === 'running';
     const inTransit = containerStatus?.inTransit;
     const isLoading = status === 'wip';
