@@ -97,11 +97,12 @@ public class ProjectService {
             eventBus.publish(POD_CONTAINER_UPDATED, JsonObject.mapFrom(status));
 
             Map<String, String> files = codeService.getProjectFilesForDevMode(project.getProjectId(), true);
+            String projectDevmodeImage = codeService.getProjectDevModeImage(project.getProjectId());
             if (ConfigService.inKubernetes()) {
-                kubernetesService.runDevModeContainer(project, jBangOptions, files);
+                kubernetesService.runDevModeContainer(project, jBangOptions, files, projectDevmodeImage);
             } else {
                 DockerComposeService dcs = codeService.getDockerComposeService(project.getProjectId());
-                dockerForKaravan.runProjectInDevMode(project.getProjectId(), jBangOptions, dcs.getPortsMap(), files);
+                dockerForKaravan.runProjectInDevMode(project.getProjectId(), jBangOptions, dcs.getPortsMap(), files, projectDevmodeImage);
             }
             return containerName;
         } else {
@@ -237,7 +238,7 @@ public class ProjectService {
             throw new Exception("Project with id " + project.getProjectId() + " already exists");
         } else {
             karavanCache.saveProject(project);
-            ProjectFile appProp = codeService.getApplicationProperties(project);
+            ProjectFile appProp = codeService.generateApplicationProperties(project);
             karavanCache.saveProjectFile(appProp, false);
             if (!ConfigService.inKubernetes()) {
                 ProjectFile projectCompose = codeService.createInitialProjectCompose(project, getMaxPortMappedInProjects() + 1);

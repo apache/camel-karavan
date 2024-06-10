@@ -61,8 +61,11 @@ public class KubernetesService {
     @ConfigProperty(name = "karavan.environment")
     public String environment;
 
-    @ConfigProperty(name = "karavan.devmode.image")
+    @ConfigProperty(name = DEVMODE_IMAGE)
     public String devmodeImage;
+
+    @ConfigProperty(name = DEVMODE_IMAGE_PULL_POLICY, defaultValue = "IfNotPresent")
+    public Optional<String> devmodeImagePullPolicy;
 
     @ConfigProperty(name = "karavan.devmode.service.account")
     public String devModeServiceAccount;
@@ -208,7 +211,7 @@ public class KubernetesService {
                 .withName(name)
                 .withImage(devmodeImage)
                 .withPorts(port)
-                .withImagePullPolicy("Always")
+                .withImagePullPolicy(devmodeImagePullPolicy.orElse("IfNotPresent"))
                 .withEnv(envVars)
                 .withCommand("/bin/sh", "-c", "/karavan/builder/build.sh")
                 .withVolumeMounts(volumeMounts)
@@ -336,7 +339,7 @@ public class KubernetesService {
         return result;
     }
 
-    public void runDevModeContainer(Project project, String jBangOptions, Map<String, String> files) {
+    public void runDevModeContainer(Project project, String jBangOptions, Map<String, String> files, String projectDevmodeImage) {
         String name = project.getProjectId();
         Map<String, String> labels = getLabels(name, project, PodContainerStatus.ContainerType.devmode);
 
@@ -347,7 +350,7 @@ public class KubernetesService {
             Pod old = client.pods().inNamespace(getNamespace()).withName(name).get();
             if (old == null) {
                 Map<String, String> containerResources = CodeService.DEFAULT_CONTAINER_RESOURCES;
-                Pod pod = getDevModePod(name, jBangOptions, containerResources, labels);
+                Pod pod = getDevModePod(name, jBangOptions, containerResources, labels, projectDevmodeImage);
                 Pod result = client.resource(pod).createOrReplace();
                 copyFilesToContainer(result, files, "/karavan/code");
                 LOGGER.info("Created pod " + result.getMetadata().getName());
@@ -390,7 +393,8 @@ public class KubernetesService {
                 .build();
     }
 
-    private Pod getDevModePod(String name, String jbangOptions, Map<String, String> containerResources, Map<String, String> labels) {
+    private Pod getDevModePod(String name, String jbangOptions, Map<String, String> containerResources,
+                              Map<String, String> labels, String projectDevmodeImage) {
         ResourceRequirements resources = getResourceRequirements(containerResources);
 
         ObjectMeta meta = new ObjectMetaBuilder()
@@ -407,10 +411,10 @@ public class KubernetesService {
 
         Container container = new ContainerBuilder()
                 .withName(name)
-                .withImage(devmodeImage)
+                .withImage(projectDevmodeImage != null ? projectDevmodeImage : devmodeImage)
                 .withPorts(port)
                 .withResources(resources)
-                .withImagePullPolicy("IfNotPresent")
+                .withImagePullPolicy(devmodeImagePullPolicy.orElse("IfNotPresent"))
                 .withEnv(new EnvVarBuilder().withName(ENV_VAR_JBANG_OPTIONS).withValue(jbangOptions).build())
                 .build();
 

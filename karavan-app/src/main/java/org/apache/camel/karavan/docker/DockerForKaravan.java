@@ -39,7 +39,7 @@ public class DockerForKaravan {
 
     private static final Logger LOGGER = Logger.getLogger(DockerForKaravan.class.getName());
 
-    @ConfigProperty(name = "karavan.devmode.image")
+    @ConfigProperty(name = DEVMODE_IMAGE)
     String devmodeImage;
 
     @Inject
@@ -49,13 +49,14 @@ public class DockerForKaravan {
     ProjectService projectService;
 
     public void runProjectInDevMode(String projectId, String jBangOptions, Map<Integer, Integer> ports,
-                                    Map<String, String> files) throws Exception {
-        Container c = createDevmodeContainer(projectId, jBangOptions, ports, new HashMap<>());
+                                    Map<String, String> files, String projectDevmodeImage) throws Exception {
+        Container c = createDevmodeContainer(projectId, jBangOptions, ports, new HashMap<>(), projectDevmodeImage);
         dockerService.runContainer(projectId);
         dockerService.copyFiles(c.getId(), "/karavan/code", files, true);
     }
 
-    protected Container createDevmodeContainer(String projectId, String jBangOptions, Map<Integer, Integer> ports, Map<String, String> volumes) throws InterruptedException {
+    protected Container createDevmodeContainer(String projectId, String jBangOptions, Map<Integer, Integer> ports,
+                                               Map<String, String> volumes, String projectDevmodeImage) throws InterruptedException {
         LOGGER.infof("DevMode starting for %s with JBANG_OPTIONS=%s", projectId, jBangOptions);
 
         HealthCheck healthCheck = new HealthCheck().withTest(List.of("CMD", "curl", "-f", "http://localhost:8080/q/dev/health"))
@@ -67,7 +68,8 @@ public class DockerForKaravan {
 
         DockerComposeService composeService = projectService.getProjectDockerComposeService(projectId);
 
-        return dockerService.createContainer(projectId, devmodeImage,
+        return dockerService.createContainer(projectId,
+                (projectDevmodeImage != null ? projectDevmodeImage : devmodeImage),
                 env, ports, healthCheck,
                 Map.of(LABEL_TYPE, PodContainerStatus.ContainerType.devmode.name(),
                         LABEL_PROJECT_ID, projectId,
@@ -75,7 +77,6 @@ public class DockerForKaravan {
                 ),
                 volumes, null, RestartPolicy.noRestart(), false,
                 composeService.getCpus(), composeService.getCpu_percent(), composeService.getMem_limit(), composeService.getMem_reservation());
-
     }
 
     public void runBuildProject(Project project, String script, List<String> env, Map<String, String> sshFiles, String tag) throws Exception {
