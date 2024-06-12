@@ -361,22 +361,21 @@ export function DslPropertyField(props: Props) {
                 <InputGroupItem isFill>
                     <TextInput ref={ref}
                                className="text-field" isRequired
-                               type={property.secret ? "password" : "text"}
+                               type={property.secret ? "password" : isNumber ? "number" : "text"}
                                id={property.name} name={property.name}
                                value={textValue?.toString()}
                                customIcon={property.type !== 'string' ?
                                    <Text component={TextVariants.p}>{property.type}</Text> : undefined}
                                onBlur={_ => {
-                                   if (isNumber && isNumeric((textValue))) {
-                                       propertyChanged(property.name, Number(textValue))
+                                   if (isNumber) {
+                                       propertyChanged(property.name, textValue ? Number(textValue):'')
                                    } else if (!isNumber) {
                                        propertyChanged(property.name, textValue)
                                    }
                                }}
                                onFocus={_ => setCheckChanges(true)}
                                onChange={(_, v) => {
-
-                                   if (isNumber && isNumeric(v)) {
+                                   if (isNumber) {
                                        setTextValue(v);
                                        setCheckChanges(true);
                                    } else if (!isNumber) {

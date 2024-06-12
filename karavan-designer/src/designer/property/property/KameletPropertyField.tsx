@@ -208,9 +208,9 @@ export function KameletPropertyField(props: Props) {
         </InputGroup>
     }
 
-    function isNumeric (num: any) {
-        return (typeof(num) === 'number' || (typeof(num) === "string" && num.trim() !== '')) && !isNaN(num as number);
-    }
+    // function isNumeric (num: any) {
+    //     return (typeof(num) === 'number' || (typeof(num) === "string" && num.trim() !== '')) && !isNaN(num as number);
+    // }
 
     function getNumberInput() {
         return (
@@ -218,22 +218,16 @@ export function KameletPropertyField(props: Props) {
                        name={id}
                        className="text-field"
                        isRequired
-                       // type='number'
+                       type='number'
                        value={textValue?.toString()}
                        customIcon={<Text component={TextVariants.p}>{property.type}</Text>}
-                       onBlur={_ => {
-                           if (isNumeric((textValue))) {
-                               parametersChanged(property.id, Number(textValue))
-                           }
+                       onBlur={(_) => {
+                           parametersChanged(property.id, Number(textValue))
                        }}
                        onChange={(_, v) => {
-                           if (isNumeric(v)) {
-                               setTextValue(v);
-                               setCheckChanges(true);
-                           } else {
-                               setTextValue(textValue);
-                           }
-                       }}
+                        setTextValue(v);
+                        setCheckChanges(true);
+                      }}
             />
         )
     }
