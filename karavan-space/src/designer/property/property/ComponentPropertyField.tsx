@@ -92,7 +92,7 @@ export function ComponentPropertyField(props: Props) {
                 if (props.value !== textValue) {
                     parametersChanged(property.name, textValue);
                 }
-            }, 3000);
+            }, 1300);
             return () => {
                 clearInterval(interval)
             }

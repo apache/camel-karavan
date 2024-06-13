@@ -1,0 +1,98 @@
+- rest:
+    id: rest-328e
+    description: >-
+      It has a broken design for long endpoint descriptions and a dual topology
+      view rendering
+    get:
+      - id: get-5ab7
+        to: direct:hello
+- route:
+    id: route-0dc7
+    description: Audit Start
+    nodePrefixId: route-972
+    from:
+      id: from-47d5
+      description: Audit Start
+      uri: direct
+      parameters:
+        name: start
+      steps:
+        - to:
+            id: to-3597
+            uri: kafka
+            parameters:
+              topic: audit
+- route:
+    id: route-a54e
+    description: Audit Finish
+    nodePrefixId: route-1d1
+    from:
+      id: from-47d5
+      description: Audit Finish
+      uri: direct
+      parameters:
+        name: finish
+      steps:
+        - to:
+            id: to-3cf2
+            uri: kafka
+            parameters:
+              topic: audit
+- route:
+    id: route-07ed
+    description: Audit Step
+    nodePrefixId: route-833
+    from:
+      id: from-e007
+      uri: direct
+      parameters:
+        name: step
+      steps:
+        - to:
+            id: to-fa9e
+            uri: kafka
+            parameters:
+              topic: audit
+- route:
+    id: hello
+    from:
+      id: from-3f49
+      uri: direct
+      parameters:
+        name: hello
+      steps:
+        - to:
+            id: to-428d
+            uri: activemq
+        - to:
+            id: to-fed7
+            uri: kafka
+- routeConfiguration:
+    id: auditedRoute
+    intercept:
+      - intercept:
+          id: intercept-0deb
+          steps:
+            - to:
+                id: to-b470
+                uri: direct
+                parameters:
+                  name: step
+    interceptFrom:
+      - interceptFrom:
+          id: interceptFrom-4041
+          steps:
+            - to:
+                id: to-6861
+                uri: direct
+                parameters:
+                  name: start
+    onCompletion:
+      - onCompletion:
+          id: onCompletion-3dab
+          steps:
+            - to:
+                id: to-dd4e
+                uri: direct
+                parameters:
+                  name: finish

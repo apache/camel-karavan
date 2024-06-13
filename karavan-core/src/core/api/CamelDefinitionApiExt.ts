@@ -168,26 +168,25 @@ export class CamelDefinitionApiExt {
         return new CamelElementMeta(result?.step, result?.parentUuid, result?.position);
     };
 
-    static hasElementWithId = (integration: Integration, id: string): boolean => {
-        let hasId = false;
-        return CamelDefinitionApiExt.checkIfHasId(integration, id, hasId);
+    static hasElementWithId = (integration: Integration, id: string): number => {
+        return CamelDefinitionApiExt.checkIfHasId(integration, id, 0);
     };
 
-    static checkIfHasId = (obj: Object, id: string, hasId: boolean): boolean => {
+    static checkIfHasId = (obj: Object, id: string, counter: number): number => {
         for (const propName in obj) {
             let prop = (obj as any)[propName];
-            if (hasId || (propName === 'id' && id === prop)) {
-                hasId = true;
-                break;
+            if (propName === 'id' && id === prop) {
+                counter++;
+                counter = CamelDefinitionApiExt.checkIfHasId(prop, id, counter);
             } else if (typeof prop === 'object' && prop !== null) {
-                hasId = CamelDefinitionApiExt.checkIfHasId(prop, id, hasId);
+                counter = CamelDefinitionApiExt.checkIfHasId(prop, id, counter);
             } else if (Array.isArray(prop)) {
                 for (const element of prop) {
-                    CamelDefinitionApiExt.checkIfHasId(element, id, hasId);
+                    CamelDefinitionApiExt.checkIfHasId(element, id, counter);
                 }
             }
         }
-        return hasId;
+        return counter;
     };
 
     static moveRouteElement = (integration: Integration, source: string, target: string, asChild: boolean,): Integration => {

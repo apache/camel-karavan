@@ -51,7 +51,7 @@ export function DslElement(props: Props) {
         isActionKamelet
     } = useRouteDesignerHook();
 
-    const [integration] = useIntegrationStore((s) => [s.integration, s.setIntegration], shallow)
+    const [integration] = useIntegrationStore((s) => [s.integration], shallow)
 
     const [selectedUuids, selectedStep, showMoveConfirmation, setShowMoveConfirmation, setMoveElements] =
         useDesignerStore((s) =>

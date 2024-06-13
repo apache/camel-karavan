@@ -1,0 +1,16 @@
+- route:
+    id: route-0dc7
+    description: Audit Start
+    nodePrefixId: route-972
+    from:
+      id: fhello-world
+      description: Audit Start
+      uri: direct
+      parameters:
+        name: start
+      steps:
+        - to:
+            id: fhello-world
+            uri: kafka
+            parameters:
+              topic: audit

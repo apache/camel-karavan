@@ -146,7 +146,6 @@
     height: 160px;
 }
 
-
 .kamelets-page .kamelet-card .pf-v5-c-card__header {
     padding-top: var(--pf-v5-global--spacer--sm);
 }
@@ -189,12 +188,13 @@
     padding: 5px;
     display: flex;
     flex-direction: row;
-    justify-content:flex-end;
+    justify-content: flex-end;
 }
-.kamelets-page .kamelet-card .header-labels .pf-v5-c-card__header-main{
+
+.kamelets-page .kamelet-card .header-labels .pf-v5-c-card__header-main {
     display: flex;
     flex-direction: row;
-    justify-content:space-between;
+    justify-content: space-between;
 }
 
 .kamelets-page .kamelet-card .footer-labels {
@@ -320,7 +320,12 @@
     min-width: 0px;
 }
 
-.karavan .page .main-tabs-wrapper .main-tabs .pf-v5-c-tabs__link .pf-v5-c-tabs__item-icon {
+.karavan
+.page
+.main-tabs-wrapper
+.main-tabs
+.pf-v5-c-tabs__link
+.pf-v5-c-tabs__item-icon {
     height: 24px;
     margin-right: 0;
 }
@@ -416,8 +421,8 @@
 
 .karavan .dsl-page .graph .connections .path-incoming {
     stroke-dasharray: 5;
-    -webkit-animation: dashdraw .5s linear infinite;
-    animation: dashdraw .5s linear infinite;
+    -webkit-animation: dashdraw 0.5s linear infinite;
+    animation: dashdraw 0.5s linear infinite;
     stroke: var(--pf-v5-global--Color--200);
     stroke-width: 1;
     fill: transparent;
@@ -442,15 +447,15 @@
 .karavan .dsl-page .graph .connections .path-seda {
     stroke-dasharray: 2;
     stroke: var(--pf-v5-global--Color--200);
-    -webkit-animation: dashdraw .5s linear infinite;
-    animation: dashdraw .5s linear infinite;
+    -webkit-animation: dashdraw 0.5s linear infinite;
+    animation: dashdraw 0.5s linear infinite;
     stroke-width: 1;
     fill: transparent;
 }
 
 @keyframes dashdraw {
     0% {
-        stroke-dashoffset: 10
+        stroke-dashoffset: 10;
     }
 }
 
@@ -514,7 +519,6 @@
     margin: 0 auto 3px auto;
 }
 
-
 .element-builder:hover .add-button,
 .karavan .step-element:hover .add-element-button,
 .karavan .step-element:hover .add-button {
@@ -547,7 +551,6 @@
 .pf-v5-c-popover__footer {
     overflow-wrap: anywhere;
 }
-
 
 /*Beans*/
 .karavan .rest-page .properties .bean-properties .pf-v5-c-form__group-control {
@@ -615,7 +618,6 @@
 .karavan .project-builder .pf-v5-c-toolbar__content {
     padding: 0;
 }
-
 
 .karavan .project-builder .card-header svg {
     margin-right: 6px;
@@ -710,6 +712,15 @@
     background-color: var(--pf-v5-global--BackgroundColor--light-300);
     margin-bottom: 100px;
 }
-.karavan .knowledbase-eip-section .pf-v5-c-toggle-group{
-    margin:16px;
+
+.karavan .knowledbase-eip-section .pf-v5-c-toggle-group {
+    margin: 16px;
+}
+
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    margin: 0;
 }

@@ -64,7 +64,7 @@ export function KameletPropertyField(props: Props) {
                 if (props.value !== textValue) {
                     onParametersChange(property.id, textValue);
                 }
-            }, 3000);
+            }, 1300);
             return () => {
                 clearInterval(interval)
             }

@@ -32,7 +32,7 @@ import {
     Tooltip,
     Card,
     InputGroup,
-    capitalize, InputGroupItem, TextVariants, ToggleGroup, ToggleGroupItem
+    capitalize, InputGroupItem, TextVariants, ToggleGroup, ToggleGroupItem, HelperTextItem, FormHelperText, HelperText
 } from '@patternfly/react-core';
 import {
     Select,
@@ -51,7 +51,7 @@ import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt"
 import {ExpressionField} from "./ExpressionField";
 import {CamelUi, RouteToCreate} from "../../utils/CamelUi";
 import {ComponentPropertyField} from "./ComponentPropertyField";
-import {CamelElement, IntegrationFile} from "karavan-core/lib/model/IntegrationDefinition";
+import {CamelElement} from "karavan-core/lib/model/IntegrationDefinition";
 import {KameletPropertyField} from "./KameletPropertyField";
 import PlusIcon from "@patternfly/react-icons/dist/esm/icons/plus-icon";
 import {ObjectField} from "./ObjectField";
@@ -77,7 +77,6 @@ import {BeanProperties} from "./BeanProperties";
 import {PropertyPlaceholderDropdown} from "./PropertyPlaceholderDropdown";
 import {VariablesDropdown} from "./VariablesDropdown";
 import {ROUTE, GLOBAL} from "karavan-core/lib/api/VariableUtil";
-import {getIntegrations} from "../../../topology/TopologyApi";
 
 interface Props {
     property: PropertyMeta,
@@ -122,7 +121,7 @@ export function DslPropertyField(props: Props) {
                         propertyChanged(property.name, textValue);
                     }
                 }
-            }, 3000);
+            }, 1300);
             return () => {
                 clearInterval(interval)
             }
@@ -160,9 +159,6 @@ export function DslPropertyField(props: Props) {
 
     function propertyChanged(fieldId: string, value: string | number | boolean | any, newRoute?: RouteToCreate) {
         setCheckChanges(false);
-        if (fieldId === 'id' && CamelDefinitionApiExt.hasElementWithId(integration, value)) {
-            value = props.element;
-        }
         props.onPropertyChange?.(fieldId, value, newRoute);
         clearSelection(fieldId);
         if (isVariable) {
@@ -358,34 +354,33 @@ export function DslPropertyField(props: Props) {
                 </InputGroupItem>
             }
             {(!showEditor || property.secret) &&
-                <InputGroupItem isFill>
-                    <TextInput ref={ref}
-                               className="text-field" isRequired
-                               type={property.secret ? "password" : "text"}
-                               id={property.name} name={property.name}
-                               value={textValue?.toString()}
-                               customIcon={property.type !== 'string' ?
-                                   <Text component={TextVariants.p}>{property.type}</Text> : undefined}
-                               onBlur={_ => {
-                                   if (isNumber && isNumeric((textValue))) {
-                                       propertyChanged(property.name, Number(textValue))
-                                   } else if (!isNumber) {
-                                       propertyChanged(property.name, textValue)
-                                   }
-                               }}
-                               onFocus={_ => setCheckChanges(true)}
-                               onChange={(_, v) => {
+                <TextInput ref={ref}
+                           className="text-field" isRequired
+                           type={property.secret ? "password" : "text"}
+                           id={property.name} name={property.name}
+                           value={textValue?.toString()}
+                           customIcon={property.type !== 'string' ?
+                               <Text component={TextVariants.p}>{property.type}</Text> : undefined}
+                           onBlur={_ => {
+                               if (isNumber && isNumeric((textValue))) {
+                                   propertyChanged(property.name, Number(textValue))
+                               } else if (!isNumber) {
+                                   console.log("onBlur", property.name, textValue)
+                                   propertyChanged(property.name, textValue)
+                               }
+                           }}
+                           onFocus={_ => setCheckChanges(true)}
+                           onChange={(_, v) => {
 
-                                   if (isNumber && isNumeric(v)) {
-                                       setTextValue(v);
-                                       setCheckChanges(true);
-                                   } else if (!isNumber) {
-                                       setTextValue(v);
-                                       setCheckChanges(true);
-                                   }
-                               }}
-                               readOnlyVariant={uriReadOnly ? "default" : undefined}/>
-                </InputGroupItem>
+                               if (isNumber && isNumeric(v)) {
+                                   setTextValue(v);
+                                   setCheckChanges(true);
+                               } else if (!isNumber) {
+                                   setTextValue(v);
+                                   setCheckChanges(true);
+                               }
+                           }}
+                           readOnlyVariant={uriReadOnly ? "default" : undefined}/>
             }
             {showEditorButton && <InputGroupItem>
                 <Tooltip position="bottom-end" content={"Show Editor"}>

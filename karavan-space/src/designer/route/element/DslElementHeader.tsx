@@ -23,7 +23,7 @@ import {CamelUi} from "../../utils/CamelUi";
 import {ChildElement, CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt";
 import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
 import {CamelDisplayUtil} from "karavan-core/lib/api/CamelDisplayUtil";
-import {useDesignerStore} from "../../DesignerStore";
+import {useDesignerStore, useIntegrationStore} from "../../DesignerStore";
 import {shallow} from "zustand/shallow";
 import {useRouteDesignerHook} from "../useRouteDesignerHook";
 import {AddElementIcon, DeleteElementIcon, InsertElementIcon} from "../../utils/ElementIcons";
@@ -52,6 +52,8 @@ export function DslElementHeader(props: Props) {
         isSourceKamelet,
         isActionKamelet
     } = useRouteDesignerHook();
+
+    const [integration] = useIntegrationStore((s) => [s.integration], shallow)
 
     const [selectedUuids, selectedStep, showMoveConfirmation, setShowMoveConfirmation, setMoveElements] =
         useDesignerStore((s) =>
@@ -217,6 +219,10 @@ export function DslElementHeader(props: Props) {
     function getHeaderTextWithTooltip(step: CamelElement, hasWideChildrenElement: boolean) {
         const title = getHeaderText(step);
         const checkRequired = CamelUtil.checkRequired(step);
+        if (CamelDefinitionApiExt.hasElementWithId(integration, (step as any).id) > 1) {
+            checkRequired[0] = false;
+            checkRequired[1].push('Id should be unique');
+        }
         let className = hasWideChildrenElement ? "text text-right" : "text text-bottom";
         if (!checkRequired[0]) className = className + " header-text-required";
         if (checkRequired[0]) {

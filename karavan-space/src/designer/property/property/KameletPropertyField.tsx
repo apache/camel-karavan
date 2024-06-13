@@ -64,7 +64,7 @@ export function KameletPropertyField(props: Props) {
                 if (props.value !== textValue) {
                     onParametersChange(property.id, textValue);
                 }
-            }, 3000);
+            }, 1300);
             return () => {
                 clearInterval(interval)
             }
@@ -218,7 +218,7 @@ export function KameletPropertyField(props: Props) {
                        name={id}
                        className="text-field"
                        isRequired
-                       // type='number'
+                // type='number'
                        value={textValue?.toString()}
                        customIcon={<Text component={TextVariants.p}>{property.type}</Text>}
                        onBlur={_ => {
