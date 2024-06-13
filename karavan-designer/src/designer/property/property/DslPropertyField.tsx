@@ -361,21 +361,22 @@ export function DslPropertyField(props: Props) {
                 <InputGroupItem isFill>
                     <TextInput ref={ref}
                                className="text-field" isRequired
-                               type={property.secret ? "password" : isNumber ? "number" : "text"}
+                               type={property.secret ? "password" : "text"}
                                id={property.name} name={property.name}
                                value={textValue?.toString()}
                                customIcon={property.type !== 'string' ?
                                    <Text component={TextVariants.p}>{property.type}</Text> : undefined}
                                onBlur={_ => {
-                                   if (isNumber) {
-                                       propertyChanged(property.name, textValue ? Number(textValue):'')
+                                   if (isNumber && isNumeric((textValue))) {
+                                       propertyChanged(property.name, Number(textValue))
                                    } else if (!isNumber) {
                                        propertyChanged(property.name, textValue)
                                    }
                                }}
                                onFocus={_ => setCheckChanges(true)}
                                onChange={(_, v) => {
-                                   if (isNumber) {
+
+                                   if (isNumber && isNumeric(v)) {
                                        setTextValue(v);
                                        setCheckChanges(true);
                                    } else if (!isNumber) {
@@ -402,10 +403,10 @@ export function DslPropertyField(props: Props) {
                                        title={property.displayName}
                                        onClose={() => setShowEditor(false)}
                                        onSave={(fieldId, value1) => {
-                                 propertyChanged(property.name, value1)
-                                 setTextValue(value1);
-                                 setShowEditor(false);
-                             }}/>
+                                           propertyChanged(property.name, value1)
+                                           setTextValue(value1);
+                                           setShowEditor(false);
+                                       }}/>
             </InputGroupItem>}
         </InputGroup>
     }
@@ -456,10 +457,10 @@ export function DslPropertyField(props: Props) {
                                        title="Java Class"
                                        onClose={() => setShowEditor(false)}
                                        onSave={(fieldId, value1) => {
-                                 propertyChanged(fieldId, value);
-                                 InfrastructureAPI.onSaveCustomCode?.(value, value1);
-                                 setShowEditor(false)
-                             }}/>
+                                           propertyChanged(fieldId, value);
+                                           InfrastructureAPI.onSaveCustomCode?.(value, value1);
+                                           setShowEditor(false)
+                                       }}/>
             </InputGroupItem>}
         </InputGroup>)
     }
@@ -499,10 +500,10 @@ export function DslPropertyField(props: Props) {
                                            title={`Expression (${dslLanguage?.[0]})`}
                                            onClose={() => setShowEditor(false)}
                                            onSave={(fieldId, value1) => {
-                                     propertyChanged(fieldId, value1);
-                                     setTextValue(value1);
-                                     setShowEditor(false);
-                                 }}/>
+                                               propertyChanged(fieldId, value1);
+                                               setTextValue(value1);
+                                               setShowEditor(false);
+                                           }}/>
                 </InputGroupItem>}
             </InputGroup>
         )
