@@ -19,13 +19,11 @@ import {
     FormGroup,
     TextInput,
     Popover,
-    Switch, InputGroup, Button, TextArea, Tooltip, capitalize, Text, TextVariants
+    Switch, InputGroup, Button, Tooltip, capitalize, Text, TextVariants, InputGroupItem
 } from '@patternfly/react-core';
 import '../../karavan.css';
 import "@patternfly/patternfly/patternfly.css";
 import HelpIcon from "@patternfly/react-icons/dist/js/icons/help-icon";
-import ExpandIcon from "@patternfly/react-icons/dist/js/icons/expand-icon";
-import CompressIcon from "@patternfly/react-icons/dist/js/icons/compress-icon";
 import {Property} from "karavan-core/lib/model/KameletModels";
 import {InfrastructureSelector} from "./InfrastructureSelector";
 import {InfrastructureAPI} from "../../utils/InfrastructureAPI";
@@ -35,6 +33,11 @@ import DockerIcon from "@patternfly/react-icons/dist/js/icons/docker-icon";
 import {usePropertiesHook} from "../usePropertiesHook";
 import {Select, SelectDirection, SelectOption, SelectVariant} from "@patternfly/react-core/deprecated";
 import {KubernetesIcon} from "../../icons/ComponentIcons";
+import {PropertyPlaceholderDropdown} from "./PropertyPlaceholderDropdown";
+import EditorIcon from "@patternfly/react-icons/dist/js/icons/code-icon";
+import {ExpressionModalEditor} from "../../../expression/ExpressionModalEditor";
+import {useDesignerStore} from "../../DesignerStore";
+import {shallow} from "zustand/shallow";
 
 interface Props {
     property: Property,
@@ -46,7 +49,7 @@ export function KameletPropertyField(props: Props) {
 
     const {onParametersChange} = usePropertiesHook();
 
-    const [selectIsOpen, setSelectIsOpen] = useState<boolean>(false);
+    const [dark] = useDesignerStore((s) => [s.dark], shallow)
     const [showEditor, setShowEditor] = useState<boolean>(false);
     const [showPassword, setShowPassword] = useState<boolean>(false);
     const [infrastructureSelector, setInfrastructureSelector] = useState<boolean>(false);
@@ -74,7 +77,6 @@ export function KameletPropertyField(props: Props) {
     function parametersChanged (parameter: string, value: string | number | boolean | any, pathParameter?: boolean)  {
         setCheckChanges(false);
         onParametersChange(parameter, value, pathParameter);
-        setSelectIsOpen(false);
         setSelectStatus(new Map<string, boolean>([[parameter, false]]))
     }
 
@@ -120,7 +122,7 @@ export function KameletPropertyField(props: Props) {
                 onSelect={selectInfrastructure}/>)
     }
 
-    function getStringInput() {
+    function getSpecialStringInput() {
         const {property, value} = props;
         const prefix = "parameters";
         const id = prefix + "-" + property.id;
@@ -128,6 +130,7 @@ export function KameletPropertyField(props: Props) {
         const noInfraSelectorButton = ["uri", "id", "description", "group"].includes(property.id);
         const icon = InfrastructureAPI.infrastructure === 'kubernetes' ? KubernetesIcon("infra-button") : <DockerIcon/>
         const showInfraSelectorButton = inInfrastructure && !showEditor && !noInfraSelectorButton;
+        const showEditorButton = property.type === 'string' && property.format !== "password";
         const selectFromList: boolean = property.enum !== undefined && property?.enum?.length > 0;
         const selectOptions: JSX.Element[] = [];
         if (selectFromList && property.enum) {
@@ -171,33 +174,51 @@ export function KameletPropertyField(props: Props) {
                     type={property.format && !showPassword ? "password" : "text"}
                     id={id} name={id}
                     value={textValue}
-                    onBlur={_ => parametersChanged(property.id, textValue)}
+                    onBlur={_ => {
+                        if (isNumeric((textValue))) {
+                            parametersChanged(property.id, Number(textValue))
+                        } else {
+                            parametersChanged(property.id, textValue)
+                        }
+                    }}
                     onChange={(_, v) => {
                         setTextValue(v);
                         setCheckChanges(true);
                     }}
+                    customIcon={property.type !== 'string' ?
+                        <Text component={TextVariants.p}>{property.type}</Text> : undefined}
                 />
             }
-            {(!selectFromList && showEditor) && property.format !== "password" &&
-                <TextArea autoResize={true}
-                          className="text-field" isRequired
-                          type="text"
-                          id={id} name={id}
-                          value={textValue}
-                          onBlur={_ => parametersChanged(property.id, textValue)}
-                          onChange={(_, v) => {
-                              setTextValue(v);
-                              setCheckChanges(true);
-                          }}
-                />
-            }
-            {property.format !== "password" &&
-                <Tooltip position="bottom-end" content={showEditor ? "Change to TextField" : "Change to Text Area"}>
+            {showEditorButton && <InputGroupItem>
+                <Tooltip position="bottom-end" content={"Show Editor"}>
                     <Button variant="control" onClick={e => setShowEditor(!showEditor)}>
-                        {showEditor ? <CompressIcon/> : <ExpandIcon/>}
+                        <EditorIcon/>
                     </Button>
                 </Tooltip>
-            }
+            </InputGroupItem>}
+            {showEditor && <InputGroupItem>
+                <ExpressionModalEditor name={property.id}
+                                       customCode={value}
+                                       showEditor={showEditor}
+                                       dark={dark}
+                                       dslLanguage={undefined}
+                                       title={property.title}
+                                       onClose={() => setShowEditor(false)}
+                                       onSave={(fieldId, value1) => {
+                                           parametersChanged(property.id, value1)
+                                           setTextValue(value1);
+                                           setShowEditor(false);
+                                       }}/>
+            </InputGroupItem>}
+            <InputGroupItem>
+                <PropertyPlaceholderDropdown
+                    property={property} value={value}
+                    onDslPropertyChange={(_, v, newRoute) => {
+                        setTextValue(v);
+                        parametersChanged(property.id, v)
+                        setCheckChanges(true);
+                    }}/>
+            </InputGroupItem>
             {property.format === "password" &&
                 <Tooltip position="bottom-end" content={showPassword ? "Hide" : "Show"}>
                     <Button variant="control" onClick={e => setShowPassword(!showPassword)}>
@@ -210,32 +231,6 @@ export function KameletPropertyField(props: Props) {
 
     function isNumeric (num: any) {
         return (typeof(num) === 'number' || (typeof(num) === "string" && num.trim() !== '')) && !isNaN(num as number);
-    }
-
-    function getNumberInput() {
-        return (
-            <TextInput id={id}
-                       name={id}
-                       className="text-field"
-                       isRequired
-                // type='number'
-                       value={textValue?.toString()}
-                       customIcon={<Text component={TextVariants.p}>{property.type}</Text>}
-                       onBlur={_ => {
-                           if (isNumeric((textValue))) {
-                               parametersChanged(property.id, Number(textValue))
-                           }
-                       }}
-                       onChange={(_, v) => {
-                           if (isNumeric(v)) {
-                               setTextValue(v);
-                               setCheckChanges(true);
-                           } else {
-                               setTextValue(textValue);
-                           }
-                       }}
-            />
-        )
     }
 
     const property =  props.property;
@@ -267,8 +262,8 @@ export function KameletPropertyField(props: Props) {
                         </button>
                     </Popover>
                 }>
-                {property.type === 'string' && getStringInput()}
-                {['integer', 'int', 'number'].includes(property.type) && getNumberInput()}
+                {/*{property.type === 'string' && getStringInput()}*/}
+                {['string','integer', 'int', 'number'].includes(property.type) && getSpecialStringInput()}
                 {property.type === 'boolean' && <Switch
                     id={id} name={id}
                     value={value?.toString()}

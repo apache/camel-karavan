@@ -275,7 +275,7 @@ export function DslPropertyField(props: Props) {
         return <InputGroup>
             <InputGroupItem>
                 <ToggleGroup aria-label="Variable type">
-                    <ToggleGroupItem text="global:" key='global' buttonId={"global-variable-"+ property.name}
+                    <ToggleGroupItem text="global:" key='global' buttonId={"global-variable-" + property.name}
                                      isSelected={variableType === GLOBAL}
                                      onChange={(_, selected) => {
                                          if (selected) {
@@ -287,7 +287,7 @@ export function DslPropertyField(props: Props) {
                                          }
                                      }}
                     />
-                    <ToggleGroupItem text="route:" key='route' buttonId={"route-variable"+ property.name}
+                    <ToggleGroupItem text="route:" key='route' buttonId={"route-variable" + property.name}
                                      className='route-variable'
                                      isSelected={variableType === ROUTE}
                                      onChange={(_, selected) => {
@@ -331,8 +331,47 @@ export function DslPropertyField(props: Props) {
         </InputGroup>
     }
 
-    function isNumeric (num: any) {
-        return (typeof(num) === 'number' || typeof(num) === "string" && num.trim() !== '') && !isNaN(num as number);
+    function isNumeric(num: any) {
+        return (typeof (num) === 'number' || typeof (num) === "string" && num.trim() !== '') && !isNaN(num as number);
+    }
+
+    function getSpecialStringInput(property: PropertyMeta) {
+        return (
+            <InputGroup>
+                <InputGroupItem isFill>
+                    <TextInput
+                        ref={ref}
+                        className="text-field" isRequired
+                        type={property.secret ? "password" : "text"}
+                        id={property.name} name={property.name}
+                        value={textValue?.toString()}
+                        customIcon={property.type !== 'string' ?
+                            <Text component={TextVariants.p}>{property.type}</Text> : undefined}
+                        onBlur={_ => {
+                            if (isNumeric((textValue))) {
+                                propertyChanged(property.name, Number(textValue))
+                            } else {
+                                propertyChanged(property.name, textValue)
+                            }
+                        }}
+                        onFocus={_ => setCheckChanges(true)}
+                        onChange={(_, v) => {
+                            setTextValue(v);
+                            setCheckChanges(true);
+                        }}
+                    />
+                </InputGroupItem>
+                <InputGroupItem>
+                    <PropertyPlaceholderDropdown
+                        property={property} value={value}
+                        onDslPropertyChange={(_, v, newRoute) => {
+                            setTextValue(v);
+                            propertyChanged(property.name, v)
+                            setCheckChanges(true);
+                        }}/>
+                </InputGroupItem>
+            </InputGroup>
+        )
     }
 
     function getStringInput(property: PropertyMeta) {
@@ -365,13 +404,11 @@ export function DslPropertyField(props: Props) {
                                if (isNumber && isNumeric((textValue))) {
                                    propertyChanged(property.name, Number(textValue))
                                } else if (!isNumber) {
-                                   console.log("onBlur", property.name, textValue)
                                    propertyChanged(property.name, textValue)
                                }
                            }}
                            onFocus={_ => setCheckChanges(true)}
                            onChange={(_, v) => {
-
                                if (isNumber && isNumeric(v)) {
                                    setTextValue(v);
                                    setCheckChanges(true);
@@ -403,6 +440,15 @@ export function DslPropertyField(props: Props) {
                                            setShowEditor(false);
                                        }}/>
             </InputGroupItem>}
+            <InputGroupItem>
+                <PropertyPlaceholderDropdown
+                    property={property} value={value}
+                    onDslPropertyChange={(_, v, newRoute) => {
+                        setTextValue(v);
+                        propertyChanged(property.name, v)
+                        setCheckChanges(true);
+                    }}/>
+            </InputGroupItem>
         </InputGroup>
     }
 
@@ -985,7 +1031,16 @@ export function DslPropertyField(props: Props) {
                     && getMediaTypeSelect(property, value)}
                 {javaTypeGenerated(property)
                     && getJavaTypeGeneratedInput(property, value)}
-                {['string', 'duration', 'integer', 'number'].includes(property.type)
+                {['duration', 'integer', 'number'].includes(property.type)
+                    && !isVariable
+                    && property.name !== 'expression'
+                    && !property.name.endsWith("Ref")
+                    && !property.isArray && !property.enumVals
+                    && !canBeInternalUri(property, element)
+                    && !canBeMediaType(property, element)
+                    && !javaTypeGenerated(property)
+                    && getSpecialStringInput(property)}
+                {['string'].includes(property.type)
                     && !isVariable
                     && property.name !== 'expression'
                     && !property.name.endsWith("Ref")

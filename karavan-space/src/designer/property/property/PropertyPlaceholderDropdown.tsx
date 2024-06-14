@@ -41,6 +41,7 @@ import AddIcon from "@patternfly/react-icons/dist/js/icons/plus-icon";
 import {InfrastructureAPI} from "../../utils/InfrastructureAPI";
 import {PropertyMeta} from "karavan-core/lib/model/CamelMetadata";
 import {RouteToCreate} from "../../utils/CamelUi";
+import {Property} from "karavan-core/lib/model/KameletModels";
 
 const SYNTAX_EXAMPLES = [
     {key: 'property:', value: 'group.property', description: 'Application property'},
@@ -50,7 +51,7 @@ const SYNTAX_EXAMPLES = [
 ]
 
 interface Props {
-    property: ComponentProperty | PropertyMeta,
+    property: ComponentProperty | PropertyMeta | Property,
     value: any,
     onDslPropertyChange?: (fieldId: string, value: string | number | boolean | any, newRoute?: RouteToCreate) => void,
     onComponentPropertyChange?: (parameter: string, value: string | number | boolean | any, pathParameter?: boolean, newRoute?: RouteToCreate) => void
@@ -75,15 +76,17 @@ export function PropertyPlaceholderDropdown(props: Props) {
         && !propertyPlaceholders.includes(placeholderValue)
         && !SYNTAX_EXAMPLES.map(se=> se.value).includes(removeBrackets(placeholderValue))
         && SYNTAX_EXAMPLES.findIndex(se=> removeBrackets(placeholderValue).startsWith(se.key)) === -1;
-    const popoverId = "popover-selector-" + property.name;
+    const popoverId = "popover-selector-" + property.hasOwnProperty('name') ? (property as any).name : (property as any).id;
 
     const hasPlaceholders = (propertyPlaceholders && propertyPlaceholders.length > 0 );
 
     function parametersChanged(value: string | number | boolean | any) {
         if (property instanceof ComponentProperty) {
             props.onComponentPropertyChange?.(property.name, `{{${value}}}`, property.kind === 'path');
-        } else {
+        } else if (property instanceof PropertyMeta) {
             props.onDslPropertyChange?.(property.name, `{{${value}}}`);
+        } else {
+            props.onDslPropertyChange?.((property as Property).id, `{{${value}}}`);
         }
     }
 
