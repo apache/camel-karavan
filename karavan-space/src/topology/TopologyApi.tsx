@@ -201,6 +201,7 @@ export function getRestNodes(tins: TopologyRestNode[]): NodeModel[] {
             status: NodeStatus.default,
             data: {
                 isAlternate: false,
+                badge: 'REST',
                 icon: 'rest',
                 type: 'rest',
                 step: tin.rest,

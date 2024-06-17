@@ -171,7 +171,7 @@ export class TopologyUtils {
                 rest?.head?.forEach((d: HeadDefinition) => {
                     if (d.to) uris.push(d.to);
                 });
-                const title = 'REST: ' + (rest.description ? rest.description : rest.id);
+                const title = '' + (rest.description ? rest.description : rest.id);
                 result.push(new TopologyRestNode(rest.path || '', '' + rest.id, uris, title, filename, rest))
             })
         })

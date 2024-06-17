@@ -21,3 +21,16 @@
         - to:
             id: to-1600
             uri: kamelet:kafka-sink
+- rest:
+    id: rest-d262
+    description: Hello
+    get:
+      - id: get-7de4
+        to: direct:test
+- route:
+    id: test
+    from:
+      id: from-aeed
+      uri: direct
+      parameters:
+        name: test
