@@ -67,7 +67,7 @@ import {
     SapIcon,
     SchedulingIcon,
     ScriptIcon,
-    SearchIcon, Smooks,
+    SearchIcon, SmooksIcon,
     SocialIcon,
     SpringIcon,
     TerminalIcon,
@@ -619,7 +619,7 @@ export class CamelUi {
         } else if (title.startsWith("DHIS2")) {
             return DHIS2Icon();
         } else if (title.startsWith("Smooks")) {
-            return Smooks();
+            return SmooksIcon();
         } else if (title.startsWith("Cassandra")) {
             return CassandraIcon();
         } else if (title.startsWith("Hazelcast")) {
