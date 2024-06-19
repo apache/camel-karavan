@@ -116,6 +116,7 @@ const StepElements: string[] = [
     "MarshalDefinition",
     "MulticastDefinition",
     "PausableDefinition",
+    "PolicyDefinition",
     "PollEnrichDefinition",
     "ProcessDefinition",
     "RecipientListDefinition",
@@ -556,6 +557,8 @@ export class CamelUi {
                 return "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzJweCIgaGVpZ2h0PSIzMnB4IiB2aWV3Qm94PSIwIDAgMzIgMzIiIGlkPSJpY29uIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxkZWZzPjxzdHlsZT4uY2xzLTF7ZmlsbDpub25lO308L3N0eWxlPjwvZGVmcz48dGl0bGU+cmVzZWFyY2gtLW1hdHJpeDwvdGl0bGU+PHBvbHlnb24gcG9pbnRzPSIxOCAxMyAxOCA0IDE2IDQgMTYgNiAxMyA2IDEzIDggMTYgOCAxNiAxMyAxMyAxMyAxMyAxNSAyMSAxNSAyMSAxMyAxOCAxMyIvPjxwYXRoIGQ9Ik0xNi41LDIwQTMuNSwzLjUsMCwxLDEsMTMsMjMuNSwzLjUsMy41LDAsMCwxLDE2LjUsMjBtMC0yQTUuNSw1LjUsMCwxLDAsMjIsMjMuNSw1LjUsNS41LDAsMCwwLDE2LjUsMThaIi8+PHBvbHlnb24gcG9pbnRzPSI4IDMwIDIgMzAgMiAyIDggMiA4IDQgNCA0IDQgMjggOCAyOCA4IDMwIi8+PHBvbHlnb24gcG9pbnRzPSIzMCAzMCAyNCAzMCAyNCAyOCAyOCAyOCAyOCA0IDI0IDQgMjQgMiAzMCAyIDMwIDMwIi8+PHJlY3QgaWQ9Il9UcmFuc3BhcmVudF9SZWN0YW5nbGVfIiBkYXRhLW5hbWU9IiZsdDtUcmFuc3BhcmVudCBSZWN0YW5nbGUmZ3Q7IiBjbGFzcz0iY2xzLTEiIHdpZHRoPSIzMiIgaGVpZ2h0PSIzMiIvPjwvc3ZnPg==";
             case "DelayDefinition":
                 return "data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4KDTwhLS0gVXBsb2FkZWQgdG86IFNWRyBSZXBvLCB3d3cuc3ZncmVwby5jb20sIEdlbmVyYXRvcjogU1ZHIFJlcG8gTWl4ZXIgVG9vbHMgLS0+Cjxzdmcgd2lkdGg9IjgwMHB4IiBoZWlnaHQ9IjgwMHB4IiB2aWV3Qm94PSIwIDAgMTYgMTYiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgZmlsbD0ibm9uZSI+Cg08ZyBmaWxsPSIjMDAwMDAwIj4KDTxwYXRoIGQ9Ik0xLjUgOGE2LjUgNi41IDAgMDE2Ljc0NC02LjQ5Ni43NS43NSAwIDEwLjA1NS0xLjQ5OSA4IDggMCAxMDcuMDM2IDExLjE5My43NS43NSAwIDAwLTEuMzc1LS42IDYuNzIyIDYuNzIyIDAgMDEtLjIyLjQ1M0E2LjUgNi41IDAgMDExLjUgOHpNMTAuNzI2IDEuMjM4YS43NS43NSAwIDAxMS4wMTMtLjMxMmMuMTc3LjA5NC4zNS4xOTQuNTE4LjNhLjc1Ljc1IDAgMDEtLjc5OSAxLjI3IDYuNTEyIDYuNTEyIDAgMDAtLjQyLS4yNDQuNzUuNzUgMCAwMS0uMzEyLTEuMDE0ek0xMy43NCAzLjUwOGEuNzUuNzUgMCAwMTEuMDM0LjIzNWMuMTA2LjE2OC4yMDYuMzQuMy41MThhLjc1Ljc1IDAgMTEtMS4zMjYuNzAyIDYuNDUyIDYuNDUyIDAgMDAtLjI0My0uNDIxLjc1Ljc1IDAgMDEuMjM1LTEuMDM0ek0xNS4yMTcgNi45NzlhLjc1Ljc1IDAgMDEuNzc3LjcyMiA4LjAzNCA4LjAzNCAwIDAxLjAwMi41NTIuNzUuNzUgMCAwMS0xLjUtLjA0NyA2LjcxMyA2LjcxMyAwIDAwMC0uNDUuNzUuNzUgMCAwMS43MjEtLjc3N3oiLz4KDTxwYXRoIGQ9Ik03Ljc1IDNhLjc1Ljc1IDAgMDEuNzUuNzV2My43ODZsMi4wODUgMS4wNDNhLjc1Ljc1IDAgMTEtLjY3IDEuMzQybC0yLjUtMS4yNUEuNzUuNzUgMCAwMTcgOFYzLjc1QS43NS43NSAwIDAxNy43NSAzeiIvPgoNPC9nPgoNPC9zdmc+";
+            case "PolicyDefinition":
+                return "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23000000' width='800px' height='800px' viewBox='0 0 32 32' id='icon'%3E%3Cdefs%3E%3Cstyle%3E.cls-1%7Bfill:none;%7D%3C/style%3E%3C/defs%3E%3Ctitle%3Epolicy%3C/title%3E%3Cpath d='M30,18A6,6,0,1,0,20,22.46v7.54l4-1.8926,4,1.8926V22.46A5.98,5.98,0,0,0,30,18Zm-4,8.84-2-.9467L22,26.84V23.65a5.8877,5.8877,0,0,0,4,0ZM24,22a4,4,0,1,1,4-4A4.0045,4.0045,0,0,1,24,22Z'/%3E%3Crect x='9' y='14' width='7' height='2'/%3E%3Crect x='9' y='8' width='10' height='2'/%3E%3Cpath d='M6,30a2.0021,2.0021,0,0,1-2-2V4A2.0021,2.0021,0,0,1,6,2H22a2.0021,2.0021,0,0,1,2,2V8H22V4H6V28H16v2Z'/%3E%3Crect id='_Transparent_Rectangle_' data-name='&lt;Transparent Rectangle&gt;' class='cls-1' width='32' height='32'/%3E%3C/svg%3E";
             default:
                 return camelIcon;
         }
