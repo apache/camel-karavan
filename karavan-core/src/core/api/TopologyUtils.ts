@@ -37,7 +37,6 @@ import {
 import { ComponentApi } from './ComponentApi';
 import { CamelDefinitionApiExt } from './CamelDefinitionApiExt';
 import { CamelDisplayUtil } from './CamelDisplayUtil';
-import { CamelMetadataApi } from '../model/CamelMetadata';
 import { CamelUtil } from './CamelUtil';
 
 const outgoingDefinitions: string[] = ['ToDefinition', 'KameletDefinition', 'ToDynamicDefinition', "PollEnrichDefinition", "EnrichDefinition", "WireTapDefinition", "SagaDefinition"];
@@ -240,7 +239,12 @@ export class TopologyUtils {
                     const type = TopologyUtils.isElementInternalComponent(e) ? 'internal' : 'external';
                     const connectorType = TopologyUtils.getConnectorType(e);
                     const uniqueUri = TopologyUtils.getUniqueUri(e);
-                    result.push(new TopologyOutgoingNode(id, type, connectorType, route.id, title, filename, e, uniqueUri));
+                    if (
+                        connectorType !== 'kamelet' ||
+                        CamelUtil.getKamelet(e)?.metadata.labels['camel.apache.org/kamelet.type'] !== 'action'
+                    ) {
+                        result.push(new TopologyOutgoingNode(id, type, connectorType, route.id, title, filename, e, uniqueUri));
+                    }
                 })
             })
 
