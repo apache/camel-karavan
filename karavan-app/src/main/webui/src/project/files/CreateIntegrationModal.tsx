@@ -156,7 +156,7 @@ export function CreateIntegrationModal() {
                         })}
                     </ToggleGroup>
                 </FormGroup>}
-                {getTextFieldSuffix('name', 'Name', getFileSuffix(), true, {
+                {getTextFieldSuffix('name', 'Name', getFileSuffix(), {
                     regex: v => isValidFileName(v) || 'Only characters, numbers and dashes allowed',
                     length: v => v.length > 3 || 'File name should be longer that 3 characters',
                     name: v => !['templates', 'kamelets', 'karavan'].includes(v) || "'templates', 'kamelets', 'karavan' can't be used as project",
