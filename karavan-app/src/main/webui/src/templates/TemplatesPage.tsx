@@ -117,7 +117,7 @@ export function TemplatesPage () {
             <PageSection className="tools-section" padding={{default: 'noPadding'}}>
                 <MainToolbar title={title()} tools={getTools()}/>
             </PageSection>
-            <PageSection isFilled className="kamelets-page">
+            <PageSection isFilled className="scrolled-page">
                 {getProjectsTable()}
             </PageSection>
         </PageSection>

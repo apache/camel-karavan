@@ -79,7 +79,7 @@ export const ConfigurationPage = (props: Props) => {
             </PageSection>
             <PageSection className="tools-section" padding={{default: 'noPadding'}}>
                 <Flex direction={{default: "column"}} spaceItems={{default: "spaceItemsNone"}}>
-                    <FlexItem className="knowledge-tabs">
+                    <FlexItem>
                         <Tabs activeKey={tab} onSelect={(event, tabIndex) => setTab(tabIndex)}>
                             <Tab eventKey="statuses" title="Statuses"/>
                             <Tab eventKey="secrets" title="Secrets" isDisabled/>

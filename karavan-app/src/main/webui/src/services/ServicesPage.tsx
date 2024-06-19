@@ -32,7 +32,6 @@ import {
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
 import RefreshIcon from '@patternfly/react-icons/dist/esm/icons/sync-alt-icon';
-import PlusIcon from '@patternfly/react-icons/dist/esm/icons/plus-icon';
 import {
 	Td,
 	Th,
@@ -143,7 +142,7 @@ export function ServicesPage () {
             <PageSection className="tools-section" padding={{default: 'noPadding'}}>
                 <MainToolbar title={title()} tools={getTools()}/>
             </PageSection>
-            <PageSection isFilled className="kamelets-page">
+            <PageSection isFilled className="scrolled-page">
                 {getServicesTable()}
             </PageSection>
             <ProjectLogPanel/>

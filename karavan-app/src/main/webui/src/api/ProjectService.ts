@@ -25,7 +25,7 @@ import {
     useStatusesStore,
     useFileStore, useLogStore,
     useProjectsStore,
-    useProjectStore, useDevModeStore, useAppConfigStore
+    useProjectStore, useDevModeStore
 } from './ProjectStore';
 import {ProjectEventBus} from './ProjectEventBus';
 import {EventBus} from "../designer/utils/EventBus";
@@ -98,7 +98,6 @@ export class ProjectService {
     }
 
     public static pushProject(project: Project, commitMessage: string) {
-        useAppConfigStore.setState({notificationFetcherId: Math.random().toString()});
         const params = {
             'projectId': project.projectId,
             'message': commitMessage,
@@ -128,18 +127,28 @@ export class ProjectService {
         });
     }
 
-    public static reloadKamelets() {
-        KaravanApi.getKamelets(yamls => {
-            const kamelets: string[] = [];
-            yamls.split(/\n?---\n?/).map(c => c.trim()).forEach(z => kamelets.push(z));
-            KameletApi.saveKamelets(kamelets, true);
-        })
+    static afterKameletsLoad(yamls: string): void {
+        const kamelets: string[] = [];
+        yamls.split(/\n?---\n?/).map(c => c.trim()).forEach(z => kamelets.push(z));
+        KameletApi.saveKamelets(kamelets, true);
+    }
 
+    public static reloadKamelets(projectId?: string) {
+        if (projectId) {
+            KaravanApi.getKameletsForProject(projectId, ProjectService.afterKameletsLoad);
+            useFilesStore.getState().files
+                ?.filter(f => f.name.endsWith('.kamelet.yaml'))
+                .map(f => f.name.replace('.kamelet.yaml', ''))
+                .forEach(name => KameletApi.saveCustomKameletName(name))
+        } else {
+            KaravanApi.getKamelets(ProjectService.afterKameletsLoad)
+        }
         KaravanApi.getFiles("kamelets", (files: ProjectFile[]) => {
             files.map(f => f.name.replace('.kamelet.yaml', ''))
                 .forEach(name => KameletApi.saveCustomKameletName(name))
         });
     }
+
     public static updateFile(file: ProjectFile, active: boolean) {
         KaravanApi.putProjectFile(file, res => {
             if (res.status === 200) {
@@ -282,6 +291,7 @@ export class ProjectService {
         });
         KaravanApi.getFiles(projectId, (files: ProjectFile[]) => {
             useFilesStore.setState({files: files});
+            ProjectService.reloadKamelets(projectId);
         });
 
         KaravanApi.getFilesDiff(projectId, (diff: any) => {

@@ -29,6 +29,7 @@ import {SsoApi} from "./SsoApi";
 import {v4 as uuidv4} from "uuid";
 import {useAppConfigStore} from "./ProjectStore";
 import {EventBus} from "../designer/utils/EventBus";
+import {ErrorEventBus} from "./ErrorEventBus";
 
 const USER_ID_KEY = 'KARAVAN_USER_ID';
 axios.defaults.headers.common['Accept'] = 'application/json';
@@ -46,9 +47,7 @@ export class KaravanApi {
     }
 
     static getUserId(): string {
-        if (KaravanApi.me?.userName !== undefined) {
-            return KaravanApi.me?.userName;
-        } else {
+        if (KaravanApi.authType === 'public') {
             const userId = localStorage.getItem(USER_ID_KEY);
             if (userId !== null && userId !== undefined) {
                 return userId;
@@ -57,11 +56,12 @@ export class KaravanApi {
                 localStorage.setItem(USER_ID_KEY, newId);
                 return newId;
             }
+        } else {
+            return KaravanApi.me?.userName;
         }
     }
 
     static setAuthType(authType: string) {
-        console.log("SetAuthType", authType)
         KaravanApi.authType = authType;
         switch (authType) {
             case "public": {
@@ -124,30 +124,6 @@ export class KaravanApi {
         });
     }
 
-    static async auth(username: string, password: string, after: (ok: boolean, res: any) => void) {
-        instance.post('/public/auth',
-            {username: username, password: Buffer.from(password).toString('base64')},
-            {headers: {'content-type': 'application/x-www-form-urlencoded'}})
-            .then(res => {
-                if (res.status === 200) {
-                    KaravanApi.basicToken = Buffer.from(username + ":" + password).toString('base64');
-                    KaravanApi.setBasicAuthentication();
-                    KaravanApi.getMe(user => {
-                        after(true, res);
-                        useAppConfigStore.setState({isAuthorized: true})
-                    })
-                } else if (res.status === 401) {
-                    useAppConfigStore.setState({isAuthorized: false})
-                    KaravanApi.basicToken = '';
-                    after(false, res);
-                }
-            }).catch(err => {
-            KaravanApi.basicToken = '';
-            useAppConfigStore.setState({isAuthorized: false})
-            after(false, err);
-        });
-    }
-
     static async getReadiness(after: (readiness: any) => void) {
         axios.get('/public/readiness', {headers: {'Accept': 'application/json'}})
             .then(res => {
@@ -157,8 +133,7 @@ export class KaravanApi {
                     after(undefined);
                 }
             }).catch(err => {
-            console.log(err.message);
-            after(undefined);
+            ErrorEventBus.sendApiError(err);
         });
     }
 
@@ -169,7 +144,7 @@ export class KaravanApi {
                     after(res.data);
                 }
             }).catch(err => {
-            console.log(err);
+            ErrorEventBus.sendApiError(err);
         });
     }
 
@@ -183,7 +158,7 @@ export class KaravanApi {
                     after(res.data);
                 }
             }).catch(err => {
-            console.log(err);
+            ErrorEventBus.sendApiError(err);
         });
     }
 
@@ -195,7 +170,7 @@ export class KaravanApi {
                     after(res.data);
                 }
             }).catch(err => {
-            console.log(err);
+            ErrorEventBus.sendApiError(err);
         });
     }
 
@@ -206,7 +181,7 @@ export class KaravanApi {
                     after(res.data);
                 }
             }).catch(err => {
-            console.log(err);
+            ErrorEventBus.sendApiError(err);
         });
     }
 
@@ -217,7 +192,7 @@ export class KaravanApi {
                     after(res.data);
                 }
             }).catch(err => {
-            console.log(err);
+            ErrorEventBus.sendApiError(err);
         });
     }
 
@@ -228,7 +203,7 @@ export class KaravanApi {
                     after(res.data);
                 }
             }).catch(err => {
-            console.log(err);
+            ErrorEventBus.sendApiError(err);
         });
     }
 
@@ -241,7 +216,7 @@ export class KaravanApi {
                     after(undefined);
                 }
             }).catch(err => {
-            console.log(err);
+            ErrorEventBus.sendApiError(err);
         });
     }
 
@@ -252,7 +227,7 @@ export class KaravanApi {
                     after(res.data);
                 }
             }).catch(err => {
-            console.log(err);
+            ErrorEventBus.sendApiError(err);
         });
     }
 
@@ -263,7 +238,7 @@ export class KaravanApi {
                     after(res.data);
                 }
             }).catch(err => {
-            console.log(err);
+            ErrorEventBus.sendApiError(err);
         });
     }
 
@@ -274,7 +249,7 @@ export class KaravanApi {
                     after(res.data.map((p: Partial<Project> | undefined) => new Project(p)));
                 }
             }).catch(err => {
-            console.log(err);
+            ErrorEventBus.sendApiError(err);
         });
     }
 
@@ -333,7 +308,7 @@ export class KaravanApi {
                     after(res.data);
                 }
             }).catch((err: any) => {
-            console.log(err);
+            ErrorEventBus.sendApiError(err);
             EventBus.sendAlert("Error", err.message, "danger")
         });
     }
@@ -345,7 +320,7 @@ export class KaravanApi {
                     after(res.data);
                 }
             }).catch(err => {
-            console.log(err);
+            ErrorEventBus.sendApiError(err);
         });
     }
 
@@ -356,7 +331,7 @@ export class KaravanApi {
                     after(res.data);
                 }
             }).catch(err => {
-            console.log(err);
+            ErrorEventBus.sendApiError(err);
         });
     }
 
@@ -367,7 +342,7 @@ export class KaravanApi {
                     after(res.data);
                 }
             }).catch(err => {
-            console.log(err);
+            ErrorEventBus.sendApiError(err);
         });
     }
 
@@ -429,7 +404,7 @@ export class KaravanApi {
                     after(res.data);
                 }
             }).catch(err => {
-            console.log(err);
+            ErrorEventBus.sendApiError(err);
         });
     }
 
@@ -440,7 +415,7 @@ export class KaravanApi {
                     after(res.data);
                 }
             }).catch(err => {
-            console.log(err);
+            ErrorEventBus.sendApiError(err);
         });
     }
 
@@ -514,7 +489,7 @@ export class KaravanApi {
                     after(res.data);
                 }
             }).catch(err => {
-            console.log(err);
+            ErrorEventBus.sendApiError(err);
         });
     }
 
@@ -525,7 +500,7 @@ export class KaravanApi {
                     after(res.data);
                 }
             }).catch(err => {
-            console.log(err);
+            ErrorEventBus.sendApiError(err);
         });
     }
 
@@ -536,7 +511,7 @@ export class KaravanApi {
                     after(res.data);
                 }
             }).catch(err => {
-            console.log(err);
+            ErrorEventBus.sendApiError(err);
         });
     }
 
@@ -547,7 +522,7 @@ export class KaravanApi {
                     after(res.data);
                 }
             }).catch(err => {
-            console.log(err);
+            ErrorEventBus.sendApiError(err);
         });
     }
 
@@ -567,7 +542,7 @@ export class KaravanApi {
                     after(res.data);
                 }
             }).catch(err => {
-            console.log(err);
+            ErrorEventBus.sendApiError(err);
         });
     }
 
@@ -578,7 +553,7 @@ export class KaravanApi {
                     after(res.data);
                 }
             }).catch(err => {
-            console.log(err);
+            ErrorEventBus.sendApiError(err);
         });
     }
 
@@ -630,7 +605,7 @@ export class KaravanApi {
                     after(res.data);
                 }
             }).catch(err => {
-            console.log(err);
+            ErrorEventBus.sendApiError(err);
         });
     }
 
@@ -641,7 +616,7 @@ export class KaravanApi {
                     after(res.data);
                 }
             }).catch(err => {
-            console.log(err);
+            ErrorEventBus.sendApiError(err);
         });
     }
 
@@ -652,7 +627,7 @@ export class KaravanApi {
                     after();
                 }
             }).catch(err => {
-            console.log(err);
+            ErrorEventBus.sendApiError(err);
         });
     }
 
@@ -663,7 +638,7 @@ export class KaravanApi {
                     after(res.data);
                 }
             }).catch(err => {
-            console.log(err);
+            ErrorEventBus.sendApiError(err);
         });
     }
 
@@ -674,7 +649,7 @@ export class KaravanApi {
                     after(res.data);
                 }
             }).catch(err => {
-            console.log(err);
+            ErrorEventBus.sendApiError(err);
         });
     }
 
@@ -703,7 +678,18 @@ export class KaravanApi {
                     after(res.data);
                 }
             }).catch(err => {
-            console.log(err);
+            ErrorEventBus.sendApiError(err);
+        });
+    }
+
+    static async getKameletsForProject(projectId: string, after: (yaml: string) => void) {
+        instance.get('/ui/kamelet/' + projectId, {headers: {'Accept': 'text/plain'}})
+            .then(res => {
+                if (res.status === 200) {
+                    after(res.data);
+                }
+            }).catch(err => {
+            ErrorEventBus.sendApiError(err);
         });
     }
 
@@ -714,7 +700,7 @@ export class KaravanApi {
                     after(JSON.stringify(res.data));
                 }
             }).catch(err => {
-            console.log(err);
+            ErrorEventBus.sendApiError(err);
         });
     }
 }
