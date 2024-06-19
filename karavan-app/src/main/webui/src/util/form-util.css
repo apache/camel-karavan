@@ -17,3 +17,11 @@
     padding-left: 3px;
     padding-right: 3px;
 }
+
+.form-util-text-field {
+    width: 100%;
+}
+.form-util-text-field-suffix,
+.form-util-text-field-suffix input {
+    width: 150px
+}

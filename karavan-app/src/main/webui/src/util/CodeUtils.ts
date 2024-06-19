@@ -50,9 +50,11 @@ export class CodeUtils {
         if (type === 'INTEGRATION') {
             return CamelDefinitionYaml.integrationToYaml(Integration.createNew(fileName, 'plain'));
         } else if (type === 'KAMELET') {
-            const type: string | undefined = fileName.replace('.kamelet.yaml', '').split('-').pop();
+            const filenameParts = fileName.replace('.kamelet.yaml', '').split('-');
+            const type: string | undefined = filenameParts.slice(-1)[0]
             const kameletType: KameletTypes | undefined = (type === "sink" || type === "source" || type === "action") ? type : undefined;
-            const integration = Integration.createNew(fileName, 'kamelet');
+            const name = filenameParts.slice(0, -1).join('-');
+            const integration = Integration.createNew(name, 'kamelet');
             const meta: MetadataLabels = new MetadataLabels({"camel.apache.org/kamelet.type": kameletType});
             integration.metadata.labels = meta;
             if (copyFromKamelet !== undefined && copyFromKamelet !== '') {

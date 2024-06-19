@@ -1,10 +1,11 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {
     Controller,
     FieldError,
     UseFormReturn,
 } from "react-hook-form";
 import {
+    Button,
     Flex,
     FormGroup,
     FormHelperText,
@@ -15,8 +16,13 @@ import {
     TextInput, TextInputGroup, TextInputGroupMain, TextVariants
 } from "@patternfly/react-core";
 import "./form-util.css"
+import ShowIcon from "@patternfly/react-icons/dist/js/icons/eye-icon";
+import HideIcon from "@patternfly/react-icons/dist/js/icons/eye-slash-icon";
+import {hasDigit, hasLowercase, hasMinimumLength, hasSpecialCharacter, hasUppercase} from "./StringUtils";
 
 export function useFormUtil(formContext: UseFormReturn<any>) {
+
+    const [showPassword, setShowPassword] = useState<boolean>(false);
 
     function getHelper(error: FieldError | undefined) {
         if (error) {
@@ -32,7 +38,9 @@ export function useFormUtil(formContext: UseFormReturn<any>) {
         }
     }
 
-    function getTextField(fieldName: string, label: string, validate?: ((value: string, formValues: any) => boolean | string) | Record<string, (value: string, formValues: any) => boolean | string>) {
+    function getTextField(fieldName: string, label: string,
+                          validate?: ((value: string, formValues: any) => boolean | string) | Record<string, (value: string, formValues: any) => boolean | string>,
+                          type: | 'text' | 'date' | 'datetime-local' | 'email' | 'month' | 'number' | 'password' | 'search' | 'tel' | 'time' | 'url' = 'text') {
         const {control, setValue, getValues, formState: {errors}} = formContext;
         return (
             <FormGroup label={label} fieldId={fieldName} isRequired>
@@ -41,7 +49,7 @@ export function useFormUtil(formContext: UseFormReturn<any>) {
                     control={control}
                     name={fieldName}
                     render={() => (
-                        <TextInput className="text-field" type="text" id={fieldName}
+                        <TextInput className="text-field" type={type} id={fieldName}
                                    value={getValues(fieldName)}
                                    validated={!!errors[fieldName] ? 'error' : 'default'}
                                    onChange={(_, v) => {
@@ -81,6 +89,41 @@ export function useFormUtil(formContext: UseFormReturn<any>) {
         )
     }
 
+    function getPasswordField(fieldName: string, label: string, validate?: ((value: string, formValues: any) => boolean | string) | Record<string, (value: string, formValues: any) => boolean | string>) {
+        validate = {
+            length: v => hasMinimumLength(v) || 'Password should be at least 8 characters',
+            lower: v => hasLowercase(v) || 'Password should have at least one lowercase letter',
+            upper: v => hasUppercase(v) || 'Password should have at least one uppercase letter',
+            digit: v => hasDigit(v) || 'Password should have at least one digit',
+            special: v => hasSpecialCharacter(v) || 'Password should have at least one special character',
+        }
+        const {control, setValue, getValues, formState: {errors}} = formContext;
+        return (
+            <FormGroup label={label} fieldId={fieldName} isRequired>
+                <Controller
+                    rules={{required: "Required field", validate: validate}}
+                    control={control}
+                    name={fieldName}
+                    render={() => (
+                        <div style={{display:'flex'}}>
+                            <TextInput className="text-field" type={showPassword ? "text" : "password"} id={fieldName}
+                                       value={getValues(fieldName)}
+                                       validated={!!errors[fieldName] ? 'error' : 'default'}
+                                       onChange={(_, v) => {
+                                           setValue(fieldName, v, {shouldValidate: true});
+                                       }}
+                            />
+                            <Button variant="control" onClick={e => setShowPassword(!showPassword)}>
+                                {showPassword ? <ShowIcon/> : <HideIcon/>}
+                            </Button>
+                        </div>
+                    )}
+                />
+                {getHelper((errors as any)[fieldName])}
+            </FormGroup>
+        )
+    }
+
     function getTextFieldPrefix(fieldName: string, label: string, prefix: string,
                                 required: boolean,
                                 validate?: ((value: string, formValues: any) => boolean | string) | Record<string, (value: string, formValues: any) => boolean | string>) {
@@ -107,25 +150,28 @@ export function useFormUtil(formContext: UseFormReturn<any>) {
     }
 
     function getTextFieldSuffix(fieldName: string, label: string, suffix: string,
-                                required: boolean,
-                                validate?: ((value: string, formValues: any) => boolean | string) | Record<string, (value: string, formValues: any) => boolean | string>) {
-        const {setValue, getValues, register, formState: {errors}} = formContext;
+                          validate?: ((value: string, formValues: any) => boolean | string) | Record<string, (value: string, formValues: any) => boolean | string>,
+                          type: | 'text' | 'date' | 'datetime-local' | 'email' | 'month' | 'number' | 'password' | 'search' | 'tel' | 'time' | 'url' = 'text') {
+        const {control, setValue, getValues, formState: {errors}} = formContext;
         return (
             <FormGroup label={label} fieldId={fieldName} isRequired>
-                <TextInputGroup className="text-field-with-suffix">
-                    <TextInputGroupMain type="text" id={fieldName}
-                                        value={getValues(fieldName)}
-                                        {...register(fieldName, {
-                                            required: (required ? "Required field" : false),
-                                            validate: validate
-                                        })}
-                                        onChange={(e, v) => {
-                                            setValue(fieldName, v, {shouldValidate: true});
-                                        }}
-                    >
-                    </TextInputGroupMain>
-                    <Text className='text-field-suffix' component={TextVariants.p}>{suffix}</Text>
-                </TextInputGroup>
+                <Controller
+                    rules={{required: "Required field", validate: validate}}
+                    control={control}
+                    name={fieldName}
+                    render={() => (
+                        <div style={{display: 'flex'}}>
+                            <TextInput className="form-util-text-field" type={type} id={fieldName}
+                                       value={getValues(fieldName)}
+                                       validated={!!errors[fieldName] ? 'error' : 'default'}
+                                       onChange={(_, v) => {
+                                           setValue(fieldName, v, {shouldValidate: true});
+                                       }}
+                            />
+                            <TextInput className="form-util-text-field-suffix" id={fieldName + ':suffix'} value={suffix} isDisabled/>
+                        </div>
+                    )}
+                />
                 {getHelper((errors as any)[fieldName])}
             </FormGroup>
         )
@@ -188,6 +234,6 @@ export function useFormUtil(formContext: UseFormReturn<any>) {
         )
     }
 
-    return {getFormSelect, getTextField, getSwitches, getTextFieldPrefix, getTextFieldSuffix, getTextArea}
+    return {getFormSelect, getTextField, getSwitches, getTextFieldPrefix, getTextArea, getPasswordField, getTextFieldSuffix}
 }
 
