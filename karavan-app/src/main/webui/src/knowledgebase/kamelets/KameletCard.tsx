@@ -19,6 +19,7 @@ import {
     CardHeader, Card, CardTitle, CardBody, CardFooter, Badge, Checkbox, Flex
 } from '@patternfly/react-core';
 import '../../designer/karavan.css';
+import '../knowledgebase.css';
 import {KameletModel} from "karavan-core/lib/model/KameletModels";
 import {CamelUi} from "../../designer/utils/CamelUi";
 import {KameletApi} from "karavan-core/lib/api/KameletApi";
@@ -60,9 +61,9 @@ export function KameletCard(props: Props) {
                onClick={event => click(event)}
         >
             <CardHeader className="header-labels">
-                <Flex gap={{default:'gapNone'}}>
+                <Flex style={{width:'100%'}} gap={{default:'gapSm'}} justifyContent={{default: 'justifyContentSpaceBetween'}}>
                     <Badge isRead className="support-level labels">{kamelet.metadata.annotations["camel.apache.org/kamelet.support.level"]}</Badge>
-                    {isCustom && <Badge className="custom labels">custom</Badge>}
+                    <Badge isRead className="version labels">{kamelet.metadata.annotations["camel.apache.org/catalog.version"].toLowerCase()}</Badge>
                 </Flex>
                 {showBlockCheckbox && <Checkbox id={kamelet.metadata.name} className="block-checkbox labels" isChecked={!isblockedKamelet}
                                                 onChange={(_, checked) => selectKamelet(_, checked)}/>}
@@ -74,8 +75,7 @@ export function KameletCard(props: Props) {
             <CardBody>{kamelet.spec.definition.description}</CardBody>
             <CardFooter className="footer-labels">
                 <Badge isRead className="labels">{kamelet.metadata.labels["camel.apache.org/kamelet.type"].toLowerCase()}</Badge>
-                <Badge isRead className="version labels">{kamelet.metadata.annotations["camel.apache.org/catalog.version"].toLowerCase()}</Badge>
-                {/*</div>*/}
+                {isCustom && <Badge className="custom labels">custom</Badge>}
             </CardFooter>
         </Card>
     )

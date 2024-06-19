@@ -51,7 +51,6 @@ export function DslCard (props: Props) {
                 {['kamelet', 'component'].includes(dsl.navigation.toLowerCase()) &&
                     <Badge isRead className="version labels">{dsl.version}</Badge>
                 }
-                {isCustom && <Badge className="custom">custom</Badge>}
             </CardHeader>
             <CardHeader>
                 {CamelUi.getIconForDsl(dsl)}
@@ -68,7 +67,7 @@ export function DslCard (props: Props) {
                     {labels.map((label, index) => <Badge key={label + "-" + index} isRead
                                                          className="labels">{label}</Badge>)}
                 </div>
-
+                {isCustom && <Badge className="custom">custom</Badge>}
             </CardFooter>
         </Card>
     )
