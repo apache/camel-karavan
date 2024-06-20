@@ -20,7 +20,7 @@
     fill: var(--pf-v5-global--primary-color--100);
     width: 20px;
     height: 20px;
-    background: white;
+    background: transparent;
     vertical-align: text-bottom;
 }
 
@@ -28,6 +28,6 @@
     fill: var(--pf-v5-global--danger-color--100);
     width: 20px;
     height: 20px;
-    background: white;
+    background: transparent;
     vertical-align: text-bottom;
 }

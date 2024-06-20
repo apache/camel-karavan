@@ -8,25 +8,40 @@
         message: Hello
         period: 1
       steps:
-        - aggregate:
-            id: aggregate-46cb
-            completionSize: 1
         - to:
             id: to-df39
             uri: amqp
-        - aggregate:
-            id: aggregate-1193
-            completionSize: 121212
-            completionTimeout: "{{bean:beanName.method}}"
         - to:
             id: to-1600
             uri: kamelet:kafka-sink
-- rest:
-    id: rest-d262
-    description: Hello
-    get:
-      - id: get-7de4
-        to: direct:test
+        - choice:
+            id: choice-41b7
+            when:
+              - id: when-29c0
+                expression:
+                  simple:
+                    id: simple-289b
+                steps:
+                  - aggregate:
+                      id: aggregate-1193
+                      completionSize: 121212
+                      completionTimeout: "{{bean:beanName.method}}"
+                      steps:
+                        - bean:
+                            id: bean-a9e0
+                        - to:
+                            id: to-df17
+                            uri: amqp
+            otherwise:
+              id: otherwise-b00c
+              steps:
+                - aggregate:
+                    id: aggregate-46cb
+                    completionSize: 1
+                    steps:
+                      - to:
+                          id: to-5565
+                          uri: activemq
 - route:
     id: test
     from:
@@ -34,3 +49,7 @@
       uri: direct
       parameters:
         name: test
+      steps:
+        - to:
+            id: to-1daf
+            uri: kamelet:aws-bedrock-agent-runtime-sink

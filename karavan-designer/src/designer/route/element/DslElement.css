@@ -97,11 +97,11 @@
 }
 
 .karavan .step-element .header .text-bottom {
-    background-color: rgba(255, 255, 255, 0.5);
+    background-color: rgba(255, 255, 255, 0.2);
 }
 
 .karavan .step-element .header .text-right {
-    padding-left: 17px;
+    padding-left: 21px;
     width: 50%;
     text-align: start;
 }
@@ -112,18 +112,37 @@
 }
 
 .karavan .step-element .header-icon {
-    border-color: var(--pf-v5-global--Color--200);
+    border-color: var(--pf-v5-global--Color--300);
     border-style: solid;
-    border-radius: 30px;
     border-width: 1px;
     background: white;
-    width: 30px;
-    height: 30px;
+    width: 33px;
+    height: 33px;
     margin: auto;
     display: flex;
     justify-content: center;
     align-items: center;
 }
+
+.karavan .step-element .header-icon-circle {
+    border-radius: 33px;
+}
+
+.karavan .step-element .header-icon-square {
+    border-radius: 33px;
+}
+
+.karavan .step-element .header-icon-diamond {
+    border-radius: 4px;
+    transform: rotate(45deg);
+    margin-top: -4px;
+    width: 30px;
+    height: 30px;
+}
+.karavan .step-element .header-icon-diamond .icon {
+    transform: rotate(-45deg);
+}
+
 
 .karavan .step-element .route-icons {
     position: absolute;
@@ -133,7 +152,7 @@
 
 .karavan .step-element .header .icon,
 .element-builder .header .icon {
-    height: 20px;
+    height: 22px;
     width: auto;
     border: none;
     -webkit-user-select: none;

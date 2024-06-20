@@ -30,6 +30,8 @@ import {getIntegrations} from "../../topology/TopologyApi";
 import {ComponentApi} from "karavan-core/lib/api/ComponentApi";
 
 const overlapGap: number = 40;
+const DIAMETER: number = 34;
+const RADIUS: number = DIAMETER / 2;
 
 export function DslConnections() {
 
@@ -146,8 +148,8 @@ export function DslConnections() {
             const fromY = pos.headerRect.y + pos.headerRect.height / 2 - top;
             const r = pos.headerRect.height / 2;
             const incomingX = 20;
-            const imageX = incomingX - r + 5;
-            const imageY = fromY - r + 5;
+            const imageX = incomingX - r + 6;
+            const imageY = fromY - r + 6;
             return (
                 <div key={pos.step.uuid + "-icon"}
                      style={{display: "block", position: "absolute", top: imageY, left: imageX}}>
@@ -213,11 +215,11 @@ export function DslConnections() {
             const r = pos.headerRect.height / 2;
 
             const outgoingX = width - 20;
-            const outgoingY = data[1] + 15;
+            const outgoingY = data[1] + RADIUS;
 
             const lineX1 = fromX + r;
             const lineY1 = fromY;
-            const lineX2 = outgoingX - r * 2 + 4;
+            const lineX2 = outgoingX - r * 2 + 6;
             const lineY2 = outgoingY;
 
             const lineXi = lineX1 + 40;
@@ -227,7 +229,7 @@ export function DslConnections() {
                 <g key={pos.step.uuid + "-outgoing"}>
                     <circle cx={outgoingX} cy={outgoingY} r={r} className="circle-outgoing"/>
                     <path
-                        d={`M ${lineX1},${lineY1} C ${lineXi - 20}, ${lineY1} ${lineX1 - 15},${lineYi} ${lineXi},${lineYi} L ${lineX2},${lineY2}`}
+                        d={`M ${lineX1},${lineY1} C ${lineXi - 20}, ${lineY1} ${lineX1 - RADIUS},${lineYi} ${lineXi},${lineYi} L ${lineX2},${lineY2}`}
                         className="path-incoming" markerEnd="url(#arrowhead)"/>
                 </g>
             )
@@ -243,9 +245,9 @@ export function DslConnections() {
             const name = directOrSeda ? (step?.parameters?.name) : '';
             const r = pos.headerRect.height / 2;
             const outgoingX = width - 20;
-            const outgoingY = data[1] + 15;
-            const imageX = outgoingX - r + 5;
-            const imageY = outgoingY - r + 5;
+            const outgoingY = data[1] + RADIUS;
+            const imageX = outgoingX - r + 6;
+            const imageY = outgoingY - r + 6;
             return (
                 <div key={pos.step.uuid + "-icon"}
                      style={{display: "block", position: "absolute", top: imageY, left: imageX}}>
@@ -405,8 +407,8 @@ export function DslConnections() {
         const gapX = Math.abs(endX - startX);
         const gapY = Math.abs(endTempY - startY);
 
-        const radX = gapX > 30 ? 20 : gapX/2;
-        const radY = gapY > 30 ? 20 : gapY/2;
+        const radX = gapX > DIAMETER ? 20 : gapX/2;
+        const radY = gapY > DIAMETER ? 20 : gapY/2;
         const endY = rect2.y - top - radY - (toHeader ? 9 : 6);
 
         const iRadX = startX > endX ? -1 * radX : radX;

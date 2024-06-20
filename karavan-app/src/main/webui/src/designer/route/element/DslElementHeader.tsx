@@ -59,6 +59,8 @@ export function DslElementHeader(props: Props) {
         useDesignerStore((s) =>
             [s.selectedUuids, s.selectedStep, s.showMoveConfirmation, s.setShowMoveConfirmation, s.setMoveElements], shallow)
 
+    const step: CamelElement = props.step;
+
     function onOpenSelector(evt: React.MouseEvent, showSteps: boolean = true, isInsert: boolean = false) {
         evt.stopPropagation();
         if (isInsert && props.parent) {
@@ -143,9 +145,20 @@ export function DslElementHeader(props: Props) {
     || (rc.onCompletion !== undefined && rc.onCompletion.length > 0)
     }
 
+    function getHeaderIconClasses(): string {
+        const classes: string[] = ['header-icon'];
+        if (['ToDefinition', 'FromDefinition'].includes(step.dslName)) {
+            classes.push('header-icon-square');
+        } else if (step.dslName === 'ChoiceDefinition') {
+            classes.push('header-icon-diamond');
+        } else {
+            classes.push('header-icon-circle');
+        }
+        return classes.join(" ");
+    }
+
     function getHeaderClasses(): string {
         const classes: string[] = [];
-        const step: CamelElement = props.step;
         if (step.dslName === 'RouteDefinition') {
             classes.push('header-route')
             classes.push('header-bottom-line')
@@ -179,7 +192,7 @@ export function DslElementHeader(props: Props) {
             <div className={"dsl-element " + headerClasses} style={getHeaderStyle()} ref={props.headerRef}>
                 {!['RouteConfigurationDefinition', 'RouteDefinition'].includes(props.step.dslName) &&
                     <div
-                        className={"header-icon"}
+                        className={getHeaderIconClasses()}
                         style={isWide() ? {width: ""} : {}}>
                         {CamelUi.getIconForElement(step)}
                     </div>
@@ -226,7 +239,7 @@ export function DslElementHeader(props: Props) {
         let className = hasWideChildrenElement ? "text text-right" : "text text-bottom";
         if (!checkRequired[0]) className = className + " header-text-required";
         if (checkRequired[0]) {
-            return <Text className={className}>{title}</Text>
+            return <Text style={{marginTop: (step.dslName === 'ChoiceDefinition' ? '-5px' : 'inherit')}} className={className}>{title}</Text>
         } else return (
             <Tooltip position={"right"} className="tooltip-required-field"
                      content={checkRequired[1].map((text, i) => (<div key={i}>{text}</div>))}>
