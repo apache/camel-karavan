@@ -105,12 +105,10 @@ public class KubernetesService {
         }
     }
 
-    public void runBuildProject(Project project, String script, List<String> env, String tag) {
+    public void runBuildProject(Project project, List<String> env) {
         try (KubernetesClient client = kubernetesClient()) {
             String containerName = project.getProjectId() + BUILDER_SUFFIX;
             Map<String, String> labels = getLabels(containerName, project, PodContainerStatus.ContainerType.build);
-//        createPVC(containerName, labels);
-//            createBuildScriptConfigmap(script, false);
 
 //        Delete old build pod
             Pod old = client.pods().inNamespace(getNamespace()).withName(containerName).get();
@@ -351,7 +349,7 @@ public class KubernetesService {
             if (old == null) {
                 Map<String, String> containerResources = CodeService.DEFAULT_CONTAINER_RESOURCES;
                 Pod pod = getDevModePod(name, jBangOptions, containerResources, labels, projectDevmodeImage);
-                Pod result = client.resource(pod).createOrReplace();
+                Pod result = client.resource(pod).serverSideApply();
                 copyFilesToContainer(result, files, "/karavan/code");
                 LOGGER.info("Created pod " + result.getMetadata().getName());
             }
@@ -371,9 +369,9 @@ public class KubernetesService {
         }
     }
 
-    public void deleteDevModePod(String name, boolean deletePVC) {
+    public void deletePodAndService(String name, boolean deletePVC) {
         try (KubernetesClient client = kubernetesClient()) {
-            LOGGER.info("Delete devmode pod: " + name + " in the namespace: " + getNamespace());
+            LOGGER.info("Delete pod/service: " + name + " in the namespace: " + getNamespace());
             client.pods().inNamespace(getNamespace()).withName(name).delete();
             client.services().inNamespace(getNamespace()).withName(name).delete();
             if (deletePVC) {
@@ -455,7 +453,7 @@ public class KubernetesService {
                         .withAccessModes("ReadWriteOnce")
                         .endSpec()
                         .build();
-                client.resource(pvc).createOrReplace();
+                client.resource(pvc).serverSideApply();
             }
         }
     }
@@ -479,7 +477,27 @@ public class KubernetesService {
                     .withSelector(labels)
                     .endSpec()
                     .build();
-            client.resource(service).createOrReplace();
+            client.resource(service).serverSideApply();
+        }
+    }
+
+    public void createSecret(String name, Map<String, String> data, Map<String, String> labels) {
+        try (KubernetesClient client = kubernetesClient()) {
+            Secret secret = new SecretBuilder()
+                    .withNewMetadata()
+                    .withName(name)
+                    .withNamespace(getNamespace())
+                    .withLabels(labels)
+                    .endMetadata()
+                    .withStringData(data)
+                    .build();
+            client.resource(secret).serverSideApply();
+        }
+    }
+
+    public Secret getSecret(String name) {
+        try (KubernetesClient client = kubernetesClient()) {
+            return client.secrets().inNamespace(getNamespace()).withName(name).get();
         }
     }
 

@@ -124,20 +124,11 @@ public class DockerService {
     }
 
     public Container createContainerFromCompose(DockerComposeService compose, Map<String, String> labels, Boolean pullAlways, String... command) throws InterruptedException {
-        return createContainerFromCompose(compose, labels, Map.of(), pullAlways, command);
-    }
-
-    public Container createContainerFromCompose(DockerComposeService compose, Map<String, String> labels, Map<String, String> volumes, Boolean pullAlways, String... command) throws InterruptedException {
         List<Container> containers = findContainer(compose.getContainer_name());
         if (containers.isEmpty()) {
             HealthCheck healthCheck = DockerUtils.getHealthCheck(compose.getHealthcheck());
 
-            List<String> env = new ArrayList<>();
-            if (compose.getEnv_file() != null) {
-                env.addAll(codeService.getComposeEnvironmentVariables(compose));
-            } else {
-                env.addAll(compose.getEnvironmentList());
-            }
+            List<String> env = codeService.getComposeEnvWithRuntimeMapping(compose);
 
             LOGGER.infof("Compose Service started for %s in network:%s", compose.getContainer_name(), networkName);
 
@@ -149,7 +140,7 @@ public class DockerService {
             }
 
             return createContainer(compose.getContainer_name(), compose.getImage(), 
-                    env, compose.getPortsMap(), healthCheck, labels, volumes, networkName, restartPolicy, pullAlways, 
+                    env, compose.getPortsMap(), healthCheck, labels, compose.getVolumesMap(), networkName, restartPolicy, pullAlways,
                     compose.getCpus(), compose.getCpu_percent(), compose.getMem_limit(), compose.getMem_reservation(), command);
 
         } else {
@@ -189,6 +180,7 @@ public class DockerService {
             if (Objects.equals(labels.get(LABEL_PROJECT_ID), PodContainerStatus.ContainerType.build.name())) {
                 mounts.add(new Mount().withType(MountType.BIND).withSource("/var/run/docker.sock").withTarget("/var/run/docker.sock"));
             }
+
             createContainerCmd.withHostConfig(new HostConfig()
                             .withRestartPolicy(restartPolicy)
                     .withPortBindings(portBindings)

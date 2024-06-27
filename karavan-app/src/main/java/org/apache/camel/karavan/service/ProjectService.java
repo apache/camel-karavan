@@ -82,7 +82,7 @@ public class ProjectService {
         p.setLastCommitTimestamp(lastUpdate);
         karavanCache.saveProject(p);
         if (userId != null) {
-            eventBus.publish(COMMIT_HAPPENED, JsonObject.of("eventId", eventId, "project", JsonObject.mapFrom(p)));
+            eventBus.publish(COMMIT_HAPPENED, JsonObject.of("userId", userId, "eventId", eventId, "project", JsonObject.mapFrom(p)));
         }
     }
 
@@ -101,8 +101,9 @@ public class ProjectService {
             if (ConfigService.inKubernetes()) {
                 kubernetesService.runDevModeContainer(project, jBangOptions, files, projectDevmodeImage);
             } else {
-                DockerComposeService dcs = codeService.getDockerComposeService(project.getProjectId());
-                dockerForKaravan.runProjectInDevMode(project.getProjectId(), jBangOptions, dcs.getPortsMap(), files, projectDevmodeImage);
+                DockerComposeService compose = codeService.getDockerComposeService(project.getProjectId());
+                List<String> env = codeService.getComposeEnvWithRuntimeMapping(compose);
+                dockerForKaravan.runProjectInDevMode(project.getProjectId(), jBangOptions, compose, env, files, projectDevmodeImage);
             }
             return containerName;
         } else {
@@ -117,7 +118,7 @@ public class ProjectService {
         String script = codeService.getBuilderScript();
         List<String> env = getProjectEnvForBuild(project, tag);
         if (ConfigService.inKubernetes()) {
-            kubernetesService.runBuildProject(project, script, env, tag);
+            kubernetesService.runBuildProject(project, env);
         } else {
             env.addAll(getConnectionsEnvForBuild());
             Map<String, String> sshFiles = getSshFiles();

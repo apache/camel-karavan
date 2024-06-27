@@ -26,6 +26,7 @@ import jakarta.inject.Inject;
 import org.apache.camel.karavan.KaravanCache;
 import org.apache.camel.karavan.docker.DockerComposeConverter;
 import org.apache.camel.karavan.model.*;
+import org.eclipse.microprofile.config.ConfigProvider;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 import org.yaml.snakeyaml.LoaderOptions;
@@ -57,9 +58,11 @@ public class CodeService {
     public static final String PROJECT_JKUBE_EXTENSION = ".jkube.yaml";
     public static final String PROJECT_DEPLOYMENT_JKUBE_FILENAME = "deployment" + PROJECT_JKUBE_EXTENSION;
     private static final String TEMPLATES_PATH = "/templates/";
-    private static final String DATA_FOLDER = System.getProperty("user.dir") + File.separator + "data";
-    public static final String BUILDER_ENV_MAPPING_FILENAME = "builder-env.properties";
+//    private static final String DATA_FOLDER = System.getProperty("user.dir") + File.separator + "data";
+    public static final String ENV_MAPPING_FILENAME = "env-mapping.properties";
     public static final int INTERNAL_PORT = 8080;
+    private static final String ENV_MAPPING_START = "{{";
+    private static final String ENV_MAPPING_END = "}}";
 
     @ConfigProperty(name = "karavan.environment")
     String environment;
@@ -111,7 +114,7 @@ public class CodeService {
 
     public List<Tuple3<String, String, String>> getBuilderEnvMapping() {
         List<Tuple3<String, String, String>> result = new ArrayList<>();
-        ProjectFile projectFile = karavanCache.getProjectFile(Project.Type.templates.name(), BUILDER_ENV_MAPPING_FILENAME);
+        ProjectFile projectFile = karavanCache.getProjectFile(Project.Type.templates.name(), ENV_MAPPING_FILENAME);
         if (projectFile != null) {
             String text = projectFile.getCode();
             text.lines().forEach(line -> {
@@ -119,9 +122,13 @@ public class CodeService {
                 if (params.length > 1) {
                     String env = params[0];
                     String[] secret = params[1].split(":");
-                    String secretName = secret[0];
-                    String secretKey = secret[1];
-                    result.add(Tuple3.of(env, secretName, secretKey));
+                    if (secret.length > 1) {
+                        String secretName = secret[0];
+                        String secretKey = secret[1];
+                        result.add(Tuple3.of(env, secretName, secretKey));
+                    } else {
+                        result.add(Tuple3.of(env, secret[0], null));
+                    }
                 }
             });
         }
@@ -185,7 +192,7 @@ public class CodeService {
             result.put(APPLICATION_PROPERTIES_FILENAME, getResourceFile(TEMPLATES_PATH + "kubernetes-" + APPLICATION_PROPERTIES_FILENAME));
             result.put(BUILD_SCRIPT_FILENAME, getResourceFile(TEMPLATES_PATH + "kubernetes-" + BUILD_SCRIPT_FILENAME));
 //            }
-            result.put(BUILDER_ENV_MAPPING_FILENAME, getResourceFile(TEMPLATES_PATH + BUILDER_ENV_MAPPING_FILENAME));
+            result.put(ENV_MAPPING_FILENAME, getResourceFile(TEMPLATES_PATH + ENV_MAPPING_FILENAME));
             result.put(PROJECT_DEPLOYMENT_JKUBE_FILENAME, getResourceFile(TEMPLATES_PATH + PROJECT_DEPLOYMENT_JKUBE_FILENAME));
         } else {
             result.put(APPLICATION_PROPERTIES_FILENAME, getResourceFile(TEMPLATES_PATH + "docker-" + APPLICATION_PROPERTIES_FILENAME));
@@ -324,17 +331,17 @@ public class CodeService {
         }
     }
 
-    public List<String> getComposeEnvironmentVariables(String projectId) {
-        DockerComposeService compose = getDockerComposeService(projectId);
-        return getComposeEnvironmentVariables(compose);
-    }
-
-    public List<String> getComposeEnvironmentVariables(DockerComposeService compose) {
+    public List<String> getComposeEnvWithRuntimeMapping(DockerComposeService compose) {
         List<String> vars = new ArrayList<>();
-        if (compose.getEnv_file() != null && !compose.getEnv_file().isEmpty()) {
-            compose.getEnv_file().forEach(name -> {
-                String file = getDataFile(name);
-                vars.addAll(getEnvironmentVariablesFromString(file));
+        if (compose.getEnvironment() != null) {
+            compose.getEnvironment().forEach((key, value) -> {
+                if (value != null && value.startsWith(ENV_MAPPING_START)) {
+                    var envName = value.replace(ENV_MAPPING_START, "").replace(ENV_MAPPING_END, "");
+                    String envValue = ConfigProvider.getConfig().getValue(envName, String.class);
+                    vars.add(key + "=" + envValue);
+                } else {
+                    vars.add(key + "=" + value);
+                }
             });
         }
         return vars;
@@ -348,10 +355,10 @@ public class CodeService {
         return vars;
     }
 
-    public String getDataFile(String name) {
-        String fileName = DATA_FOLDER + File.separator + name;
-        return vertx.fileSystem().readFileBlocking(fileName).toString();
-    }
+//    public String getDataFile(String name) {
+//        String fileName = DATA_FOLDER + File.separator + name;
+//        return vertx.fileSystem().readFileBlocking(fileName).toString();
+//    }
 
     public List<String> listResources(String resourceFolder, boolean onlyFolders) {
         List<String> filePaths = new ArrayList<>();

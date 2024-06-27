@@ -24,7 +24,6 @@ import jakarta.inject.Inject;
 import org.apache.camel.karavan.model.DockerComposeService;
 import org.apache.camel.karavan.model.PodContainerStatus;
 import org.apache.camel.karavan.model.Project;
-import org.apache.camel.karavan.service.ProjectService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
@@ -45,38 +44,35 @@ public class DockerForKaravan {
     @Inject
     DockerService dockerService;
 
-    @Inject
-    ProjectService projectService;
-
-    public void runProjectInDevMode(String projectId, String jBangOptions, Map<Integer, Integer> ports,
+    public void runProjectInDevMode(String projectId, String jBangOptions, DockerComposeService composeService, List<String> env,
                                     Map<String, String> files, String projectDevmodeImage) throws Exception {
-        Container c = createDevmodeContainer(projectId, jBangOptions, ports, new HashMap<>(), projectDevmodeImage);
+        Container c = createDevmodeContainer(projectId, jBangOptions, composeService, env, projectDevmodeImage);
         dockerService.runContainer(projectId);
         dockerService.copyFiles(c.getId(), "/karavan/code", files, true);
     }
 
-    protected Container createDevmodeContainer(String projectId, String jBangOptions, Map<Integer, Integer> ports,
-                                               Map<String, String> volumes, String projectDevmodeImage) throws InterruptedException {
+    protected Container createDevmodeContainer(String projectId, String jBangOptions, DockerComposeService compose, List<String> env,
+                                               String projectDevmodeImage) throws InterruptedException {
         LOGGER.infof("DevMode starting for %s with JBANG_OPTIONS=%s", projectId, jBangOptions);
 
         HealthCheck healthCheck = new HealthCheck().withTest(List.of("CMD", "curl", "-f", "http://localhost:8080/q/dev/health"))
                 .withInterval(10000000000L).withTimeout(10000000000L).withStartPeriod(10000000000L).withRetries(30);
 
-        List<String> env = jBangOptions != null && !jBangOptions.trim().isEmpty()
-                ? List.of(ENV_VAR_JBANG_OPTIONS + "=" + jBangOptions)
-                : List.of();
 
-        DockerComposeService composeService = projectService.getProjectDockerComposeService(projectId);
+
+        if (jBangOptions != null && !jBangOptions.trim().isEmpty()) {
+            env.add(ENV_VAR_JBANG_OPTIONS + "=" + jBangOptions);
+        }
 
         return dockerService.createContainer(projectId,
                 (projectDevmodeImage != null ? projectDevmodeImage : devmodeImage),
-                env, ports, healthCheck,
+                env, compose.getPortsMap(), healthCheck,
                 Map.of(LABEL_TYPE, PodContainerStatus.ContainerType.devmode.name(),
                         LABEL_PROJECT_ID, projectId,
                         LABEL_CAMEL_RUNTIME, CamelRuntime.CAMEL_MAIN.getValue()
                 ),
-                volumes, null, RestartPolicy.noRestart(), false,
-                composeService.getCpus(), composeService.getCpu_percent(), composeService.getMem_limit(), composeService.getMem_reservation());
+                compose.getVolumesMap(), null, RestartPolicy.noRestart(), false,
+                compose.getCpus(), compose.getCpu_percent(), compose.getMem_limit(), compose.getMem_reservation());
     }
 
     public void runBuildProject(Project project, String script, List<String> env, Map<String, String> sshFiles, String tag) throws Exception {

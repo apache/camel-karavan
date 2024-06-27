@@ -33,9 +33,9 @@ public class DockerComposeService {
     private String mem_limit;
     private String mem_reservation;
     private List<String> ports;
+    private List<String> volumes;
     private List<String> expose;
     private List<String> depends_on;
-    private List<String> env_file;
     private List<String> networks;
     private Map<String,String> environment;
     private DockerComposeHealthCheck healthcheck;
@@ -86,6 +86,17 @@ public class DockerComposeService {
         return p;
     }
 
+    public Map<String, String> getVolumesMap() {
+        Map<String, String> p = new HashMap<>();
+        if (volumes != null && !volumes.isEmpty()) {
+            volumes.forEach(s -> {
+                String[] values = s.split(":");
+                p.put(values[0], values[1]);
+            });
+        }
+        return p;
+    }
+
     public List<String> getExpose() {
         return expose;
     }
@@ -130,14 +141,6 @@ public class DockerComposeService {
         this.healthcheck = healthcheck;
     }
 
-    public List<String> getEnv_file() {
-        return env_file;
-    }
-
-    public void setEnv_file(List<String> env_file) {
-        this.env_file = env_file;
-    }
-
     public List<String> getNetworks() {
         return networks;
     }
@@ -177,7 +180,15 @@ public class DockerComposeService {
     public void setMem_reservation(String mem_reservation) {
         this.mem_reservation = mem_reservation;
     }
-    
+
+    public List<String> getVolumes() {
+        return volumes;
+    }
+
+    public void setVolumes(List<String> volumes) {
+        this.volumes = volumes;
+    }
+
     @Override
     public String toString() {
         return "DockerComposeService {" +
@@ -189,12 +200,13 @@ public class DockerComposeService {
                 ", mem_limit='" + mem_limit + '\'' +
                 ", mem_reservation='" + mem_reservation + '\'' +
                 ", ports=" + ports +
-                ", env_file=" + env_file +
                 ", networks=" + networks +
                 ", expose=" + expose +
                 ", depends_on='" + depends_on + '\'' +
                 ", environment=" + environment +
                 ", healthcheck=" + healthcheck +
+                ", volumes=" + volumes +
+                ", environment=" + environment +
                 '}';
     }
 
