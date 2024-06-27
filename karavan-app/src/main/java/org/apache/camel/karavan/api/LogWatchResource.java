@@ -28,7 +28,6 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.SecurityContext;
 import jakarta.ws.rs.sse.Sse;
 import jakarta.ws.rs.sse.SseEventSink;
 import org.apache.camel.karavan.docker.DockerLogCallback;
@@ -44,10 +43,11 @@ import java.io.InputStreamReader;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Path("/ui/logwatch")
-public class LogWatchResource {
+public class LogWatchResource extends AbstractSseResource {
 
     private static final Logger LOGGER = Logger.getLogger(LogWatchResource.class.getName());
-    private static final ConcurrentHashMap<String, LogWatch> logWatches = new ConcurrentHashMap<>();
+    private static final String SERVICE_NAME = "LOGWATCH";
+    private static final ConcurrentHashMap<String, Tuple2<LogWatch, KubernetesClient>> logWatches = new ConcurrentHashMap<>();
 
     @Inject
     KubernetesService kubernetesService;
@@ -62,17 +62,17 @@ public class LogWatchResource {
 
     @GET
     @Produces(MediaType.SERVER_SENT_EVENTS)
-    @Path("/{type}/{name}")
+    @Path("/{type}/{name}/{username}")
     public void eventSourcing(@PathParam("type") String type,
                               @PathParam("name") String name,
-                              @Context SecurityContext securityContext,
+                              @PathParam("username") String username,
                               @Context SseEventSink eventSink,
                               @Context Sse sse) {
-
+        sinkCleanup(SERVICE_NAME + ":" + type + ":" + name, username, eventSink);
         managedExecutor.execute(() -> {
-            LOGGER.info("LogWatch for " + name + " starting...");
+            LOGGER.info("LogWatch for " + name + " starting... ");
             if (ConfigService.inKubernetes()) {
-                getKubernetesLogs(name, eventSink, sse);
+                getKubernetesLogs(name, username, eventSink, sse);
             } else {
                 getDockerLogs(type, name, eventSink, sse);
             }
@@ -96,9 +96,10 @@ public class LogWatchResource {
         }
     }
 
-    private void getKubernetesLogs(String name, SseEventSink eventSink, Sse sse) {
+    private void getKubernetesLogs(String name, String username, SseEventSink eventSink, Sse sse) {
         try (SseEventSink sink = eventSink) {
             Tuple2<LogWatch, KubernetesClient> request = kubernetesService.getContainerLogWatch(name);
+            logWatchCleanup(SERVICE_NAME, username, request);
             LogWatch logWatch = request.getItem1();
             BufferedReader reader = new BufferedReader(new InputStreamReader(logWatch.getOutput()));
             try {
@@ -113,5 +114,19 @@ public class LogWatchResource {
             sink.close();
             LOGGER.info("LogWatch for " + name + " closed");
         }
+    }
+
+    protected void logWatchCleanup(String service, String username, Tuple2<LogWatch, KubernetesClient> logWatch) {
+        String key = service + ":" + username;
+        if (logWatches.containsKey(key)) {
+            var lw = logWatches.get(key);
+            try {
+                lw.getItem1().close();
+                lw.getItem2().close();
+            } catch (Exception e) {
+                LOGGER.error(e.getMessage());
+            }
+        }
+        logWatches.put(key, logWatch);
     }
 }

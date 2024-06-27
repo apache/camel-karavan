@@ -44,7 +44,12 @@ public class NotificationListener {
         JsonObject pj = event.getJsonObject("project");
         Project p = pj.mapTo(Project.class);
         String eventId = event.getString("eventId");
-        sendSystem(eventId, "commit", Project.class.getSimpleName(), JsonObject.mapFrom(p));
+        String userId = event.getString("userId");
+        if (userId != null) {
+            send(userId, eventId, "commit", Project.class.getSimpleName(), JsonObject.mapFrom(p));
+        } else {
+            sendSystem(eventId, "commit", Project.class.getSimpleName(), JsonObject.mapFrom(p));
+        }
     }
 
     void send(String userId, String eventId, String evenName, String className, JsonObject data) {

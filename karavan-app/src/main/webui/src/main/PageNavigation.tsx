@@ -23,7 +23,6 @@ import {
     Tooltip,
     Divider,
     Popover,
-    Badge,
     Spinner,
     Bullseye,
     DescriptionListDescription,

@@ -34,7 +34,7 @@ interface Props {
     project: Project
 }
 
-export function TemplatesTableRow (props: Props) {
+export function ResourcesTableRow (props: Props) {
 
     const [setShowLog] = useLogStore((state) => [state.setShowLog], shallow);
     const navigate = useNavigate();

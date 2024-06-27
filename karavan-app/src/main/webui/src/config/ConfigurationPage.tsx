@@ -18,7 +18,7 @@
 import React, {useState} from 'react';
 import {
     Button, Flex, FlexItem,
-    PageSection, Switch, Tab, Tabs, Text,
+    PageSection, Tab, Tabs, Text,
     TextContent,
     Toolbar,
     ToolbarContent,
@@ -82,8 +82,6 @@ export const ConfigurationPage = (props: Props) => {
                     <FlexItem>
                         <Tabs activeKey={tab} onSelect={(event, tabIndex) => setTab(tabIndex)}>
                             <Tab eventKey="statuses" title="Statuses"/>
-                            <Tab eventKey="secrets" title="Secrets" isDisabled/>
-                            <Tab eventKey="configMaps" title="ConfigMaps" isDisabled/>
                         </Tabs>
                     </FlexItem>
                 </Flex>

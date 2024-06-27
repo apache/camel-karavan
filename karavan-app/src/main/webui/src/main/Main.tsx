@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import React, {useEffect} from "react";
+import React, {useEffect, useRef} from "react";
 import {KaravanApi} from "../api/KaravanApi";
 import {
     Flex,
@@ -31,11 +31,13 @@ import {Notification} from "../designer/utils/Notification";
 import {MainLoader} from "./MainLoader";
 import {MainRoutes} from "./MainRoutes";
 import {NotificationApi} from "../api/NotificationApi";
+import "./main.css"
 
 export function Main() {
 
-    const [readiness, setReadiness, isAuthorized, notificationFetcherId, resetNotificationFetcher] =
-        useAppConfigStore((s) => [s.readiness, s.setReadiness, s.isAuthorized, s.notificationFetcherId, s.resetNotificationFetcher], shallow)
+    const [readiness, setReadiness, isAuthorized] =
+        useAppConfigStore((s) => [s.readiness, s.setReadiness, s.isAuthorized], shallow)
+    const controllerRef = useRef(new AbortController());
     const {getData} = useMainHook();
 
     useEffect(() => {
@@ -53,7 +55,7 @@ export function Main() {
     useEffect(() => {
         if (showMain()) {
             getData();
-            resetNotificationFetcher();
+            resetNotification();
         } else if (KaravanApi.authType === 'oidc') {
             SsoApi.auth(() => {
                 KaravanApi.getMe((user: any) => {
@@ -63,15 +65,15 @@ export function Main() {
         }
     }, [readiness, isAuthorized]);
 
-    useEffect(() => {
-        console.log("Notification fetcher: start")
-        const controller = new AbortController();
-        NotificationApi.notification(controller);
-        return () => {
-            console.log("Notification fetcher: stop")
-            controller.abort();
-        };
-    }, [notificationFetcherId]);
+    function resetNotification() {
+        console.log("Notification fetcher reset");
+        if (isAuthorized || KaravanApi.authType === 'public') {
+            controllerRef.current.abort()
+            const controller = new AbortController();
+            controllerRef.current = controller;
+            NotificationApi.notification(controller);
+        }
+    }
 
     function checkAuthType() {
         KaravanApi.getAuthType((authType: string) => {

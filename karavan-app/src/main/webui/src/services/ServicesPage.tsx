@@ -32,6 +32,7 @@ import {
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
 import RefreshIcon from '@patternfly/react-icons/dist/esm/icons/sync-alt-icon';
+import PlusIcon from '@patternfly/react-icons/dist/esm/icons/plus-icon';
 import {
 	Td,
 	Th,

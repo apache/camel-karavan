@@ -32,6 +32,7 @@ import {EventBus} from "../designer/utils/EventBus";
 import {ErrorEventBus} from "./ErrorEventBus";
 
 const USER_ID_KEY = 'KARAVAN_USER_ID';
+axios.defaults.timeout = 5000;
 axios.defaults.headers.common['Accept'] = 'application/json';
 axios.defaults.headers.common['Content-Type'] = 'application/json';
 const instance = axios.create();
@@ -531,7 +532,7 @@ export class KaravanApi {
             .then(res => {
                 after(res);
             }).catch(err => {
-                after(err);
+            after(err);
         });
     }
 

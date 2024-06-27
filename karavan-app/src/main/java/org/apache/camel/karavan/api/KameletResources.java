@@ -19,6 +19,7 @@ package org.apache.camel.karavan.api;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import org.apache.camel.karavan.KaravanCache;
@@ -46,6 +47,23 @@ public class KameletResources {
         if (!custom.isEmpty()) {
             kamelets.append("\n---\n");
             kamelets.append(custom.stream()
+                    .map(ProjectFile::getCode)
+                    .collect(Collectors.joining("\n---\n")));
+        }
+        return kamelets.toString();
+    }
+
+    @GET
+    @Produces(MediaType.TEXT_PLAIN)
+    @Path("/{projectId}")
+    public String getKameletsForProject(@PathParam("projectId") String projectId) {
+        StringBuilder kamelets = new StringBuilder(getKamelets());
+        List<ProjectFile> projectKamelets = karavanCache.getProjectFiles(projectId).stream()
+                .filter(f -> f.getName().endsWith(".kamelet.yaml")).toList();
+
+        if (!projectKamelets.isEmpty()) {
+            kamelets.append("\n---\n");
+            kamelets.append(projectKamelets.stream()
                     .map(ProjectFile::getCode)
                     .collect(Collectors.joining("\n---\n")));
         }

@@ -17,7 +17,9 @@
 package org.apache.camel.karavan.api;
 
 import jakarta.inject.Inject;
-import jakarta.ws.rs.*;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.apache.camel.karavan.KaravanStartupLoader;
@@ -25,7 +27,9 @@ import org.apache.camel.karavan.kubernetes.KubernetesStatusService;
 import org.eclipse.microprofile.config.ConfigProvider;
 import org.eclipse.microprofile.health.HealthCheckResponse;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 @Path("/public")
 public class PublicResource {

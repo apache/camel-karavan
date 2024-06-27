@@ -42,13 +42,13 @@ import {
     Table
 } from '@patternfly/react-table/deprecated';
 import SearchIcon from '@patternfly/react-icons/dist/esm/icons/search-icon';
-import {TemplatesTableRow} from "./TemplatesTableRow";
+import {ResourcesTableRow} from "./ResourcesTableRow";
 import {useProjectsStore} from "../api/ProjectStore";
 import {MainToolbar} from "../designer/MainToolbar";
 import {ProjectType} from "../api/ProjectModels";
 import {shallow} from "zustand/shallow";
 
-export function TemplatesPage () {
+export function ResourcesPage () {
 
     const [projects] = useProjectsStore((state) => [state.projects], shallow)
     const [filter, setFilter] = useState<string>('');
@@ -68,7 +68,7 @@ export function TemplatesPage () {
 
     function title() {
         return <TextContent>
-            <Text component="h2">Templates</Text>
+            <Text component="h2">Resources</Text>
         </TextContent>
     }
 
@@ -102,7 +102,7 @@ export function TemplatesPage () {
                 </Thead>
                 <Tbody>
                     {projs.map(project => (
-                        <TemplatesTableRow
+                        <ResourcesTableRow
                             key={project.projectId}
                             project={project}/>
                     ))}

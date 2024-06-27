@@ -37,13 +37,13 @@ import org.jboss.logging.Logger;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
+import static org.apache.camel.karavan.KaravanEvents.CMD_RELOAD_PROJECT_CODE;
 import static org.apache.camel.karavan.KaravanEvents.POD_CONTAINER_UPDATED;
 
 @ApplicationScoped
 public class CamelReloadListener {
 
     private static final Logger LOGGER = Logger.getLogger(CamelReloadListener.class.getName());
-    public static final String RELOAD_PROJECT_CODE = "RELOAD_PROJECT_CODE";
 
     @Inject
     KaravanCache karavanCache;
@@ -72,7 +72,7 @@ public class CamelReloadListener {
         return webClient;
     }
 
-    @ConsumeEvent(value = RELOAD_PROJECT_CODE, blocking = true, ordered = true)
+    @ConsumeEvent(value = CMD_RELOAD_PROJECT_CODE, blocking = true, ordered = true)
     void reloadProjectCode(String projectId) {
         LOGGER.debug("Reload project code " + projectId);
         try {

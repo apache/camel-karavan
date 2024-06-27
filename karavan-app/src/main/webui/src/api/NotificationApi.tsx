@@ -33,11 +33,13 @@ export class NotificationApi {
     static onSystemMessage (ev: EventSourceMessage) {
         const ke = NotificationApi.getKaravanEvent(ev, 'system');
         NotificationEventBus.sendEvent(ke);
+        console.log('onSystemMessage', ev)
     }
 
     static onUserMessage (ev: EventSourceMessage) {
         const ke = NotificationApi.getKaravanEvent(ev, 'user');
         NotificationEventBus.sendEvent(ke);
+        console.log('onUserMessage', ev)
     }
 
     static async notification(controller: AbortController) {
@@ -54,8 +56,9 @@ export class NotificationApi {
                 ready = KaravanApi.authType === 'public';
             }
             if (ready) {
-                NotificationApi.fetch('/ui/notification/system', controller, headers,
+                NotificationApi.fetch('/ui/notification/system/' + KaravanApi.getUserId(), controller, headers,
                     ev => NotificationApi.onSystemMessage(ev));
+                console.log("KaravanApi.getUserId()", KaravanApi.getUserId())
                 NotificationApi.fetch('/ui/notification/user/' + KaravanApi.getUserId(), controller, headers,
                     ev => NotificationApi.onUserMessage(ev));
             }

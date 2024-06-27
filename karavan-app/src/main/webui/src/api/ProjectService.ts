@@ -25,12 +25,13 @@ import {
     useStatusesStore,
     useFileStore, useLogStore,
     useProjectsStore,
-    useProjectStore, useDevModeStore
+    useProjectStore, useDevModeStore, useAppConfigStore
 } from './ProjectStore';
 import {ProjectEventBus} from './ProjectEventBus';
 import {EventBus} from "../designer/utils/EventBus";
 import {KameletApi} from "karavan-core/lib/api/KameletApi";
 import { ComponentApi } from 'karavan-core/lib/api/ComponentApi';
+import {NotificationApi} from "./NotificationApi";
 
 export class ProjectService {
 

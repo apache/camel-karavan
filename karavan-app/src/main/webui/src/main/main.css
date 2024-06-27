@@ -1,0 +1,44 @@
+.karavan .nav-buttons {
+    background: var(--pf-v5-c-page__header--BackgroundColor);
+}
+
+.karavan .nav-buttons .logo {
+    margin-top: 16px;
+    margin-bottom: 16px;
+    width: 32px;
+    height: 32px;
+}
+
+.karavan .nav-buttons .pf-v5-c-button {
+    padding: 0;
+    width: 64px;
+    height: 64px;
+    color: var(--pf-v5-global--Color--light-100);
+}
+
+.karavan .nav-buttons .pf-v5-c-button svg {
+    width: 24px;
+}
+
+.karavan .nav-buttons .avatar {
+    width: 32px;
+    height: 32px;
+    margin-bottom: 6px;
+    border: solid var(--pf-v5-global--Color--light-100) 1px;
+    background-color: var(--pf-v5-global--Color--light-100);
+    border-radius: 32px;
+    padding: 6px;
+}
+
+.karavan .nav-buttons .pf-v5-c-button.pf-m-plain {
+    border-left-width: 3px;
+    border-left-style: solid;
+    border-left-color: transparent;
+    border-radius: 0;
+}
+
+.karavan .nav-button-selected .pf-v5-c-button.pf-m-plain {
+    border-left-color: var(--pf-v5-global--active-color--400);
+    background-color: var(--pf-v5-global--BackgroundColor--dark-400);
+}
+

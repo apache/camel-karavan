@@ -21,7 +21,6 @@ import {
     Bullseye,
     Flex,
     FlexItem,
-    Page,
     ProgressStep,
     ProgressStepper,
     Spinner,

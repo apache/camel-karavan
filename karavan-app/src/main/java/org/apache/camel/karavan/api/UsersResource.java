@@ -35,7 +35,6 @@ public class UsersResource {
     @Inject
     SecurityIdentity securityIdentity;
 
-
     @GET
     @Path("/me")
     @NoCache

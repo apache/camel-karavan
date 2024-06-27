@@ -21,7 +21,7 @@ import {ProjectsPage} from "../projects/ProjectsPage";
 import {ProjectPage} from "../project/ProjectPage";
 import {ServicesPage} from "../services/ServicesPage";
 import {ContainersPage} from "../containers/ContainersPage";
-import {TemplatesPage} from "../templates/TemplatesPage";
+import {ResourcesPage} from "../resources/ResourcesPage";
 import {ConfigurationPage} from "../config/ConfigurationPage";
 import { KnowledgebaseWrapper } from './KnowledgebaseWrapper';
 
@@ -31,7 +31,7 @@ export function MainRoutes() {
         <Routes>
             <Route path="/projects" element={<ProjectsPage key={'projects'}/>}/>
             <Route path="/projects/:projectId" element={<ProjectPage key={'project'}/>}/>
-            <Route path="/templates" element={<TemplatesPage key={'templates'}/>}/>
+            <Route path="/resources" element={<ResourcesPage key={'resources'}/>}/>
             <Route path="/services" element={<ServicesPage key="services"/>}/>
             <Route path="/containers" element={<ContainersPage key="services"/>}/>
             <Route path="/knowledgebase" element={<KnowledgebaseWrapper dark={false}/>}/>

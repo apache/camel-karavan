@@ -16,24 +16,20 @@
  */
 package org.apache.camel.karavan.api;
 
-import io.vertx.core.json.JsonObject;
 import io.vertx.mutiny.core.eventbus.EventBus;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.apache.camel.karavan.KaravanCache;
-import org.apache.camel.karavan.docker.DockerService;
-import org.apache.camel.karavan.kubernetes.KubernetesService;
 import org.apache.camel.karavan.model.PodContainerStatus;
 import org.apache.camel.karavan.model.Project;
-import org.apache.camel.karavan.service.ConfigService;
 import org.apache.camel.karavan.service.ProjectService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
-import static org.apache.camel.karavan.KaravanEvents.POD_CONTAINER_UPDATED;
-import static org.apache.camel.karavan.listener.CamelReloadListener.RELOAD_PROJECT_CODE;
+import static org.apache.camel.karavan.KaravanEvents.CMD_DELETE_CONTAINER;
+import static org.apache.camel.karavan.KaravanEvents.CMD_RELOAD_PROJECT_CODE;
 
 @Path("/ui/devmode")
 public class DevModeResource {
@@ -45,12 +41,6 @@ public class DevModeResource {
 
     @Inject
     KaravanCache karavanCache;
-
-    @Inject
-    KubernetesService kubernetesService;
-
-    @Inject
-    DockerService dockerService;
 
     @Inject
     ProjectService projectService;
@@ -87,7 +77,7 @@ public class DevModeResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/reload/{projectId}")
     public Response reload(@PathParam("projectId") String projectId) {
-        eventBus.publish(RELOAD_PROJECT_CODE, projectId);
+        eventBus.publish(CMD_RELOAD_PROJECT_CODE, projectId);
         return Response.ok().build();
     }
 
@@ -96,22 +86,8 @@ public class DevModeResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/{projectId}/{deletePVC}")
     public Response deleteDevMode(@PathParam("projectId") String projectId, @PathParam("deletePVC") boolean deletePVC) {
-        setContainerStatusTransit(projectId, PodContainerStatus.ContainerType.devmode.name());
-        if (ConfigService.inKubernetes()) {
-            kubernetesService.deleteDevModePod(projectId, deletePVC);
-        } else {
-            dockerService.deleteContainer(projectId);
-        }
+        eventBus.publish(CMD_DELETE_CONTAINER, projectId);
         return Response.accepted().build();
-    }
-
-    private void setContainerStatusTransit(String name, String type) {
-        PodContainerStatus status = karavanCache.getPodContainerStatus(name, environment, name);
-        if (status == null) {
-            status = PodContainerStatus.createByType(name, environment, PodContainerStatus.ContainerType.valueOf(type));
-        }
-        status.setInTransit(true);
-        eventBus.publish(POD_CONTAINER_UPDATED, JsonObject.mapFrom(status));
     }
 
     @GET
