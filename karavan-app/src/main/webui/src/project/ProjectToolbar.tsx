@@ -25,11 +25,15 @@ import {DevModeToolbar} from "./DevModeToolbar";
 import {useFileStore, useProjectStore} from "../api/ProjectStore";
 import {shallow} from "zustand/shallow";
 import {EditorToolbar} from "../editor/EditorToolbar";
+import {BUILD_IN_PROJECTS,} from "../api/ProjectModels";
+import {ResourceToolbar} from "./ResourceToolbar";
 
 export function ProjectToolbar() {
 
     const [project] = useProjectStore((s) => [s.project, s.tabIndex], shallow)
     const [file] = useFileStore((state) => [state.file], shallow)
+
+    const isBuildInProject = BUILD_IN_PROJECTS.includes(project.projectId);
 
     useEffect(() => {
     }, [project, file]);
@@ -42,21 +46,10 @@ export function ProjectToolbar() {
     function getProjectToolbar() {
         return (<Toolbar id="toolbar-group-types">
             <ToolbarContent>
-                {!isKameletsProject() && !isTemplatesProject() && !isServicesProject() && <DevModeToolbar/>}
+                {!isBuildInProject && <DevModeToolbar/>}
+                {isBuildInProject && <ResourceToolbar/>}
             </ToolbarContent>
         </Toolbar>)
-    }
-
-    function isKameletsProject(): boolean {
-        return project.projectId === 'kamelets';
-    }
-
-    function isTemplatesProject(): boolean {
-        return project.projectId === 'templates';
-    }
-
-    function isServicesProject(): boolean {
-        return project.projectId === 'services';
     }
 
     return isFile() ? <EditorToolbar/> : getProjectToolbar();

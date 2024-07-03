@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
     Badge,
     Bullseye,
@@ -36,11 +36,11 @@ import {Table} from '@patternfly/react-table/deprecated';
 import DeleteIcon from "@patternfly/react-icons/dist/js/icons/times-icon";
 import CheckIcon from "@patternfly/react-icons/dist/js/icons/check-icon";
 import SearchIcon from '@patternfly/react-icons/dist/esm/icons/search-icon';
-import {useFilesStore, useFileStore, useProjectStore} from "../../api/ProjectStore";
+import {useAppConfigStore, useFilesStore, useFileStore, useProjectStore} from "../../api/ProjectStore";
 import {
     getProjectFileTypeTitle,
     getProjectFileTypeByNameTitle,
-    ProjectFile
+    ProjectFile, ProjectType
 } from "../../api/ProjectModels";
 import {FileToolbar} from "./FilesToolbar";
 import DownloadIcon from "@patternfly/react-icons/dist/esm/icons/download-icon";
@@ -55,11 +55,18 @@ import {DiffFileModal} from "./DiffFileModal";
 
 export function FilesTab () {
 
+    const [config] = useAppConfigStore((s) => [s.config], shallow);
     const [files, diff] = useFilesStore((s) => [s.files, s.diff], shallow);
     const [project] = useProjectStore((s) => [s.project], shallow);
     const [setFile] = useFileStore((s) => [s.setFile], shallow);
     const [id, setId] = useState<string>('');
 
+    const filenames = files.map(f => f.name);
+    const deletedFilenames: string[] =  Object.getOwnPropertyNames(diff)
+        .map(name => diff[name] === 'DELETED' ? name: '')
+        .filter(name => name !== '' && !filenames.includes(name));
+    const deletedFiles: ProjectFile[] =  deletedFilenames.map(d => new ProjectFile(d, project.projectId, '', 0))
+    const allFiles =  files.concat(deletedFiles)
 
     function needCommit(filename: string): boolean {
         return diff && diff[filename] !== undefined;
@@ -73,12 +80,37 @@ export function FilesTab () {
         }
     }
 
-    function canDeleteFiles(): boolean {
-        return !['templates', 'services'].includes(project.projectId);
+    function canDeleteFiles(filename: string): boolean {
+        if (deletedFilenames.includes(filename)) {
+            return false;
+        } else if (project.projectId === ProjectType.templates.toString()) {
+            return false;
+        } else if (project.projectId === ProjectType.configuration.toString()) {
+            return !config.configFilenames.includes(filename);
+        } else if (config.infrastructure === 'kubernetes') {
+            return filename !== 'application.properties';
+        }
+        return !['application.properties', 'docker-compose.yaml'].includes(filename);
     }
 
     function isKameletsProject(): boolean {
         return project.projectId === 'kamelets';
+    }
+
+    function forOtherEnvironment(filename: string): boolean {
+        const currentEnv = config.environment;
+        const envs = config.environments;
+
+        const parts = filename.split('.');
+        const prefix = parts[0] && envs.includes(parts[0]) ? parts[0] : undefined;
+        if (prefix && envs.includes(prefix) && prefix !== currentEnv) {
+            return true;
+        }
+        if (!prefix) {
+            const prefixedFilename = `${currentEnv}.${filename}`;
+            return allFiles.map(f => f.name).includes(prefixedFilename);
+        }
+        return false;
     }
 
     return (
@@ -100,15 +132,16 @@ export function FilesTab () {
                         </Tr>
                     </Thead>
                     <Tbody>
-                        {files.map(file => {
+                        {allFiles.map(file => {
                             const type = getProjectFileTypeTitle(file)
                             const diffType = diff[file.name];
+                            const isForOtherEnv = forOtherEnvironment(file.name);
                             return <Tr key={file.name}>
                                 <Td>
-                                    <Badge>{type}</Badge>
+                                    <Badge isRead={isForOtherEnv}>{type}</Badge>
                                 </Td>
                                 <Td>
-                                    <Button style={{padding: '6px'}} variant={"link"}
+                                    <Button style={{padding: '6px'}} variant={isForOtherEnv ? 'plain' : 'link'}
                                             onClick={e => {
                                                 setFile('select', file, undefined);
                                             }}>
@@ -138,15 +171,13 @@ export function FilesTab () {
                                     }
                                 </Td>
                                 <Td modifier={"fitContent"}>
-                                    {canDeleteFiles() &&
-                                        <Button className="dev-action-button" style={{padding: '0'}} variant={"plain"}
-                                                isDisabled={['application.properties', 'docker-compose.yaml'].includes(file.name)}
-                                                onClick={e =>
-                                                    setFile('delete', file)
-                                        }>
-                                            <DeleteIcon/>
-                                        </Button>
-                                    }
+                                    <Button className="dev-action-button" variant={"plain"}
+                                            isDisabled={!canDeleteFiles(file.name)}
+                                            onClick={e =>
+                                                setFile('delete', file)
+                                    }>
+                                        <DeleteIcon/>
+                                    </Button>
                                     <Tooltip content="Download source" position={"bottom-end"}>
                                         <Button className="dev-action-button"  size="sm" variant="plain" icon={<DownloadIcon/>} onClick={e => download(file)}/>
                                     </Tooltip>

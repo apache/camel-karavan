@@ -117,7 +117,8 @@ public class ProjectResource {
             projectService.buildProject(project, tag);
             return Response.ok().entity(project).build();
         } catch (Exception e) {
-            LOGGER.error(e.getMessage());
+            LOGGER.error(e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
+            e.printStackTrace();
             return Response.serverError().entity(e.getMessage()).build();
         }
     }

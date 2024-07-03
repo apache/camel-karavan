@@ -32,7 +32,6 @@ import {
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
 import RefreshIcon from '@patternfly/react-icons/dist/esm/icons/sync-alt-icon';
-import PlusIcon from '@patternfly/react-icons/dist/esm/icons/plus-icon';
 import {
 	Td,
 	Th,
@@ -69,8 +68,8 @@ export function ServicesPage () {
     }, []);
 
     function getServices() {
-        KaravanApi.getFiles(ProjectType.services, files => {
-            const file = files.at(0);
+        KaravanApi.getFiles(ProjectType.configuration.toString(), files => {
+            const file = files.filter(f => f.name === 'devservices.docker-compose.yaml').at(0);
             if (file) {
                 const services: DockerCompose = ServicesYaml.yamlToServices(file.code);
                 setServices(services);

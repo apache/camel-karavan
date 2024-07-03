@@ -302,15 +302,25 @@ export class KaravanApi {
         });
     }
 
-    static async updateBuildConfigMap(after: (res: AxiosResponse<any>) => void) {
-        instance.post('/ui/build/update-config-map', "{}")
+    static async shareConfigurationFile(filename: string, after: (res: AxiosResponse<any>) => void) {
+        await KaravanApi.shareConfigurations(after, filename);
+    }
+
+    static async shareConfigurations(after: (res: AxiosResponse<any>) => void, filename?: string,) {
+        const params = {
+            'filename': filename,
+            'userId': KaravanApi.getUserId()
+        };
+        instance.post('/ui/configuration/share/', params)
             .then(res => {
                 if (res.status === 200) {
                     after(res.data);
                 }
             }).catch((err: any) => {
             ErrorEventBus.sendApiError(err);
-            EventBus.sendAlert("Error", err.message, "danger")
+            const data = err.response?.data
+            const message = typeof data === 'string' ? data : err.message;
+            EventBus.sendAlert("Error", message, "danger")
         });
     }
 

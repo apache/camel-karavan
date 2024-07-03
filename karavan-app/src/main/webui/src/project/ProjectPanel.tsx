@@ -33,7 +33,7 @@ import {ProjectContainerTab} from "./container/ProjectContainerTab";
 import {IntegrationFile} from "karavan-core/lib/model/IntegrationDefinition";
 import {TopologyTab} from "../topology/TopologyTab";
 import {Buffer} from "buffer";
-import {ProjectType} from "../api/ProjectModels";
+import {BUILD_IN_PROJECTS, ProjectType} from "../api/ProjectModels";
 import {ReadmeTab} from "./readme/ReadmeTab";
 import {BeanWizard} from "./beans/BeanWizard";
 import {CreateIntegrationModal} from "./files/CreateIntegrationModal";
@@ -58,7 +58,7 @@ export function ProjectPanel() {
     }
 
     function isBuildIn(): boolean {
-        return ['kamelets', 'templates', 'services'].includes(project.projectId);
+        return BUILD_IN_PROJECTS.includes(project.projectId);
     }
 
     function selectFile(fileName: string) {

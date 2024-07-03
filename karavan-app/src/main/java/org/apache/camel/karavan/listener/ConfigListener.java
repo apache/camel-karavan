@@ -22,45 +22,44 @@ import io.vertx.mutiny.core.eventbus.EventBus;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Default;
 import jakarta.inject.Inject;
-import org.apache.camel.karavan.model.Project;
-import org.apache.camel.karavan.service.ProjectService;
+import org.apache.camel.karavan.service.ConfigService;
 import org.jboss.logging.Logger;
 
 import static org.apache.camel.karavan.KaravanEvents.*;
 
 @Default
 @ApplicationScoped
-public class CommitListener {
+public class ConfigListener {
 
-    private static final Logger LOGGER = Logger.getLogger(CommitListener.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(ConfigListener.class.getName());
 
     @Inject
-    ProjectService projectService;
+    ConfigService configService;
 
     @Inject
     EventBus eventBus;
 
-    @ConsumeEvent(value = CMD_PUSH_PROJECT, blocking = true, ordered = true)
-    public void onCommitAndPush(JsonObject event) throws Exception {
-        LOGGER.info("Commit event: " + event.encodePrettily());
-            String projectId = event.getString("projectId");
-            String message = event.getString("message");
-            String userId = event.getString("userId");
-            String eventId = event.getString("eventId");
+    @ConsumeEvent(value = PROJECTS_STARTED, blocking = true)
+    public void shareOnStartup(String data) throws Exception {
+        configService.shareOnStartup();
+    }
+
+    @ConsumeEvent(value = CMD_SHARE_CONFIGURATION, blocking = true, ordered = true)
+    public void shareConfig(JsonObject event) throws Exception {
+        String filename = event.getString("filename");
+        String userId = event.getString("userId");
+        LOGGER.info("Config share event: for " + (filename != null ? filename : "all"));
         try {
-            Project p = projectService.commitAndPushProject(projectId, message);
-            if (userId != null) {
-                eventBus.publish(COMMIT_HAPPENED, JsonObject.of("userId", userId, "eventId", eventId, "project", JsonObject.mapFrom(p)));
-            }
+            configService.share(filename);
+            eventBus.publish(SHARE_HAPPENED, JsonObject.of("userId", userId, "className", "filename", "filename", filename));
         } catch (Exception e) {
             var error = e.getCause() != null ? e.getCause() : e;
-            LOGGER.error("Failed to commit event", error);
+            LOGGER.error("Failed to share configuration", error);
             if (userId != null) {
                 eventBus.publish(ERROR_HAPPENED, JsonObject.of(
                         "userId", userId,
-                        "eventId", eventId,
-                        "className", Project.class.getSimpleName(),
-                        "error", "Failed to commit event: " + e.getMessage())
+                        "className", filename,
+                        "error", "Failed to share configuration: " + e.getMessage())
                 );
             }
         }

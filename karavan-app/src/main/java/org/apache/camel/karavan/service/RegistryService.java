@@ -23,8 +23,6 @@ import org.apache.camel.karavan.model.RegistryConfig;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 @ApplicationScoped
@@ -66,21 +64,4 @@ public class RegistryService {
         }
         return registryUrl + "/" + group;
     }
-
-    public List<String> getEnvForBuild() {
-        RegistryConfig rc = getRegistryConfig();
-        List<String> result = new ArrayList<>();
-        result.add("IMAGE_REGISTRY=" + rc.getRegistry());
-        if (rc.getUsername() != null && !rc.getUsername().isEmpty()) {
-            result.add("IMAGE_REGISTRY_USERNAME=" + rc.getUsername());
-        }
-        if (rc.getPassword() != null && !rc.getPassword().isEmpty()) {
-            result.add("IMAGE_REGISTRY_PASSWORD=" + rc.getPassword());
-        }
-        if (rc.getGroup() != null && !rc.getGroup().isEmpty()) {
-            result.add("IMAGE_GROUP=" + rc.getGroup());
-        }
-        return result;
-    }
-
 }

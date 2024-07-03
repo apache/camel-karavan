@@ -1,0 +1,147 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+.karavan .project-page {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.karavan .project-page .scrollable-out {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.karavan .project-page .scrollable-in {
+    overflow: auto;
+    flex-shrink: unset;
+    flex-grow: 1;
+    background-color: var(--pf-v5-global--BackgroundColor--light-300);
+    margin-bottom: 100px;
+}
+
+.karavan .project-page .project-title .pf-v5-l-flex.pf-m-column > * {
+    margin-bottom: 0;
+}
+
+.karavan .project-page .project-title .project-breadcrumb {
+    font-size: 20px;
+    font-weight: 400;
+    height: 30px;
+    line-height: 30px;
+}
+
+.karavan .project-page .project-tabs {
+    background-color: white;
+}
+
+.karavan .project-page .pf-v5-c-description-list__group {
+    min-height: 30px;
+    align-items: center;
+}
+
+.karavan .project-page .pf-v5-c-tabs__link,
+.karavan .project-page .pf-m-link {
+    font-size: 14px;
+}
+
+.karavan .project-page .dashboard-card {
+    margin-bottom: 16px;
+}
+
+.karavan .project-page .dashboard-card .runner-toolbar {
+    line-height: 24px;
+    row-gap: 24px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+.karavan .project-page .dashboard-card .runner-toolbar .row {
+    line-height: 24px;
+    height: 30px;
+}
+
+.karavan .project-page .dashboard-card .pf-v5-c-panel__header {
+    padding: 0;
+}
+.karavan .project-page .dashboard-card .pf-v5-c-panel__main {
+    max-height: 212px;
+}
+
+.karavan .project-page .project-status {
+    margin-bottom: 16px;
+}
+
+.karavan .project-page .project-tab-panel .pf-v5-c-panel__header {
+    padding-bottom: 0;
+}
+
+.karavan .project-page .project-button {
+    width: 100px;
+}
+
+.karavan .project-page .badge-env-up {
+    background-color: rgb(56, 129, 47);
+    color: white;
+}
+
+.karavan .project-page .env-chart {
+    font-size: 18px;
+}
+
+.karavan .project-page .replicas-ready {
+    background-color: rgb(56, 129, 47);
+    color: white;
+}
+
+.karavan .project-page .health-up {
+    background-color: rgb(56, 129, 47);
+    color: white;
+}
+
+.karavan .project-page .project-properties .delete-cell {
+    padding: 0;
+    margin: 0;
+    min-width: 0;
+}
+.karavan .project-page .project-properties .delete-button {
+    padding: 0 0 0 0;
+    margin: 0 16px 0 0;
+}
+
+.karavan .project-page .pf-v5-c-label__icon {
+    height: 16px;
+}
+
+.karavan .project-page .pf-v5-c-label__icon svg {
+    height: 16px;
+}
+
+.karavan .project-page .pf-v5-c-label__icon, .spinner {
+    margin-bottom: -2px;
+}
+
+.karavan .project-page .pf-v5-c-label__icon, .not-spinner {
+    margin-bottom: 3px;
+}
+
+.karavan .project-page .badge {
+    font-size: 14px;
+    font-weight: 400;
+    padding: 4px 8px 4px 8px;
+    min-width: 70px;
+}

@@ -26,7 +26,7 @@ import org.apache.camel.karavan.model.Project;
 
 import java.util.UUID;
 
-import static org.apache.camel.karavan.KaravanEvents.COMMIT_HAPPENED;
+import static org.apache.camel.karavan.KaravanEvents.*;
 
 @ApplicationScoped
 public class NotificationListener {
@@ -36,8 +36,36 @@ public class NotificationListener {
     public static final String NOTIFICATION_HEADER_EVENT_NAME = "eventName";
     public static final String NOTIFICATION_HEADER_CLASS_NAME = "className";
 
+    public static final String EVENT_ERROR = "error";
+    public static final String EVENT_COMMIT = "commit";
+    public static final String EVENT_CONFIG_SHARED = "configShared";
+
     @Inject
     EventBus eventBus;
+
+    @ConsumeEvent(value = ERROR_HAPPENED, blocking = true, ordered = true)
+    public void onErrorHappened(JsonObject event) throws Exception {
+        String eventId = event.getString("eventId");
+        String userId = event.getString("userId");
+        String className = event.getString("className");
+        String error = event.getString("error");
+        if (userId != null) {
+            send(userId, eventId, EVENT_ERROR, className, event);
+        } else {
+            sendSystem(eventId, EVENT_ERROR, className, event);
+        }
+    }
+
+    @ConsumeEvent(value = SHARE_HAPPENED, blocking = true, ordered = true)
+    public void onShareHappened(JsonObject event) throws Exception {
+        String userId = event.getString("userId");
+        String className = event.getString("className");
+        if (userId != null) {
+            send(userId, null, EVENT_CONFIG_SHARED, className, event);
+        } else {
+            sendSystem(null, EVENT_CONFIG_SHARED, className, event);
+        }
+    }
 
     @ConsumeEvent(value = COMMIT_HAPPENED, blocking = true, ordered = true)
     public void onCommitHappened(JsonObject event) throws Exception {
@@ -46,9 +74,9 @@ public class NotificationListener {
         String eventId = event.getString("eventId");
         String userId = event.getString("userId");
         if (userId != null) {
-            send(userId, eventId, "commit", Project.class.getSimpleName(), JsonObject.mapFrom(p));
+            send(userId, eventId, EVENT_COMMIT, Project.class.getSimpleName(), JsonObject.mapFrom(p));
         } else {
-            sendSystem(eventId, "commit", Project.class.getSimpleName(), JsonObject.mapFrom(p));
+            sendSystem(eventId, EVENT_COMMIT, Project.class.getSimpleName(), JsonObject.mapFrom(p));
         }
     }
 

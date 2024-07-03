@@ -37,7 +37,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.apache.camel.karavan.KaravanConstants.DEV_ENVIRONMENT;
-import static org.apache.camel.karavan.KaravanEvents.*;
+import static org.apache.camel.karavan.KaravanEvents.CMD_PUSH_PROJECT;
+import static org.apache.camel.karavan.KaravanEvents.POD_CONTAINER_UPDATED;
 import static org.apache.camel.karavan.service.CodeService.*;
 
 @Default
@@ -59,9 +60,6 @@ public class ProjectService {
     CodeService codeService;
 
     @Inject
-    RegistryService registryService;
-
-    @Inject
     KubernetesService kubernetesService;
 
     @Inject
@@ -70,7 +68,7 @@ public class ProjectService {
     @Inject
     EventBus eventBus;
 
-    public void commitAndPushProject(String projectId, String message, String userId, String eventId) throws Exception {
+    public Project commitAndPushProject(String projectId, String message) throws Exception {
         LOGGER.info("Commit project: " + projectId);
         Project p = karavanCache.getProject(projectId);
         List<ProjectFile> files = karavanCache.getProjectFiles(projectId);
@@ -81,9 +79,7 @@ public class ProjectService {
         p.setLastCommit(commitId);
         p.setLastCommitTimestamp(lastUpdate);
         karavanCache.saveProject(p);
-        if (userId != null) {
-            eventBus.publish(COMMIT_HAPPENED, JsonObject.of("userId", userId, "eventId", eventId, "project", JsonObject.mapFrom(p)));
-        }
+        return p;
     }
 
     public String runProjectWithJBangOptions(Project project, String jBangOptions) throws Exception {
@@ -99,11 +95,11 @@ public class ProjectService {
             Map<String, String> files = codeService.getProjectFilesForDevMode(project.getProjectId(), true);
             String projectDevmodeImage = codeService.getProjectDevModeImage(project.getProjectId());
             if (ConfigService.inKubernetes()) {
-                kubernetesService.runDevModeContainer(project, jBangOptions, files, projectDevmodeImage);
+                String deploymentFragment = codeService.getDeploymentFragment(project.getProjectId());
+                kubernetesService.runDevModeContainer(project, jBangOptions, files, projectDevmodeImage, deploymentFragment);
             } else {
-                DockerComposeService compose = codeService.getDockerComposeService(project.getProjectId());
-                List<String> env = codeService.getComposeEnvWithRuntimeMapping(compose);
-                dockerForKaravan.runProjectInDevMode(project.getProjectId(), jBangOptions, compose, env, files, projectDevmodeImage);
+                DockerComposeService compose = getProjectDockerComposeService(project.getProjectId());
+                dockerForKaravan.runProjectInDevMode(project.getProjectId(), jBangOptions, compose, files, projectDevmodeImage);
             }
             return containerName;
         } else {
@@ -115,14 +111,17 @@ public class ProjectService {
         tag = tag != null && !tag.isEmpty() && !tag.isBlank()
                 ? tag
                 : Instant.now().toString().substring(0, 19).replace(":", "-");
-        String script = codeService.getBuilderScript();
-        List<String> env = getProjectEnvForBuild(project, tag);
+
         if (ConfigService.inKubernetes()) {
-            kubernetesService.runBuildProject(project, env);
+            String podFragment = codeService.getBuilderPodFragment();
+            podFragment = codeService.substituteVariables(podFragment, Map.of( "projectId", project.getProjectId(), "tag", tag));
+            kubernetesService.runBuildProject(project, podFragment);
         } else {
-            env.addAll(getConnectionsEnvForBuild());
             Map<String, String> sshFiles = getSshFiles();
-            dockerForKaravan.runBuildProject(project, script, env, sshFiles, tag);
+            String composeFragment =  codeService.getBuilderComposeFragment(project.getProjectId(), tag);
+            DockerComposeService compose = DockerComposeConverter.fromCode(composeFragment, project.getProjectId() + "-builder");
+            String script = codeService.getBuilderScript();
+            dockerForKaravan.runBuildProject(project, script, compose, sshFiles, tag);
         }
     }
 
@@ -138,27 +137,13 @@ public class ProjectService {
         return sshFiles;
     }
 
-    private List<String> getProjectEnvForBuild(Project project, String tag) {
-        return new ArrayList<>(List.of(
-                "PROJECT_ID=" + project.getProjectId(),
-                "TAG=" + tag
-        ));
-    }
-
-    private List<String> getConnectionsEnvForBuild() {
-        List<String> env = new ArrayList<>();
-        env.addAll(registryService.getEnvForBuild());
-        env.addAll(gitService.getEnvForBuild());
-        return env;
-    }
-
-    public Project importProject(String projectId) throws Exception {
+    public void importProject(String projectId) throws Exception {
         LOGGER.info("Import project from Git " + projectId);
         GitRepo repo = gitService.readProjectFromRepository(projectId);
-        return importProjectFromRepo(repo);
+        importProjectFromRepo(repo);
     }
 
-    private Project importProjectFromRepo(GitRepo repo) {
+    private void importProjectFromRepo(GitRepo repo) {
         LOGGER.info("Import project from GitRepo " + repo.getName());
         try {
             Project project = getProjectFromRepo(repo);
@@ -167,10 +152,8 @@ public class ProjectService {
                 ProjectFile file = new ProjectFile(repoFile.getName(), repoFile.getBody(), repo.getName(), repoFile.getLastCommitTimestamp());
                 karavanCache.saveProjectFile(file, true);
             });
-            return project;
         } catch (Exception e) {
             LOGGER.error("Error during project import", e);
-            return null;
         }
     }
 
@@ -186,13 +169,15 @@ public class ProjectService {
     }
 
     public String getDevServiceCode() {
-        List<ProjectFile> files = karavanCache.getProjectFiles(Project.Type.services.name());
+        List<ProjectFile> files = karavanCache.getProjectFiles(Project.Type.configuration.name());
         Optional<ProjectFile> file = files.stream().filter(f -> f.getName().equals(DEV_SERVICES_FILENAME)).findFirst();
         return file.orElse(new ProjectFile()).getCode();
     }
 
     public DockerComposeService getProjectDockerComposeService(String projectId) {
-        return codeService.getDockerComposeService(projectId);
+        String composeTemplate = codeService.getDockerComposeFileForProject(projectId);
+        String composeCode = codeService.replaceEnvWithRuntimeProperties(composeTemplate);
+        return DockerComposeConverter.fromCode(composeCode, projectId);
     }
 
     private void modifyPropertyFileOnProjectCopy(ProjectFile propertyFile, Project sourceProject, Project project) {
@@ -215,7 +200,7 @@ public class ProjectService {
         propertyFile.setCode(updatedCode);
     }
 
-    public void setProjectImage(String projectId, JsonObject data) throws Exception {
+    public void setProjectImage(String projectId, JsonObject data) {
         String imageName = data.getString("imageName");
         boolean commit = data.getBoolean("commit");
         data.put("projectId", projectId);
@@ -294,17 +279,6 @@ public class ProjectService {
         }
     }
 
-    private String getImage(List<ProjectFile> files, String projectId) {
-        Optional<ProjectFile> file = files.stream().filter(f -> Objects.equals(f.getProjectId(), projectId)).findFirst();
-        if (file.isPresent()) {
-            DockerComposeService service = DockerComposeConverter.fromCode(file.get().getCode(), projectId);
-            String image = service.getImage();
-            return Objects.equals(image, projectId) ? null : image;
-        } else {
-            return null;
-        }
-    }
-
     public Integer getProjectPort(ProjectFile composeFile) {
         if (composeFile != null) {
             DockerComposeService dcs = DockerComposeConverter.fromCode(composeFile.getCode(), composeFile.getProjectId());
@@ -333,8 +307,8 @@ public class ProjectService {
     }
 
     public enum Property {
-        PROJECT_ID("camel.karavan.project-id=%s"),
-        PROJECT_NAME("camel.karavan.project-name=%s"),
+        PROJECT_ID("camel.karavan.projectId=%s"),
+        PROJECT_NAME("camel.karavan.projectName=%s"),
         GAV("camel.jbang.gav=org.camel.karavan.demo:%s:1");
 
         private final String keyValueFormatter;

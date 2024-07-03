@@ -24,17 +24,19 @@ public class Configuration {
     private String infrastructure;
     private String environment;
     private List<String> environments;
+    private List<String> configFilenames;
     private List<Object> status;
 
     public Configuration() {
     }
 
-    public Configuration(String title, String version, String infrastructure, String environment, List<String> environments) {
+    public Configuration(String title, String version, String infrastructure, String environment, List<String> environments, List<String> configFilenames) {
         this.title = title;
         this.version = version;
         this.infrastructure = infrastructure;
         this.environment = environment;
         this.environments = environments;
+        this.configFilenames = configFilenames;
     }
 
     public String getTitle() {
@@ -83,5 +85,13 @@ public class Configuration {
 
     public void setStatus(List<Object> status) {
         this.status = status;
+    }
+
+    public List<String> getConfigFilenames() {
+        return configFilenames;
+    }
+
+    public void setConfigFilenames(List<String> configFilenames) {
+        this.configFilenames = configFilenames;
     }
 }

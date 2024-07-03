@@ -22,15 +22,18 @@ export class AppConfig {
     environment: string = '';
     environments: string[] = [];
     status: any[] = [];
+    configFilenames: any[] = [];
 }
 
 export enum ProjectType {
     templates ='templates',
     kamelets ='kamelets',
-    services ='services',
+    configuration ='configuration',
     normal ='normal',
     ephemeral ='ephemeral',
 }
+
+export const BUILD_IN_PROJECTS: string[] = [ProjectType.kamelets.toString(), ProjectType.templates.toString(), ProjectType.configuration.toString()];
 
 export class Project {
     projectId: string = '';

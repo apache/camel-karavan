@@ -32,9 +32,8 @@ public class KaravanConstants {
     public static final String BUILDER_SUFFIX = "-builder";
 
     public static final String CAMEL_PREFIX = "camel";
-    public static final String KARAVAN_PREFIX = "karavan";
 
-    public static final String BUILD_CONFIG_MAP = "build-config-map";
+    public static final String BUILD_SCRIPT_CONFIG_MAP = "build.sh";
     public static final String BUILD_DOCKER_CONFIG_SECRET = "dockerconfigjson";
     public static final String PRIVATE_KEY_SECRET_KEY = "private-key";
     public static final String KNOWN_HOSTS_SECRET_KEY = "known-hosts";

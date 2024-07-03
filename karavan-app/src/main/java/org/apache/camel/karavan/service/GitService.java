@@ -108,15 +108,6 @@ public class GitService {
         return new GitConfig(repository, username.orElse(null), password.orElse(null), branch, privateKeyPath.orElse(null));
     }
 
-    public List<String> getEnvForBuild() {
-        GitConfig gitConfig = getGitConfigForBuilder();
-        return List.of(
-                "GIT_REPOSITORY=" + gitConfig.getUri(),
-                "GIT_USERNAME=" + gitConfig.getUsername(),
-                "GIT_PASSWORD=" + gitConfig.getPassword(),
-                "GIT_BRANCH=" + gitConfig.getBranch());
-    }
-
     public Tuple2<String,String> getSShFiles() {
         return Tuple2.of(privateKeyPath.orElse(null), knownHostsPath.orElse(null));
     }
@@ -198,7 +189,11 @@ public class GitService {
             git = init(folder, gitConfig.getUri(), gitConfig.getBranch());
         } else {
             try {
-                git = clone(folder, gitConfig.getUri(), gitConfig.getBranch());
+                git = clone(folder, gitConfig.getUri());
+                var branch = git.branchList().call().stream().filter(ref -> ref.getName().equals("refs/heads/" + gitConfig.getBranch())).findFirst();
+                if (branch.isEmpty()) {
+                    createBranch(git, gitConfig.getBranch());
+                }
                 if (checkout) {
                     checkout(git, false, null, null, gitConfig.getBranch());
                 }
@@ -221,7 +216,7 @@ public class GitService {
             if (folderName.startsWith(".")) {
                 // skip hidden
             } else if (Files.isDirectory(Paths.get(path))) {
-                if (filter == null || filter.length == 0 || Arrays.stream(filter).filter(f -> f.equals(folderName)).findFirst().isPresent()) {
+                if (filter == null || filter.length == 0 || Arrays.asList(filter).contains(folderName)) {
                     LOGGER.info("Importing project from folder " + folderName);
                     files.add(folderName);
                 }
@@ -281,7 +276,7 @@ public class GitService {
     }
 
     public RevCommit commitAddedAndPush(Git git, String branch, String message) throws GitAPIException {
-        LOGGER.info("Commit and push changes");
+        LOGGER.info("Commit and push changes to the branch " + branch);
         LOGGER.info("Git add: " + git.add().addFilepattern(".").call());
         RevCommit commit = git.commit().setMessage(message).setAuthor(getPersonIdent()).call();
         LOGGER.info("Git commit: " + commit);
@@ -346,12 +341,11 @@ public class GitService {
         }
     }
 
-    private Git clone(String dir, String uri, String branch) throws GitAPIException, URISyntaxException {
+    private Git clone(String dir, String uri) throws GitAPIException, URISyntaxException {
         CloneCommand command = Git.cloneRepository();
         command.setCloneAllBranches(false);
         command.setDirectory(Paths.get(dir).toFile());
         command.setURI(uri);
-        command.setBranch(branch);
         setCredentials(command);
         Git git = command.call();
         addRemote(git, uri);
@@ -378,6 +372,11 @@ public class GitService {
         PullCommand command = git.pull();
         setCredentials(command);
         PullResult result = command.call();
+    }
+
+    private void createBranch(Git git, String branch) throws GitAPIException {
+        git.commit().setMessage("Initial commit").call();
+        git.branchCreate().setName(branch).call();
     }
 
     private void checkout(Git git, boolean create, String path, String startPoint, String branch) throws GitAPIException {
@@ -440,7 +439,7 @@ public class GitService {
         GitConfig gitConfig = getGitConfig();
         String uuid = UUID.randomUUID().toString();
         String folder = vertx.fileSystem().createTempDirectoryBlocking(uuid);
-        try (Git git = clone(folder, gitConfig.getUri(), gitConfig.getBranch())) {
+        try (Git git = clone(folder, gitConfig.getUri())) {
             LOGGER.info("Git is ready");
         } catch (Exception e) {
             LOGGER.info("Error connecting git: " + (e.getCause() != null ? e.getCause().getMessage() : e.getMessage()));

@@ -4,8 +4,8 @@ import org.apache.camel.BindToRegistry;
 import org.apache.camel.Exchange;
 
 @Configuration
-@BindToRegistry("NAME")
-public class NAME implements AggregationStrategy {
+@BindToRegistry("CustomAggregationStrategy")
+public class CustomAggregationStrategy implements AggregationStrategy {
     @Override
     public Exchange aggregate(Exchange oldExchange, Exchange newExchange) {
 

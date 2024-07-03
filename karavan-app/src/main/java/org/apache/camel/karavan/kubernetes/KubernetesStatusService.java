@@ -70,19 +70,19 @@ public class KubernetesStatusService implements HealthCheck {
 
 
     void onStart(@Observes StartupEvent ev) throws Exception {
-        LOGGER.info("Status Listeners: starting...");
         if (ConfigService.inKubernetes()) {
+            LOGGER.info("Status Listeners: starting...");
             startInformers();
+            LOGGER.info("Status Listeners: started");
         }
-        LOGGER.info("Status Listeners: started");
     }
 
     void onStop(@Observes ShutdownEvent ev) throws IOException {
-        LOGGER.info("Status Listeners: stopping...");
         if (ConfigService.inKubernetes()) {
+            LOGGER.info("Status Listeners: stopping...");
             stopInformers();
+            LOGGER.info("Status Listeners: stopped");
         }
-        LOGGER.info("Status Listeners: stopped");
     }
 
     public void startInformers() {

@@ -44,6 +44,8 @@ public class KaravanCache {
     private final Map<String, ServiceStatus> serviceStatuses = new ConcurrentHashMap<>();
     private final Map<String, CamelStatus> camelStatuses = new ConcurrentHashMap<>();
 
+
+    // lists of copies
     private List<Project> getCopyProjects() {
         List<Project> copy = new ArrayList<>(projects.size());
         projects.values().forEach(e -> copy.add(e.copy()));

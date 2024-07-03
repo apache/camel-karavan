@@ -19,6 +19,7 @@ import {Subject} from "rxjs";
 import {unstable_batchedUpdates} from "react-dom";
 import {useProjectStore} from "./ProjectStore";
 import {ProjectService} from "./ProjectService";
+import {EventBus} from "../designer/utils/EventBus";
 
 export class KaravanEvent {
     id: string = '';
@@ -40,7 +41,10 @@ export const NotificationEventBus = {
 }
 
 const sub = NotificationEventBus.onEvent()?.subscribe((event: KaravanEvent) => {
-    if (event.event === 'commit' && event.className === 'Project') {
+    if (event.event === 'configShared') {
+        const filename = event.data?.filename ? event.data?.filename : 'all'
+        EventBus.sendAlert('Success', 'Configuration shared for ' + filename);
+    } else if (event.event === 'commit' && event.className === 'Project') {
         const projectId = event.data?.projectId;
         if (useProjectStore.getState().project?.projectId === projectId) {
             unstable_batchedUpdates(() => {
@@ -49,6 +53,12 @@ const sub = NotificationEventBus.onEvent()?.subscribe((event: KaravanEvent) => {
                 ProjectService.refreshProjectData(projectId);
             });
         }
+    } else if (event.event === 'error') {
+        const error = event.data?.error;
+        EventBus.sendAlert('Error', error, "danger");
+    } else {
+        const message = event.data?.message ?  event.data?.message : JSON.stringify(event.data);
+        EventBus.sendAlert('Success', message);
     }
 });
 

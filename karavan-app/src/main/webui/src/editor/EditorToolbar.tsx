@@ -21,15 +21,15 @@ import {
     Flex,
     FlexItem,
     Toolbar,
-    ToolbarContent, ToolbarItem, Tooltip,
+    ToolbarContent, Tooltip,
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
 import {useAppConfigStore, useFileStore, useProjectStore} from "../api/ProjectStore";
 import {shallow} from "zustand/shallow";
 import {DevModeToolbar} from "../project/DevModeToolbar";
 import {KaravanApi} from "../api/KaravanApi";
-import {EventBus} from "../designer/utils/EventBus";
-import UpdateIcon from "@patternfly/react-icons/dist/esm/icons/cog-icon";
+import ShareIcon from "@patternfly/react-icons/dist/esm/icons/share-alt-icon";
+import {BUILD_IN_PROJECTS, ProjectType} from "../api/ProjectModels";
 
 
 export function EditorToolbar() {
@@ -38,53 +38,42 @@ export function EditorToolbar() {
     const [project, tabIndex] = useProjectStore((s) => [s.project, s.tabIndex], shallow)
     const [file] = useFileStore((state) => [state.file], shallow)
 
+    const isBuildInProject = BUILD_IN_PROJECTS.includes(project.projectId);
+    const isConfiguration = project.projectId === ProjectType.configuration.toString();
+    const isKubernetes = config.infrastructure === 'kubernetes'
+    const tooltip = isKubernetes ? "Save as Configmaps" : "Save on shared volume";
+
     useEffect(() => {
     }, [project, file]);
 
-    function updateScripts () {
-        KaravanApi.updateBuildConfigMap(res => {
-            EventBus.sendAlert("Success", "Script updated!", "info")
-        })
-    }
-
-    function isKameletsProject(): boolean {
-        return project.projectId === 'kamelets';
-    }
-
-    function isTemplatesProject(): boolean {
-        return project.projectId === 'templates';
-    }
-
-    function isServicesProject(): boolean {
-        return project.projectId === 'services';
+    function shareConfigurationFile () {
+        if (file) {
+            KaravanApi.shareConfigurationFile(file?.name, res => {})
+        }
     }
 
     function isRunnable(): boolean {
-        return !isKameletsProject() && !isTemplatesProject() && !isServicesProject() && !['build', 'container'].includes(tabIndex.toString());
+        return !isBuildInProject && !['build', 'container'].includes(tabIndex.toString());
     }
 
     return (
         <Toolbar id="toolbar-group-types">
             <ToolbarContent>
-                <Flex className="" direction={{default: "row"}}
-                      justifyContent={{default: 'justifyContentSpaceBetween'}}
-                      alignItems={{default: "alignItemsCenter"}}>
+                <Flex className="" direction={{default: "row"}} justifyContent={{default: 'justifyContentSpaceBetween'}} alignItems={{default: "alignItemsCenter"}}>
                     {isRunnable() &&
                         <FlexItem align={{default: 'alignRight'}}>
                             <DevModeToolbar reloadOnly={true}/>
                         </FlexItem>
                     }
-                    {file?.name === 'build.sh' && config.infrastructure === 'kubernetes' &&
-                        <FlexItem>
-                        <Tooltip content="Update Build Script in Config Maps" position={"bottom-end"}>
-                            <Button className="dev-action-button"  size="sm" variant={"primary"} icon={<UpdateIcon/>}
-                                    onClick={e => updateScripts()}
+                    {isConfiguration && <FlexItem>
+                        <Tooltip content={tooltip} position={"bottom-end"}>
+                            <Button className="dev-action-button" size="sm" variant={"primary"} icon={<ShareIcon/>}
+                                    onClick={e => shareConfigurationFile()}
                             >
-                                Update Build Script
+                                Share
                             </Button>
                         </Tooltip>
-                    </FlexItem>
-                    }
+                    </FlexItem>}
                 </Flex>
             </ToolbarContent>
         </Toolbar>

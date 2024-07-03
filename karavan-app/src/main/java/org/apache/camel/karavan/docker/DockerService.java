@@ -128,7 +128,7 @@ public class DockerService {
         if (containers.isEmpty()) {
             HealthCheck healthCheck = DockerUtils.getHealthCheck(compose.getHealthcheck());
 
-            List<String> env = codeService.getComposeEnvWithRuntimeMapping(compose);
+            List<String> env = compose.getEnvironmentList();
 
             LOGGER.infof("Compose Service started for %s in network:%s", compose.getContainer_name(), networkName);
 

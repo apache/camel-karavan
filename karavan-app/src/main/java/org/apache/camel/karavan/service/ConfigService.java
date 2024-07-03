@@ -19,16 +19,30 @@ package org.apache.camel.karavan.service;
 import io.quarkus.runtime.StartupEvent;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
+import jakarta.inject.Inject;
+import org.apache.camel.karavan.KaravanCache;
+import org.apache.camel.karavan.kubernetes.KubernetesService;
 import org.apache.camel.karavan.model.Configuration;
+import org.apache.camel.karavan.model.Project;
+import org.apache.camel.karavan.model.ProjectFile;
+import org.eclipse.microprofile.config.ConfigProvider;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.jboss.logging.Logger;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
+
+import static org.apache.camel.karavan.KaravanConstants.DEV_ENVIRONMENT;
+import static org.apache.camel.karavan.service.CodeService.BUILD_SCRIPT_FILENAME;
 
 @ApplicationScoped
 public class ConfigService {
+
+    private static final Logger LOGGER = Logger.getLogger(ConfigService.class.getName());
 
     @ConfigProperty(name = "karavan.title")
     String title;
@@ -42,18 +56,31 @@ public class ConfigService {
     @ConfigProperty(name = "karavan.environments")
     List<String> environments;
 
+    @ConfigProperty(name = "karavan.shared.folder")
+    Optional<String> sharedFolder;
+
+    @Inject
+    KaravanCache karavanCache;
+
+    @Inject
+    KubernetesService kubernetesService;
+
+    @Inject
+    CodeService codeService;
 
     private Configuration configuration;
     private static Boolean inKubernetes;
     private static Boolean inDocker;
 
     void onStart(@Observes StartupEvent ev) {
+        var configFilenames =  codeService.getConfigurationList();
         configuration = new Configuration(
                 title,
                 version,
                 inKubernetes() ? "kubernetes" : "docker",
                 environment,
-                environments
+                environments,
+                configFilenames
         );
     }
 
@@ -73,6 +100,66 @@ public class ConfigService {
             inDocker = !inKubernetes() && Files.exists(Paths.get(".dockerenv"));
         }
         return inDocker;
+    }
+
+    public void shareOnStartup() {
+        if (ConfigService.inKubernetes() && environment.equals(DEV_ENVIRONMENT)) {
+            LOGGER.info("Creating Configmap for " + BUILD_SCRIPT_FILENAME);
+            try {
+                share(BUILD_SCRIPT_FILENAME);
+            } catch (Exception e) {
+                var error = e.getCause() != null ? e.getCause() : e;
+                LOGGER.error("Error while trying to share build.sh as Configmap", error);
+            }
+        }
+    }
+
+    public void share(String filename) throws Exception {
+        if (filename != null) {
+            ProjectFile f = karavanCache.getProjectFile(Project.Type.configuration.name(), filename);
+            if (f != null) {
+                shareFile(f);
+            }
+        } else {
+            for (ProjectFile f : karavanCache.getProjectFiles(Project.Type.configuration.name())) {
+                shareFile(f);
+            }
+        }
+    }
+
+    private void shareFile(ProjectFile f) throws Exception {
+        var filename = f.getName();
+        var parts = filename.split("\\.");
+        var prefix = parts[0];
+        if (environment.equals(DEV_ENVIRONMENT) && !environments.contains(prefix)) { // no prefix AND dev env
+            storeFile(f);
+        } else if (Objects.equals(prefix, environment)){ // with prefix == env
+            storeFile(f);
+        }
+    }
+
+    private void storeFile(ProjectFile f) throws Exception {
+        if (inKubernetes()) {
+            createConfigMapFromFile(f.getName(), f.getCode());
+        } else {
+            if (sharedFolder.isPresent()) {
+                Files.writeString(Paths.get(sharedFolder.get(), f.getName()), f.getCode());
+            } else {
+                throw new Exception("Shared folder not configured");
+            }
+        }
+    }
+
+    private void createConfigMapFromFile(String filename, String content) {
+        kubernetesService.createConfigmap(filename, Map.of(filename, content));
+    }
+
+    public static String getAppName() {
+        return ConfigProvider.getConfig().getOptionalValue("karavan.appName", String.class).orElse("karavan");
+    }
+
+    public static String getParamWithAppPrefix(String param) {
+        return getAppName() + "-" + param;
     }
 
 }

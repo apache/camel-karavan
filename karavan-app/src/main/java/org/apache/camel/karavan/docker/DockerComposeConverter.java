@@ -45,7 +45,7 @@ public class DockerComposeConverter {
             DockerComposeService service = convertToDockerComposeService(name, serviceJson);
             composeServices.put(name, service);
         });
-        json.put("services", composeServices);
+        json.put("configuration", composeServices);
         return json.mapTo(DockerCompose.class);
     }
 
@@ -69,7 +69,9 @@ public class DockerComposeConverter {
             JsonObject env = new JsonObject();
             service.getJsonArray(ENVIRONMENT).forEach(o -> {
                 String[] kv = o.toString().split("=");
-                env.put(kv[0], kv[1]);
+                if (kv.length == 2) {
+                    env.put(kv[0], kv[1]);
+                }
             });
             service.put(ENVIRONMENT, env);
         }

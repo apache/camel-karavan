@@ -61,7 +61,7 @@ export function DeleteFileModal () {
                     <Text component={TextVariants.h3}>Delete file <b>{file?.name}</b> ?</Text>
                     <HelperText>
                         <HelperTextItem variant="warning">
-                            File will be also deleted from <b>git</b> repository
+                            Push changes to delete from <b>git</b> repository
                         </HelperTextItem>
                     </HelperText>
                 </TextContent>

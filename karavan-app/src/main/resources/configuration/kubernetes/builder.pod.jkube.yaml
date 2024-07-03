@@ -1,0 +1,47 @@
+spec:
+  containers:
+    - env:
+        - name: PROJECT_ID
+          value: ${projectId}
+        - name: TAG
+          value: ${tag}
+        - name: IMAGE_REGISTRY
+          valueFrom:
+            secretKeyRef:
+              name: karavan
+              key: karavan.container-image.registry
+        - name: IMAGE_REGISTRY_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: karavan
+              key: karavan.container-image.registry-username
+        - name: IMAGE_REGISTRY_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: karavan
+              key: karavan.container-image.registry-password
+        - name: IMAGE_GROUP
+          valueFrom:
+            secretKeyRef:
+              name: karavan
+              key: karavan.container-image.group
+        - name: GIT_REPOSITORY
+          valueFrom:
+            secretKeyRef:
+              name: karavan
+              key: karavan.git.repository
+        - name: GIT_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: karavan
+              key: karavan.git.username
+        - name: GIT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: karavan
+              key: karavan.git.password
+        - name: GIT_BRANCH
+          valueFrom:
+            secretKeyRef:
+              name: karavan
+              key: karavan.git.branch

@@ -18,7 +18,6 @@ package org.apache.camel.karavan.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import io.smallrye.mutiny.tuples.Tuple3;
 import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -26,7 +25,10 @@ import jakarta.inject.Inject;
 import org.apache.camel.karavan.KaravanCache;
 import org.apache.camel.karavan.docker.DockerComposeConverter;
 import org.apache.camel.karavan.model.*;
+import org.apache.commons.text.StringSubstitutor;
+import org.apache.commons.text.lookup.StringLookup;
 import org.eclipse.microprofile.config.ConfigProvider;
+import org.eclipse.microprofile.config.ConfigValue;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 import org.yaml.snakeyaml.LoaderOptions;
@@ -50,19 +52,22 @@ public class CodeService {
 
     private static final Logger LOGGER = Logger.getLogger(CodeService.class.getName());
     public static final String APPLICATION_PROPERTIES_FILENAME = "application.properties";
-    public static final String BUILD_SCRIPT_FILENAME = "build.sh";
+    public static final String PROPERTY_PROJECT_NAME = "camel.karavan.projectName";
+    public static final String PROPERTY_PROJECT_NAME_OLD = "camel.karavan.project-name";
     public static final String BEAN_TEMPLATE_SUFFIX_FILENAME = "-bean-template.camel.yaml";
-    public static final String DEV_SERVICES_FILENAME = "devservices.yaml";
+    public static final String DEV_SERVICES_FILENAME = "devservices.docker-compose.yaml";
     public static final String PROJECT_COMPOSE_FILENAME = "docker-compose.yaml";
     public static final String MARKDOWN_EXTENSION = ".md";
     public static final String PROJECT_JKUBE_EXTENSION = ".jkube.yaml";
     public static final String PROJECT_DEPLOYMENT_JKUBE_FILENAME = "deployment" + PROJECT_JKUBE_EXTENSION;
-    private static final String TEMPLATES_PATH = "/templates/";
-//    private static final String DATA_FOLDER = System.getProperty("user.dir") + File.separator + "data";
-    public static final String ENV_MAPPING_FILENAME = "env-mapping.properties";
+    private static final String TEMPLATES_PATH = "/templates";
+    private static final String CONFIGURATION_PATH = "/configuration";
+    private static final String DOCKER_FOLDER = "/docker/";
+    private static final String KUBERNETES_FOLDER = "/kubernetes/";
     public static final int INTERNAL_PORT = 8080;
-    private static final String ENV_MAPPING_START = "{{";
-    private static final String ENV_MAPPING_END = "}}";
+    private static final String BUILDER_POD_FRAGMENT_FILENAME = "builder.pod.jkube.yaml";
+    private static final String BUILDER_COMPOSE_FILENAME = "builder.docker-compose.yaml";
+    public static final String BUILD_SCRIPT_FILENAME = "build.sh";
 
     @ConfigProperty(name = "karavan.environment")
     String environment;
@@ -73,9 +78,7 @@ public class CodeService {
     @Inject
     Vertx vertx;
 
-    List<String> blockList = List.of("components-blocklist.txt", "kamelets-blocklist.txt");
     List<String> beansTemplates = List.of("database", "messaging");
-    List<String> interfaces = List.of("org.apache.camel.AggregationStrategy.java", "org.apache.camel.Processor.java");
 
     public static final Map<String, String> DEFAULT_CONTAINER_RESOURCES = Map.of(
             "requests.memory", "256Mi",
@@ -112,36 +115,34 @@ public class CodeService {
         return files;
     }
 
-    public List<Tuple3<String, String, String>> getBuilderEnvMapping() {
-        List<Tuple3<String, String, String>> result = new ArrayList<>();
-        ProjectFile projectFile = karavanCache.getProjectFile(Project.Type.templates.name(), ENV_MAPPING_FILENAME);
-        if (projectFile != null) {
-            String text = projectFile.getCode();
-            text.lines().forEach(line -> {
-                String[] params = line.split("=");
-                if (params.length > 1) {
-                    String env = params[0];
-                    String[] secret = params[1].split(":");
-                    if (secret.length > 1) {
-                        String secretName = secret[0];
-                        String secretKey = secret[1];
-                        result.add(Tuple3.of(env, secretName, secretKey));
-                    } else {
-                        result.add(Tuple3.of(env, secret[0], null));
-                    }
-                }
-            });
-        }
+    public String getBuilderPodFragment() {
+        ProjectFile projectFile = karavanCache.getProjectFile(Project.Type.configuration.name(), BUILDER_POD_FRAGMENT_FILENAME);
+        return projectFile != null ? projectFile.getCode() : null;
+    }
 
-        return result;
+    public String getDeploymentFragment(String projectId) {
+        ProjectFile projectFile = karavanCache.getProjectFile(projectId, PROJECT_DEPLOYMENT_JKUBE_FILENAME);
+        return projectFile != null ? projectFile.getCode() : null;
+    }
+
+    public String getBuilderComposeFragment(String projectId, String tag) {
+        ProjectFile projectFile = karavanCache.getProjectFile(Project.Type.configuration.name(), BUILDER_COMPOSE_FILENAME);
+        var code = projectFile != null ? projectFile.getCode() : null;
+        var code2 = substituteVariables(code, Map.of( "projectId", projectId, "tag", tag));
+        return replaceEnvWithRuntimeProperties(code2);
+    }
+
+    public String substituteVariables(String template, Map<String, String> variables) {
+        StringSubstitutor sub = new StringSubstitutor(variables);
+        return sub.replace(template);
     }
 
     public ProjectFile generateApplicationProperties(Project project) {
-        String code = getTemplateText(APPLICATION_PROPERTIES_FILENAME);
-        if (code != null) {
-            code = code.replace("{projectId}", project.getProjectId());
-            code = code.replace("{projectName}", project.getName());
-        }
+        String template = getTemplateText(APPLICATION_PROPERTIES_FILENAME);
+        String code = substituteVariables(template, Map.of(
+                "projectId", project.getProjectId(),
+                "projectName", project.getName()
+        ));
         return new ProjectFile(APPLICATION_PROPERTIES_FILENAME, code, project.getProjectId(), Instant.now().toEpochMilli());
     }
 
@@ -161,8 +162,20 @@ public class CodeService {
     }
 
     public String getBuilderScript() {
-        String envTemplate = getTemplateText(environment + "." + BUILD_SCRIPT_FILENAME);
-        return envTemplate != null ? envTemplate : getTemplateText(BUILD_SCRIPT_FILENAME);
+        String envTemplate = getConfigurationText(environment + "." + BUILD_SCRIPT_FILENAME);
+        return envTemplate != null ? envTemplate : getConfigurationText(BUILD_SCRIPT_FILENAME);
+    }
+
+    public String getConfigurationText(String fileName) {
+        try {
+            List<ProjectFile> files = karavanCache.getProjectFiles(Project.Type.configuration.name());
+            // replaceAll("\r\n", "\n")) has been add to eliminate the impact of editing the template files from windows machine.
+            return files.stream().filter(f -> f.getName().equalsIgnoreCase(fileName))
+                    .map(file-> file.getCode().replaceAll("\r\n", "\n")).findFirst().orElse(null);
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage());
+        }
+        return null;
     }
 
     public String getTemplateText(String fileName) {
@@ -184,49 +197,47 @@ public class CodeService {
     public Map<String, String> getTemplates() {
         Map<String, String> result = new HashMap<>();
 
-        if (ConfigService.inKubernetes()) {
-//            if (kubernetesAPI.isOpenshift()) {
-//                result.put(APPLICATION_PROPERTIES_FILENAME, getResourceFile(TEMPLATES_PATH + "openshift-" + APPLICATION_PROPERTIES_FILENAME));
-//                result.put(BUILD_SCRIPT_FILENAME, getResourceFile(TEMPLATES_PATH + "openshift-" + BUILD_SCRIPT_FILENAME));
-//            } else {
-            result.put(APPLICATION_PROPERTIES_FILENAME, getResourceFile(TEMPLATES_PATH + "kubernetes-" + APPLICATION_PROPERTIES_FILENAME));
-            result.put(BUILD_SCRIPT_FILENAME, getResourceFile(TEMPLATES_PATH + "kubernetes-" + BUILD_SCRIPT_FILENAME));
-//            }
-            result.put(ENV_MAPPING_FILENAME, getResourceFile(TEMPLATES_PATH + ENV_MAPPING_FILENAME));
-            result.put(PROJECT_DEPLOYMENT_JKUBE_FILENAME, getResourceFile(TEMPLATES_PATH + PROJECT_DEPLOYMENT_JKUBE_FILENAME));
-        } else {
-            result.put(APPLICATION_PROPERTIES_FILENAME, getResourceFile(TEMPLATES_PATH + "docker-" + APPLICATION_PROPERTIES_FILENAME));
-            result.put(BUILD_SCRIPT_FILENAME, getResourceFile(TEMPLATES_PATH + "docker-" + BUILD_SCRIPT_FILENAME));
-        }
+        var path = TEMPLATES_PATH + (ConfigService.inKubernetes() ? KUBERNETES_FOLDER : DOCKER_FOLDER);
 
-        List<String> files = new ArrayList<>(interfaces);
-        files.addAll(blockList);
-        files.addAll(getBeanTemplateNames());
-
-        files.forEach(file -> {
-            String templatePath = TEMPLATES_PATH + file;
+        listResources(path).forEach(filename -> {
+            String templatePath = path + filename;
             String templateText = getResourceFile(templatePath);
             if (templateText != null) {
-                result.put(file, templateText);
+                result.put(filename, templateText);
             }
         });
-
-        result.put(PROJECT_COMPOSE_FILENAME, getResourceFile(TEMPLATES_PATH + PROJECT_COMPOSE_FILENAME));
         return result;
     }
 
-    public Map<String, String> getServices() {
+    public Map<String, String> getConfigurationFiles() {
         Map<String, String> result = new HashMap<>();
-        String templateText = getResourceFile("/services/" + DEV_SERVICES_FILENAME);
-        result.put(DEV_SERVICES_FILENAME, templateText);
+
+        var path = CONFIGURATION_PATH + (ConfigService.inKubernetes() ? KUBERNETES_FOLDER : DOCKER_FOLDER);
+
+        listResources(path).forEach(filename -> {
+            String templatePath = path + filename;
+            String templateText = getResourceFile(templatePath);
+            if (templateText != null) {
+                result.put(filename, templateText);
+            }
+        });
         return result;
+    }
+
+    public List<String> getTemplatesList() {
+        var path = TEMPLATES_PATH + (ConfigService.inKubernetes() ? KUBERNETES_FOLDER : DOCKER_FOLDER);
+        return listResources(path);
+    }
+
+    public List<String> getConfigurationList() {
+        var path = CONFIGURATION_PATH + (ConfigService.inKubernetes() ? KUBERNETES_FOLDER : DOCKER_FOLDER);
+        return listResources(path);
     }
 
     public String getResourceFile(String path) {
-        try {
-            InputStream inputStream = CodeService.class.getResourceAsStream(path);
-            return new BufferedReader(new InputStreamReader(inputStream))
-                    .lines().collect(Collectors.joining(System.getProperty("line.separator")));
+        try (InputStream inputStream = CodeService.class.getResourceAsStream(path);
+             BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
+             return reader.lines().collect(Collectors.joining(System.lineSeparator()));
         } catch (Exception e) {
             return null;
         }
@@ -275,17 +286,17 @@ public class CodeService {
     }
 
     public String getProjectName(String file) {
-        String name = getProperty(file, "camel.jbang.project-name");
-        return name != null && !name.isBlank() ? name : getProperty(file, "camel.karavan.project-name");
+        String name = getProperty(file, PROPERTY_PROJECT_NAME);
+        return name != null && !name.isBlank() ? name : getProperty(file, PROPERTY_PROJECT_NAME_OLD);
     }
 
     public ProjectFile createInitialProjectCompose(Project project, int nextAvailablePort) {
-        String code = getTemplateText(PROJECT_COMPOSE_FILENAME);
-        if (code != null) {
-            code = code.replace("{projectId}", project.getProjectId());
-            code = code.replace("{projectPort}", String.valueOf(nextAvailablePort));
-            code = code.replace("{projectImage}", project.getProjectId());
-        }
+        String template = getTemplateText(PROJECT_COMPOSE_FILENAME);
+        String code = substituteVariables(template, Map.of(
+                "projectId", project.getProjectId(),
+                "projectPort", String.valueOf(nextAvailablePort),
+                "projectImage", project.getProjectId()
+        ));
         return new ProjectFile(PROJECT_COMPOSE_FILENAME, code, project.getProjectId(), Instant.now().toEpochMilli());
     }
 
@@ -309,17 +320,18 @@ public class CodeService {
         return getProjectPort(composeFile);
     }
 
-    public DockerComposeService getDockerComposeService(String projectId) {
+    public String getDockerComposeFileForProject(String projectId) {
         String composeFileName = PROJECT_COMPOSE_FILENAME;
         if (!Objects.equals(environment, DEV_ENVIRONMENT)) {
             composeFileName = environment + "." + PROJECT_COMPOSE_FILENAME;
         }
         ProjectFile compose = karavanCache.getProjectFile(projectId, composeFileName);
         if (compose != null) {
-            return DockerComposeConverter.fromCode(compose.getCode(), projectId);
+            return compose.getCode();
         }
         return null;
     }
+
     public void updateDockerComposeImage(String projectId, String imageName) {
         ProjectFile compose = karavanCache.getProjectFile(projectId, PROJECT_COMPOSE_FILENAME);
         if (compose != null) {
@@ -331,20 +343,39 @@ public class CodeService {
         }
     }
 
-    public List<String> getComposeEnvWithRuntimeMapping(DockerComposeService compose) {
-        List<String> vars = new ArrayList<>();
-        if (compose.getEnvironment() != null) {
-            compose.getEnvironment().forEach((key, value) -> {
-                if (value != null && value.startsWith(ENV_MAPPING_START)) {
-                    var envName = value.replace(ENV_MAPPING_START, "").replace(ENV_MAPPING_END, "");
-                    String envValue = ConfigProvider.getConfig().getValue(envName, String.class);
-                    vars.add(key + "=" + envValue);
-                } else {
-                    vars.add(key + "=" + value);
-                }
-            });
+    public String replaceEnvWithRuntimeProperties(String composeCode) {
+        Map<String, String> env = new HashMap<>();
+        findVariables(composeCode).forEach(envName -> {
+            String envValue = getConfigValue(envName);
+            env.put(envName, envValue);
+        });
+        return substituteVariables(composeCode, env);
+    }
+
+    private String getConfigValue(String envName) {
+        ConfigValue val = ConfigProvider.getConfig().getConfigValue(envName);
+        if (val == null) {
+            var canonicalName = toEnvFormat(envName);
+            val = ConfigProvider.getConfig().getConfigValue(canonicalName);
         }
-        return vars;
+        return val != null? val.getValue() : null;
+    }
+
+    private static String toEnvFormat(String input) {
+        return input.replaceAll("[^a-zA-Z0-9]", "_").toUpperCase();
+    }
+    private static Set<String> findVariables(String template) {
+        Set<String> variables = new HashSet<>();
+
+        StringLookup dummyLookup = key -> {
+            variables.add(key);
+            return null; // Return null because we are only interested in collecting variable names
+        };
+
+        StringSubstitutor s = new StringSubstitutor(dummyLookup);
+        s.replace(template);
+
+        return variables;
     }
 
     private List<String> getEnvironmentVariablesFromString(String file) {
@@ -355,15 +386,10 @@ public class CodeService {
         return vars;
     }
 
-//    public String getDataFile(String name) {
-//        String fileName = DATA_FOLDER + File.separator + name;
-//        return vertx.fileSystem().readFileBlocking(fileName).toString();
-//    }
-
-    public List<String> listResources(String resourceFolder, boolean onlyFolders) {
-        List<String> filePaths = new ArrayList<>();
+    public List<String> listResources(String resourceFolder) {
+        List<String> result = new ArrayList<>();
         try {
-            URI uri = CodeService.class.getResource(resourceFolder).toURI();
+            URI uri = Objects.requireNonNull(ConfigService.class.getResource(resourceFolder)).toURI();
             Path myPath;
             FileSystem fileSystem = null;
             if (uri.getScheme().equals("jar")) {
@@ -373,32 +399,26 @@ public class CodeService {
                 myPath = Paths.get(uri);
             }
 
-            if (onlyFolders) {
-                // Use Files.walk to list and collect directory paths
-                filePaths = Files.walk(myPath, 10)
-                        .filter(Files::isDirectory)
-                        .map(path -> path.getFileName().toString())
-                        .collect(Collectors.toList());
-            } else {
-                // Use Files.walk to list and collect file paths
-                filePaths = Files.walk(myPath, 1)
+            try (var pathsStream = Files.walk(myPath, 10)) {
+                pathsStream
                         .filter(Files::isRegularFile)
                         .map(path -> path.getFileName().toString())
-                        .collect(Collectors.toList());
+                        .forEach(result::add);
+            } catch (IOException e) {
+                var error = e.getCause() != null ? e.getCause() : e;
+                LOGGER.error("IOException", error);
             }
-
-            // Close the file system if opened
             if (fileSystem != null) {
                 fileSystem.close();
             }
         } catch (URISyntaxException | IOException e) {
-            e.printStackTrace();
+            var error = e.getCause() != null ? e.getCause() : e;
+            LOGGER.error("URISyntaxException | IOException", error);
         }
-        return filePaths;
+        return result;
     }
 
     public String getFileString(String fullName) {
         return vertx.fileSystem().readFileBlocking(fullName).toString();
     }
-
 }

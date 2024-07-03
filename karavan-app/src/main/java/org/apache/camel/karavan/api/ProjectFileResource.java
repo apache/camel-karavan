@@ -117,12 +117,11 @@ public class ProjectFileResource {
     @DELETE
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/{project}/{filename}")
-    public void delete(@HeaderParam("username") String username,
-                       @PathParam("project") String project,
+    public void delete(@PathParam("project") String project,
                        @PathParam("filename") String filename) throws Exception {
         karavanCache.deleteProjectFile(
-                URLDecoder.decode(project, StandardCharsets.UTF_8.toString()),
-                URLDecoder.decode(filename, StandardCharsets.UTF_8.toString())
+                URLDecoder.decode(project, StandardCharsets.UTF_8),
+                URLDecoder.decode(filename, StandardCharsets.UTF_8)
         );
     }
 }

@@ -36,11 +36,12 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
         <quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
-        <quarkus.platform.version>3.11.1</quarkus.platform.version>
+        <quarkus.platform.version>3.12.0</quarkus.platform.version>
         <camel-kamelet.version>4.6.0</camel-kamelet.version>
         <surefire-plugin.version>3.1.0</surefire-plugin.version>
-        <jgit.version>3.1.1</jgit.version>
-        <quinoa.version>2.3.7</quinoa.version>
+        <jgit.version>3.1.2</jgit.version>
+        <quinoa.version>2.3.10</quinoa.version>
+        <commons-text.version>1.12.0</commons-text.version>
         <resources-plugin.version>3.3.0</resources-plugin.version>
         <docker-java.version>3.3.6</docker-java.version>
     </properties>
@@ -60,7 +61,7 @@
     <dependencies>
         <dependency>
             <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-smallrye-reactive-messaging</artifactId>
+            <artifactId>quarkus-messaging</artifactId>
         </dependency>
         <dependency>
             <groupId>io.quarkus</groupId>
@@ -116,12 +117,9 @@
             <artifactId>quarkus-smallrye-health</artifactId>
         </dependency>
         <dependency>
-            <groupId>io.micrometer</groupId>
-            <artifactId>micrometer-registry-prometheus</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-text</artifactId>
+            <version>${commons-text.version}</version>
         </dependency>
         <!-- Docker -->
         <dependency>
@@ -164,7 +162,6 @@
         <resources>
             <resource>
                 <directory>src/main/resources</directory>
-                <filtering>true</filtering>
                 <includes>
                     <include>**/**</include>
                 </includes>

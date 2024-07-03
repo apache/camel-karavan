@@ -19,6 +19,7 @@ package org.apache.camel.karavan.model;
 
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.List;
 
 public class Project {
 
@@ -26,7 +27,7 @@ public class Project {
 
         templates,
         kamelets,
-        services,
+        configuration,
         normal,
         ephemeral,
     }
@@ -108,6 +109,13 @@ public class Project {
         this.type = type;
     }
 
+    public static List<String> getBuildInNames(){
+        return List.of(
+            Type.configuration.name(),
+            Type.kamelets.name(),
+            Type.templates.name()
+        );
+    }
 
     @Override
     public String toString() {

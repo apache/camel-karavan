@@ -21,10 +21,10 @@ import {
     FlexItem,
     PageSection, Tab, Tabs,
 } from '@patternfly/react-core';
-import '../designer/karavan.css';
+import './ProjectPage.css';
 import {ProjectToolbar} from "./ProjectToolbar";
 import {ProjectLogPanel} from "../log/ProjectLogPanel";
-import {Project, ProjectType} from "../api/ProjectModels";
+import {BUILD_IN_PROJECTS, Project, ProjectType} from "../api/ProjectModels";
 import {useAppConfigStore, useFilesStore, useFileStore, useProjectsStore, useProjectStore} from "../api/ProjectStore";
 import {MainToolbar} from "../designer/MainToolbar";
 import {ProjectTitle} from "./ProjectTitle";
@@ -70,7 +70,7 @@ export function ProjectPage() {
     }, [tabIndex]);
 
     function isBuildIn(): boolean {
-        return ['kamelets', 'templates', 'services'].includes(project.projectId);
+        return BUILD_IN_PROJECTS.includes(project.projectId);
     }
 
     function showTabs(): boolean {
@@ -92,7 +92,7 @@ export function ProjectPage() {
             <PageSection className="tools-section" padding={{default: 'noPadding'}}>
                 <MainToolbar title={<ProjectTitle/>} tools={<ProjectToolbar/>} toolsStart={<ImageDownloadToolbar/>}/>
             </PageSection>
-            <PageSection className="tools-section" padding={{default: 'noPadding'}}>
+            <PageSection className="tabs-section" padding={{default: 'noPadding'}}>
                 <Flex direction={{default: "column"}} spaceItems={{default: "spaceItemsNone"}}>
                     <FlexItem className="project-tabs">
                         {showTabs() &&

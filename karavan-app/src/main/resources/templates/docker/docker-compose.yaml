@@ -1,0 +1,8 @@
+services:
+  ${projectId}:
+    image: ${projectImage}
+    restart: always
+    ports:
+      - "${projectPort}:8080"
+    networks:
+      - karavan
