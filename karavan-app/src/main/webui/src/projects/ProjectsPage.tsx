@@ -15,23 +15,17 @@
  * limitations under the License.
  */
 
-import React, {useEffect, useState} from 'react';
+import React, {useEffect} from 'react';
 import {
-    Toolbar,
-    ToolbarContent,
-    ToolbarItem,
-    TextInput,
     PageSection,
     TextContent,
     Text,
-    Button,
     Bullseye,
     EmptyState,
     EmptyStateVariant,
     EmptyStateIcon, EmptyStateHeader
 } from '@patternfly/react-core';
 import './ProjectsPage.css';
-import PlusIcon from '@patternfly/react-icons/dist/esm/icons/plus-icon';
 import {
     Tbody,
     Td,
@@ -51,46 +45,25 @@ import {MainToolbar} from "../designer/MainToolbar";
 import {Project, ProjectType} from "../api/ProjectModels";
 import {shallow} from "zustand/shallow";
 import {KaravanApi} from "../api/KaravanApi";
-import RefreshIcon from "@patternfly/react-icons/dist/esm/icons/sync-alt-icon";
-import {ProjectService} from "../api/ProjectService";
+import {ProjectsToolbar} from "./ProjectsToolbar";
 
-export function ProjectsPage () {
+interface Props {
+    tools?: React.ReactNode
+}
 
-    const [projects, setProjects] = useProjectsStore((s) => [s.projects, s.setProjects], shallow)
-    const [operation, setProject] = useProjectStore((s) => [s.operation, s.setProject], shallow)
-    const [filter, setFilter] = useState<string>('');
+export function ProjectsPage (props: Props) {
+
+    const [projects, setProjects, filter, setFilter]
+        = useProjectsStore((s) => [s.projects, s.setProjects, s.filter, s.setFilter], shallow)
+    const [operation] = useProjectStore((s) => [s.operation], shallow)
 
     useEffect(() => {
         KaravanApi.getProjects((projects: Project[]) => {
             setProjects(projects);
+            setFilter('');
         });
     }, []);
 
-    function getTools() {
-        return <Toolbar id="toolbar-group-types">
-            <ToolbarContent>
-                <ToolbarItem>
-                    <Button icon={<RefreshIcon/>}
-                            variant={"link"}
-                            onClick={e => ProjectService.refreshProjects()}
-                    />
-                </ToolbarItem>
-                <ToolbarItem>
-                    <TextInput className="text-field" type="search" id="search" name="search"
-                               autoComplete="off" placeholder="Search by name"
-                               value={filter}
-                               onChange={(_, e) => setFilter(e)}/>
-                </ToolbarItem>
-                <ToolbarItem>
-                    <Button className="dev-action-button"
-                            icon={<PlusIcon/>}
-                            onClick={e =>
-                                setProject(new Project(), 'create')}
-                    >Create</Button>
-                </ToolbarItem>
-            </ToolbarContent>
-        </Toolbar>
-    }
 
     function title() {
         return <TextContent>
@@ -143,7 +116,7 @@ export function ProjectsPage () {
     return (
         <PageSection className="projects-page" padding={{default: 'noPadding'}}>
             <PageSection className="tools-section" padding={{default: 'noPadding'}}>
-                <MainToolbar title={title()} tools={getTools()}/>
+                <MainToolbar title={title()} tools={props.tools ? props.tools : <ProjectsToolbar/>}/>
             </PageSection>
             <PageSection isFilled className="project-section">
                 {getProjectsTable()}

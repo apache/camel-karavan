@@ -93,6 +93,8 @@ interface ProjectsState {
     projects: Project[];
     setProjects: (projects: Project[]) => void;
     upsertProject: (project: Project) => void;
+    filter: string;
+    setFilter: (filter: string) => void;
 }
 
 export const useProjectsStore = createWithEqualityFn<ProjectsState>((set) => ({
@@ -108,6 +110,10 @@ export const useProjectsStore = createWithEqualityFn<ProjectsState>((set) => ({
                 ? [...state.projects, project]
                 : [...state.projects.filter(f => f.projectId !== project.projectId), project]
         }));
+    },
+    filter: '',
+    setFilter: (filter: string) => {
+        set({filter: filter});
     }
 }), shallow)
 
