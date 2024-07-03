@@ -19,6 +19,23 @@ services:
     ports:
       - 9092:9092
 
+  postgres:
+    container_name: postgres
+    image: postgres:16.2
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - '5432:5432'
+
+  adminer:
+    container_name: adminer
+    image: adminer:4.8.1-standalone
+    restart: always
+    ports:
+      - 8080:8080
+
   greenmail:
     container_name: greenmail
     image: greenmail/standalone:2.0.0
