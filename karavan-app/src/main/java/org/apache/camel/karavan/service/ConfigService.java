@@ -54,7 +54,7 @@ public class ConfigService {
     String environment;
 
     @ConfigProperty(name = "karavan.environments")
-    List<String> environments;
+    Optional<List<String>> environments;
 
     @ConfigProperty(name = "karavan.shared.folder")
     Optional<String> sharedFolder;
@@ -79,7 +79,7 @@ public class ConfigService {
                 version,
                 inKubernetes() ? "kubernetes" : "docker",
                 environment,
-                environments,
+                getEnvs(),
                 configFilenames
         );
     }
@@ -131,7 +131,7 @@ public class ConfigService {
         var filename = f.getName();
         var parts = filename.split("\\.");
         var prefix = parts[0];
-        if (environment.equals(DEV_ENVIRONMENT) && !environments.contains(prefix)) { // no prefix AND dev env
+        if (environment.equals(DEV_ENVIRONMENT) && !getEnvs().contains(prefix)) { // no prefix AND dev env
             storeFile(f);
         } else if (Objects.equals(prefix, environment)){ // with prefix == env
             storeFile(f);
@@ -148,6 +148,10 @@ public class ConfigService {
                 throw new Exception("Shared folder not configured");
             }
         }
+    }
+
+    private List<String> getEnvs() {
+        return environments.orElse(List.of(DEV_ENVIRONMENT));
     }
 
     private void createConfigMapFromFile(String filename, String content) {
