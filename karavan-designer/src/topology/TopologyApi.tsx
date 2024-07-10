@@ -308,7 +308,7 @@ export function getModel(files: IntegrationFile[], grouping?: boolean): Model {
     edges.push(...getRestEdges(trestns, tins));
     edges.push(...getInternalEdges(tons, tins));
     edges.push(...getInternalEdges(trcons, tins));
-    edges.push(...getExternalEdges(tons,tins));
+    // edges.push(...getExternalEdges(tons,tins));
 
     return {nodes: nodes, edges: edges, graph: {id: 'g1', type: 'graph', layout: 'Dagre'}};
 }
