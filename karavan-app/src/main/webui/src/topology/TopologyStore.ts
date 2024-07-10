@@ -56,7 +56,7 @@ export const useTopologyStore = createWithEqualityFn<TopologyState>((set) => ({
             return {nodeData: nodeData};
         });
     },
-    showGroups: false,
+    showGroups: true,
     setShowGroups: (showGroups: boolean) => {
         set((state: TopologyState) => {
             return {showGroups: showGroups};

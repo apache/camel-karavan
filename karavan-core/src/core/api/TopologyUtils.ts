@@ -272,9 +272,20 @@ export class TopologyUtils {
                         const type = TopologyUtils.isElementInternalComponent(e) ? 'internal' : 'external';
                         const connectorType = TopologyUtils.getConnectorType(e);
                         const uniqueUri = TopologyUtils.getUniqueUri(e);
-                        result.push(new TopologyOutgoingNode(id, type, connectorType, rc.id || 'default', title, filename, e, uniqueUri));
+                        result.push(new TopologyOutgoingNode(id, type, connectorType, rc.id || 'undefined', title, filename, e, uniqueUri));
                     })
                 })
+                if (rc.errorHandler?.deadLetterChannel) {
+                    const e = rc.errorHandler?.deadLetterChannel
+                    const id = 'outgoing-' + rc.id + '-' + e.id;
+                    const title = CamelDisplayUtil.getStepDescription(e);
+                    const type = (e?.deadLetterUri?.startsWith('direct:') || e?.deadLetterUri?.startsWith('seda:') )
+                        ? 'internal'
+                        : 'external';
+                    const connectorType = 'component';
+                    const uniqueUri = e?.deadLetterUri
+                    result.push(new TopologyOutgoingNode(id, type, connectorType, rc.id || 'undefined', title, filename, e, uniqueUri));
+                }
             })
 
         })

@@ -58,7 +58,7 @@ class MenuItem {
 
 export function App() {
 
-    const [pageId, setPageId] = useState<string>('designer');
+    const [pageId, setPageId] = useState<string>('topology');
     const [name, setName] = useState<string>('example.yaml');
     const [key, setKey] = useState<string>('');
     const [yaml, setYaml] = useState<string>('');

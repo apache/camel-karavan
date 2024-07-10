@@ -82,13 +82,13 @@ export function getRoutes(tins: TopologyRouteNode[]): NodeModel[] {
             width: NODE_DIAMETER,
             height: NODE_DIAMETER,
             shape: NodeShape.rect,
-            status: NodeStatus.default,
             data: {
                 isAlternate: false,
                 type: 'route',
                 icon: 'route',
                 step: tin.route,
                 routeId: tin.routeId,
+                autoStartup: tin.route.autoStartup !== false,
                 fileName: tin.fileName,
             }
         }
@@ -234,11 +234,13 @@ export function getRestEdges(rest: TopologyRestNode[], tins: TopologyIncomingNod
 export function getInternalEdges(tons: TopologyOutgoingNode[], tins: TopologyIncomingNode[]): EdgeModel[] {
     const result: EdgeModel[] = [];
     tons.filter(ton => ton.type === 'internal').forEach((ton, index) => {
-        const uri: string = (ton.step as any).uri;
-        if (uri.startsWith("direct") || uri.startsWith("seda")) {
-            const name = (ton.step as any).parameters.name;
+        const step = (ton.step as any);
+        if (step?.dslName === 'DeadLetterChannelDefinition') {
+            const parts = step.deadLetterUri?.split(":");
+            const uri: string = parts[0];
+            const name: string = parts[1];
             const target = TopologyUtils.getRouteIdByUriAndName(tins, uri, name);
-                const node: EdgeModel = {
+            const node: EdgeModel = {
                 id: 'internal-' + ton.id + '-' + index,
                 type: 'edge',
                 source: 'route-' + ton.routeId,
@@ -247,6 +249,21 @@ export function getInternalEdges(tons: TopologyOutgoingNode[], tins: TopologyInc
                 animationSpeed: EdgeAnimationSpeed.medium
             }
             if (target) result.push(node);
+        } else {
+            const uri: string = (ton.step as any).uri;
+            if (uri?.startsWith("direct") || uri?.startsWith("seda")) {
+                const name = (ton.step as any).parameters.name;
+                const target = TopologyUtils.getRouteIdByUriAndName(tins, uri, name);
+                const node: EdgeModel = {
+                    id: 'internal-' + ton.id + '-' + index,
+                    type: 'edge',
+                    source: 'route-' + ton.routeId,
+                    target: target,
+                    edgeStyle: EdgeStyle.solid,
+                    animationSpeed: EdgeAnimationSpeed.medium
+                }
+                if (target) result.push(node);
+            }
         }
     });
     return result;
