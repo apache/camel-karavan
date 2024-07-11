@@ -1,76 +1,35 @@
 - route:
-    id: route-654e
-    description: Error Handler
-    nodePrefixId: route-a06
+    id: route-b0b7
+    nodePrefixId: route-dfc
     from:
-      id: from-6dd1
-      description: DLQ
+      id: from-70b1
+      uri: kamelet:timer-source
+      parameters:
+        message: Hello
+        period: 1
+      steps:
+        - aggregate:
+            id: aggregate-46cb
+            completionSize: 1
+        - to:
+            id: to-df39
+            uri: amqp
+        - aggregate:
+            id: aggregate-1193
+            completionSize: 121212
+            completionTimeout: "{{bean:beanName.method}}"
+        - to:
+            id: to-1600
+            uri: kamelet:kafka-sink
+- rest:
+    id: rest-d262
+    get:
+      - id: get-7de4
+        to: direct:test
+- route:
+    id: test
+    from:
+      id: from-aeed
       uri: direct
       parameters:
-        name: dlq
-      steps:
-        - log:
-            id: log-bf00
-            message: "ERROR: ${exception}"
-- route:
-    id: route-c11a
-    description: From
-    nodePrefixId: route-ae1
-    autoStartup: true
-    from:
-      id: from-b6f1
-      description: Command received
-      uri: kamelet:kafka-not-secured-source
-      parameters:
-        topic: wh_commands
-        bootstrapServers: kafka:9092
-        autoCommitEnable: true
-        consumerGroup: lightstep
-      steps:
-        - setVariable:
-            id: setVariable-61a9
-            description: Set command
-            name: command
-            expression:
-              simple:
-                id: simple-965d
-                expression: ${body}
-        - setBody:
-            id: setBody-0515
-            description: Prepare message
-            expression:
-              groovy:
-                id: groovy-bb4f
-                expression: >-
-
-        - log:
-            id: log-7190
-            description: Log message
-            message: "Message: ${body}"
-        - to:
-            id: to-bb55
-            description: Call
-            uri: netty
-            parameters:
-              protocol: tcp
-- route:
-    id: route-42e3
-    description: Events from box
-    nodePrefixId: route-de0
-    autoStartup: false
-    from:
-      id: from-5b8a
-      description: Event received
-      uri: netty
-      parameters:
-        protocol: tcp
-
-      steps:
-        - log:
-            id: log-63db
-            message: ${body}
-- routeConfiguration:
-    errorHandler:
-      deadLetterChannel:
-        id: deadLetterChannel-3bf9
-        deadLetterUri: direct:dlq
+        name: test

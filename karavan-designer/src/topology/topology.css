@@ -106,3 +106,13 @@
 .karavan .topology-panel .pf-topology__group .pf-topology__node__label__background {
     opacity: 0.5;
 }
+
+.karavan .topology-panel .auto-start .badge {
+    fill: var(--pf-topology__node__label__background--Fill);
+    stroke-width: var(--pf-topology__node__label__background--StrokeWidth);
+    stroke: var(--pf-topology__node__label__background--Stroke);
+}
+
+.karavan .topology-panel .auto-start .text {
+    fill: var(--pf-topology__node__label__text--Fill);
+}

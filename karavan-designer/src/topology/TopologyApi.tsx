@@ -82,13 +82,13 @@ export function getRoutes(tins: TopologyRouteNode[]): NodeModel[] {
             width: NODE_DIAMETER,
             height: NODE_DIAMETER,
             shape: NodeShape.rect,
+            status: NodeStatus.default,
             data: {
                 isAlternate: false,
                 type: 'route',
                 icon: 'route',
                 step: tin.route,
                 routeId: tin.routeId,
-                autoStartup: tin.route.autoStartup !== false,
                 fileName: tin.fileName,
             }
         }
