@@ -408,6 +408,18 @@ export class KaravanApi {
         });
     }
 
+    static async getConfigurationFiles(after: (files: []) => void) {
+        instance.get('/ui/file/configuration')
+            .then(res => {
+                if (res.status === 200) {
+                    after(res.data);
+                }
+            }).catch(err => {
+            ErrorEventBus.sendApiError(err);
+        });
+    }
+
+
     static async getTemplatesFiles(after: (files: []) => void) {
         instance.get('/ui/file/templates')
             .then(res => {

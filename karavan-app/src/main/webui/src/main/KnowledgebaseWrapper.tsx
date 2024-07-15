@@ -30,13 +30,13 @@ export const KnowledgebaseWrapper = (props: Props) => {
     const [blockList, setBlockList] = useState<ProjectFile[]>();
 
     useEffect(() => {
-        KaravanApi.getTemplatesFiles((files:ProjectFile[]) => {
+        KaravanApi.getConfigurationFiles((files:ProjectFile[]) => {
             setBlockList([...(files.filter(f => f.name.endsWith('blocklist.txt')))]);
         });
+        ProjectService.reloadKamelets();
     }, []);
 
     const onChangeBlockedList = async (type: string, name: string, checked: boolean) => {
-
         let file: ProjectFile | undefined;
         let fileContent = '';
         if (type === "component") {
