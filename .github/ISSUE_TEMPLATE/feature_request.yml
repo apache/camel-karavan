@@ -18,7 +18,8 @@ body:
       description: To what Karavan variant this feature is related?
       options:
         - Web Application
-        - Vs Code Extension
+        - VS Code Extension
+        - Both
       default: 0
     validations:
       required: true
@@ -31,3 +32,11 @@ body:
         - Docker
         - Kubernetes
         - Openshift
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating System (for VS Code Extension)
+      options:
+        - Linux
+        - macOS
+        - Windows
