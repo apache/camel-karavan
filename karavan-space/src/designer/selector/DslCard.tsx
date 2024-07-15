@@ -43,6 +43,7 @@ export function DslCard (props: Props) {
     const {dsl, index} = props;
     const labels = dsl.labels !== undefined ? dsl.labels.split(",").filter(label => label !== 'eip') : [];
     const isCustom = KameletApi.getCustomKameletNames().includes(dsl.name);
+    const isRemote =  dsl.remote;
     return (
         <Card key={dsl.dsl + index} isCompact isPlain isFlat isRounded className="dsl-card"
               onClick={event => selectDsl(event, dsl)}>
@@ -67,6 +68,7 @@ export function DslCard (props: Props) {
                     {labels.map((label, index) => <Badge key={label + "-" + index} isRead
                                                          className="labels">{label}</Badge>)}
                 </div>
+                {dsl.navigation === 'component' && <Badge isRead className="labels">{isRemote ? 'remote' : 'internal'}</Badge>}
                 {isCustom && <Badge className="custom">custom</Badge>}
             </CardFooter>
         </Card>

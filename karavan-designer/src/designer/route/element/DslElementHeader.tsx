@@ -304,11 +304,9 @@ export function DslElementHeader(props: Props) {
 
     function getDeleteButton() {
         return (
-            <Tooltip position={"right"} content={<div>{"Delete element"}</div>}>
-                <button type="button" aria-label="Delete" onClick={e => onDeleteElement(e)} className="delete-button">
-                    <DeleteElementIcon/>
-                </button>
-            </Tooltip>
+            <button type="button" aria-label="Delete" onClick={e => onDeleteElement(e)} className="delete-button">
+                <DeleteElementIcon/>
+            </button>
         )
     }
 

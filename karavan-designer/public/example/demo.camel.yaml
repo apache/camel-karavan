@@ -8,28 +8,47 @@
         message: Hello
         period: 1
       steps:
-        - aggregate:
-            id: aggregate-46cb
-            completionSize: 1
         - to:
             id: to-df39
             uri: amqp
-        - aggregate:
-            id: aggregate-1193
-            completionSize: 121212
-            completionTimeout: "{{bean:beanName.method}}"
         - to:
             id: to-1600
             uri: kamelet:kafka-sink
-- rest:
-    id: rest-d262
-    get:
-      - id: get-7de4
-        to: direct:test
+        - to:
+            id: to-d9bc
+            uri: pdf
+        - to:
+            id: to-4588
+            uri: controlbus
+        - to:
+            id: to-ac40
+            uri: vertx
+            parameters:
+              address: DATA
+        - to:
+            id: to-3855
+            uri: direct
 - route:
-    id: test
+    id: route-d18a
+    nodePrefixId: route-f11
     from:
-      id: from-aeed
+      id: from-519d
+      uri: seda
+- route:
+    id: route-06fe
+    nodePrefixId: route-0b9
+    from:
+      id: from-f068
       uri: direct
-      parameters:
-        name: test
+#- rest:
+#    id: rest-d262
+#    get:
+#      - id: get-7de4
+#        to: direct:test
+#- route:
+#    id: test
+#    from:
+#      id: from-aeed
+#      uri: direct
+#      parameters:
+#        name: test

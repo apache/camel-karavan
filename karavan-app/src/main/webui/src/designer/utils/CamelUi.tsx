@@ -170,6 +170,8 @@ export class RouteToCreate {
     }
 }
 
+export const NAV_COMPONENTS = ['direct', 'seda', 'vertx']
+
 const INTEGRATION_PATTERNS = 'Integration Patterns';
 
 const stepConvertMap = new Map<string, string>([
@@ -290,6 +292,7 @@ export class CamelUi {
                     version: c.component.version,
                     supportLevel: c.component.supportLevel,
                     supportType: c.component.supportType,
+                    remote: c.component.remote,
                 }));
     }
 
@@ -692,11 +695,11 @@ export class CamelUi {
         const k: KameletModel | undefined = CamelUtil.getKamelet(element);
         if (["FromDefinition", "KameletDefinition"].includes(element.dslName) && k !== undefined) {
             return k ? this.getIconFromSource(k.icon()) : CamelUi.getIconForDslName(element.dslName);
-        } else if ("FromDefinition" === element.dslName && component !== undefined && TopologyUtils.isComponentInternal(component.component.label)) {
+        } else if ("FromDefinition" === element.dslName && component !== undefined && component.component.remote !== true) {
             return this.getIconForComponent(component?.component.title, component?.component.label);
         } else if (element.dslName === "ToDefinition" && (element as ToDefinition).uri?.startsWith("kamelet:")) {
             return k ? this.getIconFromSource(k.icon()) : CamelUi.getIconForDslName(element.dslName);
-        } else if (element.dslName === "ToDefinition" && component && TopologyUtils.isComponentInternal(component.component.label)) {
+        } else if (element.dslName === "ToDefinition" && component && component.component.remote !== true) {
             return this.getIconForComponent(component?.component.title, component?.component.label);
         } else if (element.dslName === "ToDefinition" && component && TopologyUtils.hasDirectUri(element)) {
             return this.getIconForComponent(component?.component.title, component?.component.label);

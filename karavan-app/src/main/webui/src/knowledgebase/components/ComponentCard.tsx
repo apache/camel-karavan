@@ -16,7 +16,7 @@
  */
 import React, { useEffect, useState } from 'react';
 import {
-    CardHeader, Card, CardTitle, CardBody, CardFooter, Badge, Checkbox
+    CardHeader, Card, CardTitle, CardBody, CardFooter, Badge, Checkbox, Flex
 } from '@patternfly/react-core';
 import '../../designer/karavan.css';
 import {CamelUi} from "../../designer/utils/CamelUi";
@@ -53,13 +53,16 @@ export function ComponentCard(props: Props) {
          setBlockedComponents([...ComponentApi.getBlockedComponentNames()]);
     }
     const isBlockedComponent = blockedComponents ? blockedComponents.findIndex(r => r === component.component.name) > -1 : false;
+    const isRemote =  component.component.remote;
     return (
         <Card isCompact key={component.component.name} className="kamelet-card"
               onClick={event => click(event)}
         >
             <CardHeader className="header-labels">
-                {component.component.supportType === 'Supported' && <Badge isRead className="support-type labels">{component.component.supportType}</Badge>}
-                <Badge isRead className="support-level labels">{component.component.supportLevel}</Badge>
+                <Flex style={{width:'100%'}} gap={{default:'gapSm'}} justifyContent={{default: 'justifyContentSpaceBetween'}}>
+                    <Badge isRead className="support-level labels">{component.component.supportLevel}</Badge>
+                    <Badge isRead className="version labels">{component.component.version}</Badge>
+                </Flex>
                 {showBlockCheckbox && <Checkbox id={component.component.name} className="block-checkbox labels"
                            isChecked={!isBlockedComponent} onChange={(_, checked) => selectComponent(_, checked)}/>}
             </CardHeader>
@@ -70,7 +73,7 @@ export function ComponentCard(props: Props) {
             <CardBody>{component.component.description}</CardBody>
             <CardFooter className="footer-labels">
                 <Badge isRead className="labels">{component.component.label}</Badge>
-                <Badge isRead className="version labels">{component.component.version}</Badge>
+                <Badge isRead className="labels">{isRemote ? 'remote' : 'internal'}</Badge>
             </CardFooter>
         </Card>
     )

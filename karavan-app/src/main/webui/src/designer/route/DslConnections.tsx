@@ -17,14 +17,14 @@
 import React, {JSX, useEffect, useState} from 'react';
 import '../karavan.css';
 import {DslPosition, EventBus} from "../utils/EventBus";
-import {CamelUi} from "../utils/CamelUi";
+import {CamelUi, NAV_COMPONENTS} from "../utils/CamelUi";
 import {useConnectionsStore, useDesignerStore, useIntegrationStore} from "../DesignerStore";
 import {shallow} from "zustand/shallow";
 import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt";
 import {TopologyUtils} from "karavan-core/lib/api/TopologyUtils";
 import {CamelElement} from "karavan-core/lib/model/IntegrationDefinition";
 import {v4 as uuidv4} from "uuid";
-import {Button, Tooltip} from "@patternfly/react-core";
+import {Badge, Button, Tooltip} from "@patternfly/react-core";
 import {InfrastructureAPI} from "../utils/InfrastructureAPI";
 import {getIntegrations} from "../../topology/TopologyApi";
 import {ComponentApi} from "karavan-core/lib/api/ComponentApi";
@@ -85,14 +85,13 @@ export function DslConnections() {
     function isElementInternalComponent (element: CamelElement): boolean {
         const uri = (element as any).uri;
         const component = ComponentApi.findByName(uri);
-        return component !== undefined && (TopologyUtils.isComponentInternal(component.component.label));
+        return component !== undefined && component.component.remote !== true;
     }
 
     function getIncomings() {
         let outs: [string, number][] = Array.from(steps.values())
             .filter(pos => ["FromDefinition"].includes(pos.step.dslName))
             .filter(pos => !isElementInternalComponent(pos.step))
-            // .filter(pos => !(pos.step.dslName === 'FromDefinition' && TopologyUtils.hasInternalUri(pos.step)))
             .filter(pos => !(pos.step.dslName === 'FromDefinition' && (pos.step as any).uri === 'kamelet:source'))
             .sort((pos1: DslPosition, pos2: DslPosition) => {
                 const y1 = pos1.headerRect.y + pos1.headerRect.height / 2;
@@ -132,7 +131,7 @@ export function DslConnections() {
     // function getToDirectSteps(name: string) {
     //     return Array.from(steps.values())
     //         .filter(s => s.step.dslName === 'ToDefinition')
-    //         .filter(s =>  ['direct','seda'].includes((s.step as any)?.uri))
+    //         .filter(s =>  NAV_COMPONENTS.includes((s.step as any)?.uri))
     //         .filter(s =>  (s.step as any)?.parameters?.name === name)
     // }
 
@@ -141,9 +140,9 @@ export function DslConnections() {
         if (pos) {
             const step = (pos.step as any);
             const uri = step?.uri;
-            const directOrSeda: boolean = step && uri && step?.dslName === 'FromDefinition' && ['direct','seda'].includes(uri);
-            const name: string = directOrSeda ? (step?.parameters?.name) : undefined;
-            const routes = directOrSeda ? tons.get(uri + ':' +name) || [] : [];
+            const internalCall: boolean = step && uri && step?.dslName === 'FromDefinition' && NAV_COMPONENTS.includes(uri);
+            const name: string = internalCall ? (step?.parameters?.name) : undefined;
+            const routes = internalCall ? tons.get(uri + ':' +name) || [] : [];
             // const localDirects = getToDirectSteps(name);
             const fromY = pos.headerRect.y + pos.headerRect.height / 2 - top;
             const r = pos.headerRect.height / 2;
@@ -152,7 +151,8 @@ export function DslConnections() {
             const imageY = fromY - r + 6;
             return (
                 <div key={pos.step.uuid + "-icon"}
-                     style={{display: "block", position: "absolute", top: imageY, left: imageX}}>
+                     style={{display: "block", position: "absolute", top: imageY, left: imageX}}
+                >
                     {CamelUi.getConnectionIcon(pos.step)}
                     {routes.map((routeId, index) =>
                         <Tooltip key={`${routeId}:${index}`} content={`Go to route:${routeId}`} position={"right"}>
@@ -193,7 +193,7 @@ export function DslConnections() {
             .filter(pos => outgoingDefinitions.includes(pos.step.dslName))
             .filter(pos => pos.step.dslName !== 'KameletDefinition' || (pos.step.dslName === 'KameletDefinition' && !CamelUi.isActionKamelet(pos.step)))
             .filter(pos => pos.step.dslName === 'ToDefinition' && !CamelUi.isActionKamelet(pos.step))
-            .filter(pos => pos.step.dslName !== 'SagaDefinition')
+            .filter(pos => !isElementInternalComponent(pos.step))
             .filter(pos => !CamelUi.isKameletSink(pos.step))
             .sort((pos1: DslPosition, pos2: DslPosition) => {
                 const y1 = pos1.headerRect.y + pos1.headerRect.height / 2;
@@ -241,8 +241,8 @@ export function DslConnections() {
         if (pos) {
             const step = (pos.step as any);
             const uri = step?.uri;
-            const directOrSeda = step && uri && step?.dslName === 'ToDefinition' && ['direct','seda'].includes(uri);
-            const name = directOrSeda ? (step?.parameters?.name) : '';
+            const internalCall = step && uri && step?.dslName === 'ToDefinition' && NAV_COMPONENTS.includes(uri);
+            const name = internalCall ? (step?.parameters?.name) : '';
             const r = pos.headerRect.height / 2;
             const outgoingX = width - 20;
             const outgoingY = data[1] + RADIUS;
@@ -443,7 +443,8 @@ export function DslConnections() {
     function getSvg() {
         const stepsArray = Array.from(steps.values());
         const arrows = stepsArray.map(pos => getArrow(pos)).flat(1);
-        const uniqueArrows = [...new Map(arrows.map(item =>  [(item as any).key, item])).values()]
+        const uniqueArrows = [...new Map(arrows.map(item =>  [(item as any).key, item])).values()];
+
         return (
             <svg key={svgKey}
                  style={{width: width, height: height, position: "absolute", left: 0, top: 0}}

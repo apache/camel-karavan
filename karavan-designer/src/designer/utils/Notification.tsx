@@ -45,7 +45,7 @@ export function Notification () {
         <AlertGroup isToast isLiveRegion>
             {alerts.map((e: ToastMessage) => (
                 <Alert key={e.id} className="main-alert" variant={e.variant} title={e.title}
-                       timeout={['success', 'info', 'custom'].includes(e.variant) ? 1000 : 20000}
+                       timeout={['success', 'info', 'custom'].includes(e.variant) ? 2300 : 20000}
                        actionClose={<AlertActionCloseButton onClose={() => {
                            setAlerts(prevState => {
                                return [...prevState.filter(t => t.id !== e.id)];
