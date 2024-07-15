@@ -31,7 +31,6 @@ export enum ProjectType {
     kamelets ='kamelets',
     configuration ='configuration',
     normal ='normal',
-    ephemeral ='ephemeral',
 }
 
 export const BUILD_IN_PROJECTS: string[] = [ProjectType.kamelets.toString(), ProjectType.templates.toString(), ProjectType.configuration.toString()];

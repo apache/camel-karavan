@@ -29,7 +29,6 @@ public class Project {
         kamelets,
         configuration,
         normal,
-        ephemeral,
     }
 
     String projectId;

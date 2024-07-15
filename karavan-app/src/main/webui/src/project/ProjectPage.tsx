@@ -81,7 +81,6 @@ export function ProjectPage() {
         return files.map(f => f.name).findIndex(f => f.toLowerCase() === 'readme.md') !== -1;
     }
 
-    const ephemeral = project.type === ProjectType.ephemeral
     const showFilePanel = file !== undefined && operation === 'select';
     const isKubernetes = config.infrastructure === 'kubernetes'
     const containerTabName = isKubernetes ? "Pods" : "Containers"
@@ -99,11 +98,11 @@ export function ProjectPage() {
                             <Tabs activeKey={tabIndex} onSelect={(event, tabIndex) => {
                                 setTabIndex(tabIndex);
                             }}>
-                                {!ephemeral && <Tab eventKey="topology" title="Topology"/>}
+                                {<Tab eventKey="topology" title="Topology"/>}
                                 <Tab eventKey="files" title="Files"/>
-                                {!ephemeral && <Tab eventKey="dashboard" title="Dashboard"/>}
-                                {!ephemeral && <Tab eventKey="trace" title="Trace"/>}
-                                {!ephemeral && showBuildTab && <Tab eventKey="build" title="Build"/>}
+                                {<Tab eventKey="dashboard" title="Dashboard"/>}
+                                {<Tab eventKey="trace" title="Trace"/>}
+                                {showBuildTab && <Tab eventKey="build" title="Build"/>}
                                 <Tab eventKey="container" title={containerTabName}/>
                                 {hasReadme() && <Tab eventKey="readme" title="Readme"/>}
                             </Tabs>
