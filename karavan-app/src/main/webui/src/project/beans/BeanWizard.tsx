@@ -19,7 +19,7 @@ import {
     Alert,
     capitalize,
     Flex,
-    Form, FormAlert, FormGroup, FormHelperText, HelperText, HelperTextItem, InputGroup, InputGroupItem,
+    Form, FormAlert, FormGroup, InputGroup, InputGroupItem,
     Modal,
     ModalVariant,
     Radio, Text, TextInput,
@@ -56,7 +56,6 @@ export function BeanWizard() {
     const [templateBeanName, setTemplateBeanName] = useState<string>('');
     const [bean, setBean] = useState<BeanFactoryDefinition | undefined>();
     const [filename, setFilename] = useState<string>('');
-    const [beanName, setBeanName] = useState<string>('');
     const [backendError, setBackendError] = React.useState<string>();
 
     function handleOnFormSubmitSuccess(file: ProjectFile) {
@@ -115,11 +114,8 @@ export function BeanWizard() {
     }, [showWizard]);
 
     useEffect(() => {
-        setBeanName(templateBeanName);
         getBeans.filter(b => b.name === templateBeanName).forEach(b => {
-            Object.getOwnPropertyNames(b.properties).forEach(prop => {
-                setBean(new BeanFactoryDefinition({...b}))
-            })
+            setBean(new BeanFactoryDefinition({...b}))
         });
     }, [templateBeanName]);
 
@@ -149,7 +145,7 @@ export function BeanWizard() {
                 </WizardStep>
                 <WizardStep name={"Template"} id="template"
                             isHidden={templateName === EMPTY_BEAN}
-                            isDisabled={templateName.length == 0}
+                            isDisabled={templateName.length === 0}
                             footer={{isNextDisabled: !getBeans.map(b => b.name).includes(templateBeanName)}}
                 >
                     <Flex direction={{default: "column"}} gap={{default: 'gapLg'}}>
@@ -165,10 +161,14 @@ export function BeanWizard() {
                     <Form autoComplete="off">
                         <FormGroup key={"beanName"} label={"Name"} fieldId={"beanName"}>
                             <TextInput
-                                value={beanName}
+                                value={bean?.name}
                                 id={"beanName"}
                                 aria-describedby={'beanName'}
-                                onChange={(_, value) => setBeanName(value)}
+                                onChange={(_, value) => {
+                                    const b = new BeanFactoryDefinition({...bean});
+                                    b.name = value;
+                                    setBean(b);
+                                }}
                             />
                         </FormGroup>
                         <FormGroup label="Properties:" fieldId="properties"/>
@@ -194,7 +194,7 @@ export function BeanWizard() {
                 </WizardStep>
                 <WizardStep name={"File"} id={"file"}
                             footer={{nextButtonText: 'Save', onNext: event => handleFormSubmit()}}
-                            isDisabled={(templateName.length == 0 || templateBeanName.length == 0) && templateName !== EMPTY_BEAN}
+                            isDisabled={(templateName.length === 0 || templateBeanName.length === 0) && templateName !== EMPTY_BEAN}
                 >
                     <Form autoComplete="off">
                         <FormGroup label="Filename" fieldId="filename" isRequired>
