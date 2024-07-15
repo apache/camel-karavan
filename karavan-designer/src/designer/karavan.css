@@ -428,6 +428,12 @@
     fill: transparent;
 }
 
+.karavan .dsl-page .graph .connections .path-incoming-nav {
+    stroke: var(--pf-v5-global--Color--200);
+    stroke-width: 1;
+    fill: transparent;
+}
+
 .karavan .dsl-page .graph .connections .path-direct {
     stroke-dasharray: 0;
     stroke: var(--pf-v5-global--Color--200);
@@ -575,30 +581,6 @@
     height: 100px;
 }
 
-/*Exception*/
-/*Template*/
-/*Error*/
-
-.karavan .templates-page,
-.karavan .exception-page,
-.karavan .error-page {
-    flex: 1;
-    overflow: auto;
-}
-
-.karavan .templates-page-columns,
-.karavan .exception-page-columns,
-.karavan .error-page-columns {
-    height: 100%;
-    background: #fafafa;
-}
-
-.karavan .templates-page-columns .pf-v5-c-empty-state,
-.karavan .exception-page-columns .pf-v5-c-empty-state,
-.karavan .error-page-columns .pf-v5-c-empty-state {
-    margin: auto;
-    height: 100%;
-}
 
 /* Help */
 .dont-show {

@@ -28,27 +28,21 @@
         - to:
             id: to-3855
             uri: direct
+            parameters:
+              name: hello-world-direct
 - route:
     id: route-d18a
     nodePrefixId: route-f11
     from:
       id: from-519d
-      uri: seda
+      uri: vertx
+      parameters:
+        address: DATA
 - route:
     id: route-06fe
     nodePrefixId: route-0b9
     from:
       id: from-f068
       uri: direct
-#- rest:
-#    id: rest-d262
-#    get:
-#      - id: get-7de4
-#        to: direct:test
-#- route:
-#    id: test
-#    from:
-#      id: from-aeed
-#      uri: direct
-#      parameters:
-#        name: test
+      parameters:
+        name: hello-world-direct
