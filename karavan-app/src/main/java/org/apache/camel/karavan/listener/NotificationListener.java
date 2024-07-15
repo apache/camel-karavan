@@ -39,16 +39,16 @@ public class NotificationListener {
     public static final String EVENT_ERROR = "error";
     public static final String EVENT_COMMIT = "commit";
     public static final String EVENT_CONFIG_SHARED = "configShared";
+    public static final String EVENT_IMAGES_LOADED = "imagesLoaded";
 
     @Inject
     EventBus eventBus;
 
-    @ConsumeEvent(value = ERROR_HAPPENED, blocking = true, ordered = true)
+    @ConsumeEvent(value = NOTIFICATION_ERROR, blocking = true, ordered = true)
     public void onErrorHappened(JsonObject event) throws Exception {
         String eventId = event.getString("eventId");
         String userId = event.getString("userId");
         String className = event.getString("className");
-        String error = event.getString("error");
         if (userId != null) {
             send(userId, eventId, EVENT_ERROR, className, event);
         } else {
@@ -56,7 +56,7 @@ public class NotificationListener {
         }
     }
 
-    @ConsumeEvent(value = SHARE_HAPPENED, blocking = true, ordered = true)
+    @ConsumeEvent(value = NOTIFICATION_CONFIG_SHARED, blocking = true, ordered = true)
     public void onShareHappened(JsonObject event) throws Exception {
         String userId = event.getString("userId");
         String className = event.getString("className");
@@ -64,6 +64,16 @@ public class NotificationListener {
             send(userId, null, EVENT_CONFIG_SHARED, className, event);
         } else {
             sendSystem(null, EVENT_CONFIG_SHARED, className, event);
+        }
+    }
+
+    @ConsumeEvent(value = NOTIFICATION_IMAGES_LOADED, blocking = true, ordered = true)
+    public void onImageLoaded(JsonObject event) throws Exception {
+        String userId = event.getString("userId");
+        if (userId != null) {
+            send(userId, null, EVENT_IMAGES_LOADED, "image", event);
+        } else {
+            sendSystem(null, EVENT_IMAGES_LOADED, "image", event);
         }
     }
 

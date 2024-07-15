@@ -83,7 +83,6 @@ export function DevModeToolbar(props: Props) {
     function refreshContainer(){
         ProjectService.refreshContainerStatus(project.projectId, config.environment);
         ProjectService.refreshCamelStatus(project.projectId, config.environment);
-        ProjectService.refreshImages(project.projectId);
         if (refreshTrace) {
             ProjectService.refreshCamelTraces(project.projectId, config.environment);
         }

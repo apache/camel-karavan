@@ -24,10 +24,11 @@ import {
 import '../designer/karavan.css';
 import {useProjectStore} from "../api/ProjectStore";
 import {ProjectService} from "../api/ProjectService";
+import {shallow} from "zustand/shallow";
 
 export function DeleteProjectModal () {
 
-    const {project, operation} = useProjectStore();
+    const [project, operation] = useProjectStore((s) => [s.project, s.operation], shallow);
     const [deleteContainers, setDeleteContainers] = useState(false);
 
     function closeModal () {

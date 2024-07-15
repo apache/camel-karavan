@@ -44,8 +44,7 @@ import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.apache.camel.karavan.KaravanConstants.DEVMODE_IMAGE;
-import static org.apache.camel.karavan.KaravanConstants.DEV_ENVIRONMENT;
+import static org.apache.camel.karavan.KaravanConstants.*;
 
 @ApplicationScoped
 public class CodeService {
@@ -71,6 +70,9 @@ public class CodeService {
 
     @ConfigProperty(name = "karavan.environment")
     String environment;
+
+    @ConfigProperty(name = "karavan.gav")
+    Optional<String> gav;
 
     @Inject
     KaravanCache karavanCache;
@@ -280,14 +282,29 @@ public class CodeService {
                 .replace(prefix, "");
     }
 
-    public static String getValueForProperty(String line, String property) {
-        String prefix = property + "=";
-        return  line.replace(prefix, "");
+    public static String getPropertyName(String line) {
+        var parts = line.indexOf("=");
+        return line.substring(0, parts).trim();
     }
 
     public String getProjectName(String file) {
         String name = getProperty(file, PROPERTY_PROJECT_NAME);
         return name != null && !name.isBlank() ? name : getProperty(file, PROPERTY_PROJECT_NAME_OLD);
+    }
+
+    public static String replaceProperty(String file, String property, String value) {
+        return file.lines().map(line -> {
+            if (line.startsWith(property)) {
+                return property + "=" + value;
+            } else {
+                return line;
+            }
+        }).collect(Collectors.joining(System.lineSeparator()));
+    }
+
+    public static String removePropertiesStartWith(String file, String startWith) {
+        return file.lines().filter(line -> !line.startsWith(startWith))
+                .collect(Collectors.joining(System.lineSeparator()));
     }
 
     public ProjectFile createInitialProjectCompose(Project project, int nextAvailablePort) {
@@ -420,5 +437,9 @@ public class CodeService {
 
     public String getFileString(String fullName) {
         return vertx.fileSystem().readFileBlocking(fullName).toString();
+    }
+
+    public String getGavFormatter() {
+        return PROPERTY_NAME_GAV + "=" + gav.orElse("org.camel.karavan.demo") + ":%s:1";
     }
 }

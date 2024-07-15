@@ -326,8 +326,6 @@ public class GitService {
         LOGGER.infof("Temp folder %s is created for deletion of project %s", folder, projectId);
         try {
             Git git = getGit(true, folder);
-//            git = clone(folder, gitConfig.getUri(), gitConfig.getBranch());
-//            checkout(git, false, null, null, gitConfig.getBranch());
             addDeletedFolderToIndex(git, folder, projectId, files);
             commitAddedAndPush(git, gitConfig.getBranch(), commitMessage);
             LOGGER.info("Delete Temp folder " + folder);

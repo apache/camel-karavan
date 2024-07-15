@@ -28,7 +28,6 @@ import org.apache.camel.karavan.service.ProjectService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
-import static org.apache.camel.karavan.KaravanConstants.DEV_ENVIRONMENT;
 import static org.apache.camel.karavan.KaravanEvents.CMD_DELETE_CONTAINER;
 import static org.apache.camel.karavan.KaravanEvents.CMD_RELOAD_PROJECT_CODE;
 
@@ -36,6 +35,9 @@ import static org.apache.camel.karavan.KaravanEvents.CMD_RELOAD_PROJECT_CODE;
 public class DevModeResource {
 
     private static final Logger LOGGER = Logger.getLogger(DevModeResource.class.getName());
+
+    @ConfigProperty(name = "karavan.environment")
+    String environment;
 
     @Inject
     KaravanCache karavanCache;
@@ -92,7 +94,7 @@ public class DevModeResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/container/{projectId}")
     public Response getPodStatus(@PathParam("projectId") String projectId) throws RuntimeException {
-        PodContainerStatus cs = karavanCache.getDevModePodContainerStatus(projectId, DEV_ENVIRONMENT);
+        PodContainerStatus cs = karavanCache.getDevModePodContainerStatus(projectId, environment);
         if (cs != null) {
             return Response.ok(cs).build();
         } else {

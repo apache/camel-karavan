@@ -45,7 +45,7 @@ public class DockerComposeConverter {
             DockerComposeService service = convertToDockerComposeService(name, serviceJson);
             composeServices.put(name, service);
         });
-        json.put("configuration", composeServices);
+        json.put("services", composeServices);
         return json.mapTo(DockerCompose.class);
     }
 

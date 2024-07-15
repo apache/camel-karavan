@@ -23,6 +23,7 @@ export class AppConfig {
     environments: string[] = [];
     status: any[] = [];
     configFilenames: any[] = [];
+    advanced: any = {}
 }
 
 export enum ProjectType {
@@ -149,6 +150,13 @@ export class ProjectFileType {
         this.title = title;
         this.extension = extension;
     }
+}
+
+export class ContainerImage {
+    id: string = '';
+    tag: string = '';
+    size: number = 0;
+    created: number = 0;
 }
 
 export const ProjectFileTypes: ProjectFileType[] = [

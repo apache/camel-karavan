@@ -97,8 +97,8 @@ public class KaravanCache {
     }
 
     public Map<String, ProjectFile> getProjectFilesMap(String projectId) {
-        return files.entrySet().stream().filter(es -> !Objects.isNull(es.getValue()) && Objects.equals(es.getValue().getProjectId(), projectId))
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        return getCopyProjectFiles().stream().filter(pf -> !Objects.isNull(pf) && Objects.equals(pf.getProjectId(), projectId))
+                .collect(Collectors.toMap(ProjectFile::getName, ProjectFile::copy));
     }
 
     public ProjectFile getProjectFile(String projectId, String filename) {

@@ -22,7 +22,7 @@ import {
     Project,
     ProjectFile,
     ServiceStatus,
-    CamelStatus,
+    CamelStatus, ContainerImage,
 } from "./ProjectModels";
 import {ProjectEventBus} from "./ProjectEventBus";
 import {unstable_batchedUpdates} from "react-dom";
@@ -121,8 +121,8 @@ interface ProjectState {
     isPulling: boolean,
     isPushing: boolean,
     isRunning: boolean,
-    images: string [],
-    setImages: (images: string []) => void;
+    images: ContainerImage [],
+    setImages: (images: ContainerImage []) => void;
     project: Project;
     setProject: (project: Project, operation:  "create" | "select" | "delete"| "none" | "copy") => void;
     operation: "create" | "select" | "delete" | "none" | "copy";
@@ -167,7 +167,7 @@ export const useProjectStore = createWithEqualityFn<ProjectState>((set) => ({
             return {tabIndex: tabIndex};
         });
     },
-    setImages: (images: string[]) => {
+    setImages: (images: ContainerImage[]) => {
         set((state: ProjectState) => {
             state.images.length = 0;
             state.images.push(...images);

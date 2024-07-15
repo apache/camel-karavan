@@ -104,7 +104,10 @@ public class ContainerResource {
             }
             return Response.ok().build();
         } catch (Exception e) {
-            return Response.serverError().entity(e.getMessage()).build();
+            var error = e.getCause() != null ? e.getCause().getMessage() : e.getMessage();
+            var result = "Error while executing command " + command + " on " + projectId + ": "+ error;
+            LOGGER.error(result);
+            return Response.serverError().entity(result).build();
         }
     }
 

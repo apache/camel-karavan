@@ -19,17 +19,19 @@ package org.apache.camel.karavan;
 public class KaravanEvents {
 
     public static final String CMD_PUSH_PROJECT = "CMD_PUSH_PROJECT";
-    public static final String PROJECTS_STARTED = "PROJECTS_STARTED";
+    public static final String NOTIFICATION_PROJECTS_STARTED = "NOTIFICATION_PROJECTS_STARTED";
     public static final String COMMIT_HAPPENED = "COMMIT_HAPPENED";
+    public static final String NOTIFICATION_IMAGES_LOADED = "NOTIFICATION_IMAGES_LOADED";
 
     public static final String CMD_SHARE_CONFIGURATION = "CMD_SHARE_CONFIGURATION";
-    public static final String SHARE_HAPPENED = "SHARE_HAPPENED";
+    public static final String NOTIFICATION_CONFIG_SHARED = "NOTIFICATION_CONFIG_SHARED";
 
-    public static final String ERROR_HAPPENED = "ERROR_HAPPENED";
+    public static final String NOTIFICATION_ERROR = "NOTIFICATION_ERROR";
 
     public static final String CMD_COLLECT_CAMEL_STATUS = "CMD_COLLECT_CAMEL_STATUS";
     public static final String CMD_COLLECT_CONTAINER_STATISTIC = "CMD_COLLECT_CONTAINER_STATISTIC";
     public static final String CMD_CLEAN_STATUSES = "CMD_CLEAN_STATUSES";
+    public static final String CMD_PULL_IMAGES = "CMD_PULL_IMAGES";
 
     public static final String CMD_RELOAD_PROJECT_CODE = "CMD_RELOAD_PROJECT_CODE";
     public static final String CMD_DELETE_CONTAINER = "CMD_DELETE_CONTAINER";

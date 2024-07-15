@@ -43,7 +43,7 @@ import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.apache.camel.karavan.KaravanConstants.DEV_ENVIRONMENT;
-import static org.apache.camel.karavan.KaravanEvents.PROJECTS_STARTED;
+import static org.apache.camel.karavan.KaravanEvents.NOTIFICATION_PROJECTS_STARTED;
 
 @Default
 @Readiness
@@ -91,7 +91,7 @@ public class KaravanStartupLoader implements HealthCheck {
         } else {
             LOGGER.info("Projects loading...");
             tryStart();
-            eventBus.publish(PROJECTS_STARTED, null);
+            eventBus.publish(NOTIFICATION_PROJECTS_STARTED, null);
             LOGGER.info("Projects loaded");
         }
     }

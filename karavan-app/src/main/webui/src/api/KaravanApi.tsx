@@ -484,14 +484,7 @@ export class KaravanApi {
         });
     }
 
-    static async setProjectImage(projectId: string, imageName: string, commit: boolean, message: string, after: (res: AxiosResponse<any>) => void) {
-        instance.post('/ui/image/' + projectId, {imageName: imageName, commit: commit, message: message})
-            .then(res => {
-                after(res);
-            }).catch(err => {
-            after(err);
-        });
-    }
+
 
     static async stopBuild(environment: string, buildName: string, after: (res: AxiosResponse<any>) => void) {
         instance.delete('/ui/project/build/' + environment + "/" + buildName)
@@ -621,7 +614,7 @@ export class KaravanApi {
     }
 
     static async getImages(projectId: string, after: (string: []) => void) {
-        instance.get('/ui/image/' + projectId)
+        instance.get('/ui/image/project/' + projectId)
             .then(res => {
                 if (res.status === 200) {
                     after(res.data);
@@ -631,14 +624,36 @@ export class KaravanApi {
         });
     }
 
+    static async setProjectImage(projectId: string, imageName: string, commit: boolean, message: string, after: (res: AxiosResponse<any>) => void) {
+        instance.post('/ui/image/project/' + projectId, {imageName: imageName, commit: commit, message: message})
+            .then(res => {
+                after(res);
+            }).catch(err => {
+            after(err);
+        });
+    }
+
     static async deleteImage(imageName: string, after: () => void) {
-        instance.delete('/ui/image/' + Buffer.from(imageName).toString('base64'))
+        instance.delete('/ui/image/project/' + Buffer.from(imageName).toString('base64'))
             .then(res => {
                 if (res.status === 200) {
                     after();
                 }
             }).catch(err => {
             ErrorEventBus.sendApiError(err);
+        });
+    }
+
+    static async pullProjectImages(projectId: string, after: (res: AxiosResponse<any>) => void) {
+        const params = {
+            'projectId': projectId,
+            'userId': KaravanApi.getUserId()
+        };
+        instance.post('/ui/image/pull/', params)
+            .then(res => {
+                after(res);
+            }).catch(err => {
+            after(err);
         });
     }
 

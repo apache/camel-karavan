@@ -30,37 +30,36 @@ export function ProjectContainerTab() {
 
     const {config} = useAppConfigStore();
 
+    const env = config.environment;
     return (
         <PageSection className="project-tab-panel project-build-panel" padding={{default: "padding"}}>
             <div>
-                {config.environments.map(env =>
-                    <Card key={env} className="project-status">
-                        <CardBody>
-                            <DescriptionList isHorizontal horizontalTermWidthModifier={{default: '20ch'}}>
+                <Card key={env} className="project-status">
+                    <CardBody>
+                        <DescriptionList isHorizontal horizontalTermWidthModifier={{default: '20ch'}}>
+                            <DescriptionListGroup>
+                                <DescriptionListTerm>Environment</DescriptionListTerm>
+                                <DescriptionListDescription>
+                                    <Badge className="badge">{env}</Badge>
+                                </DescriptionListDescription>
+                            </DescriptionListGroup>
+                            {config.infrastructure === 'kubernetes' &&
                                 <DescriptionListGroup>
-                                    <DescriptionListTerm>Environment</DescriptionListTerm>
+                                    <DescriptionListTerm>Deployment</DescriptionListTerm>
                                     <DescriptionListDescription>
-                                        <Badge className="badge">{env}</Badge>
+                                        <DeploymentPanel env={env}/>
                                     </DescriptionListDescription>
                                 </DescriptionListGroup>
-                                {config.infrastructure === 'kubernetes' &&
-                                    <DescriptionListGroup>
-                                        <DescriptionListTerm>Deployment</DescriptionListTerm>
-                                        <DescriptionListDescription>
-                                            <DeploymentPanel env={env}/>
-                                        </DescriptionListDescription>
-                                    </DescriptionListGroup>
-                                }
-                                <DescriptionListGroup>
-                                    <DescriptionListTerm>Containers</DescriptionListTerm>
-                                    <DescriptionListDescription>
-                                        <ContainerPanel env={env}/>
-                                    </DescriptionListDescription>
-                                </DescriptionListGroup>
-                            </DescriptionList>
-                        </CardBody>
-                    </Card>
-                )}
+                            }
+                            <DescriptionListGroup>
+                                <DescriptionListTerm>Containers</DescriptionListTerm>
+                                <DescriptionListDescription>
+                                    <ContainerPanel env={env}/>
+                                </DescriptionListDescription>
+                            </DescriptionListGroup>
+                        </DescriptionList>
+                    </CardBody>
+                </Card>
             </div>
         </PageSection>
     )

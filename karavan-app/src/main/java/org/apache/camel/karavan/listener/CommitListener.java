@@ -43,10 +43,10 @@ public class CommitListener {
     @ConsumeEvent(value = CMD_PUSH_PROJECT, blocking = true, ordered = true)
     public void onCommitAndPush(JsonObject event) throws Exception {
         LOGGER.info("Commit event: " + event.encodePrettily());
-            String projectId = event.getString("projectId");
-            String message = event.getString("message");
-            String userId = event.getString("userId");
-            String eventId = event.getString("eventId");
+        String projectId = event.getString("projectId");
+        String message = event.getString("message");
+        String userId = event.getString("userId");
+        String eventId = event.getString("eventId");
         try {
             Project p = projectService.commitAndPushProject(projectId, message);
             if (userId != null) {
@@ -56,7 +56,7 @@ public class CommitListener {
             var error = e.getCause() != null ? e.getCause() : e;
             LOGGER.error("Failed to commit event", error);
             if (userId != null) {
-                eventBus.publish(ERROR_HAPPENED, JsonObject.of(
+                eventBus.publish(NOTIFICATION_ERROR, JsonObject.of(
                         "userId", userId,
                         "eventId", eventId,
                         "className", Project.class.getSimpleName(),

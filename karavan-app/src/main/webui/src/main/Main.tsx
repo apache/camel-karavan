@@ -89,15 +89,12 @@ export function Main() {
         <Page className="karavan">
             {!showMain() && <MainLoader/>}
             {showMain() &&
-                <Flex direction={{default: "row"}} style={{width: "100%", height: "100%"}}
-                      alignItems={{default: "alignItemsStretch"}} spaceItems={{default: 'spaceItemsNone'}}>
-                    <FlexItem>
-                        {<PageNavigation/>}
-                    </FlexItem>
-                    <FlexItem flex={{default: "flex_2"}} style={{height: "100%"}}>
+                <div style={{display: 'flex', flexDirection: 'row', alignItems: 'stretch', gap: '0', width: "100%", height: "100%"}}>
+                    {<PageNavigation/>}
+                    <div style={{height: "100%", flexGrow: '2'}}>
                         {<MainRoutes/>}
-                    </FlexItem>
-                </Flex>
+                    </div>
+                </div>
             }
             <Notification/>
         </Page>

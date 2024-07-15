@@ -39,7 +39,7 @@ public class ConfigListener {
     @Inject
     EventBus eventBus;
 
-    @ConsumeEvent(value = PROJECTS_STARTED, blocking = true)
+    @ConsumeEvent(value = NOTIFICATION_PROJECTS_STARTED, blocking = true)
     public void shareOnStartup(String data) throws Exception {
         configService.shareOnStartup();
     }
@@ -51,12 +51,12 @@ public class ConfigListener {
         LOGGER.info("Config share event: for " + (filename != null ? filename : "all"));
         try {
             configService.share(filename);
-            eventBus.publish(SHARE_HAPPENED, JsonObject.of("userId", userId, "className", "filename", "filename", filename));
+            eventBus.publish(NOTIFICATION_CONFIG_SHARED, JsonObject.of("userId", userId, "className", "filename", "filename", filename));
         } catch (Exception e) {
             var error = e.getCause() != null ? e.getCause() : e;
             LOGGER.error("Failed to share configuration", error);
             if (userId != null) {
-                eventBus.publish(ERROR_HAPPENED, JsonObject.of(
+                eventBus.publish(NOTIFICATION_ERROR, JsonObject.of(
                         "userId", userId,
                         "className", filename,
                         "error", "Failed to share configuration: " + e.getMessage())

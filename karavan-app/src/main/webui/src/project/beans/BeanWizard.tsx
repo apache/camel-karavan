@@ -115,7 +115,7 @@ export function BeanWizard() {
 
     useEffect(() => {
         getBeans.filter(b => b.name === templateBeanName).forEach(b => {
-            setBean(new BeanFactoryDefinition({...b}))
+                setBean(new BeanFactoryDefinition({...b}))
         });
     }, [templateBeanName]);
 

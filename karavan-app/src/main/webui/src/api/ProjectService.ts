@@ -16,7 +16,7 @@
  */
 
 import {KaravanApi} from './KaravanApi';
-import {DeploymentStatus, ContainerStatus, Project, ProjectFile, ServiceStatus, CamelStatus} from './ProjectModels';
+import {DeploymentStatus, ContainerStatus, Project, ProjectFile, ServiceStatus, CamelStatus, ContainerImage} from './ProjectModels';
 import {TemplateApi} from 'karavan-core/lib/api/TemplateApi';
 import {InfrastructureAPI} from '../designer/utils/InfrastructureAPI';
 import {unstable_batchedUpdates} from 'react-dom'
@@ -234,7 +234,7 @@ export class ProjectService {
     }
 
     public static refreshImages(projectId: string) {
-        KaravanApi.getImages(projectId, (res: any) => {
+        KaravanApi.getImages(projectId, (res: ContainerImage[]) => {
             useProjectStore.setState({images: res});
         });
     }

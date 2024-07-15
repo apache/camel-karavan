@@ -17,13 +17,12 @@
 
 import React, {useEffect, useState} from 'react';
 import {Button, Checkbox, Label, PageSection, Tooltip, TooltipPosition} from '@patternfly/react-core';
-import '../designer/karavan.css';
+import './ProjectLog.css';
 import CloseIcon from '@patternfly/react-icons/dist/esm/icons/times-icon';
 import ExpandIcon from '@patternfly/react-icons/dist/esm/icons/expand-icon';
 import CollapseIcon from '@patternfly/react-icons/dist/esm/icons/compress-icon';
 import CleanIcon from '@patternfly/react-icons/dist/esm/icons/trash-alt-icon';
-import {useLogStore, useStatusesStore} from "../api/ProjectStore";
-import {KaravanApi} from "../api/KaravanApi";
+import {useLogStore} from "../api/ProjectStore";
 import {shallow} from "zustand/shallow";
 import {ProjectEventBus} from "../api/ProjectEventBus";
 import {ProjectLog} from "./ProjectLog";
@@ -35,23 +34,23 @@ export function ProjectLogPanel () {
     const [showLog, type, setShowLog, podName] = useLogStore(
         (state) => [state.showLog, state.type, state.setShowLog, state.podName], shallow)
 
-    const [containers] = useStatusesStore((state) => [state.containers], shallow);
     const [height, setHeight] = useState(INITIAL_LOG_HEIGHT);
     const [isTextWrapped, setIsTextWrapped] = useState(true);
     const [autoScroll, setAutoScroll] = useState(true);
-    const [fetch, setFetch] = useState<Promise<void> | undefined>(undefined);
+    const [controller, setController] = React.useState(new AbortController());
     const [currentPodName, setCurrentPodName] = useState<string | undefined>(undefined);
 
     useEffect(() => {
-        const controller = new AbortController();
+        controller.abort()
+        const c = new AbortController();
+        setController(c);
         if (showLog && type !== 'none' && podName !== undefined) {
-            const f = LogWatchApi.fetchData(type, podName, controller).then(value => {
-                console.log("Fetch Started for: " + podName)
+            const f = LogWatchApi.fetchData(type, podName, c).then(value => {
+                console.log("Fetch Started for: " + podName);
             });
-            setFetch(f);
         }
         return () => {
-            controller.abort();
+            c.abort();
         };
     }, [showLog, type, podName]);
 

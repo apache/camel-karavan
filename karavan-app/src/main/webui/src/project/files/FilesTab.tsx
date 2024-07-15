@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import {
     Badge,
     Bullseye,
@@ -101,14 +101,16 @@ export function FilesTab () {
         const currentEnv = config.environment;
         const envs = config.environments;
 
-        const parts = filename.split('.');
-        const prefix = parts[0] && envs.includes(parts[0]) ? parts[0] : undefined;
-        if (prefix && envs.includes(prefix) && prefix !== currentEnv) {
-            return true;
-        }
-        if (!prefix) {
-            const prefixedFilename = `${currentEnv}.${filename}`;
-            return allFiles.map(f => f.name).includes(prefixedFilename);
+        if (filename.endsWith(".jkube.yaml") || filename.endsWith(".docker-compose.yaml")) {
+            const parts = filename.split('.');
+            const prefix = parts[0] && envs.includes(parts[0]) ? parts[0] : undefined;
+            if (prefix && envs.includes(prefix) && prefix !== currentEnv) {
+                return true;
+            }
+            if (!prefix) {
+                const prefixedFilename = `${currentEnv}.${filename}`;
+                return allFiles.map(f => f.name).includes(prefixedFilename);
+            }
         }
         return false;
     }

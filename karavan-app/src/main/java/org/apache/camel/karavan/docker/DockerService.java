@@ -19,6 +19,8 @@ package org.apache.camel.karavan.docker;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.CreateContainerCmd;
 import com.github.dockerjava.api.command.CreateContainerResponse;
+import com.github.dockerjava.api.command.ListImagesCmd;
+import com.github.dockerjava.api.command.PullImageCmd;
 import com.github.dockerjava.api.model.*;
 import com.github.dockerjava.core.DefaultDockerClientConfig;
 import com.github.dockerjava.core.DockerClientConfig;
@@ -32,6 +34,7 @@ import io.vertx.core.buffer.Buffer;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
+import org.apache.camel.karavan.model.ContainerImage;
 import org.apache.camel.karavan.model.DockerComposeService;
 import org.apache.camel.karavan.model.PodContainerStatus;
 import org.apache.camel.karavan.service.CodeService;
@@ -302,10 +305,21 @@ public class DockerService {
                 .flatMap(Collection::stream)
                 .toList();
 
-        if (pullAlways || !images.stream().anyMatch(i -> tags.contains(image))) {
+        if (pullAlways || images.stream().noneMatch(i -> tags.contains(image))) {
             var callback = new DockerPullCallback(LOGGER::info);
             getDockerClient().pullImageCmd(image).exec(callback);
             callback.awaitCompletion();
+        }
+    }
+
+    public void pullImagesForProject(String projectId) throws InterruptedException {
+        if (!Objects.equals(registry, "registry:5000") && username.isPresent() && password.isPresent()) {
+            var repository = registry + "/" + group + "/" + projectId;
+            try (PullImageCmd cmd = getDockerClient().pullImageCmd(repository)) {
+                var callback = new DockerPullCallback(LOGGER::info);
+                cmd.exec(callback);
+                callback.awaitCompletion();
+            }
         }
     }
 
@@ -350,10 +364,13 @@ public class DockerService {
                 .max().orElse(port);
     }
 
-    public List<String> getImages() {
-        return getDockerClient().listImagesCmd().withShowAll(true).exec().stream()
-                .filter(image -> image != null && image.getRepoTags() != null && image.getRepoTags().length > 0)
-                .map(image -> image.getRepoTags()[0]).toList();
+    public List<ContainerImage> getImages() {
+        try (ListImagesCmd cmd = getDockerClient().listImagesCmd().withShowAll(true)) {
+            return cmd.exec().stream()
+                    .filter(image -> image != null && image.getRepoTags() != null && image.getRepoTags().length > 0)
+                    .map(image -> new ContainerImage(image.getId(), image.getRepoTags()[0], image.getCreated(), image.getSize()))
+                    .toList();
+        }
     }
 
     public void deleteImage(String imageName) {

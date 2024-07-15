@@ -57,3 +57,7 @@ export function isValidPassword(password: string): boolean {
         hasSpecialCharacter(password) &&
         hasMinimumLength(password);
 }
+
+export function getMegabytes(bytes?: number): number {
+    return (bytes ? (bytes / 1024 / 1024) : 0);
+}

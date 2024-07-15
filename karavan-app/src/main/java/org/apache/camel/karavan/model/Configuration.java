@@ -17,6 +17,7 @@
 package org.apache.camel.karavan.model;
 
 import java.util.List;
+import java.util.Map;
 
 public class Configuration {
     private String title;
@@ -26,17 +27,20 @@ public class Configuration {
     private List<String> environments;
     private List<String> configFilenames;
     private List<Object> status;
+    private Map<String, String> advanced;
 
     public Configuration() {
     }
 
-    public Configuration(String title, String version, String infrastructure, String environment, List<String> environments, List<String> configFilenames) {
+    public Configuration(String title, String version, String infrastructure, String environment, List<String> environments, List<String> configFilenames,
+                         Map<String, String> advanced) {
         this.title = title;
         this.version = version;
         this.infrastructure = infrastructure;
         this.environment = environment;
         this.environments = environments;
         this.configFilenames = configFilenames;
+        this.advanced = advanced;
     }
 
     public String getTitle() {
@@ -93,5 +97,13 @@ public class Configuration {
 
     public void setConfigFilenames(List<String> configFilenames) {
         this.configFilenames = configFilenames;
+    }
+
+    public Map<String, String> getAdvanced() {
+        return advanced;
+    }
+
+    public void setAdvanced(Map<String, String> advanced) {
+        this.advanced = advanced;
     }
 }

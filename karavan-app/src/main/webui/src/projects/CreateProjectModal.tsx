@@ -24,7 +24,7 @@ import {
     ModalVariant,
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
-import {useProjectStore} from "../api/ProjectStore";
+import {useProjectsStore, useProjectStore} from "../api/ProjectStore";
 import {ProjectService} from "../api/ProjectService";
 import {Project} from "../api/ProjectModels";
 import {isValidProjectId} from "../util/StringUtils";
@@ -33,10 +33,12 @@ import {SubmitHandler, useForm} from "react-hook-form";
 import {useFormUtil} from "../util/useFormUtil";
 import {KaravanApi} from "../api/KaravanApi";
 import {AxiosResponse} from "axios";
+import {shallow} from "zustand/shallow";
 
 export function CreateProjectModal() {
 
-    const {project, operation, setOperation} = useProjectStore();
+    const [project, operation, setOperation] = useProjectStore((s) => [s.project, s.operation, s.setOperation], shallow);
+    const [projects] = useProjectsStore((s) => [s.projects], shallow);
     const [isReset, setReset] = React.useState(false);
     const [backendError, setBackendError] = React.useState<string>();
     const formContext = useForm<Project>({mode: "all"});
@@ -115,6 +117,7 @@ export function CreateProjectModal() {
                     regex: v => isValidProjectId(v) || 'Only lowercase characters, numbers and dashes allowed',
                     length: v => v.length > 5 || 'Project ID should be longer that 5 characters',
                     name: v => !['templates', 'kamelets', 'karavan'].includes(v) || "'templates', 'kamelets', 'karavan' can't be used as project",
+                    uniques: v => !projects.map(p=> p.name).includes(v) || "Project already exists!",
                 })}
                 {getTextField('name', 'Name', {
                     length: v => v.length > 5 || 'Project name should be longer that 5 characters',

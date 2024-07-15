@@ -36,7 +36,7 @@ import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.apache.camel.karavan.KaravanConstants.DEV_ENVIRONMENT;
+import static org.apache.camel.karavan.KaravanConstants.*;
 import static org.apache.camel.karavan.KaravanEvents.CMD_PUSH_PROJECT;
 import static org.apache.camel.karavan.KaravanEvents.POD_CONTAINER_UPDATED;
 import static org.apache.camel.karavan.service.CodeService.*;
@@ -183,15 +183,15 @@ public class ProjectService {
     private void modifyPropertyFileOnProjectCopy(ProjectFile propertyFile, Project sourceProject, Project project) {
         String fileContent = propertyFile.getCode();
 
-        String sourceProjectIdProperty = String.format(Property.PROJECT_ID.getKeyValueFormatter(), sourceProject.getProjectId());
-        String sourceProjectNameProperty = String.format(Property.PROJECT_NAME.getKeyValueFormatter(), sourceProject.getName());
-        String sourceGavProperty = String.format(Property.GAV.getKeyValueFormatter(), sourceProject.getProjectId());
+        String sourceProjectIdProperty = String.format(PROPERTY_FORMATTER_PROJECT_ID, sourceProject.getProjectId());
+        String sourceProjectNameProperty = String.format(PROPERTY_FORMATTER_PROJECT_NAME, sourceProject.getName());
+        String sourceGavProperty = String.format(codeService.getGavFormatter(), sourceProject.getProjectId());
 
         String[] searchValues = {sourceProjectIdProperty, sourceProjectNameProperty, sourceGavProperty};
 
-        String updatedProjectIdProperty = String.format(Property.PROJECT_ID.getKeyValueFormatter(), project.getProjectId());
-        String updatedProjectNameProperty = String.format(Property.PROJECT_NAME.getKeyValueFormatter(), project.getName());
-        String updatedGavProperty = String.format(Property.GAV.getKeyValueFormatter(), project.getProjectId());
+        String updatedProjectIdProperty = String.format(PROPERTY_FORMATTER_PROJECT_ID, project.getProjectId());
+        String updatedProjectNameProperty = String.format(PROPERTY_FORMATTER_PROJECT_NAME, project.getName());
+        String updatedGavProperty = String.format(codeService.getGavFormatter(), project.getProjectId());
 
         String[] replacementValues = {updatedProjectIdProperty, updatedProjectNameProperty, updatedGavProperty};
 
@@ -303,22 +303,6 @@ public class ProjectService {
             }
         } catch (Exception e) {
             return INTERNAL_PORT;
-        }
-    }
-
-    public enum Property {
-        PROJECT_ID("camel.karavan.projectId=%s"),
-        PROJECT_NAME("camel.karavan.projectName=%s"),
-        GAV("camel.jbang.gav=org.camel.karavan.demo:%s:1");
-
-        private final String keyValueFormatter;
-
-        Property(String keyValueFormatter) {
-            this.keyValueFormatter = keyValueFormatter;
-        }
-
-        public String getKeyValueFormatter() {
-            return keyValueFormatter;
         }
     }
 }

@@ -22,8 +22,6 @@ import {
     Flex,
     FlexItem,
     Modal,
-    Panel,
-    PanelHeader,
     TextContent,
     Text,
     TextVariants,
@@ -36,7 +34,7 @@ import {
     Switch,
     TextInput,
     Card,
-    CardBody, CardHeader
+    CardBody, CardHeader, HelperTextItem, HelperText
 } from '@patternfly/react-core';
 import '../../designer/karavan.css';
 import {useFilesStore, useProjectStore} from "../../api/ProjectStore";
@@ -50,6 +48,8 @@ import {ProjectService} from "../../api/ProjectService";
 import {ServicesYaml} from "../../api/ServiceModels";
 import DeleteIcon from "@patternfly/react-icons/dist/js/icons/times-icon";
 import {EventBus} from "../../designer/utils/EventBus";
+import {getMegabytes} from "../../util/StringUtils";
+import PullIcon from "@patternfly/react-icons/dist/esm/icons/cloud-download-alt-icon";
 
 export function ImagesPanel() {
 
@@ -57,6 +57,7 @@ export function ImagesPanel() {
     const [files] = useFilesStore((s) => [s.files], shallow);
     const [showSetConfirmation, setShowSetConfirmation] = useState<boolean>(false);
     const [showDeleteConfirmation, setShowDeleteConfirmation] = useState<boolean>(false);
+    const [showPullConfirmation, setShowPullConfirmation] = useState<boolean>(false);
     const [imageName, setImageName] = useState<string>();
     const [commitChanges, setCommitChanges] = useState<boolean>(false);
     const [commitMessage, setCommitMessage] = useState('');
@@ -130,12 +131,12 @@ export function ImagesPanel() {
 
     function getDeleteConfirmation() {
         return (<Modal
-            className="modal-delete"
             title="Confirmation"
+            variant='medium'
             isOpen={showDeleteConfirmation}
             onClose={() => setShowDeleteConfirmation(false)}
             actions={[
-                <Button key="confirm" variant="primary" onClick={e => {
+                <Button key="confirm" variant="danger" onClick={e => {
                     if (imageName) {
                         KaravanApi.deleteImage(imageName, () => {
                             EventBus.sendAlert("Image deleted", "Image " + imageName + " deleted", 'info');
@@ -148,8 +149,45 @@ export function ImagesPanel() {
                         onClick={e => setShowDeleteConfirmation(false)}>Cancel</Button>
             ]}
             onEscapePress={e => setShowDeleteConfirmation(false)}>
-            <div>{"Delete image:"}</div>
-            <div>{imageName}</div>
+            <TextContent>
+                <Text component='p'>
+                    {"Delete image: "}<b>{imageName}</b>
+                </Text>
+                <HelperText>
+                    <HelperTextItem variant="warning" hasIcon>
+                        Container Image will be deleted from Docker Engine only!
+                    </HelperTextItem>
+                </HelperText>
+            </TextContent>
+        </Modal>)
+    }
+
+    function getPullConfirmation() {
+        return (<Modal
+            title="Confirmation"
+            variant='medium'
+            isOpen={showPullConfirmation}
+            onClose={() => setShowPullConfirmation(false)}
+            actions={[
+                <Button key="confirm" variant="primary" onClick={e => {
+                        KaravanApi.pullProjectImages(project.projectId, () => {
+                            setShowPullConfirmation(false);
+                        });
+                }}>Pull
+                </Button>,
+                <Button key="cancel" variant="link" onClick={_ => setShowPullConfirmation(false)}>Cancel</Button>
+            ]}
+            onEscapePress={e => setShowPullConfirmation(false)}>
+            <TextContent>
+                <Text component='p'>
+                    {"Pull all images from Registry for project: "}<b>{project.projectId}</b>
+                </Text>
+                <HelperText>
+                    <HelperTextItem variant="warning" hasIcon>
+                        Pull is a background process that might take some time!
+                    </HelperTextItem>
+                </HelperText>
+            </TextContent>
         </Modal>)
     }
 
@@ -158,11 +196,19 @@ export function ImagesPanel() {
         <PageSection className="project-tab-panel project-images-panel" padding={{default: "padding"}}>
             <Card>
                 <CardHeader>
-                    <Flex direction={{default: "row"}} justifyContent={{default: "justifyContentFlexStart"}}>
+                    <Flex direction={{default: "row"}} justifyContent={{default: "justifyContentSpaceBetween"}}>
                         <FlexItem>
                             <TextContent>
                                 <Text component={TextVariants.h6}>Images</Text>
                             </TextContent>
+                        </FlexItem>
+                        <FlexItem>
+                            <Tooltip content="Pull all images from registry" position={"bottom-end"}>
+                                <Button variant={"secondary"} className="dev-action-button" icon={<PullIcon/>}
+                                        onClick={() => setShowPullConfirmation(true)}>
+                                    Pull
+                                </Button>
+                            </Tooltip>
                         </FlexItem>
                     </Flex>
                 </CardHeader>
@@ -170,29 +216,33 @@ export function ImagesPanel() {
                     <Table aria-label="Images" variant={"compact"} className={"table"}>
                         <Thead>
                             <Tr>
-                                <Th key='status' width={10}></Th>
+                                <Th key='status' modifier={"fitContent"}>Status</Th>
                                 <Th key='image' width={20}>Image</Th>
                                 <Th key='tag' width={10}>Tag</Th>
-                                <Th key='actions' width={10}></Th>
+                                <Th key='size' width={10}>Size</Th>
+                                <Th key='created' width={10}>Created</Th>
+                                <Th key='actions' width={20}></Th>
                             </Tr>
                         </Thead>
                         <Tbody>
                             {images.map(image => {
-                                const index = image.lastIndexOf(":");
-                                const name = image.substring(0, index);
-                                const tag = image.substring(index + 1);
-                                return <Tr key={image}>
+                                const fullName = image.tag;
+                                const index = fullName.lastIndexOf(":");
+                                const name = fullName.substring(0, index);
+                                const tag = fullName.substring(index + 1);
+                                const created = new Date(image.created * 1000);
+                                const size = getMegabytes(image.size)?.toFixed(0);
+                                return <Tr key={image.id}>
                                     <Td modifier={"fitContent"}>
-                                        {image === projectImage ? <SetIcon/> : <div/>}
+                                        {fullName === projectImage ? <SetIcon/> : <div/>}
                                     </Td>
-                                    <Td>
-                                        {name}
-                                    </Td>
-                                    <Td>
-                                        {tag}
-                                    </Td>
+                                    <Td>{name}</Td>
+                                    <Td>{tag}</Td>
+                                    <Td>{size} MB</Td>
+                                    <Td>{created.toISOString()}</Td>
                                     <Td modifier={"fitContent"} isActionCell>
                                         <Flex direction={{default: "row"}}
+                                              flexWrap={{default:'nowrap'}}
                                               justifyContent={{default: "justifyContentFlexEnd"}}
                                               spaceItems={{default: 'spaceItemsNone'}}>
                                             <FlexItem>
@@ -200,9 +250,9 @@ export function ImagesPanel() {
                                                     <Button variant={"plain"}
                                                             className='dev-action-button'
                                                             icon={<DeleteIcon/>}
-                                                            isDisabled={image === projectImage}
+                                                            isDisabled={fullName === projectImage}
                                                             onClick={e => {
-                                                                setImageName(image);
+                                                                setImageName(fullName);
                                                                 setShowDeleteConfirmation(true);
                                                             }}>
                                                     </Button>
@@ -210,12 +260,11 @@ export function ImagesPanel() {
                                             </FlexItem>
                                             <FlexItem>
                                                 <Tooltip content="Set project image" position={"bottom"}>
-                                                    <Button style={{padding: '0'}}
-                                                            variant={"plain"}
+                                                    <Button variant={"plain"}
                                                             className='dev-action-button'
-                                                            isDisabled={image === projectImage}
+                                                            isDisabled={fullName === projectImage}
                                                             onClick={e => {
-                                                                setImageName(image);
+                                                                setImageName(fullName);
                                                                 setCommitMessage(commitMessage === '' ? new Date().toLocaleString() : commitMessage);
                                                                 setShowSetConfirmation(true);
                                                             }}>
@@ -244,6 +293,7 @@ export function ImagesPanel() {
                     </Table>
                     {showSetConfirmation && getSetConfirmation()}
                     {showDeleteConfirmation && getDeleteConfirmation()}
+                    {showPullConfirmation && getPullConfirmation()}
                 </CardBody>
             </Card>
         </PageSection>

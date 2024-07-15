@@ -44,7 +44,7 @@ public class ConfigurationResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getConfiguration() throws Exception {
-        return Response.ok(configService.getConfiguration()).build();
+        return Response.ok(configService.getConfiguration(null)).build();
     }
 
     @GET

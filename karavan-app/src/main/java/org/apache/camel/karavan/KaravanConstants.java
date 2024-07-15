@@ -41,6 +41,14 @@ public class KaravanConstants {
     public static final String LABEL_KUBERNETES_RUNTIME = "app.kubernetes.io/runtime";
     public static final String ANNOTATION_COMMIT = "jkube.eclipse.org/git-commit";
 
+    public static final String PROPERTY_NAME_PROJECT_ID = "camel.karavan.projectId";
+    public static final String PROPERTY_NAME_PROJECT_NAME = "camel.karavan.projectName";
+    public static final String PROPERTY_NAME_GAV = "camel.jbang.gav";
+
+    public static final String PROPERTY_FORMATTER_PROJECT_ID = PROPERTY_NAME_PROJECT_ID + "=%s";
+    public static final String PROPERTY_FORMATTER_PROJECT_NAME = PROPERTY_NAME_PROJECT_NAME + "=%s";
+    public static final String PROPERTY_FORMATTER_GAV = PROPERTY_NAME_GAV + "=org.camel.karavan.demo:%s:1";
+
     public enum CamelRuntime {
         CAMEL_MAIN("camel-main"),
         QUARKUS("quarkus"),

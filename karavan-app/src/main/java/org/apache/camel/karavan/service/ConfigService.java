@@ -17,6 +17,7 @@
 package org.apache.camel.karavan.service;
 
 import io.quarkus.runtime.StartupEvent;
+import jakarta.annotation.Priority;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
@@ -72,19 +73,23 @@ public class ConfigService {
     private static Boolean inKubernetes;
     private static Boolean inDocker;
 
-    void onStart(@Observes StartupEvent ev) {
-        var configFilenames =  codeService.getConfigurationList();
-        configuration = new Configuration(
-                title,
-                version,
-                inKubernetes() ? "kubernetes" : "docker",
-                environment,
-                getEnvs(),
-                configFilenames
-        );
+    void onStart(@Observes @Priority(10) StartupEvent ev) {
+        getConfiguration(null);
     }
 
-    public Configuration getConfiguration() {
+    public Configuration getConfiguration(Map<String, String> advanced) {
+        if (configuration == null) {
+            var configFilenames =  codeService.getConfigurationList();
+            configuration = new Configuration(
+                    title,
+                    version,
+                    inKubernetes() ? "kubernetes" : "docker",
+                    environment,
+                    getEnvs(),
+                    configFilenames,
+                    advanced
+            );
+        }
         return configuration;
     }
 
@@ -162,8 +167,5 @@ public class ConfigService {
         return ConfigProvider.getConfig().getOptionalValue("karavan.appName", String.class).orElse("karavan");
     }
 
-    public static String getParamWithAppPrefix(String param) {
-        return getAppName() + "-" + param;
-    }
 
 }

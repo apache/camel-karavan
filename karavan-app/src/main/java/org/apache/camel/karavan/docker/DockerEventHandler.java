@@ -21,6 +21,8 @@ import com.github.dockerjava.api.async.ResultCallback;
 import com.github.dockerjava.api.model.Container;
 import com.github.dockerjava.api.model.Event;
 import com.github.dockerjava.api.model.EventType;
+import io.vertx.core.json.JsonObject;
+import io.vertx.mutiny.core.eventbus.EventBus;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.apache.camel.karavan.model.PodContainerStatus;
@@ -32,6 +34,7 @@ import java.io.IOException;
 import java.util.Objects;
 
 import static org.apache.camel.karavan.KaravanConstants.*;
+import static org.apache.camel.karavan.KaravanEvents.CMD_PULL_IMAGES;
 
 @ApplicationScoped
 public class DockerEventHandler implements ResultCallback<Event> {
@@ -48,6 +51,9 @@ public class DockerEventHandler implements ResultCallback<Event> {
     public void onStart(Closeable closeable) {
         LOGGER.info("DockerEventListener started");
     }
+
+    @Inject
+    EventBus eventBus;
 
     @Override
     public void onNext(Event event) {
@@ -74,6 +80,7 @@ public class DockerEventHandler implements ResultCallback<Event> {
 
     private void syncImage(String projectId, String tag) throws InterruptedException {
         String image = registryService.getRegistryWithGroupForSync() + "/" + projectId + ":" + tag;
+        eventBus.publish(CMD_PULL_IMAGES, JsonObject.of("projectId", projectId));
         dockerService.pullImage(image, true);
     }
 
