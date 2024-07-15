@@ -90,23 +90,12 @@ public class AbstractGenerator {
             className = "streamConfig";
         } else if (className.equals("RestSecuritiesDefinition")) {
             className = "securityDefinitions";
-        } else if (className.endsWith("LoadBalancerDefinition")) {
-            return getLoadBalancerDefinitionStepNameForClass(className);
         } else if (className.endsWith("Definition")) {
             className = className.substring(0, className.length() - 10);
         } else if (className.endsWith("DataFormat")) {
             return getDataFormatStepNameForClass().get(className);
         } else if (className.endsWith("Expression")) {
             return getExpressionStepNameForClass().get(className);
-        }
-        return deCapitalize(className);
-    }
-
-    protected String getLoadBalancerDefinitionStepNameForClass(String className) {
-        if (Objects.equals("CustomLoadBalancerDefinition", className)) {
-            className = className.substring(0, className.length() - 10);
-        } else {
-            className = className.substring(0, className.length() - 22);
         }
         return deCapitalize(className);
     }

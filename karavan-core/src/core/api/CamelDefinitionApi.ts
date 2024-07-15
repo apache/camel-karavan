@@ -821,23 +821,23 @@ export class CamelDefinitionApi {
         if (element?.customLoadBalancer !== undefined) { 
             def.customLoadBalancer = CamelDefinitionApi.createCustomLoadBalancerDefinition(element.customLoadBalancer); 
         }
-        if (element?.failover !== undefined) { 
-            def.failover = CamelDefinitionApi.createFailoverLoadBalancerDefinition(element.failover); 
+        if (element?.failoverLoadBalancer !== undefined) { 
+            def.failoverLoadBalancer = CamelDefinitionApi.createFailoverLoadBalancerDefinition(element.failoverLoadBalancer); 
         }
-        if (element?.random !== undefined) { 
-            def.random = CamelDefinitionApi.createRandomLoadBalancerDefinition(element.random); 
+        if (element?.randomLoadBalancer !== undefined) { 
+            def.randomLoadBalancer = CamelDefinitionApi.createRandomLoadBalancerDefinition(element.randomLoadBalancer); 
         }
-        if (element?.roundRobin !== undefined) { 
-            def.roundRobin = CamelDefinitionApi.createRoundRobinLoadBalancerDefinition(element.roundRobin); 
+        if (element?.roundRobinLoadBalancer !== undefined) { 
+            def.roundRobinLoadBalancer = CamelDefinitionApi.createRoundRobinLoadBalancerDefinition(element.roundRobinLoadBalancer); 
         }
-        if (element?.sticky !== undefined) { 
-            def.sticky = CamelDefinitionApi.createStickyLoadBalancerDefinition(element.sticky); 
+        if (element?.stickyLoadBalancer !== undefined) { 
+            def.stickyLoadBalancer = CamelDefinitionApi.createStickyLoadBalancerDefinition(element.stickyLoadBalancer); 
         }
-        if (element?.topic !== undefined) { 
-            def.topic = CamelDefinitionApi.createTopicLoadBalancerDefinition(element.topic); 
+        if (element?.topicLoadBalancer !== undefined) { 
+            def.topicLoadBalancer = CamelDefinitionApi.createTopicLoadBalancerDefinition(element.topicLoadBalancer); 
         }
-        if (element?.weighted !== undefined) { 
-            def.weighted = CamelDefinitionApi.createWeightedLoadBalancerDefinition(element.weighted); 
+        if (element?.weightedLoadBalancer !== undefined) { 
+            def.weightedLoadBalancer = CamelDefinitionApi.createWeightedLoadBalancerDefinition(element.weightedLoadBalancer); 
         }
         def.steps = CamelDefinitionApi.createSteps(element?.steps);
         return def;

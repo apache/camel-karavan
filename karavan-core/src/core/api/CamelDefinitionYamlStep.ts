@@ -1331,11 +1331,18 @@ export class CamelDefinitionYamlStep {
     static readLoadBalanceDefinition = (element: any): LoadBalanceDefinition => {
         
         let def = element ? new LoadBalanceDefinition({...element}) : new LoadBalanceDefinition();
-        if (element?.random !== undefined) { 
-            if (Array.isArray(element.random)) { 
-               def.random = CamelDefinitionYamlStep.readRandomLoadBalancerDefinition(element.random[0]); 
+        if (element?.roundRobinLoadBalancer !== undefined) { 
+            if (Array.isArray(element.roundRobinLoadBalancer)) { 
+               def.roundRobinLoadBalancer = CamelDefinitionYamlStep.readRoundRobinLoadBalancerDefinition(element.roundRobinLoadBalancer[0]); 
             } else { 
-               def.random = CamelDefinitionYamlStep.readRandomLoadBalancerDefinition(element.random); 
+               def.roundRobinLoadBalancer = CamelDefinitionYamlStep.readRoundRobinLoadBalancerDefinition(element.roundRobinLoadBalancer); 
+            } 
+        } 
+        if (element?.stickyLoadBalancer !== undefined) { 
+            if (Array.isArray(element.stickyLoadBalancer)) { 
+               def.stickyLoadBalancer = CamelDefinitionYamlStep.readStickyLoadBalancerDefinition(element.stickyLoadBalancer[0]); 
+            } else { 
+               def.stickyLoadBalancer = CamelDefinitionYamlStep.readStickyLoadBalancerDefinition(element.stickyLoadBalancer); 
             } 
         } 
         if (element?.customLoadBalancer !== undefined) { 
@@ -1345,40 +1352,33 @@ export class CamelDefinitionYamlStep {
                def.customLoadBalancer = CamelDefinitionYamlStep.readCustomLoadBalancerDefinition(element.customLoadBalancer); 
             } 
         } 
-        if (element?.failover !== undefined) { 
-            if (Array.isArray(element.failover)) { 
-               def.failover = CamelDefinitionYamlStep.readFailoverLoadBalancerDefinition(element.failover[0]); 
+        if (element?.topicLoadBalancer !== undefined) { 
+            if (Array.isArray(element.topicLoadBalancer)) { 
+               def.topicLoadBalancer = CamelDefinitionYamlStep.readTopicLoadBalancerDefinition(element.topicLoadBalancer[0]); 
             } else { 
-               def.failover = CamelDefinitionYamlStep.readFailoverLoadBalancerDefinition(element.failover); 
+               def.topicLoadBalancer = CamelDefinitionYamlStep.readTopicLoadBalancerDefinition(element.topicLoadBalancer); 
             } 
         } 
-        if (element?.sticky !== undefined) { 
-            if (Array.isArray(element.sticky)) { 
-               def.sticky = CamelDefinitionYamlStep.readStickyLoadBalancerDefinition(element.sticky[0]); 
+        if (element?.failoverLoadBalancer !== undefined) { 
+            if (Array.isArray(element.failoverLoadBalancer)) { 
+               def.failoverLoadBalancer = CamelDefinitionYamlStep.readFailoverLoadBalancerDefinition(element.failoverLoadBalancer[0]); 
             } else { 
-               def.sticky = CamelDefinitionYamlStep.readStickyLoadBalancerDefinition(element.sticky); 
+               def.failoverLoadBalancer = CamelDefinitionYamlStep.readFailoverLoadBalancerDefinition(element.failoverLoadBalancer); 
             } 
         } 
-        if (element?.topic !== undefined) { 
-            if (Array.isArray(element.topic)) { 
-               def.topic = CamelDefinitionYamlStep.readTopicLoadBalancerDefinition(element.topic[0]); 
+        if (element?.weightedLoadBalancer !== undefined) { 
+            if (Array.isArray(element.weightedLoadBalancer)) { 
+               def.weightedLoadBalancer = CamelDefinitionYamlStep.readWeightedLoadBalancerDefinition(element.weightedLoadBalancer[0]); 
             } else { 
-               def.topic = CamelDefinitionYamlStep.readTopicLoadBalancerDefinition(element.topic); 
-            } 
-        } 
-        if (element?.weighted !== undefined) { 
-            if (Array.isArray(element.weighted)) { 
-               def.weighted = CamelDefinitionYamlStep.readWeightedLoadBalancerDefinition(element.weighted[0]); 
-            } else { 
-               def.weighted = CamelDefinitionYamlStep.readWeightedLoadBalancerDefinition(element.weighted); 
+               def.weightedLoadBalancer = CamelDefinitionYamlStep.readWeightedLoadBalancerDefinition(element.weightedLoadBalancer); 
             } 
         } 
         def.steps = CamelDefinitionYamlStep.readSteps(element?.steps);
-        if (element?.roundRobin !== undefined) { 
-            if (Array.isArray(element.roundRobin)) { 
-               def.roundRobin = CamelDefinitionYamlStep.readRoundRobinLoadBalancerDefinition(element.roundRobin[0]); 
+        if (element?.randomLoadBalancer !== undefined) { 
+            if (Array.isArray(element.randomLoadBalancer)) { 
+               def.randomLoadBalancer = CamelDefinitionYamlStep.readRandomLoadBalancerDefinition(element.randomLoadBalancer[0]); 
             } else { 
-               def.roundRobin = CamelDefinitionYamlStep.readRoundRobinLoadBalancerDefinition(element.roundRobin); 
+               def.randomLoadBalancer = CamelDefinitionYamlStep.readRandomLoadBalancerDefinition(element.randomLoadBalancer); 
             } 
         } 
 

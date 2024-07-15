@@ -108,6 +108,7 @@ export class ErrorHandlerDeserializer extends CamelElement {
     noErrorHandler?: NoErrorHandlerDefinition;
     refErrorHandler?: RefErrorHandlerDefinition | string;
     springTransactionErrorHandler?: SpringTransactionErrorHandlerDefinition;
+    id?: string = 'errorHandlerDeserializer-' + uuidv4().substring(0,4);
     public constructor(init?: Partial<ErrorHandlerDeserializer>) {
         super('ErrorHandlerDeserializer');
         Object.assign(this, init);
@@ -597,12 +598,12 @@ export class LoadBalanceDefinition extends CamelElement {
     disabled?: boolean;
     inheritErrorHandler?: boolean;
     customLoadBalancer?: CustomLoadBalancerDefinition | string;
-    failover?: FailoverLoadBalancerDefinition;
-    random?: RandomLoadBalancerDefinition;
-    roundRobin?: RoundRobinLoadBalancerDefinition;
-    sticky?: StickyLoadBalancerDefinition;
-    topic?: TopicLoadBalancerDefinition;
-    weighted?: WeightedLoadBalancerDefinition;
+    failoverLoadBalancer?: FailoverLoadBalancerDefinition;
+    randomLoadBalancer?: RandomLoadBalancerDefinition;
+    roundRobinLoadBalancer?: RoundRobinLoadBalancerDefinition;
+    stickyLoadBalancer?: StickyLoadBalancerDefinition;
+    topicLoadBalancer?: TopicLoadBalancerDefinition;
+    weightedLoadBalancer?: WeightedLoadBalancerDefinition;
     steps?: CamelElement[] = [];
     public constructor(init?: Partial<LoadBalanceDefinition>) {
         super('LoadBalanceDefinition');
@@ -3098,8 +3099,8 @@ export class CustomLoadBalancerDefinition extends CamelElement {
 }
 
 export class FailoverLoadBalancerDefinition extends CamelElement {
-    stepName?: string = 'failover';
-    id?: string = 'failover-' + uuidv4().substring(0,4);
+    stepName?: string = 'failoverLoadBalancer';
+    id?: string = 'failoverLoadBalancer-' + uuidv4().substring(0,4);
     exception?: string[] = [];
     roundRobin?: string;
     sticky?: string;
@@ -3111,8 +3112,8 @@ export class FailoverLoadBalancerDefinition extends CamelElement {
 }
 
 export class RandomLoadBalancerDefinition extends CamelElement {
-    stepName?: string = 'random';
-    id?: string = 'random-' + uuidv4().substring(0,4);
+    stepName?: string = 'randomLoadBalancer';
+    id?: string = 'randomLoadBalancer-' + uuidv4().substring(0,4);
     public constructor(init?: Partial<RandomLoadBalancerDefinition>) {
         super('RandomLoadBalancerDefinition');
         Object.assign(this, init);
@@ -3120,8 +3121,8 @@ export class RandomLoadBalancerDefinition extends CamelElement {
 }
 
 export class RoundRobinLoadBalancerDefinition extends CamelElement {
-    stepName?: string = 'roundRobin';
-    id?: string = 'roundRobin-' + uuidv4().substring(0,4);
+    stepName?: string = 'roundRobinLoadBalancer';
+    id?: string = 'roundRobinLoadBalancer-' + uuidv4().substring(0,4);
     public constructor(init?: Partial<RoundRobinLoadBalancerDefinition>) {
         super('RoundRobinLoadBalancerDefinition');
         Object.assign(this, init);
@@ -3129,8 +3130,8 @@ export class RoundRobinLoadBalancerDefinition extends CamelElement {
 }
 
 export class StickyLoadBalancerDefinition extends CamelElement {
-    stepName?: string = 'sticky';
-    id?: string = 'sticky-' + uuidv4().substring(0,4);
+    stepName?: string = 'stickyLoadBalancer';
+    id?: string = 'stickyLoadBalancer-' + uuidv4().substring(0,4);
     correlationExpression?: ExpressionSubElementDefinition;
     public constructor(init?: Partial<StickyLoadBalancerDefinition>) {
         super('StickyLoadBalancerDefinition');
@@ -3139,8 +3140,8 @@ export class StickyLoadBalancerDefinition extends CamelElement {
 }
 
 export class TopicLoadBalancerDefinition extends CamelElement {
-    stepName?: string = 'topic';
-    id?: string = 'topic-' + uuidv4().substring(0,4);
+    stepName?: string = 'topicLoadBalancer';
+    id?: string = 'topicLoadBalancer-' + uuidv4().substring(0,4);
     public constructor(init?: Partial<TopicLoadBalancerDefinition>) {
         super('TopicLoadBalancerDefinition');
         Object.assign(this, init);
@@ -3148,8 +3149,8 @@ export class TopicLoadBalancerDefinition extends CamelElement {
 }
 
 export class WeightedLoadBalancerDefinition extends CamelElement {
-    stepName?: string = 'weighted';
-    id?: string = 'weighted-' + uuidv4().substring(0,4);
+    stepName?: string = 'weightedLoadBalancer';
+    id?: string = 'weightedLoadBalancer-' + uuidv4().substring(0,4);
     distributionRatio: string = '';
     distributionRatioDelimiter?: string;
     roundRobin?: boolean;
@@ -3212,6 +3213,7 @@ export class DeleteDefinition extends CamelElement {
     enableNoContentResponse?: boolean;
     apiDocs?: boolean;
     deprecated?: boolean;
+    streamCache?: boolean;
     routeId?: string;
     param?: ParamDefinition[] = [];
     responseMessage?: ResponseMessageDefinition[] = [];
@@ -3240,6 +3242,7 @@ export class GetDefinition extends CamelElement {
     enableNoContentResponse?: boolean;
     apiDocs?: boolean;
     deprecated?: boolean;
+    streamCache?: boolean;
     routeId?: string;
     param?: ParamDefinition[] = [];
     responseMessage?: ResponseMessageDefinition[] = [];
@@ -3268,6 +3271,7 @@ export class HeadDefinition extends CamelElement {
     enableNoContentResponse?: boolean;
     apiDocs?: boolean;
     deprecated?: boolean;
+    streamCache?: boolean;
     routeId?: string;
     param?: ParamDefinition[] = [];
     responseMessage?: ResponseMessageDefinition[] = [];
@@ -3366,6 +3370,7 @@ export class PatchDefinition extends CamelElement {
     enableNoContentResponse?: boolean;
     apiDocs?: boolean;
     deprecated?: boolean;
+    streamCache?: boolean;
     routeId?: string;
     param?: ParamDefinition[] = [];
     responseMessage?: ResponseMessageDefinition[] = [];
@@ -3394,6 +3399,7 @@ export class PostDefinition extends CamelElement {
     enableNoContentResponse?: boolean;
     apiDocs?: boolean;
     deprecated?: boolean;
+    streamCache?: boolean;
     routeId?: string;
     param?: ParamDefinition[] = [];
     responseMessage?: ResponseMessageDefinition[] = [];
@@ -3422,6 +3428,7 @@ export class PutDefinition extends CamelElement {
     enableNoContentResponse?: boolean;
     apiDocs?: boolean;
     deprecated?: boolean;
+    streamCache?: boolean;
     routeId?: string;
     param?: ParamDefinition[] = [];
     responseMessage?: ResponseMessageDefinition[] = [];

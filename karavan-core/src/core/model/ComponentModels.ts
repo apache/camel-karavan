@@ -37,11 +37,13 @@ export class ComponentTitle {
     producerOnly: boolean = false;
     lenientProperties: boolean = false;
     componentProperties: any;
+    remote: boolean = false;
 
     public constructor(init?: Partial<ComponentTitle>) {
         Object.assign(this, init);
     }
 }
+
 export class ComponentHeader {
     name: string = '';
     index: number = 0;

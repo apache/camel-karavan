@@ -1187,12 +1187,12 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('disabled', 'Disabled', "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('inheritErrorHandler', 'Inherit Error Handler', "Sets whether or not to inherit the configured error handler. The default value is true. You can use this to disable using the inherited error handler for a given DSL such as a load balancer where you want to use a custom error handler strategy.", 'boolean', '', 'false', false, false, false, false, '', ''),
         new PropertyMeta('customLoadBalancer', 'customLoadBalancer', "customLoadBalancer", 'CustomLoadBalancerDefinition', '', '', false, false, false, true, '', ''),
-        new PropertyMeta('failover', 'failover', "failover", 'FailoverLoadBalancerDefinition', '', '', false, false, false, true, '', ''),
-        new PropertyMeta('random', 'random', "random", 'RandomLoadBalancerDefinition', '', '', false, false, false, true, '', ''),
-        new PropertyMeta('roundRobin', 'roundRobin', "roundRobin", 'RoundRobinLoadBalancerDefinition', '', '', false, false, false, true, '', ''),
-        new PropertyMeta('sticky', 'sticky', "sticky", 'StickyLoadBalancerDefinition', '', '', false, false, false, true, '', ''),
-        new PropertyMeta('topic', 'topic', "topic", 'TopicLoadBalancerDefinition', '', '', false, false, false, true, '', ''),
-        new PropertyMeta('weighted', 'weighted', "weighted", 'WeightedLoadBalancerDefinition', '', '', false, false, false, true, '', ''),
+        new PropertyMeta('failoverLoadBalancer', 'failoverLoadBalancer', "failoverLoadBalancer", 'FailoverLoadBalancerDefinition', '', '', false, false, false, true, '', ''),
+        new PropertyMeta('randomLoadBalancer', 'randomLoadBalancer', "randomLoadBalancer", 'RandomLoadBalancerDefinition', '', '', false, false, false, true, '', ''),
+        new PropertyMeta('roundRobinLoadBalancer', 'roundRobinLoadBalancer', "roundRobinLoadBalancer", 'RoundRobinLoadBalancerDefinition', '', '', false, false, false, true, '', ''),
+        new PropertyMeta('stickyLoadBalancer', 'stickyLoadBalancer', "stickyLoadBalancer", 'StickyLoadBalancerDefinition', '', '', false, false, false, true, '', ''),
+        new PropertyMeta('topicLoadBalancer', 'topicLoadBalancer', "topicLoadBalancer", 'TopicLoadBalancerDefinition', '', '', false, false, false, true, '', ''),
+        new PropertyMeta('weightedLoadBalancer', 'weightedLoadBalancer', "weightedLoadBalancer", 'WeightedLoadBalancerDefinition', '', '', false, false, false, true, '', ''),
         new PropertyMeta('steps', 'steps', "steps", 'CamelElement', '', '', false, false, true, true, '', ''),
     ], [
     ]),
@@ -1350,7 +1350,7 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('disabled', 'Disabled', "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
-        new PropertyMeta('ref', 'Ref', "Reference to the Processor to lookup in the registry to use. Can also be used for creating new beans by their class name by prefixing with #class, eg #class:com.foo.MyClassType. And it is also possible to refer to singleton beans by their type in the registry by prefixing with #type: syntax, eg #type:com.foo.MyClassType", 'string', '', '', true, false, false, false, '', 'org.apache.camel.Processor'),
+        new PropertyMeta('ref', 'Ref', "Reference to the Processor to lookup in the registry to use. A Processor is a class of type org.apache.camel.Processor, which can are to be called by this EIP. In this processor you have custom Java code, that can work with the message, such as to do custom business logic, special message manipulations and so on. By default, the ref, will lookup the bean in the Camel registry. The ref can use prefix that controls how the processor is obtained. You can use #bean:myBean where myBean is the id of the Camel processor (lookup). Can also be used for creating new beans by their class name by prefixing with #class, eg #class:com.foo.MyClassType. And it is also possible to refer to singleton beans by their type in the registry by prefixing with #type: syntax, eg #type:com.foo.MyClassType", 'string', '', '', true, false, false, false, '', 'org.apache.camel.Processor'),
     ], [
     ]),
     new ElementMeta('recipientList', 'RecipientListDefinition', 'Recipient List', "Route messages to a number of dynamically specified recipients", 'eip,routing', [
@@ -1509,7 +1509,7 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('disabled', 'Disabled', "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
-        new PropertyMeta('headers', 'headers', "headers", 'SetHeaderDefinition', '', '', false, false, true, true, '', ''),
+        new PropertyMeta('headers', 'Headers', "Contains the headers to be set", 'SetHeaderDefinition', '', '', true, false, true, true, '', ''),
     ], [
     ]),
     new ElementMeta('setProperty', 'SetPropertyDefinition', 'Set Property', "Sets a named property on the message exchange", 'eip,transformation', [
@@ -1532,7 +1532,7 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('disabled', 'Disabled', "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
-        new PropertyMeta('variables', 'variables', "variables", 'SetVariableDefinition', '', '', false, false, true, true, '', ''),
+        new PropertyMeta('variables', 'Variables', "Contains the variables to be set", 'SetVariableDefinition', '', '', true, false, true, true, '', ''),
     ], [
     ]),
     new ElementMeta('sort', 'SortDefinition', 'Sort', "Sorts the contents of the message", 'eip,routing', [
@@ -1897,7 +1897,7 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('apiContextPath', 'Api Context Path', "Sets a leading context-path the REST API will be using. This can be used when using components such as camel-servlet where the deployed web application is deployed using a context-path.", 'string', '', '', false, false, false, false, 'consumer', ''),
         new PropertyMeta('apiContextRouteId', 'Api Context Route Id', "Sets the route id to use for the route that services the REST API. The route will by default use an auto assigned route id.", 'string', '', '', false, false, false, false, 'consumer,advanced', ''),
         new PropertyMeta('apiVendorExtension', 'Api Vendor Extension', "Whether vendor extension is enabled in the Rest APIs. If enabled then Camel will include additional information as vendor extension (eg keys starting with x-) such as route ids, class names etc. Not all 3rd party API gateways and tools supports vendor-extensions when importing your API docs.", 'boolean', '', 'false', false, false, false, false, 'consumer,advanced', ''),
-        new PropertyMeta('hostNameResolver', 'Host Name Resolver', "If no hostname has been explicit configured, then this resolver is used to compute the hostname the REST service will be using.", 'string', 'allLocalIp, localHostName, localIp', 'allLocalIp', false, false, false, false, 'consumer,advanced', ''),
+        new PropertyMeta('hostNameResolver', 'Host Name Resolver', "If no hostname has been explicit configured, then this resolver is used to compute the hostname the REST service will be using.", 'string', 'allLocalIp, localHostName, localIp, none', 'allLocalIp', false, false, false, false, 'consumer,advanced', ''),
         new PropertyMeta('bindingMode', 'Binding Mode', "Sets the binding mode to use. The default value is off", 'string', 'off, auto, json, xml, json_xml', 'off', false, false, false, false, '', ''),
         new PropertyMeta('bindingPackageScan', 'Binding Package Scan', "Package name to use as base (offset) for classpath scanning of POJO classes are located when using binding mode is enabled for JSon or XML. Multiple package names can be separated by comma.", 'string', '', '', false, false, false, false, 'consumer,advanced', ''),
         new PropertyMeta('skipBindingOnErrorCode', 'Skip Binding On Error Code', "Whether to skip binding on output if there is a custom HTTP error code header. This allows to build custom error messages that do not bind to json / xml etc, as success messages otherwise will do.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
@@ -2313,32 +2313,32 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('ref', 'Ref', "Refers to the custom load balancer to lookup from the registry", 'string', '', '', true, false, false, false, '', ''),
     ], [
     ]),
-    new ElementMeta('failover', 'FailoverLoadBalancerDefinition', 'Failover', "In case of failures the exchange will be tried on the next endpoint.", 'eip,routing', [
+    new ElementMeta('failoverLoadBalancer', 'FailoverLoadBalancerDefinition', 'Failover Load Balancer', "In case of failures the exchange will be tried on the next endpoint.", 'eip,routing', [
         new PropertyMeta('id', 'Id', "The id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('exception', 'Exception', "A list of class names for specific exceptions to monitor. If no exceptions are configured then all exceptions are monitored", 'string', '', '', false, false, true, true, '', ''),
         new PropertyMeta('roundRobin', 'Round Robin', "Whether or not the failover load balancer should operate in round robin mode or not. If not, then it will always start from the first endpoint when a new message is to be processed. In other words it restart from the top for every message. If round robin is enabled, then it keeps state and will continue with the next endpoint in a round robin fashion. You can also enable sticky mode together with round robin, if so then it will pick the last known good endpoint to use when starting the load balancing (instead of using the next when starting).", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('sticky', 'Sticky', "Whether or not the failover load balancer should operate in sticky mode or not. If not, then it will always start from the first endpoint when a new message is to be processed. In other words it restart from the top for every message. If sticky is enabled, then it keeps state and will continue with the last known good endpoint. You can also enable sticky mode together with round robin, if so then it will pick the last known good endpoint to use when starting the load balancing (instead of using the next when starting).", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('maximumFailoverAttempts', 'Maximum Failover Attempts', "A value to indicate after X failover attempts we should exhaust (give up). Use -1 to indicate never give up and continuously try to failover. Use 0 to never failover. And use e.g. 3 to failover at most 3 times before giving up. his option can be used whether or not roundRobin is enabled or not.", 'string', '', '-1', false, false, false, false, '', ''),
+        new PropertyMeta('maximumFailoverAttempts', 'Maximum Failover Attempts', "A value to indicate after X failover attempts we should exhaust (give up). Use -1 to indicate never give up and continuously try to failover. Use 0 to never failover. And use e.g. 3 to failover at most 3 times before giving up. This option can be used whether roundRobin is enabled or not.", 'string', '', '-1', false, false, false, false, '', ''),
     ], [
     ]),
-    new ElementMeta('random', 'RandomLoadBalancerDefinition', 'Random', "The destination endpoints are selected randomly.", 'eip,routing', [
+    new ElementMeta('randomLoadBalancer', 'RandomLoadBalancerDefinition', 'Random Load Balancer', "The destination endpoints are selected randomly.", 'eip,routing', [
         new PropertyMeta('id', 'Id', "The id of this node", 'string', '', '', false, false, false, false, '', ''),
     ], [
     ]),
-    new ElementMeta('roundRobin', 'RoundRobinLoadBalancerDefinition', 'Round Robin', "The destination endpoints are selected in a round-robin fashion. This is a well-known and classic policy, which spreads the load evenly.", 'eip,routing', [
+    new ElementMeta('roundRobinLoadBalancer', 'RoundRobinLoadBalancerDefinition', 'Round Robin Load Balancer', "The destination endpoints are selected in a round-robin fashion. This is a well-known and classic policy, which spreads the load evenly.", 'eip,routing', [
         new PropertyMeta('id', 'Id', "The id of this node", 'string', '', '', false, false, false, false, '', ''),
     ], [
     ]),
-    new ElementMeta('sticky', 'StickyLoadBalancerDefinition', 'Sticky', "Sticky load balancing using an expression to calculate a correlation key to perform the sticky load balancing.", 'eip,routing', [
+    new ElementMeta('stickyLoadBalancer', 'StickyLoadBalancerDefinition', 'Sticky Load Balancer', "Sticky load balancing using an expression to calculate a correlation key to perform the sticky load balancing.", 'eip,routing', [
         new PropertyMeta('id', 'Id', "The id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('correlationExpression', 'Correlation Expression', "The correlation expression to use to calculate the correlation key", 'ExpressionSubElementDefinition', '', '', true, false, false, true, '', ''),
     ], [
     ]),
-    new ElementMeta('topic', 'TopicLoadBalancerDefinition', 'Topic', "Topic which sends to all destinations.", 'eip,routing', [
+    new ElementMeta('topicLoadBalancer', 'TopicLoadBalancerDefinition', 'Topic Load Balancer', "Topic which sends to all destinations.", 'eip,routing', [
         new PropertyMeta('id', 'Id', "The id of this node", 'string', '', '', false, false, false, false, '', ''),
     ], [
     ]),
-    new ElementMeta('weighted', 'WeightedLoadBalancerDefinition', 'Weighted', "Uses a weighted load distribution ratio for each server with respect to others.", 'eip,routing', [
+    new ElementMeta('weightedLoadBalancer', 'WeightedLoadBalancerDefinition', 'Weighted Load Balancer', "Uses a weighted load distribution ratio for each server with respect to others.", 'eip,routing', [
         new PropertyMeta('id', 'Id', "The id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('distributionRatio', 'Distribution Ratio', "The distribution ratio is a delimited String consisting on integer weights separated by delimiters for example 2,3,5. The distributionRatio must match the number of endpoints and/or processors specified in the load balancer list.", 'string', '', '', true, false, false, false, '', ''),
         new PropertyMeta('distributionRatioDelimiter', 'Distribution Ratio Delimiter', "Delimiter used to specify the distribution ratio. The default value is , (comma)", 'string', '', ',', false, false, false, false, 'advanced', ''),
@@ -2382,6 +2382,7 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('enableNoContentResponse', 'Enable No Content Response', "Whether to return HTTP 204 with an empty body when a response contains an empty JSON object or XML root object. The default value is false.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('apiDocs', 'Api Docs', "Whether to include or exclude this rest operation in API documentation. The default value is true.", 'boolean', '', 'true', false, false, false, false, 'advanced', ''),
         new PropertyMeta('deprecated', 'Deprecated', "Marks this rest operation as deprecated in OpenApi documentation.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('streamCache', 'Stream Cache', "Whether stream caching is enabled on this rest operation.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('routeId', 'Route Id', "Sets the id of the route", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('param', 'param', "param", 'ParamDefinition', '', '', false, false, true, true, '', ''),
         new PropertyMeta('responseMessage', 'responseMessage', "responseMessage", 'ResponseMessageDefinition', '', '', false, false, true, true, '', ''),
@@ -2405,6 +2406,7 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('enableNoContentResponse', 'Enable No Content Response', "Whether to return HTTP 204 with an empty body when a response contains an empty JSON object or XML root object. The default value is false.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('apiDocs', 'Api Docs', "Whether to include or exclude this rest operation in API documentation. The default value is true.", 'boolean', '', 'true', false, false, false, false, 'advanced', ''),
         new PropertyMeta('deprecated', 'Deprecated', "Marks this rest operation as deprecated in OpenApi documentation.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('streamCache', 'Stream Cache', "Whether stream caching is enabled on this rest operation.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('routeId', 'Route Id', "Sets the id of the route", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('param', 'param', "param", 'ParamDefinition', '', '', false, false, true, true, '', ''),
         new PropertyMeta('responseMessage', 'responseMessage', "responseMessage", 'ResponseMessageDefinition', '', '', false, false, true, true, '', ''),
@@ -2428,6 +2430,7 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('enableNoContentResponse', 'Enable No Content Response', "Whether to return HTTP 204 with an empty body when a response contains an empty JSON object or XML root object. The default value is false.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('apiDocs', 'Api Docs', "Whether to include or exclude this rest operation in API documentation. The default value is true.", 'boolean', '', 'true', false, false, false, false, 'advanced', ''),
         new PropertyMeta('deprecated', 'Deprecated', "Marks this rest operation as deprecated in OpenApi documentation.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('streamCache', 'Stream Cache', "Whether stream caching is enabled on this rest operation.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('routeId', 'Route Id', "Sets the id of the route", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('param', 'param', "param", 'ParamDefinition', '', '', false, false, true, true, '', ''),
         new PropertyMeta('responseMessage', 'responseMessage', "responseMessage", 'ResponseMessageDefinition', '', '', false, false, true, true, '', ''),
@@ -2486,6 +2489,7 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('enableNoContentResponse', 'Enable No Content Response', "Whether to return HTTP 204 with an empty body when a response contains an empty JSON object or XML root object. The default value is false.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('apiDocs', 'Api Docs', "Whether to include or exclude this rest operation in API documentation. The default value is true.", 'boolean', '', 'true', false, false, false, false, 'advanced', ''),
         new PropertyMeta('deprecated', 'Deprecated', "Marks this rest operation as deprecated in OpenApi documentation.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('streamCache', 'Stream Cache', "Whether stream caching is enabled on this rest operation.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('routeId', 'Route Id', "Sets the id of the route", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('param', 'param', "param", 'ParamDefinition', '', '', false, false, true, true, '', ''),
         new PropertyMeta('responseMessage', 'responseMessage', "responseMessage", 'ResponseMessageDefinition', '', '', false, false, true, true, '', ''),
@@ -2509,6 +2513,7 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('enableNoContentResponse', 'Enable No Content Response', "Whether to return HTTP 204 with an empty body when a response contains an empty JSON object or XML root object. The default value is false.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('apiDocs', 'Api Docs', "Whether to include or exclude this rest operation in API documentation. The default value is true.", 'boolean', '', 'true', false, false, false, false, 'advanced', ''),
         new PropertyMeta('deprecated', 'Deprecated', "Marks this rest operation as deprecated in OpenApi documentation.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('streamCache', 'Stream Cache', "Whether stream caching is enabled on this rest operation.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('routeId', 'Route Id', "Sets the id of the route", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('param', 'param', "param", 'ParamDefinition', '', '', false, false, true, true, '', ''),
         new PropertyMeta('responseMessage', 'responseMessage', "responseMessage", 'ResponseMessageDefinition', '', '', false, false, true, true, '', ''),
@@ -2532,6 +2537,7 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('enableNoContentResponse', 'Enable No Content Response', "Whether to return HTTP 204 with an empty body when a response contains an empty JSON object or XML root object. The default value is false.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('apiDocs', 'Api Docs', "Whether to include or exclude this rest operation in API documentation. The default value is true.", 'boolean', '', 'true', false, false, false, false, 'advanced', ''),
         new PropertyMeta('deprecated', 'Deprecated', "Marks this rest operation as deprecated in OpenApi documentation.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('streamCache', 'Stream Cache', "Whether stream caching is enabled on this rest operation.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('routeId', 'Route Id', "Sets the id of the route", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('param', 'param', "param", 'ParamDefinition', '', '', false, false, true, true, '', ''),
         new PropertyMeta('responseMessage', 'responseMessage', "responseMessage", 'ResponseMessageDefinition', '', '', false, false, true, true, '', ''),

@@ -55,8 +55,7 @@ export class TopologyUtils {
     static isElementInternalComponent = (element: CamelElement): boolean => {
         const uri = (element as any).uri;
         const component = ComponentApi.findByName(uri);
-        return component !== undefined &&
-            (TopologyUtils.isComponentInternal(component.component.label) || TopologyUtils.hasInternalUri(element));
+        return component !== undefined && component.component.remote !== true;
     }
 
     static getConnectorType = (element: CamelElement): 'component' | 'kamelet' => {
@@ -99,30 +98,6 @@ export class TopologyUtils {
             }
         }
         return result.endsWith("&") ? result.substring(0, result.length - 1) : result;
-    }
-
-    static isComponentInternal = (label: string): boolean => {
-        const labels = label.split(",");
-        if (labels.includes('core') && (
-            labels.includes('transformation')
-            || labels.includes('testing')
-            || labels.includes('scheduling')
-            || labels.includes('monitoring')
-            || labels.includes('transformation')
-            || labels.includes('java')
-            || labels.includes('endpoint')
-            || labels.includes('script')
-            || labels.includes('validation')
-        )) {
-            return true;
-        } else if (label === 'transformation') {
-            return true;
-        }
-        return false;
-    }
-
-    static hasInternalUri = (element: CamelElement): boolean => {
-        return this.hasDirectUri(element) || this.hasSedaUri(element);
     }
 
     static hasDirectUri = (element: CamelElement): boolean => {
