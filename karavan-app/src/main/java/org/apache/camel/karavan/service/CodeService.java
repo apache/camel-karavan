@@ -239,7 +239,7 @@ public class CodeService {
     public String getResourceFile(String path) {
         try (InputStream inputStream = CodeService.class.getResourceAsStream(path);
              BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
-             return reader.lines().collect(Collectors.joining(System.lineSeparator()));
+            return reader.lines().collect(Collectors.joining(System.lineSeparator()));
         } catch (Exception e) {
             return null;
         }
@@ -440,6 +440,10 @@ public class CodeService {
     }
 
     public String getGavFormatter() {
-        return PROPERTY_NAME_GAV + "=" + gav.orElse("org.camel.karavan.demo") + ":%s:1";
+        return PROPERTY_NAME_GAV + "=" + getGav();
+    }
+
+    public String getGav() {
+        return gav.orElse("org.camel.karavan.demo") + ":%s:1";
     }
 }
