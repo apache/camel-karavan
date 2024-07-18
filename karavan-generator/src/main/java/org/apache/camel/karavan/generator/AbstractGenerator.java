@@ -20,10 +20,7 @@ import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.catalog.CamelCatalog;
-import org.apache.camel.catalog.ConfigurationPropertiesValidationResult;
-import org.apache.camel.catalog.DefaultCamelCatalog;
 import org.apache.camel.catalog.VersionHelper;
 import org.apache.camel.dsl.yaml.YamlRoutesBuilderLoader;
 
@@ -391,30 +388,30 @@ public class AbstractGenerator {
         }
     }
 
-    protected List<String> listResources(String resourceFolder) {
-        List<Path> filePaths = new ArrayList<>();
-        try {
-            URI uri = VersionHelper.class.getResource(resourceFolder).toURI();
-            Path myPath;
-            FileSystem fileSystem = null;
-            if (uri.getScheme().equals("jar")) {
-                fileSystem = FileSystems.newFileSystem(uri, Collections.emptyMap());
-                myPath = fileSystem.getPath(resourceFolder);
-            } else {
-                myPath = Paths.get(uri);
-            }
-            filePaths = Files.walk(myPath, 10).collect(Collectors.toList());
-
-            // Close the file system if opened
-            if (fileSystem != null) {
-                fileSystem.close();
-            }
-        } catch (URISyntaxException | IOException e) {
-            e.printStackTrace();
-        }
-        return filePaths.stream().map(path -> path.getFileName().toString())
-                .collect(Collectors.toList());
-    }
+//    protected List<String> listResources(String resourceFolder) {
+//        List<Path> filePaths = new ArrayList<>();
+//        try {
+//            URI uri = VersionHelper.class.getResource(resourceFolder).toURI();
+//            Path myPath;
+//            FileSystem fileSystem = null;
+//            if (uri.getScheme().equals("jar")) {
+//                fileSystem = FileSystems.newFileSystem(uri, Collections.emptyMap());
+//                myPath = fileSystem.getPath(resourceFolder);
+//            } else {
+//                myPath = Paths.get(uri);
+//            }
+//            filePaths = Files.walk(myPath, 10).collect(Collectors.toList());
+//
+//            // Close the file system if opened
+//            if (fileSystem != null) {
+//                fileSystem.close();
+//            }
+//        } catch (URISyntaxException | IOException e) {
+//            e.printStackTrace();
+//        }
+//        return filePaths.stream().map(path -> path.getFileName().toString())
+//                .collect(Collectors.toList());
+//    }
 
     protected String getMetaLanguage(String name) {
         try {
@@ -553,5 +550,37 @@ public class AbstractGenerator {
             });
         }
         return deprecatedClasses;
+    }
+
+    public List<String> listResources(String resourceFolder) {
+        List<String> result = new ArrayList<>();
+        try {
+            URI uri = Objects.requireNonNull(KaravanGenerator.class.getResource(resourceFolder)).toURI();
+            Path myPath;
+            FileSystem fileSystem = null;
+            if (uri.getScheme().equals("jar")) {
+                fileSystem = FileSystems.newFileSystem(uri, Collections.emptyMap());
+                myPath = fileSystem.getPath(resourceFolder);
+            } else {
+                myPath = Paths.get(uri);
+            }
+
+            try (var pathsStream = Files.walk(myPath, 10)) {
+                pathsStream
+                        .filter(Files::isRegularFile)
+                        .map(path -> path.getFileName().toString())
+                        .forEach(result::add);
+            } catch (IOException e) {
+                var error = e.getCause() != null ? e.getCause() : e;
+                LOGGER.severe("IOException " + error.getMessage());
+            }
+            if (fileSystem != null) {
+                fileSystem.close();
+            }
+        } catch (URISyntaxException | IOException e) {
+            var error = e.getCause() != null ? e.getCause() : e;
+            LOGGER.severe("URISyntaxException | IOException " + error.getMessage());
+        }
+        return result;
     }
 }
