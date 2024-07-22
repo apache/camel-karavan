@@ -149,14 +149,14 @@ export function DslConnections() {
             const internalCall: boolean = step && uri && step?.dslName === 'FromDefinition' && NAV_COMPONENTS.includes(uri);
             const name: string = internalCall ? (step?.parameters?.name) : undefined;
             const routes = internalCall ? tons.get(uri + ':' + name) || [] : [];
-            // const localDirects = getToDirectSteps(name);
+            const isInternal = data[2] === 'internal';
             const fromY = pos.headerRect.y + pos.headerRect.height / 2 - top;
             const r = pos.headerRect.height / 2;
             const incomingX = 20;
             const imageX = incomingX - r + 6;
             const imageY = fromY - r + 6;
-            return (
-                <div key={pos.step.uuid + "-icon"}
+            return (!isInternal
+                ? <div key={pos.step.uuid + "-icon"}
                      style={{display: "block", position: "absolute", top: imageY, left: imageX}}
                 >
                     {CamelUi.getConnectionIcon(pos.step)}
@@ -178,6 +178,7 @@ export function DslConnections() {
                         </Tooltip>
                     )}
                 </div>
+                : <></>
             )
         }
     }

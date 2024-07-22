@@ -46,3 +46,19 @@
       uri: direct
       parameters:
         name: hello-world-direct
+- route:
+    id: route-04a4
+    nodePrefixId: route-b6c
+    from:
+      id: from-6217
+      uri: timer
+- route:
+    id: route-3cf0
+    nodePrefixId: route-301
+    from:
+      id: from-770b
+      uri: guava-eventbus
+      steps:
+        - to:
+            id: to-d33f
+            uri: guava-eventbus

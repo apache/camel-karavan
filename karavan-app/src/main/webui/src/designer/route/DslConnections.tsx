@@ -149,14 +149,14 @@ export function DslConnections() {
             const internalCall: boolean = step && uri && step?.dslName === 'FromDefinition' && NAV_COMPONENTS.includes(uri);
             const name: string = internalCall ? (step?.parameters?.name) : undefined;
             const routes = internalCall ? tons.get(uri + ':' + name) || [] : [];
-            // const localDirects = getToDirectSteps(name);
+            const isInternal = data[2] === 'internal';
             const fromY = pos.headerRect.y + pos.headerRect.height / 2 - top;
             const r = pos.headerRect.height / 2;
             const incomingX = 20;
             const imageX = incomingX - r + 6;
             const imageY = fromY - r + 6;
-            return (
-                <div key={pos.step.uuid + "-icon"}
+            return (!isInternal
+                ? <div key={pos.step.uuid + "-icon"}
                      style={{display: "block", position: "absolute", top: imageY, left: imageX}}
                 >
                     {CamelUi.getConnectionIcon(pos.step)}
@@ -178,6 +178,7 @@ export function DslConnections() {
                         </Tooltip>
                     )}
                 </div>
+                : <></>
             )
         }
     }
@@ -239,13 +240,13 @@ export function DslConnections() {
             const isInternal = data[2] === 'internal';
             const isNav = data[2] === 'nav';
             return (!isInternal
-                    ? <g key={pos.step.uuid + "-outgoing"}>
-                        <circle cx={outgoingX} cy={outgoingY} r={r} className="circle-outgoing"/>
-                        <path
-                            d={`M ${lineX1},${lineY1} C ${lineXi - 20}, ${lineY1} ${lineX1 - RADIUS},${lineYi} ${lineXi},${lineYi} L ${lineX2},${lineY2}`}
-                            className={isNav ? 'path-incoming-nav' : 'path-incoming'} markerEnd="url(#arrowhead)"/>
-                    </g>
-                    : <></>
+                ? <g key={pos.step.uuid + "-outgoing"}>
+                    <circle cx={outgoingX} cy={outgoingY} r={r} className="circle-outgoing"/>
+                    <path
+                        d={`M ${lineX1},${lineY1} C ${lineXi - 20}, ${lineY1} ${lineX1 - RADIUS},${lineYi} ${lineXi},${lineYi} L ${lineX2},${lineY2}`}
+                        className={isNav ? 'path-incoming-nav' : 'path-incoming'} markerEnd="url(#arrowhead)"/>
+                </g>
+                : <></>
             )
         }
     }
@@ -265,21 +266,21 @@ export function DslConnections() {
             const imageX = outgoingX - r + 6;
             const imageY = outgoingY - r + 6;
             return (!isInternal
-                    ? <div key={pos.step.uuid + "-icon"}
-                           style={{display: "block", position: "absolute", top: imageY, left: imageX}}>
-                        {CamelUi.getConnectionIcon(pos.step)}
-                        {name !== undefined &&
-                            <Tooltip content={`Go to ${uri}:${name}`} position={"left"}>
-                                <Button style={{position: 'absolute', right: 27, top: -12, whiteSpace: 'nowrap', zIndex: 300, padding: 0}}
-                                        variant={'link'}
-                                        aria-label="Goto"
-                                        onClick={_ => InfrastructureAPI.onInternalConsumerClick(uri, name, undefined)}>
-                                    {name}
-                                </Button>
-                            </Tooltip>
-                        }
-                    </div>
-                    : <></>
+                ? <div key={pos.step.uuid + "-icon"}
+                     style={{display: "block", position: "absolute", top: imageY, left: imageX}}>
+                    {CamelUi.getConnectionIcon(pos.step)}
+                    {name !== undefined &&
+                        <Tooltip content={`Go to ${uri}:${name}`} position={"left"}>
+                            <Button style={{position: 'absolute', right: 27, top: -12, whiteSpace: 'nowrap', zIndex: 300, padding: 0}}
+                                    variant={'link'}
+                                    aria-label="Goto"
+                                    onClick={_ => InfrastructureAPI.onInternalConsumerClick(uri, name, undefined)}>
+                                {name}
+                            </Button>
+                        </Tooltip>
+                    }
+                </div>
+                : <></>
             )
         }
     }

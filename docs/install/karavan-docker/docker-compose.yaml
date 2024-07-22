@@ -38,4 +38,3 @@ services:
 networks:
   karavan:
     name: karavan
-    external: true
