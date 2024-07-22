@@ -45,7 +45,8 @@ export function execTerminalCommand(terminalId: string, command: string, env?: {
 }
 
 export async function runWithRuntime(fullPath: string, run?: boolean) {
-    let command = jbang.createExportCommand(fullPath);
+    const runtime = await utils.getRuntime();
+    let command = jbang.createExportCommand(fullPath, runtime);
     if (run) {
         const runtime = await utils.getRuntime();
         const mvn = runtime === 'quarkus' ? "quarkus:dev" : (runtime === 'spring-boot' ? "spring-boot:run" : "camel:run");
@@ -71,7 +72,7 @@ export function camelDeploy(directory: string) {
             window.showErrorMessage("Namespace not set \n" + val[3].error);
         }
         const deployCommand: string = workspace.getConfiguration().get("Karavan.".concat(runtime.replaceAll("-", "")).concat(utils.capitalize(target)).concat("Deploy")) || '';
-        const command = jbang.createExportCommand(directory).concat(" && ").concat(deployCommand).concat(" -f ").concat(exportFolder);
+        const command = jbang.createExportCommand(directory, runtime).concat(" && ").concat(deployCommand).concat(" -f ").concat(exportFolder);
         execTerminalCommand("deploy", command, env);
     }).catch((reason: any) => {
         window.showErrorMessage("Error: \n" + reason.message);

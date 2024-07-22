@@ -60,12 +60,12 @@ export function camelJbangRun() {
     exec.execTerminalCommand("jbang-run", command);
 }
 
-export function createExportCommand(fullPath: string) {
+export function createExportCommand(fullPath: string, runtime: string) {
     const kameletsPath: string | undefined = workspace.getConfiguration().get("Karavan.kameletsPath");
     const cmd = "export --fresh " 
         + (fullPath ? " --directory=" + fullPath : '')
         + (kameletsPath && kameletsPath.trim().length > 0 ? " --local-kamelet-dir=" + kameletsPath : "")
-        + " --runtime=" + utils.getRuntime(); // workaround for https://issues.apache.org/jira/browse/CAMEL-21004
+        + " --runtime=" + runtime; // workaround for https://issues.apache.org/jira/browse/CAMEL-21004
     return prepareCommand(cmd);
 }
 
