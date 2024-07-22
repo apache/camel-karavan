@@ -70,7 +70,6 @@ export function createExportCommand(fullPath: string) {
 }
 
 
-
 function executeJbangCommand(rootPath: string, command: string, callback: (code: number, stdout: any, stderr: any) => any) {
     console.log("excute command", command);
     const jbang = shell.which('jbang');
