@@ -168,7 +168,6 @@ public class KaravanStartupLoader implements HealthCheck {
                     ProjectFile file = new ProjectFile(name, value, Project.Type.templates.name(), Instant.now().toEpochMilli());
                     karavanCache.saveProjectFile(file, false);
                 });
-                projectService.commitAndPushProject(Project.Type.templates.name(), "Add templates");
             } else {
                 codeService.getTemplates().forEach((name, value) -> {
                     ProjectFile f = karavanCache.getProjectFile(Project.Type.templates.name(), name);
@@ -196,7 +195,6 @@ public class KaravanStartupLoader implements HealthCheck {
                     ProjectFile file = new ProjectFile(name, value, Project.Type.configuration.name(), Instant.now().toEpochMilli());
                     karavanCache.saveProjectFile(file, false);
                 });
-                projectService.commitAndPushProject(Project.Type.configuration.name(), "Add configuration");
             } else {
                 codeService.getConfigurationFiles().forEach((name, value) -> {
                     ProjectFile f = karavanCache.getProjectFile(Project.Type.configuration.name(), name);
