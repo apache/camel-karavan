@@ -42,7 +42,6 @@ export class ProjectService {
                 ProjectEventBus.sendLog('set', '');
                 useLogStore.setState({showLog: true, type: 'container', podName: res.data})
             } else {
-                console.log(res);
                 // EventBus.sendAlert('Error Starting DevMode container', res.statusText, 'warning')
             }
         });
@@ -187,7 +186,7 @@ export class ProjectService {
     public static refreshContainerStatus(projectId: string, env: string) {
         KaravanApi.getContainerStatus(projectId, env, (res) => {
             if (res.status === 200) {
-                const oldContainers = useStatusesStore.getState().containers;
+                const oldContainers = [...useStatusesStore.getState().containers];
                 const newContainers = res.data;
                 const newMap = new Map<string, ContainerStatus>(
                     newContainers.map(container => [container.containerName, container])

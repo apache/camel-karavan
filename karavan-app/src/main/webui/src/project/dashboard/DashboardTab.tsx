@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import React from 'react';
+import React, {useEffect} from 'react';
 import {
     Card,
     CardBody,
@@ -26,7 +26,7 @@ import {
     EmptyStateVariant,
     EmptyStateHeader,
     EmptyStateIcon,
-    Bullseye, Panel
+    Bullseye
 } from '@patternfly/react-core';
 import '../../designer/karavan.css';
 import {InfoContainer} from "./InfoContainer";
@@ -38,8 +38,7 @@ import SearchIcon from "@patternfly/react-icons/dist/esm/icons/search-icon";
 
 export function DashboardTab() {
 
-    const [project, camelStatuses] = useProjectStore((state) =>
-        [state.project, state.camelStatuses], shallow);
+    const [project] = useProjectStore((state) => [state.project], shallow);
     const [containers] = useStatusesStore((state) => [state.containers], shallow);
 
     const camelContainers = containers

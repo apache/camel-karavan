@@ -68,26 +68,10 @@ export function DevModeToolbar(props: Props) {
     const inDevMode = containerDevMode?.type === 'devmode';
 
     useEffect(() => {
-        const interval = setInterval(() => {
-            refreshContainer();
-        }, 1300)
-        return () => clearInterval(interval);
-    }, [currentContainerStatus, containers]);
-
-    useEffect(() => {
         if (showSpinner && currentContainerStatus === undefined && containerDevMode === undefined) {
             setShowSpinner(false);
         }
-    }, [currentContainerStatus]);
-
-    function refreshContainer(){
-        ProjectService.refreshContainerStatus(project.projectId, config.environment);
-        ProjectService.refreshCamelStatus(project.projectId, config.environment);
-        if (refreshTrace) {
-            ProjectService.refreshCamelTraces(project.projectId, config.environment);
-        }
-        setCurrentContainerStatus(containerDevMode);
-    }
+    }, [currentContainerStatus, refreshTrace]);
 
     return (<Flex className="toolbar" direction={{default: "row"}} alignItems={{default: "alignItemsCenter"}}>
         {showSpinner && inDevMode && <FlexItem className="dev-action-button-place refresher">

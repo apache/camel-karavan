@@ -42,8 +42,8 @@ export function ProjectPage() {
     const {file, operation} = useFileStore();
     const [files] = useFilesStore((s) => [s.files], shallow);
     const [projects] = useProjectsStore((state) => [state.projects], shallow)
-    const [project, setProject, tabIndex, setTabIndex] =
-        useProjectStore((s) => [s.project, s.setProject, s.tabIndex, s.setTabIndex], shallow);
+    const [project, setProject, tabIndex, setTabIndex, refreshTrace] =
+        useProjectStore((s) => [s.project, s.setProject, s.tabIndex, s.setTabIndex, s.refreshTrace], shallow);
 
     let {projectId} = useParams();
 
@@ -60,14 +60,21 @@ export function ProjectPage() {
     }, []);
 
     useEffect(() => {
-        const interval = setInterval(() => {
-            if (tabIndex === 'build' || tabIndex === 'container') {
-                ProjectService.refreshAllDeploymentStatuses();
-                ProjectService.refreshImages(project.projectId);
-            }
-        }, 2000)
+        const interval = setInterval(() => refreshData(), 1300)
         return () => clearInterval(interval);
-    }, [tabIndex]);
+    }, [tabIndex, refreshTrace, project]);
+
+    function refreshData(){
+        ProjectService.refreshAllContainerStatuses();
+        if (tabIndex === 'build' || tabIndex === 'container') {
+            ProjectService.refreshAllDeploymentStatuses();
+            ProjectService.refreshImages(project.projectId);
+        } else if (tabIndex === 'dashboard') {
+            ProjectService.refreshCamelStatus(project.projectId, config.environment);
+        } else if (tabIndex === 'trace' && refreshTrace) {
+            ProjectService.refreshCamelTraces(project.projectId, config.environment);
+        }
+    }
 
     function isBuildIn(): boolean {
         return BUILD_IN_PROJECTS.includes(project.projectId);

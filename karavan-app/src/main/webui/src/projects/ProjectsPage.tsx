@@ -46,6 +46,7 @@ import {Project, ProjectType} from "../api/ProjectModels";
 import {shallow} from "zustand/shallow";
 import {KaravanApi} from "../api/KaravanApi";
 import {ProjectsToolbar} from "./ProjectsToolbar";
+import {ProjectService} from "../api/ProjectService";
 
 interface Props {
     tools?: React.ReactNode
@@ -62,8 +63,11 @@ export function ProjectsPage (props: Props) {
             setProjects(projects);
             setFilter('');
         });
+        const interval = setInterval(() => {
+            ProjectService.refreshAllContainerStatuses();
+        }, 2000)
+        return () => clearInterval(interval);
     }, []);
-
 
     function title() {
         return <TextContent>

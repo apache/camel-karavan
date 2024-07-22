@@ -99,7 +99,7 @@ export function ProjectPanel() {
                 <Flex direction={{default: "column"}} spaceItems={{default: "spaceItemsNone"}}>
                     {tab === 'files' && <FlexItem><FilesTab/></FlexItem>}
                     {!buildIn && tab === 'dashboard' && project && <FlexItem><DashboardTab/></FlexItem>}
-                    {!buildIn && tab === 'trace' && project && <FlexItem><TraceTab/></FlexItem>}
+                    {!buildIn && tab === 'trace' && project && <TraceTab/>}
                     {!buildIn && tab === 'build' && <FlexItem><ProjectBuildTab/></FlexItem>}
                     {!buildIn && tab === 'build' && config.infrastructure !== 'kubernetes' &&
                         <FlexItem><ImagesPanel/></FlexItem>}

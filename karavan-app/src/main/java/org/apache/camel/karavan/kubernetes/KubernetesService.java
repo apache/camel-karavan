@@ -171,7 +171,7 @@ public class KubernetesService {
 
 
         List<VolumeMount> volumeMounts = new ArrayList<>();
-        volumeMounts.add(new VolumeMountBuilder().withName(BUILD_SCRIPT_CONFIG_MAP).withMountPath("/karavan/builder").withReadOnly(true).build());
+        volumeMounts.add(new VolumeMountBuilder().withName(BUILD_SCRIPT_VOLUME_NAME).withMountPath("/karavan/builder").withReadOnly(true).build());
         if (hasDockerConfigSecret) {
             volumeMounts.add(new VolumeMountBuilder().withName(BUILD_DOCKER_CONFIG_SECRET).withMountPath("/karavan/.docker").withReadOnly(true).build());
         }
@@ -192,7 +192,7 @@ public class KubernetesService {
                 .build();
 
         List<Volume> volumes = new ArrayList<>();
-        volumes.add(new VolumeBuilder().withName(BUILD_SCRIPT_CONFIG_MAP)
+        volumes.add(new VolumeBuilder().withName(BUILD_SCRIPT_VOLUME_NAME)
                 .withConfigMap(new ConfigMapVolumeSourceBuilder().withName(BUILD_SCRIPT_CONFIG_MAP).withItems(
                         new KeyToPathBuilder().withKey(BUILD_SCRIPT_FILENAME).withPath(BUILD_SCRIPT_FILENAME).build()
                 ).withDefaultMode(511).build()).build());

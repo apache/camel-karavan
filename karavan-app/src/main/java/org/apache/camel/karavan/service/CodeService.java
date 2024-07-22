@@ -239,7 +239,7 @@ public class CodeService {
     public String getResourceFile(String path) {
         try (InputStream inputStream = CodeService.class.getResourceAsStream(path);
              BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
-            return reader.lines().collect(Collectors.joining(System.lineSeparator()));
+             return reader.lines().collect(Collectors.joining(System.lineSeparator()));
         } catch (Exception e) {
             return null;
         }

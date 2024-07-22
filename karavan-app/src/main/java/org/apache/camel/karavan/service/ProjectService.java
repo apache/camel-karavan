@@ -292,7 +292,10 @@ public class ProjectService {
     private int getMaxPortMappedInProjects() {
         try {
             List<ProjectFile> files = karavanCache.getProjectFilesByName(PROJECT_COMPOSE_FILENAME).stream()
-                    .filter(f -> !Objects.equals(f.getProjectId(), Project.Type.templates.name())).toList();
+                    .filter(f -> !Objects.equals(f.getProjectId(), Project.Type.templates.name()))
+                    .filter(f -> !Objects.equals(f.getProjectId(), Project.Type.kamelets.name()))
+                    .filter(f -> !Objects.equals(f.getProjectId(), Project.Type.configuration.name()))
+                    .toList();
             if (!files.isEmpty()) {
                 return files.stream().map(this::getProjectPort)
                         .filter(Objects::nonNull)

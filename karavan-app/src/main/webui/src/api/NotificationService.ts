@@ -55,7 +55,9 @@ const sub = NotificationEventBus.onEvent()?.subscribe((event: KaravanEvent) => {
         }
     } else if (event.event === 'imagesLoaded') {
         const projectId = event.data?.projectId;
-        EventBus.sendAlert('Success', 'Image loaded for ' + projectId);
+        unstable_batchedUpdates(() => {
+            ProjectService.refreshImages(projectId);
+        });
     } else if (event.event === 'error') {
         const error = event.data?.error;
         EventBus.sendAlert('Error', error, "danger");

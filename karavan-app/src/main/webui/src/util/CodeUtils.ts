@@ -51,9 +51,9 @@ export class CodeUtils {
             return CamelDefinitionYaml.integrationToYaml(Integration.createNew(fileName, 'plain'));
         } else if (type === 'KAMELET') {
             const filenameParts = fileName.replace('.kamelet.yaml', '').split('-');
+            const name = filenameParts.join('-');
             const type: string | undefined = filenameParts.slice(-1)[0]
             const kameletType: KameletTypes | undefined = (type === "sink" || type === "source" || type === "action") ? type : undefined;
-            const name = filenameParts.slice(0, -1).join('-');
             const integration = Integration.createNew(name, 'kamelet');
             const meta: MetadataLabels = new MetadataLabels({"camel.apache.org/kamelet.type": kameletType});
             integration.metadata.labels = meta;

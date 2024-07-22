@@ -34,8 +34,8 @@ import {TraceTable} from "./TraceTable";
 
 export function TraceTab() {
 
-    const [project, refreshTrace, setRefreshTrace, camelStatuses] = useProjectStore((state) =>
-        [state.project, state.refreshTrace, state.setRefreshTrace, state.camelStatuses], shallow);
+    const [project, refreshTrace, setRefreshTrace] = useProjectStore((state) =>
+        [state.project, state.refreshTrace, state.setRefreshTrace], shallow);
     const [containers] = useStatusesStore((state) => [state.containers], shallow);
     const [containerName, setContainerName] = useState<string>();
 
