@@ -58,6 +58,26 @@ export class TopologyUtils {
         return component !== undefined && component.component.remote !== true;
     }
 
+    static isComponentInternal = (label: string): boolean => {
+        const labels = label.split(",");
+        if (labels.includes('core') && (
+            labels.includes('transformation')
+            || labels.includes('testing')
+            || labels.includes('scheduling')
+            || labels.includes('monitoring')
+            || labels.includes('transformation')
+            || labels.includes('java')
+            || labels.includes('endpoint')
+            || labels.includes('script')
+            || labels.includes('validation')
+        )) {
+            return true;
+        } else if (label === 'transformation') {
+            return true;
+        }
+        return false;
+    }
+
     static getConnectorType = (element: CamelElement): 'component' | 'kamelet' => {
         return CamelUtil.isKameletComponent(element) ? 'kamelet' : 'component';
     }
