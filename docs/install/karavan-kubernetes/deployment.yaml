@@ -84,4 +84,12 @@ spec:
         resources:
           requests:
             memory: "1024Mi"
+        livenessProbe:
+          httpGet:
+            path: /q/health/live
+            port: 8080
+        readinessProbe:
+          httpGet:
+            path: /q/health/ready
+            port: 8080
       serviceAccount: "karavan"
