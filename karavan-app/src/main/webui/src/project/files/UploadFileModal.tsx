@@ -87,7 +87,7 @@ export function UploadFileModal() {
         setFile("none");
     }
 
-    const handleFileInputChange = (file: File) => setValue('name',file.name);
+    const handleFileInputChange = (file: File) => setValue('name', file.name);
     const handleFileReadStarted = (fileHandle: File) => setIsLoading(true);
     const handleFileReadFinished = (fileHandle: File) => setIsLoading(false);
     const handleTextOrDataChange = (data: string) => setValue('code', data);

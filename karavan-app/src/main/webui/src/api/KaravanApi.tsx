@@ -573,8 +573,17 @@ export class KaravanApi {
         });
     }
 
-    static async rolloutDeployment(name: string, environment: string, after: (res: AxiosResponse<any>) => void) {
-        instance.post('/ui/infrastructure/deployment/rollout/' + environment + '/' + name, "")
+    static async rolloutDeployment(projectId: string, environment: string, after: (res: AxiosResponse<any>) => void) {
+        instance.post('/ui/infrastructure/deployment/rollout/' + environment + '/' + projectId, "")
+            .then(res => {
+                after(res);
+            }).catch(err => {
+            after(err);
+        });
+    }
+
+    static async startDeployment(projectId: string, environment: string, after: (res: AxiosResponse<any>) => void) {
+        instance.post('/ui/infrastructure/deployment/start/' + environment + '/' + projectId, "")
             .then(res => {
                 after(res);
             }).catch(err => {

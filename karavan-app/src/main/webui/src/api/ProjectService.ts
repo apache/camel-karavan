@@ -277,6 +277,17 @@ export class ProjectService {
         ProjectService.refreshAllCamelStatuses();
     }
 
+    public static refreshProjectFiles(projectId: string) {
+        KaravanApi.getFiles(projectId, (files: ProjectFile[]) => {
+            useFilesStore.setState({files: files});
+            ProjectService.reloadKamelets(projectId);
+        });
+
+        KaravanApi.getFilesDiff(projectId, (diff: any) => {
+            useFilesStore.setState({diff: diff});
+        });
+    }
+
     public static refreshProjectData(projectId: string) {
         KaravanApi.getProject(projectId, (project: Project) => {
             // ProjectEventBus.selectProject(project);
@@ -288,14 +299,7 @@ export class ProjectService {
                     })
             });
         });
-        KaravanApi.getFiles(projectId, (files: ProjectFile[]) => {
-            useFilesStore.setState({files: files});
-            ProjectService.reloadKamelets(projectId);
-        });
-
-        KaravanApi.getFilesDiff(projectId, (diff: any) => {
-            useFilesStore.setState({diff: diff});
-        });
+        ProjectService.refreshProjectFiles(projectId);
 
         KaravanApi.getConfigMaps((any: []) => {
             InfrastructureAPI.setConfigMaps(any);

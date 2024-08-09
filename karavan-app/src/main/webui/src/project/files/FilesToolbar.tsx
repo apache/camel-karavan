@@ -37,6 +37,7 @@ import {useFilesStore, useFileStore, useProjectStore} from "../../api/ProjectSto
 import {shallow} from "zustand/shallow";
 import {ProjectService} from "../../api/ProjectService";
 import PushIcon from "@patternfly/react-icons/dist/esm/icons/code-branch-icon";
+import RefreshIcon from "@patternfly/react-icons/dist/esm/icons/sync-alt-icon";
 import {getShortCommit, isEmpty} from "../../util/StringUtils";
 
 export function FileToolbar () {
@@ -163,6 +164,12 @@ export function FileToolbar () {
     }
 
     return <Flex className="toolbar" direction={{default: "row"}} justifyContent={{default: "justifyContentFlexEnd"}}>
+        <FlexItem>
+            <Button icon={<RefreshIcon/>}
+                    variant={"link"}
+                    onClick={() => ProjectService.refreshProjectFiles(project.projectId)}
+            />
+        </FlexItem>
         <FlexItem>{getLastUpdatePanel()}</FlexItem>
         <FlexItem>
             <Tooltip content="Pull from git" position={"bottom-end"}>

@@ -24,7 +24,7 @@ import {
 import './ProjectPage.css';
 import {ProjectToolbar} from "./ProjectToolbar";
 import {ProjectLogPanel} from "../log/ProjectLogPanel";
-import {BUILD_IN_PROJECTS, Project, ProjectType} from "../api/ProjectModels";
+import {BUILD_IN_PROJECTS, Project} from "../api/ProjectModels";
 import {useAppConfigStore, useFilesStore, useFileStore, useProjectsStore, useProjectStore} from "../api/ProjectStore";
 import {MainToolbar} from "../designer/MainToolbar";
 import {ProjectTitle} from "./ProjectTitle";
@@ -90,7 +90,7 @@ export function ProjectPage() {
 
     const showFilePanel = file !== undefined && operation === 'select';
     const isKubernetes = config.infrastructure === 'kubernetes'
-    const containerTabName = isKubernetes ? "Pods" : "Containers"
+    const containerTabName = isKubernetes ? "Deployment" : "Container"
     const isDevEnvironment = config.environment === 'dev';
     const showBuildTab = isKubernetes || isDevEnvironment;
     return (

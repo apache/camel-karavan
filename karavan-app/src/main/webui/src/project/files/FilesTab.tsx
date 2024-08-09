@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
     Badge,
     Bullseye,
@@ -52,6 +52,7 @@ import {UploadFileModal} from "./UploadFileModal";
 import {shallow} from "zustand/shallow";
 import {CreateIntegrationModal} from "./CreateIntegrationModal";
 import {DiffFileModal} from "./DiffFileModal";
+import {ProjectService} from "../../api/ProjectService";
 
 export function FilesTab () {
 
@@ -66,7 +67,17 @@ export function FilesTab () {
         .map(name => diff[name] === 'DELETED' ? name: '')
         .filter(name => name !== '' && !filenames.includes(name));
     const deletedFiles: ProjectFile[] =  deletedFilenames.map(d => new ProjectFile(d, project.projectId, '', 0))
-    const allFiles =  files.concat(deletedFiles)
+    const allFiles =  files.concat(deletedFiles);
+
+    useEffect(() => {
+        onRefresh();
+    }, []);
+
+    function onRefresh() {
+        if (project.projectId) {
+            ProjectService.refreshProjectFiles(project.projectId);
+        }
+    }
 
     function needCommit(filename: string): boolean {
         return diff && diff[filename] !== undefined;
