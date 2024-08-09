@@ -58,6 +58,12 @@ public class KaravanCache {
         return copy;
     }
 
+    private Map<String, ProjectFile> getCopyProjectFilesMap() {
+        Map<String, ProjectFile> copy = new ConcurrentHashMap<>(files.size());
+        files.forEach((key, value) -> copy.put(key, value.copy()));
+        return copy;
+    }
+
     private List<ProjectFile> getCopyProjectFilesCommited() {
         List<ProjectFile> copy = new ArrayList<>(filesCommited.size());
         filesCommited.values().forEach(e -> copy.add(e.copy()));
@@ -97,8 +103,9 @@ public class KaravanCache {
     }
 
     public Map<String, ProjectFile> getProjectFilesMap(String projectId) {
-        return getCopyProjectFiles().stream().filter(pf -> !Objects.isNull(pf) && Objects.equals(pf.getProjectId(), projectId))
-                .collect(Collectors.toMap(ProjectFile::getName, ProjectFile::copy));
+        return getCopyProjectFilesMap().entrySet().stream()
+                .filter(es -> !Objects.isNull(es.getValue()) && Objects.equals(es.getValue().getProjectId(), projectId))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
     public ProjectFile getProjectFile(String projectId, String filename) {

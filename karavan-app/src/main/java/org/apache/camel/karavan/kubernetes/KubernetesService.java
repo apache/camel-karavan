@@ -242,7 +242,7 @@ public class KubernetesService {
         return Tuple2.of(logWatch, client);
     }
 
-    public void rolloutDeployment(String name, String namespace) {
+    public void rolloutDeployment(String name) {
         try (KubernetesClient client = kubernetesClient()) {
             client.apps().deployments().inNamespace(namespace).withName(name).rolling().restart();
         } catch (Exception ex) {
@@ -250,7 +250,16 @@ public class KubernetesService {
         }
     }
 
-    public void deleteDeployment(String name, String namespace) {
+    public void startDeployment(String resources) {
+        try (KubernetesClient client = kubernetesClient()) {
+            KubernetesList list = Serialization.unmarshal(resources, KubernetesList.class);
+            list.getItems().forEach(item -> client.resource(item).serverSideApply());
+        } catch (Exception ex) {
+            LOGGER.error(ex.getMessage());
+        }
+    }
+
+    public void deleteDeployment(String name) {
         try (KubernetesClient client = kubernetesClient()) {
             LOGGER.info("Delete deployment: " + name + " in the namespace: " + namespace);
             client.apps().deployments().inNamespace(namespace).withName(name).delete();
@@ -497,6 +506,14 @@ public class KubernetesService {
         }
     }
 
+    public String getSecret(String name, String key) {
+        try (KubernetesClient client = kubernetesClient()) {
+            Secret secret = client.secrets().inNamespace(getNamespace()).withName(name).get();
+            Map<String, String> data = secret.getData();
+            return decodeSecret(data.get(key));
+        }
+    }
+
     private String decodeSecret(String data) {
         if (data != null) {
             return new String(Base64.getDecoder().decode(data.getBytes(StandardCharsets.UTF_8)));
@@ -521,5 +538,11 @@ public class KubernetesService {
             }
         }
         return namespace;
+    }
+
+    public void updateSecret(Secret secret) {
+        try (KubernetesClient client = kubernetesClient()) {
+            client.resource(secret).update();
+        }
     }
 }

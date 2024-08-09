@@ -21,9 +21,11 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.apache.camel.karavan.KaravanCache;
+import org.apache.camel.karavan.KaravanConstants;
 import org.apache.camel.karavan.kubernetes.KubernetesService;
 import org.apache.camel.karavan.kubernetes.KubernetesStatusService;
 import org.apache.camel.karavan.model.DeploymentStatus;
+import org.apache.camel.karavan.model.ProjectFile;
 import org.apache.camel.karavan.model.ServiceStatus;
 import org.apache.camel.karavan.service.ConfigService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -31,7 +33,10 @@ import org.jboss.logging.Logger;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
+
+import static org.apache.camel.karavan.KaravanConstants.KUBERNETES_YAML_FILENAME;
 
 @Path("/ui/infrastructure")
 public class InfrastructureResource {
@@ -70,9 +75,22 @@ public class InfrastructureResource {
 
     @POST
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/deployment/rollout/{env}/{name}")
-    public Response rollout(@PathParam("env") String env, @PathParam("name") String name) throws Exception {
-        kubernetesService.rolloutDeployment(name, kubernetesService.getNamespace());
+    @Path("/deployment/rollout/{env}/{projectId}")
+    public Response rollout(@PathParam("env") String env, @PathParam("projectId") String projectId) throws Exception {
+        kubernetesService.rolloutDeployment(projectId);
+        return Response.ok().build();
+    }
+
+    @POST
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/deployment/start/{env}/{projectId}")
+    public Response start(@PathParam("env") String env, @PathParam("projectId") String projectId) throws Exception {
+        var name = Objects.equals(environment, KaravanConstants.DEV_ENVIRONMENT) ? KUBERNETES_YAML_FILENAME : environment + "." + KUBERNETES_YAML_FILENAME;
+        ProjectFile resources = karavanCache.getProjectFile(projectId, name);
+        if (resources == null) {
+            return Response.status(Response.Status.NOT_FOUND).entity("Resource file " + KUBERNETES_YAML_FILENAME + " not found").build();
+        }
+        kubernetesService.startDeployment(resources.getCode());
         return Response.ok().build();
     }
 
@@ -81,7 +99,7 @@ public class InfrastructureResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/deployment/{env}/{name}")
     public Response deleteDeployment(@PathParam("env") String env, @PathParam("name") String name) throws Exception {
-        kubernetesService.deleteDeployment(name, kubernetesService.getNamespace());
+        kubernetesService.deleteDeployment(name);
         return Response.ok().build();
     }
 

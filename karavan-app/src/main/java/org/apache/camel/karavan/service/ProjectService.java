@@ -230,8 +230,8 @@ public class ProjectService {
                 ProjectFile projectCompose = codeService.createInitialProjectCompose(project, getMaxPortMappedInProjects() + 1);
                 karavanCache.saveProjectFile(projectCompose, false);
             } else {
-                ProjectFile projectCompose = codeService.createInitialDeployment(project);
-                karavanCache.saveProjectFile(projectCompose, false);
+                ProjectFile projectDeployment = codeService.createInitialDeployment(project);
+                karavanCache.saveProjectFile(projectDeployment, false);
             }
         }
         return project;

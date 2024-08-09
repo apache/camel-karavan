@@ -38,6 +38,7 @@ public class KaravanConstants {
     public static final String BUILD_DOCKER_CONFIG_SECRET = "dockerconfigjson";
     public static final String PRIVATE_KEY_SECRET_KEY = "private-key";
     public static final String KNOWN_HOSTS_SECRET_KEY = "known-hosts";
+    public static final String KUBERNETES_YAML_FILENAME = "kubernetes.yaml";
 
     public static final String LABEL_KUBERNETES_RUNTIME = "app.kubernetes.io/runtime";
     public static final String ANNOTATION_COMMIT = "jkube.eclipse.org/git-commit";
