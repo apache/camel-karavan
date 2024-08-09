@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import {
     CardHeader, Card, CardTitle, CardBody, CardFooter, Badge, Checkbox, Flex
 } from '@patternfly/react-core';
@@ -23,7 +23,7 @@ import {CamelUi} from "../../designer/utils/CamelUi";
 import {Component} from "karavan-core/lib/model/ComponentModels";
 import {useKnowledgebaseStore} from "../KnowledgebaseStore";
 import {shallow} from "zustand/shallow";
-import { ComponentApi } from 'karavan-core/lib/api/ComponentApi';
+import {ComponentApi} from 'karavan-core/lib/api/ComponentApi';
 
 interface Props {
     component: Component,
@@ -39,32 +39,39 @@ export function ComponentCard(props: Props) {
     useEffect(() => {
         setBlockedComponents(ComponentApi.getBlockedComponentNames());
     }, []);
-    
+
 
     function click(event: React.MouseEvent) {
-        const { target } = event;
+        const {target} = event;
         if (!(target as HTMLElement).parentElement?.className.includes("block-checkbox")) {
             setComponent(component)
             setModalOpen(true);
         }
     }
+
     function selectComponent(event: React.FormEvent, checked: boolean) {
         props.onChange(component.component.name, checked);
-         setBlockedComponents([...ComponentApi.getBlockedComponentNames()]);
+        setBlockedComponents([...ComponentApi.getBlockedComponentNames()]);
     }
+
     const isBlockedComponent = blockedComponents ? blockedComponents.findIndex(r => r === component.component.name) > -1 : false;
-    const isRemote =  component.component.remote;
+    const isRemote = component.component.remote;
     return (
         <Card isCompact key={component.component.name} className="kamelet-card"
               onClick={event => click(event)}
         >
             <CardHeader className="header-labels">
-                <Flex style={{width:'100%'}} gap={{default:'gapSm'}} justifyContent={{default: 'justifyContentSpaceBetween'}}>
+                <Flex style={{width: '100%'}} gap={{default: 'gapSm'}} justifyContent={{default: 'justifyContentSpaceBetween'}}>
                     <Badge isRead className="support-level labels">{component.component.supportLevel}</Badge>
                     <Badge isRead className="version labels">{component.component.version}</Badge>
                 </Flex>
-                {showBlockCheckbox && <Checkbox id={component.component.name} className="block-checkbox labels"
-                           isChecked={!isBlockedComponent} onChange={(_, checked) => selectComponent(_, checked)}/>}
+                {showBlockCheckbox &&
+                    <Checkbox id={component.component.name}
+                              className="block-checkbox labels"
+                              isChecked={!isBlockedComponent}
+                              onChange={(_, checked) => selectComponent(_, checked)}
+                    />
+                }
             </CardHeader>
             <CardHeader>
                 {CamelUi.getIconForComponent(component.component.title, component.component.label)}
