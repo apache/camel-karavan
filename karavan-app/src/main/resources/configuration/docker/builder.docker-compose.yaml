@@ -9,5 +9,5 @@ services:
       - GIT_BRANCH=${karavan.git.branch}
       - IMAGE_REGISTRY=${karavan.container-image.registry}
       - IMAGE_GROUP=${karavan.container-image.group}
-      - IMAGE_REGISTRY_PASSWORD=${karavan.container-image.registry-username}
-      - IMAGE_REGISTRY_USERNAME=${karavan.container-image.registry-password}
+      - IMAGE_REGISTRY_PASSWORD=${karavan.container-image.registry-password}
+      - IMAGE_REGISTRY_USERNAME=${karavan.container-image.registry-username}
