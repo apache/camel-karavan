@@ -47,10 +47,12 @@ public class DockerStatusScheduler {
 
     @Scheduled(every = "{karavan.container.statistics.interval}", concurrentExecution = Scheduled.ConcurrentExecution.SKIP)
     void collectContainersStatistics() {
-        List<PodContainerStatus> statusesInDocker = getContainersStatuses();
-        statusesInDocker.forEach(containerStatus -> {
-            eventBus.publish(CMD_COLLECT_CONTAINER_STATISTIC, JsonObject.mapFrom(containerStatus));
-        });
+        if (!ConfigService.inKubernetes()) {
+            List<PodContainerStatus> statusesInDocker = getContainersStatuses();
+            statusesInDocker.forEach(containerStatus -> {
+                eventBus.publish(CMD_COLLECT_CONTAINER_STATISTIC, JsonObject.mapFrom(containerStatus));
+            });
+        }
     }
 
     @Scheduled(every = "{karavan.container.status.interval}", concurrentExecution = Scheduled.ConcurrentExecution.SKIP)

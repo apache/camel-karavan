@@ -30,6 +30,7 @@ import org.jboss.logging.Logger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import static org.apache.camel.karavan.KaravanConstants.*;
 import static org.apache.camel.karavan.service.CodeService.BUILD_SCRIPT_FILENAME;
@@ -65,8 +66,15 @@ public class DockerForKaravan {
             env.add(ENV_VAR_JBANG_OPTIONS + "=" + jBangOptions);
         }
 
+        var imageName = projectDevmodeImage != null ? projectDevmodeImage : devmodeImage;
+
+        if (dockerService.getImages().stream().noneMatch(i -> Objects.equals(i.getTag(), imageName))) {
+            LOGGER.info("Pulling DevMode image from DockerHub: " + imageName);
+            dockerService.pullImageFromDockerHub(imageName, true);
+        }
+
         return dockerService.createContainer(projectId,
-                (projectDevmodeImage != null ? projectDevmodeImage : devmodeImage),
+                (imageName),
                 env, compose.getPortsMap(), healthCheck,
                 Map.of(LABEL_TYPE, PodContainerStatus.ContainerType.devmode.name(),
                         LABEL_PROJECT_ID, projectId,

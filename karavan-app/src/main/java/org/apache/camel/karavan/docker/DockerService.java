@@ -17,14 +17,12 @@
 package org.apache.camel.karavan.docker;
 
 import com.github.dockerjava.api.DockerClient;
-import com.github.dockerjava.api.command.CreateContainerCmd;
-import com.github.dockerjava.api.command.CreateContainerResponse;
-import com.github.dockerjava.api.command.ListImagesCmd;
-import com.github.dockerjava.api.command.PullImageCmd;
+import com.github.dockerjava.api.command.*;
 import com.github.dockerjava.api.model.*;
 import com.github.dockerjava.core.DefaultDockerClientConfig;
 import com.github.dockerjava.core.DockerClientConfig;
 import com.github.dockerjava.core.DockerClientImpl;
+import com.github.dockerjava.core.command.ExecStartResultCallback;
 import com.github.dockerjava.transport.DockerHttpClient;
 import com.github.dockerjava.zerodep.ZerodepDockerHttpClient;
 import io.quarkus.runtime.ShutdownEvent;
@@ -85,13 +83,17 @@ public class DockerService {
 
     private DockerClient dockerClient;
 
+    private DockerClient dockerClientConnectedToRegistry;
+
     void onStart(@Observes StartupEvent ev) {
         if (!ConfigService.inKubernetes()) {
-            getDockerClient().eventsCmd().exec(dockerEventHandler);
+            try (EventsCmd cmd = getDockerClient().eventsCmd()) {
+                cmd.exec(dockerEventHandler);
+            }
         }
     }
 
-    void onStop(@Observes ShutdownEvent ev) throws IOException  {
+    void onStop(@Observes ShutdownEvent ev) throws IOException {
         if (!ConfigService.inKubernetes()) {
             dockerEventHandler.close();
         }
@@ -99,7 +101,9 @@ public class DockerService {
 
     public boolean checkDocker() {
         try {
-            getDockerClient().pingCmd().exec();
+            try (PingCmd cmd = getDockerClient().pingCmd()) {
+                cmd.exec();
+            }
             LOGGER.info("Docker is available");
             return true;
         } catch (Exception e) {
@@ -108,13 +112,17 @@ public class DockerService {
         }
     }
 
-    public Info getInfo(){
-        return getDockerClient().infoCmd().exec();
+    public Info getInfo() {
+        try (InfoCmd cmd = getDockerClient().infoCmd()) {
+            return cmd.exec();
+        }
     }
 
     public Container getContainer(String id) {
-        List<Container> containers = getDockerClient().listContainersCmd().withShowAll(true).withIdFilter(List.of(id)).exec();
-        return containers.isEmpty() ? null : containers.get(0);
+        try (ListContainersCmd cmd = getDockerClient().listContainersCmd().withShowAll(true).withIdFilter(List.of(id))) {
+            List<Container> containers =  cmd.exec();
+            return containers.isEmpty() ? null : containers.get(0);
+        }
     }
 
     public Container getContainerByName(String name) {
@@ -123,7 +131,9 @@ public class DockerService {
     }
 
     public List<Container> getAllContainers() {
-        return getDockerClient().listContainersCmd().withShowAll(true).exec();
+        try (ListContainersCmd cmd = getDockerClient().listContainersCmd().withShowAll(true)) {
+            return cmd.exec();
+        }
     }
 
     public Container createContainerFromCompose(DockerComposeService compose, Map<String, String> labels, Boolean pullAlways, String... command) throws InterruptedException {
@@ -142,7 +152,7 @@ public class DockerService {
                 restartPolicy = RestartPolicy.alwaysRestart();
             }
 
-            return createContainer(compose.getContainer_name(), compose.getImage(), 
+            return createContainer(compose.getContainer_name(), compose.getImage(),
                     env, compose.getPortsMap(), healthCheck, labels, compose.getVolumesMap(), networkName, restartPolicy, pullAlways,
                     compose.getCpus(), compose.getCpu_percent(), compose.getMem_limit(), compose.getMem_reservation(), command);
 
@@ -153,8 +163,9 @@ public class DockerService {
     }
 
     public List<Container> findContainer(String containerName) {
-        return getDockerClient().listContainersCmd().withShowAll(true).withNameFilter(List.of(containerName)).exec()
-                .stream().filter(c -> Objects.equals(c.getNames()[0].replaceFirst("/", ""), containerName)).toList();
+        try (ListContainersCmd cmd = getDockerClient().listContainersCmd().withShowAll(true).withNameFilter(List.of(containerName))) {
+            return cmd.exec().stream().filter(c -> Objects.equals(c.getNames()[0].replaceFirst("/", ""), containerName)).toList();
+        }
     }
 
     public Container createContainer(String name, String image, List<String> env, Map<Integer, Integer> ports,
@@ -166,38 +177,39 @@ public class DockerService {
         if (containers.isEmpty()) {
             pullImage(image, pullAlways);
 
-            CreateContainerCmd createContainerCmd = getDockerClient().createContainerCmd(image)
-                    .withName(name).withLabels(labels).withEnv(env).withHostName(name).withHealthcheck(healthCheck);
+            try (CreateContainerCmd createContainerCmd = getDockerClient().createContainerCmd(image).withName(name).withLabels(labels).withEnv(env).withHostName(name).withHealthcheck(healthCheck)) {
+                Ports portBindings = DockerUtils.getPortBindings(ports);
 
-            Ports portBindings = DockerUtils.getPortBindings(ports);
+                List<Mount> mounts = new ArrayList<>();
+                if (volumes != null && !volumes.isEmpty()) {
+                    volumes.forEach((hostPath, containerPath) -> {
+                        mounts.add(new Mount().withType(MountType.BIND).withSource(hostPath).withTarget(containerPath));
+                    });
+                }
+                if (command.length > 0) {
+                    createContainerCmd.withCmd(command);
+                }
+                if (Objects.equals(labels.get(LABEL_PROJECT_ID), PodContainerStatus.ContainerType.build.name())) {
+                    mounts.add(new Mount().withType(MountType.BIND).withSource("/var/run/docker.sock").withTarget("/var/run/docker.sock"));
+                }
 
-            List<Mount> mounts = new ArrayList<>();
-            if (volumes != null && !volumes.isEmpty()) {
-                volumes.forEach((hostPath, containerPath) -> {
-                    mounts.add(new Mount().withType(MountType.BIND).withSource(hostPath).withTarget(containerPath));
-                });
+                createContainerCmd.withHostConfig(new HostConfig()
+                        .withRestartPolicy(restartPolicy)
+                        .withPortBindings(portBindings)
+                        .withMounts(mounts)
+                        .withMemory(DockerUtils.parseMemory(mem_limit))
+                        .withMemoryReservation(DockerUtils.parseMemory(mem_reservation))
+                        .withCpuPercent(NumberUtils.toLong(cpu_percent))
+                        .withNanoCPUs(NumberUtils.toLong(cpus))
+                        .withNetworkMode(network != null ? network : networkName));
+
+                CreateContainerResponse response = createContainerCmd.exec();
+                LOGGER.info("Container created: " + response.getId());
+
+                try (ListContainersCmd cmd = getDockerClient().listContainersCmd().withShowAll(true).withIdFilter(Collections.singleton(response.getId()))) {
+                    return cmd.exec().get(0);
+                }
             }
-            if (command.length > 0) {
-                createContainerCmd.withCmd(command);
-            }
-            if (Objects.equals(labels.get(LABEL_PROJECT_ID), PodContainerStatus.ContainerType.build.name())) {
-                mounts.add(new Mount().withType(MountType.BIND).withSource("/var/run/docker.sock").withTarget("/var/run/docker.sock"));
-            }
-
-            createContainerCmd.withHostConfig(new HostConfig()
-                            .withRestartPolicy(restartPolicy)
-                    .withPortBindings(portBindings)
-                    .withMounts(mounts)
-                    .withMemory(DockerUtils.parseMemory(mem_limit))
-                    .withMemoryReservation(DockerUtils.parseMemory(mem_reservation))
-                    .withCpuPercent(NumberUtils.toLong(cpu_percent))
-                    .withNanoCPUs(NumberUtils.toLong(cpus))
-                    .withNetworkMode(network != null ? network : networkName));
-
-            CreateContainerResponse response = createContainerCmd.exec();
-            LOGGER.info("Container created: " + response.getId());
-            return getDockerClient().listContainersCmd().withShowAll(true)
-                    .withIdFilter(Collections.singleton(response.getId())).exec().get(0);
         } else {
             LOGGER.info("Container already exists: " + containers.get(0).getId());
             return containers.get(0);
@@ -213,9 +225,13 @@ public class DockerService {
 
     public void runContainer(Container container) {
         if (container.getState().equals("paused")) {
-            getDockerClient().unpauseContainerCmd(container.getId()).exec();
+            try (UnpauseContainerCmd cmd = getDockerClient().unpauseContainerCmd(container.getId())) {
+                cmd.exec();
+            }
         } else if (!container.getState().equals("running")) {
-            getDockerClient().startContainerCmd(container.getId()).exec();
+            try (StartContainerCmd cmd = getDockerClient().startContainerCmd(container.getId())) {
+                cmd.exec();
+            }
         }
     }
 
@@ -256,14 +272,15 @@ public class DockerService {
         try {
             Container container = getContainerByName(containerName);
             if (container != null) {
-                getDockerClient().logContainerCmd(container.getId())
+                try (LogContainerCmd cmd = getDockerClient().logContainerCmd(container.getId())
                         .withStdOut(true)
                         .withStdErr(true)
                         .withTimestamps(false)
                         .withFollowStream(true)
-                        .withTail(100)
-                        .exec(callback);
-                callback.awaitCompletion();
+                        .withTail(100)) {
+                    cmd.exec(callback);
+                    callback.awaitCompletion();
+                }
             }
         } catch (Exception e) {
             LOGGER.error(e.getMessage());
@@ -275,7 +292,9 @@ public class DockerService {
         if (containers.size() == 1) {
             Container container = containers.get(0);
             if (container.getState().equals("running")) {
-                getDockerClient().pauseContainerCmd(container.getId()).exec();
+                try (PauseContainerCmd cmd = getDockerClient().pauseContainerCmd(container.getId())) {
+                    cmd.exec();
+                }
             }
         }
     }
@@ -285,7 +304,9 @@ public class DockerService {
         if (containers.size() == 1) {
             Container container = containers.get(0);
             if (container.getState().equals("running") || container.getState().equals("paused")) {
-                getDockerClient().stopContainerCmd(container.getId()).exec();
+                try (StopContainerCmd cmd = getDockerClient().stopContainerCmd(container.getId())) {
+                    cmd.exec();
+                }
             }
         }
     }
@@ -294,21 +315,62 @@ public class DockerService {
         List<Container> containers = findContainer(name);
         if (containers.size() == 1) {
             Container container = containers.get(0);
-            getDockerClient().removeContainerCmd(container.getId()).withForce(true).exec();
+            try (RemoveContainerCmd cmd = getDockerClient().removeContainerCmd(container.getId()).withForce(true)) {
+                cmd.exec();
+            }
+        }
+    }
+
+    public void execCommandInContainer(String containerName, String cmd) throws InterruptedException {
+        List<Container> containers = findContainer(containerName);
+        if (containers.size() == 1) {
+            Container container = containers.get(0);
+            if (container.getState().equals("running")) {
+                try (ExecCreateCmd execCreateCmd = getDockerClient().execCreateCmd(container.getId()).withAttachStdout(true).withAttachStderr(true).withCmd(cmd.split("\\s+"))) {
+                    var execCreateCmdResponse = execCreateCmd.exec();
+                    try (ExecStartCmd execStartCmd = getDockerClient().execStartCmd(execCreateCmdResponse.getId())) {
+                        execStartCmd.exec(new ExecStartResultCallback(System.out, System.err)).awaitCompletion();
+                    }
+
+
+                }
+            }
         }
     }
 
     public void pullImage(String image, boolean pullAlways) throws InterruptedException {
-        List<Image> images = getDockerClient().listImagesCmd().withShowAll(true).exec();
-        List<String> tags = images.stream()
-                .map(i -> Arrays.stream(i.getRepoTags()).collect(Collectors.toList()))
-                .flatMap(Collection::stream)
-                .toList();
+        try (ListImagesCmd cmd = getDockerClient().listImagesCmd().withShowAll(true)) {
+            List<Image> images = cmd.exec();
+            List<String> tags = images.stream()
+                    .map(i -> Arrays.stream(i.getRepoTags()).collect(Collectors.toList()))
+                    .flatMap(Collection::stream)
+                    .toList();
 
-        if (pullAlways || images.stream().noneMatch(i -> tags.contains(image))) {
-            var callback = new DockerPullCallback(LOGGER::info);
-            getDockerClient().pullImageCmd(image).exec(callback);
-            callback.awaitCompletion();
+            if (pullAlways || images.stream().noneMatch(i -> tags.contains(image))) {
+                var callback = new DockerPullCallback(LOGGER::info);
+                try (PullImageCmd pullImageCmd = getDockerClient().pullImageCmd(image)) {
+                    pullImageCmd.exec(callback);
+                    callback.awaitCompletion();
+                }
+            }
+        }
+    }
+
+    public void pullImageFromDockerHub(String image, boolean pullAlways) throws InterruptedException {
+        try (ListImagesCmd cmd = getDockerClientNotConnectedToRegistry().listImagesCmd().withShowAll(true)) {
+            List<Image> images = cmd.exec();
+            List<String> tags = images.stream()
+                    .map(i -> Arrays.stream(i.getRepoTags()).collect(Collectors.toList()))
+                    .flatMap(Collection::stream)
+                    .toList();
+
+            if (pullAlways || images.stream().noneMatch(i -> tags.contains(image))) {
+                var callback = new DockerPullCallback(LOGGER::info);
+                try (PullImageCmd pullImageCmd = getDockerClientNotConnectedToRegistry().pullImageCmd(image)) {
+                    pullImageCmd.exec(callback);
+                    callback.awaitCompletion();
+                }
+            }
         }
     }
 
@@ -323,16 +385,18 @@ public class DockerService {
         }
     }
 
-    private DockerClientConfig getDockerClientConfig() {
-        LOGGER.info("Docker Client Configuring....");
-        LOGGER.info("Docker Client Registry " + registry);
-        LOGGER.info("Docker Client Username " + (username.isPresent() ? "is not empty " : "is empty"));
-        LOGGER.info("Docker Client Password " + (password.isPresent() ? "is not empty " : "is empty"));
-        DefaultDockerClientConfig.Builder builder =  DefaultDockerClientConfig.createDefaultConfigBuilder();
-        if (!Objects.equals(registry, "registry:5000") && username.isPresent() && password.isPresent()) {
-            builder.withRegistryUrl(registry);
-            builder.withRegistryUsername(username.get());
-            builder.withRegistryPassword(password.get());
+    private DockerClientConfig getDockerClientConfig(boolean connectedToRegistry) {
+        LOGGER.info("Docker Client Configuring " + (connectedToRegistry ? "( connectedToRegistry)" : ""));
+        DefaultDockerClientConfig.Builder builder = DefaultDockerClientConfig.createDefaultConfigBuilder();
+        if (connectedToRegistry) {
+            LOGGER.info("Docker Client Registry " + registry);
+            LOGGER.info("Docker Client Username " + (username.isPresent() ? "is not empty " : "is empty"));
+            LOGGER.info("Docker Client Password " + (password.isPresent() ? "is not empty " : "is empty"));
+            if (!Objects.equals(registry, "registry:5000") && username.isPresent() && password.isPresent()) {
+                builder.withRegistryUrl(registry);
+                builder.withRegistryUsername(username.get());
+                builder.withRegistryPassword(password.get());
+            }
         }
         return builder.build();
     }
@@ -347,21 +411,32 @@ public class DockerService {
 
     public DockerClient getDockerClient() {
         if (dockerClient == null) {
-            DockerClientConfig config = getDockerClientConfig();
+            DockerClientConfig config = getDockerClientConfig(true);
             DockerHttpClient httpClient = getDockerHttpClient(config);
             dockerClient = DockerClientImpl.getInstance(config, httpClient);
         }
         return dockerClient;
     }
 
+    public DockerClient getDockerClientNotConnectedToRegistry() {
+        if (dockerClientConnectedToRegistry == null) {
+            DockerClientConfig config = getDockerClientConfig(false);
+            DockerHttpClient httpClient = getDockerHttpClient(config);
+            dockerClientConnectedToRegistry = DockerClientImpl.getInstance(config, httpClient);
+        }
+        return dockerClientConnectedToRegistry;
+    }
+
     public int getMaxPortMapped(int port) {
-        return getDockerClient().listContainersCmd().withShowAll(true).exec().stream()
-                .map(c -> List.of(c.ports))
-                .flatMap(List::stream)
-                .filter(p -> Objects.equals(p.getPrivatePort(), port))
-                .map(ContainerPort::getPublicPort).filter(Objects::nonNull)
-                .mapToInt(Integer::intValue)
-                .max().orElse(port);
+        try (ListContainersCmd cmd = getDockerClient().listContainersCmd().withShowAll(true)) {
+            return cmd.exec().stream()
+                    .map(c -> List.of(c.ports))
+                    .flatMap(List::stream)
+                    .filter(p -> Objects.equals(p.getPrivatePort(), port))
+                    .map(ContainerPort::getPublicPort).filter(Objects::nonNull)
+                    .mapToInt(Integer::intValue)
+                    .max().orElse(port);
+        }
     }
 
     public List<ContainerImage> getImages() {
@@ -374,10 +449,14 @@ public class DockerService {
     }
 
     public void deleteImage(String imageName) {
-        Optional<Image> image = getDockerClient().listImagesCmd().withShowAll(true).exec().stream()
-                .filter(i -> Arrays.stream(i.getRepoTags()).anyMatch(s -> Objects.equals(s, imageName))).findFirst();
-        if (image.isPresent()) {
-            getDockerClient().removeImageCmd(image.get().getId()).exec();
+        try (ListImagesCmd listImagesCmd = getDockerClient().listImagesCmd().withShowAll(true)) {
+            Optional<Image> image = listImagesCmd.exec().stream()
+                    .filter(i -> Arrays.asList(i.getRepoTags()).contains(imageName)).findFirst();
+            if (image.isPresent()) {
+                try (RemoveImageCmd removeImageCmd = getDockerClient().removeImageCmd(image.get().getId())) {
+                    removeImageCmd.exec();
+                }
+            }
         }
     }
 }
