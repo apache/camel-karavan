@@ -25,6 +25,7 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.apache.camel.karavan.KaravanCache;
+import org.apache.camel.karavan.KaravanConstants;
 import org.apache.camel.karavan.docker.DockerComposeConverter;
 import org.apache.camel.karavan.docker.DockerService;
 import org.apache.camel.karavan.kubernetes.KubernetesService;
@@ -59,7 +60,7 @@ public class ContainerResource {
     @Inject
     ProjectService projectService;
 
-    @ConfigProperty(name = "karavan.environment")
+    @ConfigProperty(name = "karavan.environment", defaultValue = KaravanConstants.DEV)
     String environment;
 
     private static final Logger LOGGER = Logger.getLogger(ContainerResource.class.getName());

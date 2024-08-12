@@ -271,7 +271,14 @@ export function DslConnections() {
                         {CamelUi.getConnectionIcon(pos.step)}
                         {name !== undefined &&
                             <Tooltip content={`Go to ${uri}:${name}`} position={"left"}>
-                                <Button style={{position: 'absolute', right: 27, top: -12, whiteSpace: 'nowrap', zIndex: 300, padding: 0}}
+                                <Button style={{
+                                    position: 'absolute',
+                                    right: 27,
+                                    top: -12,
+                                    whiteSpace: 'nowrap',
+                                    zIndex: 300,
+                                    padding: 0
+                                }}
                                         variant={'link'}
                                         aria-label="Goto"
                                         onClick={_ => InfrastructureAPI.onInternalConsumerClick(uri, name, undefined)}>

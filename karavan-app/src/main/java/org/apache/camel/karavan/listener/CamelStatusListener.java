@@ -25,6 +25,7 @@ import io.vertx.mutiny.ext.web.client.WebClient;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.apache.camel.karavan.KaravanCache;
+import org.apache.camel.karavan.KaravanConstants;
 import org.apache.camel.karavan.model.CamelStatus;
 import org.apache.camel.karavan.model.CamelStatusRequest;
 import org.apache.camel.karavan.model.CamelStatusValue;
@@ -48,7 +49,7 @@ public class CamelStatusListener {
     @Inject
     KaravanCache karavanCache;
 
-    @ConfigProperty(name = "karavan.environment")
+    @ConfigProperty(name = "karavan.environment", defaultValue = KaravanConstants.DEV)
     String environment;
 
     @Inject

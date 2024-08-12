@@ -30,6 +30,7 @@ import jakarta.enterprise.event.Observes;
 import jakarta.enterprise.inject.Default;
 import jakarta.enterprise.inject.Produces;
 import jakarta.inject.Inject;
+import org.apache.camel.karavan.KaravanConstants;
 import org.apache.camel.karavan.service.ConfigService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.health.HealthCheck;
@@ -60,7 +61,7 @@ public class KubernetesStatusService implements HealthCheck {
         return new KubernetesClientBuilder().build();
     }
 
-    @ConfigProperty(name = "karavan.environment")
+    @ConfigProperty(name = "karavan.environment", defaultValue = KaravanConstants.DEV)
     public String environment;
 
     @ConfigProperty(name = "karavan.openshift")

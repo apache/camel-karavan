@@ -18,7 +18,7 @@ package org.apache.camel.karavan;
 
 public class KaravanConstants {
 
-    public static final String DEV_ENVIRONMENT = "dev";
+    public static final String DEV = "dev";
     public static final String DEVMODE_IMAGE = "karavan.devmode.image";
     public static final String DEVMODE_IMAGE_PULL_POLICY = "karavan.devmode.withImagePullPolicy";
     public static final String ENV_VAR_JBANG_OPTIONS = "JBANG_OPTIONS";

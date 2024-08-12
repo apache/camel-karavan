@@ -23,6 +23,7 @@ import io.vertx.core.buffer.Buffer;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.apache.camel.karavan.KaravanCache;
+import org.apache.camel.karavan.KaravanConstants;
 import org.apache.camel.karavan.docker.DockerComposeConverter;
 import org.apache.camel.karavan.model.*;
 import org.apache.commons.text.StringSubstitutor;
@@ -68,7 +69,7 @@ public class CodeService {
     private static final String BUILDER_COMPOSE_FILENAME = "builder.docker-compose.yaml";
     public static final String BUILD_SCRIPT_FILENAME = "build.sh";
 
-    @ConfigProperty(name = "karavan.environment")
+    @ConfigProperty(name = "karavan.environment", defaultValue = KaravanConstants.DEV)
     String environment;
 
     @ConfigProperty(name = "karavan.gav")
@@ -339,7 +340,7 @@ public class CodeService {
 
     public String getDockerComposeFileForProject(String projectId) {
         String composeFileName = PROJECT_COMPOSE_FILENAME;
-        if (!Objects.equals(environment, DEV_ENVIRONMENT)) {
+        if (!Objects.equals(environment, DEV)) {
             composeFileName = environment + "." + PROJECT_COMPOSE_FILENAME;
         }
         ProjectFile compose = karavanCache.getProjectFile(projectId, composeFileName);

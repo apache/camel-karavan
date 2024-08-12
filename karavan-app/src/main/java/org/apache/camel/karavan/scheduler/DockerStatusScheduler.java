@@ -22,6 +22,7 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.mutiny.core.eventbus.EventBus;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import org.apache.camel.karavan.KaravanConstants;
 import org.apache.camel.karavan.docker.DockerService;
 import org.apache.camel.karavan.docker.DockerUtils;
 import org.apache.camel.karavan.model.PodContainerStatus;
@@ -36,7 +37,7 @@ import static org.apache.camel.karavan.KaravanEvents.*;
 @ApplicationScoped
 public class DockerStatusScheduler {
 
-    @ConfigProperty(name = "karavan.environment")
+    @ConfigProperty(name = "karavan.environment", defaultValue = KaravanConstants.DEV)
     String environment;
 
     @Inject

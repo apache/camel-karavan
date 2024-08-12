@@ -41,7 +41,7 @@ public class CamelStatusScheduler {
     @Inject
     KaravanCache karavanCache;
 
-    @ConfigProperty(name = "karavan.environment")
+    @ConfigProperty(name = "karavan.environment", defaultValue = KaravanConstants.DEV)
     String environment;
 
     @Inject

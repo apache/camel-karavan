@@ -50,7 +50,7 @@ public class InfrastructureResource {
     @Inject
     KubernetesStatusService kubernetesStatusService;
 
-    @ConfigProperty(name = "karavan.environment")
+    @ConfigProperty(name = "karavan.environment", defaultValue = KaravanConstants.DEV)
     String environment;
 
     private static final Logger LOGGER = Logger.getLogger(InfrastructureResource.class.getName());
@@ -85,7 +85,7 @@ public class InfrastructureResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/deployment/start/{env}/{projectId}")
     public Response start(@PathParam("env") String env, @PathParam("projectId") String projectId) throws Exception {
-        var name = Objects.equals(environment, KaravanConstants.DEV_ENVIRONMENT) ? KUBERNETES_YAML_FILENAME : environment + "." + KUBERNETES_YAML_FILENAME;
+        var name = Objects.equals(environment, KaravanConstants.DEV) ? KUBERNETES_YAML_FILENAME : environment + "." + KUBERNETES_YAML_FILENAME;
         ProjectFile resources = karavanCache.getProjectFile(projectId, name);
         if (resources == null) {
             return Response.status(Response.Status.NOT_FOUND).entity("Resource file " + KUBERNETES_YAML_FILENAME + " not found").build();

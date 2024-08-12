@@ -23,6 +23,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Default;
 import jakarta.inject.Inject;
 import org.apache.camel.karavan.KaravanCache;
+import org.apache.camel.karavan.KaravanConstants;
 import org.apache.camel.karavan.docker.DockerComposeConverter;
 import org.apache.camel.karavan.docker.DockerForKaravan;
 import org.apache.camel.karavan.kubernetes.KubernetesService;
@@ -47,7 +48,7 @@ public class ProjectService {
 
     private static final Logger LOGGER = Logger.getLogger(ProjectService.class.getName());
 
-    @ConfigProperty(name = "karavan.environment")
+    @ConfigProperty(name = "karavan.environment", defaultValue = KaravanConstants.DEV)
     String environment;
 
     @Inject
@@ -69,7 +70,7 @@ public class ProjectService {
     EventBus eventBus;
 
     public Project commitAndPushProject(String projectId, String message) throws Exception {
-        if (Objects.equals(environment, DEV_ENVIRONMENT)) {
+        if (Objects.equals(environment, DEV)) {
             LOGGER.info("Commit project: " + projectId);
             Project p = karavanCache.getProject(projectId);
             List<ProjectFile> files = karavanCache.getProjectFiles(projectId);
@@ -259,7 +260,7 @@ public class ProjectService {
                             !Objects.equals(e.getValue().getName(), PROJECT_DEPLOYMENT_JKUBE_FILENAME)
                     )
                     .collect(Collectors.toMap(
-                            e -> GroupedKey.create(project.getProjectId(), DEV_ENVIRONMENT, e.getValue().getName()),
+                            e -> GroupedKey.create(project.getProjectId(), DEV, e.getValue().getName()),
                             e -> {
                                 ProjectFile file = e.getValue();
                                 file.setProjectId(project.getProjectId());

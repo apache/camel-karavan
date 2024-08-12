@@ -26,6 +26,7 @@ import io.vertx.mutiny.ext.web.client.WebClient;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.apache.camel.karavan.KaravanCache;
+import org.apache.camel.karavan.KaravanConstants;
 import org.apache.camel.karavan.kubernetes.KubernetesService;
 import org.apache.camel.karavan.model.PodContainerStatus;
 import org.apache.camel.karavan.service.CodeService;
@@ -54,7 +55,7 @@ public class CamelReloadListener {
     @Inject
     KubernetesService kubernetesService;
 
-    @ConfigProperty(name = "karavan.environment")
+    @ConfigProperty(name = "karavan.environment", defaultValue = KaravanConstants.DEV)
     String environment;
 
     @Inject

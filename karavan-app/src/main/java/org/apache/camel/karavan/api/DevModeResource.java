@@ -22,6 +22,7 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.apache.camel.karavan.KaravanCache;
+import org.apache.camel.karavan.KaravanConstants;
 import org.apache.camel.karavan.model.PodContainerStatus;
 import org.apache.camel.karavan.model.Project;
 import org.apache.camel.karavan.service.ProjectService;
@@ -36,7 +37,7 @@ public class DevModeResource {
 
     private static final Logger LOGGER = Logger.getLogger(DevModeResource.class.getName());
 
-    @ConfigProperty(name = "karavan.environment")
+    @ConfigProperty(name = "karavan.environment", defaultValue = KaravanConstants.DEV)
     String environment;
 
     @Inject
