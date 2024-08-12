@@ -47,8 +47,10 @@ public class CommitListener {
         String message = event.getString("message");
         String userId = event.getString("userId");
         String eventId = event.getString("eventId");
+        String authorName = event.getString("authorName");
+        String authorEmail = event.getString("authorEmail");
         try {
-            Project p = projectService.commitAndPushProject(projectId, message);
+            Project p = projectService.commitAndPushProject(projectId, message, authorName, authorEmail);
             if (userId != null) {
                 eventBus.publish(COMMIT_HAPPENED, JsonObject.of("userId", userId, "eventId", eventId, "project", JsonObject.mapFrom(p)));
             }

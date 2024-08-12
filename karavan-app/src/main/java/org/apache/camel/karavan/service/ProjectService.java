@@ -23,7 +23,6 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Default;
 import jakarta.inject.Inject;
 import org.apache.camel.karavan.KaravanCache;
-import org.apache.camel.karavan.KaravanConstants;
 import org.apache.camel.karavan.docker.DockerComposeConverter;
 import org.apache.camel.karavan.docker.DockerForKaravan;
 import org.apache.camel.karavan.kubernetes.KubernetesService;
@@ -47,8 +46,10 @@ import static org.apache.camel.karavan.service.CodeService.*;
 public class ProjectService {
 
     private static final Logger LOGGER = Logger.getLogger(ProjectService.class.getName());
+    private static final String DEFAULT_AUTHOR_NAME = "karavan";
+    private static final String DEFAULT_AUTHOR_EMAIL = "karavan@test.org";
 
-    @ConfigProperty(name = "karavan.environment", defaultValue = KaravanConstants.DEV)
+    @ConfigProperty(name = "karavan.environment", defaultValue = DEV)
     String environment;
 
     @Inject
@@ -69,12 +70,17 @@ public class ProjectService {
     @Inject
     EventBus eventBus;
 
+
     public Project commitAndPushProject(String projectId, String message) throws Exception {
+        return commitAndPushProject(projectId, message, DEFAULT_AUTHOR_NAME, DEFAULT_AUTHOR_EMAIL);
+    }
+
+    public Project commitAndPushProject(String projectId, String message, String authorName, String authorEmail) throws Exception {
         if (Objects.equals(environment, DEV)) {
             LOGGER.info("Commit project: " + projectId);
             Project p = karavanCache.getProject(projectId);
             List<ProjectFile> files = karavanCache.getProjectFiles(projectId);
-            RevCommit commit = gitService.commitAndPushProject(p, files, message);
+            RevCommit commit = gitService.commitAndPushProject(p, files, message, authorName, authorEmail);
             karavanCache.syncFilesCommited(projectId);
             String commitId = commit.getId().getName();
             Long lastUpdate = commit.getCommitTime() * 1000L;

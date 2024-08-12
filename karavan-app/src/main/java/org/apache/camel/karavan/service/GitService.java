@@ -18,8 +18,6 @@ package org.apache.camel.karavan.service;
 
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
-import io.quarkus.oidc.UserInfo;
-import io.quarkus.security.identity.SecurityIdentity;
 import io.smallrye.mutiny.tuples.Tuple2;
 import io.vertx.core.Vertx;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -77,9 +75,6 @@ public class GitService {
     @Inject
     Vertx vertx;
 
-    @Inject
-    SecurityIdentity securityIdentity;
-
     SshSessionFactory sshSessionFactory;
 
     private Git gitForImport;
@@ -116,7 +111,7 @@ public class GitService {
         return new GitConfig(repository, username.orElse(null), password.orElse(null), branch, privateKeyPath.orElse(null));
     }
 
-    public RevCommit commitAndPushProject(Project project, List<ProjectFile> files, String message) throws GitAPIException, IOException, URISyntaxException {
+    public RevCommit commitAndPushProject(Project project, List<ProjectFile> files, String message, String authorName, String authorEmail) throws GitAPIException, IOException, URISyntaxException {
         LOGGER.info("Commit and push project " + project.getProjectId());
         GitConfig gitConfig = getGitConfig();
         String uuid = UUID.randomUUID().toString();
@@ -134,7 +129,7 @@ public class GitService {
 //        }
         writeProjectToFolder(folder, project, files);
         addDeletedFilesToIndex(git, folder, project, files);
-        return commitAddedAndPush(git, gitConfig.getBranch(), message);
+        return commitAddedAndPush(git, gitConfig.getBranch(), message, authorName, authorName);
     }
 
     public List<GitRepo> readProjectsToImport() {
@@ -275,10 +270,10 @@ public class GitService {
         });
     }
 
-    public RevCommit commitAddedAndPush(Git git, String branch, String message) throws GitAPIException {
+    public RevCommit commitAddedAndPush(Git git, String branch, String message, String authorName, String authorEmail) throws GitAPIException {
         LOGGER.info("Commit and push changes to the branch " + branch);
         LOGGER.info("Git add: " + git.add().addFilepattern(".").call());
-        RevCommit commit = git.commit().setMessage(message).setAuthor(getPersonIdent()).call();
+        RevCommit commit = git.commit().setMessage(message).setAuthor(new PersonIdent(authorName, authorEmail)).call();
         LOGGER.info("Git commit: " + commit);
         if (!ephemeral) {
             PushCommand pushCommand = git.push();
@@ -288,17 +283,6 @@ public class GitService {
             LOGGER.info("Git push: " + result);
         }
         return commit;
-    }
-
-    private PersonIdent getPersonIdent() {
-        String defaultEmailAddress = "karavan@test.org";
-
-        if (securityIdentity != null && securityIdentity.getAttributes().get("userinfo") != null) {
-            UserInfo userInfo = (UserInfo) securityIdentity.getAttributes().get("userinfo");
-            String email = Objects.isNull(userInfo.getEmail()) || userInfo.getEmail().isBlank() ? defaultEmailAddress : userInfo.getEmail();
-            return new PersonIdent(securityIdentity.getPrincipal().getName(), email);
-        }
-        return new PersonIdent("karavan", defaultEmailAddress);
     }
 
     public Git init(String dir, String uri, String branch) throws GitAPIException, IOException, URISyntaxException {
@@ -317,7 +301,7 @@ public class GitService {
         }
     }
 
-    public void deleteProject(String projectId, List<ProjectFile> files) throws GitAPIException, IOException, URISyntaxException {
+    public void deleteProject(String projectId, List<ProjectFile> files, String authorName, String authorEmail) {
         LOGGER.info("Delete and push project " + projectId);
         GitConfig gitConfig = getGitConfig();
         String uuid = UUID.randomUUID().toString();
@@ -327,7 +311,7 @@ public class GitService {
         try {
             Git git = getGit(true, folder);
             addDeletedFolderToIndex(git, folder, projectId, files);
-            commitAddedAndPush(git, gitConfig.getBranch(), commitMessage);
+            commitAddedAndPush(git, gitConfig.getBranch(), commitMessage, authorName, authorEmail);
             LOGGER.info("Delete Temp folder " + folder);
             vertx.fileSystem().deleteRecursiveBlocking(folder, true);
             LOGGER.infof("Project %s deleted from Git", projectId);

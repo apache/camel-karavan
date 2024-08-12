@@ -16,6 +16,7 @@
  */
 package org.apache.camel.karavan.api;
 
+import io.quarkus.security.identity.SecurityIdentity;
 import io.vertx.core.json.JsonObject;
 import io.vertx.mutiny.core.eventbus.EventBus;
 import jakarta.inject.Inject;
@@ -30,7 +31,7 @@ import java.util.HashMap;
 import static org.apache.camel.karavan.KaravanEvents.CMD_PUSH_PROJECT;
 
 @Path("/ui/git")
-public class ProjectGitResource {
+public class ProjectGitResource extends AbstractApiResource {
 
     private static final Logger LOGGER = Logger.getLogger(ProjectGitResource.class.getName());
 
@@ -40,11 +41,18 @@ public class ProjectGitResource {
     @Inject
     EventBus eventBus;
 
+    @Inject
+    SecurityIdentity securityIdentity;
+
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public HashMap<String, String> push(HashMap<String, String> params) throws Exception {
-        eventBus.publish(CMD_PUSH_PROJECT, JsonObject.mapFrom(params));
+        var identity = getIdentity();
+        var data = JsonObject.mapFrom(params);
+        data.put("authorName", identity.get("name"));
+        data.put("authorEmail", identity.get("email"));
+        eventBus.publish(CMD_PUSH_PROJECT, data);
         return params;
     }
 

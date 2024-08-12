@@ -38,7 +38,7 @@ import java.util.List;
 import java.util.Objects;
 
 @Path("/ui/project")
-public class ProjectResource {
+public class ProjectResource extends AbstractApiResource {
     private static final Logger LOGGER = Logger.getLogger(ProjectResource.class.getName());
 
     @Inject
@@ -102,7 +102,8 @@ public class ProjectResource {
             LOGGER.info("Deleting deployments");
             Response res4 = infrastructureResource.deleteDeployment(null, projectId);
         }
-        gitService.deleteProject(projectId, karavanCache.getProjectFiles(projectId));
+        var identity = getIdentity();
+        gitService.deleteProject(projectId, karavanCache.getProjectFiles(projectId), identity.get("name"), identity.get("email"));
         karavanCache.getProjectFiles(projectId).forEach(file -> karavanCache.deleteProjectFile(projectId, file.getName()));
         karavanCache.deleteProject(projectId);
         LOGGER.info("Project deleted");
