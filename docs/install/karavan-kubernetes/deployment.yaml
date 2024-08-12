@@ -15,8 +15,6 @@ spec:
     spec:
       containers:
       - env:
-        - name: "KARAVAN_ENVIRONMENT"
-          value: "dev"
         - name: "KARAVAN_CONTAINER_STATUS_INTERVAL"
           value: "disabled"
         - name: "KARAVAN_CONTAINER_STATISTICS_INTERVAL"

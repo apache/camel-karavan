@@ -172,6 +172,7 @@ export function KameletPropertyField(props: Props) {
                     ref={ref}
                     className="text-field" isRequired
                     type={property.format && !showPassword ? "password" : "text"}
+                    autoComplete="off"
                     id={id} name={id}
                     value={textValue}
                     onBlur={_ => {

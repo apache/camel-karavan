@@ -343,6 +343,7 @@ export function DslPropertyField(props: Props) {
                         ref={ref}
                         className="text-field" isRequired
                         type={property.secret ? "password" : "text"}
+                        autoComplete="off"
                         id={property.name} name={property.name}
                         value={textValue?.toString()}
                         customIcon={property.type !== 'string' ?
@@ -396,6 +397,7 @@ export function DslPropertyField(props: Props) {
                 <TextInput ref={ref}
                            className="text-field" isRequired
                            type={property.secret ? "password" : "text"}
+                           autoComplete="off"
                            id={property.name} name={property.name}
                            value={textValue?.toString()}
                            customIcon={property.type !== 'string' ?

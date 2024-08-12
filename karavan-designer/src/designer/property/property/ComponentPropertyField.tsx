@@ -263,6 +263,7 @@ export function ComponentPropertyField(props: Props) {
             {(!showEditor || property.secret) &&
                 <TextInput className="text-field" isRequired ref={ref}
                            type={property.secret && !showPassword ? "password" : "text"}
+                           autoComplete="off"
                            id={id} name={id}
                            value={textValue !== undefined ? textValue : property.defaultValue}
                            onBlur={_ => parametersChanged(property.name, textValue, property.kind === 'path')}
@@ -318,6 +319,7 @@ export function ComponentPropertyField(props: Props) {
                     <TextInput
                         className="text-field" isRequired
                         type={(property.secret ? "password" : "text")}
+                        autoComplete="off"
                         id={id} name={id}
                         value={textValue !== undefined ? textValue : property.defaultValue}
                         onBlur={_ => parametersChanged(property.name, textValue, property.kind === 'path')}

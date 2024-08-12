@@ -176,21 +176,21 @@ export function BeanProperties (props: Props) {
     function getLabelIcon (displayName: string, description: string)  {
         return (
             <Popover
-                    position={"left"}
-                    headerContent={displayName}
-                    bodyContent={description}
-                    footerContent={
-                        <div>
-                            <b>Required</b>
-                        </div>
-                    }>
-                    <button type="button" aria-label="More info" onClick={e => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                    }} className="pf-v5-c-form__group-label-help">
-                        <HelpIcon />
-                    </button>
-                </Popover>
+                position={"left"}
+                headerContent={displayName}
+                bodyContent={description}
+                footerContent={
+                    <div>
+                        <b>Required</b>
+                    </div>
+                }>
+                <button type="button" aria-label="More info" onClick={e => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }} className="pf-v5-c-form__group-label-help">
+                    <HelpIcon />
+                </button>
+            </Popover>
         )
     }
 
@@ -215,6 +215,7 @@ export function BeanProperties (props: Props) {
                                     <TextInput
                                         placeholder="Argument Value"
                                         type={isSecret && !showPassword ? "password" : "text"}
+                                        autoComplete="off"
                                         className="text-field"
                                         isRequired
                                         id={"value-" + i}
@@ -244,55 +245,56 @@ export function BeanProperties (props: Props) {
 
     function getBeanProperties() {
         return (
-                <>
-                    {Array.from(properties.entries()).map((v, index, array) => {
-                        const i = v[0];
-                        const key = v[1][0];
-                        const value = v[1][1];
-                        const showPassword = v[1][2];
-                        const isSecret = key !== undefined && SensitiveKeys.includes(key.toLowerCase());
-                        const inInfrastructure = InfrastructureAPI.infrastructure !== 'local';
-                        const icon = InfrastructureAPI.infrastructure === 'kubernetes' ? KubernetesIcon("infra-button"): <DockerIcon/>
-                        return (
-                            <div key={"key-" + i} className="bean-property">
-                                <TextInput placeholder="Bean Field Name" className="text-field" isRequired type="text" id={"key-" + i}
-                                           name={"key-" + i} value={key}
-                                           onChange={(_, beanFieldName) => {
-                                               propertyChanged(i, beanFieldName, value, showPassword)
-                                           }}/>
-                                <InputGroup>
-                                    {inInfrastructure &&
-                                        <Tooltip position="bottom-end" content={"Select from " + capitalize(InfrastructureAPI.infrastructure)}>
-                                            <Button variant="control" onClick={e => openInfrastructureSelector(i, key)}>
-                                                {icon}
-                                            </Button>
-                                        </Tooltip>}
-                                    <InputGroupItem isFill>
-                                        <TextInput
-                                            placeholder="Bean Field Value"
-                                            type={isSecret && !showPassword ? "password" : "text"}
-                                            className="text-field"
-                                            isRequired
-                                            id={"value-" + i}
-                                            name={"value-" + i}
-                                            value={value}
-                                            onChange={(_, value) => {
-                                                propertyChanged(i, key, value, showPassword)
-                                            }}/>
-                                    </InputGroupItem>
-                                    {isSecret && <Tooltip position="bottom-end" content={showPassword ? "Hide" : "Show"}>
-                                        <Button variant="control" onClick={e => propertyChanged(i, key, value, !showPassword)}>
-                                            {showPassword ? <ShowIcon/> : <HideIcon/>}
+            <>
+                {Array.from(properties.entries()).map((v, index, array) => {
+                    const i = v[0];
+                    const key = v[1][0];
+                    const value = v[1][1];
+                    const showPassword = v[1][2];
+                    const isSecret = key !== undefined && SensitiveKeys.includes(key.toLowerCase());
+                    const inInfrastructure = InfrastructureAPI.infrastructure !== 'local';
+                    const icon = InfrastructureAPI.infrastructure === 'kubernetes' ? KubernetesIcon("infra-button"): <DockerIcon/>
+                    return (
+                        <div key={"key-" + i} className="bean-property">
+                            <TextInput placeholder="Bean Field Name" className="text-field" isRequired type="text" id={"key-" + i}
+                                       name={"key-" + i} value={key}
+                                       onChange={(_, beanFieldName) => {
+                                           propertyChanged(i, beanFieldName, value, showPassword)
+                                       }}/>
+                            <InputGroup>
+                                {inInfrastructure &&
+                                    <Tooltip position="bottom-end" content={"Select from " + capitalize(InfrastructureAPI.infrastructure)}>
+                                        <Button variant="control" onClick={e => openInfrastructureSelector(i, key)}>
+                                            {icon}
                                         </Button>
                                     </Tooltip>}
-                                </InputGroup>
-                                <Button variant="link" className="delete-button" onClick={e => propertyDeleted(i)}><DeleteIcon/></Button>
-                            </div>
-                        )
-                    })}
-                    <Button variant="link" className="add-button" onClick={e => propertyChanged(uuidv4(), '', '', false)}>
-                        <AddIcon/>Add property</Button>
-                </>
+                                <InputGroupItem isFill>
+                                    <TextInput
+                                        placeholder="Bean Field Value"
+                                        type={isSecret && !showPassword ? "password" : "text"}
+                                        autoComplete="off"
+                                        className="text-field"
+                                        isRequired
+                                        id={"value-" + i}
+                                        name={"value-" + i}
+                                        value={value}
+                                        onChange={(_, value) => {
+                                            propertyChanged(i, key, value, showPassword)
+                                        }}/>
+                                </InputGroupItem>
+                                {isSecret && <Tooltip position="bottom-end" content={showPassword ? "Hide" : "Show"}>
+                                    <Button variant="control" onClick={e => propertyChanged(i, key, value, !showPassword)}>
+                                        {showPassword ? <ShowIcon/> : <HideIcon/>}
+                                    </Button>
+                                </Tooltip>}
+                            </InputGroup>
+                            <Button variant="link" className="delete-button" onClick={e => propertyDeleted(i)}><DeleteIcon/></Button>
+                        </div>
+                    )
+                })}
+                <Button variant="link" className="add-button" onClick={e => propertyChanged(uuidv4(), '', '', false)}>
+                    <AddIcon/>Add property</Button>
+            </>
         )
     }
 
