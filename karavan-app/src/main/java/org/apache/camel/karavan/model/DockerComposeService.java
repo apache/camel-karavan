@@ -33,7 +33,7 @@ public class DockerComposeService {
     private String mem_limit;
     private String mem_reservation;
     private List<String> ports;
-    private List<String> volumes;
+    private List<DockerComposeVolume> volumes;
     private List<String> expose;
     private List<String> depends_on;
     private List<String> networks;
@@ -81,17 +81,6 @@ public class DockerComposeService {
             ports.forEach(s -> {
                 String[] values = s.split(":");
                 p.put(Integer.parseInt(values[0]), Integer.parseInt(values[1]));
-            });
-        }
-        return p;
-    }
-
-    public Map<String, String> getVolumesMap() {
-        Map<String, String> p = new HashMap<>();
-        if (volumes != null && !volumes.isEmpty()) {
-            volumes.forEach(s -> {
-                String[] values = s.split(":");
-                p.put(values[0], values[1]);
             });
         }
         return p;
@@ -181,11 +170,11 @@ public class DockerComposeService {
         this.mem_reservation = mem_reservation;
     }
 
-    public List<String> getVolumes() {
+    public List<DockerComposeVolume> getVolumes() {
         return volumes;
     }
 
-    public void setVolumes(List<String> volumes) {
+    public void setVolumes(List<DockerComposeVolume> volumes) {
         this.volumes = volumes;
     }
 

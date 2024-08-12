@@ -140,11 +140,11 @@ public class ContainerResource {
         }
     }
 
-    private boolean needPull(JsonObject command) {
-        if (command != null && command.containsKey("pullImage")) {
-            return command.getBoolean("pullImage");
-        }
-        return false;
+    private DockerService.PULL_IMAGE needPull(JsonObject command) {
+        try {
+            return DockerService.PULL_IMAGE.valueOf(command.getString("pullImage"));
+        } catch (Exception ignored) {}
+        return DockerService.PULL_IMAGE.never;
     }
 
     private void setContainerStatusTransit(String projectId, String name, String type) {

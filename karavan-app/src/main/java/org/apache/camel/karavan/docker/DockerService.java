@@ -34,6 +34,7 @@ import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
 import org.apache.camel.karavan.model.ContainerImage;
 import org.apache.camel.karavan.model.DockerComposeService;
+import org.apache.camel.karavan.model.DockerComposeVolume;
 import org.apache.camel.karavan.model.PodContainerStatus;
 import org.apache.camel.karavan.service.CodeService;
 import org.apache.camel.karavan.service.ConfigService;
@@ -54,9 +55,14 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.apache.camel.karavan.KaravanConstants.LABEL_PROJECT_ID;
+import static org.apache.camel.karavan.KaravanConstants.LABEL_TYPE;
 
 @ApplicationScoped
 public class DockerService {
+
+    public enum PULL_IMAGE {
+        always, ifNotExists, never
+    }
 
     private static final Logger LOGGER = Logger.getLogger(DockerService.class.getName());
 
@@ -120,7 +126,7 @@ public class DockerService {
 
     public Container getContainer(String id) {
         try (ListContainersCmd cmd = getDockerClient().listContainersCmd().withShowAll(true).withIdFilter(List.of(id))) {
-            List<Container> containers =  cmd.exec();
+            List<Container> containers = cmd.exec();
             return containers.isEmpty() ? null : containers.get(0);
         }
     }
@@ -136,7 +142,7 @@ public class DockerService {
         }
     }
 
-    public Container createContainerFromCompose(DockerComposeService compose, Map<String, String> labels, Boolean pullAlways, String... command) throws InterruptedException {
+    public Container createContainerFromCompose(DockerComposeService compose, Map<String, String> labels, PULL_IMAGE pullImage, String... command) throws InterruptedException {
         List<Container> containers = findContainer(compose.getContainer_name());
         if (containers.isEmpty()) {
             HealthCheck healthCheck = DockerUtils.getHealthCheck(compose.getHealthcheck());
@@ -153,7 +159,7 @@ public class DockerService {
             }
 
             return createContainer(compose.getContainer_name(), compose.getImage(),
-                    env, compose.getPortsMap(), healthCheck, labels, compose.getVolumesMap(), networkName, restartPolicy, pullAlways,
+                    env, compose.getPortsMap(), healthCheck, labels, compose.getVolumes(), networkName, restartPolicy, pullImage,
                     compose.getCpus(), compose.getCpu_percent(), compose.getMem_limit(), compose.getMem_reservation(), command);
 
         } else {
@@ -170,20 +176,33 @@ public class DockerService {
 
     public Container createContainer(String name, String image, List<String> env, Map<Integer, Integer> ports,
                                      HealthCheck healthCheck, Map<String, String> labels,
-                                     Map<String, String> volumes, String network, RestartPolicy restartPolicy,
-                                     boolean pullAlways, String cpus, String cpu_percent, String mem_limit, String mem_reservation,
+                                     List<DockerComposeVolume> volumes, String network, RestartPolicy restartPolicy,
+                                     PULL_IMAGE pullImage, String cpus, String cpu_percent, String mem_limit, String mem_reservation,
                                      String... command) throws InterruptedException {
         List<Container> containers = findContainer(name);
         if (containers.isEmpty()) {
-            pullImage(image, pullAlways);
+            if (Objects.equals(labels.get(LABEL_TYPE), PodContainerStatus.ContainerType.devmode.name())
+                    || Objects.equals(labels.get(LABEL_TYPE), PodContainerStatus.ContainerType.build.name())
+                    || Objects.equals(labels.get(LABEL_TYPE), PodContainerStatus.ContainerType.devservice.name())) {
+                LOGGER.info("Pulling DevMode image from DockerHub: " + image);
+                pullImageFromDockerHub(image, Objects.equals(pullImage, PULL_IMAGE.always));
+            }
+            if (Objects.equals(labels.get(LABEL_TYPE), PodContainerStatus.ContainerType.project.name())) {
+                LOGGER.info("Pulling Project image from Registry: " + image);
+                pullImage(image, Objects.equals(pullImage, PULL_IMAGE.always));
+            }
 
             try (CreateContainerCmd createContainerCmd = getDockerClient().createContainerCmd(image).withName(name).withLabels(labels).withEnv(env).withHostName(name).withHealthcheck(healthCheck)) {
                 Ports portBindings = DockerUtils.getPortBindings(ports);
 
                 List<Mount> mounts = new ArrayList<>();
                 if (volumes != null && !volumes.isEmpty()) {
-                    volumes.forEach((hostPath, containerPath) -> {
-                        mounts.add(new Mount().withType(MountType.BIND).withSource(hostPath).withTarget(containerPath));
+                    volumes.forEach(volume -> {
+                        var mount = new Mount().withType(MountType.valueOf(volume.getType())).withTarget(volume.getTarget());
+                        if (volume.getSource() != null) {
+                            mount = mount.withSource(volume.getSource());
+                        }
+                        mounts.add(mount);
                     });
                 }
                 if (command.length > 0) {

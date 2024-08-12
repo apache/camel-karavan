@@ -22,6 +22,7 @@ import com.github.dockerjava.api.model.RestartPolicy;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.apache.camel.karavan.model.DockerComposeService;
+import org.apache.camel.karavan.model.DockerComposeVolume;
 import org.apache.camel.karavan.model.PodContainerStatus;
 import org.apache.camel.karavan.model.Project;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -30,7 +31,6 @@ import org.jboss.logging.Logger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 import static org.apache.camel.karavan.KaravanConstants.*;
 import static org.apache.camel.karavan.service.CodeService.BUILD_SCRIPT_FILENAME;
@@ -68,11 +68,6 @@ public class DockerForKaravan {
 
         var imageName = projectDevmodeImage != null ? projectDevmodeImage : devmodeImage;
 
-        if (dockerService.getImages().stream().noneMatch(i -> Objects.equals(i.getTag(), imageName))) {
-            LOGGER.info("Pulling DevMode image from DockerHub: " + imageName);
-            dockerService.pullImageFromDockerHub(imageName, true);
-        }
-
         return dockerService.createContainer(projectId,
                 (imageName),
                 env, compose.getPortsMap(), healthCheck,
@@ -80,14 +75,14 @@ public class DockerForKaravan {
                         LABEL_PROJECT_ID, projectId,
                         LABEL_CAMEL_RUNTIME, CamelRuntime.CAMEL_MAIN.getValue()
                 ),
-                compose.getVolumesMap(), null, RestartPolicy.noRestart(), false,
+                compose.getVolumes(), null, RestartPolicy.noRestart(), DockerService.PULL_IMAGE.ifNotExists,
                 compose.getCpus(), compose.getCpu_percent(), compose.getMem_limit(), compose.getMem_reservation());
     }
 
     public void runBuildProject(Project project, String script, DockerComposeService compose, Map<String, String> sshFiles, String tag) throws Exception {
         String containerName = project.getProjectId() + BUILDER_SUFFIX;
         dockerService.deleteContainer(containerName);
-        Container c = createBuildContainer(containerName, project, compose.getEnvironmentList(), compose.getVolumesMap(), tag);
+        Container c = createBuildContainer(containerName, project, compose.getEnvironmentList(), compose.getVolumes(), tag);
         dockerService.copyExecFile(c.getId(), "/karavan/builder", BUILD_SCRIPT_FILENAME, script);
         sshFiles.forEach((name, text) -> {
             dockerService.copyExecFile(c.getId(), "/karavan/.ssh", name, text);
@@ -95,7 +90,7 @@ public class DockerForKaravan {
         dockerService.runContainer(c);
     }
 
-    protected Container createBuildContainer(String containerName, Project project, List<String> env, Map<String, String> volumes, String tag) throws InterruptedException {
+    protected Container createBuildContainer(String containerName, Project project, List<String> env, List<DockerComposeVolume> volumes, String tag) throws InterruptedException {
         LOGGER.infof("Starting Build Container ", containerName);
 
         return dockerService.createContainer(containerName, devmodeImage,
@@ -105,7 +100,7 @@ public class DockerForKaravan {
                         LABEL_PROJECT_ID, project.getProjectId(),
                         LABEL_TAG, tag
                 ),
-                volumes, null,RestartPolicy.noRestart(), false, 
+                volumes, null,RestartPolicy.noRestart(), DockerService.PULL_IMAGE.ifNotExists,
                 null, null, null, null,
                 "/karavan/builder/build.sh");
     }

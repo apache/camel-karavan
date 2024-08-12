@@ -69,17 +69,21 @@ public class ProjectService {
     EventBus eventBus;
 
     public Project commitAndPushProject(String projectId, String message) throws Exception {
-        LOGGER.info("Commit project: " + projectId);
-        Project p = karavanCache.getProject(projectId);
-        List<ProjectFile> files = karavanCache.getProjectFiles(projectId);
-        RevCommit commit = gitService.commitAndPushProject(p, files, message);
-        karavanCache.syncFilesCommited(projectId);
-        String commitId = commit.getId().getName();
-        Long lastUpdate = commit.getCommitTime() * 1000L;
-        p.setLastCommit(commitId);
-        p.setLastCommitTimestamp(lastUpdate);
-        karavanCache.saveProject(p);
-        return p;
+        if (Objects.equals(environment, DEV_ENVIRONMENT)) {
+            LOGGER.info("Commit project: " + projectId);
+            Project p = karavanCache.getProject(projectId);
+            List<ProjectFile> files = karavanCache.getProjectFiles(projectId);
+            RevCommit commit = gitService.commitAndPushProject(p, files, message);
+            karavanCache.syncFilesCommited(projectId);
+            String commitId = commit.getId().getName();
+            Long lastUpdate = commit.getCommitTime() * 1000L;
+            p.setLastCommit(commitId);
+            p.setLastCommitTimestamp(lastUpdate);
+            karavanCache.saveProject(p);
+            return p;
+        } else {
+            throw new RuntimeException("Unsupported environment: " + environment);
+        }
     }
 
     public String runProjectWithJBangOptions(Project project, String jBangOptions) throws Exception {

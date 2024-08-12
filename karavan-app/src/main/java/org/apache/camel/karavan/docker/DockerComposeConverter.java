@@ -21,6 +21,7 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import org.apache.camel.karavan.model.DockerCompose;
 import org.apache.camel.karavan.model.DockerComposeService;
+import org.apache.camel.karavan.model.DockerComposeVolume;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.introspector.Property;
@@ -29,9 +30,13 @@ import org.yaml.snakeyaml.representer.Representer;
 
 import java.util.Map;
 
+import static com.github.dockerjava.api.model.MountType.BIND;
+import static com.github.dockerjava.api.model.MountType.VOLUME;
+
 public class DockerComposeConverter {
 
     private static final String ENVIRONMENT = "environment";
+    private static final String VOLUMES = "volumes";
 
     public static DockerCompose fromCode(String code) {
         Yaml yaml = new Yaml();
@@ -75,6 +80,26 @@ public class DockerComposeConverter {
             });
             service.put(ENVIRONMENT, env);
         }
+        if (service.containsKey(VOLUMES) && service.getValue(VOLUMES) instanceof JsonArray) {
+            JsonArray volumes = new JsonArray();
+            JsonArray yamlVolumes = service.getJsonArray(VOLUMES);
+            yamlVolumes.forEach(o -> {
+                if (o instanceof JsonObject) {
+                    volumes.add(o);
+                } else if (o instanceof String) {
+                    var parts = ((String) o).split(":");
+                    if (parts.length == 2) {
+                        var part0 = parts[0];
+                        var type = part0.startsWith("/") || part0.startsWith("~") || part0.startsWith("./") ? VOLUME : BIND;
+                        volumes.add(JsonObject.mapFrom(new DockerComposeVolume(type.name().toLowerCase(), parts[0], parts[1])));
+                    } else if (parts.length == 1) {
+                        volumes.add(JsonObject.mapFrom(new DockerComposeVolume(VOLUME.name().toLowerCase(), null, parts[0])));
+                    }
+                }
+            });
+            service.put(VOLUMES, volumes);
+        }
+
         DockerComposeService ds = service.mapTo(DockerComposeService.class);
         if (ds.getContainer_name() == null) {
             ds.setContainer_name(name);

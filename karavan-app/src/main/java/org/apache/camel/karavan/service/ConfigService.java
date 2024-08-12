@@ -137,18 +137,19 @@ public class ConfigService {
         var parts = filename.split("\\.");
         var prefix = parts[0];
         if (environment.equals(DEV_ENVIRONMENT) && !getEnvs().contains(prefix)) { // no prefix AND dev env
-            storeFile(f);
-        } else if (Objects.equals(prefix, environment)){ // with prefix == env
-            storeFile(f);
+            storeFile(f.getName(), f.getCode());
+        } else if (Objects.equals(prefix, environment)) { // with prefix == env
+            filename = f.getName().substring(environment.length() + 1);
+            storeFile(filename, f.getCode());
         }
     }
 
-    private void storeFile(ProjectFile f) throws Exception {
+    private void storeFile(String filename , String code) throws Exception {
         if (inKubernetes()) {
-            createConfigMapFromFile(f.getName(), f.getCode());
+            createConfigMapFromFile(filename, code);
         } else {
             if (sharedFolder.isPresent()) {
-                Files.writeString(Paths.get(sharedFolder.get(), f.getName()), f.getCode());
+                Files.writeString(Paths.get(sharedFolder.get(), filename), code);
             } else {
                 throw new Exception("Shared folder not configured");
             }
