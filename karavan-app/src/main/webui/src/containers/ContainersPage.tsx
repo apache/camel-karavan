@@ -22,7 +22,7 @@ import {
     PageSection, Spinner,
     Text,
     TextContent,
-    TextInput, ToggleGroup, ToggleGroupItem,
+    TextInput,
     Toolbar,
     ToolbarContent,
     ToolbarItem, EmptyStateHeader
@@ -43,14 +43,13 @@ import {
 } from '@patternfly/react-table/deprecated';
 import SearchIcon from "@patternfly/react-icons/dist/esm/icons/search-icon";
 import {MainToolbar} from "../designer/MainToolbar";
-import {useAppConfigStore, useStatusesStore} from "../api/ProjectStore";
+import {useStatusesStore} from "../api/ProjectStore";
 import {shallow} from "zustand/shallow";
 import {ContainerTableRow} from "./ContainerTableRow";
 import {ProjectService} from "../api/ProjectService";
 
 export function ContainersPage () {
 
-    const [config, selectedEnv, selectEnvironment] = useAppConfigStore((state) => [state.config,state.selectedEnv, state.selectEnvironment], shallow)
     const [containers] = useStatusesStore((state) => [state.containers, state.setContainers], shallow);
     const [filter, setFilter] = useState<string>('');
     const [loading] = useState<boolean>(true);
@@ -65,14 +64,6 @@ export function ContainersPage () {
     function tools() {
         return (<Toolbar id="toolbar-group-types">
             <ToolbarContent>
-                <ToolbarItem>
-                    <ToggleGroup aria-label="Default with single selectable">
-                        {config.environments.map(env => (
-                            <ToggleGroupItem key={env} text={env} buttonId={env} isSelected={selectedEnv.includes(env)}
-                                             onChange={(_, selected) => selectEnvironment(env, selected)}/>
-                        ))}
-                    </ToggleGroup>
-                </ToolbarItem>
                 <ToolbarItem>
                     <TextInput className="text-field" type="search" id="search" name="search"
                                autoComplete="off" placeholder="Search by name"
@@ -109,7 +100,6 @@ export function ContainersPage () {
     }
 
     const conts = containers
-        .filter(c => selectedEnv.includes(c.env))
         .filter(d => d.containerName.toLowerCase().includes(filter));
     return (
         <PageSection className="container-page" padding={{default: 'noPadding'}}>
