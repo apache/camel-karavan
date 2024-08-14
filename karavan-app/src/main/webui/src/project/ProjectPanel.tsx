@@ -43,11 +43,12 @@ export function ProjectPanel() {
     const [config] = useAppConfigStore((state) => [state.config], shallow)
     const [project, tab, setTab] = useProjectStore((s) => [s.project, s.tabIndex, s.setTabIndex], shallow);
     const [setFile] = useFileStore((s) => [s.setFile], shallow);
-    const [files] = useFilesStore((s) => [s.files], shallow);
+    const [files, setFiles] = useFilesStore((s) => [s.files, s.setFiles], shallow);
     const [setShowWizard] = useWizardStore((s) => [s.setShowWizard], shallow)
 
     useEffect(() => {
         onRefresh();
+        return () => setFiles([]);
     }, [project.projectId]);
 
     function onRefresh() {
