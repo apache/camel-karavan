@@ -16,12 +16,64 @@
  */
 import React from 'react';
 
+export function VertXIcon() {
+    return (
+        <svg
+            xmlns="http://www.w3.org/2000/svg"
+            xmlSpace="preserve"
+            id="svg8"
+            x={0}
+            y={0}
+            viewBox="0 0 114.3 114.3"
+            className="icon" width="32px" height="32px">
+            <style>{".st3{fill:#fff}"}</style>
+            <path
+                id="rect4446"
+                d="M15.9 2.7h82.4c7.3 0 13.3 5.1 13.3 11.3v86.3c0 6.2-5.9 11.3-13.3 11.3H15.9c-7.3 0-13.3-5.1-13.3-11.3V14c.1-6.3 6-11.3 13.3-11.3z"
+                style={{
+                    fill: "#782a90",
+                    stroke: "#782a90",
+                    strokeWidth: 5.383,
+                    strokeLinejoin: "round",
+                    strokeMiterlimit: 11.3386,
+                }}
+            />
+            <path
+                id="path4436"
+                d="M-6.7 20.8h18.6l18.4 42.4 19.2-41.9h17.8L35.1 92.1H24.9L-6.7 20.8z"
+                style={{
+                    fillRule: "evenodd",
+                    clipRule: "evenodd",
+                    fill: "#fff",
+                }}
+            />
+            <circle
+                id="circle4442"
+                cx={42.5}
+                cy={91.8}
+                r={13.2}
+                style={{
+                    fill: "#fff",
+                    stroke: "#782a90",
+                    strokeWidth: 6.3269,
+                    strokeLinejoin: "round",
+                    strokeMiterlimit: 11.3386,
+                }}
+            />
+            <path
+                d="M100.2 61.8 89.6 77.9l7.6 13.7h21.9zM96.3 21.3l-12.2 19-10.4-19H52.1L74 56.1 56.8 83.3c1.5 2.4 2.3 5.3 2.4 8.3H72l46-70.3H96.3z"
+                className="st3"
+            />
+        </svg>
+    )
+}
+
 export function SmooksIcon() {
     return (
         <svg xmlns="http://www.w3.org/2000/svg"
              viewBox="0 0 90 79"
              className="icon" width="32px" height="32px">
-            <path fill="#FDFEFE" d="M0 0h90v79H0V0Z" />
+            <path fill="#FDFEFE" d="M0 0h90v79H0V0Z"/>
             <path
                 fill="#795EAA"
                 d="M28 9c3.944.589 6.824 1.786 10.25 3.813.871.5 1.743 1.002 2.64 1.519C43.279 16.22 43.595 17.062 44 20l1 1.938c1.13 2.332 1.575 4.515 2 7.062l3.875-.125c2.18-.07 2.18-.07 4.125.125 2 2 2 2 2.195 4.82l-.07 3.305-.055 3.32L57 43c-5.573-.76-5.573-.76-8-2.125-2.895-1.267-4.892-.44-8 .125-3.668.096-7.331.059-11 0l.063 2.875C30 47 30 47 29 49c-3.911-.674-6.871-2.543-10.25-4.563l-3.266-1.94L13 41l.95-1.875C15.01 36.979 15.775 35.388 16 33c-1.392-2.133-1.392-2.133-3-4v-2c-.957-.09-.957-.09-1.934-.184l-2.504-.253-2.496-.247C4 26 4 26 3 25a167.62 167.62 0 0 1-.563-6.563l-.253-3.628L2 12c4.758.86 4.758.86 6.938 2.125 2.94 1.248 5.012.604 8.062-.125l2-1c1.54-.07 3.083-.085 4.625-.063l2.477.028L28 13V9Z"
@@ -1268,7 +1320,7 @@ export function KameletIcon() {
 }
 
 
-    export function MonitoringIcon() {
+export function MonitoringIcon() {
     return (
         <svg
             xmlns="http://www.w3.org/2000/svg"

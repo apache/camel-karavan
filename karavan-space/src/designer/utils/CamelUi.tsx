@@ -73,7 +73,7 @@ import {
     TerminalIcon,
     TestingIcon,
     TransformationIcon,
-    ValidationIcon,
+    ValidationIcon, VertXIcon,
     WebserviceIcon,
     WorkflowIcon
 } from "../icons/ComponentIcons";
@@ -586,6 +586,8 @@ export class CamelUi {
             return RefIcon();
         } else if (title === "Direct") {
             return DirectIcon();
+        } else if (title.startsWith("Vert.x")) {
+            return VertXIcon();
         } else if (title === "Exec") {
             return TerminalIcon();
         } else if (title === "Grape") {
