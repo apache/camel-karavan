@@ -4,14 +4,15 @@ services:
 
   artemis:
     container_name: artemis
-    image: quay.io/artemiscloud/activemq-artemis-broker:artemis.2.32.0
+    image: apache/activemq-artemis:2.36.0
     ports:
       - "8161:8161"
       - "61616:61616"
       - "5672:5672"
     environment:
-      AMQ_USER: artemis
-      AMQ_PASSWORD: artemis
+      ARTEMIS_USER: artemis
+      ARTEMIS_PASSWORD: artemis
+      ANONYMOUS_LOGIN: false
 
   kafka:
     container_name: kafka
