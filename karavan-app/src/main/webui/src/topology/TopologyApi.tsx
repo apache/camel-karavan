@@ -33,13 +33,7 @@ import CustomNode from "./CustomNode";
 import {Integration, IntegrationFile} from "karavan-core/lib/model/IntegrationDefinition";
 import {CamelDefinitionYaml} from "karavan-core/lib/api/CamelDefinitionYaml";
 import {TopologyUtils} from "karavan-core/lib/api/TopologyUtils";
-import {
-    TopologyIncomingNode,
-    TopologyOutgoingNode,
-    TopologyRestNode,
-    TopologyRouteConfigurationNode,
-    TopologyRouteNode
-} from "karavan-core/lib/model/TopologyDefinition";
+import {TopologyIncomingNode, TopologyOutgoingNode, TopologyRestNode, TopologyRouteConfigurationNode, TopologyRouteNode} from "karavan-core/lib/model/TopologyDefinition";
 import CustomEdge from "./CustomEdge";
 import CustomGroup from "./CustomGroup";
 
@@ -174,16 +168,18 @@ export function getExternalEdges(tons: TopologyOutgoingNode[], tins: TopologyInc
     tons.filter(ton => ton.type === 'external').forEach((ton, index) => {
         const uniqueUri = ton.uniqueUri;
         if (uniqueUri) {
-            const target = TopologyUtils.getNodeIdByUniqueUri(tins, uniqueUri);
-            const node: EdgeModel = {
-                id: 'external-' + ton.id + '-' + index,
-                type: 'edge',
-                source: ton.id,
-                target: target,
-                edgeStyle: EdgeStyle.dotted,
-                animationSpeed: EdgeAnimationSpeed.slow
-            }
-            if (target) result.push(node);
+            TopologyUtils.getNodeIdByUniqueUri(tins, uniqueUri).forEach(target => {
+                const node: EdgeModel = {
+                    id: 'external-' + ton.id + '-' + target,
+                    type: 'edge',
+                    source: ton.id,
+                    target: target,
+                    edgeStyle: EdgeStyle.dotted,
+                    animationSpeed: EdgeAnimationSpeed.medium,
+                    data : {groupName: uniqueUri}
+                }
+                result.push(node);
+            });
         }
     });
     return result;
@@ -280,33 +276,6 @@ export function getModel(files: IntegrationFile[], grouping?: boolean): Model {
     const trcons = TopologyUtils.findTopologyRouteConfigurationOutgoingNodes(integrations);
 
     const nodes: NodeModel[] = [];
-    const groups: NodeModel[] = [];
-
-    const children1: string[] = [];
-    children1.push(...tins.filter(i => i.type === 'external').map(i => i.id));
-    children1.push(...trestns.map(i => i.id));
-    groups.push({
-        id: 'consumer-group',
-        children: children1,
-        type: 'group',
-        group: true,
-        label: 'Consumer group',
-        style: {
-            padding: 25,
-        }
-    })
-
-    const children2 = [...tons.filter(i => i.type === 'external').map(i => i.id)];
-    groups.push({
-        id: 'producer-group',
-        children: children2,
-        type: 'group',
-        group: true,
-        label: 'Producer group',
-        style: {
-            padding: 25,
-        }
-    })
 
     nodes.push(...getRestNodes(trestns))
     nodes.push(...getIncomingNodes(tins))
@@ -315,17 +284,69 @@ export function getModel(files: IntegrationFile[], grouping?: boolean): Model {
     nodes.push(...getOutgoingNodes(tons))
     nodes.push(...getOutgoingNodes(trcons))
 
-    if (grouping === true) {
-        nodes.push(...groups)
-    }
-
     const edges: EdgeModel[] = [];
     edges.push(...getIncomingEdges(tins));
     edges.push(...getOutgoingEdges(tons));
     edges.push(...getRestEdges(trestns, tins));
     edges.push(...getInternalEdges(tons, tins));
     edges.push(...getInternalEdges(trcons, tins));
-    // edges.push(...getExternalEdges(tons,tins));
+
+
+    // Groups
+    const groups: NodeModel[] = [];
+    if (grouping === true) {
+        const children1: string[] = [];
+        children1.push(...tins.filter(i => i.type === 'external').map(i => i.id));
+        children1.push(...trestns.map(i => i.id));
+        groups.push({
+            id: 'consumer-group',
+            children: children1,
+            type: 'group',
+            group: true,
+            label: 'Consumer group',
+            style: {
+                padding: 20,
+            }
+        })
+
+        const children2 = [...tons.filter(i => i.type === 'external').map(i => i.id)];
+        groups.push({
+            id: 'producer-group',
+            children: children2,
+            type: 'group',
+            group: true,
+            label: 'Producer group',
+            style: {
+                padding: 20,
+            },
+        })
+    } else {
+        const externalEdges = getExternalEdges(tons,tins);
+        edges.push(...externalEdges);
+        const uniqueGroups: Map<string, string[]> = new Map();
+
+        externalEdges.forEach(edge => {
+            const groupName =  edge.data.groupName;
+            const children = uniqueGroups.get(groupName) || [];
+            if (edge.source) children.push(edge.source)
+            if (edge.target) children.push(edge.target)
+            uniqueGroups.set(groupName, [...new Set(children)]);
+        });
+
+        uniqueGroups.forEach((children, groupName) => {
+            groups.push({
+                id: groupName + '-group',
+                children: children,
+                type: 'group',
+                group: true,
+                // label: edge.id + ' group',
+                style: {
+                    padding: 20,
+                }
+            })
+        })
+    }
+    nodes.push(...groups)
 
     return {nodes: nodes, edges: edges, graph: {id: 'g1', type: 'graph', layout: 'Dagre'}};
 }

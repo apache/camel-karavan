@@ -24,17 +24,20 @@ import PlusIcon from "@patternfly/react-icons/dist/esm/icons/plus-icon";
 import {useTopologyStore} from "./TopologyStore";
 import {shallow} from "zustand/shallow";
 
+
 interface Props {
     onClickAddRoute: () => void
     onClickAddREST: () => void
     onClickAddKamelet: () => void
     onClickAddBean: () => void
+    isDev?: boolean
 }
 
 export function TopologyToolbar (props: Props) {
 
     const [showGroups, setShowGroups] = useTopologyStore((s) =>
         [s.showGroups, s.setShowGroups], shallow);
+    const isDev = props.isDev
 
     return (
         <div className='topology-toolbar'>
@@ -52,6 +55,7 @@ export function TopologyToolbar (props: Props) {
             <ToolbarItem align={{default:"alignRight"}}>
                 <Tooltip content={"Add Integration Route"} position={"bottom"}>
                     <Button className="dev-action-button" size="sm"
+                            isDisabled={!isDev}
                             variant={"primary"}
                             icon={<PlusIcon/>}
                             onClick={e => props.onClickAddRoute()}
@@ -63,6 +67,7 @@ export function TopologyToolbar (props: Props) {
             <ToolbarItem align={{default:"alignRight"}}>
                 <Tooltip content={"Add REST API"} position={"bottom"}>
                     <Button className="dev-action-button" size="sm"
+                            isDisabled={!isDev}
                             variant={"secondary"}
                             icon={<PlusIcon/>}
                             onClick={e => props.onClickAddREST()}
@@ -74,6 +79,7 @@ export function TopologyToolbar (props: Props) {
             <ToolbarItem align={{default:"alignRight"}}>
                 <Tooltip content={"Add Kamelet"} position={"bottom"}>
                     <Button className="dev-action-button" size="sm"
+                            isDisabled={!isDev}
                             variant={"secondary"}
                             icon={<PlusIcon/>}
                             onClick={e => props.onClickAddKamelet()}
@@ -85,6 +91,7 @@ export function TopologyToolbar (props: Props) {
             <ToolbarItem align={{default:"alignRight"}}>
                 <Tooltip content={"Add Bean"} position={"bottom"}>
                     <Button className="dev-action-button" size="sm"
+                            isDisabled={!isDev}
                             variant={"secondary"}
                             icon={<PlusIcon/>}
                             onClick={e => props.onClickAddBean()}

@@ -38,6 +38,7 @@ import { ComponentApi } from './ComponentApi';
 import { CamelDefinitionApiExt } from './CamelDefinitionApiExt';
 import { CamelDisplayUtil } from './CamelDisplayUtil';
 import { CamelUtil } from './CamelUtil';
+import { notDeepEqual } from 'node:assert';
 
 const outgoingDefinitions: string[] = ['ToDefinition', 'KameletDefinition', 'ToDynamicDefinition', "PollEnrichDefinition", "EnrichDefinition", "WireTapDefinition", "SagaDefinition"];
 
@@ -342,12 +343,11 @@ export class TopologyUtils {
         }
     }
 
-    static getNodeIdByUniqueUri(tins: TopologyIncomingNode[], uniqueUri: string): string | undefined {
-        const node =  tins
-            .filter(r => r.uniqueUri === uniqueUri).at(0);
-        if (node) {
-            return node.id;
-        }
+    static getNodeIdByUniqueUri(tins: TopologyIncomingNode[], uniqueUri: string): string [] {
+        const result: string[] = [];
+        tins.filter(r => r.uniqueUri === uniqueUri)
+            ?.forEach(node => result.push(node.id))
+        return result;
     }
 
     static getRouteIdByUri(tins: TopologyIncomingNode[], uri: string): string | undefined {

@@ -45,6 +45,7 @@ export function ProjectPanel() {
     const [setFile] = useFileStore((s) => [s.setFile], shallow);
     const [files, setFiles] = useFilesStore((s) => [s.files, s.setFiles], shallow);
     const [setShowWizard] = useWizardStore((s) => [s.setShowWizard], shallow)
+    const isDev = config.environment === 'dev';
 
     useEffect(() => {
         onRefresh();
@@ -90,6 +91,7 @@ export function ProjectPanel() {
                                  setShowWizard(true)
                              }}
                              onSetFile={(fileName) => selectFile(fileName)}
+                             isDev={isDev}
                 />
                 <CreateIntegrationModal/>
                 <BeanWizard/>
