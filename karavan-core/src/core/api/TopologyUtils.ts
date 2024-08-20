@@ -22,7 +22,7 @@ import {
     PatchDefinition,
     PostDefinition,
     PutDefinition,
-    RestDefinition, RouteConfigurationDefinition, SagaDefinition,
+    RestDefinition, RouteConfigurationDefinition, RouteDefinition, SagaDefinition,
 } from '../model/CamelDefinition';
 import {
     CamelElement,
@@ -34,11 +34,10 @@ import {
     TopologyRestNode, TopologyRouteConfigurationNode,
     TopologyRouteNode,
 } from '../model/TopologyDefinition';
-import { ComponentApi } from './ComponentApi';
+import { ComponentApi, INTERNAL_COMPONENTS } from './ComponentApi';
 import { CamelDefinitionApiExt } from './CamelDefinitionApiExt';
 import { CamelDisplayUtil } from './CamelDisplayUtil';
 import { CamelUtil } from './CamelUtil';
-import { notDeepEqual } from 'node:assert';
 
 const outgoingDefinitions: string[] = ['ToDefinition', 'KameletDefinition', 'ToDynamicDefinition', "PollEnrichDefinition", "EnrichDefinition", "WireTapDefinition", "SagaDefinition"];
 
@@ -242,9 +241,27 @@ export class TopologyUtils {
                         result.push(new TopologyOutgoingNode(id, type, connectorType, route.id, title, filename, e, uniqueUri));
                     }
                 })
+                result.push(...TopologyUtils.findDeadLetterChannelNodes(route, filename))
             })
 
         })
+        return result;
+    }
+
+    static findDeadLetterChannelNodes(route: RouteDefinition, filename: string):TopologyOutgoingNode[] {
+        const result:TopologyOutgoingNode[] = [];
+        const deadLetterChannel = route.errorHandler?.deadLetterChannel;
+        const deadLetterUri = deadLetterChannel?.deadLetterUri;
+        if (deadLetterChannel !== undefined && deadLetterUri !== undefined) {
+            const parts = deadLetterUri.split(':');
+            if (parts.length > 1 && INTERNAL_COMPONENTS.includes(parts[0])) {
+                const id = 'outgoing-' + route.id + '-' + deadLetterChannel?.id;
+                const title = CamelDisplayUtil.getStepDescription(deadLetterChannel);
+                const type =  'internal';
+                const connectorType = 'component';
+                result.push(new TopologyOutgoingNode(id, type, connectorType, route.id || '', title, filename, deadLetterChannel, deadLetterUri));
+            }
+        }
         return result;
     }
 

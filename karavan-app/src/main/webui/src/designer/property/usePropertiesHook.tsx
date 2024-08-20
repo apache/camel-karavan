@@ -27,6 +27,7 @@ import {useDesignerStore, useIntegrationStore} from "../DesignerStore";
 import {shallow} from "zustand/shallow";
 import {CamelMetadataApi} from "karavan-core/lib/model/CamelMetadata";
 import {EventBus} from "../utils/EventBus";
+import {INTERNAL_COMPONENTS} from "karavan-core/lib/api/ComponentApi";
 
 export function usePropertiesHook(designerType: 'routes' | 'rest' | 'beans' = 'routes') {
 
@@ -142,10 +143,12 @@ export function usePropertiesHook(designerType: 'routes' | 'rest' | 'beans' = 'r
     }
 
     function getInternalComponentName(propertyName: string, element?: CamelElement): string {
-        if (element && element.dslName === 'ToDefinition' && propertyName === 'name') {
+        if (element && element.dslName === 'ToDefinition' && (propertyName === 'name' || propertyName === 'address')) {
             const uri: string = (element as ToDefinition).uri || '';
-            if (uri.startsWith("direct")) return "direct";
-            if (uri.startsWith("seda")) return "seda";
+            const parts = uri.split(":");
+            if (parts.length > 0 && INTERNAL_COMPONENTS.includes(parts[0])) {
+                return parts[0];
+            }
             return '';
         } else {
             return '';

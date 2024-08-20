@@ -55,6 +55,7 @@ import {KubernetesIcon} from "../../icons/ComponentIcons";
 import EditorIcon from "@patternfly/react-icons/dist/js/icons/code-icon";
 import {ExpressionModalEditor} from "../../../expression/ExpressionModalEditor";
 import {PropertyPlaceholderDropdown} from "./PropertyPlaceholderDropdown";
+import {INTERNAL_COMPONENTS} from "karavan-core/lib/api/ComponentApi";
 
 const prefix = "parameters";
 const beanPrefix = "#bean:";
@@ -142,16 +143,17 @@ export function ComponentPropertyField(props: Props) {
     }
 
     function canBeInternalUri(property: ComponentProperty): boolean {
-        if (props.element && props.element.dslName === 'ToDefinition' && property.name === 'name') {
+        if (props.element && props.element.dslName === 'ToDefinition' && (property.name === 'name' || property.name === 'address')) {
             const uri: string = (props.element as ToDefinition).uri || '';
-            return uri.startsWith("direct") || uri.startsWith("seda");
+            const parts = uri.split(":");
+            return parts.length > 0 && INTERNAL_COMPONENTS.includes(parts[0]);
         } else {
             return false;
         }
     }
 
     function checkUri(startsWith: string): boolean {
-        if (props.element && props.element.dslName === 'ToDefinition' && property.name === 'name') {
+        if (props.element && props.element.dslName === 'ToDefinition' && (property.name === 'name' || property.name === 'address')) {
             const uri: string = (props.element as ToDefinition).uri || '';
             return uri.startsWith(startsWith);
         } else {
@@ -163,7 +165,7 @@ export function ComponentPropertyField(props: Props) {
         const selectOptions: JSX.Element[] = [];
         const componentName = getInternalComponentName(property.name, props.element);
         const internalUris = CamelUi.getInternalRouteUris(integration, componentName, false);
-        let uris: string[] = CamelUi.getInternalUris(files, checkUri('direct'), checkUri('seda'));
+        let uris: string[] = CamelUi.getInternalUris(files, checkUri('direct'), checkUri('seda'), checkUri('vertx'));
         uris.push(...internalUris);
         uris = [...new Set(uris.map(e => e.includes(":") ? e.split(":")?.at(1) || "" : e))]
         if (value && value.length > 0 && !uris.includes(value)) {

@@ -21,6 +21,9 @@ const Components: Component[] = [];
 const SupportedComponents: SupportedComponent[] = [];
 let SupportedOnly: boolean = false;
 const BlockedComponents: string[] = [];
+
+export const INTERNAL_COMPONENTS = ['direct', 'seda', 'vertx']
+
 export class ComponentApi {
     private constructor() {}
 

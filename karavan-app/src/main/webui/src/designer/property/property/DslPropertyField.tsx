@@ -741,7 +741,7 @@ export function DslPropertyField(props: Props) {
 
     function getInternalUriSelect(property: PropertyMeta, value: any) {
         const selectOptions: JSX.Element[] = [];
-        const uris: string[] = CamelUi.getInternalUris(files, true, true);
+        const uris: string[] = CamelUi.getInternalUris(files, true, true, true);
         if (uris && uris.length > 0) {
             selectOptions.push(...uris.map((value: string) =>
                 <SelectOption key={value} value={value.trim()}/>));

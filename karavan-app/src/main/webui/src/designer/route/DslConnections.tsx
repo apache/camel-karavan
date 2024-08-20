@@ -17,7 +17,7 @@
 import React, {JSX, useEffect, useState} from 'react';
 import '../karavan.css';
 import {DslPosition, EventBus} from "../utils/EventBus";
-import {CamelUi, NAV_COMPONENTS} from "../utils/CamelUi";
+import {CamelUi} from "../utils/CamelUi";
 import {useConnectionsStore, useDesignerStore, useIntegrationStore} from "../DesignerStore";
 import {shallow} from "zustand/shallow";
 import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt";
@@ -28,6 +28,7 @@ import {Button, Tooltip} from "@patternfly/react-core";
 import {InfrastructureAPI} from "../utils/InfrastructureAPI";
 import {getIntegrations} from "../../topology/TopologyApi";
 import {ComponentApi} from "karavan-core/lib/api/ComponentApi";
+import {INTERNAL_COMPONENTS} from "karavan-core/lib/api/ComponentApi";
 
 const overlapGap: number = 40;
 const DIAMETER: number = 34;
@@ -84,7 +85,7 @@ export function DslConnections() {
 
     function getElementType(element: CamelElement): 'internal' | 'remote' | 'nav' {
         const uri = (element as any).uri;
-        if (NAV_COMPONENTS.includes((uri))) {
+        if (INTERNAL_COMPONENTS.includes((uri))) {
             return 'nav';
         } else {
             const component = ComponentApi.findByName(uri);
@@ -146,7 +147,7 @@ export function DslConnections() {
         if (pos) {
             const step = (pos.step as any);
             const uri = step?.uri;
-            const internalCall: boolean = step && uri && step?.dslName === 'FromDefinition' && NAV_COMPONENTS.includes(uri);
+            const internalCall: boolean = step && uri && step?.dslName === 'FromDefinition' && INTERNAL_COMPONENTS.includes(uri);
             const name: string = internalCall ? (step?.parameters?.name) : undefined;
             const routes = internalCall ? tons.get(uri + ':' + name) || [] : [];
             const isInternal = data[2] === 'internal';
