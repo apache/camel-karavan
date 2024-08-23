@@ -55,27 +55,8 @@ export class TopologyUtils {
     static isElementInternalComponent = (element: CamelElement): boolean => {
         const uri = (element as any).uri;
         const component = ComponentApi.findByName(uri);
+        if (INTERNAL_COMPONENTS.includes(uri?.split(':')?.[0])) return true;
         return component !== undefined && component.component.remote !== true;
-    }
-
-    static isComponentInternal = (label: string): boolean => {
-        const labels = label.split(",");
-        if (labels.includes('core') && (
-            labels.includes('transformation')
-            || labels.includes('testing')
-            || labels.includes('scheduling')
-            || labels.includes('monitoring')
-            || labels.includes('transformation')
-            || labels.includes('java')
-            || labels.includes('endpoint')
-            || labels.includes('script')
-            || labels.includes('validation')
-        )) {
-            return true;
-        } else if (label === 'transformation') {
-            return true;
-        }
-        return false;
     }
 
     static getConnectorType = (element: CamelElement): 'component' | 'kamelet' => {
@@ -292,9 +273,8 @@ export class TopologyUtils {
                     const e = rc.errorHandler?.deadLetterChannel
                     const id = 'outgoing-' + rc.id + '-' + e.id;
                     const title = CamelDisplayUtil.getStepDescription(e);
-                    const type = (e?.deadLetterUri?.startsWith('direct:') || e?.deadLetterUri?.startsWith('seda:') )
-                        ? 'internal'
-                        : 'external';
+                    const comp = e?.deadLetterUri?.split(':')?.[0];
+                    const type = INTERNAL_COMPONENTS.includes(comp) ? 'internal' : 'external';
                     const connectorType = 'component';
                     const uniqueUri = e?.deadLetterUri
                     result.push(new TopologyOutgoingNode(id, type, connectorType, rc.id || 'undefined', title, filename, e, uniqueUri));
@@ -336,7 +316,9 @@ export class TopologyUtils {
     static getNodeIdByUriAndName(tins: TopologyIncomingNode[], uri: string, name: string): string | undefined {
         if (uri && name) {
             const node =  tins
-                .filter(r => r.from.uri === uri && r?.from?.parameters?.name === name).at(0);
+                .filter(r => r.from.uri === uri
+                    && (r?.from?.parameters?.name === name || r?.from?.parameters?.address === name)
+                ).at(0);
             if (node) {
                 return node.id;
             }
@@ -353,7 +335,9 @@ export class TopologyUtils {
     static getRouteIdByUriAndName(tins: TopologyIncomingNode[], uri: string, name: string): string | undefined {
         if (uri && name) {
             const node =  tins
-                .filter(r => r.from.uri === uri && r?.from?.parameters?.name === name).at(0);
+                .filter(r => r.from.uri === uri
+                    && (r?.from?.parameters?.name === name || r?.from?.parameters?.address === name)
+                ).at(0);
             if (node) {
                 return 'route-' + node.routeId;
             }

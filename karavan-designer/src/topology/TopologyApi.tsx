@@ -36,6 +36,7 @@ import {TopologyUtils} from "karavan-core/lib/api/TopologyUtils";
 import {TopologyIncomingNode, TopologyOutgoingNode, TopologyRestNode, TopologyRouteConfigurationNode, TopologyRouteNode} from "karavan-core/lib/model/TopologyDefinition";
 import CustomEdge from "./CustomEdge";
 import CustomGroup from "./CustomGroup";
+import {INTERNAL_COMPONENTS} from "karavan-core/lib/api/ComponentApi";
 
 const NODE_DIAMETER = 60;
 
@@ -247,8 +248,10 @@ export function getInternalEdges(tons: TopologyOutgoingNode[], tins: TopologyInc
             if (target) result.push(node);
         } else {
             const uri: string = (ton.step as any).uri;
-            if (uri?.startsWith("direct") || uri?.startsWith("seda")) {
-                const name = (ton.step as any).parameters.name;
+            const component = uri?.split(":")?.[0];
+            if (INTERNAL_COMPONENTS.includes(component)) {
+                const step = (ton.step as any);
+                const name = step.parameters.name || step.parameters.address;
                 const target = TopologyUtils.getRouteIdByUriAndName(tins, uri, name);
                 const node: EdgeModel = {
                     id: 'internal-' + ton.id + '-' + index,
@@ -323,28 +326,28 @@ export function getModel(files: IntegrationFile[], grouping?: boolean): Model {
     } else {
         const externalEdges = getExternalEdges(tons,tins);
         edges.push(...externalEdges);
-        const uniqueGroups: Map<string, string[]> = new Map();
-
-        externalEdges.forEach(edge => {
-            const groupName =  edge.data.groupName;
-            const children = uniqueGroups.get(groupName) || [];
-            if (edge.source) children.push(edge.source)
-            if (edge.target) children.push(edge.target)
-            uniqueGroups.set(groupName, [...new Set(children)]);
-        });
-
-        uniqueGroups.forEach((children, groupName) => {
-            groups.push({
-                id: groupName + '-group',
-                children: children,
-                type: 'group',
-                group: true,
-                // label: edge.id + ' group',
-                style: {
-                    padding: 20,
-                }
-            })
-        })
+        // const uniqueGroups: Map<string, string[]> = new Map();
+        //
+        // externalEdges.forEach(edge => {
+        //     const groupName =  edge.data.groupName;
+        //     const children = uniqueGroups.get(groupName) || [];
+        //     if (edge.source) children.push(edge.source)
+        //     if (edge.target) children.push(edge.target)
+        //     uniqueGroups.set(groupName, [...new Set(children)]);
+        // });
+        //
+        // uniqueGroups.forEach((children, groupName) => {
+        //     groups.push({
+        //         id: groupName + '-group',
+        //         children: children,
+        //         type: 'group',
+        //         group: true,
+        //         // label: edge.id + ' group',
+        //         style: {
+        //             padding: 20,
+        //         }
+        //     })
+        // })
     }
     nodes.push(...groups)
 

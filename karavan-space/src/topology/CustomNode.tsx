@@ -22,6 +22,8 @@ import {DefaultNode, observer} from '@patternfly/react-topology';
 import {getDesignerIcon} from "../designer/icons/KaravanIcons";
 import {CamelUi} from "../designer/utils/CamelUi";
 import './topology.css';
+import {RouteDefinition} from "karavan-core/lib/model/CamelDefinition";
+import {AutoStartupIcon, ErrorHandlerIcon} from "../designer/icons/OtherIcons";
 
 function getIcon(data: any) {
     if (['route', 'rest', 'routeConfiguration'].includes(data.icon)) {
@@ -41,15 +43,22 @@ function getIcon(data: any) {
 }
 
 function getAttachments(data: any) {
-    if (data?.step?.dslName === 'RouteDefinition' && data?.step?.autoStartup !== false) {
-        const x = 0;
-        const y = 0;
-        const rx = x + 9;
-        const ry = y + 9;
+    if (data && data?.step?.dslName === 'RouteDefinition') {
+        const route: RouteDefinition = data?.step;
+        const autoStartup =  route?.autoStartup !== false;
+        const errorHandler =  route?.errorHandler !== undefined;
         return (
             <g className="pf-topology__node__label__badge auto-start" transform="translate(-4, -4)">
-                <rect className="badge" x={x} width="22" y={y} height="17" rx={rx} ry={ry}></rect>
-                <text className='text' x={rx + 2} y={ry} textAnchor="middle" dy="0.35em">A</text>
+                {errorHandler &&
+                    <g className="" transform="translate(13, -4)">
+                        {ErrorHandlerIcon()}
+                    </g>
+                }
+                {autoStartup &&
+                    <g className="" transform="translate(-4, -4)">
+                        {AutoStartupIcon()}
+                    </g>
+                }
             </g>
         )
     } else <></>

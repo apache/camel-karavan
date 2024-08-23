@@ -49,11 +49,11 @@ export function ProjectPanel() {
 
     useEffect(() => {
         onRefresh();
-        return () => setFiles([]);
     }, [project.projectId]);
 
     function onRefresh() {
         if (project.projectId) {
+            setFiles([]);
             ProjectService.refreshProjectData(project.projectId);
             setTab(project.type !== ProjectType.normal ? 'files' : tab);
         }
