@@ -4,7 +4,7 @@ services:
 
   artemis:
     container_name: artemis
-    image: apache/activemq-artemis:2.36.0
+    image: apache/activemq-artemis:2.37.0
     ports:
       - "8161:8161"
       - "61616:61616"
