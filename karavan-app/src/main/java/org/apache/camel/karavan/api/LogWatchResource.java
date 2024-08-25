@@ -34,6 +34,7 @@ import org.apache.camel.karavan.docker.DockerLogCallback;
 import org.apache.camel.karavan.docker.DockerService;
 import org.apache.camel.karavan.kubernetes.KubernetesService;
 import org.apache.camel.karavan.service.ConfigService;
+import org.apache.camel.karavan.service.NotificationService;
 import org.eclipse.microprofile.context.ManagedExecutor;
 import org.jboss.logging.Logger;
 
@@ -43,7 +44,7 @@ import java.io.InputStreamReader;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Path("/ui/logwatch")
-public class LogWatchResource extends AbstractSseResource {
+public class LogWatchResource {
 
     private static final Logger LOGGER = Logger.getLogger(LogWatchResource.class.getName());
     private static final String SERVICE_NAME = "LOGWATCH";
@@ -54,6 +55,9 @@ public class LogWatchResource extends AbstractSseResource {
 
     @Inject
     DockerService dockerService;
+
+    @Inject
+    NotificationService notificationService;
 
     @Inject
     @ManagedExecutorConfig()
@@ -68,7 +72,7 @@ public class LogWatchResource extends AbstractSseResource {
                               @PathParam("username") String username,
                               @Context SseEventSink eventSink,
                               @Context Sse sse) {
-        sinkCleanup(SERVICE_NAME + ":" + type + ":" + name, username, eventSink);
+        notificationService.sinkCleanup(SERVICE_NAME + ":" + type + ":" + name, username, eventSink);
         managedExecutor.execute(() -> {
             LOGGER.info("LogWatch for " + name + " starting... ");
             if (ConfigService.inKubernetes()) {
