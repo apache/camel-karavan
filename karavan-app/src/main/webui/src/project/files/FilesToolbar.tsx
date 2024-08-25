@@ -33,7 +33,7 @@ import {
 import '../../designer/karavan.css';
 import UploadIcon from "@patternfly/react-icons/dist/esm/icons/upload-icon";
 import PlusIcon from "@patternfly/react-icons/dist/esm/icons/plus-icon";
-import {useFilesStore, useFileStore, useProjectStore} from "../../api/ProjectStore";
+import {useAppConfigStore, useFilesStore, useFileStore, useProjectStore} from "../../api/ProjectStore";
 import {shallow} from "zustand/shallow";
 import {ProjectService} from "../../api/ProjectService";
 import PushIcon from "@patternfly/react-icons/dist/esm/icons/code-branch-icon";
@@ -48,6 +48,8 @@ export function FileToolbar () {
     const [project, isPushing, isPulling] = useProjectStore((s) => [s.project, s.isPushing, s.isPulling], shallow )
     const [diff] = useFilesStore((s) => [s.diff], shallow);
     const [file, setFile] = useFileStore((s) => [s.file, s.setFile], shallow )
+    const [config] = useAppConfigStore((s) => [s.config], shallow);
+    const isDev = config.environment === 'dev';
 
     useEffect(() => {
     }, [project, file]);
@@ -189,6 +191,7 @@ export function FileToolbar () {
         <FlexItem>
             <Tooltip content="Commit and push to git" position={"bottom-end"}>
                 <Button isLoading={isPushing ? true : undefined}
+                        isDisabled={!isDev}
                         size="sm"
                         variant={"secondary"}
                         className="project-button dev-action-button"
@@ -202,15 +205,24 @@ export function FileToolbar () {
             </Tooltip>
         </FlexItem>
         {canAddFiles() && !isKameletsProject() && <FlexItem>
-            <Button className="dev-action-button" size="sm" variant={"primary"} icon={<PlusIcon/>}
+            <Button className="dev-action-button"
+                    isDisabled={!isDev}
+                    size="sm" variant={"primary"}
+                    icon={<PlusIcon/>}
                     onClick={e => setFile("create")}>Create</Button>
         </FlexItem>}
         {canAddFiles() && isKameletsProject() && <FlexItem>
-            <Button className="dev-action-button" size="sm" variant={"primary"} icon={<PlusIcon/>}
+            <Button className="dev-action-button"
+                    isDisabled={!isDev}
+                    size="sm" variant={"primary"}
+                    icon={<PlusIcon/>}
                     onClick={e => setFile("create", undefined, 'kamelet')}>Create</Button>
         </FlexItem>}
         {canAddFiles() && <FlexItem>
-            <Button className="dev-action-button" size="sm" variant="secondary" icon={<UploadIcon/>}
+            <Button className="dev-action-button"
+                    isDisabled={!isDev}
+                    size="sm" variant="secondary"
+                    icon={<UploadIcon/>}
                     onClick={e => setFile("upload")}>Upload</Button>
         </FlexItem>}
         {getCommitModal()}

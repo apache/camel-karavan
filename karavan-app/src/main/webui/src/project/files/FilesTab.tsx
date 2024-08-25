@@ -162,7 +162,7 @@ export function FilesTab () {
                                     </Button>
                                 </Td>
                                 <Td>
-                                    {needCommit(file.name) && diffType === 'CHANGED' &&
+                                    {needCommit(file.name) &&
                                         <Tooltip content="Show diff" position={"right"}>
                                             <Label color="grey">
                                                 <Button size="sm" variant="link" className='labeled-button'
@@ -175,9 +175,6 @@ export function FilesTab () {
                                                 </Button>
                                             </Label>
                                         </Tooltip>
-                                    }
-                                    {needCommit(file.name) && diffType !== 'CHANGED' &&
-                                        <Label color="grey">{diffType}</Label>
                                     }
                                     {!needCommit(file.name) &&
                                         <Label color="green" icon={<CheckIcon/>}/>
