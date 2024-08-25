@@ -18,7 +18,10 @@ package org.apache.camel.karavan.api;
 
 import io.quarkus.oidc.UserInfo;
 import io.quarkus.security.identity.SecurityIdentity;
+import io.smallrye.jwt.auth.principal.DefaultJWTCallerPrincipal;
 import jakarta.inject.Inject;
+import jakarta.ws.rs.core.SecurityContext;
+import org.eclipse.microprofile.jwt.Claims;
 
 import java.util.HashMap;
 import java.util.Objects;
@@ -29,18 +32,24 @@ public class AbstractApiResource {
     @Inject
     SecurityIdentity securityIdentity;
 
-    public HashMap<String, String> getIdentity() {
+    public HashMap<String, String> getIdentity(SecurityContext securityContext) {
         var identity = new HashMap<String, String>();
+        identity.put("email", "karavan@test.org");
 
-        if (securityIdentity != null && securityIdentity.getPrincipal() != null) {
-            identity.put("name", securityIdentity.getPrincipal().getName());
-        }
-        if (securityIdentity != null && securityIdentity.getAttributes().get("email") != null && !securityIdentity.getAttributes().get("email").toString().isBlank()) {
-            identity.put("email", securityIdentity.getAttributes().get("email").toString());
-        } else if (securityIdentity != null && securityIdentity.getAttributes().get("userinfo") != null) {
-            UserInfo userInfo = (UserInfo) securityIdentity.getAttributes().get("userinfo");
-            String email = Objects.isNull(userInfo.getEmail()) || userInfo.getEmail().isBlank() ? "karavan@test.org" : userInfo.getEmail();
-            identity.put("email", email);
+        if (securityContext != null && securityContext.getUserPrincipal() != null && securityContext.getUserPrincipal() instanceof DefaultJWTCallerPrincipal principal) {
+            identity.put("name", principal.getName());
+            identity.put("email", principal.getClaim(Claims.email));
+        } else if (securityIdentity != null) {
+            if (securityIdentity.getPrincipal() != null) {
+                identity.put("name", securityIdentity.getPrincipal().getName());
+            }
+            if (securityIdentity.getAttributes().get("email") != null && !securityIdentity.getAttributes().get("email").toString().isBlank()) {
+                identity.put("email", securityIdentity.getAttributes().get("email").toString());
+            } else if (securityIdentity.getAttributes().get("userinfo") != null) {
+                UserInfo userInfo = (UserInfo) securityIdentity.getAttributes().get("userinfo");
+                String email = Objects.isNull(userInfo.getEmail()) || userInfo.getEmail().isBlank() ? "karavan@test.org" : userInfo.getEmail();
+                identity.put("email", email);
+            }
         }
         return identity;
     }

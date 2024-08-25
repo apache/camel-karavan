@@ -16,13 +16,11 @@
  */
 package org.apache.camel.karavan.api;
 
-import io.quarkus.security.identity.SecurityIdentity;
 import io.vertx.core.json.JsonObject;
 import io.vertx.mutiny.core.eventbus.EventBus;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.*;
 import org.apache.camel.karavan.service.ProjectService;
 import org.jboss.logging.Logger;
 
@@ -41,14 +39,12 @@ public class ProjectGitResource extends AbstractApiResource {
     @Inject
     EventBus eventBus;
 
-    @Inject
-    SecurityIdentity securityIdentity;
 
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public HashMap<String, String> push(HashMap<String, String> params) throws Exception {
-        var identity = getIdentity();
+    public HashMap<String, String> push(HashMap<String, String> params, @Context HttpHeaders headers, @Context SecurityContext securityContext) throws Exception {
+        var identity = getIdentity(securityContext);
         var data = JsonObject.mapFrom(params);
         data.put("authorName", identity.get("name"));
         data.put("authorEmail", identity.get("email"));

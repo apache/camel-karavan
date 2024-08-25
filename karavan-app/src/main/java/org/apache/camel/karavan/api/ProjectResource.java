@@ -18,8 +18,10 @@ package org.apache.camel.karavan.api;
 
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.SecurityContext;
 import org.apache.camel.karavan.KaravanCache;
 import org.apache.camel.karavan.docker.DockerService;
 import org.apache.camel.karavan.kubernetes.KubernetesService;
@@ -92,7 +94,7 @@ public class ProjectResource extends AbstractApiResource {
     @DELETE
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/{project}")
-    public void delete(@PathParam("project") String project, @QueryParam("deleteContainers") boolean deleteContainers) throws Exception {
+    public void delete(@PathParam("project") String project, @QueryParam("deleteContainers") boolean deleteContainers, @Context SecurityContext securityContext) throws Exception {
         String projectId = URLDecoder.decode(project, StandardCharsets.UTF_8);
         if (deleteContainers) {
             LOGGER.info("Deleting containers");
@@ -102,10 +104,12 @@ public class ProjectResource extends AbstractApiResource {
             LOGGER.info("Deleting deployments");
             Response res4 = infrastructureResource.deleteDeployment(null, projectId);
         }
-        var identity = getIdentity();
+        var identity = getIdentity(securityContext);
+        // delete from git before cache
         gitService.deleteProject(projectId, karavanCache.getProjectFiles(projectId), identity.get("name"), identity.get("email"));
-        karavanCache.getProjectFiles(projectId).forEach(file -> karavanCache.deleteProjectFile(projectId, file.getName()));
-        karavanCache.deleteProject(projectId);
+        // delete from cache
+        karavanCache.getProjectFiles(projectId).forEach(file -> karavanCache.deleteProjectFile(projectId, file.getName(), false));
+        karavanCache.deleteProject(projectId, false);
         LOGGER.info("Project deleted");
     }
 
