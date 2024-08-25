@@ -18,6 +18,8 @@ package org.apache.camel.karavan.api;
 
 import io.smallrye.mutiny.Multi;
 import io.vertx.core.json.JsonObject;
+import io.vertx.mutiny.core.eventbus.EventBus;
+import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
@@ -27,15 +29,22 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.sse.OutboundSseEvent;
 import jakarta.ws.rs.sse.Sse;
 import jakarta.ws.rs.sse.SseEventSink;
+import org.apache.camel.karavan.service.NotificationService;
 import org.jboss.resteasy.reactive.RestStreamElementType;
 
 import static org.apache.camel.karavan.listener.NotificationListener.*;
 
 @Path("/ui/notification")
-public class NotificationResource extends AbstractSseResource {
+public class NotificationResource {
 
     private static final String SERVICE_NAME_SYSTEM = "NOTIFICATION_SYSTEM";
     private static final String SERVICE_NAME_USER = "NOTIFICATION_USER";
+
+    @Inject
+    EventBus eventBus;
+
+    @Inject
+    NotificationService notificationService;
 
     @GET
     @Path("/system/{username}")
@@ -46,8 +55,8 @@ public class NotificationResource extends AbstractSseResource {
             @Context SseEventSink eventSink,
             @Context Sse sse
     ) {
-        sinkCleanup(SERVICE_NAME_SYSTEM, username, eventSink);
-        return bus.<JsonObject>consumer(NOTIFICATION_ADDRESS_SYSTEM).toMulti()
+        notificationService.sinkCleanup(SERVICE_NAME_SYSTEM, username, eventSink);
+        return eventBus.<JsonObject>consumer(NOTIFICATION_ADDRESS_SYSTEM).toMulti()
                 .map(m -> sse.newEventBuilder()
                         .id(m.headers().get(NOTIFICATION_HEADER_EVENT_ID))
                         .name(m.headers().get(NOTIFICATION_HEADER_EVENT_NAME) + ":" + m.headers().get(NOTIFICATION_HEADER_CLASS_NAME))
@@ -64,8 +73,8 @@ public class NotificationResource extends AbstractSseResource {
             @Context SseEventSink eventSink,
             @Context Sse sse
     ) {
-        sinkCleanup(SERVICE_NAME_USER, username, eventSink);
-        return bus.<JsonObject>consumer(username).toMulti()
+        notificationService.sinkCleanup(SERVICE_NAME_USER, username, eventSink);
+        return eventBus.<JsonObject>consumer(username).toMulti()
                 .map(m -> sse.newEventBuilder()
                         .id(m.headers().get(NOTIFICATION_HEADER_EVENT_ID))
                         .name(m.headers().get(NOTIFICATION_HEADER_EVENT_NAME) + ":" + m.headers().get(NOTIFICATION_HEADER_CLASS_NAME))
