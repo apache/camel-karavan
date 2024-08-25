@@ -16,7 +16,10 @@
  */
 package org.apache.camel.karavan;
 
+import io.vertx.core.eventbus.EventBus;
+import io.vertx.core.json.JsonObject;
 import jakarta.enterprise.inject.Default;
+import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import org.apache.camel.karavan.model.*;
 
@@ -29,6 +32,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import static org.apache.camel.karavan.KaravanConstants.DEV;
+import static org.apache.camel.karavan.KaravanEvents.*;
 
 @Default
 @Singleton
@@ -43,6 +47,9 @@ public class KaravanCache {
     private final Map<String, Boolean> transits = new ConcurrentHashMap<>();
     private final Map<String, ServiceStatus> serviceStatuses = new ConcurrentHashMap<>();
     private final Map<String, CamelStatus> camelStatuses = new ConcurrentHashMap<>();
+
+    @Inject
+    EventBus eventBus;
 
 
     // lists of copies
@@ -93,9 +100,12 @@ public class KaravanCache {
         return new ArrayList<>(getCopyProjects());
     }
 
-    public void saveProject(Project project) {
+    public void saveProject(Project project, boolean startup) {
         var key = GroupedKey.create(project.getProjectId(), DEV, project.getProjectId());
         projects.put(key, project);
+        if (!startup) {
+            eventBus.publish(PROJECT_SAVED, JsonObject.mapFrom(project));
+        }
     }
 
     public List<ProjectFile> getProjectFiles(String projectId) {
@@ -117,8 +127,11 @@ public class KaravanCache {
         return getCopyProjectFiles().stream().filter(pf -> Objects.equals(pf.getName(), filename)).toList();
     }
 
-    public void saveProjectFile(ProjectFile file, boolean commited) {
+    public void saveProjectFile(ProjectFile file, boolean commited, boolean startup) {
         files.put(GroupedKey.create(file.getProjectId(), DEV, file.getName()), file);
+        if (!startup) {
+            eventBus.publish(PROJECT_FILE_SAVED, JsonObject.mapFrom(file));
+        }
         if (commited) {
             filesCommited.put(GroupedKey.create(file.getProjectId(), DEV, file.getName()), file);
         }
@@ -136,14 +149,21 @@ public class KaravanCache {
                 .forEach(es -> filesCommited.put(es.getKey(), es.getValue().copy()));
     }
 
-    public void saveProjectFiles(Map<String, ProjectFile> filesToSave) {
+    public void saveProjectFiles(Map<String, ProjectFile> filesToSave, boolean startup) {
         long lastUpdate = Instant.now().toEpochMilli();
         filesToSave.forEach((groupedKey, projectFile) -> projectFile.setLastUpdate(lastUpdate));
         files.putAll(filesToSave);
+        if (!startup) {
+            files.forEach((s, file) -> eventBus.publish(PROJECT_FILE_SAVED, JsonObject.mapFrom(file)));
+        }
     }
 
-    public void deleteProjectFile(String projectId, String filename) {
-        files.remove(GroupedKey.create(projectId, DEV, filename));
+    public void deleteProjectFile(String projectId, String filename, boolean startup) {
+        var key = new GroupedKey(projectId, DEV, filename);
+        files.remove(key.getCacheKey());
+        if (!startup) {
+            eventBus.publish(PROJECT_FILE_DELETED, JsonObject.mapFrom(key));
+        }
     }
 
     public List<ProjectFile> getProjectFilesCommited(String projectId) {
@@ -159,8 +179,12 @@ public class KaravanCache {
         filesCommited.remove(GroupedKey.create(projectId, DEV, filename));
     }
 
-    public void deleteProject(String projectId) {
-        projects.remove(GroupedKey.create(projectId, DEV, projectId));
+    public void deleteProject(String projectId, boolean startup) {
+        var key = new GroupedKey(projectId, DEV, projectId);
+        projects.remove(key.getCacheKey());
+        if (!startup) {
+            eventBus.publish(PROJECT_DELETED, JsonObject.mapFrom(key));
+        }
     }
 
     public Project getProject(String projectId) {

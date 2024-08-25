@@ -76,6 +76,9 @@ public class CodeService {
     Optional<String> gav;
 
     @Inject
+    ConfigService configService;
+
+    @Inject
     KaravanCache karavanCache;
 
     @Inject
@@ -109,6 +112,7 @@ public class CodeService {
                 .filter(f -> !f.getName().endsWith(MARKDOWN_EXTENSION))
                 .filter(f -> !Objects.equals(f.getName(), PROJECT_COMPOSE_FILENAME))
                 .filter(f -> !f.getName().endsWith(PROJECT_JKUBE_EXTENSION))
+                .filter(this::isDevFile)
                 .collect(Collectors.toMap(ProjectFile::getName, ProjectFile::getCode));
 
         if (withKamelets) {
@@ -116,6 +120,13 @@ public class CodeService {
                     .forEach(file -> files.put(file.getName(), file.getCode()));
         }
         return files;
+    }
+
+    private boolean isDevFile(ProjectFile f) {
+        var filename = f.getName();
+        var parts = filename.split("\\.");
+        var prefix = parts[0];
+        return !configService.getEnvs().contains(prefix);
     }
 
     public String getBuilderPodFragment() {
@@ -357,7 +368,7 @@ public class CodeService {
             service.setImage(imageName);
             String code = DockerComposeConverter.toCode(service);
             compose.setCode(code);
-            karavanCache.saveProjectFile(compose, false);
+            karavanCache.saveProjectFile(compose, false, false);
         }
     }
 
@@ -382,6 +393,7 @@ public class CodeService {
     private static String toEnvFormat(String input) {
         return input.replaceAll("[^a-zA-Z0-9]", "_").toUpperCase();
     }
+
     private static Set<String> findVariables(String template) {
         Set<String> variables = new HashSet<>();
 

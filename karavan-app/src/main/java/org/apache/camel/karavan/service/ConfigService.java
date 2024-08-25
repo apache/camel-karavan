@@ -157,7 +157,7 @@ public class ConfigService {
         }
     }
 
-    private List<String> getEnvs() {
+    protected List<String> getEnvs() {
         return environments.orElse(List.of(DEV));
     }
 

@@ -131,11 +131,11 @@ public class KaravanStartupLoader implements HealthCheck {
                 } else {
                     project = projectService.getProjectFromRepo(repo);
                 }
-                karavanCache.saveProject(project);
+                karavanCache.saveProject(project, true);
 
                 repo.getFiles().forEach(repoFile -> {
                     ProjectFile file = new ProjectFile(repoFile.getName(), repoFile.getBody(), folderName, repoFile.getLastCommitTimestamp());
-                    karavanCache.saveProjectFile(file, true);
+                    karavanCache.saveProjectFile(file, true, true);
                 });
             });
         } catch (Exception e) {
@@ -149,7 +149,7 @@ public class KaravanStartupLoader implements HealthCheck {
             if (kamelets == null) {
                 LOGGER.info("Add custom kamelets project");
                 kamelets = new Project(Project.Type.kamelets.name(), "Custom Kamelets", "", Instant.now().toEpochMilli(), Project.Type.kamelets);
-                karavanCache.saveProject(kamelets);
+                karavanCache.saveProject(kamelets, true);
             }
         } catch (Exception e) {
             LOGGER.error("Error during custom kamelets project creation", e);
@@ -162,11 +162,11 @@ public class KaravanStartupLoader implements HealthCheck {
             if (templates == null) {
                 LOGGER.info("Add templates project");
                 templates = new Project(Project.Type.templates.name(), "Templates", "", Instant.now().toEpochMilli(), Project.Type.templates);
-                karavanCache.saveProject(templates);
+                karavanCache.saveProject(templates, true);
 
                 codeService.getTemplates().forEach((name, value) -> {
                     ProjectFile file = new ProjectFile(name, value, Project.Type.templates.name(), Instant.now().toEpochMilli());
-                    karavanCache.saveProjectFile(file, false);
+                    karavanCache.saveProjectFile(file, false, true);
                 });
             } else {
                 codeService.getTemplates().forEach((name, value) -> {
@@ -174,7 +174,7 @@ public class KaravanStartupLoader implements HealthCheck {
                     if (f == null) {
                         LOGGER.info("Add new template " + name);
                         ProjectFile file = new ProjectFile(name, value, Project.Type.templates.name(), Instant.now().toEpochMilli());
-                        karavanCache.saveProjectFile(file, false);
+                        karavanCache.saveProjectFile(file, false, true);
                     }
                 });
             }
@@ -189,11 +189,11 @@ public class KaravanStartupLoader implements HealthCheck {
             if (configuration == null) {
                 LOGGER.info("Add configuration project");
                 configuration = new Project(Project.Type.configuration.name(), "Configuration", "", Instant.now().toEpochMilli(), Project.Type.configuration);
-                karavanCache.saveProject(configuration);
+                karavanCache.saveProject(configuration, true);
 
                 codeService.getConfigurationFiles().forEach((name, value) -> {
                     ProjectFile file = new ProjectFile(name, value, Project.Type.configuration.name(), Instant.now().toEpochMilli());
-                    karavanCache.saveProjectFile(file, false);
+                    karavanCache.saveProjectFile(file, false, true);
                 });
             } else {
                 codeService.getConfigurationFiles().forEach((name, value) -> {
@@ -201,7 +201,7 @@ public class KaravanStartupLoader implements HealthCheck {
                     if (f == null) {
                         LOGGER.info("Add new configuration " + name);
                         ProjectFile file = new ProjectFile(name, value, Project.Type.configuration.name(), Instant.now().toEpochMilli());
-                        karavanCache.saveProjectFile(file, false);
+                        karavanCache.saveProjectFile(file, false, true);
                     }
                 });
             }

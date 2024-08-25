@@ -86,7 +86,7 @@ public class ProjectService {
             Long lastUpdate = commit.getCommitTime() * 1000L;
             p.setLastCommit(commitId);
             p.setLastCommitTimestamp(lastUpdate);
-            karavanCache.saveProject(p);
+            karavanCache.saveProject(p, false);
             return p;
         } else {
             throw new RuntimeException("Unsupported environment: " + environment);
@@ -158,10 +158,10 @@ public class ProjectService {
         LOGGER.info("Import project from GitRepo " + repo.getName());
         try {
             Project project = getProjectFromRepo(repo);
-            karavanCache.saveProject(project);
+            karavanCache.saveProject(project, false);
             repo.getFiles().forEach(repoFile -> {
                 ProjectFile file = new ProjectFile(repoFile.getName(), repoFile.getBody(), repo.getName(), repoFile.getLastCommitTimestamp());
-                karavanCache.saveProjectFile(file, true);
+                karavanCache.saveProjectFile(file, true, false);
             });
         } catch (Exception e) {
             LOGGER.error("Error during project import", e);
@@ -234,15 +234,15 @@ public class ProjectService {
         if (projectIdExists) {
             throw new Exception("Project with id " + project.getProjectId() + " already exists");
         } else {
-            karavanCache.saveProject(project);
+            karavanCache.saveProject(project, false);
             ProjectFile appProp = codeService.generateApplicationProperties(project);
-            karavanCache.saveProjectFile(appProp, false);
+            karavanCache.saveProjectFile(appProp, false, false);
             if (!ConfigService.inKubernetes()) {
                 ProjectFile projectCompose = codeService.createInitialProjectCompose(project, getMaxPortMappedInProjects() + 1);
-                karavanCache.saveProjectFile(projectCompose, false);
+                karavanCache.saveProjectFile(projectCompose, false, false);
             } else {
                 ProjectFile projectDeployment = codeService.createInitialDeployment(project);
-                karavanCache.saveProjectFile(projectDeployment, false);
+                karavanCache.saveProjectFile(projectDeployment, false, false);
             }
         }
         return project;
@@ -258,7 +258,7 @@ public class ProjectService {
             Project sourceProject = karavanCache.getProject(sourceProjectId);
 
             // Save project
-            karavanCache.saveProject(project);
+            karavanCache.saveProject(project, false);
 
             // Copy files from the source and make necessary modifications
             Map<String, ProjectFile> filesMap = karavanCache.getProjectFilesMap(sourceProjectId).entrySet().stream()
@@ -276,14 +276,14 @@ public class ProjectService {
                                 return file;
                             })
                     );
-            karavanCache.saveProjectFiles(filesMap);
+            karavanCache.saveProjectFiles(filesMap, false);
 
             if (!ConfigService.inKubernetes()) {
                 ProjectFile projectCompose = codeService.createInitialProjectCompose(project, getMaxPortMappedInProjects() + 1);
-                karavanCache.saveProjectFile(projectCompose, false);
+                karavanCache.saveProjectFile(projectCompose, false, false);
             } else {
                 ProjectFile projectCompose = codeService.createInitialDeployment(project);
-                karavanCache.saveProjectFile(projectCompose, false);
+                karavanCache.saveProjectFile(projectCompose, false, false);
             }
 
             return project;

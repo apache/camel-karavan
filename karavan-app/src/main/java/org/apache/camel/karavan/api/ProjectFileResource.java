@@ -100,7 +100,7 @@ public class ProjectFileResource {
         if (projectFileExists) {
             return Response.serverError().entity("File with given name already exists").build();
         } else {
-            karavanCache.saveProjectFile(file, false);
+            karavanCache.saveProjectFile(file, false, false);
             return Response.ok(file).build();
         }
     }
@@ -110,7 +110,7 @@ public class ProjectFileResource {
     @Consumes(MediaType.APPLICATION_JSON)
     public ProjectFile update(ProjectFile file) throws Exception {
         file.setLastUpdate(Instant.now().toEpochMilli());
-        karavanCache.saveProjectFile(file, false);
+        karavanCache.saveProjectFile(file, false, false);
         return file;
     }
 
@@ -121,7 +121,8 @@ public class ProjectFileResource {
                        @PathParam("filename") String filename) throws Exception {
         karavanCache.deleteProjectFile(
                 URLDecoder.decode(project, StandardCharsets.UTF_8),
-                URLDecoder.decode(filename, StandardCharsets.UTF_8)
+                URLDecoder.decode(filename, StandardCharsets.UTF_8),
+                false
         );
     }
 }

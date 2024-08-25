@@ -18,7 +18,13 @@ package org.apache.camel.karavan;
 
 public class KaravanEvents {
 
+    public static final String PROJECT_SAVED = "PROJECT_SAVED";
+    public static final String PROJECT_DELETED = "PROJECT_DELETED";
+    public static final String PROJECT_FILE_SAVED = "PROJECT_FILE_SAVED";
+    public static final String PROJECT_FILE_DELETED = "PROJECT_FILE_DELETED";
+
     public static final String CMD_PUSH_PROJECT = "CMD_PUSH_PROJECT";
+
     public static final String NOTIFICATION_PROJECTS_STARTED = "NOTIFICATION_PROJECTS_STARTED";
     public static final String COMMIT_HAPPENED = "COMMIT_HAPPENED";
     public static final String NOTIFICATION_IMAGES_LOADED = "NOTIFICATION_IMAGES_LOADED";
