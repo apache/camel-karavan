@@ -61,7 +61,7 @@ export function ContainerTableRow(props: Props) {
             actions={[
                 <Button key="confirm" variant="primary" onClick={e => {
                     if (command) {
-                        KaravanApi.manageContainer(container.projectId, container.type, container.containerName, command, false,res => {
+                        KaravanApi.manageContainer(container.projectId, container.type, container.containerName, command, "never",res => {
                         });
                         setCommand(undefined);
                         setShowConfirmation(false);
@@ -186,14 +186,14 @@ export function ContainerTableRow(props: Props) {
                         <Flex direction={{default: "row"}} cellPadding={"0px"}>
                             {ports.sort((a, b) => a.privatePort && b.privatePort && (a.privatePort > b.privatePort) ? 1 : -1)
                                 .map((port, index) => {
-                                const start = port.publicPort ? port.publicPort + "->" : "";
-                                const end = port.privatePort + "/" + port.type;
-                                return (
-                                    <FlexItem key={index}>
-                                        {start + end}
-                                    </FlexItem>
-                                )
-                            })}
+                                    const start = port.publicPort ? port.publicPort + "->" : "";
+                                    const end = port.privatePort + "/" + port.type;
+                                    return (
+                                        <FlexItem key={index}>
+                                            {start + end}
+                                        </FlexItem>
+                                    )
+                                })}
                         </Flex>
                     </ExpandableRowContent>
                 </Td>

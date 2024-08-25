@@ -59,7 +59,7 @@ export function ServicesTableRow (props: Props) {
                         <Tooltip content={"Start container"} position={"bottom"}>
                             <Button className={'dev-action-button'} variant={"plain"} icon={<PlayIcon/>} isDisabled={!commands.includes('run') || inTransit}
                                     onClick={e => {
-                                        KaravanApi.manageContainer(service.container_name, 'devservice', service.container_name, 'deploy', false,res => {});
+                                        KaravanApi.manageContainer(service.container_name, 'devservice', service.container_name, 'deploy', 'ifNotExists',res => {});
                                     }}></Button>
                         </Tooltip>
                     </FlexItem>
@@ -75,7 +75,7 @@ export function ServicesTableRow (props: Props) {
                         <Tooltip content={"Stop container"} position={"bottom"}>
                             <Button className={'dev-action-button'} variant={"plain"} icon={<StopIcon/>} isDisabled={!commands.includes('stop') || inTransit}
                                     onClick={e => {
-                                        KaravanApi.manageContainer(service.container_name, 'devservice', service.container_name, 'stop', false,res => {});
+                                        KaravanApi.manageContainer(service.container_name, 'devservice', service.container_name, 'stop', 'never',res => {});
                                     }}></Button>
                         </Tooltip>
                     </FlexItem>
