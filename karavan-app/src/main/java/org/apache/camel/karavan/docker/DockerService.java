@@ -198,7 +198,7 @@ public class DockerService {
                 List<Mount> mounts = new ArrayList<>();
                 if (volumes != null && !volumes.isEmpty()) {
                     volumes.forEach(volume -> {
-                        var mount = new Mount().withType(MountType.valueOf(volume.getType())).withTarget(volume.getTarget());
+                        var mount = new Mount().withType(MountType.valueOf(volume.getType().toUpperCase())).withTarget(volume.getTarget());
                         if (volume.getSource() != null) {
                             mount = mount.withSource(volume.getSource());
                         }

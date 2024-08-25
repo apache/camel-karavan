@@ -90,7 +90,7 @@ public class DockerComposeConverter {
                     var parts = ((String) o).split(":");
                     if (parts.length == 2) {
                         var part0 = parts[0];
-                        var type = part0.startsWith("/") || part0.startsWith("~") || part0.startsWith("./") ? VOLUME : BIND;
+                        var type = (part0.startsWith("/") || part0.startsWith("~") || part0.startsWith("./")) ? BIND : VOLUME;
                         volumes.add(JsonObject.mapFrom(new DockerComposeVolume(type.name().toLowerCase(), parts[0], parts[1])));
                     } else if (parts.length == 1) {
                         volumes.add(JsonObject.mapFrom(new DockerComposeVolume(VOLUME.name().toLowerCase(), null, parts[0])));
