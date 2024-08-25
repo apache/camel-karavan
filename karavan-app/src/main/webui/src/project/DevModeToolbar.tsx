@@ -31,7 +31,7 @@ import '../designer/karavan.css';
 import RocketIcon from "@patternfly/react-icons/dist/esm/icons/rocket-icon";
 import ReloadIcon from "@patternfly/react-icons/dist/esm/icons/bolt-icon";
 import DeleteIcon from "@patternfly/react-icons/dist/esm/icons/trash-icon";
-import {useAppConfigStore, useLogStore, useProjectStore, useStatusesStore} from "../api/ProjectStore";
+import {useLogStore, useProjectStore, useStatusesStore} from "../api/ProjectStore";
 import {ProjectService} from "../api/ProjectService";
 import {shallow} from "zustand/shallow";
 import UpIcon from "@patternfly/react-icons/dist/esm/icons/running-icon";
@@ -45,13 +45,12 @@ interface Props {
 
 export function DevModeToolbar(props: Props) {
 
-    const [config] = useAppConfigStore((state) => [state.config], shallow)
     const [project, refreshTrace] = useProjectStore((state) => [state.project, state.refreshTrace], shallow)
     const [containers] = useStatusesStore((state) => [state.containers], shallow);
     const [verbose, setVerbose] = useState(false);
     const [showSpinner, setShowSpinner] = useState(false);
     const [setShowLog] = useLogStore((s) => [s.setShowLog], shallow);
-    const [currentContainerStatus, setCurrentContainerStatus] = useState<ContainerStatus>();
+    const [currentContainerStatus] = useState<ContainerStatus>();
 
     const containerStatuses = containers.filter(c => c.projectId === project.projectId) || [];
 

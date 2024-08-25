@@ -478,7 +478,7 @@ export class KaravanApi {
         });
     }
 
-    static async startDevModeContainer(project: Project, verbose: boolean, after: (res: AxiosResponse<string>) => void) {
+    static async startDevModeContainer(project: Project, verbose: boolean, after: (res: AxiosResponse<any>) => void) {
         instance.post('/ui/devmode' + (verbose ? '/--verbose' : ''), project)
             .then(res => {
                 after(res);
@@ -604,7 +604,7 @@ export class KaravanApi {
                                  type: 'devmode' | 'devservice' | 'project' | 'internal' | 'build' | 'unknown',
                                  name: string,
                                  command: 'deploy' | 'run' | 'pause' | 'stop' | 'delete',
-                                 pullImage: boolean,
+                                 pullImage: 'always' | 'ifNotExists' | 'never',
                                  after: (res: AxiosResponse<any> | any) => void) {
         instance.post('/ui/container/' + projectId + '/' + type + "/" + name, {command: command, pullImage: pullImage})
             .then(res => {

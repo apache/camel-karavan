@@ -37,7 +37,7 @@ import {
     CardBody, CardHeader, HelperTextItem, HelperText
 } from '@patternfly/react-core';
 import '../../designer/karavan.css';
-import {useFilesStore, useProjectStore} from "../../api/ProjectStore";
+import {useAppConfigStore, useFilesStore, useProjectStore} from "../../api/ProjectStore";
 import {shallow} from "zustand/shallow";
 import {Table} from "@patternfly/react-table/deprecated";
 import {Tbody, Td, Th, Thead, Tr} from "@patternfly/react-table";
@@ -61,6 +61,8 @@ export function ImagesPanel() {
     const [imageName, setImageName] = useState<string>();
     const [commitChanges, setCommitChanges] = useState<boolean>(false);
     const [commitMessage, setCommitMessage] = useState('');
+    const [config] = useAppConfigStore((s) => [s.config], shallow);
+    const isDev = config.environment === 'dev';
 
     function setProjectImage() {
         if (imageName) {
@@ -247,10 +249,10 @@ export function ImagesPanel() {
                                               spaceItems={{default: 'spaceItemsNone'}}>
                                             <FlexItem>
                                                 <Tooltip content={"Delete image"} position={"bottom"}>
-                                                    <Button variant={"plain"}
+                                                    <Button variant={"link"}
                                                             className='dev-action-button'
                                                             icon={<DeleteIcon/>}
-                                                            isDisabled={fullName === projectImage}
+                                                            isDisabled={fullName === projectImage || !isDev}
                                                             onClick={e => {
                                                                 setImageName(fullName);
                                                                 setShowDeleteConfirmation(true);
@@ -260,9 +262,9 @@ export function ImagesPanel() {
                                             </FlexItem>
                                             <FlexItem>
                                                 <Tooltip content="Set project image" position={"bottom"}>
-                                                    <Button variant={"plain"}
+                                                    <Button variant={"link"}
                                                             className='dev-action-button'
-                                                            isDisabled={fullName === projectImage}
+                                                            isDisabled={fullName === projectImage || !isDev}
                                                             onClick={e => {
                                                                 setImageName(fullName);
                                                                 setCommitMessage(commitMessage === '' ? new Date().toLocaleString() : commitMessage);

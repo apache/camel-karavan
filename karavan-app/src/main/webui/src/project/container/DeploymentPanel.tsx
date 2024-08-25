@@ -27,10 +27,11 @@ import {
 import '../../designer/karavan.css';
 import UpIcon from "@patternfly/react-icons/dist/esm/icons/running-icon";
 import DownIcon from "@patternfly/react-icons/dist/esm/icons/error-circle-o-icon";
-import {useAppConfigStore, useProjectStore, useStatusesStore} from "../../api/ProjectStore";
+import {useProjectStore, useStatusesStore} from "../../api/ProjectStore";
 import {shallow} from "zustand/shallow";
 import DeleteIcon from "@patternfly/react-icons/dist/esm/icons/times-circle-icon";
 import RolloutIcon from "@patternfly/react-icons/dist/esm/icons/process-automation-icon";
+import DeployIcon from "@patternfly/react-icons/dist/esm/icons/upload-icon";
 import {KaravanApi} from "../../api/KaravanApi";
 import {EventBus} from "../../designer/utils/EventBus";
 
@@ -44,6 +45,7 @@ export function DeploymentPanel (props: Props) {
     const [ deployments] =
         useStatusesStore((s) => [s.deployments], shallow);
     const [showDeleteConfirmation, setShowDeleteConfirmation] = useState<boolean>(false);
+    const [showDeployConfirmation, setShowDeployConfirmation] = useState<boolean>(false);
     const [showRolloutConfirmation, setShowRolloutConfirmation] = useState<boolean>(false);
 
     function deleteDeployment() {
@@ -58,9 +60,18 @@ export function DeploymentPanel (props: Props) {
 
     function rolloutDeployment () {
         KaravanApi.rolloutDeployment(project.projectId, props.env, res => {
-            console.log(res)
             if (res.status === 200) {
                 EventBus.sendAlert("Rolled out", "Rolled out: " + project.projectId, 'info');
+            }
+        });
+    }
+
+    function startDeployment(){
+        KaravanApi.startDeployment(project.projectId, props.env, res => {
+            if (res.status === 200) {
+                EventBus.sendAlert("Started", "Deployment started for " + project.projectId, 'info');
+            } else {
+                EventBus.sendAlert("Error", res.data, 'danger');
             }
         });
     }
@@ -104,13 +115,35 @@ export function DeploymentPanel (props: Props) {
                 <Button key="cancel" variant="link"
                         onClick={e => setShowRolloutConfirmation(false)}>Cancel</Button>
             ]}
-            onEscapePress={e => setShowDeleteConfirmation(false)}>
+            onEscapePress={e => setShowRolloutConfirmation(false)}>
             <div>{"Rollout deployment " + project.projectId + "?"}</div>
         </Modal>)
     }
 
+    function getDeployConfirmation() {
+            return (<Modal
+                className="modal-delete"
+                title="Confirmation"
+                isOpen={showDeployConfirmation}
+                onClose={() => setShowDeployConfirmation(false)}
+                actions={[
+                    <Button key="confirm" variant="primary" onClick={e => {
+                        if (project.projectId) {
+                            startDeployment();
+                            setShowDeployConfirmation(false);
+                        }
+                    }}>Deploy
+                    </Button>,
+                    <Button key="cancel" variant="link"
+                            onClick={e => setShowDeployConfirmation(false)}>Cancel</Button>
+                ]}
+                onEscapePress={e => setShowDeleteConfirmation(false)}>
+                <div>{"Deploy " + project.projectId + "?"}</div>
+            </Modal>)
+        }
+
     function rolloutButton() {
-        return (<Tooltip content="Rollout deployment" position={"left"}>
+        return (
             <Button size="sm" variant="secondary"
                     className="project-button dev-action-button"
                     icon={<RolloutIcon/>}
@@ -118,8 +151,20 @@ export function DeploymentPanel (props: Props) {
                         setShowRolloutConfirmation(true);
                     }}>
                 {"Rollout"}
+            </Button>)
+    }
+
+    function deployButton() {
+        return (
+            <Button size="sm" variant="primary"
+                    className="project-button dev-action-button"
+                    icon={<DeployIcon/>}
+                    onClick={e => {
+                        setShowDeployConfirmation(true);
+                    }}>
+                {"Deploy"}
             </Button>
-        </Tooltip>)
+        )
     }
 
     const deploymentStatus = deployments.find(d => d.projectId === project?.projectId);
@@ -128,7 +173,7 @@ export function DeploymentPanel (props: Props) {
         && deploymentStatus?.replicas === deploymentStatus?.readyReplicas)
     return (
         <Flex justifyContent={{default: "justifyContentSpaceBetween"}} alignItems={{default: "alignItemsCenter"}}>
-            <FlexItem>
+            <FlexItem flex={{default: 'flex_2'}}>
                 {deploymentStatus && <LabelGroup numLabels={3}>
                     <Tooltip content={"Ready Replicas / Replicas"} position={"left"}>
                         <Label icon={ok ? <UpIcon/> : <DownIcon/>}
@@ -149,9 +194,11 @@ export function DeploymentPanel (props: Props) {
                 </LabelGroup>}
                 {deploymentStatus === undefined && <Label icon={<DownIcon/>} color={"grey"}>No deployments</Label>}
             </FlexItem>
-            <FlexItem>{props.env === "dev" && rolloutButton()}</FlexItem>
+            <FlexItem>{rolloutButton()}</FlexItem>
+            <FlexItem>{deployButton()}</FlexItem>
             {showDeleteConfirmation && getDeleteConfirmation()}
             {showRolloutConfirmation && getRolloutConfirmation()}
+            {showDeployConfirmation && getDeployConfirmation()}
         </Flex>
     )
 }

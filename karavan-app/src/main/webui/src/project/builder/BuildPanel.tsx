@@ -31,14 +31,13 @@ import DownIcon from "@patternfly/react-icons/dist/esm/icons/error-circle-o-icon
 import ClockIcon from "@patternfly/react-icons/dist/esm/icons/clock-icon";
 import TagIcon from "@patternfly/react-icons/dist/esm/icons/tag-icon";
 import DeleteIcon from "@patternfly/react-icons/dist/esm/icons/times-circle-icon";
-import {useAppConfigStore, useLogStore, useProjectStore, useStatusesStore} from "../../api/ProjectStore";
+import {useLogStore, useProjectStore, useStatusesStore} from "../../api/ProjectStore";
 import {shallow} from "zustand/shallow";
 import {EventBus} from "../../designer/utils/EventBus";
 import {getShortCommit} from "../../util/StringUtils";
 
 export function BuildPanel () {
 
-    const [config] = useAppConfigStore((state) => [state.config], shallow);
     const [project] = useProjectStore((s) => [s.project], shallow);
     const [setShowLog] = useLogStore((s) => [s.setShowLog], shallow);
     const [containers, deployments, camels] =
@@ -52,7 +51,7 @@ export function BuildPanel () {
     function deleteEntity() {
         const buildName = getBuildName();
         if (buildName) {
-            KaravanApi.manageContainer(project.projectId, 'build', buildName, 'delete', false,res => {
+            KaravanApi.manageContainer(project.projectId, 'build', buildName, 'delete', 'never',res => {
                 EventBus.sendAlert("Container deleted", "Container " + buildName + " deleted", 'info')
                 setShowLog(false, 'container', undefined)
             });
@@ -75,9 +74,7 @@ export function BuildPanel () {
     function buildButton() {
         const status = containers.filter(c => c.projectId === project.projectId && c.type === 'build').at(0);
         const isRunning = status?.state === 'running';
-        const tooltip = config.infrastructure === 'kubernetes' ? "Build and Deploy project" : "Build project"
-        const buttonTitle = config.infrastructure === 'kubernetes' ? "Deploy" : "Build"
-        return (<Tooltip content={tooltip} position={"left"}>
+        return (<Tooltip content={"Build project"} position={"left"}>
             <Button isLoading={isBuilding ? true : undefined}
                     isDisabled={isBuilding || isRunning || isPushing}
                     size="sm"
@@ -85,7 +82,7 @@ export function BuildPanel () {
                     className="project-button dev-action-button"
                     icon={!isBuilding ? <BuildIcon/> : <div></div>}
                     onClick={e => build()}>
-                {isBuilding ? "..." : buttonTitle}
+                {isBuilding ? "..." : "Build"}
             </Button>
         </Tooltip>)
     }

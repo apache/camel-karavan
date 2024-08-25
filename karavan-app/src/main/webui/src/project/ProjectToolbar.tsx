@@ -22,7 +22,7 @@ import {
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
 import {DevModeToolbar} from "./DevModeToolbar";
-import {useFileStore, useProjectStore} from "../api/ProjectStore";
+import {useAppConfigStore, useFileStore, useProjectStore} from "../api/ProjectStore";
 import {shallow} from "zustand/shallow";
 import {EditorToolbar} from "../editor/EditorToolbar";
 import {BUILD_IN_PROJECTS,} from "../api/ProjectModels";
@@ -32,6 +32,8 @@ export function ProjectToolbar() {
 
     const [project] = useProjectStore((s) => [s.project, s.tabIndex], shallow)
     const [file] = useFileStore((state) => [state.file], shallow)
+    const [config] = useAppConfigStore((s) => [s.config], shallow);
+    const isDev = config.environment === 'dev';
 
     const isBuildInProject = BUILD_IN_PROJECTS.includes(project.projectId);
 
@@ -46,8 +48,8 @@ export function ProjectToolbar() {
     function getProjectToolbar() {
         return (<Toolbar id="toolbar-group-types">
             <ToolbarContent>
-                {!isBuildInProject && <DevModeToolbar/>}
-                {isBuildInProject && <ResourceToolbar/>}
+                {!isBuildInProject && isDev && <DevModeToolbar/>}
+                {(isBuildInProject || !isDev) && <ResourceToolbar/>}
             </ToolbarContent>
         </Toolbar>)
     }

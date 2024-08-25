@@ -50,7 +50,7 @@ export function ContainerButtons (props: Props) {
     const isLoading = status === 'wip';
 
     function act() {
-        KaravanApi.manageContainer(project.projectId, 'project', project.projectId, actionType, pullImage,res => {
+        KaravanApi.manageContainer(project.projectId, 'project', project.projectId, actionType, pullImage ? 'always' : 'never',res => {
             const response = res?.response;
             if (response?.status === 500) {
                 EventBus.sendAlert('Error', response.data !== undefined && response.data.length > 0 ? response.data : response.statusText, 'warning')

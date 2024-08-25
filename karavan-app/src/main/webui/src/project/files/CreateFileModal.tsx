@@ -84,7 +84,9 @@ export function CreateFileModal() {
 
     function onKeyDown(event: React.KeyboardEvent<HTMLDivElement>): void {
         if (event.key === 'Enter') {
-            handleSubmit(onSubmit)()
+            event.preventDefault();
+            event.stopPropagation();
+            handleSubmit(onSubmit)();
         }
     }
 
