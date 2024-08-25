@@ -42,7 +42,9 @@ export class ProjectService {
                 ProjectEventBus.sendLog('set', '');
                 useLogStore.setState({showLog: true, type: 'container', podName: res.data})
             } else {
-                // EventBus.sendAlert('Error Starting DevMode container', res.statusText, 'warning')
+                var resData = (res as any)?.response?.data;
+                var error = resData?.message ? resData?.message : res.statusText;
+                EventBus.sendAlert('Error Starting DevMode container', error, 'warning')
             }
         });
     }
@@ -61,7 +63,7 @@ export class ProjectService {
 
     public static stopDevModeContainer(project: Project) {
         useDevModeStore.setState({status: 'wip'})
-        KaravanApi.manageContainer(project.projectId, 'devmode', project.projectId, 'stop',  false,res => {
+        KaravanApi.manageContainer(project.projectId, 'devmode', project.projectId, 'stop',  'never',res => {
             useDevModeStore.setState({status: 'none'})
             if (res.status === 200) {
                 useLogStore.setState({showLog: false, type: 'container'})
@@ -73,7 +75,7 @@ export class ProjectService {
 
     public static pauseDevModeContainer(project: Project) {
         useDevModeStore.setState({status: 'wip'})
-        KaravanApi.manageContainer(project.projectId, 'devmode', project.projectId, 'pause', false,res => {
+        KaravanApi.manageContainer(project.projectId, 'devmode', project.projectId, 'pause', 'never',res => {
             useDevModeStore.setState({status: 'none'})
             if (res.status === 200) {
                 useLogStore.setState({showLog: false, type: 'container'})
