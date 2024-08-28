@@ -1,0 +1,27 @@
+- route:
+    id: route-6312
+    description:  File Send
+    nodePrefixId: route-b7f
+    autoStartup: true
+    from:
+      id: file-send-direct
+      uri: direct
+      parameters:
+        name: send-roster-files
+        synchronous: false
+      steps:
+        - log:
+            id: log-894b
+            message: "DEBUG: Transfer Starting ${date:now:yyyyMMdd hh:mm:ss}"
+- routeConfiguration:
+    errorHandler:
+      id: errorHandler-1b09
+      deadLetterChannel:
+        id: deadLetterChannel-2cf3
+        deadLetterUri: direct:dlq
+        redeliveryPolicy:
+          id: redeliveryPolicy-58fe
+          maximumRedeliveries: 5
+          redeliveryDelay: "60000"
+        useOriginalMessage: false
+        useOriginalBody: false

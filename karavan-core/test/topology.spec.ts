@@ -18,11 +18,16 @@ import * as fs from 'fs';
 import 'mocha';
 import {CamelDefinitionYaml} from "../src/core/api/CamelDefinitionYaml";
 import { TopologyUtils } from '../src/core/api/TopologyUtils';
+import { KameletApi } from '../src/core/api/KameletApi';
+import { Property } from '../src/core/model/KameletModels';
+import { CamelUtil } from '../src/core/api/CamelUtil';
+import { ToDefinition } from '../src/core/model/CamelDefinition';
 
 
 describe('Topology functions', () => {
 
     it('Topology find', () => {
+        loadKamelets();
         const yaml1 = fs.readFileSync('test/topology1.camel.yaml',{encoding:'utf8', flag:'r'});
         const yaml2 = fs.readFileSync('test/topology2.camel.yaml',{encoding:'utf8', flag:'r'});
         const i1 = CamelDefinitionYaml.yamlToIntegration("test1.yaml", yaml1);
@@ -31,5 +36,19 @@ describe('Topology functions', () => {
         const trn = TopologyUtils.findTopologyRestNodes([i1, i2]);
         const ton = TopologyUtils.findTopologyRouteOutgoingNodes([i1, i2]);
     });
+
+    it('Topology getUniqueUri', () => {
+        loadKamelets();
+        const yaml1 = fs.readFileSync('test/topology3.camel.yaml',{encoding:'utf8', flag:'r'});
+        const i1 = CamelDefinitionYaml.yamlToIntegration("test1.yaml", yaml1);
+        const tin = TopologyUtils.findTopologyRouteOutgoingNodes([i1]);
+    });
+
+    function loadKamelets() {
+        const yamls = fs.readFileSync('test/kamelets.yaml',{encoding:'utf8', flag:'r'});
+        const kamelets: string[] = [];
+        yamls.split(/\n?---\n?/).map(c => c.trim()).forEach(z => kamelets.push(z));
+        KameletApi.saveKamelets(kamelets, true);
+    }
 
 });
