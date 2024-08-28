@@ -26,7 +26,7 @@ import { KameletApi } from './KameletApi';
 import { KameletModel, Property } from '../model/KameletModels';
 import { ComponentProperty } from '../model/ComponentModels';
 import { ComponentApi } from './ComponentApi';
-import { CamelMetadataApi } from '../model/CamelMetadata';
+import { CamelMetadataApi, SensitiveKeys } from '../model/CamelMetadata';
 import { CamelDefinitionApiExt } from './CamelDefinitionApiExt';
 import { v4 as uuidv4 } from 'uuid';
 import { CamelDefinitionYaml } from './CamelDefinitionYaml';
@@ -243,16 +243,36 @@ export class CamelUtil {
                         result[1].push(`${property.displayName} is required`);
                     }
                 }
+                const secretProperties = CamelUtil.getComponentProperties(element).filter(p => p.secret);
+                for (const property of secretProperties) {
+                    const value = CamelDefinitionApiExt.getParametersValue(element, property.name, property.kind === 'path');
+                    if (value !== undefined && property.type === 'string'
+                        && (!value?.trim()?.startsWith("{{") || !value?.trim()?.endsWith('}}'))) {
+                        result[0] = false;
+                        result[1].push(`${property.displayName} is set in plain text`);
+                    }
+                }
             } else {
                 const kamelet = CamelUtil.getKamelet(element);
                 let allSet = true;
-                const filledParameters = (element as any) ? Object.keys((element as any).parameters) : [];
+                const elementAsAny = (element as any);
+                const filledParameters = elementAsAny ? Object.keys(elementAsAny.parameters) : [];
                 const missingParameters =
                     kamelet?.spec.definition.required?.filter(name => !filledParameters.includes(name)) || [];
                 if (missingParameters.length > 0) {
                     allSet = false;
                     result[1].push(...missingParameters.map(name => `${name} is required`));
                 }
+                const sensitiveParameters = filledParameters.filter(p => CamelUtil.checkIfKameletParameterSensitive(p, kamelet));
+                console.log(sensitiveParameters)
+                console.log(kamelet)
+                sensitiveParameters.forEach(p => {
+                    const value = elementAsAny?.parameters[p];
+                    if (value !== undefined && (!value?.trim()?.startsWith("{{") || !value?.trim()?.endsWith('}}'))) {
+                        result[0] = false;
+                        result[1].push(`${p} is set in plain text`);
+                    }
+                });
                 result[0] = allSet;
             }
         }
@@ -261,6 +281,14 @@ export class CamelUtil {
         }
         return result;
     };
+
+    static checkIfKameletParameterSensitive(parameter: string, kamelet?: KameletModel): boolean {
+        if (SensitiveKeys.includes(parameter)) {
+            return true;
+        } else {
+            return (kamelet?.spec.definition.properties?.[parameter] as any)?.type === 'password';
+        }
+    }
 
     static findPlaceholdersInObject = (item: any, result: Set<string> = new Set<string>()): Set<string> => {
         if (typeof item === 'object') {
