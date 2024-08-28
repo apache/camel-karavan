@@ -23,47 +23,47 @@ spec:
           value: "3s"
         - name: "KARAVAN_DEVMODE_IMAGE"
           value: "ghcr.io/apache/camel-karavan-devmode:4.7.1"
-        - name: "karavan.git.repository"
+        - name: "KARAVAN_GIT_REPOSITORY"
           valueFrom:
             secretKeyRef:
               key: "karavan.git.repository"
               name: "karavan"
-        - name: "karavan.git.username"
+        - name: "KARAVAN_GIT_USERNAME"
           valueFrom:
             secretKeyRef:
               key: "karavan.git.username"
               name: "karavan"
-        - name: "karavan.git.password"
+        - name: "KARAVAN_GIT_PASSWORD"
           valueFrom:
             secretKeyRef:
               key: "karavan.git.password"
               name: "karavan"
-        - name: "karavan.git.branch"
+        - name: "KARAVAN_GIT_BRANCH"
           valueFrom:
             secretKeyRef:
               key: "karavan.git.branch"
               name: "karavan"
-        - name: "karavan.keycloak.url"
+        - name: "KARAVAN_KEYCLOAK_URL"
           valueFrom:
             secretKeyRef:
               key: "karavan.keycloak.url"
               name: "karavan"
-        - name: "karavan.keycloak.realm"
+        - name: "KARAVAN_KEYCLOAK_REALM"
           valueFrom:
             secretKeyRef:
               key: "karavan.keycloak.realm"
               name: "karavan"
-        - name: "karavan.keycloak.frontend.clientId"
+        - name: "KARAVAN_KEYCLOAK_FRONTEND_CLIENTID"
           valueFrom:
             secretKeyRef:
               key: "karavan.keycloak.frontend.clientId"
               name: "karavan"
-        - name: "karavan.keycloak.backend.clientId"
+        - name: "KARAVAN_KEYCLOAK_BACKEND_CLIENTID"
           valueFrom:
             secretKeyRef:
               key: "karavan.keycloak.backend.clientId"
               name: "karavan"
-        - name: "karavan.keycloak.backend.secret"
+        - name: "KARAVAN_KEYCLOAK_BACKEND_SECRET"
           valueFrom:
             secretKeyRef:
               key: "karavan.keycloak.backend.secret"
