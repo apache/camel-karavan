@@ -59,7 +59,7 @@ public class ImagesResource {
             return List.of();
         } else {
             RegistryConfig registryConfig = registryService.getRegistryConfig();
-            String pattern = registryConfig.getGroup() + "/" + projectId;
+            String pattern = registryConfig.getGroup() + "/" + projectId + ":";
             return dockerService.getImages()
                     .stream().filter(s -> s.getTag().contains(pattern))
                     .sorted(Comparator.comparing(ContainerImage::getCreated).reversed().thenComparing(ContainerImage::getTag))
