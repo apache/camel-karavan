@@ -43,7 +43,7 @@ public class ProjectGitResource extends AbstractApiResource {
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public HashMap<String, String> push(HashMap<String, String> params, @Context HttpHeaders headers, @Context SecurityContext securityContext) throws Exception {
+    public HashMap<String, String> push(HashMap<String, String> params, @Context SecurityContext securityContext) throws Exception {
         var identity = getIdentity(securityContext);
         var data = JsonObject.mapFrom(params);
         data.put("authorName", identity.get("name"));

@@ -18,6 +18,7 @@ package org.apache.camel.karavan.service;
 
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
+import io.quarkus.oidc.UserInfo;
 import io.smallrye.mutiny.tuples.Tuple2;
 import io.vertx.core.Vertx;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -29,24 +30,32 @@ import org.eclipse.jgit.api.errors.InvalidRemoteException;
 import org.eclipse.jgit.api.errors.RefNotFoundException;
 import org.eclipse.jgit.api.errors.TransportException;
 import org.eclipse.jgit.diff.DiffEntry;
-import org.eclipse.jgit.lib.ObjectId;
-import org.eclipse.jgit.lib.PersonIdent;
+import org.eclipse.jgit.diff.DiffFormatter;
+import org.eclipse.jgit.lib.*;
 import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.revwalk.RevTree;
+import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.transport.*;
 import org.eclipse.jgit.transport.ssh.jsch.JschConfigSessionFactory;
+import org.eclipse.jgit.treewalk.AbstractTreeIterator;
+import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 import org.eclipse.jgit.treewalk.TreeWalk;
 import org.eclipse.jgit.treewalk.filter.TreeFilter;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.regex.Pattern;
+import java.util.stream.StreamSupport;
 
 @ApplicationScoped
 public class GitService {
@@ -129,7 +138,7 @@ public class GitService {
 //        }
         writeProjectToFolder(folder, project, files);
         addDeletedFilesToIndex(git, folder, project, files);
-        return commitAddedAndPush(git, gitConfig.getBranch(), message, authorName, authorName);
+        return commitAddedAndPush(git, gitConfig.getBranch(), message, authorName, authorEmail);
     }
 
     public List<GitRepo> readProjectsToImport() {
@@ -292,7 +301,7 @@ public class GitService {
         return git;
     }
 
-    private void addDeletedFolderToIndex(Git git, String folder, String projectId, List<ProjectFile> files) {
+    private void addDeletedFolderToIndex(Git git, String projectId) {
         LOGGER.infof("Add folder %s to git index.", projectId);
         try {
             git.rm().addFilepattern(projectId + File.separator).call();
@@ -301,7 +310,7 @@ public class GitService {
         }
     }
 
-    public void deleteProject(String projectId, List<ProjectFile> files, String authorName, String authorEmail) {
+    public void deleteProject(String projectId, String authorName, String authorEmail) {
         LOGGER.info("Delete and push project " + projectId);
         GitConfig gitConfig = getGitConfig();
         String uuid = UUID.randomUUID().toString();
@@ -310,7 +319,7 @@ public class GitService {
         LOGGER.infof("Temp folder %s is created for deletion of project %s", folder, projectId);
         try {
             Git git = getGit(true, folder);
-            addDeletedFolderToIndex(git, folder, projectId, files);
+            addDeletedFolderToIndex(git, projectId);
             commitAddedAndPush(git, gitConfig.getBranch(), commitMessage, authorName, authorEmail);
             LOGGER.info("Delete Temp folder " + folder);
             vertx.fileSystem().deleteRecursiveBlocking(folder, true);

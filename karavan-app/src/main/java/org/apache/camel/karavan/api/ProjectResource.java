@@ -105,11 +105,11 @@ public class ProjectResource extends AbstractApiResource {
             Response res4 = infrastructureResource.deleteDeployment(null, projectId);
         }
         var identity = getIdentity(securityContext);
-        // delete from git before cache
-        gitService.deleteProject(projectId, karavanCache.getProjectFiles(projectId), identity.get("name"), identity.get("email"));
         // delete from cache
         karavanCache.getProjectFiles(projectId).forEach(file -> karavanCache.deleteProjectFile(projectId, file.getName(), false));
         karavanCache.deleteProject(projectId, false);
+        // delete from git
+        gitService.deleteProject(projectId, identity.get("name"), identity.get("email"));
         LOGGER.info("Project deleted");
     }
 
