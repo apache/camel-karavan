@@ -264,8 +264,6 @@ export class CamelUtil {
                     result[1].push(...missingParameters.map(name => `${name} is required`));
                 }
                 const sensitiveParameters = filledParameters.filter(p => CamelUtil.checkIfKameletParameterSensitive(p, kamelet));
-                console.log(sensitiveParameters)
-                console.log(kamelet)
                 sensitiveParameters.forEach(p => {
                     const value = elementAsAny?.parameters[p];
                     if (value !== undefined && (!value?.trim()?.startsWith("{{") || !value?.trim()?.endsWith('}}'))) {
