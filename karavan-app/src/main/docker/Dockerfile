@@ -24,7 +24,6 @@ LABEL "org.apache.camel.karavan/type"="internal"
 
 RUN mkdir /opt/app
 COPY target/*-runner.jar /opt/app/karavan.jar
-ENV JAVA_OPTS="-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:-UseG1GC -XX:+UseZGC"
 EXPOSE 8080
 
 CMD exec "java" \
