@@ -11,7 +11,7 @@ git clone --depth 1 --branch $GIT_BRANCH $GIT_REPOSITORY $CODE_DIR
 
 cd $CODE_DIR/$PROJECT_ID
 
-jbang -Dcamel.jbang.version=$CAMEL_VERSION camel@apache/camel export --local-kamelet-dir=$KAMELETS_DIR
+jbang -Dcamel.jbang.version=$CAMEL_VERSION camel@apache/camel export --local-kamelet-dir=$KAMELETS_DIR --runtime=${CAMEL_JBANG_RUNTIME:-camel-main}
 
 mvn package jib:build \
   -Djib.allowInsecureRegistries=true \
