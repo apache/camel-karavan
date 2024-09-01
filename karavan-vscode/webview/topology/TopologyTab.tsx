@@ -45,6 +45,7 @@ interface Props {
     onClickAddREST: () => void
     onClickAddKamelet: () => void
     onClickAddBean: () => void
+    isDev?: boolean
 }
 
 export function TopologyTab(props: Props) {
@@ -146,7 +147,9 @@ export function TopologyTab(props: Props) {
                 ? <TopologyToolbar onClickAddRoute={props.onClickAddRoute}
                                    onClickAddBean={props.onClickAddBean}
                                    onClickAddKamelet={props.onClickAddKamelet}
-                                   onClickAddREST={props.onClickAddREST}/>
+                                   onClickAddREST={props.onClickAddREST}
+                                   isDev={props.isDev}
+                />
                 : undefined}
             sideBar={<TopologyPropertiesPanel onSetFile={props.onSetFile}/>}
             controlBar={

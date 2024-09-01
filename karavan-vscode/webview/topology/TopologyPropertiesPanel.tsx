@@ -30,7 +30,7 @@ import {
     TooltipPosition
 } from "@patternfly/react-core";
 import CloseIcon from "@patternfly/react-icons/dist/esm/icons/times-icon";
-import {NAV_COMPONENTS} from "../designer/utils/CamelUi";
+import {INTERNAL_COMPONENTS} from "core/api/ComponentApi";
 
 interface Props {
     onSetFile: (fileName: string) => void
@@ -69,7 +69,7 @@ export function TopologyPropertiesPanel(props: Props) {
         if (isRoute()) {
             const uri: string = nodeData?.step?.from.uri || '';
             const name: string = nodeData?.step?.from.parameters?.name || '';
-            if (NAV_COMPONENTS.includes(uri)) {
+            if (INTERNAL_COMPONENTS.includes(uri)) {
                 return uri.concat(":").concat(name);
             } else {
                 return uri;

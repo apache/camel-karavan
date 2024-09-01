@@ -116,3 +116,7 @@
 .karavan .topology-panel .auto-start .text {
     fill: var(--pf-topology__node__label__text--Fill);
 }
+
+.karavan .topology-group .pf-topology__group__label {
+    display: none;
+}
