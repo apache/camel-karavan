@@ -202,7 +202,7 @@ public class GitService {
                     checkout(git, false, null, null, gitConfig.getBranch());
                 }
             } catch (RefNotFoundException | InvalidRemoteException | TransportException e) {
-                LOGGER.error("New repository");
+                LOGGER.error("New repository", e);
                 git = init(folder, gitConfig.getUri(), gitConfig.getBranch());
             } catch (Exception e) {
                 LOGGER.error("Error", e);
