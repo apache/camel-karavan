@@ -193,7 +193,7 @@ public class GitService {
             git = init(folder, gitConfig.getUri(), gitConfig.getBranch());
         } else {
             try {
-                git = clone(folder, gitConfig.getUri());
+                git = clone(folder, gitConfig.getUri(), gitConfig.getBranch());
                 var branch = git.branchList().call().stream().filter(ref -> ref.getName().equals("refs/heads/" + gitConfig.getBranch())).findFirst();
                 if (branch.isEmpty()) {
                     createBranch(git, gitConfig.getBranch());
@@ -202,7 +202,7 @@ public class GitService {
                     checkout(git, false, null, null, gitConfig.getBranch());
                 }
             } catch (RefNotFoundException | InvalidRemoteException | TransportException e) {
-                LOGGER.error("New repository");
+                LOGGER.error("New repository", e);
                 git = init(folder, gitConfig.getUri(), gitConfig.getBranch());
             } catch (Exception e) {
                 LOGGER.error("Error", e);
@@ -332,11 +332,12 @@ public class GitService {
         }
     }
 
-    private Git clone(String dir, String uri) throws GitAPIException, URISyntaxException {
+    private Git clone(String dir, String uri, String branch) throws GitAPIException, URISyntaxException {
         CloneCommand command = Git.cloneRepository();
         command.setCloneAllBranches(false);
         command.setDirectory(Paths.get(dir).toFile());
         command.setURI(uri);
+        command.setBranch(branch);
         setCredentials(command);
         Git git = command.call();
         addRemote(git, uri);
@@ -430,7 +431,7 @@ public class GitService {
         GitConfig gitConfig = getGitConfig();
         String uuid = UUID.randomUUID().toString();
         String folder = vertx.fileSystem().createTempDirectoryBlocking(uuid);
-        try (Git git = clone(folder, gitConfig.getUri())) {
+        try (Git git = clone(folder, gitConfig.getUri(), gitConfig.getBranch())) {
             LOGGER.info("Git is ready");
         } catch (Exception e) {
             LOGGER.info("Error connecting git: " + (e.getCause() != null ? e.getCause().getMessage() : e.getMessage()));
