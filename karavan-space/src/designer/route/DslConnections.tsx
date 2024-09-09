@@ -125,12 +125,12 @@ export function DslConnections() {
             const isNav = data[2] === 'nav';
             return (!isInternal
                     ? <g key={pos.step.uuid + "-incoming"}>
-                        <circle cx={incomingX} cy={fromY} r={r} className="circle-incoming"/>
-                        <path d={`M ${lineX1},${lineY1} C ${lineX1},${lineY2} ${lineX2},${lineY1}  ${lineX2},${lineY2}`}
+                        <circle key={pos.step.uuid + "-circle"} cx={incomingX} cy={fromY} r={r} className="circle-incoming"/>
+                        <path key={pos.step.uuid + "-path"} d={`M ${lineX1},${lineY1} C ${lineX1},${lineY2} ${lineX2},${lineY1}  ${lineX2},${lineY2}`}
                               className={isNav ? 'path-incoming-nav' : 'path-incoming'}
                               markerEnd="url(#arrowhead)"/>
                     </g>
-                    : <></>
+                    : <div key={pos.step.uuid + "-incoming"} style={{display: 'none'}}></div>
             )
         }
     }
@@ -179,7 +179,7 @@ export function DslConnections() {
                             </Tooltip>
                         )}
                     </div>
-                    : <></>
+                    : <div key={pos.step.uuid + "-icon"} style={{display: 'none'}}></div>
             )
         }
     }
@@ -247,7 +247,7 @@ export function DslConnections() {
                             d={`M ${lineX1},${lineY1} C ${lineXi - 20}, ${lineY1} ${lineX1 - RADIUS},${lineYi} ${lineXi},${lineYi} L ${lineX2},${lineY2}`}
                             className={isNav ? 'path-incoming-nav' : 'path-incoming'} markerEnd="url(#arrowhead)"/>
                     </g>
-                    : <></>
+                    : <div key={pos.step.uuid + "-outgoing"} style={{display: 'none'}}></div>
             )
         }
     }
@@ -288,7 +288,7 @@ export function DslConnections() {
                             </Tooltip>
                         }
                     </div>
-                    : <></>
+                    : <div key={pos.step.uuid + "-icon"} style={{display: 'none'}}></div>
             )
         }
     }
@@ -475,8 +475,8 @@ export function DslConnections() {
             <svg key={svgKey}
                  style={{width: width, height: height, position: "absolute", left: 0, top: 0}}
                  viewBox={"0 0 " + (width) + " " + (height)}>
-                <defs>
-                    <marker id="arrowhead" markerWidth="9" markerHeight="6" refX="0" refY="3" orient="auto"
+                <defs key='defs'>
+                    <marker key='maker' id="arrowhead" markerWidth="9" markerHeight="6" refX="0" refY="3" orient="auto"
                             className="arrow">
                         <polygon points="0 0, 9 3, 0 6"/>
                     </marker>
