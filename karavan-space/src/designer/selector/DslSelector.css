@@ -20,6 +20,16 @@
     color: var(--pf-v5-global--Color--100);
 }
 
+.dsl-modal .pf-v5-c-modal-box__header {
+    padding: 24px 0 24px 24px;
+    margin: 0;
+    border-bottom: 1px solid var(--pf-v5-global--BackgroundColor--light-300);
+}
+
+.dsl-modal .pf-v5-c-modal-box__body {
+    padding-top: 0;
+}
+
 .dsl-modal .dsl-card {
     cursor: pointer;
 }
@@ -50,11 +60,11 @@
 }
 
 .dsl-modal .search {
-    position: absolute;
-    top: 24px;
-    right: 72px;
-    display:flex;
-    justify-content:flex-end;
+    /*position: absolute;*/
+    /*top: 24px;*/
+    /*right: 72px;*/
+    /*display:flex;*/
+    /*justify-content:flex-end;*/
 }
 
 .dsl-modal .search .pf-v5-c-form__group-label {

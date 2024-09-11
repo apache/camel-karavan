@@ -109,6 +109,9 @@ interface SelectorStateState {
     addSelectedLabel: (label: string) => void;
     deleteSelectedLabel: (label: string) => void;
     clearSelectedLabels: () => void;
+    selectedToggles: string [];
+    addSelectedToggle: (label: string) => void;
+    deleteSelectedToggle: (label: string) => void;
 }
 
 export const useSelectorStore = createWithEqualityFn<SelectorStateState>((set) => ({
@@ -117,6 +120,7 @@ export const useSelectorStore = createWithEqualityFn<SelectorStateState>((set) =
     parentId: '',
     showSteps: true,
     selectedLabels: [],
+    selectedToggles: ['eip', 'components', 'kamelets'],
     addSelectedLabel: (label: string) => {
         set(state => ({
             selectedLabels: [...state.selectedLabels, label]
@@ -133,8 +137,15 @@ export const useSelectorStore = createWithEqualityFn<SelectorStateState>((set) =
             return {selectedLabels : [...state.selectedLabels]};
         })
     },
-    setSelectedLabels: (selectedLabels: string []) => {
-        set({selectedLabels: selectedLabels})
+    addSelectedToggle: (toggle: string) => {
+        set(state => ({
+            selectedToggles: [...state.selectedToggles, toggle]
+        }))
+    },
+    deleteSelectedToggle: (toggle: string) => {
+        set(state => ({
+            selectedToggles: [...state.selectedToggles.filter(x => x !== toggle)]
+        }))
     },
     setSelectorTabIndex: (selectorTabIndex?: string | number) => {
         set({selectorTabIndex: selectorTabIndex})

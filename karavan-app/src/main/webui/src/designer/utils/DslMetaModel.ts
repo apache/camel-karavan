@@ -25,7 +25,6 @@ export class DslMetaModel {
     navigation: string = ''
     version: string = ''
     supportLevel: string = ''
-    supportType: string = ''
     remote: boolean = false
     properties: any;
 

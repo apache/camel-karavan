@@ -23,14 +23,10 @@ import {
     Modal,
     PageSection,
     Switch,
-    Tab,
-    Tabs,
-    TabTitleText,
     TextInputGroup,
-    TextInputGroupMain,
-    TextInputGroupUtilities,
+    TextInputGroupUtilities, TextVariants, Text,
     ToggleGroup,
-    ToggleGroupItem
+    ToggleGroupItem, TextContent, Badge, TextInput, Skeleton
 } from '@patternfly/react-core';
 import './DslSelector.css';
 import {CamelUi} from "../utils/CamelUi";
@@ -44,6 +40,7 @@ import TimesIcon from "@patternfly/react-icons/dist/esm/icons/times-icon";
 import {addPreferredElement, deletePreferredElement, getPreferredElements} from "./DslPreferences";
 import {DslFastCard} from "./DslFastCard";
 import {DslCard} from "./DslCard";
+import {useDebounceValue} from 'usehooks-ts';
 
 interface Props {
     tabIndex?: string | number
@@ -51,53 +48,161 @@ interface Props {
 
 export function DslSelector(props: Props) {
 
-    const [showSelector, showSteps, parentId, parentDsl, selectorTabIndex, setShowSelector, setSelectorTabIndex,
-        selectedPosition, selectedLabels, addSelectedLabel, deleteSelectedLabel, clearSelectedLabels] =
+    const [showSelector, showSteps, parentId, parentDsl, setShowSelector,
+        selectedPosition, selectedToggles, addSelectedToggle, deleteSelectedToggle] =
         useSelectorStore((s) =>
-            [s.showSelector, s.showSteps, s.parentId, s.parentDsl, s.selectorTabIndex, s.setShowSelector, s.setSelectorTabIndex,
-                s.selectedPosition, s.selectedLabels, s.addSelectedLabel, s.deleteSelectedLabel, s.clearSelectedLabels], shallow)
+            [s.showSelector, s.showSteps, s.parentId, s.parentDsl, s.setShowSelector,
+                s.selectedPosition, s.selectedToggles, s.addSelectedToggle, s.deleteSelectedToggle], shallow)
 
     const [dark] = useDesignerStore((s) => [s.dark], shallow)
 
     const {onDslSelect} = useRouteDesignerHook();
 
-    const [filter, setFilter] = useState<string>('');
+    const [filter, setFilter] = useDebounceValue('', 300)
     const [customOnly, setCustomOnly] = useState<boolean>(false);
-    const [preferredEip, setPreferredEip] = useState<string[]>([]);
-    const [preferredComponents, setPreferredComponents] = useState<string[]>([]);
-    const [preferredKamelets, setPreferredKamelets] = useState<string[]>([]);
+    const [elements, setElements] = useState<DslMetaModel[]>([]);
+    const [preferredElements, setPreferredElements] = useState<string[]>([]);
+    const [ready, setReady] = useState<boolean>(false);
 
     useEffect(() => {
+        setAllElements();
         setPreferences();
-    }, [selectedLabels]);
+        setReady(true);
+    }, []);
 
-    function setPreferences() {
-        setPreferredEip(getPreferredElements('eip'));
-        setPreferredComponents(getPreferredElements('components'));
-        setPreferredKamelets(getPreferredElements('kamelets'));
+    function setAllElements() {
+        const blockedComponents = ComponentApi.getBlockedComponentNames();
+        const blockedKamelets = KameletApi.getBlockedKameletNames();
+        const eipE = CamelUi.getSelectorModelsForParentFiltered(parentDsl, 'eip', showSteps);
+        const cE = CamelUi.getSelectorModelsForParentFiltered(parentDsl, 'component', showSteps)
+            .filter(dsl => (!blockedComponents.includes(dsl.uri || dsl.name)));
+        const kE = CamelUi.getSelectorModelsForParentFiltered(parentDsl, 'kamelet', showSteps)
+            .filter(dsl => (!blockedKamelets.includes(dsl.name)));
+        const e: DslMetaModel[] = [];
+        if (parentDsl !== undefined) {
+            e.push(...eipE)
+        }
+        e.push(...cE)
+        e.push(...kE)
+        setElements(e);
     }
 
-    function selectTab(evt: React.MouseEvent<HTMLElement, MouseEvent>, eventKey: string | number) {
-        setSelectorTabIndex(eventKey);
+    function setPreferences() {
+        const p: string[] = []
+        p.push(...getPreferredElements('kamelets'));
+        p.push(...getPreferredElements('components'));
+        p.push(...getPreferredElements('eip'));
+        setPreferredElements(p);
+    }
+
+    function getDslMetaModelType(dsl: DslMetaModel){
+        return ['ToDefinition', 'FromDefinition'].includes(dsl.type) ? 'components' : (dsl.uri?.startsWith("kamelet:") ? "kamelets" : 'eip');
     }
 
     function selectDsl(evt: React.MouseEvent, dsl: any) {
+        console.log('selectDsl', dsl)
         evt.stopPropagation();
         setFilter('');
         setShowSelector(false);
         onDslSelect(dsl, parentId, selectedPosition);
-        addPreferredElement(type, dsl)
+        addPreferredElement(getDslMetaModelType(dsl), dsl)
     }
+
     function deleteFast(evt: React.MouseEvent, dsl: DslMetaModel) {
+        console.log('deleteFast', dsl)
         evt.stopPropagation();
-        deletePreferredElement(type, dsl);
+        deletePreferredElement(getDslMetaModelType(dsl), dsl);
         setPreferences();
     }
 
     function searchInput() {
         return (
-            <Flex className="search">
-                {selectorTabIndex === 'kamelets' && <FlexItem>
+            <TextInputGroup className="search">
+                <TextInput
+                    defaultValue={filter}
+                    type="text"
+                    autoComplete={"off"}
+                    autoFocus={true}
+                    onChange={(_event, value) => setFilter(value)}
+                    aria-label="text input example"
+                />
+                {/*<TextInputGroupMain className="text-field" type="text" autoComplete={"off"}*/}
+                {/*                    value={filter}*/}
+                {/*                    autoFocus={true}*/}
+                {/*                    onChange={(_, value) => setFilter(value)}/>*/}
+                <TextInputGroupUtilities>
+                    <Button variant="plain" onClick={_ => setFilter('')}>
+                        <TimesIcon/>
+                    </Button>
+                </TextInputGroupUtilities>
+            </TextInputGroup>
+        )
+    }
+
+    function getToggles() {
+        return (
+            <ToggleGroup aria-label="Default with single selectable">
+                {parentDsl !== undefined && <ToggleGroupItem
+                    text={
+                        <div style={{display: 'flex', flexDirection: 'row'}}>
+                            <div style={{marginRight: '6px'}}>EIP</div>
+                            {ready && <Badge isRead={!selectedToggles.includes('eip')}>{eCount}</Badge>}
+                        </div>
+                    }
+                    buttonId="eip"
+                    isSelected={selectedToggles.includes('eip')}
+                    onChange={(_, selected) => {
+                        if (selected) addSelectedToggle('eip')
+                        else deleteSelectedToggle('eip')
+                    }}
+                />}
+                <ToggleGroupItem
+                    text={
+                        <div style={{display: 'flex', flexDirection: 'row'}}>
+                            <div style={{marginRight: '6px'}}>Components</div>
+                            {ready && <Badge isRead={!selectedToggles.includes('components')}>{cCount}</Badge>}
+                        </div>
+                    }
+                    buttonId="components"
+                    isSelected={selectedToggles.includes('components')}
+                    onChange={(_, selected) => {
+                        if (selected) addSelectedToggle('components')
+                        else deleteSelectedToggle('components')
+                    }}
+                />
+                <ToggleGroupItem
+                    text={
+                        <div style={{display: 'flex', flexDirection: 'row'}}>
+                            <div style={{marginRight: '6px'}}>Kamelets</div>
+                            {ready && <Badge isRead={!selectedToggles.includes('kamelets')}>{kCount}</Badge>}
+                        </div>
+                    }
+                    buttonId="kamelets"
+                    isSelected={selectedToggles.includes('kamelets')}
+                    onChange={(_, selected) => {
+                        if (selected) addSelectedToggle('kamelets')
+                        else deleteSelectedToggle('kamelets')
+                    }}
+                />
+            </ToggleGroup>
+        )
+    }
+
+    function getHeader() {
+        return (
+            <Flex direction={{default: "row"}}>
+                <FlexItem>
+                    <TextContent>
+                        <Text component={TextVariants.h3}>{title}</Text>
+                    </TextContent>
+                </FlexItem>
+                <FlexItem>
+                    {searchInput()}
+                </FlexItem>
+                <FlexItem>
+                    {getToggles()}
+                </FlexItem>
+                {selectedToggles.includes('kamelets') && <FlexItem>
                     <Switch
                         label="Custom only"
                         id="switch"
@@ -105,18 +210,6 @@ export function DslSelector(props: Props) {
                         onChange={(_event, checked) => setCustomOnly(checked)}
                     />
                 </FlexItem>}
-                <FlexItem>
-                    <TextInputGroup>
-                        <TextInputGroupMain className="text-field" type="text" autoComplete={"off"}
-                                            value={filter}
-                                            onChange={(_, value) => setFilter(value)}/>
-                        <TextInputGroupUtilities>
-                            <Button variant="plain" onClick={_ => setFilter('')}>
-                                <TimesIcon/>
-                            </Button>
-                        </TextInputGroupUtilities>
-                    </TextInputGroup>
-                </FlexItem>
             </Flex>
         )
     }
@@ -126,69 +219,32 @@ export function DslSelector(props: Props) {
         setShowSelector(false);
     }
 
-    function selectLabel(eipLabel: string) {
-        if (!selectedLabels.includes(eipLabel)) {
-            addSelectedLabel(eipLabel);
-        } else {
-            deleteSelectedLabel(eipLabel);
-        }
-    }
-
-    function filterElements(elements: DslMetaModel[], type: 'eip' | 'components' | 'kamelets'): DslMetaModel[] {
-        return elements.filter((dsl: DslMetaModel) => CamelUi.checkFilter(dsl, filter))
-            .filter((dsl: DslMetaModel) => {
-                if (type !== 'eip' || selectedLabels.length === 0) {
-                    return true;
-                } else {
-                    return dsl.labels.split(",").some(r => selectedLabels.includes(r));
-                }
-            });
-    }
-
-    const isEip = selectorTabIndex === 'eip';
-    const type = isEip ? 'eip' : (selectorTabIndex === 'components' ? 'components' : 'kamelets');
-    const isRouteConfig = parentDsl === 'RouteConfigurationDefinition';
     const title = parentDsl === undefined ? "Select source" : "Select step";
-    const navigation: string = selectorTabIndex ? selectorTabIndex.toString() : '';
-    const blockedComponents = ComponentApi.getBlockedComponentNames();
-    const blockedKamelets = KameletApi.getBlockedKameletNames();
+    const filteredElements: DslMetaModel[] = elements
+        .filter(d => {
+            if (selectedToggles.includes('eip') && d.navigation === 'eip') return true
+            else if (selectedToggles.includes('components') && d.navigation === 'component') return true
+            else if (selectedToggles.includes('kamelets') && d.navigation === 'kamelet') return true
+            else return false;
+        })
+        .filter(d => CamelUi.checkFilter(d, filter));
 
-    const eipElements = CamelUi.getSelectorModelsForParentFiltered(parentDsl, 'eip', showSteps);
-    const componentElements = CamelUi.getSelectorModelsForParentFiltered(parentDsl, 'component', showSteps)
-        .filter(dsl => (!blockedComponents.includes(dsl.uri || dsl.name)));
-    let kameletElements = CamelUi.getSelectorModelsForParentFiltered(parentDsl, 'kamelet', showSteps)
-        .filter(dsl => (!blockedKamelets.includes(dsl.name)));
-    if (customOnly) kameletElements = kameletElements.filter(k => KameletApi.getCustomKameletNames().includes(k.name));
+    const eCount = filteredElements.filter(e => e.navigation === 'eip').length;
+    const cCount = filteredElements.filter(e => e.navigation === 'component').length;
+    const kCount = filteredElements.filter(e => e.navigation === 'kamelet').length;
 
-    const elements = navigation === 'components'
-        ? componentElements
-        : (navigation === 'kamelets' ? kameletElements : eipElements);
-
-    const preferredElements = navigation === 'components'
-        ? preferredComponents
-        : (navigation === 'kamelets' ? preferredKamelets : preferredEip);
-
-    const filteredEipElements = filterElements(eipElements, 'eip');
-    const filteredComponentElements = filterElements(componentElements, 'components');
-    const filteredKameletElements = filterElements(kameletElements, 'kamelets');
-
-    const eipLabels = [...new Set(eipElements.map(e => e.labels).join(",").split(",").filter(e => e !== 'eip'))];
-
-
-    const filteredElements = navigation === 'components'
-        ? filteredComponentElements
-        : (navigation === 'kamelets' ? filteredKameletElements : filteredEipElements);
-
-    const fastElements = elements.filter((d: DslMetaModel) => {
-        if (isEip) {
+    const fastElements: DslMetaModel[] = elements
+        .filter((d: DslMetaModel) => {
+        if (selectedToggles.includes('eip') && d.navigation === 'eip') {
             return preferredElements.includes(d.dsl);
-        } else if (navigation === 'components') {
+        } else if (d.navigation === 'component' && d.navigation === 'component') {
             return d.uri && preferredElements.includes(d.uri)
         } else {
             return preferredElements.includes(d.name)
         }
-    }).filter((_, i) => i < 7)
-
+        })
+        .filter(d => CamelUi.checkFilter(d, filter))
+        .filter((_, i) => i < 7)
 
     return (
         <Modal
@@ -197,57 +253,22 @@ export function DslSelector(props: Props) {
             className='dsl-modal'
             isOpen={showSelector}
             onClose={() => close()}
-            header={
-                <Flex direction={{default: "column"}}>
-                    <FlexItem>
-                        <h3>{title}</h3>
-                        {searchInput()}
-                    </FlexItem>
-                    <FlexItem>
-                        <Tabs style={{overflow: 'hidden'}} activeKey={selectorTabIndex}
-                              onSelect={selectTab}>
-                            {parentDsl !== undefined &&
-                                <Tab eventKey={"eip"} key={"tab-eip"}
-                                     title={
-                                         <TabTitleText>{`Integration Patterns (${filteredEipElements?.length})`}</TabTitleText>}>
-                                </Tab>
-                            }
-                            {!isRouteConfig &&
-                                <Tab eventKey={'components'} key={'tab-component'}
-                                     title={
-                                         <TabTitleText>{`Components (${filteredComponentElements?.length})`}</TabTitleText>}>
-                                </Tab>
-                            }
-                            {!isRouteConfig &&
-                                <Tab eventKey={'kamelets'} key={"tab-kamelet"}
-                                     title={
-                                         <TabTitleText>{`Kamelets (${filteredKameletElements?.length})`}</TabTitleText>}>
-                                </Tab>
-                            }
-                        </Tabs>
-                    </FlexItem>
-                </Flex>
-            }
+            header={getHeader()}
             actions={{}}>
             <PageSection padding={{default: "noPadding"}} variant={dark ? "darker" : "light"}>
-                {isEip && <ToggleGroup aria-label="Labels" isCompact>
-                    {eipLabels.map(eipLabel =>
-                        <ToggleGroupItem key={eipLabel}
-                                         text={eipLabel}
-                                         buttonId={eipLabel}
-                                         isSelected={selectedLabels.includes(eipLabel)}
-                                         onChange={selected => selectLabel(eipLabel)}
-                        />)}
-                    <ToggleGroupItem key='clean' buttonId='clean' isSelected={false} onChange={clearSelectedLabels}
-                                     icon={<TimesIcon/>}/>
-                </ToggleGroup>}
-                <Gallery key={"fast-gallery-" + navigation} hasGutter className="dsl-gallery"
+                {!ready && [1, 2, 3, 4, 5, 6, 7, 8, 9].map(i =>
+                    <React.Fragment>
+                        <Skeleton width={i * 10 + '%'} screenreaderText="Loading..."/>
+                        <br/>
+                    </React.Fragment>)
+                }
+                <Gallery key={"fast-gallery"} hasGutter className="dsl-gallery"
                          minWidths={{default: '150px'}}>
                     {showSelector && fastElements.map((dsl: DslMetaModel, index: number) =>
                         <DslFastCard dsl={dsl} index={index} onDslSelect={selectDsl} onDeleteFast={deleteFast}/>
                     )}
                 </Gallery>
-                <Gallery key={"gallery-" + navigation} hasGutter className="dsl-gallery" minWidths={{default: '200px'}}>
+                <Gallery key={"gallery"} hasGutter className="dsl-gallery" minWidths={{default: '200px'}}>
                     {showSelector && filteredElements.map((dsl: DslMetaModel, index: number) =>
                         <DslCard dsl={dsl} index={index} onDslSelect={selectDsl}/>
                     )}
