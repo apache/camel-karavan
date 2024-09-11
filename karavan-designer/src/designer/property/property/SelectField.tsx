@@ -41,7 +41,7 @@ interface Props {
 export function SelectField(props: Props) {
     const [isOpen, setIsOpen] = React.useState(false);
     const [selected, setSelected] = React.useState<string>(props.value || '');
-    const [inputValue, setInputValue] = React.useState<string>(props.value || '');
+    const [inputValue, setInputValue] = React.useState<string>();
     const [filterValue, setFilterValue] = React.useState<string>('');
     const [selectOptions, setSelectOptions] = React.useState<SelectOptionProps[]>([]);
     const [focusedItemIndex, setFocusedItemIndex] = React.useState<number | null>(null);
@@ -49,6 +49,11 @@ export function SelectField(props: Props) {
     const textInputRef = React.useRef<HTMLInputElement>();
 
     const CREATE_NEW = 'create';
+
+    React.useEffect(() => {
+        const v = props.selectOptions.filter(so => so.value === props.value)?.at(0)?.children?.toString() || '';
+        setInputValue(v);
+    }, []);
 
     React.useEffect(() => {
         let initialSelectOptions = props.selectOptions;
