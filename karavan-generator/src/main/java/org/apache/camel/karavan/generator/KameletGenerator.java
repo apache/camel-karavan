@@ -42,12 +42,11 @@ public class KameletGenerator extends AbstractGenerator {
     public static void generate(String... paths) throws Exception {
         KameletGenerator g = new KameletGenerator();
         for (String path : paths) {
-            g.createKamelets(path + "/kamelets", true);
+            g.createKamelets(path + "/metadata", true);
         }
     }
 
     public void createKamelets(String folder, boolean singleFile) {
-        clearDirectory(Paths.get(folder).toFile());
         StringBuilder list = new StringBuilder();
         StringBuilder sources = new StringBuilder();
 
@@ -62,7 +61,7 @@ public class KameletGenerator extends AbstractGenerator {
                 saveKamelet(folder, fileName);
             }
         }
-        saveFile(folder, "kamelets.properties", list.toString());
+//        saveFile(folder, "kamelets.properties", list.toString());
         if (singleFile) {
             saveFile(folder, "kamelets.yaml", sources.toString());
         }
@@ -91,15 +90,6 @@ public class KameletGenerator extends AbstractGenerator {
                 } catch (Exception ex){
 
                 }
-            }
-        }
-    }
-
-    void clearDirectory(File directoryToBeDeleted) {
-        File[] allContents = directoryToBeDeleted.listFiles();
-        if (allContents != null) {
-            for (File file : allContents) {
-                if (!file.getName().endsWith("gitignore")) file.delete();
             }
         }
     }

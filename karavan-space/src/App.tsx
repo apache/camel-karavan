@@ -71,8 +71,8 @@ class App extends React.Component<Props, State> {
 
     componentDidMount() {
         Promise.all([
-            fetch("kamelets/kamelets.yaml"),
-            fetch("components/components.json"),
+            fetch("metadata/kamelets.yaml"),
+            fetch("metadata/components.json"),
             fetch("snippets/org.apache.camel.AggregationStrategy"),
             fetch("snippets/org.apache.camel.Processor"),
         ]).then(responses =>

@@ -32,7 +32,8 @@ import {
     Tooltip,
     Card,
     InputGroup,
-    capitalize, InputGroupItem, TextVariants, ToggleGroup, ToggleGroupItem, HelperTextItem, FormHelperText, HelperText
+    SelectOptionProps,
+    capitalize, InputGroupItem, TextVariants, ToggleGroup, ToggleGroupItem,
 } from '@patternfly/react-core';
 import {
     Select,
@@ -77,6 +78,11 @@ import {BeanProperties} from "./BeanProperties";
 import {PropertyPlaceholderDropdown} from "./PropertyPlaceholderDropdown";
 import {VariablesDropdown} from "./VariablesDropdown";
 import {ROUTE, GLOBAL} from "karavan-core/lib/api/VariableUtil";
+import {SpiBeanApi} from "karavan-core/lib/api/SpiBeanApi";
+import {SelectField} from "./SelectField";
+
+const beanPrefix = "#bean:";
+const classPrefix = "#class:";
 
 interface Props {
     property: PropertyMeta,
@@ -93,7 +99,7 @@ interface Props {
 export function DslPropertyField(props: Props) {
 
     const [integration, setIntegration, addVariable, files] = useIntegrationStore((s) => [s.integration, s.setIntegration, s.addVariable, s.files], shallow)
-    const [dark, setSelectedStep] = useDesignerStore((s) => [s.dark, s.setSelectedStep], shallow)
+    const [dark, setSelectedStep, beans] = useDesignerStore((s) => [s.dark, s.setSelectedStep, s.beans], shallow)
 
     const [isShowAdvanced, setIsShowAdvanced] = useState<string[]>([]);
     const [arrayValues, setArrayValues] = useState<Map<string, string>>(new Map<string, string>());
@@ -470,42 +476,64 @@ export function DslPropertyField(props: Props) {
 
     function getJavaTypeGeneratedInput(property: PropertyMeta, value: any) {
         const {dslLanguage} = props;
-        return (<InputGroup>
-            <InputGroupItem isFill>
-                <TextInput
-                    ref={ref}
-                    className="text-field" isRequired
-                    type="text"
-                    id={property.name} name={property.name}
-                    value={value?.toString()}
-                    onChange={(_, value) => {
-                        propertyChanged(property.name, CamelUtil.capitalizeName(value?.replace(/\s/g, '')))
-                    }}
-                    readOnlyVariant={isUriReadOnly(property) ? "default" : undefined}/>
-            </InputGroupItem>
-            <InputGroupItem>
-                <Tooltip position="bottom-end" content={"Create Java Class"}>
-                    <Button isDisabled={value?.length === 0} variant="control"
-                            onClick={e => showCode(value, property.javaType)}>
-                        <PlusIcon/>
-                    </Button>
-                </Tooltip>
-            </InputGroupItem>
-            {showEditor && <InputGroupItem>
-                <ExpressionModalEditor name={property.name}
-                                       customCode={customCode}
-                                       showEditor={showEditor}
-                                       dark={dark}
-                                       dslLanguage={dslLanguage}
-                                       title="Java Class"
-                                       onClose={() => setShowEditor(false)}
-                                       onSave={(fieldId, value1) => {
-                                           propertyChanged(fieldId, value);
-                                           InfrastructureAPI.onSaveCustomCode?.(value, value1);
-                                           setShowEditor(false)
-                                       }}/>
-            </InputGroupItem>}
-        </InputGroup>)
+        const selectOptions: SelectOptionProps[] = [];
+        if (beans) {
+            selectOptions.push(...beans.map((bean) => {
+                return {value: beanPrefix + bean.name, children: bean.name}
+            }));
+            selectOptions.push(...SpiBeanApi.findByInterfaceTypeSimple(property.javaType).map((bean) => {
+                    return {
+                        value: classPrefix + bean.javaType, children: bean.name, description: bean.description
+                    }
+                })
+            );
+        }
+        return (
+            <SelectField
+                id={property.name}
+                name={property.name}
+                placeholder='Select bean'
+                selectOptions={selectOptions}
+                value={value?.toString()}
+                onChange={(name, value) => propertyChanged(property.name, value)}
+            />
+            // <InputGroup>
+            //     <InputGroupItem isFill>
+            //         <TextInput
+            //             ref={ref}
+            //             className="text-field" isRequired
+            //             type="text"
+            //             id={property.name} name={property.name}
+            //             value={value?.toString()}
+            //             onChange={(_, value) => {
+            //                 propertyChanged(property.name, CamelUtil.capitalizeName(value?.replace(/\s/g, '')))
+            //             }}
+            //             readOnlyVariant={isUriReadOnly(property) ? "default" : undefined}/>
+            //     </InputGroupItem>
+            //     <InputGroupItem>
+            //         <Tooltip position="bottom-end" content={"Create Java Class"}>
+            //             <Button isDisabled={value?.length === 0} variant="control"
+            //                     onClick={e => showCode(value, property.javaType)}>
+            //                 <PlusIcon/>
+            //             </Button>
+            //         </Tooltip>
+            //     </InputGroupItem>
+            //     {showEditor && <InputGroupItem>
+            //         <ExpressionModalEditor name={property.name}
+            //                                customCode={customCode}
+            //                                showEditor={showEditor}
+            //                                dark={dark}
+            //                                dslLanguage={dslLanguage}
+            //                                title="Java Class"
+            //                                onClose={() => setShowEditor(false)}
+            //                                onSave={(fieldId, value1) => {
+            //                                    propertyChanged(fieldId, value);
+            //                                    InfrastructureAPI.onSaveCustomCode?.(value, value1);
+            //                                    setShowEditor(false)
+            //                                }}/>
+            //     </InputGroupItem>}
+            // </InputGroup>
+        )
     }
 
     function getTextArea(property: PropertyMeta, value: any) {
@@ -630,8 +658,8 @@ export function DslPropertyField(props: Props) {
         const beans = CamelUi.getBeans(integration);
         if (beans) {
             selectOptions.push(<SelectOption key={0} value={"Select..."} isPlaceholder/>);
-            selectOptions.push(...beans.map((bean) => <SelectOption key={bean.name} value={bean.name}
-                                                                    description={bean.type}/>));
+            selectOptions.push(...beans.map((bean) =>
+                <SelectOption key={bean.name} value={bean.name} description={bean.type}/>));
         }
         return (
             <Select
@@ -1013,6 +1041,7 @@ export function DslPropertyField(props: Props) {
     const isVariable = getIsVariable();
     const beanConstructors = element?.dslName === 'BeanFactoryDefinition' && property.name === 'constructors'
     const beanProperties = element?.dslName === 'BeanFactoryDefinition' && property.name === 'properties'
+    const isSpi = property.javaType.startsWith("org.apache.camel.spi") || property.javaType.startsWith("org.apache.camel.AggregationStrategy");
     return (
         <div>
             <FormGroup

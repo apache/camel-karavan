@@ -43,6 +43,7 @@ import {TopologyTab} from "./topology/TopologyTab";
 import {useEffect, useState} from "react";
 import {IntegrationFile} from "karavan-core/lib/model/IntegrationDefinition";
 import {KnowledgebaseHome} from "./KnowledgebaseHome";
+import {SpiBeanApi} from "karavan-core/lib/api/SpiBeanApi";
 
 class MenuItem {
     pageId: string = '';
@@ -66,8 +67,9 @@ export function App() {
 
     useEffect(() => {
         Promise.all([
-            fetch("kamelets/kamelets.yaml"),
-            fetch("components/components.json"),
+            fetch("metadata/kamelets.yaml"),
+            fetch("metadata/components.json"),
+            fetch("metadata/spiBeans.json"),
             fetch("snippets/org.apache.camel.AggregationStrategy"),
             fetch("snippets/org.apache.camel.Processor"),
             fetch("example/demo.camel.yaml"),
@@ -90,24 +92,28 @@ export function App() {
             JSON.parse(data[1]).forEach((c: any) => jsons.push(JSON.stringify(c)));
             ComponentApi.saveComponents(jsons, true);
 
+            jsons.length = 0;
+            JSON.parse(data[2]).forEach((c: any) => jsons.push(JSON.stringify(c)));
+            SpiBeanApi.saveSpiBeans(jsons, true);
+
             setLoaded(true);
 
-            TemplateApi.saveTemplate("org.apache.camel.AggregationStrategy", data[2]);
-            TemplateApi.saveTemplate("org.apache.camel.Processor", data[3]);
+            TemplateApi.saveTemplate("org.apache.camel.AggregationStrategy", data[3]);
+            TemplateApi.saveTemplate("org.apache.camel.Processor", data[4]);
 
-            if (data[4]) {
-                setYaml(data[4]);
+            if (data[5]) {
+                setYaml(data[5]);
                 // setName("plc4x-ads-source.kamelet.yaml");
                 setName("demo.camel.yaml");
             }
-            if (data[5]) {
-                ComponentApi.saveBlockedComponentNames(data[5].split('\r\n'));
-            }
             if (data[6]) {
-                KameletApi.saveBlockedKameletNames(data[6].split('\n'));
+                ComponentApi.saveBlockedComponentNames(data[6].split('\r\n'));
             }
- 	        if (data[7]) {
-                ComponentApi.saveSupportedComponents(data[7]);
+            if (data[8]) {
+                KameletApi.saveBlockedKameletNames(data[8].split('\n'));
+            }
+ 	        if (data[9]) {
+                ComponentApi.saveSupportedComponents(data[9]);
                 ComponentApi.setSupportedOnly(true);
             }
            

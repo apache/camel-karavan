@@ -478,80 +478,61 @@ export function DslPropertyField(props: Props) {
         const {dslLanguage} = props;
         const selectOptions: SelectOptionProps[] = [];
         if (beans) {
-            selectOptions.push(<SelectOption key={0} value={"Select..."} isPlaceholder/>);
             selectOptions.push(...beans.map((bean) => {
-                // <SelectOption key={bean.name} value={beanPrefix + bean.name} description={bean.type}/>
                 return {value: beanPrefix + bean.name, children: bean.name}
             }));
             selectOptions.push(...SpiBeanApi.findByInterfaceTypeSimple(property.javaType).map((bean) => {
                     return {
-                        value: beanPrefix + bean.name, children: bean.name
+                        value: classPrefix + bean.javaType, children: bean.name, description: bean.description
                     }
                 })
             );
         }
         return (
-            <InputGroup>
-                <InputGroupItem isFill>
-                    {/*<Select*/}
-                    {/*    id={property.name} name={property.name}*/}
-                    {/*    variant={SelectVariant.typeahead}*/}
-                    {/*    aria-label={property.name}*/}
-                    {/*    onToggle={(_event, isExpanded) => {*/}
-                    {/*        openSelect(property.name, isExpanded)*/}
-                    {/*    }}*/}
-                    {/*    onSelect={(e, value, isPlaceholder) => propertyChanged(property.name, (!isPlaceholder ? value : undefined))}*/}
-                    {/*    selections={value}*/}
-                    {/*    isCreatable={true}*/}
-                    {/*    createText=""*/}
-                    {/*    isOpen={isSelectOpen(property.name)}*/}
-                    {/*    aria-labelledby={property.name}*/}
-                    {/*    direction={SelectDirection.down}*/}
-                    {/*>*/}
-                    {/*    {selectOptions}*/}
-                    {/*</Select>*/}
-                    <SelectField
-                        id={property.name}
-                        name={property.name}
-                        placeholder='Select bean'
-                        selectOptions={selectOptions}
-                        onChange={(_, v) => {
-                        }}
-                    />
-                    {/*<TextInput*/}
-                    {/*    ref={ref}*/}
-                    {/*    className="text-field" isRequired*/}
-                    {/*    type="text"*/}
-                    {/*    id={property.name} name={property.name}*/}
-                    {/*    value={value?.toString()}*/}
-                    {/*    onChange={(_, value) => {*/}
-                    {/*        propertyChanged(property.name, CamelUtil.capitalizeName(value?.replace(/\s/g, '')))*/}
-                    {/*    }}*/}
-                    {/*    readOnlyVariant={isUriReadOnly(property) ? "default" : undefined}/>*/}
-                </InputGroupItem>
-                <InputGroupItem>
-                    <Tooltip position="bottom-end" content={"Create Java Class"}>
-                        <Button isDisabled={value?.length === 0} variant="control"
-                                onClick={e => showCode(value, property.javaType)}>
-                            <PlusIcon/>
-                        </Button>
-                    </Tooltip>
-                </InputGroupItem>
-                {showEditor && <InputGroupItem>
-                    <ExpressionModalEditor name={property.name}
-                                           customCode={customCode}
-                                           showEditor={showEditor}
-                                           dark={dark}
-                                           dslLanguage={dslLanguage}
-                                           title="Java Class"
-                                           onClose={() => setShowEditor(false)}
-                                           onSave={(fieldId, value1) => {
-                                               propertyChanged(fieldId, value);
-                                               InfrastructureAPI.onSaveCustomCode?.(value, value1);
-                                               setShowEditor(false)
-                                           }}/>
-                </InputGroupItem>}
-            </InputGroup>
+            <SelectField
+                id={property.name}
+                name={property.name}
+                placeholder='Select bean'
+                selectOptions={selectOptions}
+                value={value?.toString()}
+                onChange={(name, value) => propertyChanged(property.name, value)}
+            />
+            // <InputGroup>
+            //     <InputGroupItem isFill>
+            //         <TextInput
+            //             ref={ref}
+            //             className="text-field" isRequired
+            //             type="text"
+            //             id={property.name} name={property.name}
+            //             value={value?.toString()}
+            //             onChange={(_, value) => {
+            //                 propertyChanged(property.name, CamelUtil.capitalizeName(value?.replace(/\s/g, '')))
+            //             }}
+            //             readOnlyVariant={isUriReadOnly(property) ? "default" : undefined}/>
+            //     </InputGroupItem>
+            //     <InputGroupItem>
+            //         <Tooltip position="bottom-end" content={"Create Java Class"}>
+            //             <Button isDisabled={value?.length === 0} variant="control"
+            //                     onClick={e => showCode(value, property.javaType)}>
+            //                 <PlusIcon/>
+            //             </Button>
+            //         </Tooltip>
+            //     </InputGroupItem>
+            //     {showEditor && <InputGroupItem>
+            //         <ExpressionModalEditor name={property.name}
+            //                                customCode={customCode}
+            //                                showEditor={showEditor}
+            //                                dark={dark}
+            //                                dslLanguage={dslLanguage}
+            //                                title="Java Class"
+            //                                onClose={() => setShowEditor(false)}
+            //                                onSave={(fieldId, value1) => {
+            //                                    propertyChanged(fieldId, value);
+            //                                    InfrastructureAPI.onSaveCustomCode?.(value, value1);
+            //                                    setShowEditor(false)
+            //                                }}/>
+            //     </InputGroupItem>}
+            // </InputGroup>
         )
     }
 

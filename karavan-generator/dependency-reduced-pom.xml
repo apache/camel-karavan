@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.apache.camel.karavan</groupId>
   <artifactId>karavan-generator</artifactId>
-  <version>4.7.0</version>
+  <version>4.7.1</version>
   <build>
     <resources>
       <resource>
@@ -47,6 +47,13 @@
           </archive>
         </configuration>
       </plugin>
+      <plugin>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <source>16</source>
+          <target>16</target>
+        </configuration>
+      </plugin>
     </plugins>
   </build>
   <repositories>
@@ -62,10 +69,10 @@
   </repositories>
   <properties>
     <maven.compiler.source>17</maven.compiler.source>
-    <version.camel-kamelet>4.6.0</version.camel-kamelet>
+    <version.camel-kamelet>4.7.0</version.camel-kamelet>
     <compiler-plugin.version>3.8.1</compiler-plugin.version>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <version.vertx>4.5.7</version.vertx>
+    <version.vertx>4.5.9</version.vertx>
     <surefire-plugin.version>3.0.0-M5</surefire-plugin.version>
     <maven.compiler.target>17</maven.compiler.target>
     <version.camel-core>4.7.0</version.camel-core>

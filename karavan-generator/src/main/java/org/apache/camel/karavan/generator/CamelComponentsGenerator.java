@@ -34,12 +34,11 @@ public final class CamelComponentsGenerator extends AbstractGenerator {
     public static void generate(String... paths) throws Exception {
         CamelComponentsGenerator g = new CamelComponentsGenerator();
         for (String path : paths) {
-            g.createCreateComponents(path + "/components", true);
+            g.createCreateComponents(path + "/metadata", true);
         }
     }
 
     private void createCreateComponents(String path, boolean singleFile) {
-        clearDirectory(Paths.get(path).toFile());
         List<String> components = getComponents();
         StringBuilder list = new StringBuilder();
         StringBuilder sources = new StringBuilder("[\n");
@@ -59,7 +58,7 @@ public final class CamelComponentsGenerator extends AbstractGenerator {
                 list.append(name).append("\n");
             }
         }
-        saveFile(path, "components.properties", list.toString());
+//        saveFile(path, "components.properties", list.toString());
         if (singleFile) {
             sources.append("]");
             saveFile(path, "components.json", sources.toString());
@@ -86,15 +85,6 @@ public final class CamelComponentsGenerator extends AbstractGenerator {
             return data;
         } catch (Exception e) {
             return null;
-        }
-    }
-
-    void clearDirectory(File directoryToBeDeleted) {
-        File[] allContents = directoryToBeDeleted.listFiles();
-        if (allContents != null) {
-            for (File file : allContents) {
-                if (!file.getName().endsWith("gitignore")) file.delete();
-            }
         }
     }
 }

@@ -245,12 +245,17 @@ public final class CamelMetadataGenerator extends AbstractGenerator {
         if (p != null
                 && p.containsKey("type")
                 && p.getString("type").equals("object")
-                && (p.getString("javaType").equals("org.apache.camel.AggregationStrategy") || p.getString("javaType").equals("org.apache.camel.Processor"))
+                && (p.getString("javaType").equals("org.apache.camel.AggregationStrategy")
+                    || p.getString("javaType").equals("org.apache.camel.Processor")
+                    || p.getString("javaType").startsWith("org.apache.camel.spi")
+                    )
         ) {
             String javaName = p.getString("javaType");
             try {
                 Class clazz = Class.forName(javaName);
-                if (clazz.isInterface() && clazz.getPackageName().equals("org.apache.camel")) return javaName;
+                if (clazz.isInterface() && (
+                        clazz.getPackageName().equals("org.apache.camel") || clazz.getPackageName().equals("org.apache.camel.spi")
+                )) return javaName;
             } catch (ClassNotFoundException e) {
                return "";
             }

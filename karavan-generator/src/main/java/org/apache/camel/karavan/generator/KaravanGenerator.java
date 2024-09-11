@@ -16,6 +16,8 @@
  */
 package org.apache.camel.karavan.generator;
 
+import java.nio.file.Paths;
+
 public final class KaravanGenerator {
 
     public static void main(String[] args) throws Exception {
@@ -27,12 +29,16 @@ public final class KaravanGenerator {
         if (args.length > 0) {
             paths = new String[] {args[0]};
         }
-        CamelDefinitionGenerator.generate();
-        CamelDefinitionApiGenerator.generate();
-        CamelDefinitionYamlStepGenerator.generate();
-        CamelMetadataGenerator.generate();
+        for (String path : paths) {
+            AbstractGenerator.clearDirectory(Paths.get(path + "/metadata").toFile());
+        }
+//        CamelDefinitionGenerator.generate();
+//        CamelDefinitionApiGenerator.generate();
+//        CamelDefinitionYamlStepGenerator.generate();
+//        CamelMetadataGenerator.generate();
         KameletGenerator.generate(paths);
         CamelComponentsGenerator.generate(paths);
+        CamelSpiBeanGenerator.generate(paths);
         System.exit(0);
     }
 

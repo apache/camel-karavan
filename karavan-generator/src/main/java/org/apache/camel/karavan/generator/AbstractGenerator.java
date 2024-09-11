@@ -21,6 +21,7 @@ import io.vertx.core.buffer.Buffer;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import org.apache.camel.catalog.CamelCatalog;
+import org.apache.camel.catalog.DefaultCamelCatalog;
 import org.apache.camel.catalog.VersionHelper;
 import org.apache.camel.dsl.yaml.YamlRoutesBuilderLoader;
 
@@ -32,6 +33,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.util.*;
 import java.util.logging.Logger;
@@ -252,7 +254,7 @@ public class AbstractGenerator {
                 Files.createDirectories(path);
             }
             File targetFile = Paths.get(folder, fileName).toFile();
-//            LOGGER.info("Saving file " + targetFile.getAbsolutePath());
+            LOGGER.info("Saving file " + targetFile.getAbsolutePath());
             Files.copy(new ByteArrayInputStream(text.getBytes()), targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
             e.printStackTrace();
@@ -326,11 +328,18 @@ public class AbstractGenerator {
         try {
             InputStream inputStream = CamelCatalog.class.getResourceAsStream("/org/apache/camel/catalog/models-app/" + name + ".json");
             String data = new BufferedReader(new InputStreamReader(inputStream))
-                    .lines().collect(Collectors.joining(System.getProperty("line.separator")));
+                    .lines().collect(Collectors.joining(System.lineSeparator()));
             return data;
         } catch (Exception e) {
             return null;
         }
+    }
+
+    protected String readBean(String name) {
+        InputStream inputStream = DefaultCamelCatalog.class.getResourceAsStream("/org/apache/camel/catalog/beans/" + name + ".json");
+        return new BufferedReader(
+                new InputStreamReader(inputStream, StandardCharsets.UTF_8))
+                .lines().collect(Collectors.joining(System.lineSeparator()));
     }
 
     protected String getMetaModel(String name) {
@@ -582,5 +591,14 @@ public class AbstractGenerator {
             LOGGER.severe("URISyntaxException | IOException " + error.getMessage());
         }
         return result;
+    }
+
+    static void clearDirectory(File directoryToBeDeleted) {
+        File[] allContents = directoryToBeDeleted.listFiles();
+        if (allContents != null) {
+            for (File file : allContents) {
+                if (!file.getName().endsWith("gitignore")) file.delete();
+            }
+        }
     }
 }

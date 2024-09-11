@@ -14,24 +14,40 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.camel.karavan.api;
 
-import jakarta.inject.Inject;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.core.MediaType;
-import org.apache.camel.karavan.service.CodeService;
+export class SpiBeanProperty {
+    name?: string;
+    index: number = 0;
+    kind?: string;
+    displayName?: string;
+    required: boolean = false;
+    type?: string;
+    javaType?: string;
+    deprecated: boolean = false;
+    autowired: boolean = false;
+    secret: boolean = false;
+    defaultValue?: string;
+    description?: string;
 
-@Path("/ui/component")
-public class ComponentResources {
-    
-    @Inject
-    CodeService codeService;
+    public constructor(init?: Partial<SpiBeanProperty>) {
+        Object.assign(this, init);
+    }
+}
 
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    public String getJson() {
-        return codeService.getResourceFile("/metadata/components.json");
+export class SpiBean {
+    kind?: string;
+    name?: string;
+    javaType?: string;
+    interfaceType?: string;
+    title?: string;
+    description?: string;
+    deprecated?: string;
+    groupId?: string;
+    artifactId?: string;
+    version?: string;
+    properties: any;
+
+    public constructor(init?: Partial<SpiBean>) {
+        Object.assign(this, init);
     }
 }

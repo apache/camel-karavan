@@ -90,7 +90,7 @@ export async function readKamelets(context: ExtensionContext) {
 }
 
 async function readBuildInKamelets(context: ExtensionContext) {
-    const kameletsPath = path.join(context.extensionPath, 'kamelets', "kamelets.yaml");
+    const kameletsPath = path.join(context.extensionPath, 'metadata', "kamelets.yaml");
     const result: string[] = [];
     const file = await readFile(kameletsPath);
     const code = Buffer.from(file).toString('utf8');
@@ -127,7 +127,7 @@ async function readFilesInDirByExtension(dir: string, extension: string): Promis
 }
 
 export async function readComponents(context: ExtensionContext) {
-    const componentsPath = path.join(context.extensionPath, 'components', 'components.json');
+    const componentsPath = path.join(context.extensionPath, 'metadata', 'components.json');
     const file = await readFile(componentsPath);
     const code = Buffer.from(file).toString('utf8');
     const components: [] = JSON.parse(code);

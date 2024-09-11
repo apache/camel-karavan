@@ -42,7 +42,7 @@ public class KameletResources {
     @GET
     @Produces(MediaType.TEXT_PLAIN)
     public String getKamelets() {
-        StringBuilder kamelets = new StringBuilder(codeService.getResourceFile("/kamelets/kamelets.yaml"));
+        StringBuilder kamelets = new StringBuilder(codeService.getResourceFile("/metadata/kamelets.yaml"));
         List<ProjectFile> custom = karavanCache.getProjectFiles(Project.Type.kamelets.name());
         if (!custom.isEmpty()) {
             kamelets.append("\n---\n");
