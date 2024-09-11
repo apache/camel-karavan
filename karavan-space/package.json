@@ -7,9 +7,8 @@
     "cp-expression": "cp -r ../karavan-designer/src/expression src",
     "cp-knowledgebase": "cp -r ../karavan-designer/src/knowledgebase src",
     "cp-topology": "cp -r ../karavan-designer/src/topology src",
-    "cp-public-kamelets": "cp -r ../karavan-designer/public/kamelets public",
-    "cp-public-components": "cp -r ../karavan-designer/public/components public",
-    "copy": "npm run cp-designer && npm run cp-expression && npm run cp-knowledgebase && npm run cp-topology && npm run cp-public-components && npm run cp-public-kamelets",
+    "cp-public-metadata": "cp -r ../karavan-designer/public/metadata public",
+    "copy": "npm run cp-designer && npm run cp-expression && npm run cp-knowledgebase && npm run cp-topology && npm run cp-public-metadata",
     "start": "npm run copy && react-scripts start",
     "build": "npm run copy && react-scripts build",
     "prod": "npm run copy && react-scripts build --dest && rsync -a build/* ../resources/META-INF/resources"
@@ -34,13 +33,13 @@
   },
   "dependencies": {
     "@monaco-editor/react": "^4.6.0",
-    "@patternfly/patternfly": "^5.3.1",
-    "@patternfly/react-core": "^5.3.3",
-    "@patternfly/react-table": "^5.3.3",
-    "@patternfly/react-topology": "^5.2.0",
+    "@patternfly/patternfly": "^5.4.0",
+    "@patternfly/react-core": "^5.4.0",
+    "@patternfly/react-table": "^5.4.0",
+    "@patternfly/react-topology": "^5.4.0",
     "@types/js-yaml": "4.0.9",
     "@types/uuid": "9.0.8",
-    "axios": "1.7.5",
+    "axios": "1.7.7",
     "html-to-image": "1.11.11",
     "karavan-core": "file:../karavan-core",
     "netlify-auth-providers": "^1.0.0-alpha5",
@@ -48,9 +47,10 @@
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "rxjs": "7.8.1",
-    "uuid": "9.0.1",
-    "vite": "^5.2.13",
-    "zustand": "^4.5.2"
+    "usehooks-ts": "^3.1.0",
+    "uuid": "10.0.0",
+    "vite": "^5.4.4",
+    "zustand": "^4.5.5"
   },
   "devDependencies": {
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
@@ -64,8 +64,8 @@
     "@typescript-eslint/parser": "^5.62.0",
     "eslint": "^8.39.0",
     "monaco-editor": "0.49.0",
-    "typescript": "4.9.5",
-    "react-scripts": "5.0.1"
+    "react-scripts": "5.0.1",
+    "typescript": "4.9.5"
   },
   "overrides": {
     "@svgr/webpack": "$@svgr/webpack",
