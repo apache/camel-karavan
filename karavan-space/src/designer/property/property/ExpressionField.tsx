@@ -75,11 +75,11 @@ export function ExpressionField(props: Props) {
     }
 
     function getValueClassName (): string {
-        return CamelDefinitionApiExt.getExpressionLanguageClassName(props.value) || 'SimpleExpression';
+        return CamelDefinitionApiExt.getExpressionLanguageClassName(props.value) || 'GroovyExpression';
     }
 
     function getValueLanguage (): string {
-        return CamelDefinitionApiExt.getExpressionLanguageName(props.value) || 'simple';
+        return CamelDefinitionApiExt.getExpressionLanguageName(props.value) || 'groovy';
     }
 
     function getExpressionValue (): CamelElement {

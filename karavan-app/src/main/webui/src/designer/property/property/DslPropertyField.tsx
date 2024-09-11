@@ -33,7 +33,7 @@ import {
     Card,
     InputGroup,
     SelectOptionProps,
-    capitalize, InputGroupItem, TextVariants, ToggleGroup, ToggleGroupItem,
+    capitalize, InputGroupItem, TextVariants, ToggleGroup, ToggleGroupItem
 } from '@patternfly/react-core';
 import {
     Select,
@@ -127,7 +127,7 @@ export function DslPropertyField(props: Props) {
                         propertyChanged(property.name, textValue);
                     }
                 }
-            }, 1300);
+            }, 700);
             return () => {
                 clearInterval(interval)
             }
@@ -204,7 +204,14 @@ export function DslPropertyField(props: Props) {
         return property.name === 'parameters' && property.description === 'parameters';
     }
 
+    function hasValueChanged(property: PropertyMeta, value: any): boolean {
+        const isSet = value !== undefined && !['id', 'uri'].includes(property.name);
+        const isDefault = property.defaultValue !== undefined && value?.toString() === property.defaultValue?.toString();
+        return isSet && !isDefault;
+    }
+
     function getLabel(property: PropertyMeta, value: any, isKamelet: boolean) {
+        const bgColor = hasValueChanged(property, value) ? 'yellow' : 'transparent';
         if (!isMultiValueField(property) && property.isObject && !property.isArray && !["ExpressionDefinition"].includes(property.type)) {
             const tooltip = value ? "Delete " + property.name : "Add " + property.name;
             const className = value ? "change-button delete-button" : "change-button add-button";
@@ -214,7 +221,7 @@ export function DslPropertyField(props: Props) {
             const icon = value ? (<DeleteIcon/>) : (<AddIcon/>);
             return (
                 <div style={{display: "flex"}}>
-                    <Text>{title}</Text>
+                    <Text style={{backgroundColor: bgColor}}>{title}</Text>
                     <Tooltip position={"top"} content={<div>{tooltip}</div>}>
                         <button className={className} onClick={e => props.onPropertyChange?.(property.name, x)}
                                 aria-label="Add element">
@@ -227,7 +234,11 @@ export function DslPropertyField(props: Props) {
         if (isParameter(property)) {
             return isKamelet ? "Kamelet properties:" : "Component properties:";
         } else if (!["ExpressionDefinition"].includes(property.type)) {
-            return CamelUtil.capitalizeName(property.displayName);
+            return (
+                <div style={{display: "flex", flexDirection: 'row', alignItems: 'center', gap: '3px'}}>
+                    <Text style={{backgroundColor: bgColor}}>{CamelUtil.capitalizeName(property.displayName)}</Text>
+                </div>
+            )
         }
     }
 
@@ -1045,6 +1056,7 @@ export function DslPropertyField(props: Props) {
     return (
         <div>
             <FormGroup
+                className='dsl-property-form-group'
                 label={props.hideLabel ? undefined : getLabel(property, value, isKamelet)}
                 isRequired={property.required}
                 labelIcon={isParameter(property) ? undefined : getLabelIcon(property)}>

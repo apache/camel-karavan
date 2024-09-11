@@ -88,6 +88,7 @@ export function DslProperties(props: Props) {
     function getProperties(): PropertyMeta[] {
         const dslName = selectedStep?.dslName;
         return CamelDefinitionApiExt.getElementProperties(dslName)
+            .filter((p: PropertyMeta) => !(p.name === 'uri' && dslName !== 'ToDynamicDefinition')) // show uri only to Dynamic To
             // .filter((p: PropertyMeta) => (showAdvanced && p.label.includes('advanced')) || (!showAdvanced && !p.label.includes('advanced')))
             .filter((p: PropertyMeta) => !p.isObject || (p.isObject && !CamelUi.dslHasSteps(p.type)) || (dslName === 'CatchDefinition' && p.name === 'onWhen'))
             .filter((p: PropertyMeta) => !(dslName === 'RestDefinition' && ['get', 'post', 'put', 'patch', 'delete', 'head'].includes(p.name)));

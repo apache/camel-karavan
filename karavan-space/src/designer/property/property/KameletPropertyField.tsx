@@ -38,6 +38,7 @@ import EditorIcon from "@patternfly/react-icons/dist/js/icons/code-icon";
 import {ExpressionModalEditor} from "../../../expression/ExpressionModalEditor";
 import {useDesignerStore} from "../../DesignerStore";
 import {shallow} from "zustand/shallow";
+import {ComponentProperty} from "../../../../../karavan-core/src/core/model/ComponentModels";
 
 interface Props {
     property: Property,
@@ -67,7 +68,7 @@ export function KameletPropertyField(props: Props) {
                 if (props.value !== textValue) {
                     onParametersChange(property.id, textValue);
                 }
-            }, 1300);
+            }, 700);
             return () => {
                 clearInterval(interval)
             }
@@ -234,6 +235,21 @@ export function KameletPropertyField(props: Props) {
         return (typeof(num) === 'number' || (typeof(num) === "string" && num.trim() !== '')) && !isNaN(num as number);
     }
 
+    function hasValueChanged(property: Property, value: any): boolean {
+        const isSet = value !== undefined;
+        const isDefault = property.default !== undefined && value?.toString() === property.default?.toString();
+        return isSet && !isDefault;
+    }
+
+    function getLabel(property: Property, value: any) {
+        const bgColor = hasValueChanged(property, value) ? 'yellow' : 'transparent';
+        return (
+            <div style={{display: "flex", flexDirection: 'row', alignItems: 'center', gap: '3px'}}>
+                <Text style={{backgroundColor: bgColor}}>{property.title}</Text>
+            </div>
+        )
+    }
+
     const property =  props.property;
     const value =  props.value;
     const prefix = "parameters";
@@ -242,7 +258,7 @@ export function KameletPropertyField(props: Props) {
         <div>
             <FormGroup
                 key={id}
-                label={property.title}
+                label={getLabel(property, value)}
                 fieldId={id}
                 isRequired={ props.required}
                 labelIcon={

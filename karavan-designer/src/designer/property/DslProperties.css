@@ -46,6 +46,9 @@
     display: flex;
     justify-content: space-between;
 }
+.karavan .properties .dsl-property-form-group .pf-v5-c-form__label {
+    display: flex;
+}
 
 .karavan .properties .pf-v5-c-form-control:focus-within {
     --pf-v5-c-form-control--after--BorderBottomColor: var(--pf-v5-c-form-control--after--BorderBottomColor);
