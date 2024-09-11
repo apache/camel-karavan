@@ -2205,7 +2205,7 @@ export class CamelDefinitionApi {
     static createExpressionDefinition = (element: any): ExpressionDefinition => { 
         const def = element ? new ExpressionDefinition({...element}) : new ExpressionDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
-        element = element !== undefined ? element : {simple: CamelDefinitionApi.createSimpleExpression({expression: ""})}
+        element = element !== undefined ? element : {groovy: CamelDefinitionApi.createGroovyExpression({expression: ""})}
         if (element?.constant !== undefined) { 
             def.constant = CamelDefinitionApi.createConstantExpression(element.constant); 
         }
@@ -3180,7 +3180,7 @@ export class CamelDefinitionApi {
             case 'XPathExpression': return CamelDefinitionApi.createXPathExpression(newBody);
             case 'XQueryExpression': return CamelDefinitionApi.createXQueryExpression(newBody);
             case 'XMLTokenizerExpression': return CamelDefinitionApi.createXMLTokenizerExpression(newBody);
-            default: return new SimpleExpression(newBody);
+            default: return new GroovyExpression(newBody);
         }
     }
 

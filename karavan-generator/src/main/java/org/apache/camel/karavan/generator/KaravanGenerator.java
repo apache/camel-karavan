@@ -32,10 +32,10 @@ public final class KaravanGenerator {
         for (String path : paths) {
             AbstractGenerator.clearDirectory(Paths.get(path + "/metadata").toFile());
         }
-//        CamelDefinitionGenerator.generate();
-//        CamelDefinitionApiGenerator.generate();
-//        CamelDefinitionYamlStepGenerator.generate();
-//        CamelMetadataGenerator.generate();
+        CamelDefinitionGenerator.generate();
+        CamelDefinitionApiGenerator.generate();
+        CamelDefinitionYamlStepGenerator.generate();
+        CamelMetadataGenerator.generate();
         KameletGenerator.generate(paths);
         CamelComponentsGenerator.generate(paths);
         CamelSpiBeanGenerator.generate(paths);
