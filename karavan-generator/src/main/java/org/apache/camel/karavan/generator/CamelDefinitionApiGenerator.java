@@ -98,7 +98,7 @@ public final class CamelDefinitionApiGenerator extends AbstractGenerator {
             ce.append(code);
         });
         ce.append(
-                "            default: return new SimpleExpression(newBody);\n" +
+                "            default: return new GroovyExpression(newBody);\n" +
                         "        }\n" +
                         "    }\n\n");
         camelModel.append(ce);
@@ -138,7 +138,7 @@ public final class CamelDefinitionApiGenerator extends AbstractGenerator {
         List<String> attrs = new ArrayList<>();
         AtomicBoolean hasId = new AtomicBoolean(false);
         if (className.equals("ExpressionDefinition")) {
-            attrs.add("        element = element !== undefined ? element : {simple: CamelDefinitionApi.createSimpleExpression({expression: \"\"})}");
+            attrs.add("        element = element !== undefined ? element : {groovy: CamelDefinitionApi.createGroovyExpression({expression: \"\"})}");
         }
         properties.keySet().stream().sorted(getComparator(stepName)).forEach(name -> {
             JsonObject aValue = properties.get(name);
