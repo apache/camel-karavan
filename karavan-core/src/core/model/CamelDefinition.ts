@@ -48,6 +48,7 @@ export class ProcessorDefinition extends CamelElement {
     pausable?: PausableDefinition;
     pipeline?: PipelineDefinition;
     policy?: PolicyDefinition;
+    poll?: PollDefinition | string;
     pollEnrich?: PollEnrichDefinition;
     process?: ProcessDefinition;
     recipientList?: RecipientListDefinition;
@@ -87,6 +88,7 @@ export class ProcessorDefinition extends CamelElement {
     when?: WhenDefinition;
     whenSkipSendToEndpoint?: WhenSkipSendToEndpointDefinition;
     wireTap?: WireTapDefinition;
+    langChain4j?: LangChain4jTokenizerDefinition;
     public constructor(init?: Partial<ProcessorDefinition>) {
         super('ProcessorDefinition');
         Object.assign(this, init);
@@ -870,6 +872,21 @@ export class PolicyDefinition extends CamelElement {
     steps?: CamelElement[] = [];
     public constructor(init?: Partial<PolicyDefinition>) {
         super('PolicyDefinition');
+        Object.assign(this, init);
+    }
+}
+
+export class PollDefinition extends CamelElement {
+    stepName?: string = 'poll';
+    id?: string = 'poll-' + uuidv4().substring(0,4);
+    description?: string;
+    disabled?: boolean;
+    variableReceive?: string;
+    uri: string = '';
+    timeout?: string;
+    parameters?: any = {};
+    public constructor(init?: Partial<PollDefinition>) {
+        super('PollDefinition');
         Object.assign(this, init);
     }
 }
@@ -3596,6 +3613,20 @@ export class SecurityDefinition extends CamelElement {
     scopes?: string;
     public constructor(init?: Partial<SecurityDefinition>) {
         super('SecurityDefinition');
+        Object.assign(this, init);
+    }
+}
+
+export class LangChain4jTokenizerDefinition extends CamelElement {
+    stepName?: string = 'langChain4j';
+    id?: string = 'langChain4j-' + uuidv4().substring(0,4);
+    description?: string;
+    disabled?: boolean;
+    tokenizerType?: string;
+    maxTokens: number = 0;
+    maxOverlap: number = 0;
+    public constructor(init?: Partial<LangChain4jTokenizerDefinition>) {
+        super('LangChain4jTokenizerDefinition');
         Object.assign(this, init);
     }
 }

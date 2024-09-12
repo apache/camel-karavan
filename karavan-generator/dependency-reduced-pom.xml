@@ -75,7 +75,7 @@
     <version.vertx>4.5.9</version.vertx>
     <surefire-plugin.version>3.0.0-M5</surefire-plugin.version>
     <maven.compiler.target>17</maven.compiler.target>
-    <version.camel-core>4.7.0</version.camel-core>
+    <version.camel-core>4.8.0-SNAPSHOT</version.camel-core>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.parameters>true</maven.compiler.parameters>
   </properties>

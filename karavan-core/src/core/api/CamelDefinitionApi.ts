@@ -69,6 +69,7 @@ import {
     PausableDefinition,
     PipelineDefinition,
     PolicyDefinition,
+    PollDefinition,
     PollEnrichDefinition,
     ProcessDefinition,
     PropertyDefinition,
@@ -238,6 +239,7 @@ import {
     RestSecuritiesDefinition,
     RestsDefinition,
     SecurityDefinition,
+    LangChain4jTokenizerDefinition,
     CustomTransformerDefinition,
     DataFormatTransformerDefinition,
     EndpointTransformerDefinition,
@@ -332,6 +334,9 @@ export class CamelDefinitionApi {
         }
         if (element?.policy !== undefined) { 
             def.policy = CamelDefinitionApi.createPolicyDefinition(element.policy); 
+        }
+        if (element?.poll !== undefined) { 
+            def.poll = CamelDefinitionApi.createPollDefinition(element.poll); 
         }
         if (element?.pollEnrich !== undefined) { 
             def.pollEnrich = CamelDefinitionApi.createPollEnrichDefinition(element.pollEnrich); 
@@ -443,6 +448,9 @@ export class CamelDefinitionApi {
         }
         if (element?.wireTap !== undefined) { 
             def.wireTap = CamelDefinitionApi.createWireTapDefinition(element.wireTap); 
+        }
+        if (element?.langChain4j !== undefined) { 
+            def.langChain4j = CamelDefinitionApi.createLangChain4jTokenizerDefinition(element.langChain4j); 
         }
         return def;
     }
@@ -1085,6 +1093,15 @@ export class CamelDefinitionApi {
         const def = element ? new PolicyDefinition({...element}) : new PolicyDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
         def.steps = CamelDefinitionApi.createSteps(element?.steps);
+        return def;
+    }
+
+    static createPollDefinition = (element: any): PollDefinition => { 
+        if (element && typeof element === 'string') {
+            element = {uri: element};
+        }
+        const def = element ? new PollDefinition({...element}) : new PollDefinition();
+        def.uuid = element?.uuid ? element.uuid : def.uuid; 
         return def;
     }
 
@@ -2716,6 +2733,12 @@ export class CamelDefinitionApi {
         return def;
     }
 
+    static createLangChain4jTokenizerDefinition = (element: any): LangChain4jTokenizerDefinition => { 
+        const def = element ? new LangChain4jTokenizerDefinition({...element}) : new LangChain4jTokenizerDefinition();
+        def.uuid = element?.uuid ? element.uuid : def.uuid; 
+        return def;
+    }
+
     static createCustomTransformerDefinition = (element: any): CustomTransformerDefinition => { 
         const def = element ? new CustomTransformerDefinition({...element}) : new CustomTransformerDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
@@ -2968,6 +2991,7 @@ export class CamelDefinitionApi {
             case 'PausableDefinition': return CamelDefinitionApi.createPausableDefinition(newBody);
             case 'PipelineDefinition': return CamelDefinitionApi.createPipelineDefinition(newBody);
             case 'PolicyDefinition': return CamelDefinitionApi.createPolicyDefinition(newBody);
+            case 'PollDefinition': return CamelDefinitionApi.createPollDefinition(newBody);
             case 'PollEnrichDefinition': return CamelDefinitionApi.createPollEnrichDefinition(newBody);
             case 'ProcessDefinition': return CamelDefinitionApi.createProcessDefinition(newBody);
             case 'PropertyDefinition': return CamelDefinitionApi.createPropertyDefinition(newBody);
@@ -3137,6 +3161,7 @@ export class CamelDefinitionApi {
             case 'RestSecuritiesDefinition': return CamelDefinitionApi.createRestSecuritiesDefinition(newBody);
             case 'RestsDefinition': return CamelDefinitionApi.createRestsDefinition(newBody);
             case 'SecurityDefinition': return CamelDefinitionApi.createSecurityDefinition(newBody);
+            case 'LangChain4jTokenizerDefinition': return CamelDefinitionApi.createLangChain4jTokenizerDefinition(newBody);
             case 'CustomTransformerDefinition': return CamelDefinitionApi.createCustomTransformerDefinition(newBody);
             case 'DataFormatTransformerDefinition': return CamelDefinitionApi.createDataFormatTransformerDefinition(newBody);
             case 'EndpointTransformerDefinition': return CamelDefinitionApi.createEndpointTransformerDefinition(newBody);

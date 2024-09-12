@@ -70,6 +70,7 @@ import {
     PausableDefinition,
     PipelineDefinition,
     PolicyDefinition,
+    PollDefinition,
     PollEnrichDefinition,
     ProcessDefinition,
     PropertyDefinition,
@@ -239,6 +240,7 @@ import {
     RestSecuritiesDefinition,
     RestsDefinition,
     SecurityDefinition,
+    LangChain4jTokenizerDefinition,
     CustomTransformerDefinition,
     DataFormatTransformerDefinition,
     EndpointTransformerDefinition,
@@ -284,6 +286,13 @@ export class CamelDefinitionYamlStep {
                def.convertBodyTo = CamelDefinitionYamlStep.readConvertBodyDefinition(element.convertBodyTo[0]); 
             } else { 
                def.convertBodyTo = CamelDefinitionYamlStep.readConvertBodyDefinition(element.convertBodyTo); 
+            } 
+        } 
+        if (element?.poll !== undefined) { 
+            if (Array.isArray(element.poll)) { 
+               def.poll = CamelDefinitionYamlStep.readPollDefinition(element.poll[0]); 
+            } else { 
+               def.poll = CamelDefinitionYamlStep.readPollDefinition(element.poll); 
             } 
         } 
         if (element?.recipientList !== undefined) { 
@@ -683,6 +692,13 @@ export class CamelDefinitionYamlStep {
                def.wireTap = CamelDefinitionYamlStep.readWireTapDefinition(element.wireTap[0]); 
             } else { 
                def.wireTap = CamelDefinitionYamlStep.readWireTapDefinition(element.wireTap); 
+            } 
+        } 
+        if (element?.langChain4j !== undefined) { 
+            if (Array.isArray(element.langChain4j)) { 
+               def.langChain4j = CamelDefinitionYamlStep.readLangChain4jTokenizerDefinition(element.langChain4j[0]); 
+            } else { 
+               def.langChain4j = CamelDefinitionYamlStep.readLangChain4jTokenizerDefinition(element.langChain4j); 
             } 
         } 
         if (element?.step !== undefined) { 
@@ -1835,6 +1851,14 @@ export class CamelDefinitionYamlStep {
         
         let def = element ? new PolicyDefinition({...element}) : new PolicyDefinition();
         def.steps = CamelDefinitionYamlStep.readSteps(element?.steps);
+
+        return def;
+    }
+
+    static readPollDefinition = (element: any): PollDefinition => {
+        if (element && typeof element === 'string') element = {uri: element};
+        let def = element ? new PollDefinition({...element}) : new PollDefinition();
+        def = ComponentApi.parseElementUri(def);
 
         return def;
     }
@@ -4203,6 +4227,13 @@ export class CamelDefinitionYamlStep {
         return def;
     }
 
+    static readLangChain4jTokenizerDefinition = (element: any): LangChain4jTokenizerDefinition => {
+        
+        let def = element ? new LangChain4jTokenizerDefinition({...element}) : new LangChain4jTokenizerDefinition();
+
+        return def;
+    }
+
     static readCustomTransformerDefinition = (element: any): CustomTransformerDefinition => {
         
         let def = element ? new CustomTransformerDefinition({...element}) : new CustomTransformerDefinition();
@@ -4645,6 +4676,7 @@ export class CamelDefinitionYamlStep {
             case 'pausable': return CamelDefinitionYamlStep.readPausableDefinition(newBody);
             case 'pipeline': return CamelDefinitionYamlStep.readPipelineDefinition(newBody);
             case 'policy': return CamelDefinitionYamlStep.readPolicyDefinition(newBody);
+            case 'poll': return CamelDefinitionYamlStep.readPollDefinition(newBody);
             case 'pollEnrich': return CamelDefinitionYamlStep.readPollEnrichDefinition(newBody);
             case 'process': return CamelDefinitionYamlStep.readProcessDefinition(newBody);
             case 'recipientList': return CamelDefinitionYamlStep.readRecipientListDefinition(newBody);
@@ -4684,6 +4716,7 @@ export class CamelDefinitionYamlStep {
             case 'when': return CamelDefinitionYamlStep.readWhenDefinition(newBody);
             case 'whenSkipSendToEndpoint': return CamelDefinitionYamlStep.readWhenSkipSendToEndpointDefinition(newBody);
             case 'wireTap': return CamelDefinitionYamlStep.readWireTapDefinition(newBody);
+            case 'langChain4j': return CamelDefinitionYamlStep.readLangChain4jTokenizerDefinition(newBody);
             default: return new CamelElement('');
         }
     }

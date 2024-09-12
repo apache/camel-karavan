@@ -10,7 +10,7 @@
     "deprecated" : false,
     "groupId" : "org.apache.camel",
     "artifactId" : "camel-caffeine",
-    "version" : "4.7.0",
+    "version" : "4.8.0-SNAPSHOT",
     "properties" : {
       "useRecovery" : {
         "index" : 0,
@@ -91,7 +91,7 @@
     "deprecated" : false,
     "groupId" : "org.apache.camel",
     "artifactId" : "camel-caffeine",
-    "version" : "4.7.0",
+    "version" : "4.8.0-SNAPSHOT",
     "properties" : {
       "cacheName" : {
         "index" : 0,
@@ -121,7 +121,7 @@
     "deprecated" : false,
     "groupId" : "org.apache.camel",
     "artifactId" : "camel-cassandraql",
-    "version" : "4.7.0",
+    "version" : "4.8.0-SNAPSHOT",
     "properties" : {
       "sessionHolder" : {
         "index" : 0,
@@ -315,7 +315,7 @@
     "deprecated" : false,
     "groupId" : "org.apache.camel",
     "artifactId" : "camel-cassandraql",
-    "version" : "4.7.0",
+    "version" : "4.8.0-SNAPSHOT",
     "properties" : {
       "session" : {
         "index" : 0,
@@ -420,7 +420,7 @@
     "deprecated" : false,
     "groupId" : "org.apache.camel",
     "artifactId" : "camel-quartz",
-    "version" : "4.7.0",
+    "version" : "4.8.0-SNAPSHOT",
     "properties" : {
       "routeStartTime" : {
         "index" : 0,
@@ -512,7 +512,7 @@
     "deprecated" : true,
     "groupId" : "org.apache.camel",
     "artifactId" : "camel-support",
-    "version" : "4.7.0",
+    "version" : "4.8.0-SNAPSHOT",
     "properties" : {
       "inFilter" : {
         "index" : 0,
@@ -609,7 +609,7 @@
     "deprecated" : false,
     "groupId" : "org.apache.camel",
     "artifactId" : "camel-base-engine",
-    "version" : "4.7.0",
+    "version" : "4.8.0-SNAPSHOT",
     "properties" : {
       "maxSeconds" : {
         "index" : 0,
@@ -664,7 +664,7 @@
     "deprecated" : false,
     "groupId" : "org.apache.camel",
     "artifactId" : "camel-base-engine",
-    "version" : "4.7.0",
+    "version" : "4.8.0-SNAPSHOT",
     "properties" : {
       "fromRouteId" : {
         "index" : 0,
@@ -731,7 +731,7 @@
     "deprecated" : false,
     "groupId" : "org.apache.camel",
     "artifactId" : "camel-ehcache",
-    "version" : "4.7.0",
+    "version" : "4.8.0-SNAPSHOT",
     "properties" : {
       "cacheName" : {
         "index" : 0,
@@ -824,7 +824,7 @@
     "deprecated" : false,
     "groupId" : "org.apache.camel",
     "artifactId" : "camel-ehcache",
-    "version" : "4.7.0",
+    "version" : "4.8.0-SNAPSHOT",
     "properties" : {
       "cacheName" : {
         "index" : 0,
@@ -854,7 +854,7 @@
     "deprecated" : false,
     "groupId" : "org.apache.camel",
     "artifactId" : "camel-elasticsearch",
-    "version" : "4.7.0"
+    "version" : "4.8.0-SNAPSHOT"
   }
 }
 ,
@@ -869,7 +869,7 @@
     "deprecated" : false,
     "groupId" : "org.apache.camel",
     "artifactId" : "camel-etcd3",
-    "version" : "4.7.0",
+    "version" : "4.8.0-SNAPSHOT",
     "properties" : {
       "endpoint" : {
         "index" : 0,
@@ -999,7 +999,7 @@
     "deprecated" : false,
     "groupId" : "org.apache.camel",
     "artifactId" : "camel-support",
-    "version" : "4.7.0",
+    "version" : "4.8.0-SNAPSHOT",
     "properties" : {
       "cacheSize" : {
         "index" : 0,
@@ -1067,7 +1067,7 @@
     "deprecated" : false,
     "groupId" : "org.apache.camel",
     "artifactId" : "camel-core-processor",
-    "version" : "4.7.0"
+    "version" : "4.8.0-SNAPSHOT"
   }
 }
 ,
@@ -1082,7 +1082,7 @@
     "deprecated" : false,
     "groupId" : "org.apache.camel",
     "artifactId" : "camel-core-processor",
-    "version" : "4.7.0"
+    "version" : "4.8.0-SNAPSHOT"
   }
 }
 ,
@@ -1097,7 +1097,7 @@
     "deprecated" : false,
     "groupId" : "org.apache.camel",
     "artifactId" : "camel-core-processor",
-    "version" : "4.7.0"
+    "version" : "4.8.0-SNAPSHOT"
   }
 }
 ,
@@ -1112,7 +1112,7 @@
     "deprecated" : false,
     "groupId" : "org.apache.camel",
     "artifactId" : "camel-hazelcast",
-    "version" : "4.7.0",
+    "version" : "4.8.0-SNAPSHOT",
     "properties" : {
       "mapName" : {
         "index" : 0,
@@ -1242,7 +1242,7 @@
     "deprecated" : false,
     "groupId" : "org.apache.camel",
     "artifactId" : "camel-hazelcast",
-    "version" : "4.7.0",
+    "version" : "4.8.0-SNAPSHOT",
     "properties" : {
       "repositoryName" : {
         "index" : 0,
@@ -1284,7 +1284,7 @@
     "deprecated" : false,
     "groupId" : "org.apache.camel",
     "artifactId" : "camel-infinispan-embedded",
-    "version" : "4.7.0",
+    "version" : "4.8.0-SNAPSHOT",
     "properties" : {
       "cacheName" : {
         "index" : 0,
@@ -1389,7 +1389,7 @@
     "deprecated" : false,
     "groupId" : "org.apache.camel",
     "artifactId" : "camel-infinispan-embedded",
-    "version" : "4.7.0",
+    "version" : "4.8.0-SNAPSHOT",
     "properties" : {
       "cacheName" : {
         "index" : 0,
@@ -1430,7 +1430,7 @@
     "deprecated" : false,
     "groupId" : "org.apache.camel",
     "artifactId" : "camel-infinispan",
-    "version" : "4.7.0",
+    "version" : "4.8.0-SNAPSHOT",
     "properties" : {
       "cacheName" : {
         "index" : 0,
@@ -1535,7 +1535,7 @@
     "deprecated" : false,
     "groupId" : "org.apache.camel",
     "artifactId" : "camel-infinispan",
-    "version" : "4.7.0",
+    "version" : "4.8.0-SNAPSHOT",
     "properties" : {
       "cacheName" : {
         "index" : 0,
@@ -1576,7 +1576,7 @@
     "deprecated" : false,
     "groupId" : "org.apache.camel",
     "artifactId" : "camel-jcache",
-    "version" : "4.7.0",
+    "version" : "4.8.0-SNAPSHOT",
     "properties" : {
       "configuration" : {
         "index" : 0,
@@ -1630,7 +1630,7 @@
     "deprecated" : false,
     "groupId" : "org.apache.camel",
     "artifactId" : "camel-jcache",
-    "version" : "4.7.0",
+    "version" : "4.8.0-SNAPSHOT",
     "properties" : {
       "configuration" : {
         "index" : 0,
@@ -1659,7 +1659,7 @@
     "deprecated" : false,
     "groupId" : "org.apache.camel",
     "artifactId" : "camel-sql",
-    "version" : "4.7.0",
+    "version" : "4.8.0-SNAPSHOT",
     "properties" : {
       "dataSource" : {
         "index" : 0,
@@ -1839,7 +1839,7 @@
     "deprecated" : false,
     "groupId" : "org.apache.camel",
     "artifactId" : "camel-sql",
-    "version" : "4.7.0",
+    "version" : "4.8.0-SNAPSHOT",
     "properties" : {
       "tableName" : {
         "index" : 0,
@@ -1996,7 +1996,7 @@
     "deprecated" : true,
     "groupId" : "org.apache.camel",
     "artifactId" : "camel-kafka",
-    "version" : "4.7.0",
+    "version" : "4.8.0-SNAPSHOT",
     "properties" : {
       "topic" : {
         "index" : 0,
@@ -2022,8 +2022,20 @@
         "secret" : false,
         "description" : "The URL for the kafka brokers to use"
       },
-      "maxCacheSize" : {
+      "groupId" : {
         "index" : 2,
+        "kind" : "property",
+        "displayName" : "Group Id",
+        "required" : false,
+        "type" : "string",
+        "javaType" : "java.lang.String",
+        "deprecated" : false,
+        "autowired" : false,
+        "secret" : false,
+        "description" : "A string that uniquely identifies the group of consumer processes to which this consumer belongs. By setting the same group id, multiple processes can indicate that they are all part of the same consumer group."
+      },
+      "maxCacheSize" : {
+        "index" : 3,
         "kind" : "property",
         "displayName" : "Max Cache Size",
         "required" : false,
@@ -2036,7 +2048,7 @@
         "description" : "Sets the maximum size of the local key cache."
       },
       "pollDurationMs" : {
-        "index" : 3,
+        "index" : 4,
         "kind" : "property",
         "displayName" : "Poll Duration Ms",
         "required" : false,
@@ -2047,6 +2059,18 @@
         "secret" : false,
         "defaultValue" : "100",
         "description" : "Sets the poll duration of the Kafka consumer. The local caches are updated immediately; this value will affect how far behind other peers in the cluster are, which are updating their caches from the topic, relative to the idempotent consumer instance issued the cache action message. The default value of this is 100 If setting this value explicitly, be aware that there is a tradeoff between the remote cache liveness and the volume of network traffic between this repository's consumer and the Kafka brokers. The cache warmup process also depends on there being one poll that fetches nothing - this indicates that the stream has been consumed up to the current point. If the poll duration is excessively long for the rate at which messages are sent on the topic, there exists a possibility that the cache cannot be warmed up and will operate in an inconsistent state relative to its peers until it catches up."
+      },
+      "startupOnly" : {
+        "index" : 5,
+        "kind" : "property",
+        "displayName" : "Startup Only",
+        "required" : false,
+        "type" : "boolean",
+        "javaType" : "boolean",
+        "deprecated" : false,
+        "autowired" : false,
+        "secret" : false,
+        "description" : "Whether to sync on startup only, or to continue syncing while Camel is running."
       }
     }
   }
@@ -2063,7 +2087,7 @@
     "deprecated" : false,
     "groupId" : "org.apache.camel",
     "artifactId" : "camel-leveldb",
-    "version" : "4.7.0",
+    "version" : "4.8.0-SNAPSHOT",
     "properties" : {
       "persistentFileName" : {
         "index" : 0,
@@ -2205,7 +2229,7 @@
     "deprecated" : false,
     "groupId" : "org.apache.camel",
     "artifactId" : "camel-core-processor",
-    "version" : "4.7.0",
+    "version" : "4.8.0-SNAPSHOT",
     "properties" : {
       "optimisticLocking" : {
         "index" : 0,
@@ -2234,7 +2258,7 @@
     "deprecated" : false,
     "groupId" : "org.apache.camel",
     "artifactId" : "camel-support",
-    "version" : "4.7.0",
+    "version" : "4.8.0-SNAPSHOT",
     "properties" : {
       "cacheSize" : {
         "index" : 0,
@@ -2264,7 +2288,7 @@
     "deprecated" : false,
     "groupId" : "org.apache.camel",
     "artifactId" : "camel-mongodb",
-    "version" : "4.7.0",
+    "version" : "4.8.0-SNAPSHOT",
     "properties" : {
       "mongoClient" : {
         "index" : 0,
@@ -2317,7 +2341,7 @@
     "deprecated" : false,
     "groupId" : "org.apache.camel",
     "artifactId" : "camel-opensearch",
-    "version" : "4.7.0"
+    "version" : "4.8.0-SNAPSHOT"
   }
 }
 ,
@@ -2332,7 +2356,7 @@
     "deprecated" : false,
     "groupId" : "org.apache.camel",
     "artifactId" : "camel-quartz",
-    "version" : "4.7.0",
+    "version" : "4.8.0-SNAPSHOT",
     "properties" : {
       "routeStartRepeatCount" : {
         "index" : 0,
@@ -2462,7 +2486,7 @@
     "deprecated" : false,
     "groupId" : "org.apache.camel",
     "artifactId" : "camel-spring-redis",
-    "version" : "4.7.0",
+    "version" : "4.8.0-SNAPSHOT",
     "properties" : {
       "repositoryName" : {
         "index" : 0,
@@ -2516,7 +2540,7 @@
     "deprecated" : false,
     "groupId" : "org.apache.camel",
     "artifactId" : "camel-core-processor",
-    "version" : "4.7.0",
+    "version" : "4.8.0-SNAPSHOT",
     "properties" : {
       "delimiter" : {
         "index" : 0,
@@ -2545,7 +2569,7 @@
     "deprecated" : false,
     "groupId" : "org.apache.camel",
     "artifactId" : "camel-tarfile",
-    "version" : "4.7.0",
+    "version" : "4.8.0-SNAPSHOT",
     "properties" : {
       "filePrefix" : {
         "index" : 0,
@@ -2626,7 +2650,7 @@
     "deprecated" : false,
     "groupId" : "org.apache.camel",
     "artifactId" : "camel-support",
-    "version" : "4.7.0",
+    "version" : "4.8.0-SNAPSHOT",
     "properties" : {
       "failureThreshold" : {
         "index" : 0,
@@ -2732,7 +2756,7 @@
     "deprecated" : false,
     "groupId" : "org.apache.camel",
     "artifactId" : "camel-support",
-    "version" : "4.7.0",
+    "version" : "4.8.0-SNAPSHOT",
     "properties" : {
       "scope" : {
         "index" : 0,
@@ -2803,7 +2827,7 @@
     "deprecated" : false,
     "groupId" : "org.apache.camel",
     "artifactId" : "camel-core-processor",
-    "version" : "4.7.0"
+    "version" : "4.8.0-SNAPSHOT"
   }
 }
 ,
@@ -2818,7 +2842,7 @@
     "deprecated" : false,
     "groupId" : "org.apache.camel",
     "artifactId" : "camel-core-processor",
-    "version" : "4.7.0"
+    "version" : "4.8.0-SNAPSHOT"
   }
 }
 ,
@@ -2833,7 +2857,7 @@
     "deprecated" : false,
     "groupId" : "org.apache.camel",
     "artifactId" : "camel-xslt",
-    "version" : "4.7.0",
+    "version" : "4.8.0-SNAPSHOT",
     "properties" : {
       "xslFile" : {
         "index" : 0,
@@ -2902,7 +2926,7 @@
     "deprecated" : false,
     "groupId" : "org.apache.camel",
     "artifactId" : "camel-xslt-saxon",
-    "version" : "4.7.0",
+    "version" : "4.8.0-SNAPSHOT",
     "properties" : {
       "xslFile" : {
         "index" : 0,
@@ -2971,7 +2995,7 @@
     "deprecated" : false,
     "groupId" : "org.apache.camel",
     "artifactId" : "camel-zipfile",
-    "version" : "4.7.0",
+    "version" : "4.8.0-SNAPSHOT",
     "properties" : {
       "filePrefix" : {
         "index" : 0,

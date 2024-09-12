@@ -280,7 +280,7 @@ export const CamelDataFormatMetadata: ElementMeta[] = [
         new PropertyMeta('nullStringDisabled', 'Null String Disabled', "Used to disable null strings", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('nullString', 'Null String', "Sets the null string", 'string', '', '', false, false, false, false, 'advanced', ''),
         new PropertyMeta('quoteDisabled', 'Quote Disabled', "Used to disable quotes", 'boolean', '', 'false', false, false, false, false, '', ''),
-        new PropertyMeta('quote', 'Quote', "Sets the quote which by default is", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('quote', 'Quote', "Sets the quote to use which by default is double-quote character", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('recordSeparatorDisabled', 'Record Separator Disabled', "Used for disabling record separator", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('recordSeparator', 'Record Separator', "Sets the record separator (aka new line) which by default is new line characters (CRLF)", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('skipHeaderRecord', 'Skip Header Record', "Whether to skip the header record in the output", 'boolean', '', 'false', false, false, false, false, '', ''),
@@ -1045,7 +1045,7 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('precondition', 'Precondition', "Indicates whether this Choice EIP is in precondition mode or not. If so its branches (when/otherwise) are evaluated during startup to keep at runtime only the branch that matched.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
     ], [
     ]),
-    new ElementMeta('circuitBreaker', 'CircuitBreakerDefinition', 'Circuit Breaker', "Route messages in a fault tolerance way using Circuit Breaker", 'eip,routing', [
+    new ElementMeta('circuitBreaker', 'CircuitBreakerDefinition', 'Circuit Breaker', "Route messages in a fault tolerance way using Circuit Breaker", 'eip,routing,error', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('disabled', 'Disabled', "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
@@ -1202,7 +1202,7 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('disabled', 'Disabled', "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('message', 'Message', "Sets the log message (uses simple language)", 'string', '', '', true, false, false, false, '', ''),
         new PropertyMeta('loggingLevel', 'Logging Level', "Sets the logging level. The default value is INFO", 'string', 'TRACE, DEBUG, INFO, WARN, ERROR, OFF', 'INFO', false, false, false, false, '', ''),
-        new PropertyMeta('logName', 'Log Name', "Sets the name of the logger", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('logName', 'Log Name', "Sets the name of the logger. The name is default the routeId or the source:line if source location is enabled. You can also specify the name using tokens: ${class} - the logger class name (org.apache.camel.processor.LogProcessor) ${contextId} - the camel context id ${routeId} - the route id ${groupId} - the route group id ${nodeId} - the node id ${nodePrefixId} - the node prefix id ${source} - the source:line (source location must be enabled) ${source.name} - the source filename (source location must be enabled) ${source.line} - the source line number (source location must be enabled) For example to use the route and node id you can specify the name as: ${routeId}/${nodeId}", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('marker', 'Marker', "To use slf4j marker", 'string', '', '', false, false, false, false, 'advanced', ''),
         new PropertyMeta('logger', 'Logger', "To refer to a custom logger instance to lookup from the registry.", 'string', '', '', false, false, false, false, 'advanced', ''),
     ], [
@@ -1220,7 +1220,7 @@ export const CamelModelMetadata: ElementMeta[] = [
         new ExchangePropertyMeta('CamelLoopIndex', 'Loop Index', 'producer', 'int', 'Index of the current iteration (0 based).'),
         new ExchangePropertyMeta('CamelLoopSize', 'Loop Size', 'producer', 'int', 'Total number of loops. This is not available if running the loop in while loop mode.'),
     ]),
-    new ElementMeta('marshal', 'MarshalDefinition', 'Marshal', "Marshals data into a specified format for transmission over a transport or component", 'dataformat,transformation', [
+    new ElementMeta('marshal', 'MarshalDefinition', 'Marshal', "Marshals data into a specified format for transmission over a transport or component", 'eip,dataformat,transformation', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('disabled', 'Disabled', "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
@@ -1291,7 +1291,7 @@ export const CamelModelMetadata: ElementMeta[] = [
         new ExchangePropertyMeta('CamelMulticastComplete', 'Multicast Complete', 'producer', 'boolean', 'Whether this Exchange is the last.'),
         new ExchangePropertyMeta('CamelToEndpoint', 'To Endpoint', 'producer', 'String', 'Endpoint URI where this Exchange is being sent to'),
     ]),
-    new ElementMeta('onFallback', 'OnFallbackDefinition', 'On Fallback', "Route to be executed when Circuit Breaker EIP executes fallback", 'eip,routing', [
+    new ElementMeta('onFallback', 'OnFallbackDefinition', 'On Fallback', "Route to be executed when Circuit Breaker EIP executes fallback", 'eip,routing,error', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('disabled', 'Disabled', "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
@@ -1327,6 +1327,16 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('disabled', 'Disabled', "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('ref', 'Ref', "Sets a reference to use for lookup the policy in the registry.", 'string', '', '', true, false, false, false, '', ''),
         new PropertyMeta('steps', 'steps', "steps", 'CamelElement', '', '', false, false, true, true, '', ''),
+    ], [
+    ]),
+    new ElementMeta('poll', 'PollDefinition', 'Poll', "Polls a message from a static endpoint", 'eip,routing', [
+        new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('disabled', 'Disabled', "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('variableReceive', 'Variable Receive', "To use a variable to store the received message body (only body, not headers). This is handy for easy access to the received message body via variables. Important: When using receive variable then the received body is stored only in this variable and not on the current Message .", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('uri', 'Uri', "Sets the uri of the endpoint to poll from.", 'string', '', '', true, false, false, false, '', ''),
+        new PropertyMeta('timeout', 'Timeout', "Timeout in millis when polling from the external service. The timeout has influence about the poll enrich behavior. It basically operations in three different modes: negative value - Waits until a message is available and then returns it. Warning that this method could block indefinitely if no messages are available. 0 - Attempts to receive a message exchange immediately without waiting and returning null if a message exchange is not available yet. positive value - Attempts to receive a message exchange, waiting up to the given timeout to expire if a message is not yet available. Returns null if timed out The default value is 20000 (20 seconds).", 'string', '', '20000', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('parameters', 'parameters', "parameters", 'object', '', '', false, false, false, false, '', ''),
     ], [
     ]),
     new ElementMeta('pollEnrich', 'PollEnrichDefinition', 'Poll Enrich', "Enriches messages with data polled from a secondary resource", 'eip,transformation', [
@@ -1535,7 +1545,7 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('variables', 'Variables', "Contains the variables to be set", 'SetVariableDefinition', '', '', true, false, true, true, '', ''),
     ], [
     ]),
-    new ElementMeta('sort', 'SortDefinition', 'Sort', "Sorts the contents of the message", 'eip,routing', [
+    new ElementMeta('sort', 'SortDefinition', 'Sort', "Sorts the contents of the message", 'eip,transformation', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('disabled', 'Disabled', "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
@@ -1665,7 +1675,7 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('toType', 'To Type', "To type used as a target data type in the transformation.", 'string', '', '', false, false, false, false, '', ''),
     ], [
     ]),
-    new ElementMeta('doTry', 'TryDefinition', 'Do Try', "Marks the beginning of a try, catch, finally block", 'error', [
+    new ElementMeta('doTry', 'TryDefinition', 'Do Try', "Marks the beginning of a try, catch, finally block", 'eip,routing,error', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('disabled', 'Disabled', "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
@@ -1674,7 +1684,7 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('steps', 'steps', "steps", 'CamelElement', '', '', false, false, true, true, '', ''),
     ], [
     ]),
-    new ElementMeta('unmarshal', 'UnmarshalDefinition', 'Unmarshal', "Converts the message data received from the wire into a format that Apache Camel processors can consume", 'dataformat,transformation', [
+    new ElementMeta('unmarshal', 'UnmarshalDefinition', 'Unmarshal', "Converts the message data received from the wire into a format that Apache Camel processors can consume", 'eip,dataformat,transformation', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('disabled', 'Disabled', "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
@@ -1767,6 +1777,15 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('parameters', 'parameters', "parameters", 'object', '', '', false, false, false, false, '', ''),
     ], [
         new ExchangePropertyMeta('CamelToEndpoint', 'To Endpoint', 'producer', 'String', 'Endpoint URI where this Exchange is being sent to'),
+    ]),
+    new ElementMeta('langChain4j', 'LangChain4jTokenizerDefinition', 'LangChain4J Tokenizer', "Tokenizer that uses LangChain4j for tokenization.", 'eip,transformation,ai', [
+        new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('disabled', 'Disabled', "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('tokenizerType', 'Tokenizer Type', "Sets the tokenizer type", 'string', 'OPEN_AI, AZURE, QWEN', '', true, false, false, false, '', ''),
+        new PropertyMeta('maxTokens', 'Max Tokens', "Sets the maximum number of tokens on each segment", 'number', '', '', true, false, false, false, '', ''),
+        new PropertyMeta('maxOverlap', 'Max Overlap', "Sets the maximum number of tokens that can overlap in each segment", 'number', '', '', true, false, false, false, '', ''),
+    ], [
     ]),
     new ElementMeta('intercept', 'InterceptDefinition', 'Intercept', "Intercepts a message at each step in the route", 'configuration', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
@@ -1974,7 +1993,7 @@ export const CamelModelMetadata: ElementMeta[] = [
         new ExchangePropertyMeta('CamelFailureEndpoint', 'Failure Endpoint', 'producer', 'String', 'Endpoint URI where the Exchange failed during processing'),
         new ExchangePropertyMeta('CamelFailureRouteId', 'Failure Route Id', 'producer', 'String', 'Route ID where the Exchange failed during processing'),
     ]),
-    new ElementMeta('faultToleranceConfiguration', 'FaultToleranceConfigurationDefinition', 'Fault Tolerance Configuration', "MicroProfile Fault Tolerance Circuit Breaker EIP configuration", 'configuration,eip', [
+    new ElementMeta('faultToleranceConfiguration', 'FaultToleranceConfigurationDefinition', 'Fault Tolerance Configuration', "MicroProfile Fault Tolerance Circuit Breaker EIP configuration", 'configuration,eip,error', [
         new PropertyMeta('id', 'Id', "The id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('circuitBreaker', 'Circuit Breaker', "Refers to an existing io.smallrye.faulttolerance.core.circuit.breaker.CircuitBreaker instance to lookup and use from the registry. When using this, then any other circuit breaker options are not in use.", 'string', '', '', false, false, false, false, 'advanced', ''),
         new PropertyMeta('delay', 'Delay', "Control how long the circuit breaker stays open. The default is 5 seconds.", 'string', '', '5000', false, false, false, false, '', ''),
@@ -2075,7 +2094,7 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('exchangeFormatterRef', 'Exchange Formatter Ref', "Sets the reference of the instance of org.apache.camel.spi.ExchangeFormatter to generate the log message from exchange.", 'string', '', '', false, false, false, false, 'advanced', ''),
     ], [
     ]),
-    new ElementMeta('resilience4jConfiguration', 'Resilience4jConfigurationDefinition', 'Resilience4j Configuration', "Resilience4j Circuit Breaker EIP configuration", 'configuration,eip', [
+    new ElementMeta('resilience4jConfiguration', 'Resilience4jConfigurationDefinition', 'Resilience4j Configuration', "Resilience4j Circuit Breaker EIP configuration", 'configuration,eip,error', [
         new PropertyMeta('id', 'Id', "The id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('circuitBreaker', 'Circuit Breaker', "Refers to an existing io.github.resilience4j.circuitbreaker.CircuitBreaker instance to lookup and use from the registry. When using this, then any other circuit breaker options are not in use.", 'string', '', '', false, false, false, false, 'advanced', ''),
         new PropertyMeta('config', 'Config', "Refers to an existing io.github.resilience4j.circuitbreaker.CircuitBreakerConfig instance to lookup and use from the registry.", 'string', '', '', false, false, false, false, 'advanced', ''),

@@ -75,6 +75,8 @@ public class AbstractGenerator {
             className = "convertVariableTo";
         } else if (className.equals("TryDefinition")) {
             className = "doTry";
+        } else if (className.equals("LangChain4jTokenizerDefinition")) {
+            className = "langChain4j";
         } else if (className.equals("FinallyDefinition")) {
             className = "doFinally";
         } else if (className.equals("ToDynamicDefinition")) {
