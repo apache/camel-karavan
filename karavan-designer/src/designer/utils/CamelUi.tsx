@@ -67,7 +67,7 @@ import {
     SapIcon,
     SchedulingIcon,
     ScriptIcon,
-    SearchIcon, SmooksIcon,
+    SearchIcon, SlackIcon, SmooksIcon,
     SocialIcon,
     SpringIcon,
     TerminalIcon,
@@ -587,6 +587,8 @@ export class CamelUi {
             return DirectIcon();
         } else if (title.startsWith("Vert.x")) {
             return VertXIcon();
+        } else if (title.startsWith("Slack")) {
+            return SlackIcon();
         } else if (title === "Exec") {
             return TerminalIcon();
         } else if (title === "Grape") {
