@@ -12,6 +12,11 @@
         - to:
             id: to-7baa
             uri: jms
+            parameters:
+              destinationName: test
         - to:
             id: to-7f8a
             uri: kamelet:aws-kinesis-firehose-sink
+        - to:
+            id: to-59a6
+            uri: djl

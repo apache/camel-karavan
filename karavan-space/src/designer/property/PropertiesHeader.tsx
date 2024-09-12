@@ -25,6 +25,7 @@ import {
     MenuToggle,
     DropdownList,
     DropdownItem, Flex, Popover, FlexItem, Badge, ClipboardCopy,
+    Switch,
 } from '@patternfly/react-core';
 import '../karavan.css';
 import './DslProperties.css';
@@ -58,6 +59,7 @@ export function PropertiesHeader(props: Props) {
     const [isHeadersExpanded, setIsHeadersExpanded] = useState<boolean>(false);
     const [isExchangePropertiesExpanded, setIsExchangePropertiesExpanded] = useState<boolean>(false);
     const [isMenuOpen, setMenuOpen] = useState<boolean>(false);
+    const [isStepTypeOpen, setIsStepTypeOpen] = React.useState(false);
 
     useEffect(() => {
         setMenuOpen(false)
@@ -223,12 +225,38 @@ export function PropertiesHeader(props: Props) {
     const descriptionLines: string [] = description ? description?.split("\n") : [""];
     const headers = ComponentApi.getComponentHeadersList(selectedStep)
     const exchangeProperties = selectedStep ? CamelMetadataApi.getExchangeProperties(selectedStep.dslName) : [];
-    const groups = selectedStep?.dslName === 'FromDefinition' ? ['consumer', 'common'] : ['producer', 'common']
+    const isFrom = selectedStep?.dslName === 'FromDefinition';
+    const isPoll = selectedStep?.dslName === 'PollDefinition';
+    const component = ComponentApi.findStepComponent(selectedStep);
+    const groups = (isFrom || isPoll) ? ['consumer', 'common'] : ['producer', 'common'];
+    const isKamelet = CamelUi.isKamelet(selectedStep);
+    const isStepComponent = !isFrom && selectedStep !== undefined && !isKamelet && ['ToDefinition', 'PollDefinition'].includes(selectedStep?.dslName);
+
+    function getComponentStepTypeSwitch() {
+        return (component?.component.producerOnly
+            ? <></>
+            : <Switch
+                id="step-type-switch"
+                label="Poll"
+                isChecked={isStepTypeOpen}
+                onChange={(event, checked) => {
+                    if (selectedStep) {
+                        convertStep(selectedStep, checked ? 'PollDefinition' : 'ToDefinition');
+                        setIsStepTypeOpen(checked);
+                    }
+                }}
+                ouiaId="step-type-switch"
+                isReversed
+            />
+        )
+    }
+
     return (
         <div className="headers">
             <div className="top">
                 <Title headingLevel="h1" size="md">{title}</Title>
                 {getHeaderMenu()}
+                {isStepComponent && getComponentStepTypeSwitch()}
             </div>
             <Text component={TextVariants.p}>{descriptionLines.at(0)}</Text>
             {descriptionLines.length > 1 && getDescriptionSection()}

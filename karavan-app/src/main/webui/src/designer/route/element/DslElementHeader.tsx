@@ -147,7 +147,7 @@ export function DslElementHeader(props: Props) {
 
     function getHeaderIconClasses(): string {
         const classes: string[] = ['header-icon'];
-        if (['ToDefinition', 'FromDefinition'].includes(step.dslName)) {
+        if (['ToDefinition', 'FromDefinition', 'PollDefinition'].includes(step.dslName)) {
             classes.push('header-icon-square');
         } else if (step.dslName === 'ChoiceDefinition') {
             classes.push('header-icon-diamond');

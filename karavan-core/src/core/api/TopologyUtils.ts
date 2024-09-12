@@ -39,7 +39,7 @@ import { CamelDefinitionApiExt } from './CamelDefinitionApiExt';
 import { CamelDisplayUtil } from './CamelDisplayUtil';
 import { CamelUtil } from './CamelUtil';
 
-const outgoingDefinitions: string[] = ['ToDefinition', 'KameletDefinition', 'ToDynamicDefinition', 'PollEnrichDefinition', 'EnrichDefinition', 'WireTapDefinition', 'SagaDefinition'];
+const outgoingDefinitions: string[] = ['ToDefinition', 'KameletDefinition', 'ToDynamicDefinition', 'PollEnrichDefinition', 'EnrichDefinition', 'WireTapDefinition', 'SagaDefinition', 'PollDefinition'];
 
 export class ChildElement {
     constructor(public name: string = '', public className: string = '', public multiple: boolean = false) {

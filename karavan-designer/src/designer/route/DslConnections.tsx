@@ -83,9 +83,11 @@ export function DslConnections() {
         }
     }
 
-    function getElementType(element: CamelElement): 'internal' | 'remote' | 'nav' {
+    function getElementType(element: CamelElement): 'internal' | 'remote' | 'nav' | 'poll' {
         const uri = (element as any).uri;
-        if (INTERNAL_COMPONENTS.includes((uri))) {
+        if (element.dslName === 'PollDefinition') {
+            return 'poll';
+        } else if (INTERNAL_COMPONENTS.includes((uri))) {
             return 'nav';
         } else {
             const component = ComponentApi.findByName(uri);
@@ -93,8 +95,8 @@ export function DslConnections() {
         }
     }
 
-    function getIncomings(): [string, number, 'internal' | 'remote' | 'nav'][] {
-        let outs: [string, number, 'internal' | 'remote' | 'nav'][] = Array.from(steps.values())
+    function getIncomings(): [string, number, 'internal' | 'remote' | 'nav' | 'poll'][] {
+        let outs: [string, number, 'internal' | 'remote' | 'nav' | 'poll'][] = Array.from(steps.values())
             .filter(pos => ["FromDefinition"].includes(pos.step.dslName))
             .filter(pos => !(pos.step.dslName === 'FromDefinition' && (pos.step as any).uri === 'kamelet:source'))
             .sort((pos1: DslPosition, pos2: DslPosition) => {
@@ -109,7 +111,7 @@ export function DslConnections() {
         return outs;
     }
 
-    function getIncoming(data: [string, number, 'internal' | 'remote' | 'nav']) {
+    function getIncoming(data: [string, number, 'internal' | 'remote' | 'nav' | 'poll']) {
         const pos = steps.get(data[0]);
         if (pos) {
             const fromX = pos.headerRect.x + pos.headerRect.width / 2 - left;
@@ -128,7 +130,7 @@ export function DslConnections() {
                         <circle key={pos.step.uuid + "-circle"} cx={incomingX} cy={fromY} r={r} className="circle-incoming"/>
                         <path key={pos.step.uuid + "-path"} d={`M ${lineX1},${lineY1} C ${lineX1},${lineY2} ${lineX2},${lineY1}  ${lineX2},${lineY2}`}
                               className={isNav ? 'path-incoming-nav' : 'path-incoming'}
-                              markerEnd="url(#arrowhead)"/>
+                              markerEnd="url(#arrowheadRight)"/>
                     </g>
                     : <div key={pos.step.uuid + "-incoming"} style={{display: 'none'}}></div>
             )
@@ -142,7 +144,7 @@ export function DslConnections() {
     //         .filter(s =>  (s.step as any)?.parameters?.name === name)
     // }
 
-    function getIncomingIcons(data: [string, number, 'internal' | 'remote' | 'nav']) {
+    function getIncomingIcons(data: [string, number, 'internal' | 'remote' | 'nav' | 'poll']) {
         const pos = steps.get(data[0]);
         if (pos) {
             const step = (pos.step as any);
@@ -184,7 +186,7 @@ export function DslConnections() {
         }
     }
 
-    function hasOverlap(data: [string, number, 'internal' | 'remote' | 'nav'][]): boolean {
+    function hasOverlap(data: [string, number, 'internal' | 'remote' | 'nav' | 'poll'][]): boolean {
         let result = false;
         data.forEach((d, i, arr) => {
             if (i > 0 && d[1] - arr[i - 1][1] < overlapGap) result = true;
@@ -192,8 +194,8 @@ export function DslConnections() {
         return result;
     }
 
-    function addGap(data: [string, number, 'internal' | 'remote' | 'nav'][]): [string, number, 'internal' | 'remote' | 'nav'][] {
-        const result: [string, number, 'internal' | 'remote' | 'nav'][] = [];
+    function addGap(data: [string, number, 'internal' | 'remote' | 'nav' | 'poll'][]): [string, number, 'internal' | 'remote' | 'nav' | 'poll'][] {
+        const result: [string, number, 'internal' | 'remote' | 'nav' | 'poll'][] = [];
         data.forEach((d, i, arr) => {
             if (i > 0 && d[1] - arr[i - 1][1] < overlapGap) result.push([d[0], d[1] + overlapGap, d[2]])
             else result.push(d);
@@ -202,12 +204,12 @@ export function DslConnections() {
     }
 
 
-    function getOutgoings(): [string, number, 'internal' | 'remote' | 'nav'][] {
+    function getOutgoings(): [string, number, 'internal' | 'remote' | 'nav' | 'poll'][] {
         const outgoingDefinitions = TopologyUtils.getOutgoingDefinitions();
-        let outs: [string, number, 'internal' | 'remote' | 'nav'][] = Array.from(steps.values())
+        let outs: [string, number, 'internal' | 'remote' | 'nav' | 'poll'][] = Array.from(steps.values())
             .filter(pos => outgoingDefinitions.includes(pos.step.dslName))
             .filter(pos => pos.step.dslName !== 'KameletDefinition' || (pos.step.dslName === 'KameletDefinition' && !CamelUi.isActionKamelet(pos.step)))
-            .filter(pos => pos.step.dslName === 'ToDefinition' && !CamelUi.isActionKamelet(pos.step))
+            .filter(pos => ['ToDefinition', 'PollDefinition'].includes(pos.step.dslName) && !CamelUi.isActionKamelet(pos.step))
             .filter(pos => !CamelUi.isKameletSink(pos.step))
             .sort((pos1: DslPosition, pos2: DslPosition) => {
                 const y1 = pos1.headerRect.y + pos1.headerRect.height / 2;
@@ -221,8 +223,11 @@ export function DslConnections() {
         return outs;
     }
 
-    function getOutgoing(data: [string, number, 'internal' | 'remote' | 'nav']) {
+    function getOutgoing(data: [string, number, 'internal' | 'remote' | 'nav' | 'poll']) {
         const pos = steps.get(data[0]);
+        const isInternal = data[2] === 'internal';
+        const isNav = data[2] === 'nav';
+        const isPoll = data[2] === 'poll';
         if (pos) {
             const fromX = pos.headerRect.x + pos.headerRect.width / 2 - left;
             const fromY = pos.headerRect.y + pos.headerRect.height / 2 - top;
@@ -233,26 +238,25 @@ export function DslConnections() {
 
             const lineX1 = fromX + r;
             const lineY1 = fromY;
-            const lineX2 = outgoingX - r * 2 + 6;
+            const lineX2 = outgoingX - r * 2 + (isPoll ? 14 : 6);
             const lineY2 = outgoingY;
 
             const lineXi = lineX1 + 40;
             const lineYi = lineY2;
-            const isInternal = data[2] === 'internal';
-            const isNav = data[2] === 'nav';
+
             return (!isInternal
                     ? <g key={pos.step.uuid + "-outgoing"}>
                         <circle cx={outgoingX} cy={outgoingY} r={r} className="circle-outgoing"/>
                         <path
                             d={`M ${lineX1},${lineY1} C ${lineXi - 20}, ${lineY1} ${lineX1 - RADIUS},${lineYi} ${lineXi},${lineYi} L ${lineX2},${lineY2}`}
-                            className={isNav ? 'path-incoming-nav' : 'path-incoming'} markerEnd="url(#arrowhead)"/>
+                            className={isNav ? 'path-incoming-nav' : 'path-incoming'} markerStart={isPoll ? "url(#arrowheadLeft)" : "none"} markerEnd={isPoll ? "none" : "url(#arrowheadRight)"}/>
                     </g>
                     : <div key={pos.step.uuid + "-outgoing"} style={{display: 'none'}}></div>
             )
         }
     }
 
-    function getOutgoingIcons(data: [string, number, 'internal' | 'remote' | 'nav']) {
+    function getOutgoingIcons(data: [string, number, 'internal' | 'remote' | 'nav' | 'poll']) {
         const pos = steps.get(data[0]);
         if (pos) {
             const step = (pos.step as any);
@@ -462,7 +466,7 @@ export function DslConnections() {
             + ` L ${LX2} ${LY2}`
             + ` Q ${Q2_X1} ${Q2_Y1} ${Q2_X2} ${Q2_Y2}`
         return (
-            <path key={uuidv4()} name={key} d={path} className="path" markerEnd="url(#arrowhead)"/>
+            <path key={uuidv4()} name={key} d={path} className="path" markerEnd="url(#arrowheadRight)"/>
         )
     }
 
@@ -476,9 +480,13 @@ export function DslConnections() {
                  style={{width: width, height: height, position: "absolute", left: 0, top: 0}}
                  viewBox={"0 0 " + (width) + " " + (height)}>
                 <defs key='defs'>
-                    <marker key='maker' id="arrowhead" markerWidth="9" markerHeight="6" refX="0" refY="3" orient="auto"
+                    <marker key='maker1' id="arrowheadRight" markerWidth="9" markerHeight="6" refX="0" refY="3" orient="auto"
                             className="arrow">
                         <polygon points="0 0, 9 3, 0 6"/>
+                    </marker>
+                    <marker key='maker2' id="arrowheadLeft" markerWidth="9" markerHeight="6" refX="0" refY="3" orient="auto"
+                            className="arrow">
+                        <polygon points="9 0, 0 3, 9 6"/>
                     </marker>
                 </defs>
                 {stepsArray.map(pos => getCircle(pos))}

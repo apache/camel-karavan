@@ -77,7 +77,7 @@ public final class CamelDefinitionGenerator extends AbstractGenerator {
             String attributeType = getAttributeType(name, attributeValue, req, definitions, generatedValue);
 
             var excludeProperty  = excludeProperty(stepName, name, attributeType);
-            
+
             String r = req ? "" : "?";
             name = name.equals("constructor") ? "_constructor" : name; // exception for YAMLDataFormat
             if (className.equals("ChoiceDefinition") && name.equals("steps")) { // exception for ChoiceDefinition

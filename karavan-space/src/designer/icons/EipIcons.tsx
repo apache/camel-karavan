@@ -70,6 +70,26 @@ export function ToIcon() {
     );
 }
 
+export function PollIcon() {
+    return (
+        <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 32 32"
+            className="icon" width="32px" height="32px"
+        >
+            <path
+                d="M24 22v-1h6v-2h-6v-6h6v-2h-6v-1a2 2 0 0 0-2-2h-6a8.007 8.007 0 0 0-7.93 7v2A8.007 8.007 0 0 0 16 24h6a2 2 0 0 0 2-2zm-8 0a6 6 0 1 1 0-12h6v12z"/>
+            <path
+                d="M0 0h32v32H0z"
+                data-name="&lt;Transparent Rectangle&gt;"
+                style={{
+                    fill: "none",
+                }}
+            />
+        </svg>
+    );
+}
+
 export function ChoiceIcon() {
     return (
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 700" className="icon" width="32px" height="32px">

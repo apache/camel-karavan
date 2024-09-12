@@ -85,7 +85,7 @@ export function DslProperties(props: Props) {
         )
     }
 
-    function getComponentHeader(): JSX.Element {
+    function getPropertiesHeader(): JSX.Element {
         if (props.designerType === 'routes') return <PropertiesHeader designerType={props.designerType} />
         else return getClonableElementHeader();
     }
@@ -178,7 +178,7 @@ export function DslProperties(props: Props) {
              className='properties'>
             <Form autoComplete="off" onSubmit={event => event.preventDefault()}>
                 {selectedStep === undefined && <IntegrationHeader/>}
-                {selectedStep && getComponentHeader()}
+                {selectedStep && getPropertiesHeader()}
                 {selectedStep !== undefined && getPropertySelector()}
                 {getPropertyFields(propertiesMain)}
                 {selectedStep && !['MarshalDefinition', 'UnmarshalDefinition'].includes(selectedStep.dslName)

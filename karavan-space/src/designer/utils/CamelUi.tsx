@@ -84,7 +84,7 @@ import {
     Intercept,
     InterceptFrom,
     InterceptSendToEndpoint, LoadBalanceIcon,
-    OnCompletion,
+    OnCompletion, PollIcon,
     SagaIcon,
     SortIcon,
     SplitIcon,
@@ -332,6 +332,10 @@ export class CamelUi {
         return element.dslName === 'ToDefinition' && (element as any).uri === 'kamelet:sink';
     }
 
+    static isKamelet = (element?: CamelElement): boolean => {
+        return (element as any)?.uri?.startsWith("kamelet");
+    }
+
     static getInternalRouteUris = (integration: Integration, componentName: string, showComponentName: boolean = true): string[] => {
         const result: string[] = [];
         integration.spec.flows?.filter(f => f.dslName === 'RouteDefinition')
@@ -369,7 +373,7 @@ export class CamelUi {
         if (element.dslName === 'RouteDefinition') {
             const routeId = (element as RouteDefinition).id
             return routeId ? routeId : CamelUtil.capitalizeName((element as any).stepName);
-        } else if (['ToDefinition', 'ToDynamicDefinition', 'FromDefinition', 'KameletDefinition'].includes(element.dslName) && (element as any).uri) {
+        } else if (['ToDefinition', 'ToDynamicDefinition', 'PollDefinition', 'FromDefinition', 'KameletDefinition'].includes(element.dslName) && (element as any).uri) {
             const uri = (element as any).uri;
             const kameletTitle = uri && uri.startsWith("kamelet:") ? KameletApi.findKameletByUri(uri)?.title() : undefined;
             return kameletTitle ? kameletTitle : CamelUtil.capitalizeName(ComponentApi.getComponentTitleFromUri(uri) || '');
@@ -716,6 +720,8 @@ export class CamelUi {
                 return <AggregateIcon/>;
             case 'ToDefinition':
                 return <ToIcon/>;
+            case 'PollDefinition':
+                return <PollIcon/>;
             case 'ChoiceDefinition' :
                 return <ChoiceIcon/>;
             case 'SplitDefinition' :
@@ -840,5 +846,4 @@ export class CamelUi {
             .forEach((f: any) => result.push(f));
         return result;
     }
-
 }
