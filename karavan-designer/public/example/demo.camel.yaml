@@ -12,3 +12,6 @@
         - to:
             id: to-7baa
             uri: jms
+        - to:
+            id: to-7f8a
+            uri: kamelet:aws-kinesis-firehose-sink

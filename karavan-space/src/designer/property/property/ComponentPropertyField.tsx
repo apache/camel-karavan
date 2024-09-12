@@ -56,6 +56,7 @@ import EditorIcon from "@patternfly/react-icons/dist/js/icons/code-icon";
 import {ExpressionModalEditor} from "../../../expression/ExpressionModalEditor";
 import {PropertyPlaceholderDropdown} from "./PropertyPlaceholderDropdown";
 import {INTERNAL_COMPONENTS} from "karavan-core/lib/api/ComponentApi";
+import {PropertyUtil} from "./PropertyUtil";
 
 const prefix = "parameters";
 const beanPrefix = "#bean:";
@@ -414,14 +415,9 @@ export function ComponentPropertyField(props: Props) {
         )
     }
 
-    function hasValueChanged(property: ComponentProperty, value: any): boolean {
-        const isSet = value !== undefined;
-        const isDefault = property.defaultValue !== undefined && value?.toString() === property.defaultValue?.toString();
-        return isSet && !isDefault;
-    }
 
     function getLabel(property: ComponentProperty, value: any) {
-        const bgColor = hasValueChanged(property, value) ? 'yellow' : 'transparent';
+        const bgColor = PropertyUtil.hasComponentPropertyValueChanged(property, value) ? 'yellow' : 'transparent';
         return (
             <div style={{display: "flex", flexDirection: 'row', alignItems: 'center', gap: '3px'}}>
                 <Text style={{backgroundColor: bgColor}}>{property.displayName}</Text>

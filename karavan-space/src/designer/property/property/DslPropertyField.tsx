@@ -80,6 +80,9 @@ import {VariablesDropdown} from "./VariablesDropdown";
 import {ROUTE, GLOBAL} from "karavan-core/lib/api/VariableUtil";
 import {SpiBeanApi} from "karavan-core/lib/api/SpiBeanApi";
 import {SelectField} from "./SelectField";
+import {PropertyUtil} from "./PropertyUtil";
+import {usePropertiesStore} from "../PropertyStore";
+import {Property} from "karavan-core/lib/model/KameletModels";
 
 const beanPrefix = "#bean:";
 const classPrefix = "#class:";
@@ -100,6 +103,7 @@ export function DslPropertyField(props: Props) {
 
     const [integration, setIntegration, addVariable, files] = useIntegrationStore((s) => [s.integration, s.setIntegration, s.addVariable, s.files], shallow)
     const [dark, setSelectedStep, beans] = useDesignerStore((s) => [s.dark, s.setSelectedStep, s.beans], shallow)
+    const [propertyFilter, changedOnly, requiredOnly] = usePropertiesStore((s) => [s.propertyFilter, s.changedOnly, s.requiredOnly], shallow)
 
     const [isShowAdvanced, setIsShowAdvanced] = useState<string[]>([]);
     const [arrayValues, setArrayValues] = useState<Map<string, string>>(new Map<string, string>());
@@ -204,14 +208,8 @@ export function DslPropertyField(props: Props) {
         return property.name === 'parameters' && property.description === 'parameters';
     }
 
-    function hasValueChanged(property: PropertyMeta, value: any): boolean {
-        const isSet = value !== undefined && !['id', 'uri'].includes(property.name);
-        const isDefault = property.defaultValue !== undefined && value?.toString() === property.defaultValue?.toString();
-        return isSet && !isDefault;
-    }
-
     function getLabel(property: PropertyMeta, value: any, isKamelet: boolean) {
-        const bgColor = hasValueChanged(property, value) ? 'yellow' : 'transparent';
+        const bgColor = PropertyUtil.hasDslPropertyValueChanged(property, value) ? 'yellow' : 'transparent';
         if (!isMultiValueField(property) && property.isObject && !property.isArray && !["ExpressionDefinition"].includes(property.type)) {
             const tooltip = value ? "Delete " + property.name : "Add " + property.name;
             const className = value ? "change-button delete-button" : "change-button add-button";
@@ -906,32 +904,55 @@ export function DslPropertyField(props: Props) {
         )
     }
 
+    function getKameletPropertyValue(property: Property) {
+        const element = props.element;
+        return CamelDefinitionApiExt.getParametersValue(element, property.id)
+    }
+
+    function getFilteredKameletProperties(): Property[] {
+        const element = props.element;
+        const requiredParameters = CamelUtil.getKameletRequiredParameters(element);
+        let properties = CamelUtil.getKameletProperties(element)
+        const filter = propertyFilter.toLocaleLowerCase()
+        properties = properties.filter(p => p.title?.toLocaleLowerCase().includes(filter) || p.id?.toLocaleLowerCase().includes(filter));
+        if (requiredOnly) {
+            properties = properties.filter(p => requiredParameters.includes(p.id));
+        }
+        if (changedOnly) {
+            properties = properties.filter(p => PropertyUtil.hasKameletPropertyValueChanged(p, getKameletPropertyValue(p)));
+        }
+        return properties;
+    }
+
     function getKameletParameters() {
         const element = props.element;
         const requiredParameters = CamelUtil.getKameletRequiredParameters(element);
         return (
             <div className="parameters">
-                {CamelUtil.getKameletProperties(element).map(property =>
+                {getFilteredKameletProperties().map(property =>
                     <KameletPropertyField
                         key={property.id}
                         property={property}
-                        value={CamelDefinitionApiExt.getParametersValue(element, property.id)}
+                        value={getKameletPropertyValue(property)}
                         required={requiredParameters?.includes(property.id)}
                     />)}
             </div>
         )
     }
 
-    function getMainComponentParameters(properties: ComponentProperty[]) {
+    function getComponentPropertyValue(kp: ComponentProperty) {
         const element = props.element;
+        return CamelDefinitionApiExt.getParametersValue(element, kp.name, kp.kind === 'path');
+    }
+
+    function getMainComponentParameters(properties: ComponentProperty[]) {
         return (
             <div className="parameters">
                 {properties.map(kp => {
-                    const value = CamelDefinitionApiExt.getParametersValue(element, kp.name, kp.kind === 'path');
                     return (<ComponentPropertyField
                         key={kp.name}
                         property={kp}
-                        value={value}
+                        value={getComponentPropertyValue(kp)}
                         element={props.element}
                         onParameterChange={props.onParameterChange}
                     />)
@@ -941,8 +962,6 @@ export function DslPropertyField(props: Props) {
     }
 
     function getExpandableComponentProperties(properties: ComponentProperty[], label: string) {
-        const element = props.element;
-
         return (
             <ExpandableSection
                 toggleText={label}
@@ -956,13 +975,13 @@ export function DslPropertyField(props: Props) {
                         return prevState;
                     })
                 }}
-                isExpanded={isShowAdvanced.includes(label)}>
+                isExpanded={getShowExpanded(label)}>
                 <div className="parameters">
                     {properties.map(kp =>
                         <ComponentPropertyField
                             key={kp.name}
                             property={kp}
-                            value={CamelDefinitionApiExt.getParametersValue(element, kp.name, kp.kind === 'path')}
+                            value={getComponentPropertyValue(kp)}
                             onParameterChange={props.onParameterChange}
                         />
                     )}
@@ -1012,9 +1031,30 @@ export function DslPropertyField(props: Props) {
         return ['string'].includes(property.type) && property.name !== 'expression' && property.isArray && !property.enumVals;
     }
 
+    function getFilteredComponentProperties(): ComponentProperty[] {
+        let props = CamelUtil.getComponentProperties(element);
+        const filter = propertyFilter.toLocaleLowerCase()
+        props = props.filter(p => p.name?.toLocaleLowerCase().includes(filter) || p.label.toLocaleLowerCase().includes(filter) || p.displayName.toLocaleLowerCase().includes(filter));
+        if (requiredOnly) {
+            props = props.filter(p => p.required);
+        }
+        if (changedOnly) {
+            props = props.filter(p => PropertyUtil.hasComponentPropertyValueChanged(p, getComponentPropertyValue(p)));
+        }
+        return props
+    }
+
+    function getPropertySelectorChanged(): boolean {
+        return requiredOnly || changedOnly || propertyFilter?.trim().length > 0;
+    }
+
+    function getShowExpanded(label: string): boolean {
+        return isShowAdvanced.includes(label) || getPropertySelectorChanged();
+    }
+
     function getComponentParameters(property: PropertyMeta) {
         const element = props.element;
-        const properties = CamelUtil.getComponentProperties(element);
+        const properties = getFilteredComponentProperties();
         const propertiesMain = properties.filter(p => !p.label.includes("advanced") && !p.label.includes("security") && !p.label.includes("scheduler"));
         const propertiesAdvanced = properties.filter(p => p.label.includes("advanced"));
         const propertiesScheduler = properties.filter(p => p.label.includes("scheduler"));
