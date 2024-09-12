@@ -38,7 +38,6 @@ import EditorIcon from "@patternfly/react-icons/dist/js/icons/code-icon";
 import {ExpressionModalEditor} from "../../../expression/ExpressionModalEditor";
 import {useDesignerStore} from "../../DesignerStore";
 import {shallow} from "zustand/shallow";
-import {ComponentProperty} from "../../../../../karavan-core/src/core/model/ComponentModels";
 
 interface Props {
     property: Property,
