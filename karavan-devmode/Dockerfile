@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM maven:3.9.6-eclipse-temurin-17
+FROM maven:3.9.9-eclipse-temurin-17
 
 LABEL "org.opencontainers.image.title"="karavan-devmode"
 LABEL "org.opencontainers.image.description"="Apache Camel Karavan DevMode"
@@ -23,7 +23,7 @@ LABEL "org.opencontainers.image.version"="4.7.1"
 
 RUN apt-get update && apt-get install git && apt-get clean
 
-ENV JBANG_VERSION=0.117.1
+ENV JBANG_VERSION=0.118.1
 ENV CAMEL_VERSION=4.7.0
 ENV KARAVAN="/karavan"
 ENV JBANG_DIR="$KARAVAN/.jbang"
