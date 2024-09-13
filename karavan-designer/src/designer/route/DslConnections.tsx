@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 import React, {JSX, useEffect, useState} from 'react';
-import '../karavan.css';
+import './DslConnections.css';
 import {DslPosition, EventBus} from "../utils/EventBus";
 import {CamelUi} from "../utils/CamelUi";
 import {useConnectionsStore, useDesignerStore, useIntegrationStore} from "../DesignerStore";
@@ -244,12 +244,14 @@ export function DslConnections() {
             const lineXi = lineX1 + 40;
             const lineYi = lineY2;
 
+            const className = isNav ? 'path-incoming-nav' : (isPoll ? 'path-poll' : 'path-incoming')
+
             return (!isInternal
                     ? <g key={pos.step.uuid + "-outgoing"}>
                         <circle cx={outgoingX} cy={outgoingY} r={r} className="circle-outgoing"/>
                         <path
                             d={`M ${lineX1},${lineY1} C ${lineXi - 20}, ${lineY1} ${lineX1 - RADIUS},${lineYi} ${lineXi},${lineYi} L ${lineX2},${lineY2}`}
-                            className={isNav ? 'path-incoming-nav' : 'path-incoming'} markerStart={isPoll ? "url(#arrowheadLeft)" : "none"} markerEnd={isPoll ? "none" : "url(#arrowheadRight)"}/>
+                            className={className} markerStart={isPoll ? "url(#arrowheadLeft)" : "none"} markerEnd={isPoll ? "none" : "url(#arrowheadRight)"}/>
                     </g>
                     : <div key={pos.step.uuid + "-outgoing"} style={{display: 'none'}}></div>
             )

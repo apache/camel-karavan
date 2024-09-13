@@ -54,11 +54,14 @@ export function ToIcon() {
     return (
         <svg
             xmlns="http://www.w3.org/2000/svg"
+            width={800}
+            height={800}
             viewBox="0 0 32 32"
-            className="icon" width="32px" height="32px"
+            className="icon"
         >
+            <path d="m12.103 11.923 2.58 2.59H2.513v2h12.17l-2.58 2.59 1.41 1.41 5-5-5-5z"/>
             <path
-                d="M24 22v-1h6v-2h-6v-6h6v-2h-6v-1a2 2 0 0 0-2-2h-6a8.007 8.007 0 0 0-7.93 7v2A8.007 8.007 0 0 0 16 24h6a2 2 0 0 0 2-2zm-8 0a6 6 0 1 1 0-12h6v12z"/>
+                d="M9.513 23.013v-.5h2v.5a4.504 4.504 0 0 0 9 .36v-.86l.82-.1a7 7 0 0 0 0-13.88l-.82-.02v-.86a4.504 4.504 0 0 0-9 .36v.5h-2v-.5a6.5 6.5 0 0 1 12.86-1.3 9 9 0 0 1 0 17.6 6.5 6.5 0 0 1-12.86-1.3z"/>
             <path
                 d="M0 0h32v32H0z"
                 data-name="&lt;Transparent Rectangle&gt;"
@@ -74,11 +77,15 @@ export function PollIcon() {
     return (
         <svg
             xmlns="http://www.w3.org/2000/svg"
+            width={800}
+            height={800}
             viewBox="0 0 32 32"
-            className="icon" width="32px" height="32px"
+            className="icon"
         >
+            <title>{"cloud--download"}</title>
             <path
-                d="M24 22v-1h6v-2h-6v-6h6v-2h-6v-1a2 2 0 0 0-2-2h-6a8.007 8.007 0 0 0-7.93 7v2A8.007 8.007 0 0 0 16 24h6a2 2 0 0 0 2-2zm-8 0a6 6 0 1 1 0-12h6v12z"/>
+                d="M10.013 23.513v-.5h2v.5a4.504 4.504 0 0 0 9 .36v-.86l.82-.1a7 7 0 0 0 0-13.88l-.82-.02v-.86a4.504 4.504 0 0 0-9 .36v.5h-2v-.5a6.5 6.5 0 0 1 12.86-1.3 9 9 0 0 1 0 17.6 6.5 6.5 0 0 1-12.86-1.3z"/>
+            <path d="M18.013 17.013v-2H5.843l2.58-2.59-1.41-1.41-5 5 5 5 1.41-1.41-2.58-2.59z"/>
             <path
                 d="M0 0h32v32H0z"
                 data-name="&lt;Transparent Rectangle&gt;"
