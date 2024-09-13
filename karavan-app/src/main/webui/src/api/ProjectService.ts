@@ -98,12 +98,14 @@ export class ProjectService {
         });
     }
 
-    public static pushProject(project: Project, commitMessage: string) {
+    public static pushProject(project: Project, commitMessage: string, selectedFileNames: string[]) {
         const params = {
             'projectId': project.projectId,
             'message': commitMessage,
-            'userId': KaravanApi.getUserId()
+            'userId': KaravanApi.getUserId(),
+            'fileNames': selectedFileNames.join(","),
         };
+        console.log(params);
         KaravanApi.push(params, res => {
             if (res.status === 200 || res.status === 201) {
                 // ProjectService.refreshProject(project.projectId);

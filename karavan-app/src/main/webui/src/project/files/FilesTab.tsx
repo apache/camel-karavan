@@ -14,7 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 import React, {useEffect, useState} from 'react';
 import {
     Badge,
@@ -54,23 +53,25 @@ import {CreateIntegrationModal} from "./CreateIntegrationModal";
 import {DiffFileModal} from "./DiffFileModal";
 import {ProjectService} from "../../api/ProjectService";
 
-export function FilesTab () {
+export function FilesTab() {
 
     const [config] = useAppConfigStore((s) => [s.config], shallow);
-    const [files, diff] = useFilesStore((s) => [s.files, s.diff], shallow);
+    const [files, diff, selectedFileNames, selectFile, unselectFile, setSelectedFileNames]
+        = useFilesStore((s) => [s.files, s.diff, s.selectedFileNames, s.selectFile, s.unselectFile, s.setSelectedFileNames], shallow);
     const [project] = useProjectStore((s) => [s.project], shallow);
     const [setFile] = useFileStore((s) => [s.setFile], shallow);
     const [id, setId] = useState<string>('');
 
     const filenames = files.map(f => f.name);
-    const deletedFilenames: string[] =  Object.getOwnPropertyNames(diff)
-        .map(name => diff[name] === 'DELETED' ? name: '')
+    const deletedFilenames: string[] = Object.getOwnPropertyNames(diff)
+        .map(name => diff[name] === 'DELETED' ? name : '')
         .filter(name => name !== '' && !filenames.includes(name));
-    const deletedFiles: ProjectFile[] =  deletedFilenames.map(d => new ProjectFile(d, project.projectId, '', 0))
-    const allFiles =  files.concat(deletedFiles);
+    const deletedFiles: ProjectFile[] = deletedFilenames.map(d => new ProjectFile(d, project.projectId, '', 0))
+    const allFiles = files.concat(deletedFiles);
 
     useEffect(() => {
         onRefresh();
+        setSelectedFileNames([]);
     }, []);
 
     function onRefresh() {
@@ -83,7 +84,7 @@ export function FilesTab () {
         return diff && diff[filename] !== undefined;
     }
 
-    function download (file: ProjectFile) {
+    function download(file: ProjectFile) {
         if (file) {
             const type = file.name.endsWith("yaml") ? "application/yaml;charset=utf-8" : undefined;
             const f = new File([file.code], file.name, {type: type});
@@ -126,6 +127,14 @@ export function FilesTab () {
         return false;
     }
 
+    function selectAllFiles(isSelecting: boolean) {
+        if (isSelecting) {
+            allFiles.forEach(file => selectFile(file.name))
+        } else {
+            allFiles.forEach(file => unselectFile(file.name))
+        }
+    }
+
     return (
         <PageSection className="project-tab-panel" padding={{default: "padding"}}>
             <Panel>
@@ -133,11 +142,17 @@ export function FilesTab () {
                     <FileToolbar/>
                 </PanelHeader>
             </Panel>
-            <DiffFileModal id={id}/>
-            <div style={{height:"100%", overflow:"auto"}}>
+            <div style={{height: "100%", overflow: "auto"}}>
                 <Table aria-label="Files" variant={"compact"} className={"table"}>
                     <Thead>
                         <Tr>
+                            <Th
+                                select={{
+                                    onSelect: (_event, isSelecting) => selectAllFiles(isSelecting),
+                                    isSelected: selectedFileNames.length === allFiles.length
+                                }}
+                                aria-label="Row select"
+                            />
                             <Th key='type' width={20}>Type</Th>
                             <Th key='filename' width={40}>Filename</Th>
                             <Th key='status' width={30}>Status</Th>
@@ -145,54 +160,69 @@ export function FilesTab () {
                         </Tr>
                     </Thead>
                     <Tbody>
-                        {allFiles.map(file => {
+                        {allFiles.map((file, rowIndex) => {
                             const type = getProjectFileTypeTitle(file)
                             const diffType = diff[file.name];
                             const isForOtherEnv = forOtherEnvironment(file.name);
-                            return <Tr key={file.name}>
-                                <Td>
-                                    <Badge isRead={isForOtherEnv}>{type}</Badge>
-                                </Td>
-                                <Td>
-                                    <Button style={{padding: '6px'}} variant={isForOtherEnv ? 'plain' : 'link'}
-                                            onClick={e => {
-                                                setFile('select', file, undefined);
-                                            }}>
-                                        {file.name}
-                                    </Button>
-                                </Td>
-                                <Td>
-                                    {needCommit(file.name) &&
-                                        <Tooltip content="Show diff" position={"right"}>
-                                            <Label color="grey">
-                                                <Button size="sm" variant="link" className='labeled-button'
-                                                        icon={<DiffIcon/>}
-                                                        onClick={e => {
-                                                            setFile('diff', file, undefined);
-                                                            setId(Math.random().toString());
-                                                        }}>
-                                                    {diffType}
-                                                </Button>
-                                            </Label>
+                            return (
+                                <Tr key={file.name}>
+                                    <Td
+                                        select={{
+                                            rowIndex,
+                                            onSelect: (_event, isSelecting) => {
+                                                if (isSelecting) {
+                                                    selectFile(file.name);
+                                                } else {
+                                                    unselectFile(file.name);
+                                                }
+                                            },
+                                            isSelected: selectedFileNames.includes(file.name),
+                                        }}
+                                    />
+                                    <Td>
+                                        <Badge isRead={isForOtherEnv}>{type}</Badge>
+                                    </Td>
+                                    <Td>
+                                        <Button style={{padding: '6px'}} variant={isForOtherEnv ? 'plain' : 'link'}
+                                                onClick={e => {
+                                                    setFile('select', file, undefined);
+                                                }}>
+                                            {file.name}
+                                        </Button>
+                                    </Td>
+                                    <Td>
+                                        {needCommit(file.name) &&
+                                            <Tooltip content="Show diff" position={"right"}>
+                                                <Label color="grey">
+                                                    <Button size="sm" variant="link" className='labeled-button'
+                                                            icon={<DiffIcon/>}
+                                                            onClick={e => {
+                                                                setFile('diff', file, undefined);
+                                                                setId(Math.random().toString());
+                                                            }}>
+                                                        {diffType}
+                                                    </Button>
+                                                </Label>
+                                            </Tooltip>
+                                        }
+                                        {!needCommit(file.name) &&
+                                            <Label color="green" icon={<CheckIcon/>}/>
+                                        }
+                                    </Td>
+                                    <Td modifier={"fitContent"}>
+                                        <Button className="dev-action-button" variant={"plain"}
+                                                isDisabled={!canDeleteFiles(file.name)}
+                                                onClick={e =>
+                                                    setFile('delete', file)
+                                                }>
+                                            <DeleteIcon/>
+                                        </Button>
+                                        <Tooltip content="Download source" position={"bottom-end"}>
+                                            <Button className="dev-action-button" size="sm" variant="plain" icon={<DownloadIcon/>} onClick={e => download(file)}/>
                                         </Tooltip>
-                                    }
-                                    {!needCommit(file.name) &&
-                                        <Label color="green" icon={<CheckIcon/>}/>
-                                    }
-                                </Td>
-                                <Td modifier={"fitContent"}>
-                                    <Button className="dev-action-button" variant={"plain"}
-                                            isDisabled={!canDeleteFiles(file.name)}
-                                            onClick={e =>
-                                                setFile('delete', file)
-                                    }>
-                                        <DeleteIcon/>
-                                    </Button>
-                                    <Tooltip content="Download source" position={"bottom-end"}>
-                                        <Button className="dev-action-button"  size="sm" variant="plain" icon={<DownloadIcon/>} onClick={e => download(file)}/>
-                                    </Tooltip>
-                                </Td>
-                            </Tr>
+                                    </Td>
+                                </Tr>
+                            )
                         })}
                         {diff && Object.keys(diff).filter(f => diff[f] === 'DELETE').map(fileName => {
                             const type = getProjectFileTypeByNameTitle(fileName)
@@ -208,7 +238,7 @@ export function FilesTab () {
                                 <Td colSpan={8}>
                                     <Bullseye>
                                         <EmptyState variant={EmptyStateVariant.sm}>
-                                            <EmptyStateHeader titleText="No results found" icon={<EmptyStateIcon icon={SearchIcon}/>} headingLevel="h2" />
+                                            <EmptyStateHeader titleText="No results found" icon={<EmptyStateIcon icon={SearchIcon}/>} headingLevel="h2"/>
                                         </EmptyState>
                                     </Bullseye>
                                 </Td>
@@ -218,9 +248,10 @@ export function FilesTab () {
                 </Table>
             </div>
             <UploadFileModal/>
+            <DeleteFileModal/>
+            <DiffFileModal id={id}/>
             {!isKameletsProject() && <CreateFileModal/>}
             {isKameletsProject() && <CreateIntegrationModal/>}
-            <DeleteFileModal />
         </PageSection>
     )
 }

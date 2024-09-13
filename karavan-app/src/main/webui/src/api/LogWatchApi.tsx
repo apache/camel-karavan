@@ -51,7 +51,11 @@ export class LogWatchApi {
                         }
                     },
                     onmessage(event) {
-                        ProjectEventBus.sendLog('add', event.data);
+                        if (event.event !== 'ping') {
+                            ProjectEventBus.sendLog('add', event.data);
+                        } else {
+                            console.log('Logger SSE Ping', event);
+                        }
                     },
                     onclose() {
                         console.log("Connection closed by the server");

@@ -71,17 +71,17 @@ public class ProjectService {
     EventBus eventBus;
 
 
-    public Project commitAndPushProject(String projectId, String message) throws Exception {
-        return commitAndPushProject(projectId, message, DEFAULT_AUTHOR_NAME, DEFAULT_AUTHOR_EMAIL);
+    public Project commitAndPushProject(String projectId, String message, List<String> fileNames) throws Exception {
+        return commitAndPushProject(projectId, message, DEFAULT_AUTHOR_NAME, DEFAULT_AUTHOR_EMAIL, fileNames);
     }
 
-    public Project commitAndPushProject(String projectId, String message, String authorName, String authorEmail) throws Exception {
+    public Project commitAndPushProject(String projectId, String message, String authorName, String authorEmail, List<String> fileNames) throws Exception {
         if (Objects.equals(environment, DEV)) {
             LOGGER.info("Commit project: " + projectId);
             Project p = karavanCache.getProject(projectId);
             List<ProjectFile> files = karavanCache.getProjectFiles(projectId);
-            RevCommit commit = gitService.commitAndPushProject(p, files, message, authorName, authorEmail);
-            karavanCache.syncFilesCommited(projectId);
+            RevCommit commit = gitService.commitAndPushProject(p, files, message, authorName, authorEmail, fileNames);
+            karavanCache.syncFilesCommited(projectId, fileNames);
             String commitId = commit.getId().getName();
             Long lastUpdate = commit.getCommitTime() * 1000L;
             p.setLastCommit(commitId);
@@ -163,6 +163,7 @@ public class ProjectService {
                 ProjectFile file = new ProjectFile(repoFile.getName(), repoFile.getBody(), repo.getName(), repoFile.getLastCommitTimestamp());
                 karavanCache.saveProjectFile(file, true, false);
             });
+            karavanCache.syncFilesCommited(project.getProjectId(), karavanCache.getProjectFiles(project.getProjectId()).stream().map(ProjectFile::getName).collect(Collectors.toList()));
         } catch (Exception e) {
             LOGGER.error("Error during project import", e);
         }
@@ -215,6 +216,7 @@ public class ProjectService {
         String imageName = data.getString("imageName");
         boolean commit = data.getBoolean("commit");
         data.put("projectId", projectId);
+        data.put("fileNames", PROJECT_COMPOSE_FILENAME);
         codeService.updateDockerComposeImage(projectId, imageName);
         if (commit) {
             eventBus.publish(CMD_PUSH_PROJECT, data);

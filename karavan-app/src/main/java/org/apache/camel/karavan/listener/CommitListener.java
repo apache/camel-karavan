@@ -26,6 +26,8 @@ import org.apache.camel.karavan.model.Project;
 import org.apache.camel.karavan.service.ProjectService;
 import org.jboss.logging.Logger;
 
+import java.util.List;
+
 import static org.apache.camel.karavan.KaravanEvents.*;
 
 @Default
@@ -49,8 +51,9 @@ public class CommitListener {
         String eventId = event.getString("eventId");
         String authorName = event.getString("authorName");
         String authorEmail = event.getString("authorEmail");
+        List<String> fileNames = event.containsKey("fileNames") ? List.of(event.getString("fileNames").split(",")) : List.of();
         try {
-            Project p = projectService.commitAndPushProject(projectId, message, authorName, authorEmail);
+            Project p = projectService.commitAndPushProject(projectId, message, authorName, authorEmail, fileNames);
             if (userId != null) {
                 eventBus.publish(COMMIT_HAPPENED, JsonObject.of("userId", userId, "eventId", eventId, "project", JsonObject.mapFrom(p)));
             }

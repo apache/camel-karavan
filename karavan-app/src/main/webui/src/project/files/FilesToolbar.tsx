@@ -42,13 +42,13 @@ import {getShortCommit, isEmpty} from "../../util/StringUtils";
 
 export function FileToolbar () {
 
+    const [config] = useAppConfigStore((s) => [s.config], shallow);
+    const [project, isPushing, isPulling] = useProjectStore((s) => [s.project, s.isPushing, s.isPulling], shallow )
+    const [diff, selectedFileNames] = useFilesStore((s) => [s.diff, s.selectedFileNames], shallow);
+    const [file, setFile] = useFileStore((s) => [s.file, s.setFile], shallow )
     const [commitMessageIsOpen, setCommitMessageIsOpen] = useState(false);
     const [pullIsOpen, setPullIsOpen] = useState(false);
     const [commitMessage, setCommitMessage] = useState('');
-    const [project, isPushing, isPulling] = useProjectStore((s) => [s.project, s.isPushing, s.isPulling], shallow )
-    const [diff] = useFilesStore((s) => [s.diff], shallow);
-    const [file, setFile] = useFileStore((s) => [s.file, s.setFile], shallow )
-    const [config] = useAppConfigStore((s) => [s.config], shallow);
     const isDev = config.environment === 'dev';
 
     useEffect(() => {
@@ -57,7 +57,7 @@ export function FileToolbar () {
     function push () {
         setCommitMessageIsOpen(false);
         useProjectStore.setState({isPushing: true});
-        ProjectService.pushProject(project, commitMessage);
+        ProjectService.pushProject(project, commitMessage, selectedFileNames);
     }
 
     function pull () {

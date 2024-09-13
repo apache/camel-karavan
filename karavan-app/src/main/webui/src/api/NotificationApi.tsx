@@ -31,15 +31,15 @@ export class NotificationApi {
     }
 
     static onSystemMessage (ev: EventSourceMessage) {
+        console.log('onSystemMessage', ev)
         const ke = NotificationApi.getKaravanEvent(ev, 'system');
         NotificationEventBus.sendEvent(ke);
-        console.log('onSystemMessage', ev)
     }
 
     static onUserMessage (ev: EventSourceMessage) {
+        console.log('onUserMessage', ev)
         const ke = NotificationApi.getKaravanEvent(ev, 'user');
         NotificationEventBus.sendEvent(ke);
-        console.log('onUserMessage', ev)
     }
 
     static async notification(controller: AbortController) {
@@ -58,7 +58,6 @@ export class NotificationApi {
             if (ready) {
                 NotificationApi.fetch('/ui/notification/system/' + KaravanApi.getUserId(), controller, headers,
                     ev => NotificationApi.onSystemMessage(ev));
-                console.log("KaravanApi.getUserId()", KaravanApi.getUserId())
                 NotificationApi.fetch('/ui/notification/user/' + KaravanApi.getUserId(), controller, headers,
                     ev => NotificationApi.onUserMessage(ev));
             }
@@ -84,7 +83,11 @@ export class NotificationApi {
                 }
             },
             onmessage(event) {
-                onmessage(event);
+                if (event.event !== 'ping') {
+                    onmessage(event);
+                } else {
+                    console.log('Notification SSE Ping', event);
+                }
             },
             onclose() {
                 console.log("Connection closed by the server");

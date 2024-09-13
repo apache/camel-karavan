@@ -61,6 +61,8 @@ const sub = NotificationEventBus.onEvent()?.subscribe((event: KaravanEvent) => {
     } else if (event.event === 'error') {
         const error = event.data?.error;
         EventBus.sendAlert('Error', error, "danger");
+    } else if (event.event === 'ping') {
+        // do nothing
     } else {
         const message = event.data?.message ?  event.data?.message : JSON.stringify(event.data);
         EventBus.sendAlert('Success', message);

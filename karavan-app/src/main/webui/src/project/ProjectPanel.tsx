@@ -43,7 +43,7 @@ export function ProjectPanel() {
     const [config] = useAppConfigStore((state) => [state.config], shallow)
     const [project, tab, setTab] = useProjectStore((s) => [s.project, s.tabIndex, s.setTabIndex], shallow);
     const [setFile] = useFileStore((s) => [s.setFile], shallow);
-    const [files, setFiles] = useFilesStore((s) => [s.files, s.setFiles], shallow);
+    const [files, setFiles, setSelectedFileNames] = useFilesStore((s) => [s.files, s.setFiles, s.setSelectedFileNames], shallow);
     const [setShowWizard] = useWizardStore((s) => [s.setShowWizard], shallow)
     const isDev = config.environment === 'dev';
 
@@ -54,6 +54,7 @@ export function ProjectPanel() {
     function onRefresh() {
         if (project.projectId) {
             setFiles([]);
+            setSelectedFileNames([]);
             ProjectService.refreshProjectData(project.projectId);
             setTab(project.type !== ProjectType.normal ? 'files' : tab);
         }

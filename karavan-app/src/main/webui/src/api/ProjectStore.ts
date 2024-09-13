@@ -28,6 +28,7 @@ import {ProjectEventBus} from "./ProjectEventBus";
 import {unstable_batchedUpdates} from "react-dom";
 import {createWithEqualityFn} from "zustand/traditional";
 import {shallow} from "zustand/shallow";
+import {useState} from "react";
 
 interface AppConfigState {
     isAuthorized: boolean;
@@ -197,11 +198,16 @@ interface FilesState {
     diff: any;
     setFiles: (files: ProjectFile[]) => void;
     upsertFile: (file: ProjectFile) => void;
+    selectedFileNames: string[];
+    setSelectedFileNames: (selectedFileNames: string[]) => void;
+    selectFile: (filename: string) => void;
+    unselectFile: (filename: string) => void;
 }
 
 export const useFilesStore = createWithEqualityFn<FilesState>((set) => ({
     files: [],
     diff: {},
+    selectedFileNames: [],
     setFiles: (files: ProjectFile[]) => {
         set((state: FilesState) => ({
             files: files
@@ -213,6 +219,26 @@ export const useFilesStore = createWithEqualityFn<FilesState>((set) => ({
                 ? [...state.files, file]
                 : [...state.files.filter(f => f.name !== file.name), file]
         }));
+    },
+    setSelectedFileNames: (selectedFileNames: string[]) => {
+        set((state: FilesState) => ({
+            selectedFileNames: selectedFileNames
+        }));
+    },
+    selectFile: (filename: string) => {
+        set((state: FilesState) => {
+            const names = [...state.selectedFileNames];
+            if (!state.selectedFileNames.includes(filename)) {
+                names.push(filename);
+            }
+            return ({selectedFileNames: names})
+        });
+    },
+    unselectFile: (filename: string) => {
+        set((state: FilesState) => {
+            const names = [...state.selectedFileNames.filter(f => f !== filename)];
+            return ({selectedFileNames: names})
+        });
     }
 }), shallow)
 
@@ -236,8 +262,6 @@ export const useFileStore = createWithEqualityFn<FileState>((set) => ({
         }));
     },
 }), shallow)
-
-
 
 interface WizardState {
     showWizard: boolean;

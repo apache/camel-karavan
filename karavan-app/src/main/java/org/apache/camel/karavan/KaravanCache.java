@@ -137,16 +137,14 @@ public class KaravanCache {
         }
     }
 
-    public void syncFilesCommited(String projectId) {
+    public void syncFilesCommited(String projectId, List<String> fileNames) {
         List<String> currentFileNames = new ArrayList<>();
-        getCopyProjectFilesCommited().stream()
-                .filter(pf -> Objects.equals(pf.getProjectId(), projectId))
+        getProjectFilesCommited(projectId).stream().filter(file -> fileNames.contains(file.getName()))
                 .forEach(pf -> currentFileNames.add(pf.getName()));
 
         currentFileNames.forEach(name -> deleteProjectFileCommited(projectId, name));
-        files.entrySet().stream()
-                .filter(es -> Objects.equals(es.getValue().getProjectId(), projectId))
-                .forEach(es -> filesCommited.put(es.getKey(), es.getValue().copy()));
+        getProjectFiles(projectId).stream().filter(file -> fileNames.contains(file.getName()))
+                .forEach(f -> saveProjectFileCommited(f.copy()));
     }
 
     public void saveProjectFiles(Map<String, ProjectFile> filesToSave, boolean startup) {
@@ -177,6 +175,10 @@ public class KaravanCache {
 
     public void deleteProjectFileCommited(String projectId, String filename) {
         filesCommited.remove(GroupedKey.create(projectId, DEV, filename));
+    }
+
+    public void saveProjectFileCommited(ProjectFile file) {
+        filesCommited.put(GroupedKey.create(file.getProjectId(), DEV, file.getName()), file);
     }
 
     public void deleteProject(String projectId, boolean startup) {
