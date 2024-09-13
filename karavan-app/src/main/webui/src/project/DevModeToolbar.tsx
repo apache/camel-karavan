@@ -31,13 +31,14 @@ import '../designer/karavan.css';
 import RocketIcon from "@patternfly/react-icons/dist/esm/icons/rocket-icon";
 import ReloadIcon from "@patternfly/react-icons/dist/esm/icons/bolt-icon";
 import DeleteIcon from "@patternfly/react-icons/dist/esm/icons/trash-icon";
-import {useLogStore, useProjectStore, useStatusesStore} from "../api/ProjectStore";
+import {useAppConfigStore, useLogStore, useProjectStore, useStatusesStore} from "../api/ProjectStore";
 import {ProjectService} from "../api/ProjectService";
 import {shallow} from "zustand/shallow";
 import UpIcon from "@patternfly/react-icons/dist/esm/icons/running-icon";
 import DownIcon from "@patternfly/react-icons/dist/esm/icons/error-circle-o-icon";
 import {ContainerStatus} from "../api/ProjectModels";
 import "./DevModeToolbar.css"
+import StopIcon from "@patternfly/react-icons/dist/js/icons/stop-icon";
 
 interface Props {
     reloadOnly?: boolean
@@ -45,6 +46,7 @@ interface Props {
 
 export function DevModeToolbar(props: Props) {
 
+    const [config] = useAppConfigStore((state) => [state.config], shallow);
     const [project, refreshTrace] = useProjectStore((state) => [state.project, state.refreshTrace], shallow)
     const [containers] = useStatusesStore((state) => [state.containers], shallow);
     const [verbose, setVerbose] = useState(false);
@@ -52,6 +54,7 @@ export function DevModeToolbar(props: Props) {
     const [setShowLog] = useLogStore((s) => [s.setShowLog], shallow);
     const [currentContainerStatus] = useState<ContainerStatus>();
 
+    const isKubernetes = config.infrastructure === 'kubernetes'
     const containerStatuses = containers.filter(c => c.projectId === project.projectId) || [];
 
     const containersProject = containerStatuses.filter(c => c.type === 'project') || [];
@@ -61,6 +64,7 @@ export function DevModeToolbar(props: Props) {
     const containerDevMode = containerStatuses.filter(c => c.type === 'devmode').at(0);
     const commands = containerDevMode?.commands || ['run'];
     const isRunning = containerDevMode?.state === 'running';
+    const showLogDevMode = containerDevMode && ['running', 'paused', 'exited'].includes(containerDevMode?.state);
     const inTransit = containerDevMode?.inTransit;
     const color = (isRunning || allRunning) ? "green" : "grey";
     const icon = (isRunning || allRunning) ? <UpIcon/> : <DownIcon/>;
@@ -79,7 +83,9 @@ export function DevModeToolbar(props: Props) {
         {containersProject.length > 0 && <FlexItem>
             <Label icon={icon} color={color}>
                 <Tooltip content={"Show log"} position={TooltipPosition.bottom}>
-                    <Button className='labeled-button' variant="link" isDisabled={!allRunning}
+                    <Button className='labeled-button'
+                            variant="link"
+                            isDisabled={!allRunning}
                             onClick={e => {}}>
                         {project.projectId}
                     </Button>
@@ -91,7 +97,9 @@ export function DevModeToolbar(props: Props) {
         {containerDevMode?.containerId && <FlexItem>
             <Label icon={icon} color={color}>
                 <Tooltip content={"Show log"} position={TooltipPosition.bottom}>
-                    <Button className='labeled-button' variant="link" isDisabled={!isRunning}
+                    <Button className='labeled-button'
+                            variant="link"
+                            isDisabled={!showLogDevMode}
                             onClick={e =>
                                 setShowLog(true, 'container', containerDevMode.containerName)}>
                         {containerDevMode.containerName}
@@ -130,6 +138,19 @@ export function DevModeToolbar(props: Props) {
                         variant={"primary"}
                         icon={<ReloadIcon/>}
                         onClick={() => ProjectService.reloadDevModeCode(project)}>Reload
+                </Button>
+            </Tooltip>
+        </FlexItem>}
+        {inDevMode && !isKubernetes && <FlexItem className="dev-action-button-place">
+            <Tooltip content="Stop container" position={TooltipPosition.bottomEnd}>
+                <Button className="dev-action-button" size="sm"
+                        isDisabled={!commands.includes('stop') || inTransit}
+                        variant={"control"}
+                        icon={<StopIcon/>}
+                        onClick={() => {
+                            setShowSpinner(true);
+                            ProjectService.stopDevModeContainer(project);
+                        }}>
                 </Button>
             </Tooltip>
         </FlexItem>}

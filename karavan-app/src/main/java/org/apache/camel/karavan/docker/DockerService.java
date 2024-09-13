@@ -323,7 +323,7 @@ public class DockerService {
         if (containers.size() == 1) {
             Container container = containers.get(0);
             if (container.getState().equals("running") || container.getState().equals("paused")) {
-                try (StopContainerCmd cmd = getDockerClient().stopContainerCmd(container.getId())) {
+                try (StopContainerCmd cmd = getDockerClient().stopContainerCmd(container.getId()).withTimeout(1)) {
                     cmd.exec();
                 }
             }
