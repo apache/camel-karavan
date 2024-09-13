@@ -37,7 +37,6 @@ import java.util.HashMap;
 import java.util.List;
 
 import static org.apache.camel.karavan.KaravanEvents.CMD_PULL_IMAGES;
-import static org.apache.camel.karavan.KaravanEvents.CMD_PUSH_PROJECT;
 
 @Path("/ui/image")
 public class ImagesResource extends AbstractApiResource {
