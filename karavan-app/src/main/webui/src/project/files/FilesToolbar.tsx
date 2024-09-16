@@ -191,7 +191,7 @@ export function FileToolbar () {
         <FlexItem>
             <Tooltip content="Commit and push to git" position={"bottom-end"}>
                 <Button isLoading={isPushing ? true : undefined}
-                        isDisabled={!isDev}
+                        isDisabled={!isDev || selectedFileNames.length === 0}
                         size="sm"
                         variant={"secondary"}
                         className="project-button dev-action-button"
