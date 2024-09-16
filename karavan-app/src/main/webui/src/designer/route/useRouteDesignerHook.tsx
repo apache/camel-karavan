@@ -36,21 +36,22 @@ import {useDesignerStore, useIntegrationStore, useSelectorStore} from "../Design
 import {shallow} from "zustand/shallow";
 import {v4 as uuidv4} from 'uuid';
 
-export function useRouteDesignerHook () {
+export function useRouteDesignerHook() {
 
     const [integration, setIntegration] = useIntegrationStore((state) => [state.integration, state.setIntegration], shallow)
-    const [selectedUuids,clipboardSteps,shiftKeyPressed,
-        setShowDeleteConfirmation, setDeleteMessage, setSelectedStep, setSelectedUuids, setClipboardSteps, setShiftKeyPressed,
+    const [selectedUuids, clipboardSteps, shiftKeyPressed,
+        setShowDeleteConfirmation, setDeleteMessage, selectedStep, setSelectedStep, setSelectedUuids, setClipboardSteps, setShiftKeyPressed,
         width, height, dark] = useDesignerStore((s) =>
-        [s.selectedUuids,s.clipboardSteps, s.shiftKeyPressed,
-            s.setShowDeleteConfirmation, s.setDeleteMessage, s.setSelectedStep, s.setSelectedUuids, s.setClipboardSteps, s.setShiftKeyPressed,
+        [s.selectedUuids, s.clipboardSteps, s.shiftKeyPressed,
+            s.setShowDeleteConfirmation, s.setDeleteMessage, s.selectedStep, s.setSelectedStep, s.setSelectedUuids, s.setClipboardSteps, s.setShiftKeyPressed,
             s.width, s.height, s.dark], shallow)
-    const [setParentId, setShowSelector, setSelectorTabIndex, setParentDsl, setShowSteps, setSelectedPosition] = useSelectorStore((s) =>
-        [s.setParentId, s.setShowSelector, s.setSelectorTabIndex, s.setParentDsl, s.setShowSteps, s.setSelectedPosition], shallow)
+    const [setParentId, setShowSelector, setSelectorTabIndex, setParentDsl, setShowSteps, setSelectedPosition, routeId, setRouteId] = useSelectorStore((s) =>
+        [s.setParentId, s.setShowSelector, s.setSelectorTabIndex, s.setParentDsl, s.setShowSteps, s.setSelectedPosition, s.routeId, s.setRouteId], shallow)
 
-    function  onCommand (command: Command, printerRef: React.MutableRefObject<HTMLDivElement | null>) {
-        switch (command.command){
-            case "downloadImage": integrationImageDownload(printerRef);
+    function onCommand(command: Command, printerRef: React.MutableRefObject<HTMLDivElement | null>) {
+        switch (command.command) {
+            case "downloadImage":
+                integrationImageDownload(printerRef);
         }
     }
 
@@ -59,7 +60,7 @@ export function useRouteDesignerHook () {
     }
 
     function isSourceKamelet(): boolean {
-        if (isKamelet()){
+        if (isKamelet()) {
             const m: MetadataLabels | undefined = integration.metadata.labels;
             return m !== undefined && m["camel.apache.org/kamelet.type"] === 'source';
         }
@@ -67,7 +68,7 @@ export function useRouteDesignerHook () {
     }
 
     function isSinkKamelet(): boolean {
-        if (isKamelet()){
+        if (isKamelet()) {
             const m: MetadataLabels | undefined = integration.metadata.labels;
             return m !== undefined && m["camel.apache.org/kamelet.type"] === 'sink';
         }
@@ -75,7 +76,7 @@ export function useRouteDesignerHook () {
     }
 
     function isActionKamelet(): boolean {
-        if (isKamelet()){
+        if (isKamelet()) {
             const m: MetadataLabels | undefined = integration.metadata.labels;
             return m !== undefined && m["camel.apache.org/kamelet.type"] === 'action';
         }
@@ -84,7 +85,7 @@ export function useRouteDesignerHook () {
 
     const onShowDeleteConfirmation = (id: string) => {
         let message: string;
-        const uuidsToDelete:string [] = [id];
+        const uuidsToDelete: string [] = [id];
         let ce: CamelElement;
         ce = CamelDefinitionApiExt.findElementInIntegration(integration, id)!;
         if (ce.dslName === 'FromDefinition') { // Get the RouteDefinition for this.routeDesigner.  Use its uuid.
@@ -111,11 +112,11 @@ export function useRouteDesignerHook () {
         setSelectedUuids(uuidsToDelete);
     }
 
-    const deleteElement = () =>  {
-        EventBus.sendPosition("clean", new CamelElement(""), undefined,undefined, undefined, new DOMRect(), new DOMRect(), 0, 0);
+    const deleteElement = () => {
+        EventBus.sendPosition("clean", new CamelElement(""), undefined, undefined, undefined, new DOMRect(), new DOMRect(), 0, 0);
         let i = integration;
         selectedUuids.forEach(uuidToDelete => {
-             i = CamelDefinitionApiExt.deleteStepFromIntegration(i, uuidToDelete);
+            i = CamelDefinitionApiExt.deleteStepFromIntegration(i, uuidToDelete);
         });
         setIntegration(i, false);
         setShowSelector(false);
@@ -125,7 +126,7 @@ export function useRouteDesignerHook () {
         setSelectedUuids([]);
     }
 
-    const selectElement = (element: CamelElement) =>  {
+    const selectElement = (element: CamelElement) => {
         const uuids = [...selectedUuids];
         let canNotAdd: boolean = false;
         if (shiftKeyPressed) {
@@ -151,7 +152,7 @@ export function useRouteDesignerHook () {
         setSelectedUuids(shiftKeyPressed ? [...uuids] : [element.uuid])
     }
 
-    function handleKeyDown (event: KeyboardEvent) {
+    function handleKeyDown(event: KeyboardEvent) {
         if ((event.shiftKey)) {
             setShiftKeyPressed(true);
         }
@@ -171,14 +172,14 @@ export function useRouteDesignerHook () {
         }
     }
 
-    function handleKeyUp (event: KeyboardEvent) {
+    function handleKeyUp(event: KeyboardEvent) {
         setShiftKeyPressed(false);
         if (event.repeat) {
             window.dispatchEvent(event);
         }
     }
 
-    function copyToClipboard  (): void {
+    function copyToClipboard(): void {
         const steps: CamelElement[] = []
         selectedUuids.forEach(selectedUuid => {
             const selectedElement = CamelDefinitionApiExt.findElementInIntegration(integration, selectedUuid);
@@ -190,7 +191,8 @@ export function useRouteDesignerHook () {
             setClipboardSteps(steps);
         }
     }
-    function pasteFromClipboard (): void {
+
+    function pasteFromClipboard(): void {
         if (clipboardSteps.length === 1 && clipboardSteps[0]?.dslName === 'FromDefinition') {
             const clone = CamelUtil.cloneStep(clipboardSteps[0], true);
             const route = CamelDefinitionApi.createRouteDefinition({from: clone});
@@ -209,7 +211,7 @@ export function useRouteDesignerHook () {
         }
     }
 
-    function unselectElement (evt: React.MouseEvent<HTMLDivElement, MouseEvent>) {
+    function unselectElement(evt: React.MouseEvent<HTMLDivElement, MouseEvent>) {
         if ((evt.target as any).dataset.click === 'FLOWS') {
             evt.stopPropagation()
             const i = CamelDisplayUtil.setIntegrationVisibility(integration, undefined);
@@ -229,12 +231,29 @@ export function useRouteDesignerHook () {
         setSelectorTabIndex((parentId === undefined && parentDsl === undefined) ? 'components' : 'eip');
     }
 
-    function onDslSelect (dsl: DslMetaModel, parentId: string, position?: number | undefined) {
+    const openSelectorToReplaceFrom = (routeId: string) => {
+        setShowSelector(true);
+        setParentId('');
+        setParentDsl(undefined);
+        setShowSteps(true);
+        setSelectedPosition(undefined);
+        setRouteId(routeId);
+        setSelectorTabIndex('components');
+    }
+
+    function onDslSelect(dsl: DslMetaModel, parentId: string, position?: number | undefined) {
         switch (dsl.dsl) {
             case 'FromDefinition' :
-                const nodePrefixId = isKamelet() ? integration.metadata.name : 'route-' + uuidv4().substring(0,3);
-                const route = CamelDefinitionApi.createRouteDefinition({from: new FromDefinition({uri: dsl.uri}), nodePrefixId: nodePrefixId});
-                addStep(route, parentId, position)
+                if (routeId !== undefined) {
+                    replaceFrom(dsl)
+                } else {
+                    const nodePrefixId = isKamelet() ? integration.metadata.name : 'route-' + uuidv4().substring(0, 3);
+                    const route = CamelDefinitionApi.createRouteDefinition({
+                        from: new FromDefinition({uri: dsl.uri}),
+                        nodePrefixId: nodePrefixId
+                    });
+                    addStep(route, parentId, position)
+                }
                 break;
             case 'ToDefinition' :
                 if (dsl.uri === undefined && isKamelet()) {
@@ -293,18 +312,28 @@ export function useRouteDesignerHook () {
     const addStep = (step: CamelElement, parentId: string, position?: number | undefined) => {
         const clone = CamelUtil.cloneIntegration(integration);
         const i = CamelDefinitionApiExt.addStepToIntegration(clone, step, parentId, position);
-        const selectedStep = step.dslName === 'RouteDefinition' ? (step as RouteDefinition).from  : step;
+        const selectedStep = step.dslName === 'RouteDefinition' ? (step as RouteDefinition).from : step;
         setIntegration(i, false);
         setSelectedStep(selectedStep);
         setSelectedUuids([selectedStep.uuid]);
     }
 
+    const replaceFrom = (dsl: DslMetaModel) => {
+        const fromId = (selectedStep as FromDefinition).id;
+        if (selectedStep && fromId && dsl.uri) {
+            const clone = CamelUtil.cloneIntegration(integration);
+            const newFrom = CamelDefinitionApi.createFromDefinition({uri: dsl.uri})
+            const i = CamelDefinitionApiExt.replaceFromInIntegration(clone, fromId, newFrom);
+            setIntegration(i, false);
+            setSelectedStep(newFrom);
+            setSelectedUuids([newFrom.uuid]);
+        }
+    }
 
     const moveElement = (source: string, target: string, asChild: boolean) => {
         const i = CamelDefinitionApiExt.moveRouteElement(integration, source, target, asChild);
         const clone = CamelUtil.cloneIntegration(i);
         const selectedStep = CamelDefinitionApiExt.findElementInIntegration(clone, source);
-
         setIntegration(clone, false);
         setShowSelector(false);
         setSelectedStep(selectedStep);
@@ -318,7 +347,7 @@ export function useRouteDesignerHook () {
         a.click();
     }
 
-    function  integrationImageDownloadFilter (node: HTMLElement) {
+    function integrationImageDownloadFilter(node: HTMLElement) {
         const exclusionClasses = ['add-flow'];
         return !exclusionClasses.some(classname => {
             return node.classList === undefined ? false : node.classList.contains(classname);
@@ -340,7 +369,9 @@ export function useRouteDesignerHook () {
         }
     }
 
-    return { deleteElement, selectElement, moveElement, onShowDeleteConfirmation, onDslSelect, openSelector,
+    return {
+        deleteElement, selectElement, moveElement, onShowDeleteConfirmation, onDslSelect, openSelector,
         createRouteConfiguration, onCommand, handleKeyDown, handleKeyUp, unselectElement, isKamelet, isSourceKamelet,
-        isActionKamelet, isSinkKamelet}
+        isActionKamelet, isSinkKamelet, openSelectorToReplaceFrom
+    }
 }

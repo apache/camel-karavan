@@ -21,10 +21,12 @@ import {
     ExpressionDefinition,
     RouteDefinition,
     RestDefinition,
-    RouteConfigurationDefinition,
+    RouteConfigurationDefinition, FromDefinition,
 } from '../model/CamelDefinition';
 import { Beans, CamelElement, CamelElementMeta, Integration } from '../model/IntegrationDefinition';
 import { CamelDefinitionApi } from './CamelDefinitionApi';
+import { graphlib } from 'dagre';
+import floydWarchall = graphlib.alg.floydWarchall;
 
 export class ChildElement {
     constructor(public name: string = '', public className: string = '', public multiple: boolean = false) {}
@@ -41,6 +43,25 @@ export class CamelDefinitionApiExt {
     private static getFlowsNotOfTypes(integration: Integration, types: string[]): any[] {
         return integration.spec.flows?.filter(flow => !types.includes(flow.dslName)) ?? [];
     }
+
+    static replaceFromInIntegration = (integration: Integration, fromId: string, newFrom: FromDefinition): Integration => {
+        const flows: any = [];
+        CamelDefinitionApiExt.getFlowsNotOfTypes(integration, ['RouteDefinition']).forEach(bean =>
+            flows.push(bean),
+        );
+        CamelDefinitionApiExt.getFlowsOfType(integration, 'RouteDefinition').map(flow => {
+            const route = (flow as RouteDefinition);
+            if (route.from.id === fromId) {
+                newFrom.steps = [...route.from.steps];
+                route.from = newFrom;
+                flows.push(route);
+            } else {
+                flows.push(route);
+            }
+        })
+        integration.spec.flows = flows;
+        return integration;
+    };
 
     static addStepToIntegration = (integration: Integration, step: CamelElement, parentId: string, position?: number,): Integration => {
         if (step.dslName === 'RouteDefinition') {

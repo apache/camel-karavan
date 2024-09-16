@@ -31,7 +31,7 @@ import '../karavan.css';
 import './DslProperties.css';
 import "@patternfly/patternfly/patternfly.css";
 import {CamelUi} from "../utils/CamelUi";
-import {useDesignerStore} from "../DesignerStore";
+import {useDesignerStore, useSelectorStore} from "../DesignerStore";
 import {shallow} from "zustand/shallow";
 import {usePropertiesHook} from "./usePropertiesHook";
 import {CamelDisplayUtil} from "karavan-core/lib/api/CamelDisplayUtil";
@@ -39,6 +39,7 @@ import EllipsisVIcon from '@patternfly/react-icons/dist/esm/icons/ellipsis-v-ico
 import {ComponentApi} from "karavan-core/lib/api/ComponentApi";
 import HelpIcon from "@patternfly/react-icons/dist/js/icons/help-icon";
 import {CamelMetadataApi} from "karavan-core/lib/model/CamelMetadata";
+import {useRouteDesignerHook} from "../route/useRouteDesignerHook";
 
 interface Props {
     designerType: 'routes' | 'rest' | 'beans'
@@ -46,14 +47,10 @@ interface Props {
 
 export function PropertiesHeader(props: Props) {
 
-    const {
-        saveAsRoute,
-        convertStep,
-    } =
-        usePropertiesHook(props.designerType);
+    const {saveAsRoute, convertStep} = usePropertiesHook(props.designerType);
+    const {openSelectorToReplaceFrom} = useRouteDesignerHook();
 
-    const [selectedStep, dark]
-        = useDesignerStore((s) => [s.selectedStep, s.dark], shallow)
+    const [selectedStep, dark] = useDesignerStore((s) => [s.selectedStep, s.dark], shallow)
 
     const [isDescriptionExpanded, setIsDescriptionExpanded] = useState<boolean>(false);
     const [isHeadersExpanded, setIsHeadersExpanded] = useState<boolean>(false);
@@ -91,8 +88,16 @@ export function PropertiesHeader(props: Props) {
                 )}
             >
                 <DropdownList>
+                    {isFrom &&
+                        <DropdownItem key="changeFrom" onClick={(ev) => {
+                            ev.preventDefault()
+                            openSelectorToReplaceFrom((selectedStep as any).id)
+                            setMenuOpen(false);
+                        }}>
+                            Change From Element
+                        </DropdownItem>}
                     {hasSteps &&
-                        <DropdownItem key="saveRoute" onClick={(ev) => {
+                        <DropdownItem key="saveStepsRoute" onClick={(ev) => {
                             ev.preventDefault()
                             if (selectedStep) {
                                 saveAsRoute(selectedStep, true);
@@ -101,8 +106,8 @@ export function PropertiesHeader(props: Props) {
                         }}>
                             Save Steps to Route
                         </DropdownItem>}
-                    {hasSteps &&
-                        <DropdownItem key="saveRoute" onClick={(ev) => {
+                    {hasSteps && !isFrom &&
+                        <DropdownItem key="saveElementRoute" onClick={(ev) => {
                             ev.preventDefault()
                             if (selectedStep) {
                                 saveAsRoute(selectedStep, false);

@@ -112,6 +112,8 @@ interface SelectorStateState {
     selectedToggles: string [];
     addSelectedToggle: (label: string) => void;
     deleteSelectedToggle: (label: string) => void;
+    routeId?: string;
+    setRouteId: (routeId: string) => void;
 }
 
 export const useSelectorStore = createWithEqualityFn<SelectorStateState>((set) => ({
@@ -164,6 +166,9 @@ export const useSelectorStore = createWithEqualityFn<SelectorStateState>((set) =
     },
     setSelectedPosition: (selectedPosition?: number) => {
         set({selectedPosition: selectedPosition})
+    },
+    setRouteId: (routeId: string) => {
+        set({routeId: routeId})
     },
 }), shallow)
 
