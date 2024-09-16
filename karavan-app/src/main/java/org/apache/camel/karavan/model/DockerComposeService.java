@@ -32,12 +32,12 @@ public class DockerComposeService {
     private String cpu_percent;
     private String mem_limit;
     private String mem_reservation;
-    private List<String> ports;
-    private List<DockerComposeVolume> volumes;
-    private List<String> expose;
-    private List<String> depends_on;
-    private List<String> networks;
-    private Map<String,String> environment;
+    private List<String> ports = new ArrayList<>();
+    private List<DockerComposeVolume> volumes = new ArrayList<>();
+    private List<String> expose = new ArrayList<>();
+    private List<String> depends_on = new ArrayList<>();
+    private List<String> networks = new ArrayList<>();
+    private Map<String,String> environment = new HashMap<>();
     private DockerComposeHealthCheck healthcheck;
 
     public DockerComposeService() {
