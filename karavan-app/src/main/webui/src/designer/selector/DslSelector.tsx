@@ -144,7 +144,7 @@ export function DslSelector(props: Props) {
         const isComp = selectedToggles.includes('components')
         const isKam = selectedToggles.includes('kamelets')
         return (
-            <ToggleGroup aria-label="Default with single selectable">
+            <ToggleGroup aria-label="Default with single selectable" className='navigation-selector'>
                 {parentDsl !== undefined && <ToggleGroupItem
                     text={
                         <div style={{display: 'flex', flexDirection: 'row'}}>
