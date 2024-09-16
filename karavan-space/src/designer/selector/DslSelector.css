@@ -130,9 +130,31 @@
 }
 
 .dsl-modal .pf-m-unread {
-    --pf-v5-c-badge--BackgroundColor: var(--pf-v5-global--info-color--100);
     font-weight: 200;
 }
+
+.dsl-modal .label-eip {
+    --pf-v5-c-badge--BackgroundColor: var(--pf-v5-global--palette--orange-200);
+}
+
+.dsl-modal .label-component {
+    --pf-v5-c-badge--BackgroundColor: var(--pf-v5-global--palette--blue-300);
+}
+
+.dsl-modal .label-kamelet {
+    --pf-v5-c-badge--BackgroundColor: var(--pf-v5-global--palette--green-300);
+}
+
+.dsl-modal .label-component-preview {
+    --pf-v5-c-badge--Color: var(--pf-v5-global--palette--blue-300);
+    --pf-v5-c-badge--BackgroundColor: var(--pf-v5-c-badge--m-read--BackgroundColor);
+}
+
+.dsl-modal .label-kamelet-preview {
+    --pf-v5-c-badge--Color: var(--pf-v5-global--palette--green-300);
+    --pf-v5-c-badge--BackgroundColor: var(--pf-v5-c-badge--m-read--BackgroundColor);
+}
+
 
 .dsl-modal .labels {
     opacity: 0.5;

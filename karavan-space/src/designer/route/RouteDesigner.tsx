@@ -110,7 +110,8 @@ export function RouteDesigner() {
                 {showNewRoute && <Button
                     variant={routes.length === 0 ? "primary" : "secondary"}
                     icon={<PlusIcon/>}
-                    onClick={e => {
+                    onClick={evt => {
+                        evt.stopPropagation();
                         if (isSinkKamelet() || isActionKamelet()) {
                             const dsl = CamelUi.getDslMetaModel('FromDefinition');
                             dsl.uri = 'kamelet:source';

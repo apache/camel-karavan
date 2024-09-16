@@ -91,7 +91,9 @@ export function DslSelector(props: Props) {
         const p: string[] = []
         p.push(...getPreferredElements('kamelets'));
         p.push(...getPreferredElements('components'));
-        p.push(...getPreferredElements('eip'));
+        if (parentDsl !== undefined) {
+            p.push(...getPreferredElements('eip'));
+        }
         setPreferredElements(p);
     }
 
@@ -100,7 +102,6 @@ export function DslSelector(props: Props) {
     }
 
     function selectDsl(evt: React.MouseEvent, dsl: any) {
-        console.log('selectDsl', dsl)
         evt.stopPropagation();
         setFilter('');
         setShowSelector(false);
@@ -109,7 +110,6 @@ export function DslSelector(props: Props) {
     }
 
     function deleteFast(evt: React.MouseEvent, dsl: DslMetaModel) {
-        console.log('deleteFast', dsl)
         evt.stopPropagation();
         deletePreferredElement(getDslMetaModelType(dsl), dsl);
         setPreferences();
@@ -140,13 +140,16 @@ export function DslSelector(props: Props) {
     }
 
     function getToggles() {
+        const isEIP = selectedToggles.includes('eip')
+        const isComp = selectedToggles.includes('components')
+        const isKam = selectedToggles.includes('kamelets')
         return (
             <ToggleGroup aria-label="Default with single selectable">
                 {parentDsl !== undefined && <ToggleGroupItem
                     text={
                         <div style={{display: 'flex', flexDirection: 'row'}}>
                             <div style={{marginRight: '6px'}}>EIP</div>
-                            {ready && <Badge isRead={!selectedToggles.includes('eip')}>{eCount}</Badge>}
+                            {ready && <Badge isRead={!isEIP} className={isEIP ? "label-eip" : ""}>{eCount}</Badge>}
                         </div>
                     }
                     buttonId="eip"
@@ -160,7 +163,7 @@ export function DslSelector(props: Props) {
                     text={
                         <div style={{display: 'flex', flexDirection: 'row'}}>
                             <div style={{marginRight: '6px'}}>Components</div>
-                            {ready && <Badge isRead={!selectedToggles.includes('components')}>{cCount}</Badge>}
+                            {ready && <Badge isRead={!isComp} className={isComp ? "label-component" : ""}>{cCount}</Badge>}
                         </div>
                     }
                     buttonId="components"
@@ -174,7 +177,7 @@ export function DslSelector(props: Props) {
                     text={
                         <div style={{display: 'flex', flexDirection: 'row'}}>
                             <div style={{marginRight: '6px'}}>Kamelets</div>
-                            {ready && <Badge isRead={!selectedToggles.includes('kamelets')}>{kCount}</Badge>}
+                            {ready && <Badge isRead={!isKam} className={isKam ? "label-kamelet" : ""}>{kCount}</Badge>}
                         </div>
                     }
                     buttonId="kamelets"

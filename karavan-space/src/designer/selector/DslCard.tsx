@@ -45,11 +45,12 @@ export function DslCard (props: Props) {
     const labels = dsl.labels !== undefined ? dsl.labels.split(",").filter(label => label !== 'eip') : [];
     const isCustom = KameletApi.getCustomKameletNames().includes(dsl.name);
     const isRemote =  dsl.remote;
+    const classNameBadge = "navigation-label label-" + dsl.navigation + ((dsl.navigation === 'eip' || dsl?.supportLevel.toLowerCase() === 'stable')? '' : '-preview');
     return (
         <Card key={dsl.dsl + index} isCompact isPlain isFlat isRounded className="dsl-card"
               onClick={event => selectDsl(event, dsl)}>
             <CardHeader className="header-labels">
-                <Badge className="navigation-label">{navigation}</Badge>
+                <Badge className={classNameBadge}>{navigation}</Badge>
                 {['kamelet', 'component'].includes(dsl.navigation.toLowerCase()) &&
                     <Badge isRead className="support-level labels">{dsl.supportLevel}</Badge>
                 }
