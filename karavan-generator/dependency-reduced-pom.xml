@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.apache.camel.karavan</groupId>
   <artifactId>karavan-generator</artifactId>
-  <version>4.7.1</version>
+  <version>4.8.0</version>
   <build>
     <resources>
       <resource>

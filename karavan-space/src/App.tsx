@@ -137,7 +137,7 @@ class App extends React.Component<Props, State> {
         return (<Flex className="nav-buttons" direction={{default: "column"}} style={{height: "100%"}}
                       spaceItems={{default: "spaceItemsNone"}}>
             <FlexItem alignSelf={{default: "alignSelfCenter"}}>
-                <Tooltip className="logo-tooltip" content={"Apache Camel Karavan 4.7.1"}
+                <Tooltip className="logo-tooltip" content={"Apache Camel Karavan 4.8.0"}
                          position={"right"}>
                     {KaravanIcon()}
                 </Tooltip>

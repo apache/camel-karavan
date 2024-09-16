@@ -19,9 +19,6 @@ import 'mocha';
 import {CamelDefinitionYaml} from "../src/core/api/CamelDefinitionYaml";
 import { TopologyUtils } from '../src/core/api/TopologyUtils';
 import { KameletApi } from '../src/core/api/KameletApi';
-import { Property } from '../src/core/model/KameletModels';
-import { CamelUtil } from '../src/core/api/CamelUtil';
-import { ToDefinition } from '../src/core/model/CamelDefinition';
 
 
 describe('Topology functions', () => {
@@ -45,7 +42,7 @@ describe('Topology functions', () => {
     });
 
     function loadKamelets() {
-        const yamls = fs.readFileSync('test/kamelets.yaml',{encoding:'utf8', flag:'r'});
+        const yamls = fs.readFileSync('test/metadata/kamelets.yaml',{encoding:'utf8', flag:'r'});
         const kamelets: string[] = [];
         yamls.split(/\n?---\n?/).map(c => c.trim()).forEach(z => kamelets.push(z));
         KameletApi.saveKamelets(kamelets, true);

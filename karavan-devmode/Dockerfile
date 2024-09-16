@@ -19,11 +19,11 @@ LABEL "org.opencontainers.image.title"="karavan-devmode"
 LABEL "org.opencontainers.image.description"="Apache Camel Karavan DevMode"
 LABEL "org.opencontainers.image.url"="https://camel.apache.org"
 LABEL "org.opencontainers.image.licenses"="Apache 2.0"
-LABEL "org.opencontainers.image.version"="4.7.1"
+LABEL "org.opencontainers.image.version"="4.8.0"
 
 RUN apt-get update && apt-get install git && apt-get clean
 
-ENV JBANG_VERSION=0.118.1
+ENV JBANG_VERSION=0.118.0
 ENV CAMEL_VERSION=4.8.0
 ENV KARAVAN="/karavan"
 ENV JBANG_DIR="$KARAVAN/.jbang"

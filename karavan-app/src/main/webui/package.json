@@ -1,6 +1,6 @@
 {
   "name": "karavan",
-  "version": "4.7.1",
+  "version": "4.8.0",
   "private": true,
   "scripts": {
     "copy-designer": "cp -r ../../../../karavan-designer/src/designer src",

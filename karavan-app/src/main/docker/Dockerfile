@@ -19,7 +19,7 @@ LABEL "org.opencontainers.image.title"="karavan"
 LABEL "org.opencontainers.image.description"="Apache Camel Karavan"
 LABEL "org.opencontainers.image.url"="https://camel.apache.org"
 LABEL "org.opencontainers.image.licenses"="Apache 2.0"
-LABEL "org.opencontainers.image.version"="4.7.1"
+LABEL "org.opencontainers.image.version"="4.8.0"
 LABEL "org.apache.camel.karavan/type"="internal"
 
 RUN mkdir /opt/app

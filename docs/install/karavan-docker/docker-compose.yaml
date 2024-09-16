@@ -4,7 +4,7 @@ services:
 
   karavan:
     container_name: karavan
-    image: ghcr.io/apache/camel-karavan:4.7.1
+    image: ghcr.io/apache/camel-karavan:4.8.0
     ports:
       - "8080:8080"
     environment:

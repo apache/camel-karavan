@@ -58,9 +58,8 @@ body:
       label: Version
       description: What Karavan version are you running?
       options:
-        - 4.5.0
-        - 4.6.0
         - 4.7.0
+        - 4.8.0
       default: 0
     validations:
       required: true
