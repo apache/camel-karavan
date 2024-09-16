@@ -18,19 +18,18 @@ package org.apache.camel.karavan.docker;
 
 import com.github.dockerjava.api.model.Container;
 import com.github.dockerjava.api.model.HealthCheck;
+import com.github.dockerjava.api.model.MountType;
 import com.github.dockerjava.api.model.RestartPolicy;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import org.apache.camel.karavan.model.DockerComposeService;
-import org.apache.camel.karavan.model.DockerComposeVolume;
-import org.apache.camel.karavan.model.PodContainerStatus;
-import org.apache.camel.karavan.model.Project;
+import org.apache.camel.karavan.model.*;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static org.apache.camel.karavan.KaravanConstants.*;
 import static org.apache.camel.karavan.service.CodeService.BUILD_SCRIPT_FILENAME;
@@ -42,6 +41,9 @@ public class DockerForKaravan {
 
     @ConfigProperty(name = DEVMODE_IMAGE)
     String devmodeImage;
+
+    @ConfigProperty(name = "karavan.devmode.createm2", defaultValue = "false")
+    Optional<Boolean> createM2;
 
     @Inject
     DockerService dockerService;
@@ -64,6 +66,10 @@ public class DockerForKaravan {
 
         if (jBangOptions != null && !jBangOptions.trim().isEmpty()) {
             env.add(ENV_VAR_JBANG_OPTIONS + "=" + jBangOptions);
+        }
+
+        if (createM2.orElse(false)) {
+            compose.getVolumes().add(new DockerComposeVolume(MountType.VOLUME.name(), projectId+ "-m2-repository", "/karavan/.m2/repository"));
         }
 
         var imageName = projectDevmodeImage != null ? projectDevmodeImage : devmodeImage;
