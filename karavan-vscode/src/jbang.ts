@@ -64,8 +64,7 @@ export function createExportCommand(fullPath: string, runtime: string) {
     const kameletsPath: string | undefined = workspace.getConfiguration().get("Karavan.kameletsPath");
     const cmd = "export --fresh " 
         + (fullPath ? " --directory=" + fullPath : '')
-        + (kameletsPath && kameletsPath.trim().length > 0 ? " --local-kamelet-dir=" + kameletsPath : "")
-        + " --runtime=" + runtime; // workaround for https://issues.apache.org/jira/browse/CAMEL-21004
+        + (kameletsPath && kameletsPath.trim().length > 0 ? " --local-kamelet-dir=" + kameletsPath : "");
     return prepareCommand(cmd);
 }
 
