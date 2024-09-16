@@ -21,9 +21,9 @@ import io.fabric8.kubernetes.api.model.apps.Deployment;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClientBuilder;
 import io.fabric8.kubernetes.client.informers.SharedIndexInformer;
+import io.quarkus.runtime.LaunchMode;
 import io.quarkus.runtime.ShutdownEvent;
 import io.quarkus.runtime.StartupEvent;
-import io.quarkus.runtime.configuration.ProfileManager;
 import io.vertx.mutiny.core.eventbus.EventBus;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
@@ -139,7 +139,7 @@ public class KubernetesStatusService implements HealthCheck {
     public String getNamespace() {
         if (namespace == null) {
             try (KubernetesClient client = kubernetesClient()) {
-                namespace = ProfileManager.getLaunchMode().isDevOrTest() ? "karavan" : client.getNamespace();
+                namespace = LaunchMode.current().getProfileKey().equalsIgnoreCase("dev") ? "karavan" : client.getNamespace();
             }
         }
         return namespace;
