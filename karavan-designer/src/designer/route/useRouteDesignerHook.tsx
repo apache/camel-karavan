@@ -20,11 +20,11 @@ import {DslMetaModel} from "../utils/DslMetaModel";
 import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
 import {
     ChoiceDefinition,
-    FromDefinition, JsonDataFormat,
+    FromDefinition, GroovyExpression, JsonDataFormat,
     LogDefinition,
     MarshalDefinition,
     RouteConfigurationDefinition,
-    RouteDefinition, UnmarshalDefinition
+    RouteDefinition, SplitDefinition, UnmarshalDefinition
 } from "karavan-core/lib/model/CamelDefinition";
 import {CamelElement, MetadataLabels} from "karavan-core/lib/model/IntegrationDefinition";
 import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt";
@@ -282,6 +282,12 @@ export function useRouteDesignerHook() {
         if (step.dslName === 'LogDefinition') {
             // eslint-disable-next-line no-template-curly-in-string
             (step as LogDefinition).message = "${body}";
+        }
+        if (step.dslName === 'SplitDefinition') {
+            const split = (step as SplitDefinition);
+            if (split.expression?.groovy !== undefined && (split.expression?.groovy as GroovyExpression).expression === "") {
+                (split.expression?.groovy as GroovyExpression).expression = 'body';
+            }
         }
         if (step.dslName === 'ChoiceDefinition') {
             (step as ChoiceDefinition).when?.push(CamelDefinitionApi.createStep('WhenDefinition', undefined));
