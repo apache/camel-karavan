@@ -40,7 +40,7 @@ import TimesIcon from "@patternfly/react-icons/dist/esm/icons/times-icon";
 import {addPreferredElement, deletePreferredElement, getPreferredElements} from "./DslPreferences";
 import {DslFastCard} from "./DslFastCard";
 import {DslCard} from "./DslCard";
-import {useDebounceValue} from 'usehooks-ts';
+import {useDebounceCallback, useDebounceValue} from 'usehooks-ts';
 
 interface Props {
     tabIndex?: string | number
@@ -58,7 +58,9 @@ export function DslSelector(props: Props) {
 
     const {onDslSelect} = useRouteDesignerHook();
 
-    const [filter, setFilter] = useDebounceValue('', 300)
+    const [filterShown, setFilterShown] =  useState<string>('');
+    const [filter, setFilter] = useDebounceValue('', 300);
+
     const [customOnly, setCustomOnly] = useState<boolean>(false);
     const [elements, setElements] = useState<DslMetaModel[]>([]);
     const [preferredElements, setPreferredElements] = useState<string[]>([]);
@@ -119,20 +121,22 @@ export function DslSelector(props: Props) {
         return (
             <TextInputGroup className="search">
                 <TextInput
-                    defaultValue={filter}
+                    value={filterShown}
                     type="text"
                     autoComplete={"off"}
                     autoFocus={true}
-                    onChange={(_event, value) => setFilter(value)}
+                    onChange={(_event, value) => {
+                        setFilterShown(value);
+                        setFilter(value);
+                    }}
                     aria-label="text input example"
                 />
-                {/*<TextInputGroupMain className="text-field" type="text" autoComplete={"off"}*/}
-                {/*                    value={filter}*/}
-                {/*                    autoFocus={true}*/}
-                {/*                    onChange={(_, value) => setFilter(value)}/>*/}
                 <TextInputGroupUtilities>
-                    <Button variant="plain" onClick={_ => setFilter('')}>
-                        <TimesIcon/>
+                    <Button variant="plain" onClick={_ => {
+                        setFilterShown('');
+                        setFilter('');
+                    }}>
+                        <TimesIcon aria-hidden={true}/>
                     </Button>
                 </TextInputGroupUtilities>
             </TextInputGroup>
