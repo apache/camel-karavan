@@ -215,7 +215,7 @@ export class CamelUtil {
                 if (property.type === 'string' && !property.isArray && (value === undefined || !value.trim())) {
                     result[0] = false;
                     result[1].push(`${property.displayName} is required`);
-                } else if (property.type === 'ExpressionDefinition') {
+                } else if (['ExpressionSubElementDefinition', 'ExpressionDefinition'].includes(property.type)) {
                     const expressionMeta = CamelMetadataApi.getCamelModelMetadataByClassName('ExpressionDefinition');
                     const expressionCheck = expressionMeta && value !== undefined && expressionMeta?.properties.some(ep => {
                         const expValue = value[ep.name];

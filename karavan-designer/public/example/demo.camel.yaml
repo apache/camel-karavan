@@ -9,16 +9,7 @@
       steps:
         - aggregate:
             id: aggregate-bf73
-        - to:
-            id: to-7baa
-            uri: jms
-            parameters:
-              destinationName: test
-        - marshal:
-            id: marshal-136a
-            json:
-              id: json-4655
-        - unmarshal:
-            id: unmarshal-70d1
-            json:
-              id: json-ecfe
+            correlationExpression:
+              groovy:
+                id: groovy-ed69
+                expression: saasdsa
