@@ -36,7 +36,7 @@ import {
     CassandraIcon,
     ChatIcon,
     CloudIcon,
-    ClusterIcon,
+    ClusterIcon, CouchbaseIcon,
     DatabaseIcon,
     DebeziumIcon, DHIS2Icon, DirectIcon,
     DocumentIcon,
@@ -63,7 +63,7 @@ import {
     OpenstackIcon,
     RedisIcon,
     RefIcon,
-    RpcIcon,
+    RpcIcon, SalesforceIcon,
     SapIcon,
     SchedulingIcon,
     ScriptIcon,
@@ -72,7 +72,7 @@ import {
     SpringIcon,
     TerminalIcon,
     TestingIcon,
-    TransformationIcon,
+    TransformationIcon, TwilioIcon, TwitterIcon,
     ValidationIcon, VertXIcon,
     WebserviceIcon,
     WorkflowIcon
@@ -591,6 +591,14 @@ export class CamelUi {
             return DirectIcon();
         } else if (title.startsWith("Vert.x")) {
             return VertXIcon();
+        } else if (title.startsWith("Couchbase")) {
+            return CouchbaseIcon();
+        } else if (title.startsWith("Twilio")) {
+            return TwilioIcon();
+        } else if (title.startsWith("Twitter")) {
+            return TwitterIcon();
+        } else if (title.startsWith("Salesforce")) {
+            return SalesforceIcon();
         } else if (title.startsWith("Slack")) {
             return SlackIcon();
         } else if (title === "Exec") {
