@@ -82,7 +82,7 @@ Build-in catalogues:
 
 * Export using CLI
     ```shell
-    jbang -Dcamel.jbang.version=4.7.0 camel@apache/camel export --directory=export
+    jbang -Dcamel.jbang.version=4.8.0 camel@apache/camel export --directory=export
     ```
 
 # Issues
