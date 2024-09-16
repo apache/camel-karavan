@@ -1032,16 +1032,16 @@ export function DslPropertyField(props: Props) {
     }
 
     function getFilteredComponentProperties(): ComponentProperty[] {
-        let props = CamelUtil.getComponentProperties(element);
+        let componentProperties = CamelUtil.getComponentProperties(element);
         const filter = propertyFilter.toLocaleLowerCase()
-        props = props.filter(p => p.name?.toLocaleLowerCase().includes(filter) || p.label.toLocaleLowerCase().includes(filter) || p.displayName.toLocaleLowerCase().includes(filter));
+        componentProperties = componentProperties.filter(p => p.name?.toLocaleLowerCase().includes(filter) || p.label.toLocaleLowerCase().includes(filter) || p.displayName.toLocaleLowerCase().includes(filter));
         if (requiredOnly) {
-            props = props.filter(p => p.required);
+            componentProperties = componentProperties.filter(p => p.required);
         }
         if (changedOnly) {
-            props = props.filter(p => PropertyUtil.hasComponentPropertyValueChanged(p, getComponentPropertyValue(p)));
+            componentProperties = componentProperties.filter(p => PropertyUtil.hasComponentPropertyValueChanged(p, getComponentPropertyValue(p)));
         }
-        return props
+        return componentProperties
     }
 
     function getPropertySelectorChanged(): boolean {

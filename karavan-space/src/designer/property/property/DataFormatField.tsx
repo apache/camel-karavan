@@ -33,6 +33,9 @@ import {Integration, CamelElement} from "karavan-core/lib/model/IntegrationDefin
 import {CamelDefinitionApi} from "karavan-core/lib/api/CamelDefinitionApi";
 import {DslPropertyField} from "./DslPropertyField";
 import {DataFormats} from "karavan-core/lib/model/CamelMetadata";
+import {usePropertiesStore} from "../PropertyStore";
+import {shallow} from "zustand/shallow";
+import {PropertyUtil} from "./PropertyUtil";
 
 interface Props {
     dslName: string,
@@ -44,6 +47,7 @@ interface Props {
 
 export function DataFormatField(props: Props) {
 
+    const [propertyFilter, changedOnly, requiredOnly] = usePropertiesStore((s) => [s.propertyFilter, s.changedOnly, s.requiredOnly], shallow)
     const [selectIsOpen, setSelectIsOpen] = useState<boolean>(false);
     const [showAdvanced, setShowAdvanced] = useState<boolean>(false);
 
@@ -84,6 +88,32 @@ export function DataFormatField(props: Props) {
             : CamelDefinitionApi.createDataFormat(dataFormatString, (props.value as any)[dataFormatString]);
     }
 
+    function getPropertyValue(property: PropertyMeta) {
+        const value = getDataFormatValue();
+        return value ? (value as any)[property.name] : undefined;
+    }
+
+    function getFilteredProperties(): PropertyMeta[] {
+        let propertyMetas = CamelDefinitionApiExt.getElementPropertiesByName(dataFormatString).sort((a, b) => a.name === 'library' ? -1 : 1);
+        const filter = propertyFilter.toLocaleLowerCase()
+        propertyMetas = propertyMetas.filter(p => p.name === 'parameters' || p.name.toLocaleLowerCase().includes(filter) || p.label.toLocaleLowerCase().includes(filter) || p.displayName.toLocaleLowerCase().includes(filter));
+        if (requiredOnly) {
+            propertyMetas = propertyMetas.filter(p => p.name === 'parameters' || p.required);
+        }
+        if (changedOnly) {
+            propertyMetas = propertyMetas.filter(p => p.name === 'parameters' || PropertyUtil.hasDslPropertyValueChanged(p, getPropertyValue(p)));
+        }
+        return propertyMetas
+    }
+
+    function getPropertySelectorChanged(): boolean {
+        return requiredOnly || changedOnly || propertyFilter?.trim().length > 0;
+    }
+
+    function getShowExpanded(): boolean {
+        return showAdvanced || getPropertySelectorChanged();
+    }
+
     function getPropertyFields(value: any, properties: PropertyMeta[]) {
         return (<>
             {value && properties?.map((property: PropertyMeta) =>
@@ -100,7 +130,7 @@ export function DataFormatField(props: Props) {
     const value = getDataFormatValue();
     const dataFormatString = getDataFormatString();
     const dataFormat = DataFormats.find((l: [string, string, string]) => l[0] === dataFormatString);
-    const properties = CamelDefinitionApiExt.getElementPropertiesByName(dataFormatString).sort((a, b) => a.name === 'library' ? -1 : 1);
+    const properties = getFilteredProperties();
     const propertiesMain = properties.filter(p => !p.label.includes("advanced"));
     const propertiesAdvanced = properties.filter(p => p.label.includes("advanced"));
     const selectOptions: JSX.Element[] = []
@@ -135,9 +165,9 @@ export function DataFormatField(props: Props) {
                     {getPropertyFields(value, propertiesMain)}
                     {propertiesAdvanced.length > 0 &&
                         <ExpandableSection
-                            toggleText={'Advanced properties'}
+                            toggleText={'Advanced data format properties'}
                             onToggle={(_event, isExpanded) => setShowAdvanced(!showAdvanced)}
-                            isExpanded={showAdvanced}>
+                            isExpanded={getShowExpanded()}>
                             {getPropertyFields(value, propertiesAdvanced)}
                         </ExpandableSection>}
                 </div>

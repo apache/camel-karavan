@@ -121,16 +121,16 @@ export function DslProperties(props: Props) {
     }
 
     function getFilteredProperties(): PropertyMeta[] {
-        let props = !dataFormatElement ? getProperties() : getProperties().filter(p => !dataFormats.includes(p.name));
+        let propertyMetas = !dataFormatElement ? getProperties() : getProperties().filter(p => !dataFormats.includes(p.name));
         const filter = propertyFilter.toLocaleLowerCase()
-        props = props.filter(p => p.name === 'parameters' || p.name.toLocaleLowerCase().includes(filter) || p.label.toLocaleLowerCase().includes(filter) || p.displayName.toLocaleLowerCase().includes(filter));
+        propertyMetas = propertyMetas.filter(p => p.name === 'parameters' || p.name.toLocaleLowerCase().includes(filter) || p.label.toLocaleLowerCase().includes(filter) || p.displayName.toLocaleLowerCase().includes(filter));
         if (requiredOnly) {
-            props = props.filter(p => p.name === 'parameters' || p.required);
+            propertyMetas = propertyMetas.filter(p => p.name === 'parameters' || p.required);
         }
         if (changedOnly) {
-            props = props.filter(p =>p.name === 'parameters' || PropertyUtil.hasDslPropertyValueChanged(p, getPropertyValue(p)));
+            propertyMetas = propertyMetas.filter(p =>p.name === 'parameters' || PropertyUtil.hasDslPropertyValueChanged(p, getPropertyValue(p)));
         }
-        return props
+        return propertyMetas
     }
 
     const dataFormats = DataFormats.map(value => value[0]);
@@ -181,16 +181,6 @@ export function DslProperties(props: Props) {
                 {selectedStep && getPropertiesHeader()}
                 {selectedStep !== undefined && getPropertySelector()}
                 {getPropertyFields(propertiesMain)}
-                {selectedStep && !['MarshalDefinition', 'UnmarshalDefinition'].includes(selectedStep.dslName)
-                    && propertiesAdvanced.length > 0 &&
-                    <ExpandableSection
-                        toggleText={'EIP advanced properties'}
-                        onToggle={(_event, isExpanded) => setShowAdvanced(!showAdvanced)}
-                        isExpanded={getShowExpanded()}>
-                        <div className="parameters">
-                            {getPropertyFields(propertiesAdvanced)}
-                        </div>
-                    </ExpandableSection>}
                 {selectedStep && ['MarshalDefinition', 'UnmarshalDefinition'].includes(selectedStep.dslName) &&
                     <DataFormatField
                         integration={integration}
@@ -199,6 +189,15 @@ export function DslProperties(props: Props) {
                         onDataFormatChange={onDataFormatChange}
                         dark={dark}/>
                 }
+                {selectedStep && propertiesAdvanced.length > 0 &&
+                    <ExpandableSection
+                        toggleText={'EIP advanced properties'}
+                        onToggle={(_event, isExpanded) => setShowAdvanced(!showAdvanced)}
+                        isExpanded={getShowExpanded()}>
+                        <div className="parameters">
+                            {getPropertyFields(propertiesAdvanced)}
+                        </div>
+                    </ExpandableSection>}
             </Form>
         </div>
     )
