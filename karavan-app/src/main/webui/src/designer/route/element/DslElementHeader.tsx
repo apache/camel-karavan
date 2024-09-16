@@ -252,7 +252,7 @@ export function DslElementHeader(props: Props) {
         return (
             <>
                 {getHeader()}
-                <Tooltip triggerRef={props.headerRef} position={"left"} content={<div style={{textAlign: 'left'}}>{tooltip}</div>}/>
+                <Tooltip triggerRef={props.headerRef} entryDelay={700} position={"left"} content={<div style={{textAlign: 'left'}}>{tooltip}</div>}/>
             </>
 
         )

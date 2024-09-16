@@ -36,6 +36,9 @@ import {CamelElement} from "karavan-core/lib/model/IntegrationDefinition";
 import {CamelDefinitionApi} from "karavan-core/lib/api/CamelDefinitionApi";
 import {DslPropertyField} from "./DslPropertyField";
 import {CamelUi} from "../../utils/CamelUi";
+import {usePropertiesStore} from "../PropertyStore";
+import {shallow} from "zustand/shallow";
+import {PropertyUtil} from "./PropertyUtil";
 
 interface Props {
     property: PropertyMeta,
@@ -45,6 +48,8 @@ interface Props {
 
 export function ExpressionField(props: Props) {
 
+
+    const [propertyFilter, changedOnly, requiredOnly] = usePropertiesStore((s) => [s.propertyFilter, s.changedOnly, s.requiredOnly], shallow)
     const [selectIsOpen, setSelectIsOpen] = useState<boolean>(false);
     const [propsAreOpen, setPropsAreOpen] = useState<boolean>(false);
 
@@ -91,10 +96,32 @@ export function ExpressionField(props: Props) {
 
     function getProps (): PropertyMeta[] {
         const dslName = getValueClassName();
-        return CamelDefinitionApiExt.getElementProperties(dslName)
+        const filter = propertyFilter.toLocaleLowerCase();
+        let propertyMetas =  CamelDefinitionApiExt.getElementProperties(dslName)
             .filter(p => p.name !== 'id')
             .filter(p => p.name !== 'expression')
-            .filter(p => !p.isObject || (p.isObject && !CamelUi.dslHasSteps(p.type)) || (dslName === 'CatchDefinition' && p.name === 'onWhen'));
+            .filter(p => !p.isObject || (p.isObject && !CamelUi.dslHasSteps(p.type)) || (dslName === 'CatchDefinition' && p.name === 'onWhen'))
+            .filter(p => p.name === 'parameters' || p.name.toLocaleLowerCase().includes(filter) || p.label.toLocaleLowerCase().includes(filter) || p.displayName.toLocaleLowerCase().includes(filter));
+        if (requiredOnly) {
+            propertyMetas = propertyMetas.filter(p => p.name === 'parameters' || p.required);
+        }
+        if (changedOnly) {
+            propertyMetas = propertyMetas.filter(p => p.name === 'parameters' || PropertyUtil.hasDslPropertyValueChanged(p, getPropertyValue(p)));
+        }
+        return propertyMetas
+    }
+
+    function getPropertyValue(property: PropertyMeta) {
+        const value = getExpressionValue();
+        return value ? (value as any)[property.name] : undefined;
+    }
+
+    function getPropertySelectorChanged(): boolean {
+        return requiredOnly || changedOnly || propertyFilter?.trim().length > 0;
+    }
+
+    function getShowExpanded(): boolean {
+        return propsAreOpen || getPropertySelectorChanged();
     }
 
     function getExpressionProps (): PropertyMeta | undefined {
@@ -165,7 +192,7 @@ export function ExpressionField(props: Props) {
                 <ExpandableSection
                     toggleText={'Expression properties'}
                     onToggle={(_event, isExpanded) => setPropsAreOpen(isExpanded)}
-                    isExpanded={propsAreOpen}>
+                    isExpanded={getShowExpanded()}>
                     {value && getProps().map((property: PropertyMeta) =>
                         <DslPropertyField key={property.name + props.value?.uuid}
                                           property={property}
