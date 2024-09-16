@@ -16,7 +16,7 @@
  */
 import React from 'react';
 import {
-    Badge,
+    Badge, capitalize,
     Card, CardBody, CardFooter,
     CardHeader,
     Text,
@@ -41,6 +41,7 @@ export function DslCard (props: Props) {
     }
 
     const {dsl, index} = props;
+    const navigation = dsl.navigation === 'eip' ? 'EIP' : capitalize(dsl.navigation);
     const labels = dsl.labels !== undefined ? dsl.labels.split(",").filter(label => label !== 'eip') : [];
     const isCustom = KameletApi.getCustomKameletNames().includes(dsl.name);
     const isRemote =  dsl.remote;
@@ -48,9 +49,9 @@ export function DslCard (props: Props) {
         <Card key={dsl.dsl + index} isCompact isPlain isFlat isRounded className="dsl-card"
               onClick={event => selectDsl(event, dsl)}>
             <CardHeader className="header-labels">
-                <Badge isRead className="support-level labels">{dsl.supportLevel}</Badge>
+                <Badge className="navigation-label">{navigation}</Badge>
                 {['kamelet', 'component'].includes(dsl.navigation.toLowerCase()) &&
-                    <Badge isRead className="version labels">{dsl.version}</Badge>
+                    <Badge isRead className="support-level labels">{dsl.supportLevel}</Badge>
                 }
             </CardHeader>
             <CardHeader>

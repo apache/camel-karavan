@@ -129,6 +129,11 @@
     white-space: nowrap;
 }
 
+.dsl-modal .pf-m-unread {
+    --pf-v5-c-badge--BackgroundColor: var(--pf-v5-global--info-color--100);
+    font-weight: 200;
+}
+
 .dsl-modal .labels {
     opacity: 0.5;
     font-weight: 200;
