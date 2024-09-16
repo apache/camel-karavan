@@ -14,9 +14,11 @@
             uri: jms
             parameters:
               destinationName: test
-        - to:
-            id: to-7f8a
-            uri: kamelet:aws-kinesis-firehose-sink
-        - to:
-            id: to-59a6
-            uri: djl
+        - marshal:
+            id: marshal-136a
+            json:
+              id: json-4655
+        - unmarshal:
+            id: unmarshal-70d1
+            json:
+              id: json-ecfe
