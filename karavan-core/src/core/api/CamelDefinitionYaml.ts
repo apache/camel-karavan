@@ -107,6 +107,8 @@ export class CamelDefinitionYaml {
             if (object.constructors && CamelDefinitionYaml.isEmptyObject(object.constructors)) {
                 delete object.constructors;
             }
+        } else if (object.dslName === 'CatchDefinition' && object?.onWhen?.stepName !== undefined) {
+            object.onWhen.stepName = 'onWhen';  // https://github.com/apache/camel-karavan/issues/1420
         }
 
         delete object.uuid;
@@ -195,6 +197,7 @@ export class CamelDefinitionYaml {
                 stepName === 'resilience4jConfiguration' ||
                 stepName === 'faultToleranceConfiguration' ||
                 stepName === 'errorHandler' ||
+                stepName === 'onWhen' || // https://github.com/apache/camel-karavan/issues/1420
                 stepName === 'deadLetterChannel' ||
                 stepName === 'defaultErrorHandler' ||
                 stepName === 'jtaTransactionErrorHandler' ||

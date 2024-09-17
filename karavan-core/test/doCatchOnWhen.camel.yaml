@@ -13,3 +13,8 @@
               - id: doCatch-32ac
                 exception:
                   - java.lang.ArrayIndexOutOfBoundsException
+                onWhen:
+                  id: when-b4f0
+                  expression:
+                    groovy:
+                      id: groovy-2d4f
