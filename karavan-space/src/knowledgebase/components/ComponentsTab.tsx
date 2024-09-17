@@ -22,28 +22,21 @@ import {
 import '../../designer/karavan.css';
 import {ComponentCard} from "./ComponentCard";
 import {ComponentModal} from "./ComponentModal";
-import {ComponentApi} from "karavan-core/lib/api/ComponentApi";
 import {shallow} from "zustand/shallow";
 import {useKnowledgebaseStore} from "../KnowledgebaseStore";
+import { Component } from 'karavan-core/lib/model/ComponentModels';
 
 interface Props {
     dark: boolean,
-    filter: string,
+    components: Component[],
     onChange: (name: string, checked: boolean) => void,
 }
 
 export function ComponentsTab(props: Props) {
 
-    const [isModalOpen] = useKnowledgebaseStore((s) =>
-        [s.isModalOpen], shallow)
+    const [isModalOpen] = useKnowledgebaseStore((s) => [s.isModalOpen], shallow)
 
-
-    const {filter} = props;
-    const components = ComponentApi.getComponents().filter(c => {
-        return c.component.name.toLowerCase().includes(filter.toLowerCase())
-            || c.component.title.toLowerCase().includes(filter.toLowerCase())
-            || c.component.description.toLowerCase().includes(filter.toLowerCase())
-    }).sort((a, b) => (a.component.title?.toLowerCase() > b.component.title?.toLowerCase() ? 1 : -1)) ;
+    const {components} = props;
     return (
         <PageSection variant={props.dark ? PageSectionVariants.darker : PageSectionVariants.light} padding={{ default: 'noPadding' }} className="kamelet-section">
             {isModalOpen && <ComponentModal/>}

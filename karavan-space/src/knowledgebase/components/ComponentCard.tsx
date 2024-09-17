@@ -16,7 +16,7 @@
  */
 import React, {useEffect, useState} from 'react';
 import {
-    CardHeader, Card, CardTitle, CardBody, CardFooter, Badge, Checkbox, Flex
+    CardHeader, Card, CardTitle, CardBody, CardFooter, Badge, Checkbox, Flex, Text
 } from '@patternfly/react-core';
 import '../../designer/karavan.css';
 import {CamelUi} from "../../designer/utils/CamelUi";
@@ -56,14 +56,15 @@ export function ComponentCard(props: Props) {
 
     const isBlockedComponent = blockedComponents ? blockedComponents.findIndex(r => r === component.component.name) > -1 : false;
     const isRemote = component.component.remote;
+    const classNameBadge = 'label-component' + (component.component.supportLevel !== 'Stable' ? '-preview' : '')
     return (
-        <Card isCompact key={component.component.name} className="kamelet-card"
+        <Card isCompact key={component.component.name} className="knowledgebase-card"
               onClick={event => click(event)}
         >
             <CardHeader className="header-labels">
                 <Flex style={{width: '100%'}} gap={{default: 'gapSm'}} justifyContent={{default: 'justifyContentSpaceBetween'}}>
+                    <Badge className={classNameBadge}>Component</Badge>
                     <Badge isRead className="support-level labels">{component.component.supportLevel}</Badge>
-                    <Badge isRead className="version labels">{component.component.version}</Badge>
                 </Flex>
                 {showBlockCheckbox &&
                     <Checkbox id={component.component.name}
@@ -77,7 +78,9 @@ export function ComponentCard(props: Props) {
                 {CamelUi.getIconForComponent(component.component.title, component.component.label)}
                 <CardTitle>{component.component.title}</CardTitle>
             </CardHeader>
-            <CardBody>{component.component.description}</CardBody>
+            <CardBody>
+                <Text className="pf-v5-u-color-200">{component.component.description}</Text>
+            </CardBody>
             <CardFooter className="footer-labels">
                 <Badge isRead className="labels">{component.component.label}</Badge>
                 <Badge isRead className="labels">{isRemote ? 'remote' : 'internal'}</Badge>

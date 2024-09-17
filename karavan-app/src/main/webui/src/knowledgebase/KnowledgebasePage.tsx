@@ -16,13 +16,30 @@
  */
 import React, {useState} from 'react';
 import '../designer/karavan.css';
-import {Flex, FlexItem, PageSection, Switch, Tab, Tabs, Text, TextContent, TextInput, Toolbar, ToolbarContent} from "@patternfly/react-core";
+import {
+    Badge,
+    Flex,
+    FlexItem,
+    PageSection,
+    Switch,
+    Tab,
+    Tabs,
+    Text,
+    TextContent,
+    TextInput,
+    Toolbar,
+    ToolbarContent
+} from "@patternfly/react-core";
 import {MainToolbar} from "../designer/MainToolbar";
 import {KameletsTab} from "./kamelets/KameletsTab";
 import {EipTab} from "./eip/EipTab";
 import {ComponentsTab} from "./components/ComponentsTab";
 import {useKnowledgebaseStore} from "./KnowledgebaseStore";
 import {shallow} from "zustand/shallow";
+import {KameletApi} from "karavan-core/lib/api/KameletApi";
+import {KameletModel} from "karavan-core/lib/model/KameletModels";
+import {ComponentApi} from "karavan-core/lib/api/ComponentApi";
+import {CamelModelMetadata, ElementMeta} from "karavan-core/lib/model/CamelMetadata";
 
 interface Props {
     dark: boolean,
@@ -33,7 +50,7 @@ interface Props {
 export const KnowledgebasePage = (props: Props) => {
 
     const [setShowBlockCheckbox] = useKnowledgebaseStore((s) => [s.setShowBlockCheckbox], shallow)
-    const [tab, setTab] = useState<string | number>("eip");
+    const [tab, setTab] = useState<string | number>("components");
     const [filter, setFilter] = useState<string>("");
     const [customOnly, setCustomOnly] = useState<boolean>(false);
 
@@ -71,8 +88,21 @@ export const KnowledgebasePage = (props: Props) => {
         </Toolbar>
     }
 
+    let kameletList: KameletModel[] = KameletApi.getKamelets().filter(kamelet =>
+            kamelet.spec.definition.title.toLowerCase().includes(filter.toLowerCase()));
+    if (customOnly) kameletList = kameletList.filter(k => KameletApi.getCustomKameletNames().includes(k.metadata.name));
+
+    const components = ComponentApi.getComponents().filter(c => {
+        return c.component.name.toLowerCase().includes(filter.toLowerCase())
+            || c.component.title.toLowerCase().includes(filter.toLowerCase())
+            || c.component.description.toLowerCase().includes(filter.toLowerCase())
+    }).sort((a, b) => (a.component.title?.toLowerCase() > b.component.title?.toLowerCase() ? 1 : -1)) ;
+
+    const elements= CamelModelMetadata
+        .filter(c => c.name.toLowerCase().includes(filter.toLowerCase())).sort((a: ElementMeta, b: ElementMeta) => a.name > b.name ? 1 : -1);
+
     return (
-        <PageSection className="kamelet-section" padding={{default: 'noPadding'}}>
+        <PageSection className="knowledgebase-section" padding={{default: 'noPadding'}}>
             <PageSection className="tools-section" padding={{default: 'noPadding'}}>
                 <MainToolbar title={title()} tools={getTools()}/>
             </PageSection>
@@ -80,17 +110,24 @@ export const KnowledgebasePage = (props: Props) => {
                 <Flex direction={{default: "column"}} spaceItems={{default: "spaceItemsNone"}}>
                     <FlexItem>
                         <Tabs activeKey={tab} onSelect={(event, tabIndex) => setTab(tabIndex)}>
-                            <Tab eventKey="eip" title="Integration Patterns"/>
-                            <Tab eventKey="kamelets" title="Kamelets"/>
-                            <Tab eventKey="components" title="Components"/>
+                            <Tab eventKey="components" title={<div style={{display: 'flex', gap:'6px'}}>Components<Badge className='label-component'>{components.length}</Badge></div>}/>
+                            <Tab eventKey="eip" title={<div style={{display: 'flex', gap:'6px'}}>Integration Patterns<Badge className='label-eip'>{elements.length}</Badge></div>}/>
+                            <Tab eventKey="kamelets" title={<div style={{display: 'flex', gap:'6px'}}>Kamelets<Badge className='label-kamelet'>{kameletList.length}</Badge></div>}/>
                         </Tabs>
                     </FlexItem>
                 </Flex>
             </PageSection>
             <>
-                {tab === 'kamelets' && <KameletsTab dark={props.dark} filter={filter} customOnly={customOnly} onChange={(name: string, checked: boolean) => props.changeBlockList('kamelet', name, checked)}  />}
-                {tab === 'eip' && <EipTab dark={props.dark} filter={filter}/>}
-                {tab === 'components' && <ComponentsTab dark={props.dark} filter={filter} onChange={(name: string, checked: boolean) => props.changeBlockList('component', name, checked)}  />}
+                {tab === 'kamelets' && <KameletsTab dark={props.dark}
+                                                    kameletList={kameletList}
+                                                    onChange={(name: string, checked: boolean) => props.changeBlockList('kamelet', name, checked)} />
+                }
+                {tab === 'eip' && <EipTab dark={props.dark} elements={elements}/>
+                }
+                {tab === 'components' && <ComponentsTab dark={props.dark}
+                                                        components={components}
+                                                        onChange={(name: string, checked: boolean) => props.changeBlockList('component', name, checked)} />
+                }
             </>
         </PageSection>
     )

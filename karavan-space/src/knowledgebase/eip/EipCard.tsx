@@ -16,7 +16,7 @@
  */
 import React from 'react';
 import {
-    CardHeader, Card, CardTitle, CardBody, CardFooter,Badge
+    CardHeader, Card, CardTitle, CardBody, CardFooter, Badge, Text
 } from '@patternfly/react-core';
 import '../../designer/karavan.css';
 import {CamelUi} from "../../designer/utils/CamelUi";
@@ -39,18 +39,20 @@ export function EipCard(props: Props) {
         setElement(element)
         setModalOpen(true);
     }
-
     return (
-        <Card  isCompact key={element.name} className="kamelet-card"
+        <Card  isCompact key={element.name} className="knowledgebase-card"
                onClick={event => click(event)}
         >
             <CardHeader>
+                <Badge className='label-eip'>EIP</Badge>
             </CardHeader>
             <CardHeader>
                 {CamelUi.getIconForDslName(element.className)}
                 <CardTitle>{element.title}</CardTitle>
             </CardHeader>
-            <CardBody>{element.description}</CardBody>
+            <CardBody>
+                <Text className="pf-v5-u-color-200">{element.description}</Text>
+            </CardBody>
             <CardFooter className="footer-labels">
                 <div>
                     {element.labels.split(',').map((s: string,  i: number) => <Badge key={s + i} isRead

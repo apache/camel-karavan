@@ -56,14 +56,16 @@ export function KameletCard(props: Props) {
         setBlockedKamelets([...KameletApi.getBlockedKameletNames()]);
     }
     const isblockedKamelet = blockedKamelets ? blockedKamelets.findIndex(r => r === kamelet.metadata.name) > -1 : false;
+    const supportLevel = kamelet.metadata.annotations["camel.apache.org/kamelet.support.level"];
+    const classNameBadge = 'label-kamelet' + (supportLevel !== 'Stable' ? '-preview' : '')
     return (
-        <Card  isCompact key={kamelet.metadata.name} className="kamelet-card"
+        <Card  isCompact key={kamelet.metadata.name} className="knowledgebase-card"
                onClick={event => click(event)}
         >
             <CardHeader className="header-labels">
                 <Flex style={{width:'100%'}} gap={{default:'gapSm'}} justifyContent={{default: 'justifyContentSpaceBetween'}}>
+                    <Badge className={classNameBadge}>Kamelet</Badge>
                     <Badge isRead className="support-level labels">{kamelet.metadata.annotations["camel.apache.org/kamelet.support.level"]}</Badge>
-                    <Badge isRead className="version labels">{kamelet.metadata.annotations["camel.apache.org/catalog.version"].toLowerCase()}</Badge>
                 </Flex>
                 {showBlockCheckbox && <Checkbox id={kamelet.metadata.name} className="block-checkbox labels" isChecked={!isblockedKamelet}
                                                 onChange={(_, checked) => selectKamelet(_, checked)}/>}

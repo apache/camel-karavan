@@ -94,7 +94,7 @@ export function PropertiesHeader(props: Props) {
                             openSelectorToReplaceFrom((selectedStep as any).id)
                             setMenuOpen(false);
                         }}>
-                            Change From Element
+                            Change From...
                         </DropdownItem>}
                     {hasSteps &&
                         <DropdownItem key="saveStepsRoute" onClick={(ev) => {
