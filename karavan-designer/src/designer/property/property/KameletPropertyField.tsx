@@ -241,10 +241,10 @@ export function KameletPropertyField(props: Props) {
     }
 
     function getLabel(property: Property, value: any) {
-        const bgColor = hasValueChanged(property, value) ? 'yellow' : 'transparent';
+        const labelClassName = hasValueChanged(property, value) ? 'value-changed' : 'transparent';
         return (
             <div style={{display: "flex", flexDirection: 'row', alignItems: 'center', gap: '3px'}}>
-                <Text style={{backgroundColor: bgColor}}>{property.title}</Text>
+                <Text className={labelClassName}>{property.title}</Text>
             </div>
         )
     }

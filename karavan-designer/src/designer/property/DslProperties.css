@@ -263,3 +263,8 @@
 .karavan .properties .component-headers .pf-v5-c-clipboard-copy.pf-m-inline {
     background-color: transparent;
 }
+
+.karavan .properties .value-changed {
+    background-color: yellow;
+}
+

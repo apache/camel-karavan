@@ -209,7 +209,7 @@ export function DslPropertyField(props: Props) {
     }
 
     function getLabel(property: PropertyMeta, value: any, isKamelet: boolean) {
-        const bgColor = PropertyUtil.hasDslPropertyValueChanged(property, value) ? 'yellow' : 'transparent';
+        const labelClassName = PropertyUtil.hasDslPropertyValueChanged(property, value) ? 'value-changed' : '';
         if (!isMultiValueField(property) && property.isObject && !property.isArray && !["ExpressionDefinition"].includes(property.type)) {
             const tooltip = value ? "Delete " + property.name : "Add " + property.name;
             const className = value ? "change-button delete-button" : "change-button add-button";
@@ -219,7 +219,7 @@ export function DslPropertyField(props: Props) {
             const icon = value ? (<DeleteIcon/>) : (<AddIcon/>);
             return (
                 <div style={{display: "flex"}}>
-                    <Text style={{backgroundColor: bgColor}}>{title}</Text>
+                    <Text className={labelClassName}>{title}</Text>
                     <Tooltip position={"top"} content={<div>{tooltip}</div>}>
                         <button className={className} onClick={e => props.onPropertyChange?.(property.name, x)}
                                 aria-label="Add element">
@@ -234,7 +234,7 @@ export function DslPropertyField(props: Props) {
         } else if (!["ExpressionDefinition"].includes(property.type)) {
             return (
                 <div style={{display: "flex", flexDirection: 'row', alignItems: 'center', gap: '3px'}}>
-                    <Text style={{backgroundColor: bgColor}}>{CamelUtil.capitalizeName(property.displayName)}</Text>
+                    <Text style={{backgroundColor: labelClassName}}>{CamelUtil.capitalizeName(property.displayName)}</Text>
                 </div>
             )
         }

@@ -217,6 +217,10 @@ body, :root, #root, .karavan {
   /* margin-bottom: 0; */
 }
 
+.vscode-dark .karavan .properties .value-changed {
+  color: black;
+}
+
 .vscode-dark .karavan .pf-v5-c-drawer__splitter {
   background: var(--vscode-tab-inactiveBackground);
 }
@@ -334,12 +338,29 @@ body, :root, #root, .karavan {
 }
 
 /* Modal */
+.vscode-dark .dsl-modal .pf-v5-c-page__main-section.pf-m-dark-100 {
+  --pf-v5-c-page__main-section--BackgroundColor: transparent;
+} 
+
+.vscode-dark .dsl-modal .pf-v5-c-toggle-group .pf-v5-c-toggle-group__button.pf-m-selected {
+  /* --pf-v5-c-toggle-group__button--BackgroundColor: var(--pf-v5-global--primary-color--200); */
+}
+
 .vscode-dark .dsl-modal .dsl-card .icon {
   height: 24px;
   background: var(--pf-v5-global--BorderColor--200);
   border-color: var(--pf-v5-global--Color--200);
   border-radius: 24px;
   padding: 4px;
+}
+
+.vscode-dark .dsl-modal .dsl-card:hover {
+  background-color: var(--pf-v5-global--palette--black-500);
+}
+
+.vscode-dark .dsl-modal .dsl-card:hover .labels {
+  background-color: var(--pf-v5-global--palette--black-700);
+  --pf-v5-c-badge--Color: var(--pf-v5-c-badge--m-unread--Color);
 }
 
 .vscode-dark .pf-v5-c-modal-box {
@@ -465,14 +486,6 @@ color: var(--vscode-editor-foreground);
 
 .vscode-dark .karavan .tools-section .knowledge-tabs {
     background-color: transparent;
-}
-
-.vscode-dark .dsl-modal .pf-v5-c-page__main-section.pf-m-dark-100 {
-  --pf-v5-c-page__main-section--BackgroundColor: transparent;
-} 
-
-.vscode-dark .dsl-modal .pf-v5-c-toggle-group .pf-v5-c-toggle-group__button.pf-m-selected {
-  --pf-v5-c-toggle-group__button--BackgroundColor: var(--pf-v5-global--primary-color--200);
 }
 
 #root .karavan .bean-designer {

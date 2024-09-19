@@ -417,10 +417,10 @@ export function ComponentPropertyField(props: Props) {
 
 
     function getLabel(property: ComponentProperty, value: any) {
-        const bgColor = PropertyUtil.hasComponentPropertyValueChanged(property, value) ? 'yellow' : 'transparent';
+        const labelClassName = PropertyUtil.hasComponentPropertyValueChanged(property, value) ? 'value-changed' : 'transparent';
         return (
             <div style={{display: "flex", flexDirection: 'row', alignItems: 'center', gap: '3px'}}>
-                <Text style={{backgroundColor: bgColor}}>{property.displayName}</Text>
+                <Text className={labelClassName}>{property.displayName}</Text>
             </div>
         )
     }
