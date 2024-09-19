@@ -25,8 +25,6 @@ import {
 } from '../model/CamelDefinition';
 import { Beans, CamelElement, CamelElementMeta, Integration } from '../model/IntegrationDefinition';
 import { CamelDefinitionApi } from './CamelDefinitionApi';
-import { graphlib } from 'dagre';
-import floydWarchall = graphlib.alg.floydWarchall;
 
 export class ChildElement {
     constructor(public name: string = '', public className: string = '', public multiple: boolean = false) {}
