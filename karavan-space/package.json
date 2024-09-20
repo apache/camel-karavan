@@ -49,7 +49,7 @@
     "rxjs": "7.8.1",
     "usehooks-ts": "^3.1.0",
     "uuid": "10.0.0",
-    "vite": "^5.4.4",
+    "vite": "^5.4.6",
     "zustand": "^4.5.5"
   },
   "devDependencies": {
