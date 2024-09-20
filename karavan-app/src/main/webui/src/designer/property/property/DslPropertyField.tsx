@@ -234,7 +234,7 @@ export function DslPropertyField(props: Props) {
         } else if (!["ExpressionDefinition"].includes(property.type)) {
             return (
                 <div style={{display: "flex", flexDirection: 'row', alignItems: 'center', gap: '3px'}}>
-                    <Text style={{backgroundColor: labelClassName}}>{CamelUtil.capitalizeName(property.displayName)}</Text>
+                    <Text className={labelClassName}>{CamelUtil.capitalizeName(property.displayName)}</Text>
                 </div>
             )
         }

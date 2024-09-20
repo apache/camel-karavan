@@ -22,13 +22,15 @@ export class PropertyUtil {
 
     static hasDslPropertyValueChanged(property: PropertyMeta, value: any): boolean {
         const isSet = value !== undefined && !['id', 'uri', 'nodePrefixId'].includes(property.name);
-        const isDefault = property.defaultValue !== undefined && value?.toString() === property.defaultValue?.toString();
+        const defaultValue = property.type === 'boolean' ? property.defaultValue?.toString() || 'false' : property.defaultValue;
+        const isDefault = defaultValue !== undefined && value?.toString() === defaultValue?.toString();
         return isSet && !isDefault;
     }
 
     static hasComponentPropertyValueChanged(property: ComponentProperty, value: any): boolean {
         const isSet = value !== undefined;
-        const isDefault = property.defaultValue !== undefined && value?.toString() === property.defaultValue?.toString();
+        const defaultValue = property.type === 'boolean' ? property.defaultValue?.toString() || 'false' : property.defaultValue;
+        const isDefault = defaultValue !== undefined && value?.toString() === defaultValue?.toString();
         return isSet && !isDefault;
     }
 
