@@ -719,7 +719,7 @@ export class KaravanApi {
     }
 
     static async getKamelets(after: (yaml: string) => void) {
-        instance.get('/ui/metadata/kamelet', {headers: {'Accept': 'text/plain'}})
+        instance.get('/ui/metadata/kamelets', {headers: {'Accept': 'text/plain'}})
             .then(res => {
                 if (res.status === 200) {
                     after(res.data);
@@ -730,7 +730,7 @@ export class KaravanApi {
     }
 
     static async getKameletsForProject(projectId: string, after: (yaml: string) => void) {
-        instance.get('/ui/metadata/kamelet/' + projectId, {headers: {'Accept': 'text/plain'}})
+        instance.get('/ui/metadata/kamelets/' + projectId, {headers: {'Accept': 'text/plain'}})
             .then(res => {
                 if (res.status === 200) {
                     after(res.data);
