@@ -23,6 +23,7 @@ import {useAppConfigStore, useProjectsStore} from "../api/ProjectStore";
 import {InfrastructureAPI} from "../designer/utils/InfrastructureAPI";
 import {shallow} from "zustand/shallow";
 import {ProjectService} from "../api/ProjectService";
+import {SpiBeanApi} from "karavan-core/lib/api/SpiBeanApi";
 
 export function useMainHook () {
 
@@ -43,6 +44,7 @@ export function useMainHook () {
                 setProjects(projects);
             });
             updateComponents();
+            updateBeans();
             ProjectService.reloadKamelets();
             ProjectService.reloadBlockedTemplates();
             // updateSupportedComponents(); // not implemented yet
@@ -56,6 +58,17 @@ export function useMainHook () {
                 const jsons: string[] = [];
                 components.forEach(c => jsons.push(JSON.stringify(c)));
                 ComponentApi.saveComponents(jsons, true);
+            })
+        });
+    }
+
+    async function updateBeans(): Promise<void> {
+        await new Promise(resolve => {
+            KaravanApi.getBeans(code => {
+                const beans: [] = JSON.parse(code);
+                const jsons: string[] = [];
+                beans.forEach(c => jsons.push(JSON.stringify(c)));
+                SpiBeanApi.saveSpiBeans(jsons, true);
             })
         });
     }

@@ -30,17 +30,18 @@ import org.apache.camel.karavan.service.CodeService;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Path("/ui/kamelet")
-public class KameletResources {
+@Path("/ui/metadata")
+public class MetadataResources {
+    
+    @Inject
+    CodeService codeService;
 
     @Inject
     KaravanCache karavanCache;
 
-    @Inject
-    CodeService codeService;
-
     @GET
     @Produces(MediaType.TEXT_PLAIN)
+    @Path("/kamelets")
     public String getKamelets() {
         StringBuilder kamelets = new StringBuilder(codeService.getResourceFile("/metadata/kamelets.yaml"));
         List<ProjectFile> custom = karavanCache.getProjectFiles(Project.Type.kamelets.name());
@@ -55,7 +56,7 @@ public class KameletResources {
 
     @GET
     @Produces(MediaType.TEXT_PLAIN)
-    @Path("/{projectId}")
+    @Path("/kamelets/{projectId}")
     public String getKameletsForProject(@PathParam("projectId") String projectId) {
         StringBuilder kamelets = new StringBuilder(getKamelets());
         List<ProjectFile> projectKamelets = karavanCache.getProjectFiles(projectId).stream()
@@ -70,4 +71,17 @@ public class KameletResources {
         return kamelets.toString();
     }
 
+    @GET
+    @Path("/components")
+    @Produces(MediaType.APPLICATION_JSON)
+    public String getComponents() {
+        return codeService.getResourceFile("/metadata/components.json");
+    }
+
+    @GET
+    @Path("/beans")
+    @Produces(MediaType.APPLICATION_JSON)
+    public String getSpiBeans() {
+        return codeService.getResourceFile("/metadata/spiBeans.json");
+    }
 }
