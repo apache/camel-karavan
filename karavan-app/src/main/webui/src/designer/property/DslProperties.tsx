@@ -141,7 +141,7 @@ export function DslProperties(props: Props) {
 
     function getPropertySelector() {
         return (
-            <div style={{display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '3px'}}>
+            <div style={{display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '3px', pointerEvents: 'initial', opacity: '1'}}>
                 <ToggleGroup aria-label="properties selctor">
                     <ToggleGroupItem
                         text="Required"
