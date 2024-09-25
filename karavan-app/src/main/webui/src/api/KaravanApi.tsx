@@ -761,4 +761,15 @@ export class KaravanApi {
             ErrorEventBus.sendApiError(err);
         });
     }
+
+    static async getMainConfiguration(after: (json: string) => void) {
+        instance.get('/ui/metadata/mainConfiguration')
+            .then(res => {
+                if (res.status === 200) {
+                    after(JSON.stringify(res.data));
+                }
+            }).catch(err => {
+            ErrorEventBus.sendApiError(err);
+        });
+    }
 }
