@@ -82,7 +82,7 @@ export function SelectField(props: Props) {
         setSelectOptions(newSelectOptions);
     }, [filterValue]);
 
-    const createItemId = (value: any) => `select-typeahead-${value.replace(' ', '-')}`;
+    const createItemId = (value: any) => `select-typeahead-${value?.replace(' ', '-')}`;
 
     const setActiveAndFocusedItem = (itemIndex: number) => {
         setFocusedItemIndex(itemIndex);
