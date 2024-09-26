@@ -2,14 +2,16 @@
   "name": "karavan",
   "version": "4.8.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "copy-designer": "cp -r ../../../../karavan-designer/src/designer src",
     "copy-expression": "cp -r ../../../../karavan-designer/src/expression src",
     "copy-knowledgebase": "cp -r ../../../../karavan-designer/src/knowledgebase src",
     "copy-topology": "cp -r ../../../../karavan-designer/src/topology src",
     "copy-code": " npm run copy-designer && npm run copy-expression && npm run copy-knowledgebase &&  npm run copy-topology",
-    "start": "export PORT=3003 && npm run copy-code && react-scripts start",
-    "build": "npm run copy-code && DISABLE_ESLINT_PLUGIN=true react-scripts build"
+    "dev": "npm run copy-code && vite --port 3003",
+    "build": "npm run copy-code && tsc && vite build",
+    "serve": "npm run copy-code && vite preview"
   },
   "proxy": "http://127.0.0.1:8080/",
   "eslintConfig": {
@@ -33,14 +35,14 @@
     "@microsoft/fetch-event-source": "^2.0.1",
     "@monaco-editor/react": "4.6.0",
     "@patternfly/patternfly": "^5.4.0",
-    "@patternfly/react-charts": "^7.4.0",
+    "@patternfly/react-charts": "7.4.1",
     "@patternfly/react-core": "^5.4.0",
     "@patternfly/react-log-viewer": "^5.3.0",
     "@patternfly/react-table": "^5.4.0",
     "@patternfly/react-topology": "^5.4.0",
     "@types/js-yaml": "4.0.9",
     "@types/uuid": "10.0.0",
-    "@uiw/react-markdown-preview": "^5.1.1",
+    "@uiw/react-markdown-preview": "^5.1.3",
     "axios": "1.7.7",
     "buffer": "6.0.3",
     "file-saver": "2.0.5",
@@ -49,8 +51,8 @@
     "keycloak-js": "25.0.5",
     "react": "18.3.1",
     "react-dom": "18.3.1",
-    "react-hook-form": "^7.51.5",
-    "react-router-dom": "^6.23.1",
+    "react-hook-form": "^7.53.0",
+    "react-router-dom": "^6.26.2",
     "rxjs": "7.8.1",
     "usehooks-ts": "^3.1.0",
     "uuid": "10.0.0",
@@ -62,18 +64,16 @@
     "@types/dagre": "^0.7.52",
     "@types/file-saver": "^2.0.7",
     "@types/node": "20.14.9",
-    "@types/react": "^18.3.1",
+    "@types/react": "18.3.9",
     "@types/react-dom": "^18.3.0",
     "@typescript-eslint/eslint-plugin": "^5.51.0",
     "@typescript-eslint/parser": "^5.51.0",
+    "@vitejs/plugin-react": "^4.3.1",
     "eslint": "^8.57.0",
-    "monaco-editor": "0.50.0",
-    "react-scripts": "^5.0.1",
-    "typescript": "^4.9.5"
-  },
-  "overrides": {
-    "@svgr/webpack": "$@svgr/webpack",
-    "core-js": "^3.30.1"
+    "monaco-editor": "0.52.0",
+    "typescript": "^4.9.5",
+    "vite": "^5.4.8",
+    "vite-tsconfig-paths": "^5.0.1"
   },
   "resolutions": {
     "@types/react": "^18"
