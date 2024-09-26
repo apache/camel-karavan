@@ -2,10 +2,11 @@
   "name": "karavan-designer",
   "version": "4.8.0",
   "license": "Apache-2.0",
+  "type": "module",
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "prod": "react-scripts build --dest && rsync -a build/* ../resources/META-INF/resources"
+    "dev": "vite --port 3003",
+    "build": "tsc && vite build",
+    "serve": "vite preview"
   },
   "proxy": "http://localhost:8080/",
   "eslintConfig": {
@@ -52,13 +53,12 @@
     "@types/react-dom": "^18.3.0",
     "@typescript-eslint/eslint-plugin": "^5.62.0",
     "@typescript-eslint/parser": "^5.62.0",
+    "@vitejs/plugin-react": "^4.3.1",
     "eslint": "^8.57.0",
     "monaco-editor": "^0.51.0",
-    "react-scripts": "5.0.1",
-    "typescript": "4.9.5"
-  },
-  "overrides": {
-    "@svgr/webpack": "$@svgr/webpack",
-    "core-js": "^3.30.1"
+    "typescript": "4.9.5",
+    "vite": "^5.4.8",
+    "vite-plugin-svgr": "^4.2.0",
+    "vite-tsconfig-paths": "^5.0.1"
   }
 }

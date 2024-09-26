@@ -2,6 +2,7 @@
   "name": "karavan-space",
   "version": "4.8.0",
   "license": "Apache-2.0",
+  "type": "module",
   "scripts": {
     "cp-designer": "cp -r ../karavan-designer/src/designer src",
     "cp-expression": "cp -r ../karavan-designer/src/expression src",
@@ -9,9 +10,10 @@
     "cp-topology": "cp -r ../karavan-designer/src/topology src",
     "cp-public-metadata": "cp -r ../karavan-designer/public/metadata public",
     "copy": "npm run cp-designer && npm run cp-expression && npm run cp-knowledgebase && npm run cp-topology && npm run cp-public-metadata",
-    "start": "npm run copy && react-scripts start",
-    "build": "npm run copy && react-scripts build",
-    "prod": "npm run copy && react-scripts build --dest && rsync -a build/* ../resources/META-INF/resources"
+    "dev": "npm run copy && vite --port 3003",
+    "build": "npm run copy && tsc && vite build",
+    "serve": "npm run copy && vite preview",
+    "prod": "npm run copy && vite build && rsync -a build/* ../resources/META-INF/resources"
   },
   "proxy": "http://localhost:8080/",
   "eslintConfig": {
@@ -49,7 +51,6 @@
     "rxjs": "7.8.1",
     "usehooks-ts": "^3.1.0",
     "uuid": "10.0.0",
-    "vite": "^5.4.6",
     "zustand": "^4.5.5"
   },
   "devDependencies": {
@@ -62,13 +63,12 @@
     "@types/react-dom": "^18.3.0",
     "@typescript-eslint/eslint-plugin": "^5.62.0",
     "@typescript-eslint/parser": "^5.62.0",
+    "@vitejs/plugin-react": "^4.3.1",
     "eslint": "^8.39.0",
     "monaco-editor": "0.49.0",
-    "react-scripts": "5.0.1",
-    "typescript": "4.9.5"
-  },
-  "overrides": {
-    "@svgr/webpack": "$@svgr/webpack",
-    "core-js": "^3.30.1"
+    "typescript": "4.9.5",
+    "vite": "^5.4.8",
+    "vite-plugin-svgr": "^4.2.0",
+    "vite-tsconfig-paths": "^5.0.1"
   }
 }
