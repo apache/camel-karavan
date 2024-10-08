@@ -85,7 +85,7 @@ import {
     InterceptFrom,
     InterceptSendToEndpoint, LoadBalanceIcon,
     OnCompletion, PollIcon,
-    SagaIcon,
+    SagaIcon, SetExchangePatternIcon,
     SortIcon,
     SplitIcon,
     ToIcon,
@@ -131,6 +131,7 @@ const StepElements: string[] = [
     "SamplingDefinition",
     "SagaDefinition",
     "SetBodyDefinition",
+    "SetExchangePatternDefinition",
     "SetHeaderDefinition",
     "SetHeadersDefinition",
     "SetVariableDefinition",
@@ -740,6 +741,8 @@ export class CamelUi {
                 return <LoadBalanceIcon/>;
             case 'FilterDefinition' :
                 return <FilterIcon/>;
+            case 'SetExchangePatternDefinition' :
+                return <SetExchangePatternIcon/>;
             case 'SortDefinition' :
                 return <SortIcon/>;
             case 'OnCompletionDefinition' :
