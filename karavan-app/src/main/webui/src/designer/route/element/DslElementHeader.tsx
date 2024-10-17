@@ -139,10 +139,10 @@ export function DslElementHeader(props: Props) {
 
     function hasElements(rc: RouteConfigurationDefinition): boolean {
         return (rc.interceptFrom !== undefined && rc.interceptFrom.length > 0)
-    || (rc.intercept !== undefined && rc.intercept.length > 0)
-    || (rc.interceptSendToEndpoint !== undefined && rc.interceptSendToEndpoint.length > 0)
-    || (rc.onException !== undefined && rc.onException.length > 0)
-    || (rc.onCompletion !== undefined && rc.onCompletion.length > 0)
+            || (rc.intercept !== undefined && rc.intercept.length > 0)
+            || (rc.interceptSendToEndpoint !== undefined && rc.interceptSendToEndpoint.length > 0)
+            || (rc.onException !== undefined && rc.onException.length > 0)
+            || (rc.onCompletion !== undefined && rc.onCompletion.length > 0)
     }
 
     function getHeaderIconClasses(): string {
@@ -225,7 +225,9 @@ export function DslElementHeader(props: Props) {
         } else if (isKamelet() && step.dslName === 'FromDefinition' && (step as any).uri === 'kamelet:source') {
             return "Source";
         } else {
-            return (step as any).description ? (step as any).description : CamelUi.getElementTitle(props.step);
+            let description: string = (step as any).description;
+            description = description !== undefined && description?.length > 32 ? description.substring(0, 32).concat("...") : description;
+            return description ? description : CamelUi.getElementTitle(props.step);
         }
     }
 
