@@ -212,10 +212,10 @@ export class CamelUi {
 
     static checkFilter = (dsl: DslMetaModel, filter: string | undefined = undefined): boolean => {
         if (filter !== undefined && filter !== "") {
-            return dsl.name.toLowerCase().includes(filter.toLowerCase())
-                || dsl.description.toLowerCase().includes(filter.toLowerCase())
-                || dsl.title.toLowerCase().includes(filter.toLowerCase())
-                || dsl.labels.toLowerCase().includes(filter.toLowerCase());
+            return dsl?.name?.toLowerCase().includes(filter.toLowerCase())
+                || dsl?.description?.toLowerCase().includes(filter.toLowerCase())
+                || dsl?.title?.toLowerCase().includes(filter.toLowerCase())
+                || dsl?.labels?.toLowerCase().includes(filter.toLowerCase());
         } else {
             return true;
         }

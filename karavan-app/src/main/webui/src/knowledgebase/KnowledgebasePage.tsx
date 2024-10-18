@@ -93,9 +93,9 @@ export const KnowledgebasePage = (props: Props) => {
     if (customOnly) kameletList = kameletList.filter(k => KameletApi.getCustomKameletNames().includes(k.metadata.name));
 
     const components = ComponentApi.getComponents().filter(c => {
-        return c.component.name.toLowerCase().includes(filter.toLowerCase())
-            || c.component.title.toLowerCase().includes(filter.toLowerCase())
-            || c.component.description.toLowerCase().includes(filter.toLowerCase())
+        return c.component?.name?.toLowerCase().includes(filter.toLowerCase())
+            || c.component?.title?.toLowerCase().includes(filter.toLowerCase())
+            || c.component?.description?.toLowerCase().includes(filter.toLowerCase())
     }).sort((a, b) => (a.component.title?.toLowerCase() > b.component.title?.toLowerCase() ? 1 : -1)) ;
 
     const elements= CamelModelMetadata
