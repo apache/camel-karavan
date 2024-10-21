@@ -40,7 +40,7 @@ import TimesIcon from "@patternfly/react-icons/dist/esm/icons/times-icon";
 import {addPreferredElement, deletePreferredElement, getPreferredElements} from "./DslPreferences";
 import {DslFastCard} from "./DslFastCard";
 import {DslCard} from "./DslCard";
-import {useDebounceCallback, useDebounceValue} from 'usehooks-ts';
+import {useDebounceValue} from 'usehooks-ts';
 
 interface Props {
     tabIndex?: string | number
@@ -152,7 +152,7 @@ export function DslSelector(props: Props) {
                 {parentDsl !== undefined && <ToggleGroupItem
                     text={
                         <div style={{display: 'flex', flexDirection: 'row'}}>
-                            <div style={{marginRight: '6px'}}>EIP</div>
+                            <div style={{marginRight: '6px'}}>Processors</div>
                             {ready && <Badge isRead={!isEIP} className={isEIP ? "label-eip" : ""}>{eCount}</Badge>}
                         </div>
                     }
@@ -231,7 +231,13 @@ export function DslSelector(props: Props) {
         .filter(d => {
             if (selectedToggles.includes('eip') && d.navigation === 'eip') return true
             else if (selectedToggles.includes('components') && d.navigation === 'component') return true
-            else if (selectedToggles.includes('kamelets') && d.navigation === 'kamelet') return true
+            else if (selectedToggles.includes('kamelets') && d.navigation === 'kamelet') {
+                if (customOnly) {
+                    return KameletApi.getCustomKameletNames().includes(d.name);
+                } else {
+                    return true;
+                }
+            }
             else return false;
         })
         .filter(d => CamelUi.checkFilter(d, filter));
@@ -242,13 +248,13 @@ export function DslSelector(props: Props) {
 
     const fastElements: DslMetaModel[] = elements
         .filter((d: DslMetaModel) => {
-        if (selectedToggles.includes('eip') && d.navigation === 'eip') {
-            return preferredElements.includes(d.dsl);
-        } else if (d.navigation === 'component' && d.navigation === 'component') {
-            return d.uri && preferredElements.includes(d.uri)
-        } else {
-            return preferredElements.includes(d.name)
-        }
+            if (selectedToggles.includes('eip') && d.navigation === 'eip') {
+                return preferredElements.includes(d.dsl);
+            } else if (d.navigation === 'component' && d.navigation === 'component') {
+                return d.uri && preferredElements.includes(d.uri)
+            } else {
+                return preferredElements.includes(d.name)
+            }
         })
         .filter(d => CamelUi.checkFilter(d, filter))
         .filter((_, i) => i < 7)
