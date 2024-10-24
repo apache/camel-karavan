@@ -123,16 +123,16 @@ public class CamelReloadListener {
     }
 
      String getContainerAddressForReload(PodContainerStatus podContainerStatus) throws Exception {
-        if (ConfigService.inKubernetes()) {
-            return "http://" + podContainerStatus.getProjectId() + "." + kubernetesService.getNamespace();
-        } else if (ConfigService.inDocker()) {
-            return "http://" + podContainerStatus.getProjectId() + ":8080";
-        } else if (podContainerStatus.getPorts() != null && !podContainerStatus.getPorts().isEmpty()) {
-            Integer port = podContainerStatus.getPorts().get(0).getPublicPort();
-            if (port != null) {
-                return "http://localhost:" + port;
-            }
-        }
+         if (ConfigService.inKubernetes()) {
+             return "http://" + podContainerStatus.getPodIP() + ":8080";
+         } else if (ConfigService.inDocker()) {
+             return "http://" + podContainerStatus.getContainerName() + ":8080";
+         } else if (podContainerStatus.getPorts() != null && !podContainerStatus.getPorts().isEmpty()) {
+             Integer port = podContainerStatus.getPorts().get(0).getPublicPort();
+             if (port != null) {
+                 return "http://localhost:" + port;
+             }
+         }
         throw new Exception("No port configured for project " + podContainerStatus.getContainerName());
     }
 

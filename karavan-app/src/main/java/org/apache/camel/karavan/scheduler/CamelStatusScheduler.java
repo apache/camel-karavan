@@ -24,13 +24,14 @@ import jakarta.inject.Inject;
 import org.apache.camel.karavan.KaravanCache;
 import org.apache.camel.karavan.KaravanConstants;
 import org.apache.camel.karavan.model.CamelStatusRequest;
-import org.apache.camel.karavan.model.PodContainerStatus;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
 import java.util.Map;
 import java.util.Objects;
 
+import static org.apache.camel.karavan.KaravanConstants.CAMEL_PREFIX;
+import static org.apache.camel.karavan.KaravanConstants.LABEL_KUBERNETES_RUNTIME;
 import static org.apache.camel.karavan.KaravanEvents.CMD_COLLECT_CAMEL_STATUS;
 
 @ApplicationScoped
@@ -51,10 +52,8 @@ public class CamelStatusScheduler {
     public void collectCamelStatuses() {
         LOGGER.debug("Collect Camel Statuses");
         karavanCache.getPodContainerStatuses(environment).stream()
-                .filter(cs ->
-                        cs.getType() == PodContainerStatus.ContainerType.project
-                                || cs.getType() == PodContainerStatus.ContainerType.devmode
-                ).filter(cs -> Objects.equals(cs.getCamelRuntime(), KaravanConstants.CamelRuntime.CAMEL_MAIN.getValue()))
+                .filter(cs -> Objects.equals(cs.getLabels().get(LABEL_KUBERNETES_RUNTIME), CAMEL_PREFIX))
+                .filter(cs -> Objects.equals(cs.getCamelRuntime(), KaravanConstants.CamelRuntime.CAMEL_MAIN.getValue()))
                 .forEach(cs -> {
                     CamelStatusRequest csr = new CamelStatusRequest(cs.getProjectId(), cs.getContainerName());
                     eventBus.publish(CMD_COLLECT_CAMEL_STATUS,
