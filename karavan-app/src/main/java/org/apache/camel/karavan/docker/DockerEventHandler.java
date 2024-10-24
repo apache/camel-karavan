@@ -25,7 +25,7 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.mutiny.core.eventbus.EventBus;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import org.apache.camel.karavan.model.PodContainerStatus;
+import org.apache.camel.karavan.model.ContainerType;
 import org.apache.camel.karavan.service.RegistryService;
 import org.jboss.logging.Logger;
 
@@ -71,7 +71,7 @@ public class DockerEventHandler implements ResultCallback<Event> {
 
     public void onContainerEvent(Event event, Container container) throws InterruptedException {
         if ("exited".equalsIgnoreCase(container.getState())
-                && Objects.equals(container.getLabels().get(LABEL_TYPE), PodContainerStatus.ContainerType.build.name())) {
+                && Objects.equals(container.getLabels().get(LABEL_TYPE), ContainerType.build.name())) {
             String tag = container.getLabels().get(LABEL_TAG);
             String projectId = container.getLabels().get(LABEL_PROJECT_ID);
             syncImage(projectId, tag);

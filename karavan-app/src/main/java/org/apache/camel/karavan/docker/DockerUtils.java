@@ -19,6 +19,7 @@ package org.apache.camel.karavan.docker;
 import com.github.dockerjava.api.model.*;
 import io.smallrye.mutiny.tuples.Tuple2;
 import org.apache.camel.karavan.model.ContainerPort;
+import org.apache.camel.karavan.model.ContainerType;
 import org.apache.camel.karavan.model.DockerComposeHealthCheck;
 import org.apache.camel.karavan.model.PodContainerStatus;
 
@@ -96,7 +97,6 @@ public class DockerUtils {
 
     static Ports getPortBindings(Map<Integer, Integer> ports) {
         Ports portBindings = new Ports();
-
         ports.forEach((hostPort, containerPort) -> {
             Ports.Binding binding = Ports.Binding.bindPort(hostPort);
             portBindings.bind(ExposedPort.tcp(containerPort), binding);
@@ -110,12 +110,12 @@ public class DockerUtils {
                 .map(p -> new ContainerPort(p.getPrivatePort(), p.getPublicPort(), p.getType()))
                 .collect(Collectors.toList());
         List<PodContainerStatus.Command> commands = getContainerCommand(container.getState());
-        PodContainerStatus.ContainerType type = getContainerType(container.getLabels());
+        ContainerType type = getContainerType(container.getLabels());
         String created = Instant.ofEpochSecond(container.getCreated()).toString();
         String projectId = container.getLabels().getOrDefault(LABEL_PROJECT_ID, name);
         String camelRuntime = container.getLabels().getOrDefault(LABEL_CAMEL_RUNTIME, "");
         return PodContainerStatus.createWithId(projectId, name, environment, container.getId(), container.getImage(),
-                ports, type, commands, container.getState(), created, camelRuntime);
+                ports, type, commands, container.getState(), created, camelRuntime, container.getLabels());
     }
 
     public static void updateStatistics(PodContainerStatus podContainerStatus, Statistics stats) {
@@ -160,20 +160,20 @@ public class DockerUtils {
         }
     }
 
-    static PodContainerStatus.ContainerType getContainerType(Map<String, String> labels) {
+    static ContainerType getContainerType(Map<String, String> labels) {
         String type = labels.get(LABEL_TYPE);
-        if (Objects.equals(type, PodContainerStatus.ContainerType.devmode.name())) {
-            return PodContainerStatus.ContainerType.devmode;
-        } else if (Objects.equals(type, PodContainerStatus.ContainerType.devservice.name())) {
-            return PodContainerStatus.ContainerType.devservice;
-        } else if (Objects.equals(type, PodContainerStatus.ContainerType.project.name())) {
-            return PodContainerStatus.ContainerType.project;
-        } else if (Objects.equals(type, PodContainerStatus.ContainerType.internal.name())) {
-            return PodContainerStatus.ContainerType.internal;
-        } else if (Objects.equals(type, PodContainerStatus.ContainerType.build.name())) {
-            return PodContainerStatus.ContainerType.build;
+        if (Objects.equals(type, ContainerType.devmode.name())) {
+            return ContainerType.devmode;
+        } else if (Objects.equals(type, ContainerType.devservice.name())) {
+            return ContainerType.devservice;
+        } else if (Objects.equals(type, ContainerType.project.name())) {
+            return ContainerType.project;
+        } else if (Objects.equals(type, ContainerType.internal.name())) {
+            return ContainerType.internal;
+        } else if (Objects.equals(type, ContainerType.build.name())) {
+            return ContainerType.build;
         }
-        return PodContainerStatus.ContainerType.unknown;
+        return ContainerType.unknown;
     }
 
     static List<PodContainerStatus.Command> getContainerCommand(String state) {

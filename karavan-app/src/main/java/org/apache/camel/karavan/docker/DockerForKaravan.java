@@ -22,14 +22,14 @@ import com.github.dockerjava.api.model.MountType;
 import com.github.dockerjava.api.model.RestartPolicy;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import org.apache.camel.karavan.model.*;
+import org.apache.camel.karavan.model.ContainerType;
+import org.apache.camel.karavan.model.DockerComposeService;
+import org.apache.camel.karavan.model.DockerComposeVolume;
+import org.apache.camel.karavan.model.Project;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 import static org.apache.camel.karavan.KaravanConstants.*;
 import static org.apache.camel.karavan.service.CodeService.BUILD_SCRIPT_FILENAME;
@@ -49,21 +49,21 @@ public class DockerForKaravan {
     DockerService dockerService;
 
     public void runProjectInDevMode(String projectId, String jBangOptions, DockerComposeService composeService,
-                                    Map<String, String> files, String projectDevmodeImage) throws Exception {
-        Container c = createDevmodeContainer(projectId, jBangOptions, composeService, projectDevmodeImage);
+                                    Map<String, String> files, String projectDevmodeImage, Map<String, String> labels, Map<String, String> envVars) throws Exception {
+        Container c = createDevmodeContainer(projectId, jBangOptions, composeService, projectDevmodeImage, labels, envVars);
         dockerService.runContainer(projectId);
         dockerService.copyFiles(c.getId(), "/karavan/code", files, true);
     }
 
     protected Container createDevmodeContainer(String projectId, String jBangOptions, DockerComposeService compose,
-                                               String projectDevmodeImage) throws InterruptedException {
+                                               String projectDevmodeImage, Map<String, String> labels, Map<String, String> envVars) throws InterruptedException {
         LOGGER.infof("DevMode starting for %s with JBANG_OPTIONS=%s", projectId, jBangOptions);
 
         HealthCheck healthCheck = new HealthCheck().withTest(List.of("CMD", "curl", "-f", "http://localhost:8080/q/dev/health"))
                 .withInterval(10000000000L).withTimeout(10000000000L).withStartPeriod(10000000000L).withRetries(30);
 
         List<String> env = new ArrayList<>(compose.getEnvironmentList());
-
+        envVars.forEach((k,v) -> env.add(k + "=" + v));
         if (jBangOptions != null && !jBangOptions.trim().isEmpty()) {
             env.add(ENV_VAR_JBANG_OPTIONS + "=" + jBangOptions);
         }
@@ -74,13 +74,15 @@ public class DockerForKaravan {
 
         var imageName = projectDevmodeImage != null ? projectDevmodeImage : devmodeImage;
 
+        var containerLabels = new HashMap<>(labels);
+        containerLabels.put(LABEL_TYPE, ContainerType.devmode.name());
+        containerLabels.put(LABEL_PROJECT_ID, projectId);
+        containerLabels.put(LABEL_CAMEL_RUNTIME, CamelRuntime.CAMEL_MAIN.getValue());
+
         return dockerService.createContainer(projectId,
                 (imageName),
                 env, compose.getPortsMap(), healthCheck,
-                Map.of(LABEL_TYPE, PodContainerStatus.ContainerType.devmode.name(),
-                        LABEL_PROJECT_ID, projectId,
-                        LABEL_CAMEL_RUNTIME, CamelRuntime.CAMEL_MAIN.getValue()
-                ),
+                containerLabels,
                 compose.getVolumes(), null, RestartPolicy.noRestart(), DockerService.PULL_IMAGE.ifNotExists,
                 compose.getCpus(), compose.getCpu_percent(), compose.getMem_limit(), compose.getMem_reservation());
     }
@@ -88,6 +90,9 @@ public class DockerForKaravan {
     public void runBuildProject(Project project, String script, DockerComposeService compose, Map<String, String> sshFiles, String tag) throws Exception {
         String containerName = project.getProjectId() + BUILDER_SUFFIX;
         dockerService.deleteContainer(containerName);
+        if (createM2.orElse(false)) {
+            compose.getVolumes().add(new DockerComposeVolume(MountType.VOLUME.name(), project.getProjectId() + "-build-m2-repository", "/karavan/.m2/repository"));
+        }
         Container c = createBuildContainer(containerName, project, compose.getEnvironmentList(), compose.getVolumes(), tag);
         dockerService.copyExecFile(c.getId(), "/karavan/builder", BUILD_SCRIPT_FILENAME, script);
         sshFiles.forEach((name, text) -> {
@@ -102,7 +107,7 @@ public class DockerForKaravan {
         return dockerService.createContainer(containerName, devmodeImage,
                 env, Map.of(), new HealthCheck(),
                 Map.of(
-                        LABEL_TYPE, PodContainerStatus.ContainerType.build.name(),
+                        LABEL_TYPE, ContainerType.build.name(),
                         LABEL_PROJECT_ID, project.getProjectId(),
                         LABEL_TAG, tag
                 ),

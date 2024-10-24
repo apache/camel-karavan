@@ -33,9 +33,9 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
 import org.apache.camel.karavan.model.ContainerImage;
+import org.apache.camel.karavan.model.ContainerType;
 import org.apache.camel.karavan.model.DockerComposeService;
 import org.apache.camel.karavan.model.DockerComposeVolume;
-import org.apache.camel.karavan.model.PodContainerStatus;
 import org.apache.camel.karavan.service.CodeService;
 import org.apache.camel.karavan.service.ConfigService;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
@@ -181,13 +181,13 @@ public class DockerService {
                                      String... command) throws InterruptedException {
         List<Container> containers = findContainer(name);
         if (containers.isEmpty()) {
-            if (Objects.equals(labels.get(LABEL_TYPE), PodContainerStatus.ContainerType.devmode.name())
-                    || Objects.equals(labels.get(LABEL_TYPE), PodContainerStatus.ContainerType.build.name())
-                    || Objects.equals(labels.get(LABEL_TYPE), PodContainerStatus.ContainerType.devservice.name())) {
+            if (Objects.equals(labels.get(LABEL_TYPE), ContainerType.devmode.name())
+                    || Objects.equals(labels.get(LABEL_TYPE), ContainerType.build.name())
+                    || Objects.equals(labels.get(LABEL_TYPE), ContainerType.devservice.name())) {
                 LOGGER.info("Pulling DevMode image from DockerHub: " + image);
                 pullImageFromDockerHub(image, Objects.equals(pullImage, PULL_IMAGE.always));
             }
-            if (Objects.equals(labels.get(LABEL_TYPE), PodContainerStatus.ContainerType.project.name())) {
+            if (Objects.equals(labels.get(LABEL_TYPE), ContainerType.project.name())) {
                 LOGGER.info("Pulling Project image from Registry: " + image);
                 pullImage(image, Objects.equals(pullImage, PULL_IMAGE.always));
             }
@@ -208,7 +208,7 @@ public class DockerService {
                 if (command.length > 0) {
                     createContainerCmd.withCmd(command);
                 }
-                if (Objects.equals(labels.get(LABEL_PROJECT_ID), PodContainerStatus.ContainerType.build.name())) {
+                if (Objects.equals(labels.get(LABEL_PROJECT_ID), ContainerType.build.name())) {
                     mounts.add(new Mount().withType(MountType.BIND).withSource("/var/run/docker.sock").withTarget("/var/run/docker.sock"));
                 }
 
