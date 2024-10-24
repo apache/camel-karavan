@@ -16,6 +16,7 @@
  */
 package org.apache.camel.karavan.api;
 
+import io.vertx.core.json.JsonObject;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
@@ -86,8 +87,8 @@ public class ProjectFileResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/templates/beans")
     public List<ProjectFile> getBeanTemplates() throws Exception {
-        return  codeService.getBeanTemplateNames().stream()
-                .map(s -> karavanCache.getProjectFile(Project.Type.templates.name(), s))
+        return  karavanCache.getProjectFiles(Project.Type.templates.name()).stream()
+                .filter(file -> file.getName().endsWith(CodeService.BEAN_TEMPLATE_SUFFIX_FILENAME))
                 .toList();
     }
 
@@ -124,5 +125,24 @@ public class ProjectFileResource {
                 URLDecoder.decode(filename, StandardCharsets.UTF_8),
                 false
         );
+    }
+
+    @POST
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/copy/{project}")
+    public Response copy(@PathParam("project") String project, JsonObject copy) throws Exception {
+        var projectId = URLDecoder.decode(project, StandardCharsets.UTF_8);
+        var from = copy.getString("from");
+        var to = copy.getString("to");
+        var tofile = karavanCache.getProjectFile(projectId, to);
+        if (tofile == null) {
+            var file = karavanCache.getProjectFile(projectId, from);
+            var copyFile = file.copy();
+            copyFile.setName(to);
+            karavanCache.saveProjectFile(copyFile, false, false);
+            return Response.ok().build();
+        } else {
+            return Response.notModified().build();
+        }
     }
 }

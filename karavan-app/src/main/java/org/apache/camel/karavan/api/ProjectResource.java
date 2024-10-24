@@ -27,7 +27,7 @@ import org.apache.camel.karavan.docker.DockerService;
 import org.apache.camel.karavan.kubernetes.KubernetesService;
 import org.apache.camel.karavan.model.CamelStatus;
 import org.apache.camel.karavan.model.CamelStatusValue;
-import org.apache.camel.karavan.model.PodContainerStatus;
+import org.apache.camel.karavan.model.ContainerType;
 import org.apache.camel.karavan.model.Project;
 import org.apache.camel.karavan.service.ConfigService;
 import org.apache.camel.karavan.service.GitService;
@@ -99,8 +99,8 @@ public class ProjectResource extends AbstractApiResource {
         if (deleteContainers) {
             LOGGER.info("Deleting containers");
             Response res1 = devModeResource.deleteDevMode(projectId, true);
-            Response res2 = containerResource.deleteContainer(projectId, PodContainerStatus.ContainerType.devmode.name(), projectId);
-            Response res3 = containerResource.deleteContainer(projectId, PodContainerStatus.ContainerType.project.name(), projectId);
+            Response res2 = containerResource.deleteContainer(projectId, ContainerType.devmode.name(), projectId);
+            Response res3 = containerResource.deleteContainer(projectId, ContainerType.project.name(), projectId);
             LOGGER.info("Deleting deployments");
             Response res4 = infrastructureResource.deleteDeployment(null, projectId);
         }

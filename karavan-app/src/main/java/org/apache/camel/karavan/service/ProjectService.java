@@ -93,7 +93,7 @@ public class ProjectService {
         }
     }
 
-    public String runProjectWithJBangOptions(Project project, String jBangOptions) throws Exception {
+    public String runProjectWithJBangOptions(Project project, String jBangOptions, Map<String, String> labels, Map<String, String> envVars) throws Exception {
         String containerName = project.getProjectId();
         PodContainerStatus status = karavanCache.getDevModePodContainerStatus(project.getProjectId(), environment);
         if (status == null) {
@@ -107,10 +107,10 @@ public class ProjectService {
             String projectDevmodeImage = codeService.getProjectDevModeImage(project.getProjectId());
             if (ConfigService.inKubernetes()) {
                 String deploymentFragment = codeService.getDeploymentFragment(project.getProjectId());
-                kubernetesService.runDevModeContainer(project, jBangOptions, files, projectDevmodeImage, deploymentFragment);
+                kubernetesService.runDevModeContainer(project, jBangOptions, files, projectDevmodeImage, deploymentFragment, labels, envVars);
             } else {
                 DockerComposeService compose = getProjectDockerComposeService(project.getProjectId());
-                dockerForKaravan.runProjectInDevMode(project.getProjectId(), jBangOptions, compose, files, projectDevmodeImage);
+                dockerForKaravan.runProjectInDevMode(project.getProjectId(), jBangOptions, compose, files, projectDevmodeImage, labels, envVars);
             }
             return containerName;
         } else {
@@ -180,9 +180,15 @@ public class ProjectService {
         }
     }
 
-    public String getDevServiceCode() {
-        List<ProjectFile> files = karavanCache.getProjectFiles(Project.Type.configuration.name());
+    public String getDockerDevServiceCode() {
+        List<ProjectFile> files = karavanCache.getProjectFiles(Project.Type.services.name());
         Optional<ProjectFile> file = files.stream().filter(f -> f.getName().equals(DEV_SERVICES_FILENAME)).findFirst();
+        return file.orElse(new ProjectFile()).getCode();
+    }
+
+    public String getKubernetesDevServiceCode(String name) {
+        List<ProjectFile> files = karavanCache.getProjectFiles(Project.Type.services.name());
+        Optional<ProjectFile> file = files.stream().filter(f -> f.getName().equals(name + ".yaml")).findFirst();
         return file.orElse(new ProjectFile()).getCode();
     }
 

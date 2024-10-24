@@ -28,6 +28,7 @@ public class Project {
         templates,
         kamelets,
         configuration,
+        services,
         normal,
     }
 
