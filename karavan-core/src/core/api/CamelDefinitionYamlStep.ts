@@ -118,6 +118,8 @@ import {
     ThrowExceptionDefinition,
     ToDefinition,
     ToDynamicDefinition,
+    TokenizerDefinition,
+    TokenizerImplementationDefinition,
     TransactedDefinition,
     TransformDefinition,
     TryDefinition,
@@ -240,7 +242,12 @@ import {
     RestSecuritiesDefinition,
     RestsDefinition,
     SecurityDefinition,
+    LangChain4jCharacterTokenizerDefinition,
+    LangChain4jLineTokenizerDefinition,
+    LangChain4jParagraphTokenizerDefinition,
+    LangChain4jSentenceTokenizerDefinition,
     LangChain4jTokenizerDefinition,
+    LangChain4jWordTokenizerDefinition,
     CustomTransformerDefinition,
     DataFormatTransformerDefinition,
     EndpointTransformerDefinition,
@@ -666,6 +673,13 @@ export class CamelDefinitionYamlStep {
                def.multicast = CamelDefinitionYamlStep.readMulticastDefinition(element.multicast); 
             } 
         } 
+        if (element?.tokenizer !== undefined) { 
+            if (Array.isArray(element.tokenizer)) { 
+               def.tokenizer = CamelDefinitionYamlStep.readTokenizerDefinition(element.tokenizer[0]); 
+            } else { 
+               def.tokenizer = CamelDefinitionYamlStep.readTokenizerDefinition(element.tokenizer); 
+            } 
+        } 
         if (element?.filter !== undefined) { 
             if (Array.isArray(element.filter)) { 
                def.filter = CamelDefinitionYamlStep.readFilterDefinition(element.filter[0]); 
@@ -692,13 +706,6 @@ export class CamelDefinitionYamlStep {
                def.wireTap = CamelDefinitionYamlStep.readWireTapDefinition(element.wireTap[0]); 
             } else { 
                def.wireTap = CamelDefinitionYamlStep.readWireTapDefinition(element.wireTap); 
-            } 
-        } 
-        if (element?.langChain4j !== undefined) { 
-            if (Array.isArray(element.langChain4j)) { 
-               def.langChain4j = CamelDefinitionYamlStep.readLangChain4jTokenizerDefinition(element.langChain4j[0]); 
-            } else { 
-               def.langChain4j = CamelDefinitionYamlStep.readLangChain4jTokenizerDefinition(element.langChain4j); 
             } 
         } 
         if (element?.step !== undefined) { 
@@ -2420,6 +2427,55 @@ export class CamelDefinitionYamlStep {
         if (element && typeof element === 'string') element = {uri: element};
         let def = element ? new ToDynamicDefinition({...element}) : new ToDynamicDefinition();
         def = ComponentApi.parseElementUri(def);
+
+        return def;
+    }
+
+    static readTokenizerDefinition = (element: any): TokenizerDefinition => {
+        
+        let def = element ? new TokenizerDefinition({...element}) : new TokenizerDefinition();
+        if (element?.langChain4jLineTokenizer !== undefined) { 
+            if (Array.isArray(element.langChain4jLineTokenizer)) { 
+               def.langChain4jLineTokenizer = CamelDefinitionYamlStep.readLangChain4jTokenizerDefinition(element.langChain4jLineTokenizer[0]); 
+            } else { 
+               def.langChain4jLineTokenizer = CamelDefinitionYamlStep.readLangChain4jTokenizerDefinition(element.langChain4jLineTokenizer); 
+            } 
+        } 
+        if (element?.langChain4jCharacterTokenizer !== undefined) { 
+            if (Array.isArray(element.langChain4jCharacterTokenizer)) { 
+               def.langChain4jCharacterTokenizer = CamelDefinitionYamlStep.readLangChain4jCharacterTokenizerDefinition(element.langChain4jCharacterTokenizer[0]); 
+            } else { 
+               def.langChain4jCharacterTokenizer = CamelDefinitionYamlStep.readLangChain4jCharacterTokenizerDefinition(element.langChain4jCharacterTokenizer); 
+            } 
+        } 
+        if (element?.langChain4jSentenceTokenizer !== undefined) { 
+            if (Array.isArray(element.langChain4jSentenceTokenizer)) { 
+               def.langChain4jSentenceTokenizer = CamelDefinitionYamlStep.readLangChain4jSentenceTokenizerDefinition(element.langChain4jSentenceTokenizer[0]); 
+            } else { 
+               def.langChain4jSentenceTokenizer = CamelDefinitionYamlStep.readLangChain4jSentenceTokenizerDefinition(element.langChain4jSentenceTokenizer); 
+            } 
+        } 
+        if (element?.langChain4jWordTokenizer !== undefined) { 
+            if (Array.isArray(element.langChain4jWordTokenizer)) { 
+               def.langChain4jWordTokenizer = CamelDefinitionYamlStep.readLangChain4jWordTokenizerDefinition(element.langChain4jWordTokenizer[0]); 
+            } else { 
+               def.langChain4jWordTokenizer = CamelDefinitionYamlStep.readLangChain4jWordTokenizerDefinition(element.langChain4jWordTokenizer); 
+            } 
+        } 
+        if (element?.langChain4jParagraphTokenizer !== undefined) { 
+            if (Array.isArray(element.langChain4jParagraphTokenizer)) { 
+               def.langChain4jParagraphTokenizer = CamelDefinitionYamlStep.readLangChain4jParagraphTokenizerDefinition(element.langChain4jParagraphTokenizer[0]); 
+            } else { 
+               def.langChain4jParagraphTokenizer = CamelDefinitionYamlStep.readLangChain4jParagraphTokenizerDefinition(element.langChain4jParagraphTokenizer); 
+            } 
+        } 
+
+        return def;
+    }
+
+    static readTokenizerImplementationDefinition = (element: any): TokenizerImplementationDefinition => {
+        
+        let def = element ? new TokenizerImplementationDefinition({...element}) : new TokenizerImplementationDefinition();
 
         return def;
     }
@@ -4227,9 +4283,44 @@ export class CamelDefinitionYamlStep {
         return def;
     }
 
+    static readLangChain4jCharacterTokenizerDefinition = (element: any): LangChain4jCharacterTokenizerDefinition => {
+        
+        let def = element ? new LangChain4jCharacterTokenizerDefinition({...element}) : new LangChain4jCharacterTokenizerDefinition();
+
+        return def;
+    }
+
+    static readLangChain4jLineTokenizerDefinition = (element: any): LangChain4jLineTokenizerDefinition => {
+        
+        let def = element ? new LangChain4jLineTokenizerDefinition({...element}) : new LangChain4jLineTokenizerDefinition();
+
+        return def;
+    }
+
+    static readLangChain4jParagraphTokenizerDefinition = (element: any): LangChain4jParagraphTokenizerDefinition => {
+        
+        let def = element ? new LangChain4jParagraphTokenizerDefinition({...element}) : new LangChain4jParagraphTokenizerDefinition();
+
+        return def;
+    }
+
+    static readLangChain4jSentenceTokenizerDefinition = (element: any): LangChain4jSentenceTokenizerDefinition => {
+        
+        let def = element ? new LangChain4jSentenceTokenizerDefinition({...element}) : new LangChain4jSentenceTokenizerDefinition();
+
+        return def;
+    }
+
     static readLangChain4jTokenizerDefinition = (element: any): LangChain4jTokenizerDefinition => {
         
         let def = element ? new LangChain4jTokenizerDefinition({...element}) : new LangChain4jTokenizerDefinition();
+
+        return def;
+    }
+
+    static readLangChain4jWordTokenizerDefinition = (element: any): LangChain4jWordTokenizerDefinition => {
+        
+        let def = element ? new LangChain4jWordTokenizerDefinition({...element}) : new LangChain4jWordTokenizerDefinition();
 
         return def;
     }
@@ -4708,6 +4799,7 @@ export class CamelDefinitionYamlStep {
             case 'throwException': return CamelDefinitionYamlStep.readThrowExceptionDefinition(newBody);
             case 'to': return CamelDefinitionYamlStep.readToDefinition(newBody);
             case 'toD': return CamelDefinitionYamlStep.readToDynamicDefinition(newBody);
+            case 'tokenizer': return CamelDefinitionYamlStep.readTokenizerDefinition(newBody);
             case 'transacted': return CamelDefinitionYamlStep.readTransactedDefinition(newBody);
             case 'transform': return CamelDefinitionYamlStep.readTransformDefinition(newBody);
             case 'doTry': return CamelDefinitionYamlStep.readTryDefinition(newBody);
@@ -4716,7 +4808,6 @@ export class CamelDefinitionYamlStep {
             case 'when': return CamelDefinitionYamlStep.readWhenDefinition(newBody);
             case 'whenSkipSendToEndpoint': return CamelDefinitionYamlStep.readWhenSkipSendToEndpointDefinition(newBody);
             case 'wireTap': return CamelDefinitionYamlStep.readWireTapDefinition(newBody);
-            case 'langChain4j': return CamelDefinitionYamlStep.readLangChain4jTokenizerDefinition(newBody);
             default: return new CamelElement('');
         }
     }

@@ -117,6 +117,8 @@ import {
     ThrowExceptionDefinition,
     ToDefinition,
     ToDynamicDefinition,
+    TokenizerDefinition,
+    TokenizerImplementationDefinition,
     TransactedDefinition,
     TransformDefinition,
     TryDefinition,
@@ -239,7 +241,12 @@ import {
     RestSecuritiesDefinition,
     RestsDefinition,
     SecurityDefinition,
+    LangChain4jCharacterTokenizerDefinition,
+    LangChain4jLineTokenizerDefinition,
+    LangChain4jParagraphTokenizerDefinition,
+    LangChain4jSentenceTokenizerDefinition,
     LangChain4jTokenizerDefinition,
+    LangChain4jWordTokenizerDefinition,
     CustomTransformerDefinition,
     DataFormatTransformerDefinition,
     EndpointTransformerDefinition,
@@ -425,6 +432,9 @@ export class CamelDefinitionApi {
         if (element?.throwException !== undefined) { 
             def.throwException = CamelDefinitionApi.createThrowExceptionDefinition(element.throwException); 
         }
+        if (element?.tokenizer !== undefined) { 
+            def.tokenizer = CamelDefinitionApi.createTokenizerDefinition(element.tokenizer); 
+        }
         if (element?.transacted !== undefined) { 
             def.transacted = CamelDefinitionApi.createTransactedDefinition(element.transacted); 
         }
@@ -448,9 +458,6 @@ export class CamelDefinitionApi {
         }
         if (element?.wireTap !== undefined) { 
             def.wireTap = CamelDefinitionApi.createWireTapDefinition(element.wireTap); 
-        }
-        if (element?.langChain4j !== undefined) { 
-            def.langChain4j = CamelDefinitionApi.createLangChain4jTokenizerDefinition(element.langChain4j); 
         }
         return def;
     }
@@ -1491,6 +1498,33 @@ export class CamelDefinitionApi {
             element = {uri: element};
         }
         const def = element ? new ToDynamicDefinition({...element}) : new ToDynamicDefinition();
+        def.uuid = element?.uuid ? element.uuid : def.uuid; 
+        return def;
+    }
+
+    static createTokenizerDefinition = (element: any): TokenizerDefinition => { 
+        const def = element ? new TokenizerDefinition({...element}) : new TokenizerDefinition();
+        def.uuid = element?.uuid ? element.uuid : def.uuid; 
+        if (element?.langChain4jCharacterTokenizer !== undefined) { 
+            def.langChain4jCharacterTokenizer = CamelDefinitionApi.createLangChain4jCharacterTokenizerDefinition(element.langChain4jCharacterTokenizer); 
+        }
+        if (element?.langChain4jLineTokenizer !== undefined) { 
+            def.langChain4jLineTokenizer = CamelDefinitionApi.createLangChain4jTokenizerDefinition(element.langChain4jLineTokenizer); 
+        }
+        if (element?.langChain4jParagraphTokenizer !== undefined) { 
+            def.langChain4jParagraphTokenizer = CamelDefinitionApi.createLangChain4jParagraphTokenizerDefinition(element.langChain4jParagraphTokenizer); 
+        }
+        if (element?.langChain4jSentenceTokenizer !== undefined) { 
+            def.langChain4jSentenceTokenizer = CamelDefinitionApi.createLangChain4jSentenceTokenizerDefinition(element.langChain4jSentenceTokenizer); 
+        }
+        if (element?.langChain4jWordTokenizer !== undefined) { 
+            def.langChain4jWordTokenizer = CamelDefinitionApi.createLangChain4jWordTokenizerDefinition(element.langChain4jWordTokenizer); 
+        }
+        return def;
+    }
+
+    static createTokenizerImplementationDefinition = (element: any): TokenizerImplementationDefinition => { 
+        const def = element ? new TokenizerImplementationDefinition({...element}) : new TokenizerImplementationDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
         return def;
     }
@@ -2733,8 +2767,38 @@ export class CamelDefinitionApi {
         return def;
     }
 
+    static createLangChain4jCharacterTokenizerDefinition = (element: any): LangChain4jCharacterTokenizerDefinition => { 
+        const def = element ? new LangChain4jCharacterTokenizerDefinition({...element}) : new LangChain4jCharacterTokenizerDefinition();
+        def.uuid = element?.uuid ? element.uuid : def.uuid; 
+        return def;
+    }
+
+    static createLangChain4jLineTokenizerDefinition = (element: any): LangChain4jLineTokenizerDefinition => { 
+        const def = element ? new LangChain4jLineTokenizerDefinition({...element}) : new LangChain4jLineTokenizerDefinition();
+        def.uuid = element?.uuid ? element.uuid : def.uuid; 
+        return def;
+    }
+
+    static createLangChain4jParagraphTokenizerDefinition = (element: any): LangChain4jParagraphTokenizerDefinition => { 
+        const def = element ? new LangChain4jParagraphTokenizerDefinition({...element}) : new LangChain4jParagraphTokenizerDefinition();
+        def.uuid = element?.uuid ? element.uuid : def.uuid; 
+        return def;
+    }
+
+    static createLangChain4jSentenceTokenizerDefinition = (element: any): LangChain4jSentenceTokenizerDefinition => { 
+        const def = element ? new LangChain4jSentenceTokenizerDefinition({...element}) : new LangChain4jSentenceTokenizerDefinition();
+        def.uuid = element?.uuid ? element.uuid : def.uuid; 
+        return def;
+    }
+
     static createLangChain4jTokenizerDefinition = (element: any): LangChain4jTokenizerDefinition => { 
         const def = element ? new LangChain4jTokenizerDefinition({...element}) : new LangChain4jTokenizerDefinition();
+        def.uuid = element?.uuid ? element.uuid : def.uuid; 
+        return def;
+    }
+
+    static createLangChain4jWordTokenizerDefinition = (element: any): LangChain4jWordTokenizerDefinition => { 
+        const def = element ? new LangChain4jWordTokenizerDefinition({...element}) : new LangChain4jWordTokenizerDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
         return def;
     }
@@ -3039,6 +3103,8 @@ export class CamelDefinitionApi {
             case 'ThrowExceptionDefinition': return CamelDefinitionApi.createThrowExceptionDefinition(newBody);
             case 'ToDefinition': return CamelDefinitionApi.createToDefinition(newBody);
             case 'ToDynamicDefinition': return CamelDefinitionApi.createToDynamicDefinition(newBody);
+            case 'TokenizerDefinition': return CamelDefinitionApi.createTokenizerDefinition(newBody);
+            case 'TokenizerImplementationDefinition': return CamelDefinitionApi.createTokenizerImplementationDefinition(newBody);
             case 'TransactedDefinition': return CamelDefinitionApi.createTransactedDefinition(newBody);
             case 'TransformDefinition': return CamelDefinitionApi.createTransformDefinition(newBody);
             case 'TryDefinition': return CamelDefinitionApi.createTryDefinition(newBody);
@@ -3161,7 +3227,12 @@ export class CamelDefinitionApi {
             case 'RestSecuritiesDefinition': return CamelDefinitionApi.createRestSecuritiesDefinition(newBody);
             case 'RestsDefinition': return CamelDefinitionApi.createRestsDefinition(newBody);
             case 'SecurityDefinition': return CamelDefinitionApi.createSecurityDefinition(newBody);
+            case 'LangChain4jCharacterTokenizerDefinition': return CamelDefinitionApi.createLangChain4jCharacterTokenizerDefinition(newBody);
+            case 'LangChain4jLineTokenizerDefinition': return CamelDefinitionApi.createLangChain4jLineTokenizerDefinition(newBody);
+            case 'LangChain4jParagraphTokenizerDefinition': return CamelDefinitionApi.createLangChain4jParagraphTokenizerDefinition(newBody);
+            case 'LangChain4jSentenceTokenizerDefinition': return CamelDefinitionApi.createLangChain4jSentenceTokenizerDefinition(newBody);
             case 'LangChain4jTokenizerDefinition': return CamelDefinitionApi.createLangChain4jTokenizerDefinition(newBody);
+            case 'LangChain4jWordTokenizerDefinition': return CamelDefinitionApi.createLangChain4jWordTokenizerDefinition(newBody);
             case 'CustomTransformerDefinition': return CamelDefinitionApi.createCustomTransformerDefinition(newBody);
             case 'DataFormatTransformerDefinition': return CamelDefinitionApi.createDataFormatTransformerDefinition(newBody);
             case 'EndpointTransformerDefinition': return CamelDefinitionApi.createEndpointTransformerDefinition(newBody);

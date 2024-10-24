@@ -1658,6 +1658,17 @@ export const CamelModelMetadata: ElementMeta[] = [
     ], [
         new ExchangePropertyMeta('CamelToEndpoint', 'To Endpoint', 'producer', 'String', 'Endpoint URI where this Exchange is being sent to'),
     ]),
+    new ElementMeta('tokenizer', 'TokenizerDefinition', 'Specialized tokenizer for AI applications', "Represents a Camel tokenizer for AI.", 'eip,transformation,ai', [
+        new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('disabled', 'Disabled', "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('langChain4jCharacterTokenizer', 'langChain4jCharacterTokenizer', "langChain4jCharacterTokenizer", 'LangChain4jCharacterTokenizerDefinition', '', '', false, false, false, true, '', ''),
+        new PropertyMeta('langChain4jLineTokenizer', 'langChain4jLineTokenizer', "langChain4jLineTokenizer", 'LangChain4jTokenizerDefinition', '', '', false, false, false, true, '', ''),
+        new PropertyMeta('langChain4jParagraphTokenizer', 'langChain4jParagraphTokenizer', "langChain4jParagraphTokenizer", 'LangChain4jParagraphTokenizerDefinition', '', '', false, false, false, true, '', ''),
+        new PropertyMeta('langChain4jSentenceTokenizer', 'langChain4jSentenceTokenizer', "langChain4jSentenceTokenizer", 'LangChain4jSentenceTokenizerDefinition', '', '', false, false, false, true, '', ''),
+        new PropertyMeta('langChain4jWordTokenizer', 'langChain4jWordTokenizer', "langChain4jWordTokenizer", 'LangChain4jWordTokenizerDefinition', '', '', false, false, false, true, '', ''),
+    ], [
+    ]),
     new ElementMeta('transacted', 'TransactedDefinition', 'Transacted', "Enables transaction on the route", 'configuration', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
@@ -1777,15 +1788,6 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('parameters', 'parameters', "parameters", 'object', '', '', false, false, false, false, '', ''),
     ], [
         new ExchangePropertyMeta('CamelToEndpoint', 'To Endpoint', 'producer', 'String', 'Endpoint URI where this Exchange is being sent to'),
-    ]),
-    new ElementMeta('langChain4j', 'LangChain4jTokenizerDefinition', 'LangChain4J Tokenizer', "Tokenizer that uses LangChain4j for tokenization.", 'eip,transformation,ai', [
-        new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('disabled', 'Disabled', "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
-        new PropertyMeta('tokenizerType', 'Tokenizer Type', "Sets the tokenizer type", 'string', 'OPEN_AI, AZURE, QWEN', '', true, false, false, false, '', ''),
-        new PropertyMeta('maxTokens', 'Max Tokens', "Sets the maximum number of tokens on each segment", 'number', '', '', true, false, false, false, '', ''),
-        new PropertyMeta('maxOverlap', 'Max Overlap', "Sets the maximum number of tokens that can overlap in each segment", 'number', '', '', true, false, false, false, '', ''),
-    ], [
     ]),
     new ElementMeta('intercept', 'InterceptDefinition', 'Intercept', "Intercepts a message at each step in the route", 'configuration', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
@@ -2622,6 +2624,41 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('scopes', 'Scopes', "The scopes to allow (separate multiple scopes by comma)", 'string', '', '', false, false, false, false, '', ''),
     ], [
     ]),
+    new ElementMeta('langChain4jCharacterTokenizer', 'LangChain4jCharacterTokenizerDefinition', 'LangChain4J Tokenizer with character splitter', "null", 'eip,transformation,ai', [
+        new PropertyMeta('id', 'Id', "The id of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('tokenizerType', 'Tokenizer Type', "Sets the tokenizer type", 'string', 'OPEN_AI, AZURE, QWEN', '', true, false, false, false, '', ''),
+        new PropertyMeta('maxTokens', 'Max Tokens', "Sets the maximum number of tokens on each segment", 'number', '', '', true, false, false, false, '', ''),
+        new PropertyMeta('maxOverlap', 'Max Overlap', "Sets the maximum number of tokens that can overlap in each segment", 'number', '', '', true, false, false, false, '', ''),
+    ], [
+    ]),
+    new ElementMeta('langChain4jLineTokenizer', 'LangChain4jLineTokenizerDefinition', 'LangChain4J Tokenizer with line splitter', "null", 'eip,transformation,ai', [
+        new PropertyMeta('id', 'Id', "The id of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('tokenizerType', 'Tokenizer Type', "Sets the tokenizer type", 'string', 'OPEN_AI, AZURE, QWEN', '', true, false, false, false, '', ''),
+        new PropertyMeta('maxTokens', 'Max Tokens', "Sets the maximum number of tokens on each segment", 'number', '', '', true, false, false, false, '', ''),
+        new PropertyMeta('maxOverlap', 'Max Overlap', "Sets the maximum number of tokens that can overlap in each segment", 'number', '', '', true, false, false, false, '', ''),
+    ], [
+    ]),
+    new ElementMeta('langChain4jParagraphTokenizer', 'LangChain4jParagraphTokenizerDefinition', 'LangChain4J Tokenizer with paragraph splitter', "null", 'eip,transformation,ai', [
+        new PropertyMeta('id', 'Id', "The id of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('tokenizerType', 'Tokenizer Type', "Sets the tokenizer type", 'string', 'OPEN_AI, AZURE, QWEN', '', true, false, false, false, '', ''),
+        new PropertyMeta('maxTokens', 'Max Tokens', "Sets the maximum number of tokens on each segment", 'number', '', '', true, false, false, false, '', ''),
+        new PropertyMeta('maxOverlap', 'Max Overlap', "Sets the maximum number of tokens that can overlap in each segment", 'number', '', '', true, false, false, false, '', ''),
+    ], [
+    ]),
+    new ElementMeta('langChain4jSentenceTokenizer', 'LangChain4jSentenceTokenizerDefinition', 'LangChain4J Tokenizer with sentence splitter', "null", 'eip,transformation,ai', [
+        new PropertyMeta('id', 'Id', "The id of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('tokenizerType', 'Tokenizer Type', "Sets the tokenizer type", 'string', 'OPEN_AI, AZURE, QWEN', '', true, false, false, false, '', ''),
+        new PropertyMeta('maxTokens', 'Max Tokens', "Sets the maximum number of tokens on each segment", 'number', '', '', true, false, false, false, '', ''),
+        new PropertyMeta('maxOverlap', 'Max Overlap', "Sets the maximum number of tokens that can overlap in each segment", 'number', '', '', true, false, false, false, '', ''),
+    ], [
+    ]),
+    new ElementMeta('langChain4jWordTokenizer', 'LangChain4jWordTokenizerDefinition', 'LangChain4J Tokenizer with word splitter', "null", 'eip,transformation,ai', [
+        new PropertyMeta('id', 'Id', "The id of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('tokenizerType', 'Tokenizer Type', "Sets the tokenizer type", 'string', 'OPEN_AI, AZURE, QWEN', '', true, false, false, false, '', ''),
+        new PropertyMeta('maxTokens', 'Max Tokens', "Sets the maximum number of tokens on each segment", 'number', '', '', true, false, false, false, '', ''),
+        new PropertyMeta('maxOverlap', 'Max Overlap', "Sets the maximum number of tokens that can overlap in each segment", 'number', '', '', true, false, false, false, '', ''),
+    ], [
+    ]),
     new ElementMeta('transformers', 'TransformersDefinition', 'Transformations', "To configure transformers.", 'transformation', [
         new PropertyMeta('customTransformer', 'customTransformer', "customTransformer", 'CustomTransformerDefinition', '', '', false, false, false, true, '', ''),
         new PropertyMeta('dataFormatTransformer', 'dataFormatTransformer', "dataFormatTransformer", 'DataFormatTransformerDefinition', '', '', false, false, false, true, '', ''),
@@ -2656,7 +2693,6 @@ export const SensitiveKeys: string[] = [
     "oauthclientsecret",
     "accesstokensecret",
     "securerandom",
-    "keystore",
     "refreshtoken",
     "sessiontoken",
     "publishkey",
@@ -2692,6 +2728,7 @@ export const SensitiveKeys: string[] = [
     "clientsecretcredential",
     "oauthclientid",
     "apikey",
+    "keystorePassword",
     "clientsecret",
     "tokencredential",
     "blobstoragesharedkeycredential",
@@ -2709,6 +2746,5 @@ export const SensitiveKeys: string[] = [
     "api_secret",
     "passcode",
     "consumerkey",
-    "sslkeystore",
     "username"
 ]

@@ -80,6 +80,7 @@ export class ProcessorDefinition extends CamelElement {
     throwException?: ThrowExceptionDefinition;
     to?: string;
     toD?: string;
+    tokenizer?: TokenizerDefinition;
     transacted?: TransactedDefinition;
     transform?: TransformDefinition;
     doTry?: TryDefinition;
@@ -88,7 +89,6 @@ export class ProcessorDefinition extends CamelElement {
     when?: WhenDefinition;
     whenSkipSendToEndpoint?: WhenSkipSendToEndpointDefinition;
     wireTap?: WireTapDefinition;
-    langChain4j?: LangChain4jTokenizerDefinition;
     public constructor(init?: Partial<ProcessorDefinition>) {
         super('ProcessorDefinition');
         Object.assign(this, init);
@@ -1595,6 +1595,31 @@ export class ToDynamicDefinition extends CamelElement {
     parameters?: any = {};
     public constructor(init?: Partial<ToDynamicDefinition>) {
         super('ToDynamicDefinition');
+        Object.assign(this, init);
+    }
+}
+
+export class TokenizerDefinition extends CamelElement {
+    stepName?: string = 'tokenizer';
+    id?: string = 'tokenizer-' + uuidv4().substring(0,4);
+    description?: string;
+    disabled?: boolean;
+    langChain4jCharacterTokenizer?: LangChain4jCharacterTokenizerDefinition;
+    langChain4jLineTokenizer?: LangChain4jTokenizerDefinition;
+    langChain4jParagraphTokenizer?: LangChain4jParagraphTokenizerDefinition;
+    langChain4jSentenceTokenizer?: LangChain4jSentenceTokenizerDefinition;
+    langChain4jWordTokenizer?: LangChain4jWordTokenizerDefinition;
+    public constructor(init?: Partial<TokenizerDefinition>) {
+        super('TokenizerDefinition');
+        Object.assign(this, init);
+    }
+}
+
+export class TokenizerImplementationDefinition extends CamelElement {
+    stepName?: string = 'tokenizerImplementation';
+    id?: string = 'tokenizerImplementation-' + uuidv4().substring(0,4);
+    public constructor(init?: Partial<TokenizerImplementationDefinition>) {
+        super('TokenizerImplementationDefinition');
         Object.assign(this, init);
     }
 }
@@ -3617,16 +3642,74 @@ export class SecurityDefinition extends CamelElement {
     }
 }
 
-export class LangChain4jTokenizerDefinition extends CamelElement {
-    stepName?: string = 'langChain4j';
-    id?: string = 'langChain4j-' + uuidv4().substring(0,4);
-    description?: string;
-    disabled?: boolean;
+export class LangChain4jCharacterTokenizerDefinition extends CamelElement {
+    stepName?: string = 'langChain4jCharacterTokenizer';
+    id?: string = 'langChain4jCharacterTokenizer-' + uuidv4().substring(0,4);
     tokenizerType?: string;
     maxTokens: number = 0;
     maxOverlap: number = 0;
+    public constructor(init?: Partial<LangChain4jCharacterTokenizerDefinition>) {
+        super('LangChain4jCharacterTokenizerDefinition');
+        Object.assign(this, init);
+    }
+}
+
+export class LangChain4jLineTokenizerDefinition extends CamelElement {
+    stepName?: string = 'langChain4jLineTokenizer';
+    id?: string = 'langChain4jLineTokenizer-' + uuidv4().substring(0,4);
+    tokenizerType?: string;
+    maxTokens: number = 0;
+    maxOverlap: number = 0;
+    public constructor(init?: Partial<LangChain4jLineTokenizerDefinition>) {
+        super('LangChain4jLineTokenizerDefinition');
+        Object.assign(this, init);
+    }
+}
+
+export class LangChain4jParagraphTokenizerDefinition extends CamelElement {
+    stepName?: string = 'langChain4jParagraphTokenizer';
+    id?: string = 'langChain4jParagraphTokenizer-' + uuidv4().substring(0,4);
+    tokenizerType?: string;
+    maxTokens: number = 0;
+    maxOverlap: number = 0;
+    public constructor(init?: Partial<LangChain4jParagraphTokenizerDefinition>) {
+        super('LangChain4jParagraphTokenizerDefinition');
+        Object.assign(this, init);
+    }
+}
+
+export class LangChain4jSentenceTokenizerDefinition extends CamelElement {
+    stepName?: string = 'langChain4jSentenceTokenizer';
+    id?: string = 'langChain4jSentenceTokenizer-' + uuidv4().substring(0,4);
+    tokenizerType?: string;
+    maxTokens: number = 0;
+    maxOverlap: number = 0;
+    public constructor(init?: Partial<LangChain4jSentenceTokenizerDefinition>) {
+        super('LangChain4jSentenceTokenizerDefinition');
+        Object.assign(this, init);
+    }
+}
+
+export class LangChain4jTokenizerDefinition extends CamelElement {
+    stepName?: string = 'langChain4j';
+    id?: string = 'langChain4j-' + uuidv4().substring(0,4);
+    maxOverlap: number = 0;
+    maxTokens: number = 0;
+    tokenizerType?: string;
     public constructor(init?: Partial<LangChain4jTokenizerDefinition>) {
         super('LangChain4jTokenizerDefinition');
+        Object.assign(this, init);
+    }
+}
+
+export class LangChain4jWordTokenizerDefinition extends CamelElement {
+    stepName?: string = 'langChain4jWordTokenizer';
+    id?: string = 'langChain4jWordTokenizer-' + uuidv4().substring(0,4);
+    tokenizerType?: string;
+    maxTokens: number = 0;
+    maxOverlap: number = 0;
+    public constructor(init?: Partial<LangChain4jWordTokenizerDefinition>) {
+        super('LangChain4jWordTokenizerDefinition');
         Object.assign(this, init);
     }
 }
