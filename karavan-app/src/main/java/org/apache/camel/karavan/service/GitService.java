@@ -29,23 +29,31 @@ import org.eclipse.jgit.api.errors.InvalidRemoteException;
 import org.eclipse.jgit.api.errors.RefNotFoundException;
 import org.eclipse.jgit.api.errors.TransportException;
 import org.eclipse.jgit.diff.DiffEntry;
+import org.eclipse.jgit.diff.DiffFormatter;
 import org.eclipse.jgit.lib.*;
 import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.revwalk.RevTree;
+import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.transport.*;
 import org.eclipse.jgit.transport.ssh.jsch.JschConfigSessionFactory;
+import org.eclipse.jgit.treewalk.AbstractTreeIterator;
+import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 import org.eclipse.jgit.treewalk.TreeWalk;
 import org.eclipse.jgit.treewalk.filter.TreeFilter;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.regex.Pattern;
+import java.util.stream.StreamSupport;
 
 @ApplicationScoped
 public class GitService {
@@ -179,7 +187,7 @@ public class GitService {
         LOGGER.info("Temp folder created " + folder);
         Git git = null;
         if (ephemeral) {
-            LOGGER.error("New ephemeral repository");
+            LOGGER.warn("New ephemeral repository");
             git = init(folder, gitConfig.getUri(), gitConfig.getBranch());
         } else {
             try {
@@ -461,5 +469,83 @@ public class GitService {
             };
         }
         return sshSessionFactory;
+    }
+
+    public List<ProjectCommit> getProjectCommits(String projectId) {
+        List<ProjectCommit> result = new ArrayList<>();
+        try {
+            Git pollGit = getGit(true, vertx.fileSystem().createTempDirectoryBlocking("commits"));
+            if (pollGit != null) {
+                StreamSupport.stream(pollGit.log().all().addPath(projectId).call().spliterator(), false)
+                        .sorted(Comparator.comparingInt(RevCommit::getCommitTime))
+                        .forEach(commit -> {
+                            var diffs = getProjectFileCommitDiffs(pollGit, commit);
+                            var projectCommit = new ProjectCommit(commit.getId().getName(), projectId,
+                                    commit.getAuthorIdent().getName(), commit.getAuthorIdent().getEmailAddress(),
+                                    commit.getShortMessage(), diffs);
+                            result.add(projectCommit);
+                        });
+            }
+        } catch (Exception e) {
+            LOGGER.error("Error", e);
+        }
+        return result;
+    }
+
+    private List<ProjectFileCommitDiff> getProjectFileCommitDiffs(Git git, RevCommit commit) {
+        List<ProjectFileCommitDiff> result = new ArrayList<>();
+        var repository = git.getRepository();
+        try {
+            try (RevWalk revWalk = new RevWalk(repository)) {
+                if (commit.getParentCount() > 0) {
+                    RevCommit parentCommit = commit.getParent(0);
+                    revWalk.parseCommit(parentCommit);
+
+                    AbstractTreeIterator oldTreeIter = prepareTreeParser(repository, parentCommit);
+                    AbstractTreeIterator newTreeIter = prepareTreeParser(repository, commit);
+
+                    try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                         DiffFormatter diffFormatter = new DiffFormatter(baos)) {
+                        diffFormatter.setRepository(repository);
+                        List<DiffEntry> diffs = diffFormatter.scan(oldTreeIter, newTreeIter);
+
+                        for (DiffEntry diff : diffs) {
+                            diffFormatter.format(diff);
+                            var fileDiff = new ProjectFileCommitDiff(diff.getChangeType().name(), diff.getNewPath(), diff.getOldPath(), baos.toString(StandardCharsets.UTF_8));
+                            result.add(fileDiff);
+                            baos.reset();  // Clear the output stream for the next diff
+                        }
+                    }
+                } else {
+                    try (TreeWalk treeWalk = new TreeWalk(repository)) {
+                        treeWalk.addTree(commit.getTree());
+                        treeWalk.setRecursive(true);
+                        while (treeWalk.next()) {
+                            // Get the object ID for the file (blob)
+                            ObjectId objectId = treeWalk.getObjectId(0);
+                            // Load the file content
+                            ObjectLoader loader = repository.open(objectId);
+                            byte[] content = loader.getBytes();
+                            var fileDiff = new ProjectFileCommitDiff(DiffEntry.ChangeType.ADD.name(), treeWalk.getPathString(), DiffEntry.DEV_NULL, new String(content, StandardCharsets.UTF_8));
+                            result.add(fileDiff);
+                        }
+                    }
+                }
+            }
+        } catch (IOException e) {
+           LOGGER.error("Error", e);
+        }
+        return result;
+    }
+
+    private static AbstractTreeIterator prepareTreeParser(Repository repository, RevCommit commit) throws IOException {
+        try (RevWalk walk = new RevWalk(repository)) {
+            RevTree tree = walk.parseTree(commit.getTree().getId());
+            CanonicalTreeParser treeParser = new CanonicalTreeParser();
+            try (ObjectReader reader = repository.newObjectReader()) {
+                treeParser.reset(reader, tree.getId());
+            }
+            return treeParser;
+        }
     }
 }
