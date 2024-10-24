@@ -56,12 +56,6 @@ export const ConfigurationPage = (props: Props) => {
                         Cleanup statuses
                     </Button>
                 </ToolbarItem>}
-                {tab === 'secrets' && <ToolbarItem>
-                    <Button>Add Secret</Button>
-                </ToolbarItem>}
-                {tab === 'configMaps' && <ToolbarItem>
-                    <Button>Add ConfigMap</Button>
-                </ToolbarItem>}
             </ToolbarContent>
         </Toolbar>);
     }
