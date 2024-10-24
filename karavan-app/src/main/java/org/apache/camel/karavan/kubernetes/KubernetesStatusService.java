@@ -62,7 +62,7 @@ public class KubernetesStatusService implements HealthCheck {
     }
 
     @ConfigProperty(name = "karavan.environment", defaultValue = KaravanConstants.DEV)
-    public String environment;
+    private String environment;
 
     @ConfigProperty(name = "karavan.openshift")
     Optional<Boolean> isOpenShift;
@@ -168,5 +168,9 @@ public class KubernetesStatusService implements HealthCheck {
                 .addToLimits("cpu", new Quantity(containerResources.get("limits.cpu")))
                 .addToLimits("memory", new Quantity(containerResources.get("limits.memory")))
                 .build();
+    }
+
+    public String getEnvironment() {
+        return environment;
     }
 }
