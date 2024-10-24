@@ -55,13 +55,14 @@ public class CodeService {
     public static final String PROPERTY_PROJECT_NAME = "camel.karavan.projectName";
     public static final String PROPERTY_PROJECT_NAME_OLD = "camel.karavan.project-name";
     public static final String BEAN_TEMPLATE_SUFFIX_FILENAME = "-bean-template.camel.yaml";
-    public static final String DEV_SERVICES_FILENAME = "devservices.docker-compose.yaml";
+    public static final String DEV_SERVICES_FILENAME = "docker-compose.yaml";
     public static final String PROJECT_COMPOSE_FILENAME = "docker-compose.yaml";
     public static final String MARKDOWN_EXTENSION = ".md";
     public static final String PROJECT_JKUBE_EXTENSION = ".jkube.yaml";
     public static final String PROJECT_DEPLOYMENT_JKUBE_FILENAME = "deployment" + PROJECT_JKUBE_EXTENSION;
     private static final String TEMPLATES_PATH = "/templates";
     private static final String CONFIGURATION_PATH = "/configuration";
+    private static final String SERVICES_PATH = "/services";
     private static final String DOCKER_FOLDER = "/docker/";
     private static final String KUBERNETES_FOLDER = "/kubernetes/";
     public static final int INTERNAL_PORT = 8080;
@@ -204,10 +205,6 @@ public class CodeService {
         return null;
     }
 
-    public List<String> getBeanTemplateNames(){
-        return beansTemplates.stream().map(name -> name + BEAN_TEMPLATE_SUFFIX_FILENAME).toList();
-    }
-
     public Map<String, String> getTemplates() {
         Map<String, String> result = new HashMap<>();
 
@@ -227,6 +224,21 @@ public class CodeService {
         Map<String, String> result = new HashMap<>();
 
         var path = CONFIGURATION_PATH + (ConfigService.inKubernetes() ? KUBERNETES_FOLDER : DOCKER_FOLDER);
+
+        listResources(path).forEach(filename -> {
+            String templatePath = path + filename;
+            String templateText = getResourceFile(templatePath);
+            if (templateText != null) {
+                result.put(filename, templateText);
+            }
+        });
+        return result;
+    }
+
+    public Map<String, String> getDevServicesFiles() {
+        Map<String, String> result = new HashMap<>();
+
+        var path = SERVICES_PATH + (ConfigService.inKubernetes() ? KUBERNETES_FOLDER : DOCKER_FOLDER);
 
         listResources(path).forEach(filename -> {
             String templatePath = path + filename;

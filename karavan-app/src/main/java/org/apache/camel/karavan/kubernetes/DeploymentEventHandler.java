@@ -21,9 +21,11 @@ import io.fabric8.kubernetes.api.model.apps.Deployment;
 import io.fabric8.kubernetes.client.informers.ResourceEventHandler;
 import io.vertx.core.json.JsonObject;
 import io.vertx.mutiny.core.eventbus.EventBus;
+import org.apache.camel.karavan.model.ContainerType;
 import org.apache.camel.karavan.model.DeploymentStatus;
 import org.jboss.logging.Logger;
 
+import static org.apache.camel.karavan.KaravanConstants.LABEL_TYPE;
 import static org.apache.camel.karavan.KaravanEvents.DEPLOYMENT_DELETED;
 import static org.apache.camel.karavan.KaravanEvents.DEPLOYMENT_UPDATED;
 
@@ -68,7 +70,7 @@ public class DeploymentEventHandler implements ResourceEventHandler<Deployment> 
                     deployment.getMetadata().getName(),
                     deployment.getMetadata().getNamespace(),
                     kubernetesStatusService.getCluster(),
-                    kubernetesStatusService.environment);
+                    kubernetesStatusService.getEnvironment());
             eventBus.publish(DEPLOYMENT_DELETED, JsonObject.mapFrom(ds));
         } catch (Exception e){
             LOGGER.error(e.getMessage());
@@ -77,20 +79,22 @@ public class DeploymentEventHandler implements ResourceEventHandler<Deployment> 
 
     public DeploymentStatus getDeploymentStatus(Deployment deployment) {
         try {
-            String dsImage = deployment.getSpec().getTemplate().getSpec().getContainers().get(0).getImage();
-            String imageName = dsImage.startsWith("image-registry.openshift-image-registry.svc")
+            var dsImage = deployment.getSpec().getTemplate().getSpec().getContainers().get(0).getImage();
+            var imageName = dsImage.startsWith("image-registry.openshift-image-registry.svc")
                     ? dsImage.replace("image-registry.openshift-image-registry.svc:5000/", "")
                     : dsImage;
-
+            var typeLabel = deployment.getMetadata().getLabels().get(LABEL_TYPE);
+            var type = typeLabel != null ? ContainerType.valueOf(typeLabel) : ContainerType.unknown;
             return new DeploymentStatus(
                     deployment.getMetadata().getName(),
                     deployment.getMetadata().getNamespace(),
                     kubernetesStatusService.getCluster(),
-                    kubernetesStatusService.environment,
+                    kubernetesStatusService.getEnvironment(),
                     imageName,
                     deployment.getSpec().getReplicas(),
                     deployment.getStatus().getReadyReplicas(),
-                    deployment.getStatus().getUnavailableReplicas()
+                    deployment.getStatus().getUnavailableReplicas(),
+                    type
             );
         } catch (Exception ex) {
             LOGGER.error(ex.getMessage());
@@ -98,7 +102,7 @@ public class DeploymentEventHandler implements ResourceEventHandler<Deployment> 
                     deployment.getMetadata().getName(),
                     deployment.getMetadata().getNamespace(),
                     kubernetesStatusService.getCluster(),
-                    kubernetesStatusService.environment);
+                    kubernetesStatusService.getEnvironment());
         }
     }
 }

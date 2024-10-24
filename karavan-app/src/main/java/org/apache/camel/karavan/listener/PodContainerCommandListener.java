@@ -26,6 +26,7 @@ import org.apache.camel.karavan.KaravanCache;
 import org.apache.camel.karavan.KaravanConstants;
 import org.apache.camel.karavan.docker.DockerService;
 import org.apache.camel.karavan.kubernetes.KubernetesService;
+import org.apache.camel.karavan.model.ContainerType;
 import org.apache.camel.karavan.model.PodContainerStatus;
 import org.apache.camel.karavan.service.ConfigService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -53,7 +54,7 @@ public class PodContainerCommandListener {
 
     @ConsumeEvent(value = CMD_DELETE_CONTAINER, blocking = true)
     public void deletePodContainer(String projectId) {
-        setContainerStatusTransit(projectId, PodContainerStatus.ContainerType.devmode.name());
+        setContainerStatusTransit(projectId, ContainerType.devmode.name());
         if (ConfigService.inKubernetes()) {
             kubernetesService.deletePodAndService(projectId, false);
         } else {
@@ -64,7 +65,7 @@ public class PodContainerCommandListener {
     private void setContainerStatusTransit(String name, String type) {
         PodContainerStatus status = karavanCache.getPodContainerStatus(name, environment, name);
         if (status == null) {
-            status = PodContainerStatus.createByType(name, environment, PodContainerStatus.ContainerType.valueOf(type));
+            status = PodContainerStatus.createByType(name, environment, ContainerType.valueOf(type));
         }
         status.setInTransit(true);
         eventBus.publish(POD_CONTAINER_UPDATED, JsonObject.mapFrom(status));

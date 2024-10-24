@@ -24,6 +24,7 @@ import io.fabric8.kubernetes.api.model.ResourceRequirements;
 import io.fabric8.kubernetes.client.informers.ResourceEventHandler;
 import io.vertx.core.json.JsonObject;
 import io.vertx.mutiny.core.eventbus.EventBus;
+import org.apache.camel.karavan.model.ContainerType;
 import org.apache.camel.karavan.model.PodContainerStatus;
 import org.jboss.logging.Logger;
 
@@ -92,7 +93,7 @@ public class PodEventHandler implements ResourceEventHandler<Pod> {
             PodContainerStatus cs = new PodContainerStatus();
             cs.setProjectId(projectId);
             cs.setContainerName(pod.getMetadata().getName());
-            cs.setEnv(kubernetesStatusService.environment);
+            cs.setEnv(kubernetesStatusService.getEnvironment());
 
             eventBus.publish(POD_CONTAINER_DELETED, JsonObject.mapFrom(cs));
         } catch (Exception e) {
@@ -108,9 +109,9 @@ public class PodEventHandler implements ResourceEventHandler<Pod> {
         String runtime = deployment != null ? deployment : pod.getMetadata().getLabels().get(LABEL_CAMEL_RUNTIME);
         String type = pod.getMetadata().getLabels().get(LABEL_TYPE);
         String commit = pod.getMetadata().getAnnotations().get(ANNOTATION_COMMIT);
-        PodContainerStatus.ContainerType containerType = deployment != null
-                ? PodContainerStatus.ContainerType.project
-                : (type != null ? PodContainerStatus.ContainerType.valueOf(type) : PodContainerStatus.ContainerType.unknown);
+        ContainerType containerType = deployment != null
+                ? ContainerType.project
+                : (type != null ? ContainerType.valueOf(type) : ContainerType.unknown);
         try {
             boolean ready = pod.getStatus().getConditions().stream().anyMatch(c -> c.getType().equals("Ready") && c.getStatus().equals("True"));
             boolean running = Objects.equals(pod.getStatus().getPhase(), "Running");
@@ -130,11 +131,12 @@ public class PodEventHandler implements ResourceEventHandler<Pod> {
                     pod.getMetadata().getName(),
                     List.of(PodContainerStatus.Command.delete),
                     projectId,
-                    kubernetesStatusService.environment,
+                    kubernetesStatusService.getEnvironment(),
                     containerType,
                     requestMemory + " / " + limitMemory,
                     requestCpu + " / " + limitCpu,
                     creationTimestamp);
+            status.setLabels(pod.getMetadata().getLabels());
             status.setImage(pod.getSpec().getContainers().get(0).getImage());
             status.setCommit(commit);
             status.setContainerId(pod.getMetadata().getName());
