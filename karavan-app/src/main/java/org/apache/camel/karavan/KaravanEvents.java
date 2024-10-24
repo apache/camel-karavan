@@ -42,6 +42,8 @@ public class KaravanEvents {
     public static final String CMD_RELOAD_PROJECT_CODE = "CMD_RELOAD_PROJECT_CODE";
     public static final String CMD_DELETE_CONTAINER = "CMD_DELETE_CONTAINER";
 
+    public static final String CMD_RESTART_INFORMERS = "CMD_RESTART_INFORMERS";
+
     public static final String POD_CONTAINER_UPDATED = "POD_CONTAINER_UPDATED";
     public static final String POD_CONTAINER_DELETED = "POD_CONTAINER_DELETED";
 

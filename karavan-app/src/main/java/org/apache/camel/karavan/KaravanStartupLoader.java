@@ -107,6 +107,7 @@ public class KaravanStartupLoader implements HealthCheck {
                 addKameletsProject();
                 addTemplatesProject();
                 addConfigurationProject();
+                addServicesProject();
             }
             ready.set(true);
         } else {
@@ -128,6 +129,8 @@ public class KaravanStartupLoader implements HealthCheck {
                     project = new Project(Project.Type.kamelets.name(), "Custom Kamelets", repo.getCommitId(), repo.getLastCommitTimestamp(), Project.Type.kamelets);
                 } else if (folderName.equals(Project.Type.configuration.name())) {
                     project = new Project(Project.Type.configuration.name(), "Configuration", repo.getCommitId(), repo.getLastCommitTimestamp(), Project.Type.configuration);
+                } else if (folderName.equals(Project.Type.services.name())) {
+                    project = new Project(Project.Type.services.name(), "Dev Services", repo.getCommitId(), repo.getLastCommitTimestamp(), Project.Type.services);
                 } else {
                     project = projectService.getProjectFromRepo(repo);
                 }
@@ -207,6 +210,33 @@ public class KaravanStartupLoader implements HealthCheck {
             }
         } catch (Exception e) {
             LOGGER.error("Error during configuration project creation", e);
+        }
+    }
+
+    void addServicesProject() {
+        try {
+            Project services = karavanCache.getProject(Project.Type.services.name());
+            if (services == null) {
+                LOGGER.info("Add dev services project");
+                services = new Project(Project.Type.services.name(), "Dev services", "", Instant.now().toEpochMilli(), Project.Type.services);
+                karavanCache.saveProject(services, true);
+
+                codeService.getDevServicesFiles().forEach((name, value) -> {
+                    ProjectFile file = new ProjectFile(name, value, Project.Type.services.name(), Instant.now().toEpochMilli());
+                    karavanCache.saveProjectFile(file, false, true);
+                });
+            } else {
+                codeService.getDevServicesFiles().forEach((name, value) -> {
+                    ProjectFile f = karavanCache.getProjectFile(Project.Type.services.name(), name);
+                    if (f == null) {
+                        LOGGER.info("Add new service " + name);
+                        ProjectFile file = new ProjectFile(name, value, Project.Type.services.name(), Instant.now().toEpochMilli());
+                        karavanCache.saveProjectFile(file, false, true);
+                    }
+                });
+            }
+        } catch (Exception e) {
+            LOGGER.error("Error during services project creation", e);
         }
     }
 }
