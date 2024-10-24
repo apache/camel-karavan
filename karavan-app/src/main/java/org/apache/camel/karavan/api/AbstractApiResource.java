@@ -35,12 +35,15 @@ public class AbstractApiResource {
     public HashMap<String, String> getIdentity(SecurityContext securityContext) {
         var identity = new HashMap<String, String>();
         identity.put("email", "karavan@test.org");
+        identity.put("name", "karavan");
 
         if (securityContext != null && securityContext.getUserPrincipal() != null && securityContext.getUserPrincipal() instanceof DefaultJWTCallerPrincipal principal) {
-            identity.put("name", principal.getName());
+            if (principal.getName() != null) {
+                identity.put("name", principal.getName());
+            }
             identity.put("email", principal.getClaim(Claims.email));
         } else if (securityIdentity != null) {
-            if (securityIdentity.getPrincipal() != null) {
+            if (securityIdentity.getPrincipal() != null && securityIdentity.getPrincipal().getName() != null) {
                 identity.put("name", securityIdentity.getPrincipal().getName());
             }
             if (securityIdentity.getAttributes().get("email") != null && !securityIdentity.getAttributes().get("email").toString().isBlank()) {

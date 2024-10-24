@@ -29,6 +29,8 @@ import org.apache.camel.karavan.service.ProjectService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
+import java.util.Map;
+
 import static org.apache.camel.karavan.KaravanEvents.CMD_DELETE_CONTAINER;
 import static org.apache.camel.karavan.KaravanEvents.CMD_RELOAD_PROJECT_CODE;
 
@@ -55,7 +57,7 @@ public class DevModeResource {
     @Path("/{jBangOptions}")
     public Response runProjectWithJBangOptions(Project project, @PathParam("jBangOptions") String jBangOptions) {
         try {
-            String containerName = projectService.runProjectWithJBangOptions(project, jBangOptions);
+            String containerName = projectService.runProjectWithJBangOptions(project, jBangOptions, Map.of(), Map.of());
             if (containerName != null) {
                 return Response.ok(containerName).build();
             } else {
