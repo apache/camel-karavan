@@ -7,9 +7,30 @@
       parameters:
         timerName: name
       steps:
-        - doTry:
-            id: doTry-258c
-            doCatch:
-              - id: doCatch-32ac
-                exception:
-                  - java.lang.ArrayIndexOutOfBoundsException
+        - toD:
+            id: to-55df
+            description: Send file
+            uri: file
+            parameters:
+              directoryName: ${variable.dir}
+              fileName: ${variable.fileName}
+        - filter:
+            id: filter-6e45
+            expression:
+              groovy:
+                id: groovy-672e
+        - choice:
+            id: choice-c008
+            when:
+              - id: when-5e7a
+                expression:
+                  groovy:
+                    id: groovy-d744
+            otherwise:
+              id: otherwise-a012
+        - to:
+            id: to-5276
+            uri: aws-bedrock-agent-runtime
+        - toD:
+            id: to-f1dd
+            uri: sql
