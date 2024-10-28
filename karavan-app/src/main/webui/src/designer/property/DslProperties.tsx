@@ -191,7 +191,7 @@ export function DslProperties(props: Props) {
                 }
                 {selectedStep && propertiesAdvanced.length > 0 &&
                     <ExpandableSection
-                        toggleText={'EIP advanced properties'}
+                        toggleText={'Processors advanced properties'}
                         onToggle={(_event, isExpanded) => setShowAdvanced(!showAdvanced)}
                         isExpanded={getShowExpanded()}>
                         <div className="parameters">

@@ -19,8 +19,8 @@
 }
 
 .karavan .tools-section {
-    padding-top: 0px;
-    padding-bottom: 0px;
+    padding-top: 0;
+    padding-bottom: 0;
     padding-right: 0;
     border-bottom: 1px solid #eee;
     background-color: white;

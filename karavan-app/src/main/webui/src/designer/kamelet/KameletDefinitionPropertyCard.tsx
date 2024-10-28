@@ -72,7 +72,7 @@ export function KameletDefinitionPropertyCard(props: Props) {
 
 
     function getPropertyField(field: string, label: string, isRequired: boolean, span: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12) {
-       return (<KameletInput elementKey={key + field} label={label} span={span} value={getPropertyValue(field)} setValue={(value: string) => setPropertyValue(field, value)} type='text' isRequired={isRequired}/>);
+        return (<KameletInput elementKey={key + field} label={label} span={span} value={getPropertyValue(field)} setValue={(value: string) => setPropertyValue(field, value)} type='text' isRequired={isRequired}/>);
     }
 
     function getPropertyTypeField(field: string, label: string, isRequired: boolean, span: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12) {
@@ -214,6 +214,7 @@ export function KameletDefinitionPropertyCard(props: Props) {
 
     function deleteProperty() {
         if (integration.spec.definition?.properties) {
+            integration.spec.definition.required = integration.spec.definition.required.filter(r => r !== key);
             delete integration.spec.definition.properties[key];
             setIntegration(integration, true);
         }

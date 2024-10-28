@@ -470,7 +470,6 @@ export function DslPropertyField(props: Props) {
     }
 
     function showCode(name: string, javaType: string) {
-        console.log(name, javaType)
         const {property} = props;
         InfrastructureAPI.onGetCustomCode?.(name, property.javaType).then(value => {
             if (value === undefined) {
@@ -487,10 +486,11 @@ export function DslPropertyField(props: Props) {
     function getJavaTypeGeneratedInput(property: PropertyMeta, value: any) {
         const {dslLanguage} = props;
         const selectOptions: SelectOptionProps[] = [];
+        const allBeansByJavaInterface = SpiBeanApi.findByInterfaceType(property.javaType);
+        const allBeansJavaTypes: (string | undefined)[] = allBeansByJavaInterface.map(b => b.javaType).filter(b => b !== undefined) || [];
         if (beans) {
-            console.log(beans)
-            selectOptions.push(...beans.map((bean) => {
-                return {value: beanPrefix + bean.name, children: bean.name}
+            selectOptions.push(...beans.filter(bean => allBeansJavaTypes.includes(bean.type.replace('#class:', ''))).map((bean) => {
+                return {value: beanPrefix + bean.name, children: bean.name, description: bean.name}
             }));
             selectOptions.push(...SpiBeanApi.findByInterfaceTypeSimple(property.javaType).map((bean) => {
                     return {
@@ -499,9 +499,9 @@ export function DslPropertyField(props: Props) {
                 })
             );
         }
-        if (selectOptions.filter(o => o.value === value?.toString()).length === 0) {
+        if (value !== undefined && value.length > 0 && selectOptions.filter(o => o.value === value?.toString()).length === 0) {
             selectOptions.push({
-                value: value, children: value, description: 'Custom Bean'
+                value: value, children: value, description: 'Custom Java Class'
             })
         }
         return (

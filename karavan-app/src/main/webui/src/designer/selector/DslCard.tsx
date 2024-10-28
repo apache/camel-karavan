@@ -41,7 +41,7 @@ export function DslCard (props: Props) {
     }
 
     const {dsl, index} = props;
-    const navigation = dsl.navigation === 'eip' ? 'EIP' : capitalize(dsl.navigation);
+    const navigation = dsl.navigation === 'eip' ? 'Processor' : capitalize(dsl.navigation);
     const labels = dsl.labels !== undefined ? dsl.labels.split(",").filter(label => label !== 'eip') : [];
     const isCustom = KameletApi.getCustomKameletNames().includes(dsl.name);
     const isRemote =  dsl.remote;

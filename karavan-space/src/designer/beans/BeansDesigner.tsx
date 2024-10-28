@@ -104,7 +104,7 @@ export function BeansDesigner() {
         return (
             <DrawerPanelContent isResizable
                                 hasNoBorder
-                                defaultSize={'400px'}
+                                defaultSize={'800px'}
                                 maxSize={'800px'}
                                 minSize={'400px'}>
                 <DslProperties designerType={'beans'}/>

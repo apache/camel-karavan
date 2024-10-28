@@ -268,7 +268,8 @@ export function getDesignerIcon(icon: string): React.JSX.Element {
             viewBox="0 0 32 32"
         >
             <title>{"application"}</title>
-            <path d="M16 18H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2ZM6 6v10h10V6ZM26 12v4h-4v-4h4m0-2h-4a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-4a2 2 0 0 0-2-2ZM26 22v4h-4v-4h4m0-2h-4a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-4a2 2 0 0 0-2-2ZM16 22v4h-4v-4h4m0-2h-4a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-4a2 2 0 0 0-2-2Z" />
+            <path
+                d="M16 18H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2ZM6 6v10h10V6ZM26 12v4h-4v-4h4m0-2h-4a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-4a2 2 0 0 0-2-2ZM26 22v4h-4v-4h4m0-2h-4a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-4a2 2 0 0 0-2-2ZM16 22v4h-4v-4h4m0-2h-4a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-4a2 2 0 0 0-2-2Z"/>
             <path
                 d="M0 0h32v32H0z"
                 data-name="&lt;Transparent Rectangle&gt;"
@@ -277,7 +278,7 @@ export function getDesignerIcon(icon: string): React.JSX.Element {
                 }}
             />
         </svg>
-        )
+    )
     if (icon === 'code') return (
         <svg
 
@@ -307,7 +308,8 @@ export function getDesignerIcon(icon: string): React.JSX.Element {
     if (icon === 'route') return (
         <svg className="top-icon" width="32px" height="32px" viewBox="0 0 32 32" id="icon">
             <title>{"category"}</title>
-            <path d="M27 22.141V18a2 2 0 0 0-2-2h-8v-4h2a2.002 2.002 0 0 0 2-2V4a2.002 2.002 0 0 0-2-2h-6a2.002 2.002 0 0 0-2 2v6a2.002 2.002 0 0 0 2 2h2v4H7a2 2 0 0 0-2 2v4.142a4 4 0 1 0 2 0V18h8v4.142a4 4 0 1 0 2 0V18h8v4.141a4 4 0 1 0 2 0ZM13 4h6l.001 6H13ZM8 26a2 2 0 1 1-2-2 2.002 2.002 0 0 1 2 2Zm10 0a2 2 0 1 1-2-2 2.003 2.003 0 0 1 2 2Zm8 2a2 2 0 1 1 2-2 2.002 2.002 0 0 1-2 2Z" />
+            <path
+                d="M27 22.141V18a2 2 0 0 0-2-2h-8v-4h2a2.002 2.002 0 0 0 2-2V4a2.002 2.002 0 0 0-2-2h-6a2.002 2.002 0 0 0-2 2v6a2.002 2.002 0 0 0 2 2h2v4H7a2 2 0 0 0-2 2v4.142a4 4 0 1 0 2 0V18h8v4.142a4 4 0 1 0 2 0V18h8v4.141a4 4 0 1 0 2 0ZM13 4h6l.001 6H13ZM8 26a2 2 0 1 1-2-2 2.002 2.002 0 0 1 2 2Zm10 0a2 2 0 1 1-2-2 2.003 2.003 0 0 1 2 2Zm8 2a2 2 0 1 1 2-2 2.002 2.002 0 0 1-2 2Z"/>
             <path
                 d="M0 0h32v32H0z"
                 data-name="&lt;Transparent Rectangle&gt;"
@@ -382,7 +384,7 @@ export function getDesignerIcon(icon: string): React.JSX.Element {
                   height="32"/>
         </svg>)
     if (icon === 'routeConfiguration') return (
-        <svg className="top-icon" width="32" height="32" viewBox="0 0 32 32">     
+        <svg className="top-icon" width="32" height="32" viewBox="0 0 32 32">
             <path
                 d="M28.83 21.17L25 17.37l.67-.67a1 1 0 000-1.41l-6-6a1 1 0 00-1.41 0l-.79.79-6.76-6.79a1 1 0 00-1.41 0l-4 4-.12.15-4 6a1 1 0 00.12 1.26l3 3a1 1 0 001.42 0L10 13.41l2.09 2.09-4.8 4.79a1 1 0 000 1.41l2 2a1 1 0 00.71.3 1 1 0 00.52-.15l4.33-2.6 2.44 2.45a1 1 0 001.41 0l.67-.7 3.79 3.83a4 4 0 005.66-5.66zM10 10.58l-5 5-1.71-1.71 3.49-5.24L10 5.41l6.09 6.09-2.59 2.58zm8 11l-2.84-2.84-5 3-.74-.74L19 11.41 23.59 16zm9.42 3.83a2 2 0 01-2.83 0l-3.8-3.79 2.83-2.83 3.8 3.79a2 2 0 010 2.83z"></path>
             <path
@@ -492,4 +494,42 @@ export class ConceptIcon extends React.Component<any> {
             </svg>
         )
     }
+}
+
+export function JKubeIcon(className?: string) {
+    return (
+        <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 59.799997 68.099998"
+            className={className ? className + " icon" : "icon"}
+        >
+            <style id="style1" type="text/css">
+                {".jkube-icon-outer{fill-rule:evenodd;clip-rule:evenodd;fill:#0a4e9b}"}
+            </style>
+            <g id="g8" transform="translate(-9.2 -8.3)">
+                <path
+                    id="path6"
+                    d="M9.3 59.8c.9.8 2.5 1.5 3.5 2.1l21.6 12.5c1 .6 2.5 1.6 3.6 2v-6.3L14.8 56.6V29.8c-1.6-.4-4.2-2.7-5.6-2.9Z"
+                    className="jkube-icon-outer"
+                />
+                <path
+                    id="path7"
+                    d="m69 59.8-.1-33c-1.5.5-3.9 2.6-5.5 3v26.9c-.8.8-4.9 2.9-6.1 3.6l-12.3 7c-5.1 3-4.8 2-4.8 4.9l.1 4.2z"
+                    className="jkube-icon-outer"
+                />
+                <path
+                    id="path8"
+                    d="M15.9 28c1.9-.7 4.3-2.4 6-3.4l5.7-3.3c2.1-1.2 3.7-2.2 5.8-3.4 1.7-.9 4.1-2.6 5.7-3.2l14.3 8.2c2.4 1.4 4.7 2.7 7.2 4.1 2.1 1.2 1.6 1 3.7-.1 1-.6 2.7-1.4 3.4-2.1-.7-.7-28.3-16.5-28.5-16.5-.2 0-27.8 15.7-28.7 16.6Z"
+                    className="jkube-icon-outer"
+                />
+            </g>
+            <path
+                id="path9"
+                d="M30 9.5 8.6 21.8v24.7L30 58.8l21.4-12.3V21.8Zm7.4 29c0 1.8-.5 3.6-1.4 5.1-.9 1.6-2.2 2.8-3.8 3.7-1.6.9-3.3 1.4-5.2 1.4-1.9 0-3.6-.5-5.2-1.4-1.6-.9-2.9-2.2-3.8-3.7-.9-1.6-1.4-3.3-1.4-5.1h6.8c0 .9.3 1.7 1 2.4s1.5 1 2.5 1 1.8-.3 2.5-1 1-1.5 1-2.4V28.2H24v-6.8h13.3v17.1z"
+                style={{
+                    fill: "#0a4e9b",
+                }}
+            />
+        </svg>
+    )
 }
