@@ -177,6 +177,7 @@ export function usePropertiesHook(designerType: 'routes' | 'rest' | 'beans' = 'r
     }
 
     const convertStep = (step: CamelElement, targetDslName: string) => {
+        console.log(targetDslName)
         try {
             // setSelectedStep(undefined);
             if (targetDslName === 'ChoiceDefinition' && step.dslName === 'FilterDefinition') {

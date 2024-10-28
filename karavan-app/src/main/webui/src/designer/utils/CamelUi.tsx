@@ -728,7 +728,9 @@ export class CamelUi {
             case 'AggregateDefinition':
                 return <AggregateIcon/>;
             case 'ToDefinition':
-                return <ToIcon/>;
+                return ToIcon();
+            case 'ToDynamicDefinition':
+                return ToIcon('dynamic');
             case 'PollDefinition':
                 return <PollIcon/>;
             case 'ChoiceDefinition' :

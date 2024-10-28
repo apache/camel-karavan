@@ -182,21 +182,16 @@ export class CamelUtil {
         const uri: string = (element as any).uri;
         const name = ComponentApi.getComponentNameFromUri(uri);
 
-        if (dslName === 'ToDynamicDefinition') {
-            const component = ComponentApi.findByName(dslName);
-            return component ? ComponentApi.getComponentProperties(component?.component.name, 'producer') : [];
+        if (name) {
+            const component = ComponentApi.findByName(name);
+            return component
+                ? ComponentApi.getComponentProperties(
+                    component?.component.name,
+                    element.dslName === 'FromDefinition' ? 'consumer' : 'producer',
+                )
+                : [];
         } else {
-            if (name) {
-                const component = ComponentApi.findByName(name);
-                return component
-                    ? ComponentApi.getComponentProperties(
-                        component?.component.name,
-                        element.dslName === 'FromDefinition' ? 'consumer' : 'producer',
-                    )
-                    : [];
-            } else {
-                return [];
-            }
+            return [];
         }
     };
 

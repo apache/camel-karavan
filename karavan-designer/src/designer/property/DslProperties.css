@@ -24,13 +24,21 @@
     width: 100%;
     display: flex;
     flex-direction: row;
+    /*justify-content: space-between;*/
+    gap: 10px;
 }
 
 .karavan .properties .headers .top h1 {
-    width: 100%;
+    /*width: 100%;*/
     margin-top: auto;
     margin-bottom: auto;
+    text-wrap: nowrap;
 }
+
+.karavan .properties .headers .top .pf-v5-c-switch {
+    column-gap: 6px;
+}
+
 
 .karavan .properties .footer {
     height: 100%;

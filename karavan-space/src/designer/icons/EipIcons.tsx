@@ -50,14 +50,14 @@ export function AggregateIcon() {
     );
 }
 
-export function ToIcon() {
+export function ToIcon(classname: string = '') {
     return (
         <svg
             xmlns="http://www.w3.org/2000/svg"
             width={800}
             height={800}
             viewBox="0 0 32 32"
-            className="icon"
+            className={classname ? "icon " + classname : "icon"}
         >
             <path d="m12.103 11.923 2.58 2.59H2.513v2h12.17l-2.58 2.59 1.41 1.41 5-5-5-5z"/>
             <path

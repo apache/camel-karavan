@@ -54,6 +54,15 @@
     fill: transparent;
 }
 
+.karavan .dsl-page .graph .connections .path-dynamic {
+    stroke-dasharray: 5;
+    -webkit-animation: dashdrawR 0.5s linear infinite;
+    animation: dashdrawR 0.5s linear infinite;
+    stroke: var(--pf-v5-global--Color--200);
+    stroke-width: 1;
+    fill: transparent;
+}
+
 .karavan .dsl-page .graph .connections .path-poll {
     stroke-dasharray: 5;
     -webkit-animation: dashdrawL 0.5s linear infinite;
