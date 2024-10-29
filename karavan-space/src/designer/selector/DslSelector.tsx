@@ -26,7 +26,7 @@ import {
     TextInputGroup,
     TextInputGroupUtilities, TextVariants, Text,
     ToggleGroup,
-    ToggleGroupItem, TextContent, Badge, TextInput, Skeleton
+    ToggleGroupItem, TextContent, Badge, TextInput, Skeleton, Bullseye, Card
 } from '@patternfly/react-core';
 import './DslSelector.css';
 import {CamelUi} from "../utils/CamelUi";
@@ -65,11 +65,13 @@ export function DslSelector(props: Props) {
     const [elements, setElements] = useState<DslMetaModel[]>([]);
     const [preferredElements, setPreferredElements] = useState<string[]>([]);
     const [ready, setReady] = useState<boolean>(false);
+    const [pageSize, setPageSize] = useState<number>(100);
 
     useEffect(() => {
         setAllElements();
         setPreferences();
         setReady(true);
+        setPageSize(100);
     }, []);
 
     function setAllElements() {
@@ -246,6 +248,9 @@ export function DslSelector(props: Props) {
     const cCount = filteredElements.filter(e => e.navigation === 'component').length;
     const kCount = filteredElements.filter(e => e.navigation === 'kamelet').length;
 
+    const fElementCount = filteredElements.length;
+    const moreElements = fElementCount > pageSize ? fElementCount - pageSize : 0;
+
     const fastElements: DslMetaModel[] = elements
         .filter((d: DslMetaModel) => {
             if (selectedToggles.includes('eip') && d.navigation === 'eip') {
@@ -282,9 +287,16 @@ export function DslSelector(props: Props) {
                     )}
                 </Gallery>
                 <Gallery key={"gallery"} hasGutter className="dsl-gallery" minWidths={{default: '200px'}}>
-                    {showSelector && filteredElements.map((dsl: DslMetaModel, index: number) =>
+                    {showSelector && filteredElements.slice(0, pageSize).map((dsl: DslMetaModel, index: number) =>
                         <DslCard dsl={dsl} index={index} onDslSelect={selectDsl}/>
                     )}
+                    {moreElements > 0 &&
+                        <Card isCompact isPlain isFlat isRounded style={{minHeight: '140px'}}>
+                            <Bullseye>
+                                <Button variant='link' onClick={_ => setPageSize(pageSize + 10)}>{`${moreElements} more`}</Button>
+                            </Bullseye>
+                        </Card>
+                    }
                 </Gallery>
             </PageSection>
         </Modal>
