@@ -38,9 +38,6 @@ public class ProjectFileResource {
     @Inject
     KaravanCache karavanCache;
 
-    @Inject
-    CodeService codeService;
-
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/{projectId}")
@@ -129,16 +126,19 @@ public class ProjectFileResource {
 
     @POST
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/copy/{project}")
-    public Response copy(@PathParam("project") String project, JsonObject copy) throws Exception {
-        var projectId = URLDecoder.decode(project, StandardCharsets.UTF_8);
-        var from = copy.getString("from");
-        var to = copy.getString("to");
-        var tofile = karavanCache.getProjectFile(projectId, to);
-        if (tofile == null) {
-            var file = karavanCache.getProjectFile(projectId, from);
+    @Path("/copy")
+    public Response copy(JsonObject copy) throws Exception {
+        var fromProjectId = copy.getString("fromProjectId");
+        var fromFilename = copy.getString("fromFilename");
+        var toProjectId = copy.getString("toProjectId");
+        var toFilename = copy.getString("toFilename");
+        var overwrite = copy.getBoolean("overwrite", false);
+        var tofile = karavanCache.getProjectFile(toProjectId, toFilename);
+        if (overwrite || tofile == null) {
+            var file = karavanCache.getProjectFile(fromProjectId, fromFilename);
             var copyFile = file.copy();
-            copyFile.setName(to);
+            copyFile.setProjectId(toProjectId);
+            copyFile.setName(toFilename);
             karavanCache.saveProjectFile(copyFile, false, false);
             return Response.ok().build();
         } else {
