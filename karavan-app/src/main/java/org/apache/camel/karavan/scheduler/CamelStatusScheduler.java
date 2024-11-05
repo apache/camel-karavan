@@ -52,25 +52,25 @@ public class CamelStatusScheduler {
     @Scheduled(every = "{karavan.camel.status.interval}", concurrentExecution = Scheduled.ConcurrentExecution.SKIP)
     public void collectCamelStatuses() {
         LOGGER.debug("Collect Camel Statuses");
-        if (ConfigService.inKubernetes()) {
-            karavanCache.getPodContainerStatuses(environment).stream()
-                    .filter(cs -> Objects.equals(cs.getLabels().get(LABEL_KUBERNETES_RUNTIME), CAMEL_PREFIX))
-                    .filter(cs -> Objects.equals(cs.getCamelRuntime(), KaravanConstants.CamelRuntime.CAMEL_MAIN.getValue()))
-                    .forEach(cs -> {
-                        CamelStatusRequest csr = new CamelStatusRequest(cs.getProjectId(), cs.getContainerName());
-                        eventBus.publish(CMD_COLLECT_CAMEL_STATUS,
-                                JsonObject.mapFrom(Map.of("containerStatus", cs, "camelStatusRequest", csr))
-                        );
-                    });
-        } else {
-            karavanCache.getPodContainerStatuses(environment).stream()
-                    .filter(cs -> Objects.equals(cs.getCamelRuntime(), KaravanConstants.CamelRuntime.CAMEL_MAIN.getValue()))
-                    .forEach(cs -> {
-                        CamelStatusRequest csr = new CamelStatusRequest(cs.getProjectId(), cs.getContainerName());
-                        eventBus.publish(CMD_COLLECT_CAMEL_STATUS,
-                                JsonObject.mapFrom(Map.of("containerStatus", cs, "camelStatusRequest", csr))
-                        );
-                    });
-        }
+         if (ConfigService.inKubernetes()) {
+             karavanCache.getPodContainerStatuses(environment).stream()
+                     .filter(cs -> Objects.equals(cs.getLabels().get(LABEL_KUBERNETES_RUNTIME), CAMEL_PREFIX))
+                     .filter(cs -> Objects.equals(cs.getCamelRuntime(), KaravanConstants.CamelRuntime.CAMEL_MAIN.getValue()))
+                     .forEach(cs -> {
+                         CamelStatusRequest csr = new CamelStatusRequest(cs.getProjectId(), cs.getContainerName());
+                         eventBus.publish(CMD_COLLECT_CAMEL_STATUS,
+                                 JsonObject.mapFrom(Map.of("containerStatus", cs, "camelStatusRequest", csr))
+                         );
+                     });
+         } else {
+             karavanCache.getPodContainerStatuses(environment).stream()
+                     .filter(cs -> Objects.equals(cs.getCamelRuntime(), KaravanConstants.CamelRuntime.CAMEL_MAIN.getValue()))
+                     .forEach(cs -> {
+                         CamelStatusRequest csr = new CamelStatusRequest(cs.getProjectId(), cs.getContainerName());
+                         eventBus.publish(CMD_COLLECT_CAMEL_STATUS,
+                                 JsonObject.mapFrom(Map.of("containerStatus", cs, "camelStatusRequest", csr))
+                         );
+                     });
+         }
     }
 }

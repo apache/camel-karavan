@@ -21,6 +21,7 @@ import io.fabric8.kubernetes.api.model.ContainerBuilder;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.Quantity;
 import io.fabric8.kubernetes.api.model.ResourceRequirements;
+import io.fabric8.kubernetes.api.model.apps.Deployment;
 import io.fabric8.kubernetes.client.informers.ResourceEventHandler;
 import io.vertx.core.json.JsonObject;
 import io.vertx.mutiny.core.eventbus.EventBus;
@@ -103,15 +104,21 @@ public class PodEventHandler implements ResourceEventHandler<Pod> {
 
 
     public PodContainerStatus getPodStatus(Pod pod) {
-        String deployment = pod.getMetadata().getLabels().get("app");
-        String projectId = deployment != null ? deployment : pod.getMetadata().getLabels().get(LABEL_PROJECT_ID);
-        String camel = deployment != null ? deployment : pod.getMetadata().getLabels().get(LABEL_KUBERNETES_RUNTIME);
-        String runtime = deployment != null ? deployment : pod.getMetadata().getLabels().get(LABEL_CAMEL_RUNTIME);
+        String appName = pod.getMetadata().getLabels().get("app");
+        String projectId = pod.getMetadata().getLabels().get(LABEL_PROJECT_ID);
+        String camel = pod.getMetadata().getLabels().get(LABEL_KUBERNETES_RUNTIME);
+        String runtime = pod.getMetadata().getLabels().get(LABEL_CAMEL_RUNTIME);
         String type = pod.getMetadata().getLabels().get(LABEL_TYPE);
         String commit = pod.getMetadata().getAnnotations().get(ANNOTATION_COMMIT);
-        ContainerType containerType = deployment != null
-                ? ContainerType.project
-                : (type != null ? ContainerType.valueOf(type) : ContainerType.unknown);
+        if (appName != null) {
+            Deployment deployment = kubernetesStatusService.getDeployment(appName);
+             projectId = deployment.getMetadata().getName();
+             camel = deployment.getMetadata().getLabels().get(LABEL_KUBERNETES_RUNTIME);
+             runtime = deployment.getMetadata().getLabels().get(LABEL_CAMEL_RUNTIME);
+             type = deployment.getMetadata().getLabels().get(LABEL_TYPE);
+             commit = deployment.getMetadata().getAnnotations().get(ANNOTATION_COMMIT);
+        }
+        ContainerType containerType = type != null ? ContainerType.valueOf(type) : ContainerType.unknown;
         try {
             boolean ready = pod.getStatus().getConditions().stream().anyMatch(c -> c.getType().equals("Ready") && c.getStatus().equals("True"));
             boolean running = Objects.equals(pod.getStatus().getPhase(), "Running");

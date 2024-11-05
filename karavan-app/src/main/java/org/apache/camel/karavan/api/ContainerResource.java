@@ -70,7 +70,7 @@ public class ContainerResource {
     @Produces(MediaType.APPLICATION_JSON)
     public List<PodContainerStatus> getAllContainerStatuses() throws Exception {
         return karavanCache.getPodContainerStatuses().stream()
-                .sorted(Comparator.comparing(PodContainerStatus::getProjectId))
+                .sorted(Comparator.comparing(PodContainerStatus::getProjectId, Comparator.nullsLast(String::compareTo)))
                 .collect(Collectors.toList());
     }
 

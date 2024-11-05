@@ -253,6 +253,10 @@ public class KaravanCache {
         return getPodContainerStatus(GroupedKey.create(projectId, env, containerName));
     }
 
+    public PodContainerStatus getPodContainerStatus(String containerName, String env) {
+        return getPodContainerStatuses(env).stream().filter(el -> Objects.equals(el.getContainerName(), containerName)).findFirst().orElse(null);
+    }
+
     public PodContainerStatus getPodContainerStatus(String key) {
         return podContainerStatuses.get(key);
     }

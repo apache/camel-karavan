@@ -175,7 +175,6 @@ public class KubernetesService {
                 .withProtocol("TCP")
                 .build();
 
-
         List<VolumeMount> volumeMounts = new ArrayList<>();
         volumeMounts.add(new VolumeMountBuilder().withName(BUILD_SCRIPT_VOLUME_NAME).withMountPath("/karavan/builder").withReadOnly(true).build());
         if (hasDockerConfigSecret) {
@@ -262,6 +261,9 @@ public class KubernetesService {
             list.getItems().forEach(item -> {
                 if (labels != null ) {
                     item.getMetadata().getLabels().putAll(labels);
+                    if (item instanceof Deployment deployment) {
+                        deployment.getSpec().getTemplate().getMetadata().getLabels().putAll(labels);
+                    }
                 }
                 client.resource(item).inNamespace(getNamespace()).serverSideApply();
             });
