@@ -99,16 +99,12 @@ export function KameletDefinitionPropertyCard(props: Props) {
         const i = CamelUtil.cloneIntegration(integration);
         if (i.spec.definition && integration.spec.definition?.properties[key]) {
             const enums: string [] = i.spec.definition.properties[key].enum;
-            console.log(enums)
             if (enums && Array.isArray(enums)) {
-                console.log("isArray")
                 const from = enums.findIndex(e => source);
                 const to = enums.findIndex(e => dest);
                 if (from > -1 && to > -1) {
-                    console.log("exchange");
                     [enums[from], enums[to]] = [enums[to], enums[from]];
                     i.spec.definition.properties[key].enum = enums;
-                    console.log("i.spec.definition.properties[key].enum", i.spec.definition.properties[key].enum);
                     setIntegration(i, true);
                 }
             }

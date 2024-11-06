@@ -183,7 +183,7 @@ export function DslElement(props: Props) {
         } else {
             children = children.filter(child => child.className === 'FromDefinition')
         }
-        if (step.dslName === 'CatchDefinition') { // exception
+        if (['CatchDefinition', 'OnExceptionDefinition', 'OnCompletionDefinition', 'Resilience4jConfigurationDefinition'].includes(step.dslName)) { // exception
             children = children.filter(value => value.name !== 'onWhen')
         }
         return (

@@ -107,7 +107,7 @@ export class CamelDefinitionYaml {
             if (object.constructors && CamelDefinitionYaml.isEmptyObject(object.constructors)) {
                 delete object.constructors;
             }
-        } else if (object.dslName === 'CatchDefinition' && object?.onWhen?.stepName !== undefined) {
+        } else if (['CatchDefinition', 'OnExceptionDefinition', 'OnCompletionDefinition', 'Resilience4jConfigurationDefinition'].includes(object.dslName) && object?.onWhen?.stepName !== undefined) {
             object.onWhen.stepName = 'onWhen';  // https://github.com/apache/camel-karavan/issues/1420
         }
 

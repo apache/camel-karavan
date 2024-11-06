@@ -1,36 +1,28 @@
 - route:
-    id: route-8a40
-    nodePrefixId: route-78f
+    id: route-46e9
+    nodePrefixId: route-5ec
     from:
-      id: from-674b
+      id: from-f789
       uri: timer
       parameters:
-        timerName: name
+        timerName: test
       steps:
-        - toD:
-            id: to-55df
-            description: Send file
-            uri: file
-            parameters:
-              directoryName: ${variable.dir}
-              fileName: ${variable.fileName}
-        - filter:
-            id: filter-6e45
+        - log:
+            id: log-eafe
+            message: ${body}
+- routeConfiguration:
+    onException:
+      - onException:
+          id: onException-6e74
+          exception:
+            - java.lang.NullPointerException
+          onWhen:
+            id: when-5940
             expression:
               groovy:
-                id: groovy-672e
-        - choice:
-            id: choice-c008
-            when:
-              - id: when-5e7a
-                expression:
-                  groovy:
-                    id: groovy-d744
-            otherwise:
-              id: otherwise-a012
-        - to:
-            id: to-5276
-            uri: aws-bedrock-agent-runtime
-        - toD:
-            id: to-f1dd
-            uri: sql
+                id: groovy-d30d
+                expression: "true"
+          steps:
+            - log:
+                id: log-eae0
+                message: error
