@@ -22,7 +22,7 @@ import {
     TextVariants,
     ExpandableSection,
     Button,
-    Tooltip, ToggleGroupItem, ToggleGroup, TextInput,
+    Tooltip, ToggleGroupItem, ToggleGroup, TextInputGroup, TextInputGroupMain, TextInputGroupUtilities,
 } from '@patternfly/react-core';
 import '../karavan.css';
 import './DslProperties.css';
@@ -41,6 +41,7 @@ import {CamelDisplayUtil} from "karavan-core/lib/api/CamelDisplayUtil";
 import {PropertiesHeader} from "./PropertiesHeader";
 import {PropertyUtil} from "./property/PropertyUtil";
 import {usePropertiesStore} from "./PropertyStore";
+import TimesIcon from "@patternfly/react-icons/dist/esm/icons/times-icon";
 
 interface Props {
     designerType: 'routes' | 'rest' | 'beans'
@@ -156,11 +157,22 @@ export function DslProperties(props: Props) {
                         onChange={(_, selected) => setChangedOnly(selected)}
                     />
                 </ToggleGroup>
-                <TextInput
-                    placeholder="filter by name"
-                    value={propertyFilter}
-                    onChange={(_, value) => setPropertyFilter(value)}
-                />
+                <TextInputGroup>
+                    <TextInputGroupMain
+                        value={propertyFilter}
+                        placeholder="filter by name"
+                        type="text"
+                        autoComplete={"off"}
+                        autoFocus={true}
+                        onChange={(_event, value) => setPropertyFilter(value)}
+                        aria-label="filter by name"
+                    />
+                    <TextInputGroupUtilities>
+                        <Button variant="plain" onClick={_ => setPropertyFilter('')}>
+                            <TimesIcon aria-hidden={true}/>
+                        </Button>
+                    </TextInputGroupUtilities>
+                </TextInputGroup>
             </div>
         )
     }
