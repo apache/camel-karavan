@@ -58,7 +58,7 @@ export function DslSelector(props: Props) {
 
     const {onDslSelect} = useRouteDesignerHook();
 
-    const [filterShown, setFilterShown] =  useState<string>('');
+    const [filterShown, setFilterShown] = useState<string>('');
     const [filter, setFilter] = useDebounceValue('', 300);
 
     const [customOnly, setCustomOnly] = useState<boolean>(false);
@@ -101,7 +101,7 @@ export function DslSelector(props: Props) {
         setPreferredElements(p);
     }
 
-    function getDslMetaModelType(dsl: DslMetaModel){
+    function getDslMetaModelType(dsl: DslMetaModel) {
         return ['ToDefinition', 'FromDefinition'].includes(dsl.type) ? 'components' : (dsl.uri?.startsWith("kamelet:") ? "kamelets" : 'eip');
     }
 
@@ -151,25 +151,30 @@ export function DslSelector(props: Props) {
         const isKam = selectedToggles.includes('kamelets')
         return (
             <ToggleGroup aria-label="Default with single selectable" className='navigation-selector'>
-                {parentDsl !== undefined && <ToggleGroupItem
-                    text={
-                        <div style={{display: 'flex', flexDirection: 'row'}}>
-                            <div style={{marginRight: '6px'}}>Processors</div>
-                            {ready && <Badge isRead={!isEIP} className={isEIP ? "label-eip" : ""}>{eCount}</Badge>}
-                        </div>
-                    }
-                    buttonId="eip"
-                    isSelected={selectedToggles.includes('eip')}
-                    onChange={(_, selected) => {
-                        if (selected) addSelectedToggle('eip')
-                        else deleteSelectedToggle('eip')
-                    }}
-                />}
+                {parentDsl !== undefined &&
+                    <ToggleGroupItem
+                        key='eip'
+                        text={
+                            <div style={{display: 'flex', flexDirection: 'row'}}>
+                                <div style={{marginRight: '6px'}}>Processors</div>
+                                {ready && <Badge isRead={!isEIP} className={isEIP ? "label-eip" : ""}>{eCount}</Badge>}
+                            </div>
+                        }
+                        buttonId="eip"
+                        isSelected={selectedToggles.includes('eip')}
+                        onChange={(_, selected) => {
+                            if (selected) addSelectedToggle('eip')
+                            else deleteSelectedToggle('eip')
+                        }}
+                    />
+                }
                 <ToggleGroupItem
+                    key='component'
                     text={
                         <div style={{display: 'flex', flexDirection: 'row'}}>
                             <div style={{marginRight: '6px'}}>Components</div>
-                            {ready && <Badge isRead={!isComp} className={isComp ? "label-component" : ""}>{cCount}</Badge>}
+                            {ready &&
+                                <Badge isRead={!isComp} className={isComp ? "label-component" : ""}>{cCount}</Badge>}
                         </div>
                     }
                     buttonId="components"
@@ -180,6 +185,7 @@ export function DslSelector(props: Props) {
                     }}
                 />
                 <ToggleGroupItem
+                    key='kamelet'
                     text={
                         <div style={{display: 'flex', flexDirection: 'row'}}>
                             <div style={{marginRight: '6px'}}>Kamelets</div>
@@ -239,8 +245,7 @@ export function DslSelector(props: Props) {
                 } else {
                     return true;
                 }
-            }
-            else return false;
+            } else return false;
         })
         .filter(d => CamelUi.checkFilter(d, filter));
 
@@ -275,25 +280,26 @@ export function DslSelector(props: Props) {
             actions={{}}>
             <PageSection padding={{default: "noPadding"}} variant={dark ? "darker" : "light"}>
                 {!ready && [1, 2, 3, 4, 5, 6, 7, 8, 9].map(i =>
-                    <React.Fragment>
-                        <Skeleton width={i * 10 + '%'} screenreaderText="Loading..."/>
+                    <React.Fragment key={i}>
+                        <Skeleton key={i} width={i * 10 + '%'} screenreaderText="Loading..."/>
                         <br/>
                     </React.Fragment>)
                 }
                 <Gallery key={"fast-gallery"} hasGutter className="dsl-gallery"
                          minWidths={{default: '150px'}}>
                     {showSelector && fastElements.map((dsl: DslMetaModel, index: number) =>
-                        <DslFastCard dsl={dsl} index={index} onDslSelect={selectDsl} onDeleteFast={deleteFast}/>
+                        <DslFastCard key={dsl.name + ":" + index} dsl={dsl} index={index} onDslSelect={selectDsl} onDeleteFast={deleteFast}/>
                     )}
                 </Gallery>
                 <Gallery key={"gallery"} hasGutter className="dsl-gallery" minWidths={{default: '200px'}}>
                     {showSelector && filteredElements.slice(0, pageSize).map((dsl: DslMetaModel, index: number) =>
-                        <DslCard dsl={dsl} index={index} onDslSelect={selectDsl}/>
+                        <DslCard key={dsl.name + ":" + index} dsl={dsl} index={index} onDslSelect={selectDsl}/>
                     )}
                     {moreElements > 0 &&
                         <Card isCompact isPlain isFlat isRounded style={{minHeight: '140px'}}>
                             <Bullseye>
-                                <Button variant='link' onClick={_ => setPageSize(pageSize + 10)}>{`${moreElements} more`}</Button>
+                                <Button variant='link'
+                                        onClick={_ => setPageSize(pageSize + 10)}>{`${moreElements} more`}</Button>
                             </Bullseye>
                         </Card>
                     }

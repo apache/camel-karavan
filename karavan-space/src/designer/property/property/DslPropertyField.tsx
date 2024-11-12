@@ -322,7 +322,7 @@ export function DslPropertyField(props: Props) {
                            className="text-field route-variable" isRequired
                            type='text'
                            id={property.name} name={property.name}
-                           value={textValue?.toString()}
+                           value={textValue?.toString() || ''}
                            customIcon={property.type !== 'string' ?
                                <Text component={TextVariants.p}>{property.type}</Text> : undefined}
                            onBlur={_ => {
@@ -360,7 +360,7 @@ export function DslPropertyField(props: Props) {
                         type={property.secret ? "password" : "text"}
                         autoComplete="off"
                         id={property.name} name={property.name}
-                        value={textValue?.toString()}
+                        value={textValue?.toString() || ''}
                         customIcon={property.type !== 'string' ?
                             <Text component={TextVariants.p}>{property.type}</Text> : undefined}
                         onBlur={_ => {
@@ -414,7 +414,7 @@ export function DslPropertyField(props: Props) {
                            type={property.secret ? "password" : "text"}
                            autoComplete="off"
                            id={property.name} name={property.name}
-                           value={textValue?.toString()}
+                           value={textValue?.toString() || ''}
                            customIcon={property.type !== 'string' ?
                                <Text component={TextVariants.p}>{property.type}</Text> : undefined}
                            onBlur={_ => {
@@ -639,7 +639,7 @@ export function DslPropertyField(props: Props) {
                         name={property.name + "-placeholder"}
                         type="text"
                         aria-label="placeholder"
-                        value={!isValueBoolean ? textValue?.toString() : undefined}
+                        value={!isValueBoolean ? textValue?.toString() : ''}
                         onBlur={_ => propertyChanged(property.name, textValue)}
                         onChange={(_, v) => {
                             setTextValue(v);
@@ -879,7 +879,7 @@ export function DslPropertyField(props: Props) {
         return (
             <div>
                 <TextInputGroup className="input-group">
-                    <TextInputGroupMain value={arrayValues.get(property.name)}
+                    <TextInputGroupMain value={arrayValues.get(property.name) || ''}
                                         onChange={(e, v) => arrayChanged(property.name, v)}
                                         onKeyUp={e => {
                                             if (e.key === 'Enter') arraySave(property.name)
@@ -1091,7 +1091,7 @@ export function DslPropertyField(props: Props) {
     const beanProperties = element?.dslName === 'BeanFactoryDefinition' && property.name === 'properties'
     const isSpi = property.javaType.startsWith("org.apache.camel.spi") || property.javaType.startsWith("org.apache.camel.AggregationStrategy");
     return (
-        <div>
+        <>
             <FormGroup
                 className='dsl-property-form-group'
                 label={props.hideLabel ? undefined : getLabel(property, value, isKamelet)}
@@ -1144,6 +1144,6 @@ export function DslPropertyField(props: Props) {
                 {beanProperties && getBeanProperties('properties')}
             </FormGroup>
             {getInfrastructureSelectorModal()}
-        </div>
+        </>
     )
 }

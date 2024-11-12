@@ -210,16 +210,19 @@ export function DslElement(props: Props) {
                             } else {
                                 nextStep = children.at(index + 1);
                             }
-                            return (<div key={step.uuid + child.className + index}>
-                                <DslElement
-                                    inSteps={child.name === 'steps'}
-                                    position={index}
-                                    step={element}
-                                    nextStep={nextStep}
-                                    prevStep={prevStep}
-                                    inStepsLength={array.length}
-                                    parent={step}/>
-                            </div>)
+                            return (
+                                // <div key={step.uuid + child.className + index}>
+                                    <DslElement
+                                        key={step.uuid + child.className + index}
+                                        inSteps={child.name === 'steps'}
+                                        position={index}
+                                        step={element}
+                                        nextStep={nextStep}
+                                        prevStep={prevStep}
+                                        inStepsLength={array.length}
+                                        parent={step}/>
+                                // </div>
+                            )
                         }
                     )}
                     {child.name === 'steps' && getAddStepButton()}
