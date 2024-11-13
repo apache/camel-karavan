@@ -269,7 +269,7 @@ export function ComponentPropertyField(props: Props) {
                            type={property.secret && !showPassword ? "password" : "text"}
                            autoComplete="off"
                            id={id} name={id}
-                           value={textValue !== undefined ? textValue : property.defaultValue}
+                           value={(textValue !== undefined ? textValue : property.defaultValue) || ''}
                            onBlur={_ => parametersChanged(property.name, textValue, property.kind === 'path')}
                            onChange={(_, v) => {
                                setTextValue(v);
@@ -325,7 +325,7 @@ export function ComponentPropertyField(props: Props) {
                         type={(property.secret ? "password" : "text")}
                         autoComplete="off"
                         id={id} name={id}
-                        value={textValue !== undefined ? textValue : property.defaultValue}
+                        value={(textValue !== undefined ? textValue : property.defaultValue) || ''}
                         onBlur={_ => parametersChanged(property.name, textValue, property.kind === 'path')}
                         onChange={(_, v) => {
                             setTextValue(v);
@@ -396,7 +396,7 @@ export function ComponentPropertyField(props: Props) {
                         name={property.name + "-placeholder"}
                         type="text"
                         aria-label="placeholder"
-                        value={!isValueBoolean ? textValue?.toString() : undefined}
+                        value={!isValueBoolean ? textValue?.toString() : ''}
                         onBlur={_ => onParametersChange(property.name, textValue)}
                         onChange={(_, v) => {
                             setTextValue(v);
