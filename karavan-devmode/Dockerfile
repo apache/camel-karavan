@@ -52,4 +52,4 @@ RUN curl -Ls https://sh.jbang.dev | bash -s - app setup \
 
 EXPOSE 8080
 WORKDIR $CODE_DIR
-CMD jbang $JBANG_OPTIONS -Dcamel.jbang.version=$CAMEL_VERSION camel@apache/camel run --source-dir=$CODE_DIR --console 
+CMD jbang $VERBOSE_OPTION -Dcamel.jbang.version=$CAMEL_VERSION camel@apache/camel run --source-dir=$CODE_DIR --console 
