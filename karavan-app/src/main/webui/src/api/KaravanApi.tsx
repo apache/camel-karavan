@@ -464,7 +464,7 @@ export class KaravanApi {
     }
 
     static async startDevModeContainer(project: Project, verbose: boolean, after: (res: AxiosResponse<any>) => void) {
-        instance.post('/ui/devmode' + (verbose ? '/--verbose' : ''), project)
+        instance.post('/ui/devmode/' + verbose.toString(), project)
             .then(res => {
                 after(res);
             }).catch(err => {

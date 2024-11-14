@@ -48,24 +48,24 @@ public class DockerForKaravan {
     @Inject
     DockerService dockerService;
 
-    public void runProjectInDevMode(String projectId, String jBangOptions, DockerComposeService composeService,
+    public void runProjectInDevMode(String projectId, Boolean verbose, DockerComposeService composeService,
                                     Map<String, String> files, String projectDevmodeImage, Map<String, String> labels, Map<String, String> envVars) throws Exception {
-        Container c = createDevmodeContainer(projectId, jBangOptions, composeService, projectDevmodeImage, labels, envVars);
+        Container c = createDevmodeContainer(projectId, verbose, composeService, projectDevmodeImage, labels, envVars);
         dockerService.runContainer(projectId);
         dockerService.copyFiles(c.getId(), "/karavan/code", files, true);
     }
 
-    protected Container createDevmodeContainer(String projectId, String jBangOptions, DockerComposeService compose,
+    protected Container createDevmodeContainer(String projectId, Boolean verbose, DockerComposeService compose,
                                                String projectDevmodeImage, Map<String, String> labels, Map<String, String> envVars) throws InterruptedException {
-        LOGGER.infof("DevMode starting for %s with JBANG_OPTIONS=%s", projectId, jBangOptions);
+        LOGGER.infof("DevMode starting for %s with verbose=%s", projectId, verbose);
 
         HealthCheck healthCheck = new HealthCheck().withTest(List.of("CMD", "curl", "-f", "http://localhost:8080/q/dev/health"))
                 .withInterval(10000000000L).withTimeout(10000000000L).withStartPeriod(10000000000L).withRetries(30);
 
         List<String> env = new ArrayList<>(compose.getEnvironmentList());
         envVars.forEach((k,v) -> env.add(k + "=" + v));
-        if (jBangOptions != null && !jBangOptions.trim().isEmpty()) {
-            env.add(ENV_VAR_JBANG_OPTIONS + "=" + jBangOptions);
+        if (verbose) {
+            env.add(ENV_VAR_VERBOSE_OPTION_NAME + "=" + ENV_VAR_VERBOSE_OPTION_VALUE);
         }
 
         if (createM2.orElse(false)) {

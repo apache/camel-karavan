@@ -93,7 +93,7 @@ public class ProjectService {
         }
     }
 
-    public String runProjectWithJBangOptions(Project project, String jBangOptions, Map<String, String> labels, Map<String, String> envVars) throws Exception {
+    public String runProjectWithJBangOptions(Project project, Boolean verbose, Map<String, String> labels, Map<String, String> envVars) throws Exception {
         String containerName = project.getProjectId();
         PodContainerStatus status = karavanCache.getDevModePodContainerStatus(project.getProjectId(), environment);
         if (status == null) {
@@ -107,10 +107,10 @@ public class ProjectService {
             String projectDevmodeImage = codeService.getProjectDevModeImage(project.getProjectId());
             if (ConfigService.inKubernetes()) {
                 String deploymentFragment = codeService.getDeploymentFragment(project.getProjectId());
-                kubernetesService.runDevModeContainer(project, jBangOptions, files, projectDevmodeImage, deploymentFragment, labels, envVars);
+                kubernetesService.runDevModeContainer(project, verbose, files, projectDevmodeImage, deploymentFragment, labels, envVars);
             } else {
                 DockerComposeService compose = getProjectDockerComposeService(project.getProjectId());
-                dockerForKaravan.runProjectInDevMode(project.getProjectId(), jBangOptions, compose, files, projectDevmodeImage, labels, envVars);
+                dockerForKaravan.runProjectInDevMode(project.getProjectId(), verbose, compose, files, projectDevmodeImage, labels, envVars);
             }
             return containerName;
         } else {

@@ -335,7 +335,7 @@ public class KubernetesService {
         return result;
     }
 
-    public void runDevModeContainer(Project project, String jBangOptions, Map<String, String> files, String projectDevmodeImage, String deploymentFragment, Map<String, String> labels, Map<String, String> envVars) {
+    public void runDevModeContainer(Project project, Boolean verbose, Map<String, String> files, String projectDevmodeImage, String deploymentFragment, Map<String, String> labels, Map<String, String> envVars) {
         String name = project.getProjectId();
         Map<String, String> podLabels = new HashMap<>(labels);
         podLabels.putAll(getLabels(name, project, ContainerType.devmode));
@@ -346,7 +346,7 @@ public class KubernetesService {
             }
             Pod old = client.pods().inNamespace(getNamespace()).withName(name).get();
             if (old == null) {
-                Pod pod = getDevModePod(name, jBangOptions, podLabels, projectDevmodeImage, deploymentFragment, envVars);
+                Pod pod = getDevModePod(name, verbose, podLabels, projectDevmodeImage, deploymentFragment, envVars);
                 Pod result = client.resource(pod).serverSideApply();
                 copyFilesToContainer(result, files, "/karavan/code");
                 LOGGER.info("Created pod " + result.getMetadata().getName());
@@ -389,7 +389,7 @@ public class KubernetesService {
                 .build();
     }
 
-    private Pod getDevModePod(String name, String jbangOptions, Map<String, String> labels, String projectDevmodeImage, String deploymentFragment, Map<String, String> envVars) {
+    private Pod getDevModePod(String name, Boolean verbose, Map<String, String> labels, String projectDevmodeImage, String deploymentFragment, Map<String, String> envVars) {
 
         Deployment deployment = Serialization.unmarshal(deploymentFragment, Deployment.class);
         PodSpec podSpec = null;
@@ -420,7 +420,7 @@ public class KubernetesService {
 
         List<EnvVar> environmentVariables = new ArrayList<>();
         envVars.forEach((k, v) -> environmentVariables.add(new EnvVarBuilder().withName(k).withValue(v).build()));
-        environmentVariables.add(new EnvVarBuilder().withName(ENV_VAR_JBANG_OPTIONS).withValue(jbangOptions).build());
+        environmentVariables.add(new EnvVarBuilder().withName(ENV_VAR_VERBOSE_OPTION_NAME).withValue(ENV_VAR_VERBOSE_OPTION_VALUE).build());
 
         Container container = new ContainerBuilder()
                 .withName(name)

@@ -31,7 +31,6 @@ import jakarta.enterprise.inject.Default;
 import jakarta.enterprise.inject.Produces;
 import jakarta.inject.Inject;
 import org.apache.camel.karavan.KaravanConstants;
-import org.apache.camel.karavan.model.ContainerType;
 import org.apache.camel.karavan.service.ConfigService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.health.HealthCheck;
@@ -44,8 +43,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-
-import static org.apache.camel.karavan.KaravanConstants.LABEL_TYPE;
 
 @Default
 @Readiness
@@ -97,17 +94,15 @@ public class KubernetesStatusService implements HealthCheck {
 
             KubernetesClient client = kubernetesClient();
 
-            String[] values = new String[]{ContainerType.project.name(), ContainerType.build.name(), ContainerType.devmode.name(), ContainerType.devservice.name(), ContainerType.internal.name(),};
-
-            SharedIndexInformer<Deployment> deploymentInformer = client.apps().deployments().inNamespace(getNamespace()).withLabelIn(LABEL_TYPE, values).inform();
+            SharedIndexInformer<Deployment> deploymentInformer = client.apps().deployments().inNamespace(getNamespace()).inform();
             deploymentInformer.addEventHandlerWithResyncPeriod(new DeploymentEventHandler(this, eventBus), 30 * 1000L);
             informers.add(deploymentInformer);
 
-            SharedIndexInformer<Service> serviceInformer = client.services().inNamespace(getNamespace()).withLabelIn(LABEL_TYPE, values).inform();
+            SharedIndexInformer<Service> serviceInformer = client.services().inNamespace(getNamespace()).inform();
             serviceInformer.addEventHandlerWithResyncPeriod(new ServiceEventHandler(this, eventBus), 30 * 1000L);
             informers.add(serviceInformer);
 
-            SharedIndexInformer<Pod> podRunInformer = client.pods().inNamespace(getNamespace()).withLabelIn(LABEL_TYPE, values).inform();
+            SharedIndexInformer<Pod> podRunInformer = client.pods().inNamespace(getNamespace()).inform();
             podRunInformer.addEventHandlerWithResyncPeriod(new PodEventHandler( this, eventBus), 30 * 1000L);
             informers.add(podRunInformer);
 

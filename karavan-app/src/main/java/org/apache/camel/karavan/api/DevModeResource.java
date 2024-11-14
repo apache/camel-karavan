@@ -54,10 +54,10 @@ public class DevModeResource {
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    @Path("/{jBangOptions}")
-    public Response runProjectWithJBangOptions(Project project, @PathParam("jBangOptions") String jBangOptions) {
+    @Path("/{verbose}")
+    public Response runProjectWithJBangOptions(Project project, @PathParam("verbose") boolean verbose) {
         try {
-            String containerName = projectService.runProjectWithJBangOptions(project, jBangOptions, Map.of(), Map.of());
+            String containerName = projectService.runProjectWithJBangOptions(project, verbose, Map.of(), Map.of());
             if (containerName != null) {
                 return Response.ok(containerName).build();
             } else {
@@ -73,7 +73,7 @@ public class DevModeResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public Response runProject(Project project) throws Exception {
-        return runProjectWithJBangOptions(project, "");
+        return runProjectWithJBangOptions(project, false);
     }
 
     @GET
