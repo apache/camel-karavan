@@ -14,12 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import React, {CSSProperties, useState} from 'react';
+import React from 'react';
 import '../../karavan.css';
 import './RouteTemplateElement.css';
 import {CamelElement} from "karavan-core/lib/model/IntegrationDefinition";
 import {ChildElement, CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt";
-import {useDesignerStore, useIntegrationStore} from "../../DesignerStore";
+import {useDesignerStore} from "../../DesignerStore";
 import {shallow} from "zustand/shallow";
 import {useRouteDesignerHook} from "../useRouteDesignerHook";
 import {DslElementHeader} from "./DslElementHeader";

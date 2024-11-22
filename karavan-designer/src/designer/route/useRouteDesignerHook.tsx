@@ -24,7 +24,7 @@ import {
     LogDefinition,
     MarshalDefinition,
     RouteConfigurationDefinition,
-    RouteDefinition, RouteTemplateDefinition, SplitDefinition, UnmarshalDefinition
+    RouteDefinition, SplitDefinition, UnmarshalDefinition
 } from "karavan-core/lib/model/CamelDefinition";
 import {CamelElement, MetadataLabels} from "karavan-core/lib/model/IntegrationDefinition";
 import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt";
