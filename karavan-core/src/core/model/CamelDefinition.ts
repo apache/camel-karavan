@@ -1236,11 +1236,11 @@ export class RouteTemplateDefinition extends CamelElement {
 }
 
 export class RouteTemplateParameterDefinition extends CamelElement {
-    stepName?: string = 'routeTemplateParameter';
-    defaultValue?: string;
+    stepName?: string = 'templateParameter';
     description?: string;
     name: string = '';
     required?: boolean;
+    defaultValue?: string;
     public constructor(init?: Partial<RouteTemplateParameterDefinition>) {
         super('RouteTemplateParameterDefinition');
         Object.assign(this, init);

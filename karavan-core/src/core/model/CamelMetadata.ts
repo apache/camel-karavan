@@ -2139,6 +2139,13 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('ref', 'Ref', "Reference to the routes in the xml dsl", 'string', '', '', true, false, false, false, '', ''),
     ], [
     ]),
+    new ElementMeta('templateParameter', 'RouteTemplateParameterDefinition', 'Template Parameter', "A route template parameter", 'configuration', [
+        new PropertyMeta('description', 'Description', "Description of the parameter", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('name', 'Name', "The name of the parameter", 'string', '', '', true, false, false, false, '', ''),
+        new PropertyMeta('required', 'Required', "Whether the parameter is required or not. A parameter is required unless this option is set to false or a default value has been configured.", 'boolean', '', 'false', false, false, false, false, '', ''),
+        new PropertyMeta('defaultValue', 'Default Value', "Default value of the parameter. If a default value is provided then the parameter is implied not to be required.", 'string', '', '', false, false, false, false, '', ''),
+    ], [
+    ]),
     new ElementMeta('templatedRouteParameter', 'TemplatedRouteParameterDefinition', 'Templated Route Parameter', "An input parameter of a route template.", 'configuration', [
         new PropertyMeta('name', 'Name', "The name of the parameter", 'string', '', '', true, false, false, false, '', ''),
         new PropertyMeta('value', 'Value', "The value of the parameter.", 'string', '', '', true, false, false, false, '', ''),

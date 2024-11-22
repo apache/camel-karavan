@@ -205,7 +205,7 @@ export function DslPropertyField(props: Props) {
     }
 
     function isParameter(property: PropertyMeta): boolean {
-        return property.name === 'parameters' && property.description === 'parameters';
+        return property.name === 'parameters' || property.description === 'parameters';
     }
 
     function getLabel(property: PropertyMeta, value: any, isKamelet: boolean) {
@@ -230,7 +230,7 @@ export function DslPropertyField(props: Props) {
             )
         }
         if (isParameter(property)) {
-            return isKamelet ? "Kamelet properties:" : "Component properties:";
+            return isKamelet ? "Kamelet properties:" : isRouteTemplate ? "Parameters:" : "Component properties:";
         } else if (!["ExpressionDefinition"].includes(property.type)) {
             return (
                 <div style={{display: "flex", flexDirection: 'row', alignItems: 'center', gap: '3px'}}>
@@ -1084,6 +1084,7 @@ export function DslPropertyField(props: Props) {
 
     const element = props.element;
     const isKamelet = CamelUtil.isKameletComponent(element);
+    const isRouteTemplate = element?.dslName === 'RouteTemplateDefinition';
     const property: PropertyMeta = props.property;
     const value = props.value;
     const isVariable = getIsVariable();

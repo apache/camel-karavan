@@ -71,6 +71,8 @@ public class AbstractGenerator {
             className = "convertBodyTo";
         } else if (className.equals("ConvertHeaderDefinition")) {
             className = "convertHeaderTo";
+        } else if (className.equals("RouteTemplateParameterDefinition")) {
+            className = "templateParameter";
         } else if (className.equals("ConvertVariableDefinition")) {
             className = "convertVariableTo";
         } else if (className.equals("TryDefinition")) {
