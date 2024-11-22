@@ -388,21 +388,6 @@
     gap: 6px;
 }
 
-.karavan .dsl-page .flows .step-element {
-    align-items: center;
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    width: fit-content;
-    border-color: var(--pf-v5-global--Color--200);
-    border-radius: 42px;
-    border-width: 1px;
-    min-width: 120px;
-    padding: 3px 4px 4px 4px;
-    margin: 3px auto 0 auto;
-    position: relative;
-}
-
 .karavan {
     --step-border-color: var(--pf-v5-global--Color--200);
     --step-border-color-selected: var(--pf-v5-global--active-color--100);
@@ -449,10 +434,6 @@
 }
 
 .element-builder:hover .add-button,
-.karavan .step-element:hover .add-element-button,
-.karavan .step-element:hover .add-button {
-    visibility: visible;
-}
 
 .dsl-gallery {
     margin-top: 16px;

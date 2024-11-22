@@ -110,6 +110,8 @@ interface SelectorStateState {
     deleteSelectedToggle: (label: string) => void;
     routeId?: string;
     setRouteId: (routeId: string) => void;
+    isRouteTemplate?: boolean;
+    setIsRouteTemplate: (isRouteTemplate: boolean) => void;
 }
 
 export const useSelectorStore = createWithEqualityFn<SelectorStateState>((set) => ({
@@ -117,6 +119,7 @@ export const useSelectorStore = createWithEqualityFn<SelectorStateState>((set) =
     deleteMessage: '',
     parentId: '',
     showSteps: true,
+    isRouteTemplate: false,
     selectedToggles: ['eip', 'components', 'kamelets'],
     addSelectedToggle: (toggle: string) => {
         set(state => ({
@@ -148,6 +151,9 @@ export const useSelectorStore = createWithEqualityFn<SelectorStateState>((set) =
     },
     setRouteId: (routeId: string) => {
         set({routeId: routeId})
+    },
+    setIsRouteTemplate: (isRouteTemplate: boolean) => {
+        set({isRouteTemplate: isRouteTemplate})
     },
 }), shallow)
 

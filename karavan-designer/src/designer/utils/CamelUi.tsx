@@ -25,6 +25,7 @@ import {
     BeanFactoryDefinition,
     RouteConfigurationDefinition,
     RouteDefinition,
+    RouteTemplateDefinition,
     ToDefinition
 } from "karavan-core/lib/model/CamelDefinition";
 import {CamelElement, Integration, IntegrationFile} from "karavan-core/lib/model/IntegrationDefinition";
@@ -856,6 +857,13 @@ export class CamelUi {
     static getRouteConfigurations = (integration: Integration): RouteConfigurationDefinition[] | undefined => {
         const result: CamelElement[] = [];
         integration.spec.flows?.filter((e: any) => e.dslName === 'RouteConfigurationDefinition')
+            .forEach((f: any) => result.push(f));
+        return result;
+    }
+
+    static getRouteTemplates = (integration: Integration): RouteTemplateDefinition[] | undefined => {
+        const result: RouteTemplateDefinition[] = [];
+        integration.spec.flows?.filter((e: any) => e.dslName === 'RouteTemplateDefinition')
             .forEach((f: any) => result.push(f));
         return result;
     }

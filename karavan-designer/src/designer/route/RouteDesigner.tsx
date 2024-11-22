@@ -37,11 +37,12 @@ import {Command, EventBus} from "../utils/EventBus";
 import useMutationsObserver from "./useDrawerMutationsObserver";
 import {DeleteConfirmation} from "./DeleteConfirmation";
 import {DslElementMoveModal} from "./element/DslElementMoveModal";
+import {RouteTemplateElement} from "./element/RouteTemplateElement";
 
 export function RouteDesigner() {
 
     const {openSelector, createRouteConfiguration, onCommand, unselectElement, onDslSelect,
-        isSourceKamelet, isActionKamelet, isKamelet, isSinkKamelet} = useRouteDesignerHook();
+        isSourceKamelet, isActionKamelet, isKamelet, isSinkKamelet, createRouteTemplate} = useRouteDesignerHook();
 
     const [integration] = useIntegrationStore((state) => [state.integration], shallow)
     const [showDeleteConfirmation, setPosition, width, height, top, left, showMoveConfirmation, setShowMoveConfirmation] =
@@ -130,12 +131,23 @@ export function RouteDesigner() {
                 >
                     Create configuration
                 </Button>}
+                {<Button
+                    variant="secondary"
+                    icon={<PlusIcon/>}
+                    onClick={evt => {
+                        evt.stopPropagation();
+                        openSelector(undefined, undefined, undefined, undefined, true);
+                    }}
+                >
+                    Create template
+                </Button>}
             </div>
         )
     }
     function getGraph() {
         const routes = CamelUi.getRoutes(integration);
         const routeConfigurations = CamelUi.getRouteConfigurations(integration);
+        const routeTemplates = CamelUi.getRouteTemplates(integration);
         return (
             <div className="graph" ref={printerRef}>
                 <DslConnections/>
@@ -149,6 +161,16 @@ export function RouteDesigner() {
                                     inSteps={false}
                                     position={index}
                                     step={routeConfiguration}
+                                    nextStep={undefined}
+                                    prevStep={undefined}
+                                    inStepsLength={array.length}
+                                    parent={undefined}/>
+                    ))}
+                    {routeTemplates?.map((routeTemplate, index: number, array) => (
+                        <RouteTemplateElement key={routeTemplate.uuid}
+                                    inSteps={false}
+                                    position={index}
+                                    step={routeTemplate}
                                     nextStep={undefined}
                                     prevStep={undefined}
                                     inStepsLength={array.length}

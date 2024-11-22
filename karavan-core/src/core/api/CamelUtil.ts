@@ -20,7 +20,7 @@ import {
     KameletDefinition,
     BeanFactoryDefinition,
     RouteConfigurationDefinition,
-    ToDefinition,
+    ToDefinition, RouteTemplateDefinition,
 } from '../model/CamelDefinition';
 import { KameletApi } from './KameletApi';
 import { KameletModel, Property } from '../model/KameletModels';
@@ -55,6 +55,11 @@ export class CamelUtil {
             flows.push(newRouteConfiguration);
         }
 
+        for (const routeTemplate of int.spec.flows?.filter(flow => flow.dslName === 'RouteTemplateConfiguration') || []) {
+            const newRouteTemplate = CamelUtil.cloneRouteTemplate(routeTemplate);
+            flows.push(newRouteTemplate);
+        }
+
         int.spec.flows = flows;
         return int;
     };
@@ -85,6 +90,14 @@ export class CamelUtil {
         const clone = JSON.parse(JSON.stringify(routeConfiguration));
         const RouteConfiguration = new RouteConfigurationDefinition(clone);
         RouteConfiguration.uuid = routeConfiguration.uuid;
+        return RouteConfiguration;
+    };
+    static cloneRouteTemplate = (
+        routeTemplate: RouteTemplateDefinition,
+    ): RouteTemplateDefinition => {
+        const clone = JSON.parse(JSON.stringify(routeTemplate));
+        const RouteConfiguration = new RouteTemplateDefinition(clone);
+        RouteConfiguration.uuid = routeTemplate.uuid;
         return RouteConfiguration;
     };
 

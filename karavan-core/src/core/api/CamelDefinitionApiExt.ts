@@ -21,10 +21,12 @@ import {
     ExpressionDefinition,
     RouteDefinition,
     RestDefinition,
-    RouteConfigurationDefinition, FromDefinition,
+    RouteConfigurationDefinition, FromDefinition, RouteTemplateDefinition,
 } from '../model/CamelDefinition';
 import { Beans, CamelElement, CamelElementMeta, Integration } from '../model/IntegrationDefinition';
 import { CamelDefinitionApi } from './CamelDefinitionApi';
+
+const coreRoutishElements = ['RouteConfigurationDefinition', 'RouteTemplateDefinition', 'RouteDefinition']
 
 export class ChildElement {
     constructor(public name: string = '', public className: string = '', public multiple: boolean = false) {}
@@ -66,14 +68,15 @@ export class CamelDefinitionApiExt {
             integration.spec.flows?.push(step as RouteDefinition);
         } else {
             const flows: any = [];
-            CamelDefinitionApiExt.getFlowsNotOfTypes(integration, ['RouteConfigurationDefinition', 'RouteDefinition']).forEach(bean =>
+            CamelDefinitionApiExt.getFlowsNotOfTypes(integration, coreRoutishElements).forEach(bean =>
                 flows.push(bean),
             );
             const routes = CamelDefinitionApiExt.addStepToSteps(CamelDefinitionApiExt.getFlowsOfType(integration, 'RouteDefinition'), step, parentId, position,);
             flows.push(...routes);
-            const routeConfigurations = CamelDefinitionApiExt.addStepToSteps(
-                CamelDefinitionApiExt.getFlowsOfType(integration, 'RouteConfigurationDefinition'),step, parentId, position,);
+            const routeConfigurations = CamelDefinitionApiExt.addStepToSteps(CamelDefinitionApiExt.getFlowsOfType(integration, 'RouteConfigurationDefinition'),step, parentId, position,);
             flows.push(...routeConfigurations);
+            const routeTemplates = CamelDefinitionApiExt.addStepToSteps(CamelDefinitionApiExt.getFlowsOfType(integration, 'RouteTemplateDefinition'),step, parentId, position,);
+            flows.push(...routeTemplates);
             integration.spec.flows = flows;
         }
         return integration;
@@ -135,9 +138,7 @@ export class CamelDefinitionApiExt {
 
     static findElementMetaInIntegration = (integration: Integration, uuid: string): CamelElementMeta => {
         const i = CamelUtil.cloneIntegration(integration);
-        const routes = i.spec.flows?.filter(flow =>
-            ['RouteConfigurationDefinition', 'RouteDefinition'].includes(flow.dslName),
-        );
+        const routes = i.spec.flows?.filter(flow => coreRoutishElements.includes(flow.dslName),);
         return CamelDefinitionApiExt.findElementInElements(routes, uuid);
     };
 
@@ -239,13 +240,9 @@ export class CamelDefinitionApiExt {
 
     static deleteStepFromIntegration = (integration: Integration, uuidToDelete: string): Integration => {
         const flows: any[] =
-            integration.spec.flows?.filter(
-                flow => !['RouteConfigurationDefinition', 'RouteDefinition'].includes(flow.dslName),
-            ) ?? [];
+            integration.spec.flows?.filter(flow => !coreRoutishElements.includes(flow.dslName),) ?? [];
         const routes = CamelDefinitionApiExt.deleteStepFromSteps(
-            integration.spec.flows?.filter(flow =>
-                ['RouteConfigurationDefinition', 'RouteDefinition'].includes(flow.dslName),
-            ),
+            integration.spec.flows?.filter(flow => coreRoutishElements.includes(flow.dslName),),
             uuidToDelete,
         );
         flows.push(...routes);
@@ -365,6 +362,44 @@ export class CamelDefinitionApiExt {
             if (flow.dslName === 'RouteConfigurationDefinition') {
                 const route = CamelDefinitionApiExt.updateElement(flow, elementClone) as RouteConfigurationDefinition;
                 return CamelDefinitionApi.createRouteConfigurationDefinition(route);
+            }
+            return flow;
+        });
+        return integrationClone;
+    };
+
+    static addRouteTemplateToIntegration = (
+        integration: Integration,
+        routeTemplate: RouteTemplateDefinition,
+    ): Integration => {
+        integration.spec.flows?.push(routeTemplate);
+        return integration;
+    };
+
+    static deleteRouteTemplateFromIntegration = (
+        integration: Integration,
+        routeTemplate: RouteTemplateDefinition,
+    ): Integration => {
+        const newFlows: any[] = [];
+        const flows: any[] = integration.spec.flows ?? [];
+        newFlows.push(...flows.filter(flow => flow.dslName !== 'RouteTemplateDefinition'));
+        newFlows.push(
+            ...flows.filter(
+                flow => flow.dslName === 'RouteTemplateDefinition' && flow.uuid !== routeTemplate.uuid,
+            ),
+        );
+        integration.spec.flows = newFlows;
+        return integration;
+    };
+
+    static updateRouteTemplateToIntegration = (integration: Integration, e: CamelElement): Integration => {
+        const elementClone = CamelUtil.cloneStep(e);
+        const integrationClone: Integration = CamelUtil.cloneIntegration(integration);
+
+        integrationClone.spec.flows = integration.spec.flows?.map(flow => {
+            if (flow.dslName === 'RouteTemplateDefinition') {
+                const route = CamelDefinitionApiExt.updateElement(flow, elementClone) as RouteTemplateDefinition;
+                return CamelDefinitionApi.createRouteTemplateDefinition(route);
             }
             return flow;
         });
@@ -607,6 +642,9 @@ export class CamelDefinitionApiExt {
             } else if (flow.dslName === 'RouteConfigurationDefinition') {
                 const routeConfiguration = CamelDefinitionApiExt.updateElement(flow, elementClone) as RouteConfigurationDefinition;
                 flows.push(CamelDefinitionApi.createRouteConfigurationDefinition(routeConfiguration));
+            } else if (flow.dslName === 'RouteTemplateDefinition') {
+                const routeTemplate = CamelDefinitionApiExt.updateElement(flow, elementClone) as RouteTemplateDefinition;
+                flows.push(CamelDefinitionApi.createRouteTemplateDefinition(routeTemplate));
             } else {
                 flows.push(flow);
             }

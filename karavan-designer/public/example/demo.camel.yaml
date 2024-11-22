@@ -1,28 +1,33 @@
+- routeTemplate:
+    id: routeFileReaderTemplate
+    description: File reader
+    route:
+      id: routeFileReader
+      description: File reader
+      from:
+        id: from-c667
+        description: Read file
+        uri: file
+        parameters:
+          directoryName: "{{folderName}}"
+          noop: true
+        steps:
+          - to:
+              id: to-1234
+              uri: direct
+              parameters:
+                name: converter
+    parameters:
+      - name: folderName
 - route:
-    id: route-46e9
-    nodePrefixId: route-5ec
+    id: route-dummy
+    autoStartup: false
     from:
-      id: from-f789
-      uri: timer
+      id: from-dummy
+      uri: direct
       parameters:
-        timerName: test
+        name: dummy
       steps:
         - log:
-            id: log-eafe
-            message: ${body}
-- routeConfiguration:
-    onException:
-      - onException:
-          id: onException-6e74
-          exception:
-            - java.lang.NullPointerException
-          onWhen:
-            id: when-5940
-            expression:
-              groovy:
-                id: groovy-d30d
-                expression: "true"
-          steps:
-            - log:
-                id: log-eae0
-                message: error
+            id: log-b47b
+            message: DUMMY

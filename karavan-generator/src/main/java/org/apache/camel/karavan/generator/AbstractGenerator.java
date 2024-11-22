@@ -170,7 +170,7 @@ public class AbstractGenerator {
         String json = getMetaModel(stepName);
         if (json != null) {
             JsonObject props = new JsonObject(json).getJsonObject("properties");
-            List propsLowerCase = props.getMap().keySet().stream().map(String::toLowerCase).collect(Collectors.toList());
+            List<String> propsLowerCase = props.getMap().keySet().stream().map(String::toLowerCase).toList();
             return Comparator.comparing(e -> {
                 if (propsLowerCase.contains(e.toLowerCase())) return propsLowerCase.indexOf(e.toLowerCase());
                 else return propsLowerCase.size() + 1;
