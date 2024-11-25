@@ -60,11 +60,6 @@ export function ObjectField(props: Props) {
     }
 
     const val = props.value;
-    if (val) {
-        const x = CamelDefinitionApiExt.getElementProperties(val.dslName)
-        console.log(val.dslName)
-        console.log(x)
-    }
     return (
         <div className="object-field">
             {val && CamelDefinitionApiExt.getElementProperties(val.dslName).map((property: PropertyMeta)  =>
