@@ -197,12 +197,8 @@ export class CamelUtil {
 
         if (name) {
             const component = ComponentApi.findByName(name);
-            return component
-                ? ComponentApi.getComponentProperties(
-                    component?.component.name,
-                    element.dslName === 'FromDefinition' ? 'consumer' : 'producer',
-                )
-                : [];
+            const type: 'consumer' | 'producer' = ['FromDefinition', 'PollDefinition'].includes(element.dslName) ? 'consumer' : 'producer'
+            return component ? ComponentApi.getComponentProperties(component?.component.name, type) : [];
         } else {
             return [];
         }
