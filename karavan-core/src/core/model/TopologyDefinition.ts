@@ -66,14 +66,18 @@ export class TopologyRouteNode {
     fileName: string;
     from: FromDefinition;
     route: RouteDefinition
+    templateId?: string
+    templateTitle?: string
 
-    constructor(id: string, routeId: string, title: string, fileName: string, from: FromDefinition, route: RouteDefinition) {
+    constructor(id: string, routeId: string, title: string, fileName: string, from: FromDefinition, route: RouteDefinition, templateId?: string, templateTitle?: string) {
         this.id = id;
         this.routeId = routeId;
         this.title = title;
         this.fileName = fileName;
         this.from = from;
         this.route = route;
+        this.templateId = templateId;
+        this.templateTitle = templateTitle;
     }
 }
 

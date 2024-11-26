@@ -22,7 +22,7 @@ import {
     PatchDefinition,
     PostDefinition,
     PutDefinition,
-    RestDefinition, RouteConfigurationDefinition, RouteDefinition, SagaDefinition,
+    RestDefinition, RouteConfigurationDefinition, RouteDefinition, RouteTemplateDefinition, SagaDefinition,
 } from '../model/CamelDefinition';
 import {
     CamelElement,
@@ -174,6 +174,17 @@ export class TopologyUtils {
                     return new TopologyIncomingNode(id, type, connectorType, r.id, title, filename, r.from, uniqueUri);
                 }) || [];
                 result.push(...routeElements);
+                const templates = i.spec.flows?.filter(flow => flow.dslName === 'RouteTemplateDefinition');
+                const templateElements = templates?.map(t => {
+                    const r = t.route;
+                    const id = 'incoming-' + r.id;
+                    const title = CamelDisplayUtil.getStepDescription(r.from);
+                    const type = TopologyUtils.isElementInternalComponent(r.from) ? 'internal' : 'external';
+                    const connectorType = TopologyUtils.getConnectorType(r.from);
+                    const uniqueUri = TopologyUtils.getUniqueUri(r.from);
+                    return new TopologyIncomingNode(id, type, connectorType, r.id, title, filename, r.from, uniqueUri);
+                }) || [];
+                result.push(...templateElements);
             } catch (e) {
                 console.error(e);
             }
@@ -193,6 +204,14 @@ export class TopologyUtils {
                     return new TopologyRouteNode(id, r.id, title, filename, r.from, r);
                 }) || [];
                 result.push(...routeElements);
+                const templates = i.spec.flows?.filter(flow => flow.dslName === 'RouteTemplateDefinition');
+                const templateElements = templates?.map(t => {
+                    const r = t.route;
+                    const id = 'route-' + r.id;
+                    const title = '' + (r.description ? r.description : r.id);
+                    return new TopologyRouteNode(id, r.id, title, filename, r.from, r, t.id, t.description);
+                }) || [];
+                result.push(...templateElements);
             } catch (e) {
                 console.error(e);
             }
@@ -224,8 +243,9 @@ export class TopologyUtils {
         integrations.forEach(i => {
             try {
                 const filename = i.metadata.name;
-                const routes = i.spec.flows?.filter(flow => flow.dslName === 'RouteDefinition');
-                routes?.forEach(route => {
+                const routes = i.spec.flows?.filter(flow => flow.dslName === 'RouteDefinition') || [];
+                const routeFromTemplates = i.spec.flows?.filter(flow => flow.dslName === 'RouteTemplateDefinition').map(rt => rt.route) || [];
+                routes.concat(routeFromTemplates).forEach(route => {
                     const from: FromDefinition = route.from;
                     const elements = TopologyUtils.findOutgoingInStep(from, []);
                     elements.forEach((e: any) => {

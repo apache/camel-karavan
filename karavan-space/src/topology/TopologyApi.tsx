@@ -80,11 +80,14 @@ export function getRoutes(tins: TopologyRouteNode[]): NodeModel[] {
             status: NodeStatus.default,
             data: {
                 isAlternate: false,
+                badge: tin.templateId !== undefined ? 'RT' : 'R',
                 type: 'route',
                 icon: 'route',
                 step: tin.route,
                 routeId: tin.routeId,
                 fileName: tin.fileName,
+                templateId: tin.templateId,
+                templateTitle: tin.templateTitle,
             }
         }
         return node;
@@ -198,7 +201,7 @@ export function getRestNodes(tins: TopologyRestNode[]): NodeModel[] {
             status: NodeStatus.default,
             data: {
                 isAlternate: false,
-                badge: 'REST',
+                badge: 'API',
                 icon: 'rest',
                 type: 'rest',
                 step: tin.rest,
