@@ -18,11 +18,17 @@
 import * as React from 'react';
 
 import './topology.css';
-import {DefaultGroup, observer} from '@patternfly/react-topology';
+import {DefaultGroup, LabelPosition, observer} from '@patternfly/react-topology';
 
 const CustomGroup: React.FC<any> = observer(({ element, ...rest }) => {
     return (
-        <DefaultGroup element={element} className={"topology-group"} {...rest}>
+        <DefaultGroup
+            element={element}
+            className={"topology-group"}
+            showLabel={false}
+            showLabelOnHover={true}
+            {...rest}
+        >
         </DefaultGroup>
     )
 })

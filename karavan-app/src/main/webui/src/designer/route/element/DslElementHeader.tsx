@@ -80,7 +80,7 @@ export function DslElementHeader(props: Props) {
     }
 
     function isWide(): boolean {
-        return ['RouteConfigurationDefinition', 'RouteDefinition', 'ChoiceDefinition', 'MulticastDefinition',
+        return ['RouteConfigurationDefinition', 'RouteTemplateDefinition', 'RouteDefinition', 'ChoiceDefinition', 'MulticastDefinition',
             'LoadBalanceDefinition', 'TryDefinition', 'CircuitBreakerDefinition']
             .includes(props.step.dslName);
     }
@@ -163,6 +163,10 @@ export function DslElementHeader(props: Props) {
             classes.push('header-route')
             classes.push('header-bottom-line')
             classes.push(isElementSelected() ? 'header-bottom-selected' : 'header-bottom-not-selected')
+        } else if (step.dslName === 'RouteTemplateDefinition') {
+            classes.push('header-route')
+            classes.push('header-bottom-line')
+            classes.push(isElementSelected() ? 'header-bottom-selected' : 'header-bottom-not-selected')
         } else if (step.dslName === 'RouteConfigurationDefinition') {
             classes.push('header-route')
             if (hasElements(step)) {
@@ -181,39 +185,43 @@ export function DslElementHeader(props: Props) {
         const step: CamelElement = props.step;
         const parent = props.parent;
         const inRouteConfiguration = parent !== undefined && parent.dslName === 'RouteConfigurationDefinition';
-        const showAddButton = !['CatchDefinition', 'RouteDefinition'].includes(step.dslName) && availableModels.length > 0;
+        const showAddButton = !['CatchDefinition', 'RouteTemplateDefinition', 'RouteDefinition'].includes(step.dslName) && availableModels.length > 0;
         const showInsertButton =
-            !['FromDefinition', 'RouteConfigurationDefinition', 'RouteDefinition', 'CatchDefinition', 'FinallyDefinition', 'WhenDefinition', 'OtherwiseDefinition'].includes(step.dslName)
+            !['FromDefinition', 'RouteConfigurationDefinition', 'RouteTemplateDefinition', 'RouteDefinition', 'CatchDefinition', 'FinallyDefinition', 'WhenDefinition', 'OtherwiseDefinition'].includes(step.dslName)
             && !inRouteConfiguration;
+        const showDeleteButton = !('RouteDefinition' === step.dslName && 'RouteTemplateDefinition' === parent?.dslName);
         const headerClasses = getHeaderClasses();
         const childrenInfo = getChildrenInfo(props.step) || [];
         const hasWideChildrenElement = getHasWideChildrenElement(childrenInfo)
         return (
             <div className={"dsl-element " + headerClasses} style={getHeaderStyle()} ref={props.headerRef}>
-                {!['RouteConfigurationDefinition', 'RouteDefinition'].includes(props.step.dslName) &&
+                {!['RouteConfigurationDefinition', 'RouteTemplateDefinition', 'RouteDefinition'].includes(props.step.dslName) &&
                     <div
                         className={getHeaderIconClasses()}
                         style={isWide() ? {width: ""} : {}}>
                         {CamelUi.getIconForElement(step)}
                     </div>
                 }
-                {'RouteDefinition' === step.dslName&&
+                {'RouteDefinition' === step.dslName &&
                     <div className={"route-icons"}>
                         {(step as any).autoStartup !== false && <AutoStartupIcon/>}
                         {(step as any).errorHandler !== undefined && <ErrorHandlerIcon/>}
                     </div>
                 }
-                {'RouteConfigurationDefinition' === step.dslName&&
+                {'RouteConfigurationDefinition' === step.dslName &&
                     <div className={"route-icons"}>
                         {(step as any).errorHandler !== undefined && <ErrorHandlerIcon/>}
                     </div>
+                }
+                {'RouteTemplateDefinition' === step.dslName &&
+                    <div style={{height: '10px'}}></div>
                 }
                 <div className={hasWideChildrenElement ? "header-text" : ""}>
                     {hasWideChildrenElement && <div className="spacer"/>}
                     {getHeaderTextWithTooltip(step, hasWideChildrenElement)}
                 </div>
                 {showInsertButton && getInsertElementButton()}
-                {getDeleteButton()}
+                {showDeleteButton && getDeleteButton()}
                 {showAddButton && getAddElementButton()}
             </div>
         )
