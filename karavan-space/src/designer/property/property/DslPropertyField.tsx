@@ -33,7 +33,15 @@ import {
     Card,
     InputGroup,
     SelectOptionProps,
-    capitalize, InputGroupItem, TextVariants, ToggleGroup, ToggleGroupItem
+    capitalize,
+    InputGroupItem,
+    TextVariants,
+    ToggleGroup,
+    ToggleGroupItem,
+    ValidatedOptions,
+    FormHelperText,
+    HelperText,
+    HelperTextItem
 } from '@patternfly/react-core';
 import {
     Select,
@@ -83,6 +91,8 @@ import {SelectField} from "./SelectField";
 import {PropertyUtil} from "./PropertyUtil";
 import {usePropertiesStore} from "../PropertyStore";
 import {Property} from "karavan-core/lib/model/KameletModels";
+import {isSensitiveFieldValid} from "../../utils/ValidatorUtils";
+import ExclamationCircleIcon from "@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon";
 
 const beanPrefix = "#bean:";
 const classPrefix = "#class:";
@@ -103,7 +113,8 @@ export function DslPropertyField(props: Props) {
 
     const [integration, setIntegration, addVariable, files] = useIntegrationStore((s) => [s.integration, s.setIntegration, s.addVariable, s.files], shallow)
     const [dark, setSelectedStep, beans] = useDesignerStore((s) => [s.dark, s.setSelectedStep, s.beans], shallow)
-    const [propertyFilter, changedOnly, requiredOnly] = usePropertiesStore((s) => [s.propertyFilter, s.changedOnly, s.requiredOnly], shallow)
+    const [propertyFilter, changedOnly, requiredOnly, sensitiveOnly] = usePropertiesStore((s) =>
+        [s.propertyFilter, s.changedOnly, s.requiredOnly, s.sensitiveOnly], shallow)
 
     const [isShowAdvanced, setIsShowAdvanced] = useState<string[]>([]);
     const [arrayValues, setArrayValues] = useState<Map<string, string>>(new Map<string, string>());
@@ -638,6 +649,7 @@ export function DslPropertyField(props: Props) {
                         id={property.name + "-placeholder"}
                         name={property.name + "-placeholder"}
                         type="text"
+                        validated={validated}
                         aria-label="placeholder"
                         value={!isValueBoolean ? textValue?.toString() : ''}
                         onBlur={_ => propertyChanged(property.name, textValue)}
@@ -918,6 +930,9 @@ export function DslPropertyField(props: Props) {
         if (changedOnly) {
             properties = properties.filter(p => PropertyUtil.hasKameletPropertyValueChanged(p, getKameletPropertyValue(p)));
         }
+        if (sensitiveOnly) {
+            properties = properties.filter(p => p.format == "password");
+        }
         return properties;
     }
 
@@ -1038,6 +1053,9 @@ export function DslPropertyField(props: Props) {
         if (changedOnly) {
             componentProperties = componentProperties.filter(p => PropertyUtil.hasComponentPropertyValueChanged(p, getComponentPropertyValue(p)));
         }
+        if (sensitiveOnly) {
+            componentProperties = componentProperties.filter(p => p.secret);
+        }
         return componentProperties
     }
 
@@ -1082,11 +1100,26 @@ export function DslPropertyField(props: Props) {
         return false;
     }
 
+    function getValidationHelper() {
+        return (
+            validated !== ValidatedOptions.default
+                ? <FormHelperText>
+                    <HelperText>
+                        <HelperTextItem icon={<ExclamationCircleIcon />} variant={validated}>
+                            {'Must be a placeholder {{ }} or secret {{secret:name/key}}'}
+                        </HelperTextItem>
+                    </HelperText>
+                </FormHelperText>
+                : <></>
+        )
+    }
+
     const element = props.element;
     const isKamelet = CamelUtil.isKameletComponent(element);
     const isRouteTemplate = element?.dslName === 'RouteTemplateDefinition';
     const property: PropertyMeta = props.property;
     const value = props.value;
+    const validated = (property.secret && !isSensitiveFieldValid(value)) ? ValidatedOptions.error : ValidatedOptions.default;
     const isVariable = getIsVariable();
     const beanConstructors = element?.dslName === 'BeanFactoryDefinition' && property.name === 'constructors'
     const beanProperties = element?.dslName === 'BeanFactoryDefinition' && property.name === 'properties'
@@ -1143,6 +1176,7 @@ export function DslPropertyField(props: Props) {
                 {!isKamelet && property.name === 'parameters' && getComponentParameters(property)}
                 {beanConstructors && getBeanProperties('constructors')}
                 {beanProperties && getBeanProperties('properties')}
+                {getValidationHelper()}
             </FormGroup>
             {getInfrastructureSelectorModal()}
         </>

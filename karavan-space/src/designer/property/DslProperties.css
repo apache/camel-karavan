@@ -276,3 +276,12 @@
     background-color: yellow;
 }
 
+.karavan .properties .value-sensitive-invalid {
+    background-color: red;
+}
+
+.karavan .properties .property-selector .pf-v5-c-toggle-group__button {
+    padding-left: 6px;
+    padding-right: 6px;
+}
+

@@ -14,15 +14,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
+    Button,
+    ExpandableSection,
     Form,
     Text,
-    Title,
+    TextInputGroup,
+    TextInputGroupMain,
+    TextInputGroupUtilities,
     TextVariants,
-    ExpandableSection,
-    Button,
-    Tooltip, ToggleGroupItem, ToggleGroup, TextInputGroup, TextInputGroupMain, TextInputGroupUtilities,
+    Title,
+    ToggleGroup,
+    ToggleGroupItem,
+    Tooltip,
 } from '@patternfly/react-core';
 import '../karavan.css';
 import './DslProperties.css';
@@ -63,10 +68,17 @@ export function DslProperties(props: Props) {
     const [selectedStep, dark]
         = useDesignerStore((s) => [s.selectedStep, s.dark], shallow)
 
-    const [propertyFilter, changedOnly, requiredOnly, setChangedOnly, setPropertyFilter, setRequiredOnly]
-        = usePropertiesStore((s) => [s.propertyFilter, s.changedOnly, s.requiredOnly, s.setChangedOnly, s.setPropertyFilter, s.setRequiredOnly], shallow)
+    const [propertyFilter, changedOnly, requiredOnly, setChangedOnly, sensitiveOnly, setSensitiveOnly, setPropertyFilter, setRequiredOnly]
+        = usePropertiesStore((s) => [s.propertyFilter, s.changedOnly, s.requiredOnly, s.setChangedOnly, s.sensitiveOnly, s.setSensitiveOnly, s.setPropertyFilter, s.setRequiredOnly], shallow)
 
     const [showAdvanced, setShowAdvanced] = useState<boolean>(false);
+
+    useEffect(() => {
+        setRequiredOnly(false);
+        setChangedOnly(false);
+        setSensitiveOnly(false);
+        setPropertyFilter('');
+    }, [selectedStep?.uuid])
 
     function getClonableElementHeader(): React.JSX.Element {
         const title = selectedStep && CamelDisplayUtil.getTitle(selectedStep);
@@ -130,7 +142,10 @@ export function DslProperties(props: Props) {
             propertyMetas = propertyMetas.filter(p => p.name === 'parameters' || p.required);
         }
         if (changedOnly) {
-            propertyMetas = propertyMetas.filter(p =>p.name === 'parameters' || PropertyUtil.hasDslPropertyValueChanged(p, getPropertyValue(p)));
+            propertyMetas = propertyMetas.filter(p => p.name === 'parameters' || PropertyUtil.hasDslPropertyValueChanged(p, getPropertyValue(p)));
+        }
+        if (sensitiveOnly) {
+            propertyMetas = propertyMetas.filter(p => p.name === 'parameters' || p.secret);
         }
         return propertyMetas
     }
@@ -144,7 +159,7 @@ export function DslProperties(props: Props) {
     function getPropertySelector() {
         return (
             <div style={{display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '3px', pointerEvents: 'initial', opacity: '1'}}>
-                <ToggleGroup aria-label="properties selctor">
+                <ToggleGroup className='property-selector' aria-label="properties selctor">
                     <ToggleGroupItem
                         text="Required"
                         buttonId="requiredOnly"
@@ -156,6 +171,12 @@ export function DslProperties(props: Props) {
                         buttonId="changedOnly"
                         isSelected={changedOnly}
                         onChange={(_, selected) => setChangedOnly(selected)}
+                    />
+                    <ToggleGroupItem
+                        text="Sensitive"
+                        buttonId="sensitiveOnly"
+                        isSelected={sensitiveOnly}
+                        onChange={(_, selected) => setSensitiveOnly(selected)}
                     />
                 </ToggleGroup>
                 <TextInputGroup>
@@ -179,7 +200,7 @@ export function DslProperties(props: Props) {
     }
 
     function getPropertySelectorChanged(): boolean {
-        return requiredOnly || changedOnly || propertyFilter?.trim().length > 0;
+        return requiredOnly || changedOnly || sensitiveOnly || propertyFilter?.trim().length > 0;
     }
 
     function getShowExpanded(): boolean {

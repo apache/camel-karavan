@@ -16,19 +16,22 @@
  */
 import React, {useEffect, useRef, useState} from 'react';
 import {
-    FormGroup,
-    TextInput,
-    Popover,
-    Switch, InputGroup, Button, Tooltip, capitalize, Text, TextVariants, InputGroupItem
+    InputGroup,
+    Button,
+    Tooltip,
+    capitalize,
+    Text,
+    TextVariants,
+    InputGroupItem,
+    ValidatedOptions,
+    FormHelperText, HelperText, HelperTextItem, TextInput, FormGroup, Popover, Switch
 } from '@patternfly/react-core';
 import '../../karavan.css';
 import "@patternfly/patternfly/patternfly.css";
-import HelpIcon from "@patternfly/react-icons/dist/js/icons/help-icon";
+import ExclamationCircleIcon from '@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon';
 import {Property} from "karavan-core/lib/model/KameletModels";
 import {InfrastructureSelector} from "./InfrastructureSelector";
 import {InfrastructureAPI} from "../../utils/InfrastructureAPI";
-import ShowIcon from "@patternfly/react-icons/dist/js/icons/eye-icon";
-import HideIcon from "@patternfly/react-icons/dist/js/icons/eye-slash-icon";
 import DockerIcon from "@patternfly/react-icons/dist/js/icons/docker-icon";
 import {usePropertiesHook} from "../usePropertiesHook";
 import {Select, SelectDirection, SelectOption, SelectVariant} from "@patternfly/react-core/deprecated";
@@ -38,6 +41,8 @@ import EditorIcon from "@patternfly/react-icons/dist/js/icons/code-icon";
 import {ExpressionModalEditor} from "../../../expression/ExpressionModalEditor";
 import {useDesignerStore} from "../../DesignerStore";
 import {shallow} from "zustand/shallow";
+import {isSensitiveFieldValid} from "../../utils/ValidatorUtils";
+import HelpIcon from "@patternfly/react-icons/dist/js/icons/help-icon";
 
 interface Props {
     property: Property,
@@ -171,9 +176,10 @@ export function KameletPropertyField(props: Props) {
                     ref={ref}
                     className="text-field" isRequired
                     type='text'
+                    validated={validated}
                     autoComplete="off"
                     id={id} name={id}
-                    value={textValue}
+                    value={textValue || ''}
                     onBlur={_ => {
                         if (isNumeric((textValue))) {
                             parametersChanged(property.id, Number(textValue))
@@ -240,9 +246,23 @@ export function KameletPropertyField(props: Props) {
             </div>
         )
     }
+    function getValidationHelper() {
+        return (
+            validated !== ValidatedOptions.default
+                ? <FormHelperText>
+                    <HelperText>
+                        <HelperTextItem icon={<ExclamationCircleIcon />} variant={validated}>
+                            {'Must be a placeholder {{ }} or secret {{secret:name/key}}'}
+                        </HelperTextItem>
+                    </HelperText>
+                </FormHelperText>
+                : <></>
+        )
+    }
 
     const property =  props.property;
     const value =  props.value;
+    const validated = (property.format === 'password' && !isSensitiveFieldValid(value)) ? ValidatedOptions.error : ValidatedOptions.default;
     const prefix = "parameters";
     const id = prefix + "-" + property.id;
     return (
@@ -279,6 +299,7 @@ export function KameletPropertyField(props: Props) {
                     isChecked={Boolean(value) === true}
                     onChange={e => parametersChanged(property.id, !Boolean(value))}/>
                 }
+                {getValidationHelper()}
             </FormGroup>
             {getInfrastructureSelectorModal()}
         </div>

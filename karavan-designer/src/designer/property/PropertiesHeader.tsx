@@ -25,7 +25,7 @@ import {
     MenuToggle,
     DropdownList,
     DropdownItem, Flex, Popover, FlexItem, Badge, ClipboardCopy,
-    Switch, Radio, Tooltip,
+    Switch, Tooltip,
 } from '@patternfly/react-core';
 import '../karavan.css';
 import './DslProperties.css';

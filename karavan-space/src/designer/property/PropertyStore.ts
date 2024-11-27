@@ -24,11 +24,14 @@ interface PropertiesState {
     setRequiredOnly: (requiredOnly: boolean) => void
     changedOnly: boolean;
     setChangedOnly: (changedOnly: boolean) => void
+    sensitiveOnly: boolean;
+    setSensitiveOnly: (sensitiveOnly: boolean) => void
 }
 
 export const usePropertiesStore = createWithEqualityFn<PropertiesState>((set, get) => ({
     requiredOnly: false,
     changedOnly: false,
+    sensitiveOnly: false,
     propertyFilter: '',
     setPropertyFilter: (propertyFilter: string) => {
         set({propertyFilter: propertyFilter});
@@ -38,5 +41,8 @@ export const usePropertiesStore = createWithEqualityFn<PropertiesState>((set, ge
     },
     setChangedOnly: (changedOnly: boolean) => {
         set({changedOnly: changedOnly});
+    },
+    setSensitiveOnly: (sensitiveOnly: boolean) => {
+        set({sensitiveOnly: sensitiveOnly});
     },
 }), shallow)
