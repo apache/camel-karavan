@@ -1,7 +1,3 @@
-- rest:
-    id: rest-fe3c
-    get:
-      - id: get-8c13
 - routeTemplate:
     id: routeFileReaderTemplate
     description: File reader
@@ -9,18 +5,12 @@
       id: routeFileReader
       description: File reader
       from:
-        id: from-c667
-        description: Read file
-        uri: file
-        parameters:
-          directoryName: "{{folderName}}"
-          noop: true
+        id: from-4101
+        uri: sftp
         steps:
           - to:
               id: to-1234
-              uri: direct
-              parameters:
-                name: converter
+              uri: sql
     parameters:
       - name: folderName
 - routeTemplate:
@@ -30,12 +20,8 @@
       id: routeFileReader 2
       description: File reader 2
       from:
-        id: from-c667
-        description: Read file
-        uri: file
-        parameters:
-          directoryName: "{{folderName}}"
-          noop: true
+        id: from-4101
+        uri: sftp
         steps:
           - to:
               id: to-1234
@@ -49,6 +35,9 @@
     from:
       id: from-b6a5
       uri: kamelet:aws-kinesis-source
+      parameters:
+        secretKey: asasdasd
+        accessKey: asdasd
       steps:
         - log:
             id: log-b47b

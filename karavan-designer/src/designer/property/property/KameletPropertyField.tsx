@@ -51,7 +51,6 @@ export function KameletPropertyField(props: Props) {
 
     const [dark] = useDesignerStore((s) => [s.dark], shallow)
     const [showEditor, setShowEditor] = useState<boolean>(false);
-    const [showPassword, setShowPassword] = useState<boolean>(false);
     const [infrastructureSelector, setInfrastructureSelector] = useState<boolean>(false);
     const [infrastructureSelectorProperty, setInfrastructureSelectorProperty] = useState<string | undefined>(undefined);
     const [selectStatus, setSelectStatus] = useState<Map<string, boolean>>(new Map<string, boolean>());
@@ -171,7 +170,7 @@ export function KameletPropertyField(props: Props) {
                 <TextInput
                     ref={ref}
                     className="text-field" isRequired
-                    type={property.format && !showPassword ? "password" : "text"}
+                    type='text'
                     autoComplete="off"
                     id={id} name={id}
                     value={textValue}
@@ -220,13 +219,6 @@ export function KameletPropertyField(props: Props) {
                         setCheckChanges(true);
                     }}/>
             </InputGroupItem>
-            {property.format === "password" &&
-                <Tooltip position="bottom-end" content={showPassword ? "Hide" : "Show"}>
-                    <Button variant="control" onClick={e => setShowPassword(!showPassword)}>
-                        {showPassword ? <ShowIcon/> : <HideIcon/>}
-                    </Button>
-                </Tooltip>
-            }
         </InputGroup>
     }
 

@@ -78,7 +78,6 @@ export function ComponentPropertyField(props: Props) {
 
     const [selectStatus, setSelectStatus] = useState<Map<string, boolean>>(new Map<string, boolean>());
     const [showEditor, setShowEditor] = useState<boolean>(false);
-    const [showPassword, setShowPassword] = useState<boolean>(false);
     const [infrastructureSelector, setInfrastructureSelector] = useState<boolean>(false);
     const [infrastructureSelectorProperty, setInfrastructureSelectorProperty] = useState<string | undefined>(undefined);
     const [id, setId] = useState<string>(prefix + "-" + props.property.name);
@@ -266,7 +265,7 @@ export function ComponentPropertyField(props: Props) {
                 </Tooltip>}
             {(!showEditor || property.secret) &&
                 <TextInput className="text-field" isRequired ref={ref}
-                           type={property.secret && !showPassword ? "password" : "text"}
+                           type="text"
                            autoComplete="off"
                            id={id} name={id}
                            value={(textValue !== undefined ? textValue : property.defaultValue) || ''}
@@ -299,13 +298,6 @@ export function ComponentPropertyField(props: Props) {
                                            setCheckChanges(false);
                                        }}/>
             </InputGroupItem>}
-            {property.secret &&
-                <Tooltip position="bottom-end" content={showPassword ? "Hide" : "Show"}>
-                    <Button variant="control" onClick={e => setShowPassword(!showPassword)}>
-                        {showPassword ? <ShowIcon/> : <HideIcon/>}
-                    </Button>
-                </Tooltip>
-            }
             <InputGroupItem>
                 <PropertyPlaceholderDropdown property={property} value={value} onComponentPropertyChange={(parameter, v) => {
                     onParametersChange(parameter, v);
@@ -322,7 +314,7 @@ export function ComponentPropertyField(props: Props) {
                 <InputGroupItem isFill>
                     <TextInput
                         className="text-field" isRequired
-                        type={(property.secret ? "password" : "text")}
+                        type="text"
                         autoComplete="off"
                         id={id} name={id}
                         value={(textValue !== undefined ? textValue : property.defaultValue) || ''}

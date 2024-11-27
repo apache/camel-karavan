@@ -16,13 +16,18 @@
  */
 import React, {useEffect, useState} from 'react';
 import {
-    TextInput, Button, Tooltip, Popover, InputGroup, InputGroupItem, capitalize,
+    Button,
+    capitalize,
+    InputGroup,
+    InputGroupItem,
+    Popover,
+    TextInput,
+    Tooltip,
+    ValidatedOptions,
 } from '@patternfly/react-core';
 import '../../karavan.css';
 import "@patternfly/patternfly/patternfly.css";
-import {
-    BeanFactoryDefinition,
-} from "karavan-core/lib/model/CamelDefinition";
+import {BeanFactoryDefinition,} from "karavan-core/lib/model/CamelDefinition";
 import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
 import {SensitiveKeys} from "karavan-core/lib/model/CamelMetadata";
 import {v4 as uuidv4} from "uuid";
@@ -31,13 +36,11 @@ import AddIcon from "@patternfly/react-icons/dist/js/icons/plus-circle-icon";
 import HelpIcon from "@patternfly/react-icons/dist/js/icons/help-icon";
 import {InfrastructureSelector} from "./InfrastructureSelector";
 import {InfrastructureAPI} from "../../utils/InfrastructureAPI";
-import ShowIcon from "@patternfly/react-icons/dist/js/icons/eye-icon";
-import HideIcon from "@patternfly/react-icons/dist/js/icons/eye-slash-icon";
 import DockerIcon from "@patternfly/react-icons/dist/js/icons/docker-icon";
 import {useDesignerStore} from "../../DesignerStore";
 import {shallow} from "zustand/shallow";
 import {KubernetesIcon} from "../../icons/ComponentIcons";
-
+import {isSensitiveFieldValid} from "../../utils/ValidatorUtils";
 
 interface Props {
     type: 'constructors' | 'properties'
@@ -51,26 +54,26 @@ export function BeanProperties (props: Props) {
     const [infrastructureSelector, setInfrastructureSelector] = useState<boolean>(false);
     const [infrastructureSelectorProperty, setInfrastructureSelectorProperty] = useState<string | undefined>(undefined);
     const [infrastructureSelectorUuid, setInfrastructureSelectorUuid] = useState<string | undefined>(undefined);
-    const [properties, setProperties] = useState<Map<string, [string, string, boolean]>>(new Map<string, [string, string, boolean]>());
-    const [constructors, setConstructors] = useState<Map<string, [number, string, boolean]>>(new Map<string, [number, string, boolean]>());
+    const [properties, setProperties] = useState<Map<string, [string, string]>>(new Map<string, [string, string]>());
+    const [constructors, setConstructors] = useState<Map<string, [number, string]>>(new Map<string, [number, string]>());
 
     useEffect(()=> {
         setProperties(preparePropertiesMap((selectedStep as BeanFactoryDefinition)?.properties))
         setConstructors(prepareConstructorsMap((selectedStep as BeanFactoryDefinition)?.constructors))
     }, [selectedStep?.uuid])
 
-    function preparePropertiesMap (properties: any): Map<string, [string, string, boolean]>  {
-        const result = new Map<string, [string, string, boolean]>();
+    function preparePropertiesMap (properties: any): Map<string, [string, string]>  {
+        const result = new Map<string, [string, string]>();
         if (properties) {
-            Object.keys(properties).forEach((k, i, a) => result.set(uuidv4(), [k, properties[k], false]));
+            Object.keys(properties).forEach((k, i, a) => result.set(uuidv4(), [k, properties[k]]));
         }
         return result;
     }
 
-    function prepareConstructorsMap (constructors: any): Map<string, [number, string, boolean]>  {
-        const result = new Map<string, [number, string, boolean]>();
+    function prepareConstructorsMap (constructors: any): Map<string, [number, string]>  {
+        const result = new Map<string, [number, string]>();
         if (constructors) {
-            Object.keys(constructors).forEach((k, i, a) => result.set(uuidv4(), [parseInt(k), constructors[k], false]));
+            Object.keys(constructors).forEach((k, i, a) => result.set(uuidv4(), [parseInt(k), constructors[k]]));
         }
         return result;
     }
@@ -103,17 +106,17 @@ export function BeanProperties (props: Props) {
         }
     }
 
-    function propertyChanged (uuid: string, key: string, value: string, showPassword: boolean)  {
+    function propertyChanged (uuid: string, key: string, value: string)  {
         setProperties(prevState => {
-            prevState.set(uuid, [key, value, showPassword]);
+            prevState.set(uuid, [key, value]);
             return prevState;
         });
         onBeanPropertyUpdate();
     }
 
-    function constructorChanged (uuid: string, key: number, value: string, showPassword: boolean)  {
+    function constructorChanged (uuid: string, key: number, value: string)  {
         setConstructors(prevState => {
-            prevState.set(uuid, [key, value, showPassword]);
+            prevState.set(uuid, [key, value]);
             return prevState;
         });
         onBeanConstructorsUpdate();
@@ -140,7 +143,7 @@ export function BeanProperties (props: Props) {
         const uuid = infrastructureSelectorUuid;
         if (propertyId && uuid){
             if (value.startsWith("config") || value.startsWith("secret")) value = "{{" + value + "}}";
-            propertyChanged(uuid, propertyId, value, false);
+            propertyChanged(uuid, propertyId, value);
             setInfrastructureSelector(false);
             setInfrastructureSelectorProperty(undefined);
         }
@@ -201,20 +204,19 @@ export function BeanProperties (props: Props) {
                     const i = v[0];
                     const key = v[1][0];
                     const value = v[1][1];
-                    const showPassword = v[1][2];
                     const isSecret = false;
                     return (
                         <div key={"key-" + i} className="bean-property">
                             <TextInput placeholder="Argument Index" className="text-field" isRequired type="text" id={"key-" + i}
                                        name={"key-" + i} value={key}
                                        onChange={(_, beanFieldName) => {
-                                           constructorChanged(i, parseInt(beanFieldName) , value, showPassword)
+                                           constructorChanged(i, parseInt(beanFieldName) , value)
                                        }}/>
                             <InputGroup>
                                 <InputGroupItem isFill>
                                     <TextInput
                                         placeholder="Argument Value"
-                                        type={isSecret && !showPassword ? "password" : "text"}
+                                        type='text'
                                         autoComplete="off"
                                         className="text-field"
                                         isRequired
@@ -222,14 +224,9 @@ export function BeanProperties (props: Props) {
                                         name={"value-" + i}
                                         value={value}
                                         onChange={(_, value) => {
-                                            constructorChanged(i, key, value, showPassword)
+                                            constructorChanged(i, key, value)
                                         }}/>
                                 </InputGroupItem>
-                                {isSecret && <Tooltip position="bottom-end" content={showPassword ? "Hide" : "Show"}>
-                                    <Button variant="control" onClick={e => constructorChanged(i, key, value, !showPassword)}>
-                                        {showPassword ? <ShowIcon/> : <HideIcon/>}
-                                    </Button>
-                                </Tooltip>}
                             </InputGroup>
                             <Button variant="link" className="delete-button" onClick={e => constructorDeleted(i)}>
                                 <DeleteIcon/>
@@ -237,7 +234,7 @@ export function BeanProperties (props: Props) {
                         </div>
                     )
                 })}
-                <Button variant="link" className="add-button" onClick={e => constructorChanged(uuidv4(), constructors.size, '', false)}>
+                <Button variant="link" className="add-button" onClick={e => constructorChanged(uuidv4(), constructors.size, '')}>
                     <AddIcon/>Add argument</Button>
             </>
         )
@@ -250,8 +247,8 @@ export function BeanProperties (props: Props) {
                     const i = v[0];
                     const key = v[1][0];
                     const value = v[1][1];
-                    const showPassword = v[1][2];
                     const isSecret = key !== undefined && SensitiveKeys.includes(key.toLowerCase());
+                    const validated = (isSecret && !isSensitiveFieldValid(value)) ? ValidatedOptions.error : ValidatedOptions.default;
                     const inInfrastructure = InfrastructureAPI.infrastructure !== 'local';
                     const icon = InfrastructureAPI.infrastructure === 'kubernetes' ? KubernetesIcon("infra-button"): <DockerIcon/>
                     return (
@@ -259,11 +256,11 @@ export function BeanProperties (props: Props) {
                             <TextInput placeholder="Bean Field Name" className="text-field" isRequired type="text" id={"key-" + i}
                                        name={"key-" + i} value={key}
                                        onChange={(_, beanFieldName) => {
-                                           propertyChanged(i, beanFieldName, value, showPassword)
+                                           propertyChanged(i, beanFieldName, value)
                                        }}/>
                             <InputGroup>
                                 {inInfrastructure &&
-                                    <Tooltip position="bottom-end" content={"Select from " + capitalize(InfrastructureAPI.infrastructure)}>
+                                    <Tooltip position="bottom-end" content={'Select from ' + capitalize(InfrastructureAPI.infrastructure)}>
                                         <Button variant="control" onClick={e => openInfrastructureSelector(i, key)}>
                                             {icon}
                                         </Button>
@@ -271,28 +268,24 @@ export function BeanProperties (props: Props) {
                                 <InputGroupItem isFill>
                                     <TextInput
                                         placeholder="Bean Field Value"
-                                        type={isSecret && !showPassword ? "password" : "text"}
+                                        type='text'
                                         autoComplete="off"
                                         className="text-field"
                                         isRequired
+                                        validated={validated}
                                         id={"value-" + i}
                                         name={"value-" + i}
                                         value={value}
                                         onChange={(_, value) => {
-                                            propertyChanged(i, key, value, showPassword)
+                                            propertyChanged(i, key, value)
                                         }}/>
                                 </InputGroupItem>
-                                {isSecret && <Tooltip position="bottom-end" content={showPassword ? "Hide" : "Show"}>
-                                    <Button variant="control" onClick={e => propertyChanged(i, key, value, !showPassword)}>
-                                        {showPassword ? <ShowIcon/> : <HideIcon/>}
-                                    </Button>
-                                </Tooltip>}
                             </InputGroup>
                             <Button variant="link" className="delete-button" onClick={e => propertyDeleted(i)}><DeleteIcon/></Button>
                         </div>
                     )
                 })}
-                <Button variant="link" className="add-button" onClick={e => propertyChanged(uuidv4(), '', '', false)}>
+                <Button variant="link" className="add-button" onClick={e => propertyChanged(uuidv4(), '', '')}>
                     <AddIcon/>Add property</Button>
             </>
         )
