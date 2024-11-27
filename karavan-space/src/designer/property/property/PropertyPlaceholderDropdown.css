@@ -28,6 +28,11 @@
     display: none;
 }
 
+.karavan .properties .property-placeholder-dropdown .pf-v5-c-menu__group-title {
+    font-weight: bold;
+    font-size: 13px;
+}
+
 .pf-v5-c-popover .property-placeholder-toggle-form {
     width: 300px;
 }

@@ -213,6 +213,7 @@ type DesignerState = {
     left: number,
     moveElements: [string | undefined, string | undefined],
     propertyPlaceholders: string[],
+    parameterPlaceholders: [string, string][], // route template parameters
     beans: BeanFactoryDefinition[]
 }
 
@@ -232,6 +233,7 @@ const designerState: DesignerState = {
     left: 0,
     moveElements: [undefined, undefined],
     propertyPlaceholders: [],
+    parameterPlaceholders: [],
     beans: []
 };
 
@@ -249,6 +251,7 @@ type DesignerAction = {
     setNotification: (notificationBadge: boolean, notificationMessage: [string, string]) => void;
     setMoveElements: (moveElements: [string | undefined, string | undefined]) => void;
     setPropertyPlaceholders: (propertyPlaceholders: string[]) => void;
+    setParameterPlaceholders: (parameterPlaceholders: [string, string][]) => void;
     setBeans: (beans: BeanFactoryDefinition[]) => void;
 }
 
@@ -306,6 +309,13 @@ export const useDesignerStore = createWithEqualityFn<DesignerState & DesignerAct
         set((state: DesignerState) => {
             state.propertyPlaceholders.length = 0;
             state.propertyPlaceholders.push(...propertyPlaceholders);
+            return state;
+        })
+    },
+    setParameterPlaceholders: (parameterPlaceholders: [string, string][]) => {
+        set((state: DesignerState) => {
+            state.parameterPlaceholders.length = 0;
+            state.parameterPlaceholders.push(...parameterPlaceholders);
             return state;
         })
     },

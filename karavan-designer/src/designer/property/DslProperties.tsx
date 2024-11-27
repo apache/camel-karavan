@@ -47,6 +47,7 @@ import {PropertiesHeader} from "./PropertiesHeader";
 import {PropertyUtil} from "./property/PropertyUtil";
 import {usePropertiesStore} from "./PropertyStore";
 import TimesIcon from "@patternfly/react-icons/dist/esm/icons/times-icon";
+import {RouteTemplateDefinition} from "karavan-core/lib/model/CamelDefinition";
 
 interface Props {
     designerType: 'routes' | 'rest' | 'beans'
@@ -65,8 +66,8 @@ export function DslProperties(props: Props) {
     } =
         usePropertiesHook(props.designerType);
 
-    const [selectedStep, dark]
-        = useDesignerStore((s) => [s.selectedStep, s.dark], shallow)
+    const [selectedStep, dark, setParameterPlaceholders]
+        = useDesignerStore((s) => [s.selectedStep, s.dark, s.setParameterPlaceholders], shallow)
 
     const [propertyFilter, changedOnly, requiredOnly, setChangedOnly, sensitiveOnly, setSensitiveOnly, setPropertyFilter, setRequiredOnly]
         = usePropertiesStore((s) => [s.propertyFilter, s.changedOnly, s.requiredOnly, s.setChangedOnly, s.sensitiveOnly, s.setSensitiveOnly, s.setPropertyFilter, s.setRequiredOnly], shallow)
@@ -78,7 +79,18 @@ export function DslProperties(props: Props) {
         setChangedOnly(false);
         setSensitiveOnly(false);
         setPropertyFilter('');
+        getRouteTemplateParameters()
     }, [selectedStep?.uuid])
+
+    function getRouteTemplateParameters() {
+        if (selectedStep) {
+            const root = CamelDefinitionApiExt.findTopRouteElement(integration, selectedStep.uuid);
+            if ('RouteTemplateDefinition' === root?.dslName) {
+                const paramPlaceholders: [string, string][] = (root as RouteTemplateDefinition).parameters?.map(p => [p.name, p.description ||'']) || [];
+                setParameterPlaceholders(paramPlaceholders);
+            }
+        }
+    }
 
     function getClonableElementHeader(): React.JSX.Element {
         const title = selectedStep && CamelDisplayUtil.getTitle(selectedStep);

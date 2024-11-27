@@ -59,8 +59,8 @@ interface Props {
 
 export function PropertyPlaceholderDropdown(props: Props) {
 
-    const [propertyPlaceholders, setPropertyPlaceholders] = useDesignerStore((s) =>
-        [s.propertyPlaceholders, s.setPropertyPlaceholders], shallow)
+    const [propertyPlaceholders, setPropertyPlaceholders, parameterPlaceholders] = useDesignerStore((s) =>
+        [s.propertyPlaceholders, s.setPropertyPlaceholders, s.parameterPlaceholders], shallow)
     const [isOpenPlaceholdersDropdown, setOpenPlaceholdersDropdown] = useState<boolean>(false);
     const [propValue, setPropValue] = useState<string>('');
     const [isVisible, setIsVisible] = React.useState(false);
@@ -72,13 +72,15 @@ export function PropertyPlaceholderDropdown(props: Props) {
     const {property, value} = props;
     const valueIsPlaceholder: boolean = value && value.toString().startsWith('{{') && value.toString().endsWith('}}');
     const placeholderValue = valueIsPlaceholder ? value.toString().replace('{{', '').replace('}}', '') : undefined;
+    const isRouteTemplateParameter = parameterPlaceholders.map(p => p[0]).includes(placeholderValue);
     const showAddButton = valueIsPlaceholder
+        && !isRouteTemplateParameter
         && !propertyPlaceholders.includes(placeholderValue)
-        && !SYNTAX_EXAMPLES.map(se=> se.value).includes(removeBrackets(placeholderValue))
-        && SYNTAX_EXAMPLES.findIndex(se=> removeBrackets(placeholderValue).startsWith(se.key)) === -1;
+        && !SYNTAX_EXAMPLES.map(se => se.value).includes(removeBrackets(placeholderValue))
+        && SYNTAX_EXAMPLES.findIndex(se => removeBrackets(placeholderValue).startsWith(se.key)) === -1;
     const popoverId = "popover-selector-" + property.hasOwnProperty('name') ? (property as any).name : (property as any).id;
 
-    const hasPlaceholders = (propertyPlaceholders && propertyPlaceholders.length > 0 );
+    const hasPlaceholders = (propertyPlaceholders && propertyPlaceholders.length > 0);
 
     function parametersChanged(value: string | number | boolean | any) {
         if (property instanceof ComponentProperty) {
@@ -167,13 +169,23 @@ export function PropertyPlaceholderDropdown(props: Props) {
             shouldFocusToggleOnSelect
         >
             <DropdownList>
-                {hasPlaceholders && <DropdownGroup label="Application Properties">
-                    {propertyPlaceholders.map((pp, index) =>
-                        <DropdownItem value={pp} key={index}>{pp}</DropdownItem>
-                    )}
-                </DropdownGroup>}
+                {parameterPlaceholders &&
+                    <DropdownGroup label="Template Parameters" className='property-placeholder-dropdown'>
+                        {parameterPlaceholders.map((pp, index) =>
+                            <DropdownItem value={pp[0]} key={index} description={pp[1]}>{pp[0]}</DropdownItem>
+                        )}
+                    </DropdownGroup>
+                }
+                {parameterPlaceholders && <Divider component="li"/>}
+                {hasPlaceholders &&
+                    <DropdownGroup label="Application Properties" className='property-placeholder-dropdown'>
+                        {propertyPlaceholders.map((pp, index) =>
+                            <DropdownItem value={pp} key={index}>{pp}</DropdownItem>
+                        )}
+                    </DropdownGroup>
+                }
                 {hasPlaceholders && <Divider component="li"/>}
-                <DropdownGroup label="Syntax examples">
+                <DropdownGroup label="Syntax examples" className='property-placeholder-dropdown'>
                     {SYNTAX_EXAMPLES.map(se =>
                         <DropdownItem value={se.value} key={se.key} description={se.description}>
                             {se.value}

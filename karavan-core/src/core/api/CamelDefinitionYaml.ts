@@ -19,7 +19,7 @@ import { Beans, CamelElement, Integration } from '../model/IntegrationDefinition
 import {
     BeanFactoryDefinition,
     RouteConfigurationDefinition,
-    RouteDefinition, RouteTemplateDefinition,
+    RouteDefinition,
 } from '../model/CamelDefinition';
 import { CamelUtil } from './CamelUtil';
 import { CamelDefinitionYamlStep } from './CamelDefinitionYamlStep';

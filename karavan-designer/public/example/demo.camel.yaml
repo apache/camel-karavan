@@ -1,24 +1,9 @@
 - routeTemplate:
-    id: routeFileReaderTemplate
-    description: File reader
-    route:
-      id: routeFileReader
-      description: File reader
-      from:
-        id: from-4101
-        uri: sftp
-        steps:
-          - to:
-              id: to-1234
-              uri: sql
-    parameters:
-      - name: folderName
-- routeTemplate:
     id: routeFileReaderTemplate2
-    description: File reader 2
+    description: File reader template
     route:
       id: routeFileReader 2
-      description: File reader 2
+      description: File reader route
       from:
         id: from-4101
         uri: sftp
@@ -26,29 +11,25 @@
           - to:
               id: to-1234
               uri: sql
+              parameters:
+                query: "{{folderName}}"
+          - loadBalance:
+              id: loadBalance-8172
+          - log:
+              id: log-7fa8
+              message: ${body}
+          - loop:
+              id: loop-6068
+              expression:
+                groovy:
+                  id: groovy-4e44
+              steps:
+                - marshal:
+                    id: marshal-930d
+                    json:
+                      id: json-135e
     parameters:
-      - name: folderName
-- route:
-    id: route-dummy
-    description: Dummy route
-    autoStartup: false
-    from:
-      id: from-b6a5
-      uri: kamelet:aws-kinesis-source
-      parameters:
-        secretKey: asasdasd
-        accessKey: asdasd
-      steps:
-        - log:
-            id: log-b47b
-            message: DUMMY
-- route:
-    id: route-file
-    description: File consumer
-    from:
-      id: from-file
-      uri: file
-      steps:
-        - log:
-            id: log-file
-            message: DUMMY
+      - description: Folder with files
+        name: folderName
+      - description: Server Hostname
+        name: serverName

@@ -821,7 +821,7 @@ export class CamelUi {
 
     static getFlowCounts = (i: Integration): Map<string, number> => {
         const result = new Map<string, number>();
-        result.set('routes', i.spec.flows?.filter((e: any) => e.dslName === 'RouteDefinition').length || 0);
+        result.set('routes', i.spec.flows?.filter((e: any) => ['RouteDefinition', 'RouteTemplateDefinition'].includes(e.dslName)).length || 0);
         result.set('rest', i.spec.flows?.filter((e: any) => e.dslName === 'RestDefinition').length || 0);
         result.set('routeConfiguration', i.spec.flows?.filter((e: any) => e.dslName === 'RouteConfigurationDefinition').length || 0);
         const beans = i.spec.flows?.filter((e: any) => e.dslName === 'Beans');

@@ -174,6 +174,23 @@ export class CamelDefinitionApiExt {
         return result;
     };
 
+    static findTopRouteElement = (integration: Integration, uuid: string): CamelElement | undefined => {
+        const result: string[] = [];
+        let meta = CamelDefinitionApiExt.findElementMetaInIntegration(integration, uuid);
+        if (meta) {
+            while (meta.parentUuid !== undefined) {
+                if (meta.parentUuid) {
+                    result.push(meta.parentUuid);
+                    meta = CamelDefinitionApiExt.findElementMetaInIntegration(integration, meta.parentUuid);
+                } else {
+                    break;
+                }
+            }
+        }
+        const last = result.at(-1);
+        return last ? CamelDefinitionApiExt.findElementInIntegration(integration, last): undefined
+    };
+
     static findElementInElements = (steps: CamelElement[] | undefined, uuid: string, result: CamelElementMeta = new CamelElementMeta(undefined, undefined, undefined),
                                     parentUuid?: string,): CamelElementMeta => {
         if (result?.step !== undefined) {
