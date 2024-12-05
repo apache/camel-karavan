@@ -697,7 +697,7 @@ export const CamelDataFormatMetadata: ElementMeta[] = [
         new PropertyMeta('id', 'Id', "The id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('library', 'Library', "Which yaml library to use. By default it is SnakeYAML", 'string', 'SnakeYAML', 'SnakeYAML', false, false, false, false, '', ''),
         new PropertyMeta('unmarshalType', 'Unmarshal Type', "Class name of the java type to use when unmarshalling", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('constructor', 'Constructor', "BaseConstructor to construct incoming documents.", 'string', '', '', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('_constructor', 'Constructor', "BaseConstructor to construct incoming documents.", 'string', '', '', false, false, false, false, 'advanced', ''),
         new PropertyMeta('representer', 'Representer', "Representer to emit outgoing objects.", 'string', '', '', false, false, false, false, 'advanced', ''),
         new PropertyMeta('dumperOptions', 'Dumper Options', "DumperOptions to configure outgoing objects.", 'string', '', '', false, false, false, false, 'advanced', ''),
         new PropertyMeta('resolver', 'Resolver', "Resolver to detect implicit type", 'string', '', '', false, false, false, false, 'advanced', ''),

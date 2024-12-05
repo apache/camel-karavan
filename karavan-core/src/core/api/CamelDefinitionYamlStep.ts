@@ -3519,7 +3519,10 @@ export class CamelDefinitionYamlStep {
         
         let def = element ? new YAMLDataFormat({...element}) : new YAMLDataFormat();
         def.typeFilter = element && element?.typeFilter ? element?.typeFilter.map((x:any) => CamelDefinitionYamlStep.readYAMLTypeFilterDefinition(x)) :[]; 
-
+        if (element.constructor !== undefined) {
+            def._constructor = element.constructor;
+            delete (def as any).constructor;
+        }
         return def;
     }
 

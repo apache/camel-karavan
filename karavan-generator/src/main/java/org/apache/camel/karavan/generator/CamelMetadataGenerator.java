@@ -215,9 +215,10 @@ public final class CamelMetadataGenerator extends AbstractGenerator {
                             pm.type = "string";
                         }
                         if (!getDeprecatedClasses().contains(pm.type)) {
+                            var propertyName = "constructor".equals(pname) ? "_constructor" : pname;
                             code.append(String.format(
                                     "        new PropertyMeta('%s', '%s', \"%s\", '%s', '%s', '%s', %b, %b, %b, %b, '%s', '%s'),\n",
-                                    pname, displayName, desc, pm.type, en, defaultValue, required, secret, pm.isArray, (pm.isArray ? pm.type : pm.isObject), labels, javaType));
+                                    propertyName, displayName, desc, pm.type, en, defaultValue, required, secret, pm.isArray, (pm.isArray ? pm.type : pm.isObject), labels, javaType));
                         }
                     }
                 });
