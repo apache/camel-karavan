@@ -1,35 +1,22 @@
-- routeTemplate:
-    id: routeFileReaderTemplate2
-    description: File reader template
-    route:
-      id: routeFileReader 2
-      description: File reader route
-      from:
-        id: from-4101
-        uri: sftp
-        steps:
-          - to:
-              id: to-1234
-              uri: sql
-              parameters:
-                query: "{{folderName}}"
-          - loadBalance:
-              id: loadBalance-8172
-          - log:
-              id: log-7fa8
-              message: ${body}
-          - loop:
-              id: loop-6068
-              expression:
-                groovy:
-                  id: groovy-4e44
-              steps:
-                - marshal:
-                    id: marshal-930d
-                    json:
-                      id: json-135e
-    parameters:
-      - description: Folder with files
-        name: folderName
-      - description: Server Hostname
-        name: serverName
+- beans:
+    - name: userService
+      type: "org.apache.camel.example.rest.UserService"
+- route:
+    from:
+      uri: direct
+      parameters:
+        name: getUser
+      steps:
+        - to:
+            uri: bean
+            parameters:
+              beanName: userService
+              method: "getUser(${header.id})"
+        - filter:
+            simple:
+              expression: "${body} == null"
+            steps:
+              - setHeader:
+                  name: Exchange.HTTP_RESPONSE_CODE
+                  constant:
+                    expression: 404

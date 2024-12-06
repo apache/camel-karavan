@@ -216,7 +216,7 @@ export class CamelUtil {
         if (elementMeta) {
             for (const property of elementMeta.properties.filter(p => p.required)) {
                 const value = (element as any)[property.name];
-                if (property.type === 'string' && !property.isArray && (value === undefined || !value.trim())) {
+                if (property.type === 'string' && !property.isArray && (value === undefined || !value.toString().trim())) {
                     result[0] = false;
                     result[1].push(`${property.displayName} is required`);
                 } else if (['ExpressionSubElementDefinition', 'ExpressionDefinition'].includes(property.type)) {
@@ -242,7 +242,7 @@ export class CamelUtil {
                 const requiredProperties = CamelUtil.getComponentProperties(element).filter(p => p.required);
                 for (const property of requiredProperties) {
                     const value = CamelDefinitionApiExt.getParametersValue(element, property.name, property.kind === 'path');
-                    if (value === undefined || (property.type === 'string' && value.trim().length === 0)) {
+                    if (value === undefined || (property.type === 'string' && value.toString().trim().length === 0)) {
                         result[0] = false;
                         result[1].push(`${property.displayName} is required`);
                     }
@@ -251,7 +251,7 @@ export class CamelUtil {
                 for (const property of secretProperties) {
                     const value = CamelDefinitionApiExt.getParametersValue(element, property.name, property.kind === 'path');
                     if (value !== undefined && property.type === 'string'
-                        && (!value?.trim()?.startsWith("{{") || !value?.trim()?.endsWith('}}'))) {
+                        && (!value?.toString().trim()?.startsWith("{{") || !value?.toString().trim()?.endsWith('}}'))) {
                         result[0] = false;
                         result[1].push(`${property.displayName} is set in plain text`);
                     }
@@ -270,7 +270,7 @@ export class CamelUtil {
                 const sensitiveParameters = filledParameters.filter(p => CamelUtil.checkIfKameletParameterSensitive(p, kamelet));
                 sensitiveParameters.forEach(p => {
                     const value = elementAsAny?.parameters[p];
-                    if (value !== undefined && (!value?.trim()?.startsWith("{{") || !value?.trim()?.endsWith('}}'))) {
+                    if (value !== undefined && (!value?.toString()?.trim()?.startsWith("{{") || !value?.toString()?.trim()?.endsWith('}}'))) {
                         result[0] = false;
                         result[1].push(`${p} is set in plain text`);
                     }
