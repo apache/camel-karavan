@@ -16,21 +16,8 @@
  */
 import {expect} from 'chai';
 import 'mocha';
-import {
-    FromDefinition,
-    LogDefinition,
-    WhenDefinition,
-    ChoiceDefinition,
-    MulticastDefinition,
-    ExpressionDefinition,
-    RouteDefinition, TryDefinition,CatchDefinition
-} from "../src/core/model/CamelDefinition";
-import {CamelDefinitionApiExt} from "../src/core/api/CamelDefinitionApiExt";
 import {CamelDefinitionYaml} from "../src/core/api/CamelDefinitionYaml";
-import {SimpleExpression} from "../src/core/model/CamelDefinition";
-import {Integration} from "../src/core/model/IntegrationDefinition";
 import * as fs from 'fs';
-import { MarshalDefinition, YAMLDataFormat } from '../lib/model/CamelDefinition';
 
 describe('YAML Data Format', () => {
 

@@ -7,7 +7,6 @@
         - marshal:
             id: marshal-7abc
             yaml:
-              dslName: YAMLDataFormat
               id: yaml-b347
               library: hello
               constructor: test

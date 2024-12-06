@@ -240,10 +240,9 @@ export class CamelDefinitionYaml {
                 return xValue;
             }
         } else {
-            if (value.dslName === 'YAMLDataFormat') { // YAMLDataFormat constructor field
+            if (value?.dslName === 'YAMLDataFormat') { // YAMLDataFormat constructor field
                 value.constructor = value._constructor;
                 delete value._constructor;
-                return value;
             }
             delete value?.dslName;
             return value;
