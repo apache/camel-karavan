@@ -46,7 +46,7 @@ export function BuildPanel () {
     const [isBuilding, setIsBuilding] = useState<boolean>(false);
     const [showDeleteConfirmation, setShowDeleteConfirmation] = useState<boolean>(false);
     const [deleteEntityName, setDeleteEntityName] = useState<string>();
-    const [tag, setTag] = useState<string>(getShortCommit(project.lastCommit));
+    const [tag, setTag] = useState<string>('latest');
 
     function deleteEntity() {
         const buildName = getBuildName();
