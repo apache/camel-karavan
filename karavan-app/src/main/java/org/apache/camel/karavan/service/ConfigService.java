@@ -103,7 +103,7 @@ public class ConfigService {
 
     public static boolean inDocker() {
         if (inDocker == null) {
-            inDocker = !inKubernetes() && Files.exists(Paths.get(".dockerenv"));
+            inDocker = !inKubernetes() && Files.exists(Paths.get("/.dockerenv"));
         }
         return inDocker;
     }
