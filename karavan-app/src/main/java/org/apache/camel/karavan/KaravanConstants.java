@@ -22,6 +22,8 @@ public class KaravanConstants {
     public static final String DEVMODE_IMAGE = "karavan.devmode.image";
     public static final String DEVMODE_IMAGE_PULL_POLICY = "karavan.devmode.withImagePullPolicy";
     public static final String ENV_VAR_VERBOSE_OPTION_NAME = "VERBOSE_OPTION";
+    public static final String RUN_IN_COMPILE_MODE = "RUN_IN_COMPILE_MODE";
+    public static final String RUN_IN_BUILD_MODE = "RUN_IN_BUILD_MODE";
     public static final String ENV_VAR_VERBOSE_OPTION_VALUE = "--verbose";
 
     public static final String LABEL_PART_OF = "app.kubernetes.io/part-of";

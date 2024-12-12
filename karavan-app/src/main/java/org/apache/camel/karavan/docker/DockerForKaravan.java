@@ -22,10 +22,7 @@ import com.github.dockerjava.api.model.MountType;
 import com.github.dockerjava.api.model.RestartPolicy;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import org.apache.camel.karavan.model.ContainerType;
-import org.apache.camel.karavan.model.DockerComposeService;
-import org.apache.camel.karavan.model.DockerComposeVolume;
-import org.apache.camel.karavan.model.Project;
+import org.apache.camel.karavan.model.*;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
@@ -48,14 +45,14 @@ public class DockerForKaravan {
     @Inject
     DockerService dockerService;
 
-    public void runProjectInDevMode(String projectId, Boolean verbose, DockerComposeService composeService,
+    public void runProjectInDevMode(String projectId, Boolean verbose, Boolean compile, DockerComposeService composeService,
                                     Map<String, String> files, String projectDevmodeImage, Map<String, String> labels, Map<String, String> envVars) throws Exception {
-        Container c = createDevmodeContainer(projectId, verbose, composeService, projectDevmodeImage, labels, envVars);
+        Container c = createDevmodeContainer(projectId, verbose, compile, composeService, projectDevmodeImage, labels, envVars);
         dockerService.runContainer(projectId);
         dockerService.copyFiles(c.getId(), "/karavan/code", files, true);
     }
 
-    protected Container createDevmodeContainer(String projectId, Boolean verbose, DockerComposeService compose,
+    protected Container createDevmodeContainer(String projectId, Boolean verbose, Boolean compile, DockerComposeService compose,
                                                String projectDevmodeImage, Map<String, String> labels, Map<String, String> envVars) throws InterruptedException {
         LOGGER.infof("DevMode starting for %s with verbose=%s", projectId, verbose);
 
@@ -66,6 +63,9 @@ public class DockerForKaravan {
         envVars.forEach((k,v) -> env.add(k + "=" + v));
         if (verbose) {
             env.add(ENV_VAR_VERBOSE_OPTION_NAME + "=" + ENV_VAR_VERBOSE_OPTION_VALUE);
+        }
+        if (compile) {
+            env.add(RUN_IN_COMPILE_MODE + "=true");
         }
 
         if (createM2.orElse(false)) {
@@ -93,6 +93,7 @@ public class DockerForKaravan {
         if (createM2.orElse(false)) {
             compose.getVolumes().add(new DockerComposeVolume(MountType.VOLUME.name(), project.getProjectId() + "-build-m2-repository", "/karavan/.m2/repository"));
         }
+        compose.addEnvironment(RUN_IN_BUILD_MODE, "true");
         Container c = createBuildContainer(containerName, project, compose.getEnvironmentList(), compose.getVolumes(), tag);
         dockerService.copyExecFile(c.getId(), "/karavan/builder", BUILD_SCRIPT_FILENAME, script);
         sshFiles.forEach((name, text) -> {

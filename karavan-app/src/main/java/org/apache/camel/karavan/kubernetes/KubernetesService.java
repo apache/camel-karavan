@@ -16,6 +16,8 @@
  */
 package org.apache.camel.karavan.kubernetes;
 
+import org.apache.camel.karavan.model.KubernetesConfigMap;
+import org.apache.camel.karavan.model.KubernetesSecret;
 import io.fabric8.kubernetes.api.model.*;
 import io.fabric8.kubernetes.api.model.apps.Deployment;
 import io.fabric8.kubernetes.client.KubernetesClient;
@@ -30,8 +32,6 @@ import jakarta.enterprise.inject.Produces;
 import jakarta.inject.Inject;
 import org.apache.camel.karavan.KaravanConstants;
 import org.apache.camel.karavan.model.ContainerType;
-import org.apache.camel.karavan.model.KubernetesConfigMap;
-import org.apache.camel.karavan.model.KubernetesSecret;
 import org.apache.camel.karavan.model.Project;
 import org.apache.camel.karavan.service.CodeService;
 import org.apache.camel.karavan.service.ConfigService;
@@ -186,6 +186,9 @@ public class KubernetesService {
         }
 
         Pod pod = Serialization.unmarshal(configFragment, Pod.class);
+
+        pod.getSpec().getContainers().get(0).getEnv().add(new EnvVarBuilder().withName(RUN_IN_BUILD_MODE).withValue("true").build());
+
         Container container = new ContainerBuilder()
                 .withName(name)
                 .withImage(devmodeImage)
@@ -335,7 +338,7 @@ public class KubernetesService {
         return result;
     }
 
-    public void runDevModeContainer(Project project, Boolean verbose, Map<String, String> files, String projectDevmodeImage, String deploymentFragment, Map<String, String> labels, Map<String, String> envVars) {
+    public void runDevModeContainer(Project project, Boolean verbose, Boolean compile, Map<String, String> files, String projectDevmodeImage, String deploymentFragment, Map<String, String> labels, Map<String, String> envVars) {
         String name = project.getProjectId();
         Map<String, String> podLabels = new HashMap<>(labels);
         podLabels.putAll(getLabels(name, project, ContainerType.devmode));
@@ -346,7 +349,7 @@ public class KubernetesService {
             }
             Pod old = client.pods().inNamespace(getNamespace()).withName(name).get();
             if (old == null) {
-                Pod pod = getDevModePod(name, verbose, podLabels, projectDevmodeImage, deploymentFragment, envVars);
+                Pod pod = getDevModePod(name, verbose, compile, podLabels, projectDevmodeImage, deploymentFragment, envVars);
                 Pod result = client.resource(pod).serverSideApply();
                 copyFilesToContainer(result, files, "/karavan/code");
                 LOGGER.info("Created pod " + result.getMetadata().getName());
@@ -389,7 +392,7 @@ public class KubernetesService {
                 .build();
     }
 
-    private Pod getDevModePod(String name, Boolean verbose, Map<String, String> labels, String projectDevmodeImage, String deploymentFragment, Map<String, String> envVars) {
+    private Pod getDevModePod(String name, Boolean verbose, Boolean compile, Map<String, String> labels, String projectDevmodeImage, String deploymentFragment, Map<String, String> envVars) {
 
         Deployment deployment = Serialization.unmarshal(deploymentFragment, Deployment.class);
         PodSpec podSpec = null;
@@ -420,7 +423,12 @@ public class KubernetesService {
 
         List<EnvVar> environmentVariables = new ArrayList<>();
         envVars.forEach((k, v) -> environmentVariables.add(new EnvVarBuilder().withName(k).withValue(v).build()));
-        environmentVariables.add(new EnvVarBuilder().withName(ENV_VAR_VERBOSE_OPTION_NAME).withValue(ENV_VAR_VERBOSE_OPTION_VALUE).build());
+        if (verbose) {
+            environmentVariables.add(new EnvVarBuilder().withName(ENV_VAR_VERBOSE_OPTION_NAME).withValue(ENV_VAR_VERBOSE_OPTION_VALUE).build());
+        }
+        if (compile) {
+            environmentVariables.add(new EnvVarBuilder().withName(RUN_IN_COMPILE_MODE).withValue("true").build());
+        }
 
         Container container = new ContainerBuilder()
                 .withName(name)
