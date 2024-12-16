@@ -34,9 +34,9 @@ import { ComponentApi } from 'karavan-core/lib/api/ComponentApi';
 
 export class ProjectService {
 
-    public static startDevModeContainer(project: Project, verbose: boolean) {
+    public static startDevModeContainer(project: Project, verbose: boolean, compile: boolean = false) {
         useDevModeStore.setState({status: 'wip'})
-        KaravanApi.startDevModeContainer(project, verbose, res => {
+        KaravanApi.startDevModeContainer(project, verbose, compile, res => {
             useDevModeStore.setState({status: 'none'})
             if (res.status === 200 || res.status === 201) {
                 ProjectEventBus.sendLog('set', '');

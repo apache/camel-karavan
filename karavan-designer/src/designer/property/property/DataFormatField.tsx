@@ -64,10 +64,15 @@ export function DataFormatField(props: Props) {
             const className = CamelMetadataApi.getCamelDataFormatMetadataByName(dataFormat)?.className;
             value = CamelDefinitionApi.createDataFormat(className || '', {}); // perhaps copy other similar fields later
         }
-        const df = CamelDefinitionApi.createStep(props.dslName, {});
-        (df as any)[dataFormat] = value;
-        (df as any)['uuid'] = props.value.uuid;
-        (df as any)['id'] = (props.value as any)['id'];
+        const df: any = CamelDefinitionApi.createStep(props.dslName, {});
+        const pValue = props.value as any
+        df[dataFormat] = value;
+        df.uuid = props.value.uuid;
+        df.variableReceive = pValue.variableReceive;
+        df.variableSend = pValue.variableSend;
+        df.description = pValue.description;
+        df.disabled = pValue.disabled;
+        df.id = pValue.id;
 
         props.onDataFormatChange?.(df);
         setSelectIsOpen(false);
