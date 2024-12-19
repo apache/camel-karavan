@@ -242,6 +242,27 @@ export class CamelDefinitionApiExt {
         return counter;
     };
 
+    static findElementById = (integration: Integration, id: string): CamelElement | undefined => {
+        return CamelDefinitionApiExt.findElementsById(integration, id, [])?.at(0);
+    };
+
+    static findElementsById = (obj: Object, id: string, elements: CamelElement[]): CamelElement[] => {
+        for (const propName in obj) {
+            let prop = (obj as any)[propName];
+            if (propName === 'id' && id === prop) {
+                elements.push(obj as CamelElement)
+                elements = CamelDefinitionApiExt.findElementsById(prop, id, elements);
+            } else if (typeof prop === 'object' && prop !== null) {
+                elements = CamelDefinitionApiExt.findElementsById(prop, id, elements);
+            } else if (Array.isArray(prop)) {
+                for (const element of prop) {
+                    elements = CamelDefinitionApiExt.findElementsById(element, id, elements);
+                }
+            }
+        }
+        return elements;
+    };
+
     static moveRouteElement = (integration: Integration, source: string, target: string, asChild: boolean,): Integration => {
         const sourceFindStep = CamelDefinitionApiExt.findElementMetaInIntegration(integration, source);
         const sourceStep = sourceFindStep.step;

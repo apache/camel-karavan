@@ -97,7 +97,7 @@ describe('Find Step', () => {
         expect(log.message).to.equal(log2.message);
     });
 
-    it('Find Steps in YAML by Id', () => {
+    it('Find if Step exists YAML by Id', () => {
         const yaml = fs.readFileSync('test/findStep.yaml',{encoding:'utf8', flag:'r'});
         const i = CamelDefinitionYaml.yamlToIntegration("demo.yaml", yaml);
         const yaml2 = CamelDefinitionYaml.integrationToYaml(i);
@@ -108,5 +108,20 @@ describe('Find Step', () => {
 
         expect(res1).to.equal(1);
         expect(res2).to.equal(0);
+    });
+
+    it('Find Steps in YAML by Id', () => {
+        const yaml = fs.readFileSync('test/findStep.yaml',{encoding:'utf8', flag:'r'});
+        const i = CamelDefinitionYaml.yamlToIntegration("demo.yaml", yaml);
+        const yaml2 = CamelDefinitionYaml.integrationToYaml(i);
+        expect(yaml.replaceAll("\r\n", "\n")).to.equal(yaml2); // replace for Windows compatibility
+
+        const res1 = CamelDefinitionApiExt.findElementById(i, 'to-6a8b');
+        const res2 = CamelDefinitionApiExt.findElementById(i, 'otherwise-4843');
+        const res3 = CamelDefinitionApiExt.findElementById(i, 'to-6a81');
+
+        expect(res1?.dslName).to.equal('ToDefinition');
+        expect(res2?.dslName).to.equal('OtherwiseDefinition');
+        expect(res3).to.equal(undefined);
     });
 });
