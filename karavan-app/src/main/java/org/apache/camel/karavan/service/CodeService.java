@@ -156,7 +156,8 @@ public class CodeService {
         String template = getTemplateText(APPLICATION_PROPERTIES_FILENAME);
         String code = substituteVariables(template, Map.of(
                 "projectId", project.getProjectId(),
-                "projectName", project.getName()
+                "projectName", project.getName(),
+                "packageSuffix", project.getGavPackageSuffix()
         ));
         return new ProjectFile(APPLICATION_PROPERTIES_FILENAME, code, project.getProjectId(), Instant.now().toEpochMilli());
     }

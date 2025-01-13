@@ -16,8 +16,6 @@
  */
 package org.apache.camel.karavan.kubernetes;
 
-import org.apache.camel.karavan.model.KubernetesConfigMap;
-import org.apache.camel.karavan.model.KubernetesSecret;
 import io.fabric8.kubernetes.api.model.*;
 import io.fabric8.kubernetes.api.model.apps.Deployment;
 import io.fabric8.kubernetes.client.KubernetesClient;
@@ -32,7 +30,8 @@ import jakarta.enterprise.inject.Produces;
 import jakarta.inject.Inject;
 import org.apache.camel.karavan.KaravanConstants;
 import org.apache.camel.karavan.model.ContainerType;
-import org.apache.camel.karavan.model.Project;
+import org.apache.camel.karavan.model.KubernetesConfigMap;
+import org.apache.camel.karavan.model.KubernetesSecret;
 import org.apache.camel.karavan.service.CodeService;
 import org.apache.camel.karavan.service.ConfigService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -114,10 +113,10 @@ public class KubernetesService {
         }
     }
 
-    public void runBuildProject(Project project, String podFragment) {
+    public void runBuildProject(String projectId, String podFragment) {
         try (KubernetesClient client = kubernetesClient()) {
-            String containerName = project.getProjectId() + BUILDER_SUFFIX;
-            Map<String, String> labels = getLabels(containerName, project, ContainerType.build);
+            String containerName = projectId + BUILDER_SUFFIX;
+            Map<String, String> labels = getLabels(containerName, projectId, ContainerType.build);
 
 //        Delete old build pod
             Pod old = client.pods().inNamespace(getNamespace()).withName(containerName).get();
@@ -134,11 +133,11 @@ public class KubernetesService {
         }
     }
 
-    private Map<String, String> getLabels(String name, Project project, ContainerType type) {
+    private Map<String, String> getLabels(String name, String projectId, ContainerType type) {
         Map<String, String> labels = new HashMap<>();
         labels.putAll(getPartOfLabels());
         labels.put("app.kubernetes.io/name", name);
-        labels.put(LABEL_PROJECT_ID, project.getProjectId());
+        labels.put(LABEL_PROJECT_ID, projectId);
         if (type != null) {
             labels.put(LABEL_TYPE, type.name());
         }
@@ -338,24 +337,23 @@ public class KubernetesService {
         return result;
     }
 
-    public void runDevModeContainer(Project project, Boolean verbose, Boolean compile, Map<String, String> files, String projectDevmodeImage, String deploymentFragment, Map<String, String> labels, Map<String, String> envVars) {
-        String name = project.getProjectId();
+    public void runDevModeContainer(String projectId, Boolean verbose, Boolean compile, Map<String, String> files, String projectDevmodeImage, String deploymentFragment, Map<String, String> labels, Map<String, String> envVars) {
         Map<String, String> podLabels = new HashMap<>(labels);
-        podLabels.putAll(getLabels(name, project, ContainerType.devmode));
+        podLabels.putAll(getLabels(projectId, projectId, ContainerType.devmode));
 
         try (KubernetesClient client = kubernetesClient()) {
             if (devmodePVC.orElse(false)) {
-                createPVC(name, labels);
+                createPVC(projectId, labels);
             }
-            Pod old = client.pods().inNamespace(getNamespace()).withName(name).get();
+            Pod old = client.pods().inNamespace(getNamespace()).withName(projectId).get();
             if (old == null) {
-                Pod pod = getDevModePod(name, verbose, compile, podLabels, projectDevmodeImage, deploymentFragment, envVars);
+                Pod pod = getDevModePod(projectId, verbose, compile, podLabels, projectDevmodeImage, deploymentFragment, envVars);
                 Pod result = client.resource(pod).serverSideApply();
                 copyFilesToContainer(result, files, "/karavan/code");
                 LOGGER.info("Created pod " + result.getMetadata().getName());
             }
         }
-        createService(name, podLabels);
+        createService(projectId, podLabels);
     }
 
     private void copyFilesToContainer(Pod pod, Map<String, String> files, String dirName) {

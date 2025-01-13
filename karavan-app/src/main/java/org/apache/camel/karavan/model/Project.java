@@ -73,6 +73,10 @@ public class Project {
         return projectId;
     }
 
+    public String getGavPackageSuffix() {
+        return projectId.replaceAll("[^a-zA-Z0-9]", "").toLowerCase();
+    }
+
     public void setProjectId(String projectId) {
         this.projectId = projectId;
     }

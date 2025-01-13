@@ -22,7 +22,10 @@ import com.github.dockerjava.api.model.MountType;
 import com.github.dockerjava.api.model.RestartPolicy;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import org.apache.camel.karavan.model.*;
+import org.apache.camel.karavan.model.ContainerType;
+import org.apache.camel.karavan.model.DockerComposeService;
+import org.apache.camel.karavan.model.DockerComposeVolume;
+import org.apache.camel.karavan.model.Project;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 

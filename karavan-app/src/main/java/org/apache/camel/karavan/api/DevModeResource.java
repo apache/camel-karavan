@@ -57,7 +57,7 @@ public class DevModeResource {
     @Path("/{verbose}/{compile}")
     public Response runProjectInDeveloperMode(Project project, @PathParam("verbose") boolean verbose, @PathParam("compile") boolean compile) {
         try {
-            String containerName = projectService.runProjectInDeveloperMode(project, verbose, compile, Map.of(), Map.of());
+            String containerName = projectService.runProjectInDeveloperMode(project.getProjectId(), verbose, compile, Map.of(), Map.of());
             if (containerName != null) {
                 return Response.ok(containerName).build();
             } else {

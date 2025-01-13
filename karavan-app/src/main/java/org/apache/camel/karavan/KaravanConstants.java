@@ -52,7 +52,6 @@ public class KaravanConstants {
 
     public static final String PROPERTY_FORMATTER_PROJECT_ID = PROPERTY_NAME_PROJECT_ID + "=%s";
     public static final String PROPERTY_FORMATTER_PROJECT_NAME = PROPERTY_NAME_PROJECT_NAME + "=%s";
-    public static final String PROPERTY_FORMATTER_GAV = PROPERTY_NAME_GAV + "=org.camel.karavan.demo:%s:1";
 
     public enum CamelRuntime {
         CAMEL_MAIN("camel-main"),
