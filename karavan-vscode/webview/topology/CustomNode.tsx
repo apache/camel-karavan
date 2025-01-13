@@ -25,6 +25,10 @@ import './topology.css';
 import {RouteDefinition} from "core/model/CamelDefinition";
 import {AutoStartupIcon, ErrorHandlerIcon} from "../designer/icons/OtherIcons";
 
+export const COLOR_ORANGE = '#ef9234';
+export const COLOR_BLUE = '#2b9af3';
+export const COLOR_GREEN = '#6ec664';
+
 function getIcon(data: any) {
     if (['route', 'rest', 'routeConfiguration'].includes(data.icon)) {
         return (
@@ -67,7 +71,13 @@ function getAttachments(data: any) {
 const CustomNode: React.FC<any> = observer(({element, ...rest}) => {
 
     const data = element.getData();
-    const badge: string = data.badge === 'REST' ? data.badge : data.badge?.substring(0, 1).toUpperCase();
+    const badge: string = ['API', 'RT'].includes(data.badge) ? data.badge : data.badge?.substring(0, 1).toUpperCase();
+    let badgeColor = COLOR_ORANGE;
+    if (badge === 'C') {
+        badgeColor = COLOR_BLUE;
+    } else if (badge === 'K') {
+        badgeColor = COLOR_GREEN;
+    }
     if (element.getLabel()?.length > 30) {
         element.setLabel(element.getLabel()?.substring(0, 30) + '...');
     }
@@ -75,8 +85,10 @@ const CustomNode: React.FC<any> = observer(({element, ...rest}) => {
     return (
         <DefaultNode
             badge={badge}
+            badgeColor={badgeColor}
+            badgeBorderColor={badgeColor}
             showStatusDecorator
-            className="common-node"
+            className={"common-node common-node-" + badge}
             scaleLabel={false}
             element={element}
             attachments={getAttachments(data)}
