@@ -3244,9 +3244,6 @@ export class DeleteDefinition extends CamelElement {
     disabled?: boolean;
     path?: string;
     to?: string;
-    param?: ParamDefinition[] = [];
-    responseMessage?: ResponseMessageDefinition[] = [];
-    security?: SecurityDefinition[] = [];
     consumes?: string;
     produces?: string;
     type?: string;
@@ -3260,6 +3257,9 @@ export class DeleteDefinition extends CamelElement {
     deprecated?: boolean;
     streamCache?: boolean;
     routeId?: string;
+    param?: ParamDefinition[] = [];
+    responseMessage?: ResponseMessageDefinition[] = [];
+    security?: SecurityDefinition[] = [];
     public constructor(init?: Partial<DeleteDefinition>) {
         super('DeleteDefinition');
         Object.assign(this, init);
@@ -3273,9 +3273,6 @@ export class GetDefinition extends CamelElement {
     disabled?: boolean;
     path?: string;
     to?: string;
-    param?: ParamDefinition[] = [];
-    responseMessage?: ResponseMessageDefinition[] = [];
-    security?: SecurityDefinition[] = [];
     consumes?: string;
     produces?: string;
     type?: string;
@@ -3289,6 +3286,9 @@ export class GetDefinition extends CamelElement {
     deprecated?: boolean;
     streamCache?: boolean;
     routeId?: string;
+    param?: ParamDefinition[] = [];
+    responseMessage?: ResponseMessageDefinition[] = [];
+    security?: SecurityDefinition[] = [];
     public constructor(init?: Partial<GetDefinition>) {
         super('GetDefinition');
         Object.assign(this, init);
@@ -3302,9 +3302,6 @@ export class HeadDefinition extends CamelElement {
     disabled?: boolean;
     path?: string;
     to?: string;
-    param?: ParamDefinition[] = [];
-    responseMessage?: ResponseMessageDefinition[] = [];
-    security?: SecurityDefinition[] = [];
     consumes?: string;
     produces?: string;
     type?: string;
@@ -3318,6 +3315,9 @@ export class HeadDefinition extends CamelElement {
     deprecated?: boolean;
     streamCache?: boolean;
     routeId?: string;
+    param?: ParamDefinition[] = [];
+    responseMessage?: ResponseMessageDefinition[] = [];
+    security?: SecurityDefinition[] = [];
     public constructor(init?: Partial<HeadDefinition>) {
         super('HeadDefinition');
         Object.assign(this, init);
@@ -3401,9 +3401,6 @@ export class PatchDefinition extends CamelElement {
     disabled?: boolean;
     path?: string;
     to?: string;
-    param?: ParamDefinition[] = [];
-    responseMessage?: ResponseMessageDefinition[] = [];
-    security?: SecurityDefinition[] = [];
     consumes?: string;
     produces?: string;
     type?: string;
@@ -3417,6 +3414,9 @@ export class PatchDefinition extends CamelElement {
     deprecated?: boolean;
     streamCache?: boolean;
     routeId?: string;
+    param?: ParamDefinition[] = [];
+    responseMessage?: ResponseMessageDefinition[] = [];
+    security?: SecurityDefinition[] = [];
     public constructor(init?: Partial<PatchDefinition>) {
         super('PatchDefinition');
         Object.assign(this, init);
@@ -3430,9 +3430,6 @@ export class PostDefinition extends CamelElement {
     disabled?: boolean;
     path?: string;
     to?: string;
-    param?: ParamDefinition[] = [];
-    responseMessage?: ResponseMessageDefinition[] = [];
-    security?: SecurityDefinition[] = [];
     consumes?: string;
     produces?: string;
     type?: string;
@@ -3446,6 +3443,9 @@ export class PostDefinition extends CamelElement {
     deprecated?: boolean;
     streamCache?: boolean;
     routeId?: string;
+    param?: ParamDefinition[] = [];
+    responseMessage?: ResponseMessageDefinition[] = [];
+    security?: SecurityDefinition[] = [];
     public constructor(init?: Partial<PostDefinition>) {
         super('PostDefinition');
         Object.assign(this, init);
@@ -3459,9 +3459,6 @@ export class PutDefinition extends CamelElement {
     disabled?: boolean;
     path?: string;
     to?: string;
-    param?: ParamDefinition[] = [];
-    responseMessage?: ResponseMessageDefinition[] = [];
-    security?: SecurityDefinition[] = [];
     consumes?: string;
     produces?: string;
     type?: string;
@@ -3475,6 +3472,9 @@ export class PutDefinition extends CamelElement {
     deprecated?: boolean;
     streamCache?: boolean;
     routeId?: string;
+    param?: ParamDefinition[] = [];
+    responseMessage?: ResponseMessageDefinition[] = [];
+    security?: SecurityDefinition[] = [];
     public constructor(init?: Partial<PutDefinition>) {
         super('PutDefinition');
         Object.assign(this, init);
