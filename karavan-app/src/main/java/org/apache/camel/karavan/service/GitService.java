@@ -442,7 +442,7 @@ public class GitService {
     }
 
     private <T extends TransportCommand> T setCredentials(T command) {
-        if (privateKeyPath.isPresent() && repository.startsWith("git")) {
+        if (privateKeyPath.isPresent() && (repository.startsWith("git") || repository.startsWith("ssh://"))) {
             LOGGER.info("Set SshTransport");
             command.setTransportConfigCallback(transport -> {
                 SshTransport sshTransport = (SshTransport) transport;
