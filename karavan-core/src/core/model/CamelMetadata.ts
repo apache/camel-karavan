@@ -2399,6 +2399,9 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('disabled', 'Disabled', "Whether to disable this REST service from the route during build time. Once an REST service has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('path', 'Path', "The path mapping URIs of this REST operation such as /{id}.", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('to', 'To', "The Camel endpoint this REST service will call, such as a direct endpoint to link to an existing route that handles this REST call.", 'string', '', '', true, false, false, false, '', ''),
+        new PropertyMeta('param', 'Param', "Information about parameters for this REST operation", 'ParamDefinition', '', '', false, false, true, true, '', ''),
+        new PropertyMeta('responseMessage', 'Response Message', "Response details for this REST operation", 'ResponseMessageDefinition', '', '', false, false, true, true, '', ''),
+        new PropertyMeta('security', 'Security', "Security settings for this REST operation", 'SecurityDefinition', '', '', false, false, true, true, '', ''),
         new PropertyMeta('consumes', 'Consumes', "To define the content type what the REST service consumes (accept as input), such as application/xml or application/json. This option will override what may be configured on a parent level", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('produces', 'Produces', "To define the content type what the REST service produces (uses for output), such as application/xml or application/json This option will override what may be configured on a parent level", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('type', 'Type', "Sets the class name to use for binding from input to POJO for the incoming data This option will override what may be configured on a parent level. The name of the class of the input data. Append a to the end of the name if you want the input to be an array type.", 'string', '', '', false, false, false, false, 'advanced', ''),
@@ -2412,9 +2415,6 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('deprecated', 'Deprecated', "Marks this rest operation as deprecated in OpenApi documentation.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('streamCache', 'Stream Cache', "Whether stream caching is enabled on this rest operation.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('routeId', 'Route Id', "Sets the id of the route", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('param', 'param', "param", 'ParamDefinition', '', '', false, false, true, true, '', ''),
-        new PropertyMeta('responseMessage', 'responseMessage', "responseMessage", 'ResponseMessageDefinition', '', '', false, false, true, true, '', ''),
-        new PropertyMeta('security', 'security', "security", 'SecurityDefinition', '', '', false, false, true, true, '', ''),
     ], [
     ]),
     new ElementMeta('get', 'GetDefinition', 'Get', "Rest GET command", 'rest', [
@@ -2423,6 +2423,9 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('disabled', 'Disabled', "Whether to disable this REST service from the route during build time. Once an REST service has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('path', 'Path', "The path mapping URIs of this REST operation such as /{id}.", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('to', 'To', "The Camel endpoint this REST service will call, such as a direct endpoint to link to an existing route that handles this REST call.", 'string', '', '', true, false, false, false, '', ''),
+        new PropertyMeta('param', 'Param', "Information about parameters for this REST operation", 'ParamDefinition', '', '', false, false, true, true, '', ''),
+        new PropertyMeta('responseMessage', 'Response Message', "Response details for this REST operation", 'ResponseMessageDefinition', '', '', false, false, true, true, '', ''),
+        new PropertyMeta('security', 'Security', "Security settings for this REST operation", 'SecurityDefinition', '', '', false, false, true, true, '', ''),
         new PropertyMeta('consumes', 'Consumes', "To define the content type what the REST service consumes (accept as input), such as application/xml or application/json. This option will override what may be configured on a parent level", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('produces', 'Produces', "To define the content type what the REST service produces (uses for output), such as application/xml or application/json This option will override what may be configured on a parent level", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('type', 'Type', "Sets the class name to use for binding from input to POJO for the incoming data This option will override what may be configured on a parent level. The name of the class of the input data. Append a to the end of the name if you want the input to be an array type.", 'string', '', '', false, false, false, false, 'advanced', ''),
@@ -2436,9 +2439,6 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('deprecated', 'Deprecated', "Marks this rest operation as deprecated in OpenApi documentation.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('streamCache', 'Stream Cache', "Whether stream caching is enabled on this rest operation.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('routeId', 'Route Id', "Sets the id of the route", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('param', 'param', "param", 'ParamDefinition', '', '', false, false, true, true, '', ''),
-        new PropertyMeta('responseMessage', 'responseMessage', "responseMessage", 'ResponseMessageDefinition', '', '', false, false, true, true, '', ''),
-        new PropertyMeta('security', 'security', "security", 'SecurityDefinition', '', '', false, false, true, true, '', ''),
     ], [
     ]),
     new ElementMeta('head', 'HeadDefinition', 'Head', "Rest HEAD command", 'rest', [
@@ -2447,6 +2447,9 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('disabled', 'Disabled', "Whether to disable this REST service from the route during build time. Once an REST service has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('path', 'Path', "The path mapping URIs of this REST operation such as /{id}.", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('to', 'To', "The Camel endpoint this REST service will call, such as a direct endpoint to link to an existing route that handles this REST call.", 'string', '', '', true, false, false, false, '', ''),
+        new PropertyMeta('param', 'Param', "Information about parameters for this REST operation", 'ParamDefinition', '', '', false, false, true, true, '', ''),
+        new PropertyMeta('responseMessage', 'Response Message', "Response details for this REST operation", 'ResponseMessageDefinition', '', '', false, false, true, true, '', ''),
+        new PropertyMeta('security', 'Security', "Security settings for this REST operation", 'SecurityDefinition', '', '', false, false, true, true, '', ''),
         new PropertyMeta('consumes', 'Consumes', "To define the content type what the REST service consumes (accept as input), such as application/xml or application/json. This option will override what may be configured on a parent level", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('produces', 'Produces', "To define the content type what the REST service produces (uses for output), such as application/xml or application/json This option will override what may be configured on a parent level", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('type', 'Type', "Sets the class name to use for binding from input to POJO for the incoming data This option will override what may be configured on a parent level. The name of the class of the input data. Append a to the end of the name if you want the input to be an array type.", 'string', '', '', false, false, false, false, 'advanced', ''),
@@ -2460,9 +2463,6 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('deprecated', 'Deprecated', "Marks this rest operation as deprecated in OpenApi documentation.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('streamCache', 'Stream Cache', "Whether stream caching is enabled on this rest operation.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('routeId', 'Route Id', "Sets the id of the route", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('param', 'param', "param", 'ParamDefinition', '', '', false, false, true, true, '', ''),
-        new PropertyMeta('responseMessage', 'responseMessage', "responseMessage", 'ResponseMessageDefinition', '', '', false, false, true, true, '', ''),
-        new PropertyMeta('security', 'security', "security", 'SecurityDefinition', '', '', false, false, true, true, '', ''),
     ], [
     ]),
     new ElementMeta('mutualTLS', 'MutualTLSDefinition', 'Mutual TLS', "Rest security mutual TLS authentication definition", 'rest,security,configuration', [
@@ -2506,6 +2506,9 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('disabled', 'Disabled', "Whether to disable this REST service from the route during build time. Once an REST service has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('path', 'Path', "The path mapping URIs of this REST operation such as /{id}.", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('to', 'To', "The Camel endpoint this REST service will call, such as a direct endpoint to link to an existing route that handles this REST call.", 'string', '', '', true, false, false, false, '', ''),
+        new PropertyMeta('param', 'Param', "Information about parameters for this REST operation", 'ParamDefinition', '', '', false, false, true, true, '', ''),
+        new PropertyMeta('responseMessage', 'Response Message', "Response details for this REST operation", 'ResponseMessageDefinition', '', '', false, false, true, true, '', ''),
+        new PropertyMeta('security', 'Security', "Security settings for this REST operation", 'SecurityDefinition', '', '', false, false, true, true, '', ''),
         new PropertyMeta('consumes', 'Consumes', "To define the content type what the REST service consumes (accept as input), such as application/xml or application/json. This option will override what may be configured on a parent level", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('produces', 'Produces', "To define the content type what the REST service produces (uses for output), such as application/xml or application/json This option will override what may be configured on a parent level", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('type', 'Type', "Sets the class name to use for binding from input to POJO for the incoming data This option will override what may be configured on a parent level. The name of the class of the input data. Append a to the end of the name if you want the input to be an array type.", 'string', '', '', false, false, false, false, 'advanced', ''),
@@ -2519,9 +2522,6 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('deprecated', 'Deprecated', "Marks this rest operation as deprecated in OpenApi documentation.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('streamCache', 'Stream Cache', "Whether stream caching is enabled on this rest operation.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('routeId', 'Route Id', "Sets the id of the route", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('param', 'param', "param", 'ParamDefinition', '', '', false, false, true, true, '', ''),
-        new PropertyMeta('responseMessage', 'responseMessage', "responseMessage", 'ResponseMessageDefinition', '', '', false, false, true, true, '', ''),
-        new PropertyMeta('security', 'security', "security", 'SecurityDefinition', '', '', false, false, true, true, '', ''),
     ], [
     ]),
     new ElementMeta('post', 'PostDefinition', 'Post', "Rest POST command", 'rest', [
@@ -2530,6 +2530,9 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('disabled', 'Disabled', "Whether to disable this REST service from the route during build time. Once an REST service has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('path', 'Path', "The path mapping URIs of this REST operation such as /{id}.", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('to', 'To', "The Camel endpoint this REST service will call, such as a direct endpoint to link to an existing route that handles this REST call.", 'string', '', '', true, false, false, false, '', ''),
+        new PropertyMeta('param', 'Param', "Information about parameters for this REST operation", 'ParamDefinition', '', '', false, false, true, true, '', ''),
+        new PropertyMeta('responseMessage', 'Response Message', "Response details for this REST operation", 'ResponseMessageDefinition', '', '', false, false, true, true, '', ''),
+        new PropertyMeta('security', 'Security', "Security settings for this REST operation", 'SecurityDefinition', '', '', false, false, true, true, '', ''),
         new PropertyMeta('consumes', 'Consumes', "To define the content type what the REST service consumes (accept as input), such as application/xml or application/json. This option will override what may be configured on a parent level", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('produces', 'Produces', "To define the content type what the REST service produces (uses for output), such as application/xml or application/json This option will override what may be configured on a parent level", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('type', 'Type', "Sets the class name to use for binding from input to POJO for the incoming data This option will override what may be configured on a parent level. The name of the class of the input data. Append a to the end of the name if you want the input to be an array type.", 'string', '', '', false, false, false, false, 'advanced', ''),
@@ -2543,9 +2546,6 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('deprecated', 'Deprecated', "Marks this rest operation as deprecated in OpenApi documentation.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('streamCache', 'Stream Cache', "Whether stream caching is enabled on this rest operation.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('routeId', 'Route Id', "Sets the id of the route", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('param', 'param', "param", 'ParamDefinition', '', '', false, false, true, true, '', ''),
-        new PropertyMeta('responseMessage', 'responseMessage', "responseMessage", 'ResponseMessageDefinition', '', '', false, false, true, true, '', ''),
-        new PropertyMeta('security', 'security', "security", 'SecurityDefinition', '', '', false, false, true, true, '', ''),
     ], [
     ]),
     new ElementMeta('put', 'PutDefinition', 'Put', "Rest PUT command", 'rest', [
@@ -2554,6 +2554,9 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('disabled', 'Disabled', "Whether to disable this REST service from the route during build time. Once an REST service has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('path', 'Path', "The path mapping URIs of this REST operation such as /{id}.", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('to', 'To', "The Camel endpoint this REST service will call, such as a direct endpoint to link to an existing route that handles this REST call.", 'string', '', '', true, false, false, false, '', ''),
+        new PropertyMeta('param', 'Param', "Information about parameters for this REST operation", 'ParamDefinition', '', '', false, false, true, true, '', ''),
+        new PropertyMeta('responseMessage', 'Response Message', "Response details for this REST operation", 'ResponseMessageDefinition', '', '', false, false, true, true, '', ''),
+        new PropertyMeta('security', 'Security', "Security settings for this REST operation", 'SecurityDefinition', '', '', false, false, true, true, '', ''),
         new PropertyMeta('consumes', 'Consumes', "To define the content type what the REST service consumes (accept as input), such as application/xml or application/json. This option will override what may be configured on a parent level", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('produces', 'Produces', "To define the content type what the REST service produces (uses for output), such as application/xml or application/json This option will override what may be configured on a parent level", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('type', 'Type', "Sets the class name to use for binding from input to POJO for the incoming data This option will override what may be configured on a parent level. The name of the class of the input data. Append a to the end of the name if you want the input to be an array type.", 'string', '', '', false, false, false, false, 'advanced', ''),
@@ -2567,9 +2570,6 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('deprecated', 'Deprecated', "Marks this rest operation as deprecated in OpenApi documentation.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('streamCache', 'Stream Cache', "Whether stream caching is enabled on this rest operation.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('routeId', 'Route Id', "Sets the id of the route", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('param', 'param', "param", 'ParamDefinition', '', '', false, false, true, true, '', ''),
-        new PropertyMeta('responseMessage', 'responseMessage', "responseMessage", 'ResponseMessageDefinition', '', '', false, false, true, true, '', ''),
-        new PropertyMeta('security', 'security', "security", 'SecurityDefinition', '', '', false, false, true, true, '', ''),
     ], [
     ]),
     new ElementMeta('responseHeader', 'ResponseHeaderDefinition', 'Response Header', "To specify the rest operation response headers.", 'rest', [
