@@ -39,7 +39,7 @@ import ResourcesIcon from "@patternfly/react-icons/dist/js/icons/blueprint-icon"
 import KnowledgebaseIcon from "@patternfly/react-icons/dist/js/icons/book-open-icon";
 import ContainersIcon from "@patternfly/react-icons/dist/js/icons/cubes-icon";
 import ConfigIcon from "@patternfly/react-icons/dist/js/icons/cogs-icon";
-import ServicesIcon from "@patternfly/react-icons/dist/js/icons/services-icon";
+import ServicesIcon from "@patternfly/react-icons/dist/js/icons/tools-icon";
 import {useAppConfigStore, useDevModeStore, useFileStore} from "../api/ProjectStore";
 import {shallow} from "zustand/shallow";
 import {useNavigate} from "react-router-dom";
@@ -79,14 +79,13 @@ export function PageNavigation () {
                 new MenuItem("containers", "Containers", <ContainersIcon/>)
             )
         }
-        pages.push(new MenuItem("knowledgebase", "Knowledgebase", <KnowledgebaseIcon/>));
-        pages.push(new MenuItem("configuration", "Configuration", <ConfigIcon/>));
+        pages.push(new MenuItem("help", "Help", <KnowledgebaseIcon/>));
+        pages.push(new MenuItem("system", "System", <ConfigIcon/>));
         return pages;
     }
 
-    return (<Flex className="nav-buttons" direction={{default: "column"}} style={{height: "100%"}}
-                  spaceItems={{default: "spaceItemsNone"}}>
-        <FlexItem alignSelf={{default: "alignSelfCenter"}}>
+    return (<div className="nav-buttons" style={{height: "100%", display: "flex", flexDirection: "column"}}>
+        <div style={{alignSelf: 'center'}}>
             <Bullseye>
                 {loading && <Spinner style={{position: "absolute"}} diameter="40px" aria-label="Loading..."/>}
                 <Tooltip className="logo-tooltip" content={config.title + " " + config.version}
@@ -95,28 +94,35 @@ export function PageNavigation () {
                 </Tooltip>
             </Bullseye>
 
-        </FlexItem>
-        {getMenu().map(page =>
-            <FlexItem key={page.pageId} className={pageId === page.pageId ? "nav-button-selected" : ""}>
-                <Tooltip content={page.tooltip} position={"right"}>
-                    <Button id={page.pageId} icon={page.icon} variant={"plain"}
-                            className={pageId === page.pageId ? "nav-button-selected" : ""}
-                            onClick={event => {
-                                setFile('none', undefined);
-                                setPodName(undefined);
-                                setStatus("none");
-                                setPageId(page.pageId);
-                                navigate(page.pageId);
-                            }}
-                    />
-                </Tooltip>
-            </FlexItem>
-        )}
-        <FlexItem flex={{default: "flex_2"}} alignSelf={{default: "alignSelfCenter"}}>
+        </div>
+        {getMenu().map((page, index) => {
+            let className = "nav-button";
+            className = className.concat(pageId === page.pageId ? " nav-button-selected" : "");
+            className = className.concat((index === getMenu().length - 1) ? " nav-button-last" : "");
+            return (
+                <div key={page.pageId} style={{width: '100%'}} className={pageId === page.pageId ? "nav-button-selected" : ""}>
+                <Button id={page.pageId}
+                        icon={page.icon}
+                        variant={"link"}
+                        className={className}
+                        onClick={event => {
+                            setFile('none', undefined);
+                            setPodName(undefined);
+                            setStatus("none");
+                            setPageId(page.pageId);
+                            navigate(page.pageId);
+                        }}
+                >
+                    {page.pageId}
+                </Button>
+            </div>
+            )
+        })}
+        <div style={{alignSelf: 'center', flexGrow: '2'}}>
             <Divider/>
-        </FlexItem>
+        </div>
         {KaravanApi.authType !== 'public' &&
-            <FlexItem alignSelf={{default: "alignSelfCenter"}}>
+            <div style={{alignSelf: 'center'}}>
                 <Popover
                     hasAutoWidth
                     aria-label="Current user"
@@ -159,6 +165,6 @@ export function PageNavigation () {
                 >
                     <UserIcon className="avatar"/>
                 </Popover>
-            </FlexItem>}
-    </Flex>)
+            </div>}
+    </div>)
 }
