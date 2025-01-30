@@ -36,6 +36,7 @@ import static com.github.dockerjava.api.model.MountType.VOLUME;
 public class DockerComposeConverter {
 
     private static final String ENVIRONMENT = "environment";
+    private static final String LABELS = "labels";
     private static final String VOLUMES = "volumes";
 
     public static DockerCompose fromCode(String code) {
@@ -79,6 +80,16 @@ public class DockerComposeConverter {
                 }
             });
             service.put(ENVIRONMENT, env);
+        }
+        if (service.containsKey(LABELS) && service.getValue(LABELS) instanceof JsonArray) {
+            JsonObject env = new JsonObject();
+            service.getJsonArray(LABELS).forEach(o -> {
+                String[] kv = o.toString().split("=");
+                if (kv.length == 2) {
+                    env.put(kv[0], kv[1]);
+                }
+            });
+            service.put(LABELS, env);
         }
         if (service.containsKey(VOLUMES) && service.getValue(VOLUMES) instanceof JsonArray) {
             JsonArray volumes = new JsonArray();

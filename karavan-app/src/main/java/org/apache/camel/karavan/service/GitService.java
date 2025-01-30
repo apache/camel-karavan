@@ -533,7 +533,7 @@ public class GitService {
                 }
             }
         } catch (IOException e) {
-           LOGGER.error("Error", e);
+            LOGGER.error("Error", e);
         }
         return result;
     }

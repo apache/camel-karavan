@@ -39,6 +39,7 @@ public class DockerComposeService {
     private List<String> networks = new ArrayList<>();
     private Map<String,String> environment = new HashMap<>();
     private DockerComposeHealthCheck healthcheck;
+    private Map<String,String> labels = new HashMap<>();
 
     public DockerComposeService() {
     }
@@ -178,6 +179,14 @@ public class DockerComposeService {
         this.volumes = volumes;
     }
 
+    public Map<String,String> getLabels() {
+        return labels;
+    }
+
+    public void setLabels(Map<String,String> labels) {
+        this.labels = labels;
+    }
+
     @Override
     public String toString() {
         return "DockerComposeService {" +
@@ -196,6 +205,7 @@ public class DockerComposeService {
                 ", healthcheck=" + healthcheck +
                 ", volumes=" + volumes +
                 ", environment=" + environment +
+                ", labels=" + labels +
                 '}';
     }
 

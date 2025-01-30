@@ -53,6 +53,7 @@ public class DockerForKaravan {
         Container c = createDevmodeContainer(projectId, verbose, compile, composeService, projectDevmodeImage, labels, envVars);
         dockerService.runContainer(projectId);
         dockerService.copyFiles(c.getId(), "/karavan/code", files, true);
+        dockerService.copyFiles(c.getId(), "/tmp", Map.of(".karavan.done", "done"), true);
     }
 
     protected Container createDevmodeContainer(String projectId, Boolean verbose, Boolean compile, DockerComposeService compose,
@@ -78,6 +79,9 @@ public class DockerForKaravan {
         var imageName = projectDevmodeImage != null ? projectDevmodeImage : devmodeImage;
 
         var containerLabels = new HashMap<>(labels);
+        if (compose.getLabels() != null) {
+            containerLabels.putAll(compose.getLabels());
+        }
         containerLabels.put(LABEL_TYPE, ContainerType.devmode.name());
         containerLabels.put(LABEL_PROJECT_ID, projectId);
         containerLabels.put(LABEL_CAMEL_RUNTIME, CamelRuntime.CAMEL_MAIN.getValue());

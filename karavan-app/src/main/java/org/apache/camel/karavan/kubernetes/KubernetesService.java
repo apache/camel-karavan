@@ -350,6 +350,7 @@ public class KubernetesService {
                 Pod pod = getDevModePod(projectId, verbose, compile, podLabels, projectDevmodeImage, deploymentFragment, envVars);
                 Pod result = client.resource(pod).serverSideApply();
                 copyFilesToContainer(result, files, "/karavan/code");
+                copyFilesToContainer(result, Map.of(".karavan.done", "done"), "/tmp");
                 LOGGER.info("Created pod " + result.getMetadata().getName());
             }
         }
