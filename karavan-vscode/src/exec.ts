@@ -50,7 +50,7 @@ export async function runWithRuntime(fullPath: string, run?: boolean) {
     if (run) {
         const runtime = await utils.getRuntime();
         const mvn = runtime === 'quarkus' ? "quarkus:dev" : (runtime === 'spring-boot' ? "spring-boot:run" : "camel:run");
-        command = command.concat(" && mvn clean ").concat(mvn).concat(" -f ").concat(fullPath);
+        command = command.concat(" && mvn clean compile ").concat(mvn).concat(" -f ").concat(fullPath);
     }
     execTerminalCommand("runtime-run", command);
 }
