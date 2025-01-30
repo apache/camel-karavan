@@ -24,100 +24,112 @@ import {
     Label, LabelGroup,
     Tooltip
 } from '@patternfly/react-core';
-import '../../designer/karavan.css';
 import DownIcon from "@patternfly/react-icons/dist/esm/icons/error-circle-o-icon";
 import UpIcon from "@patternfly/react-icons/dist/esm/icons/check-circle-icon";
-import {ContainerStatus} from "../../api/ProjectModels";
-import {useProjectStore} from "../../api/ProjectStore";
 import {shallow} from "zustand/shallow";
-
+import {useProjectStore} from "../api/ProjectStore";
+import {ContainerStatus} from "../api/ProjectModels";
 
 interface Props {
     containerStatus: ContainerStatus
 }
 
-export function InfoMemory (props: Props) {
-
+export function InfoTabContext (props: Props) {
     const [camelStatuses] = useProjectStore((state) => [state.camelStatuses], shallow);
 
     const camelStatus = camelStatuses.filter(s => s.containerName === props.containerStatus.containerName).at(0);
-    const jvmValue = camelStatus?.statuses?.filter(x => x.name === 'jvm').at(0);
-    const memoryValue = camelStatus?.statuses?.filter(x => x.name === 'memory').at(0);
-    const jvm = jvmValue ? JSON.parse(jvmValue?.status || '') : {};
-    const memory = memoryValue ? JSON.parse(memoryValue?.status || '') : {};
+    const contextValue = camelStatus?.statuses?.filter(x => x.name === 'context').at(0);
+    const context = contextValue ? JSON.parse(contextValue?.status || '') : {};
 
-    function getJvmInfo() {
-        return (
-            <LabelGroup numLabels={2}>
-                <Label icon={getIcon()} color={getColor()}>
-                    {jvm?.jvm?.vmVendor} {jvm?.jvm?.vmVersion}
-                </Label>
-            </LabelGroup>
-        )
-    }
-
-    function getHeapInfo() {
+    function getContextInfo() {
         return (
             <LabelGroup numLabels={3}>
-                <Tooltip content="Init" position={"bottom"}>
+                <Tooltip content="Name" position={"bottom"}>
                     <Label icon={getIcon()} color={getColor()}>
-                        {memory?.memory?.heapMemoryInit}
-                    </Label>
-                </Tooltip>
-                <Tooltip content="Max" position={"bottom"}>
-                    <Label icon={getIcon()} color={getColor()}>
-                        {memory?.memory?.heapMemoryMax}
-                    </Label>
-                </Tooltip>
-                <Tooltip content="Used" position={"bottom"}>
-                    <Label icon={getIcon()} color={getColor()}>
-                        {memory?.memory?.heapMemoryUsed}
+                        {context?.context?.name}
                     </Label>
                 </Tooltip>
             </LabelGroup>
         )
     }
 
-    function getJvmUptime() {
+    function getVersionInfo() {
         return (
-            <LabelGroup numLabels={2}>
+            <LabelGroup numLabels={3}>
+                <Tooltip content="Version" position={"bottom"}>
+                    <Label icon={getIcon()} color={getColor()}>
+                        {context?.context?.version}
+                    </Label>
+                </Tooltip>
+            </LabelGroup>
+        )
+    }
+
+    function getContextState() {
+        return (
+            <LabelGroup numLabels={3}>
+                <Tooltip content="State" position={"bottom"}>
+                    <Label icon={getIcon()} color={getColor()}>
+                        {context?.context?.state}
+                    </Label>
+                </Tooltip>
+                <Tooltip content="Phase" position={"bottom"}>
+                    <Label icon={getIcon()} color={getColor()}>
+                        {context?.context?.phase}
+                    </Label>
+                </Tooltip>
                 <Tooltip content="Uptime" position={"bottom"}>
                     <Label icon={getIcon()} color={getColor()}>
-                        {jvm?.jvm?.vmUptime}
+                        {context?.context?.uptime}
                     </Label>
                 </Tooltip>
             </LabelGroup>
         )
     }
 
-    function getPid() {
-        return (
-            <LabelGroup numLabels={2}>
-                <Tooltip content="PID" position={"bottom"}>
-                    <Label icon={getIcon()} color={getColor()}>
-                        {jvm?.jvm?.pid}
-                    </Label>
-                </Tooltip>
-            </LabelGroup>
-        )
-    }
-
-    function getNonHeapInfo() {
+    function getExchanges() {
         return (
             <LabelGroup numLabels={3}>
-                <Tooltip content="Init" position={"bottom"}>
+                <Tooltip content="Total" position={"bottom"}>
                     <Label icon={getIcon()} color={getColor()}>
-                        {memory?.memory?.nonHeapMemoryInit}
+                        {context?.context?.statistics?.exchangesTotal}
+                    </Label>
+                </Tooltip>
+                <Tooltip content="Failed" position={"bottom"}>
+                    <Label icon={getIcon()} color={getColor()}>
+                        {context?.context?.statistics?.exchangesFailed}
+                    </Label>
+                </Tooltip>
+                <Tooltip content="Inflight" position={"bottom"}>
+                    <Label icon={getIcon()} color={getColor()}>
+                        {context?.context?.statistics?.exchangesInflight}
+                    </Label>
+                </Tooltip>
+            </LabelGroup>
+        )
+    }
+
+    function getProcessingTime() {
+        return (
+            <LabelGroup numLabels={4}>
+                <Tooltip content="Min" position={"bottom"}>
+                    <Label icon={getIcon()} color={getColor()}>
+                        {context?.context?.statistics?.minProcessingTime}
+                    </Label>
+                </Tooltip>
+                <Tooltip content="Mean" position={"bottom"}>
+                    <Label icon={getIcon()} color={getColor()}>
+                        {context?.context?.statistics?.meanProcessingTime}
                     </Label>
                 </Tooltip>
                 <Tooltip content="Max" position={"bottom"}>
                     <Label icon={getIcon()} color={getColor()}>
-                        {memory?.memory?.nonHeapMemoryMax}
+                        {context?.context?.statistics?.maxProcessingTime}
                     </Label>
                 </Tooltip>
-                <Tooltip content="Used" position={"bottom"}>
+                <Tooltip content="Last" position={"bottom"}>
                     <Label icon={getIcon()} color={getColor()}>
-                        {memory?.memory?.nonHeapMemoryUsed}
+                        {context?.context?.statistics?.lastProcessingTime}
                     </Label>
                 </Tooltip>
             </LabelGroup>
@@ -133,44 +145,44 @@ export function InfoMemory (props: Props) {
     }
 
     function getRunning(): boolean {
-        return isRunning(jvm);
+        return context ? isRunning(context) : false;
     }
 
 
     function isRunning(c: any): boolean {
-        return c?.jvm?.pid != undefined;
+        return c?.context?.state === 'Started';
     }
 
     return (
         <DescriptionList isHorizontal>
-            <DescriptionListGroup>
-                <DescriptionListTerm>JVM</DescriptionListTerm>
-                <DescriptionListDescription>
-                    {getJvmInfo()}
-                </DescriptionListDescription>
-            </DescriptionListGroup>
                 <DescriptionListGroup>
-                    <DescriptionListTerm>PID</DescriptionListTerm>
+                    <DescriptionListTerm>Camel</DescriptionListTerm>
                     <DescriptionListDescription>
-                        {getPid()}
+                        {getContextInfo()}
                     </DescriptionListDescription>
                 </DescriptionListGroup>
                 <DescriptionListGroup>
-                    <DescriptionListTerm>Uptime</DescriptionListTerm>
+                    <DescriptionListTerm>Version</DescriptionListTerm>
                     <DescriptionListDescription>
-                        {getJvmUptime()}
+                        {getVersionInfo()}
                     </DescriptionListDescription>
                 </DescriptionListGroup>
                 <DescriptionListGroup>
-                    <DescriptionListTerm>Heap</DescriptionListTerm>
+                    <DescriptionListTerm>State</DescriptionListTerm>
                     <DescriptionListDescription>
-                        {getHeapInfo()}
+                        {getContextState()}
                     </DescriptionListDescription>
                 </DescriptionListGroup>
                 <DescriptionListGroup>
-                    <DescriptionListTerm>Non-Heap</DescriptionListTerm>
+                    <DescriptionListTerm>Exchanges:</DescriptionListTerm>
                     <DescriptionListDescription>
-                        {getNonHeapInfo()}
+                        {getExchanges()}
+                    </DescriptionListDescription>
+                </DescriptionListGroup>
+                <DescriptionListGroup>
+                    <DescriptionListTerm>Processing Time</DescriptionListTerm>
+                    <DescriptionListDescription>
+                        {getProcessingTime()}
                     </DescriptionListDescription>
                 </DescriptionListGroup>
         </DescriptionList>

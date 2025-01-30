@@ -23,7 +23,6 @@ import {
 import '../designer/karavan.css';
 import {FilesTab} from "./files/FilesTab";
 import {useAppConfigStore, useFilesStore, useFileStore, useProjectStore, useWizardStore} from "../api/ProjectStore";
-import {DashboardTab} from "./dashboard/DashboardTab";
 import {TraceTab} from "./trace/TraceTab";
 import {ProjectBuildTab} from "./builder/ProjectBuildTab";
 import {ProjectService} from "../api/ProjectService";
@@ -102,7 +101,6 @@ export function ProjectPanel() {
             <PageSection isFilled padding={{default: 'noPadding'}} className="scrollable-in">
                 <Flex direction={{default: "column"}} spaceItems={{default: "spaceItemsNone"}}>
                     {tab === 'files' && <FlexItem><FilesTab/></FlexItem>}
-                    {!buildIn && tab === 'dashboard' && project && <FlexItem><DashboardTab/></FlexItem>}
                     {!buildIn && tab === 'trace' && project && <TraceTab/>}
                     {!buildIn && tab === 'build' && <FlexItem><ProjectBuildTab/></FlexItem>}
                     {!buildIn && tab === 'build' && config.infrastructure !== 'kubernetes' &&

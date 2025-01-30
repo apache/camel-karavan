@@ -24,17 +24,15 @@ import {
     DescriptionListTerm,
     Label,
 } from '@patternfly/react-core';
-import '../../designer/karavan.css';
 import DownIcon from "@patternfly/react-icons/dist/esm/icons/error-circle-o-icon";
 import UpIcon from "@patternfly/react-icons/dist/esm/icons/check-circle-icon";
-import {ContainerStatus} from "../../api/ProjectModels";
-
+import {ContainerStatus} from "../api/ProjectModels";
 
 interface Props {
     containerStatus: ContainerStatus,
 }
 
-export function InfoContainer (props: Props) {
+export function InfoTabContainer (props: Props) {
 
     function getPodInfoLabel(info: React.ReactNode) {
         return (

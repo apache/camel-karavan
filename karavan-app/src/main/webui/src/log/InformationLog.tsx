@@ -14,60 +14,61 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import React, {useEffect} from 'react';
+import React from 'react';
 import {
     Card,
     CardBody,
     Flex,
     FlexItem,
     Divider,
-    PageSection,
     EmptyState,
     EmptyStateVariant,
     EmptyStateHeader,
     EmptyStateIcon,
     Bullseye
 } from '@patternfly/react-core';
-import '../../designer/karavan.css';
-import {InfoContainer} from "./InfoContainer";
-import {InfoContext} from "./InfoContext";
-import {InfoMemory} from "./InfoMemory";
-import {useProjectStore, useStatusesStore} from "../../api/ProjectStore";
+import {InfoTabContainer} from "./InfoTabContainer";
+import {InfoTabContext} from "./InfoTabContext";
+import {InfoTabMemory} from "./InfoTabMemory";
 import {shallow} from "zustand/shallow";
 import SearchIcon from "@patternfly/react-icons/dist/esm/icons/search-icon";
+import {useStatusesStore} from "../api/ProjectStore";
 
-export function DashboardTab() {
+interface Props {
+    currentPodName: string
+    header?: React.ReactNode
+}
 
-    const [project] = useProjectStore((state) => [state.project], shallow);
+export function InformationLog(props: Props): JSX.Element {
+
     const [containers] = useStatusesStore((state) => [state.containers], shallow);
-
-    const camelContainers = containers
-        .filter(c => c.projectId === project.projectId && ['devmode', 'project'].includes(c.type));
+    const camelContainers = containers.filter(cs => cs.containerName === props.currentPodName);
 
     return (
-        <PageSection className="project-tab-panel" padding={{default: "padding"}}>
+        <div style={{display: "flex", flexDirection: "column", position: "relative", height: "100%"}}>
+            {props.header}
             {camelContainers.map((containerStatus, index) =>
-                <Card className="dashboard-card" key={containerStatus.containerId}>
+                <Card key={containerStatus.containerId} isFlat isFullHeight>
                     <CardBody>
                         <Flex direction={{default: "row"}}
                               justifyContent={{default: "justifyContentSpaceBetween"}}>
                             <FlexItem flex={{default: "flex_1"}}>
-                                <InfoContainer containerStatus={containerStatus}/>
+                                <InfoTabContainer containerStatus={containerStatus}/>
                             </FlexItem>
                             <Divider orientation={{default: "vertical"}}/>
                             <FlexItem flex={{default: "flex_1"}}>
-                                <InfoMemory containerStatus={containerStatus}/>
+                                <InfoTabMemory containerStatus={containerStatus}/>
                             </FlexItem>
                             <Divider orientation={{default: "vertical"}}/>
                             <FlexItem flex={{default: "flex_1"}}>
-                                <InfoContext containerStatus={containerStatus}/>
+                                <InfoTabContext containerStatus={containerStatus}/>
                             </FlexItem>
                         </Flex>
                     </CardBody>
                 </Card>
             )}
             {camelContainers.length === 0 &&
-                <Card className="project-development">
+                <Card>
                     <CardBody>
                         <Bullseye>
                             <EmptyState variant={EmptyStateVariant.sm}>
@@ -78,6 +79,6 @@ export function DashboardTab() {
                     </CardBody>
                 </Card>
             }
-        </PageSection>
+        </div>
     )
 }

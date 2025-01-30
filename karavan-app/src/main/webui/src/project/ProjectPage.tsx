@@ -107,7 +107,6 @@ export function ProjectPage() {
                             }}>
                                 {<Tab eventKey="topology" title="Topology"/>}
                                 <Tab eventKey="files" title="Files"/>
-                                {<Tab eventKey="dashboard" title="Dashboard"/>}
                                 {<Tab eventKey="trace" title="Trace"/>}
                                 {showBuildTab && <Tab eventKey="build" title="Build"/>}
                                 <Tab eventKey="container" title={containerTabName}/>

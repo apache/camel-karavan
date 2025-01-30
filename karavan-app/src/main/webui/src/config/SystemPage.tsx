@@ -33,7 +33,7 @@ interface Props {
     dark: boolean,
 }
 
-export const ConfigurationPage = (props: Props) => {
+export const SystemPage = (props: Props) => {
 
     const [tab, setTab] = useState<string | number>("statuses");
 
@@ -62,7 +62,7 @@ export const ConfigurationPage = (props: Props) => {
 
     function title() {
         return (<TextContent>
-            <Text component="h2">Configuration</Text>
+            <Text component="h2">System</Text>
         </TextContent>);
     }
 

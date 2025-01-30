@@ -25,7 +25,7 @@ import { ProjectService } from "../api/ProjectService";
 interface Props {
     dark: boolean,
 }
-export const KnowledgebaseWrapper = (props: Props) => {
+export const HelpWrapper = (props: Props) => {
 
     const [blockList, setBlockList] = useState<ProjectFile[]>();
 
