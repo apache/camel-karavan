@@ -22,7 +22,8 @@ spec:
         - name: "KARAVAN_CAMEL_STATUS_INTERVAL"
           value: "3s"
         - name: "KARAVAN_DEVMODE_IMAGE"
-          value: "ghcr.io/apache/camel-karavan-devmode:4.8.3"
+          value: "docker.io/bits1983/camel-karavan-devmode:test4"
+          # value: "ghcr.io/apache/camel-karavan-devmode:4.8.3"
         - name: "KARAVAN_GIT_REPOSITORY"
           valueFrom:
             secretKeyRef:

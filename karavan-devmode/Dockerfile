@@ -23,6 +23,11 @@ LABEL "org.opencontainers.image.version"="4.8.3"
 
 RUN apt-get update && apt-get install git && apt-get clean
 
+RUN apt-get update && apt-get install nano -y  && apt-get clean
+
+RUN apt-get update && apt-get install vim -y  && apt-get clean   
+
+
 ENV JBANG_VERSION=0.123.0
 ENV CAMEL_VERSION=4.8.3
 ENV KARAVAN="/karavan"
@@ -52,4 +57,5 @@ RUN curl -Ls https://sh.jbang.dev | bash -s - app setup \
 
 EXPOSE 8080
 WORKDIR $CODE_DIR
+COPY settings.xml $MAVEN_CONFIG/settings.xml
 CMD jbang $VERBOSE_OPTION -Dcamel.jbang.version=$CAMEL_VERSION camel@apache/camel run --source-dir=$CODE_DIR --console 

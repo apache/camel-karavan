@@ -22,10 +22,10 @@ patches:
       name: "karavan"
       
 # Replace secret from.env if required
-secretGenerator:
-- name: karavan
-  behavior: replace
-  options:
-      disableNameSuffixHash: true
-  envs:
-    - .env
+# secretGenerator:
+# - name: karavan
+#   behavior: replace
+#   options:
+#       disableNameSuffixHash: true
+#   envs:
+#     - .env

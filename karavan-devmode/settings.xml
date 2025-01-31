@@ -1,0 +1,25 @@
+<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 https://maven.apache.org/xsd/settings-1.0.0.xsd">
+
+    <servers>
+        <server>
+        <id>custom1</id>
+        <username>admin</username>
+        <password>admin123</password>
+        </server>
+        <server>
+        <id>custom2</id>
+        <username>admin</username>
+        <password>admin123</password>
+        </server>
+    </servers>
+
+     <mirrors>
+          <mirror>
+               <id>maven-default-http-blocker</id>
+               <mirrorOf>dummy</mirrorOf>
+               <name>Dummy mirror to override default blocking mirror that blocks http</name>
+               <url>http://nexus:8081/repository/nexus-group-repo/</url>
+         </mirror>
+    </mirrors>
+    
+    </settings>
