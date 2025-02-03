@@ -16,6 +16,8 @@
  */
 package org.apache.camel.karavan.kubernetes;
 
+import org.apache.camel.karavan.model.KubernetesConfigMap;
+import org.apache.camel.karavan.model.KubernetesSecret;
 import io.fabric8.kubernetes.api.model.*;
 import io.fabric8.kubernetes.api.model.apps.Deployment;
 import io.fabric8.kubernetes.client.KubernetesClient;
@@ -30,8 +32,7 @@ import jakarta.enterprise.inject.Produces;
 import jakarta.inject.Inject;
 import org.apache.camel.karavan.KaravanConstants;
 import org.apache.camel.karavan.model.ContainerType;
-import org.apache.camel.karavan.model.KubernetesConfigMap;
-import org.apache.camel.karavan.model.KubernetesSecret;
+import org.apache.camel.karavan.model.Project;
 import org.apache.camel.karavan.service.CodeService;
 import org.apache.camel.karavan.service.ConfigService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -421,7 +422,15 @@ public class KubernetesService {
                 .build();
 
         List<EnvVar> environmentVariables = new ArrayList<>();
-        envVars.forEach((k, v) -> environmentVariables.add(new EnvVarBuilder().withName(k).withValue(v).build()));
+        try {
+            environmentVariables = new ArrayList<>(podSpec.getContainers().get(0).getEnv());
+        } catch (Exception ignored) {}
+
+        for (Map.Entry<String, String> entry : envVars.entrySet()) {
+            String k = entry.getKey();
+            String v = entry.getValue();
+            environmentVariables.add(new EnvVarBuilder().withName(k).withValue(v).build());
+        }
         if (verbose) {
             environmentVariables.add(new EnvVarBuilder().withName(ENV_VAR_VERBOSE_OPTION_NAME).withValue(ENV_VAR_VERBOSE_OPTION_VALUE).build());
         }
