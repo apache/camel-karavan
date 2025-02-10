@@ -138,13 +138,15 @@ export function ExpressionField(props: Props) {
         selectOptions.push(s);
     })
     const exp = getExpressionProps();
+    const valueChangedClassName = PropertyUtil.hasDslPropertyValueChanged(property, value) ? 'value-changed' : '';
     return (
         <div>
             <label className="pf-v5-c-form__label" htmlFor="expression">
-                <span className="pf-v5-c-form__label-text">Language</span>
+                <span className="pf-v5-c-form__label-text value-changed-label">Language</span>
                 <span className="pf-v5-c-form__label-required" aria-hidden="true"> *</span>
             </label>
             <Select
+                className={valueChangedClassName}
                 variant={SelectVariant.typeahead}
                 aria-label={property.name}
                 onToggle={(_event, isExpanded) => {

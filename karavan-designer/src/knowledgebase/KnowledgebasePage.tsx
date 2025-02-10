@@ -69,27 +69,27 @@ export const KnowledgebasePage = (props: Props) => {
         return <Toolbar id="toolbar-group-types">
             <ToolbarContent>
                 <Flex>
-                {tab === 'kamelets' && <FlexItem>
-                    <Switch
-                        label="Custom only"
-                        isChecked={customOnly}
-                        onChange={(_event, checked) => setCustomOnly(checked)}
-                    />
-                </FlexItem>}
-                <FlexItem>
-                    <TextInput className="text-field" type="search" id="search" name="search"
-                               value={filter}
-                               onChange={(_event, value) => setFilter(value)}
-                               autoComplete="off"
-                               placeholder="Search by name"/>
-                </FlexItem>
+                    {tab === 'kamelets' && <FlexItem>
+                        <Switch
+                            label="Custom only"
+                            isChecked={customOnly}
+                            onChange={(_event, checked) => setCustomOnly(checked)}
+                        />
+                    </FlexItem>}
+                    <FlexItem>
+                        <TextInput className="text-field" type="search" id="search" name="search"
+                                   value={filter}
+                                   onChange={(_event, value) => setFilter(value)}
+                                   autoComplete="off"
+                                   placeholder="Search by name"/>
+                    </FlexItem>
                 </Flex>
             </ToolbarContent>
         </Toolbar>
     }
 
     let kameletList: KameletModel[] = KameletApi.getKamelets().filter(kamelet =>
-            kamelet.spec.definition.title.toLowerCase().includes(filter.toLowerCase()));
+        kamelet.spec.definition.title.toLowerCase().includes(filter.toLowerCase()));
     if (customOnly) kameletList = kameletList.filter(k => KameletApi.getCustomKameletNames().includes(k.metadata.name));
 
     const components = ComponentApi.getComponents().filter(c => {

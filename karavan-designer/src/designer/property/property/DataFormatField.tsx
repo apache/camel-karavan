@@ -151,6 +151,7 @@ export function DataFormatField(props: Props) {
                     <span className="pf-v5-c-form__label-required" aria-hidden="true"> *</span>
                 </label>
                 <Select
+                    // className='value-changed'
                     variant={SelectVariant.typeahead}
                     aria-label={"dataFormat"}
                     onToggle={() => {

@@ -41,7 +41,7 @@ import {
     ValidatedOptions,
     FormHelperText,
     HelperText,
-    HelperTextItem
+    HelperTextItem, Label
 } from '@patternfly/react-core';
 import {
     Select,
@@ -220,7 +220,7 @@ export function DslPropertyField(props: Props) {
     }
 
     function getLabel(property: PropertyMeta, value: any, isKamelet: boolean) {
-        const labelClassName = PropertyUtil.hasDslPropertyValueChanged(property, value) ? 'value-changed' : '';
+        const labelClassName = PropertyUtil.hasDslPropertyValueChanged(property, value) ? 'value-changed-label' : '';
         if (!isMultiValueField(property) && property.isObject && !property.isArray && !["ExpressionDefinition"].includes(property.type)) {
             const tooltip = value ? "Delete " + property.name : "Add " + property.name;
             const className = value ? "change-button delete-button" : "change-button add-button";
@@ -298,7 +298,7 @@ export function DslPropertyField(props: Props) {
     }
 
     function getVariableInput(property: PropertyMeta) {
-        return <InputGroup>
+        return <InputGroup className={valueChangedClassName}>
             <InputGroupItem>
                 <ToggleGroup aria-label="Variable type">
                     <ToggleGroupItem text="global:" key='global' buttonId={"global-variable-" + property.name}
@@ -363,7 +363,7 @@ export function DslPropertyField(props: Props) {
 
     function getSpecialStringInput(property: PropertyMeta) {
         return (
-            <InputGroup>
+            <InputGroup className={valueChangedClassName}>
                 <InputGroupItem isFill>
                     <TextInput
                         ref={ref}
@@ -408,7 +408,7 @@ export function DslPropertyField(props: Props) {
         const isNumber = ['integer', 'number', 'duration'].includes(property.type);
         const uriReadOnly = isUriReadOnly(property);
         const showEditorButton = !uriReadOnly && !isNumber && !property.secret && !['id', 'description'].includes(property.name);
-        return <InputGroup>
+        return <InputGroup className={valueChangedClassName}>
             {inInfrastructure && !showEditor && !noInfraSelectorButton &&
                 <InputGroupItem>
                     <Tooltip position="bottom-end"
@@ -516,7 +516,7 @@ export function DslPropertyField(props: Props) {
             })
         }
         return (
-            <InputGroup>
+            <InputGroup className={valueChangedClassName}>
                 <InputGroupItem isFill>
                     <SelectField
                         id={property.name}
@@ -556,7 +556,7 @@ export function DslPropertyField(props: Props) {
     function getTextArea(property: PropertyMeta, value: any) {
         const {dslLanguage} = props;
         return (
-            <InputGroup>
+            <InputGroup className={valueChangedClassName}>
                 <InputGroupItem isFill>
                     <TextArea
                         className="text-field" isRequired
@@ -628,7 +628,7 @@ export function DslPropertyField(props: Props) {
             isChecked = property.defaultValue === 'true';
         }
         return (
-            <TextInputGroup className="input-group">
+            <TextInputGroup className={"input-group " + valueChangedClassName}>
                 <InputGroupItem>
                     <Switch
                         isDisabled={isDisabled}
@@ -681,6 +681,7 @@ export function DslPropertyField(props: Props) {
         }
         return (
             <Select
+                className={valueChangedClassName}
                 variant={SelectVariant.single}
                 aria-label={property.name}
                 onToggle={(_event, isExpanded) => {
@@ -706,6 +707,7 @@ export function DslPropertyField(props: Props) {
         }
         return (
             <Select
+                className={valueChangedClassName}
                 variant={SelectVariant.single}
                 aria-label={property.name}
                 onToggle={(_event, isExpanded) => {
@@ -739,6 +741,7 @@ export function DslPropertyField(props: Props) {
     function getMediaTypeSelect(property: PropertyMeta, value: any) {
         return (
             <Select
+                className={valueChangedClassName}
                 placeholderText="Select Media Type"
                 variant={SelectVariant.typeahead}
                 aria-label={property.name}
@@ -793,7 +796,7 @@ export function DslPropertyField(props: Props) {
                 <SelectOption key={value} value={value.trim()}/>));
         }
         return (
-            <InputGroup id={property.name} name={property.name}>
+            <InputGroup className={valueChangedClassName} id={property.name} name={property.name}>
                 <InputGroupItem isFill>
                     <Select
                         placeholderText="Select or type an URI"
@@ -807,6 +810,7 @@ export function DslPropertyField(props: Props) {
                             propertyChanged(property.name, (!isPlaceholder ? value : undefined), undefined)
                         }}
                         selections={value}
+                        createText=""
                         isOpen={isSelectOpen(property.name)}
                         isCreatable={true}
                         isInputFilterPersisted={true}
@@ -890,7 +894,7 @@ export function DslPropertyField(props: Props) {
     function getMultiValueField(property: PropertyMeta, value: any) {
         return (
             <div>
-                <TextInputGroup className="input-group">
+                <TextInputGroup className={"input-group " + valueChangedClassName}>
                     <TextInputGroupMain value={arrayValues.get(property.name) || ''}
                                         onChange={(e, v) => arrayChanged(property.name, v)}
                                         onKeyUp={e => {
@@ -1124,6 +1128,7 @@ export function DslPropertyField(props: Props) {
     const beanConstructors = element?.dslName === 'BeanFactoryDefinition' && property.name === 'constructors'
     const beanProperties = element?.dslName === 'BeanFactoryDefinition' && property.name === 'properties'
     const isSpi = property.javaType.startsWith("org.apache.camel.spi") || property.javaType.startsWith("org.apache.camel.AggregationStrategy");
+    const valueChangedClassName = PropertyUtil.hasDslPropertyValueChanged(property, value) ? 'value-changed' : '';
     return (
         <>
             <FormGroup

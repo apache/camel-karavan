@@ -403,7 +403,7 @@ export class CamelUi {
     static isShowExpressionTooltip = (element: CamelElement): boolean => {
         if (element.hasOwnProperty("expression")) {
             const exp = CamelDefinitionApiExt.getExpressionValue((element as any).expression);
-            return (exp !== undefined && (exp as any)?.expression?.toString().trim().length > 0);
+            return (exp !== undefined && (exp as any)?.expression?.toString()?.trim().length > 0);
         }
         return false;
     }

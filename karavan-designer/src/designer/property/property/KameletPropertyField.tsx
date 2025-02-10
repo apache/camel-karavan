@@ -141,7 +141,7 @@ export function KameletPropertyField(props: Props) {
             selectOptions.push(...property.enum.map((value: string) =>
                 <SelectOption key={value} value={value ? value.trim() : value}/>));
         }
-        return <InputGroup>
+        return <InputGroup className={valueChangedClassName}>
             {showInfraSelectorButton  &&
                 <Tooltip position="bottom-end" content={"Select from " + capitalize(InfrastructureAPI.infrastructure)}>
                     <Button variant="control" onClick={e => openInfrastructureSelector(property.id)}>
@@ -239,13 +239,14 @@ export function KameletPropertyField(props: Props) {
     }
 
     function getLabel(property: Property, value: any) {
-        const labelClassName = hasValueChanged(property, value) ? 'value-changed' : 'transparent';
+        const labelClassName = hasValueChanged(property, value) ? 'value-changed-label' : '';
         return (
             <div style={{display: "flex", flexDirection: 'row', alignItems: 'center', gap: '3px'}}>
                 <Text className={labelClassName}>{property.title}</Text>
             </div>
         )
     }
+
     function getValidationHelper() {
         return (
             validated !== ValidatedOptions.default
@@ -265,6 +266,7 @@ export function KameletPropertyField(props: Props) {
     const validated = (property.format === 'password' && !isSensitiveFieldValid(value)) ? ValidatedOptions.error : ValidatedOptions.default;
     const prefix = "parameters";
     const id = prefix + "-" + property.id;
+    const valueChangedClassName = hasValueChanged(property, value) ? 'value-changed' : '';
     return (
         <div>
             <FormGroup
@@ -293,6 +295,7 @@ export function KameletPropertyField(props: Props) {
                 {/*{property.type === 'string' && getStringInput()}*/}
                 {['string','integer', 'int', 'number'].includes(property.type) && getSpecialStringInput()}
                 {property.type === 'boolean' && <Switch
+                    className={valueChangedClassName}
                     id={id} name={id}
                     value={value?.toString()}
                     aria-label={id}
