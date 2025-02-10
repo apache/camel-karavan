@@ -139,6 +139,7 @@ export const DataFormats: [string, string, string][] = [
     ['fhirJson','FHIR JSon',"Marshall and unmarshall FHIR objects to/from JSON."],
     ['fhirXml','FHIR XML',"Marshall and unmarshall FHIR objects to/from XML."],
     ['flatpack','Flatpack',"Marshal and unmarshal Java lists and maps to/from flat files (such as CSV, delimited, or fixed length formats) using Flatpack library."],
+    ['fury','Fury',"Serialize and deserialize messages using Apache Fury"],
     ['grok','Grok',"Unmarshal unstructured data to objects using Logstash based Grok patterns."],
     ['gzipDeflater','GZip Deflater',"Compress and decompress messages using java.util.zip.GZIPStream."],
     ['hl7','HL7',"Marshal and unmarshal HL7 (Health Care) model objects using the HL7 MLLP codec."],
@@ -153,6 +154,7 @@ export const DataFormats: [string, string, string][] = [
     ['pgp','PGP',"Encrypt and decrypt messages using Java Cryptographic Extension (JCE) and PGP."],
     ['protobuf','Protobuf',"Serialize and deserialize Java objects using Google's Protocol buffers."],
     ['rss','RSS',"Transform from ROME SyndFeed Java Objects to XML and vice-versa."],
+    ['smooks','Smooks',"Transform and bind XML as well as non-XML data, including EDI, CSV, JSON, and YAML using Smooks."],
     ['soap','SOAP',"Marshal Java objects to SOAP messages and back."],
     ['swiftMt','SWIFT MT',"Encode and decode SWIFT MT messages."],
     ['swiftMx','SWIFT MX',"Encode and decode SWIFT MX messages."],
@@ -315,6 +317,7 @@ export const CamelDataFormatMetadata: ElementMeta[] = [
         new PropertyMeta('fhirJson', 'fhirJson', "fhirJson", 'FhirJsonDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('fhirXml', 'fhirXml', "fhirXml", 'FhirXmlDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('flatpack', 'flatpack', "flatpack", 'FlatpackDataFormat', '', '', false, false, false, true, '', ''),
+        new PropertyMeta('fury', 'fury', "fury", 'FuryDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('grok', 'grok', "grok", 'GrokDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('gzipDeflater', 'gzipDeflater', "gzipDeflater", 'GzipDeflaterDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('hl7', 'hl7', "hl7", 'HL7DataFormat', '', '', false, false, false, true, '', ''),
@@ -329,6 +332,7 @@ export const CamelDataFormatMetadata: ElementMeta[] = [
         new PropertyMeta('pgp', 'pgp', "pgp", 'PGPDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('protobuf', 'protobuf', "protobuf", 'ProtobufDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('rss', 'rss', "rss", 'RssDataFormat', '', '', false, false, false, true, '', ''),
+        new PropertyMeta('smooks', 'smooks', "smooks", 'SmooksDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('soap', 'soap', "soap", 'SoapDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('swiftMt', 'swiftMt', "swiftMt", 'SwiftMtDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('swiftMx', 'swiftMx', "swiftMx", 'SwiftMxDataFormat', '', '', false, false, false, true, '', ''),
@@ -345,7 +349,7 @@ export const CamelDataFormatMetadata: ElementMeta[] = [
         new PropertyMeta('zipFile', 'zipFile', "zipFile", 'ZipFileDataFormat', '', '', false, false, false, true, '', ''),
     ], [
     ]),
-    new ElementMeta('fhirJson', 'FhirJsonDataFormat', 'FHIR JSon', "Marshall and unmarshall FHIR objects to/from JSON.", 'dataformat,transformation,hl7,json', [
+    new ElementMeta('fhirJson', 'FhirJsonDataFormat', 'FHIR JSon', "Marshall and unmarshall FHIR objects to/from JSON.", 'dataformat,transformation,health,json', [
         new PropertyMeta('id', 'Id', "The id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('fhirVersion', 'Fhir Version', "The version of FHIR to use. Possible values are: DSTU2,DSTU2_HL7ORG,DSTU2_1,DSTU3,R4,R5", 'string', 'DSTU2, DSTU2_HL7ORG, DSTU2_1, DSTU3, R4, R5', 'R4', false, false, false, false, '', ''),
         new PropertyMeta('fhirContext', 'Fhir Context', "To use a custom fhir context. Reference to object of type ca.uhn.fhir.context.FhirContext", 'string', '', '', false, false, false, false, 'advanced', ''),
@@ -367,7 +371,7 @@ export const CamelDataFormatMetadata: ElementMeta[] = [
         new PropertyMeta('contentTypeHeader', 'Content Type Header', "Whether the data format should set the Content-Type header with the type from the data format. For example application/xml for data formats marshalling to XML, or application/json for data formats marshalling to JSON", 'boolean', '', 'true', false, false, false, false, '', ''),
     ], [
     ]),
-    new ElementMeta('fhirXml', 'FhirXmlDataFormat', 'FHIR XML', "Marshall and unmarshall FHIR objects to/from XML.", 'dataformat,transformation,hl7,xml', [
+    new ElementMeta('fhirXml', 'FhirXmlDataFormat', 'FHIR XML', "Marshall and unmarshall FHIR objects to/from XML.", 'dataformat,transformation,health,xml', [
         new PropertyMeta('id', 'Id', "The id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('fhirVersion', 'Fhir Version', "The version of FHIR to use. Possible values are: DSTU2,DSTU2_HL7ORG,DSTU2_1,DSTU3,R4,R5", 'string', 'DSTU2, DSTU2_HL7ORG, DSTU2_1, DSTU3, R4, R5', 'R4', false, false, false, false, '', ''),
         new PropertyMeta('fhirContext', 'Fhir Context', "To use a custom fhir context. Reference to object of type ca.uhn.fhir.context.FhirContext", 'string', '', '', false, false, false, false, 'advanced', ''),
@@ -401,6 +405,14 @@ export const CamelDataFormatMetadata: ElementMeta[] = [
         new PropertyMeta('parserFactoryRef', 'Parser Factory Ref', "References to a custom parser factory to lookup in the registry", 'string', '', '', false, false, false, false, 'advanced', ''),
     ], [
     ]),
+    new ElementMeta('fury', 'FuryDataFormat', 'Fury', "Serialize and deserialize messages using Apache Fury", 'dataformat,transformation', [
+        new PropertyMeta('id', 'Id', "The id of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('unmarshalType', 'Unmarshal Type', "Class of the java type to use when unmarshalling", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('requireClassRegistration', 'Require Class Registration', "Whether to require register classes", 'boolean', '', 'true', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('threadSafe', 'Thread Safe', "Whether to use the threadsafe fury", 'boolean', '', 'true', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('allowAutoWiredFury', 'Allow Auto Wired Fury', "Whether to auto-discover Fury from the registry", 'boolean', '', 'true', false, false, false, false, 'advanced', ''),
+    ], [
+    ]),
     new ElementMeta('grok', 'GrokDataFormat', 'Grok', "Unmarshal unstructured data to objects using Logstash based Grok patterns.", 'dataformat,transformation', [
         new PropertyMeta('id', 'Id', "The id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('pattern', 'Pattern', "The grok pattern to match lines of input", 'string', '', '', false, false, false, false, '', ''),
@@ -413,7 +425,7 @@ export const CamelDataFormatMetadata: ElementMeta[] = [
         new PropertyMeta('id', 'Id', "The id of this node", 'string', '', '', false, false, false, false, '', ''),
     ], [
     ]),
-    new ElementMeta('hl7', 'HL7DataFormat', 'HL7', "Marshal and unmarshal HL7 (Health Care) model objects using the HL7 MLLP codec.", 'dataformat,transformation,hl7', [
+    new ElementMeta('hl7', 'HL7DataFormat', 'HL7', "Marshal and unmarshal HL7 (Health Care) model objects using the HL7 MLLP codec.", 'dataformat,transformation,health', [
         new PropertyMeta('id', 'Id', "The id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('validate', 'Validate', "Whether to validate the HL7 message Is by default true.", 'boolean', '', 'true', false, false, false, false, '', ''),
     ], [
@@ -480,6 +492,7 @@ export const CamelDataFormatMetadata: ElementMeta[] = [
         new PropertyMeta('autoDiscoverObjectMapper', 'Auto Discover Object Mapper', "If set to true then Jackson will look for an objectMapper to use from the registry", 'boolean', '', 'false', false, false, false, false, '', ''),
         new PropertyMeta('prettyPrint', 'Pretty Print', "To enable pretty printing output nicely formatted. Is by default false.", 'boolean', '', 'false', false, false, false, false, '', ''),
         new PropertyMeta('library', 'Library', "Which json library to use.", 'string', 'Fastjson, Gson, Jackson, Johnzon, Jsonb', 'Jackson', false, false, false, false, '', ''),
+        new PropertyMeta('combineUnicodeSurrogates', 'Combine Unicode Surrogates', "Force generator that outputs JSON content to combine surrogate pairs (if any) into 4-byte characters. This should be preferred when using 4-byte characters such as Japanese.", 'boolean', '', 'false', false, false, false, false, '', ''),
         new PropertyMeta('unmarshalType', 'Unmarshal Type', "Class name of the java type to use when unmarshalling", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('jsonView', 'Json View', "When marshalling a POJO to JSON you might want to exclude certain fields from the JSON output. With Jackson you can use JSON views to accomplish this. This option is to refer to the class which has JsonView annotations", 'string', '', '', false, false, false, false, 'advanced', ''),
         new PropertyMeta('include', 'Include', "If you want to marshal a pojo to JSON, and the pojo has some fields with null values. And you want to skip these null values, you can set this option to NON_NULL", 'string', '', '', false, false, false, false, 'advanced', ''),
@@ -565,6 +578,11 @@ export const CamelDataFormatMetadata: ElementMeta[] = [
     ]),
     new ElementMeta('rss', 'RssDataFormat', 'RSS', "Transform from ROME SyndFeed Java Objects to XML and vice-versa.", 'dataformat,transformation', [
         new PropertyMeta('id', 'Id', "The id of this node", 'string', '', '', false, false, false, false, '', ''),
+    ], [
+    ]),
+    new ElementMeta('smooks', 'SmooksDataFormat', 'Smooks', "Transform and bind XML as well as non-XML data, including EDI, CSV, JSON, and YAML using Smooks.", 'dataformat,transformation', [
+        new PropertyMeta('id', 'Id', "The id of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('smooksConfig', 'Smooks Config', "Path to the Smooks configuration file.", 'string', '', '', true, false, false, false, '', ''),
     ], [
     ]),
     new ElementMeta('soap', 'SoapDataFormat', 'SOAP', "Marshal Java objects to SOAP messages and back.", 'dataformat,transformation,xml', [
@@ -1029,7 +1047,7 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('disabled', 'Disabled', "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('exception', 'Exception', "The exception(s) to catch.", 'string', '', '', false, false, true, true, '', ''),
-        new PropertyMeta('onWhen', 'On When', "Sets an additional predicate that should be true before the onCatch is triggered. To be used for fine grained controlling whether a thrown exception should be intercepted by this exception type or not.", 'WhenDefinition', '', '', false, false, false, true, '', ''),
+        new PropertyMeta('onWhen', 'On When', "Used for triggering doCatch in specific situations", 'OnWhenDefinition', '', '', false, false, false, true, '', ''),
         new PropertyMeta('steps', 'steps', "steps", 'CamelElement', '', '', false, false, true, true, '', ''),
     ], [
         new ExchangePropertyMeta('CamelExceptionCaught', 'Exception Caught', 'producer', 'java.lang.Exception', 'Stores the caught exception due to a processing error of the current Exchange'),
@@ -1128,8 +1146,8 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('disabled', 'Disabled', "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('expression', 'Expression', "Expression that computes the endpoint uri to use as the resource endpoint to enrich from", 'ExpressionDefinition', '', '', true, false, false, true, '', ''),
-        new PropertyMeta('variableSend', 'Variable Send', "To use a variable to store the received message body (only body, not headers). This is handy for easy access to the received message body via variables. Important: When using receive variable then the received body is stored only in this variable and not on the current org.apache.camel.Message .", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('variableReceive', 'Variable Receive', "To use a variable to store the received message body (only body, not headers). This is handy for easy access to the received message body via variables. Important: When using receive variable then the received body is stored only in this variable and not on the current org.apache.camel.Message .", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('variableSend', 'Variable Send', "To use a variable to store the received message body (only body, not headers). This makes it handy to use variables for user data and to easily control what data to use for sending and receiving. Important: When using receive variable then the received body is stored only in this variable and not on the current message.", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('variableReceive', 'Variable Receive', "To use a variable as the source for the message body to send. This makes it handy to use variables for user data and to easily control what data to use for sending and receiving. Important: When using send variable then the message body is taken from this variable instead of the current message, however the headers from the message will still be used as well. In other words, the variable is used instead of the message body, but everything else is as usual.", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('aggregationStrategy', 'Aggregation Strategy', "Sets the AggregationStrategy to be used to merge the reply from the external service, into a single outgoing message. By default Camel will use the reply from the external service as outgoing message.", 'string', '', '', false, false, false, false, '', 'org.apache.camel.AggregationStrategy'),
         new PropertyMeta('aggregationStrategyMethodName', 'Aggregation Strategy Method Name', "This option can be used to explicit declare the method name to use, when using POJOs as the AggregationStrategy.", 'string', '', '', false, false, false, false, 'advanced', ''),
         new PropertyMeta('aggregationStrategyMethodAllowNull', 'Aggregation Strategy Method Allow Null', "If this option is false then the aggregate method is not used if there was no data to enrich. If this option is true then null values is used as the oldExchange (when no data to enrich), when using POJOs as the AggregationStrategy.", 'string', '', '', false, false, false, false, 'advanced', ''),
@@ -1185,7 +1203,6 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('disabled', 'Disabled', "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
-        new PropertyMeta('inheritErrorHandler', 'Inherit Error Handler', "Sets whether or not to inherit the configured error handler. The default value is true. You can use this to disable using the inherited error handler for a given DSL such as a load balancer where you want to use a custom error handler strategy.", 'boolean', '', 'false', false, false, false, false, '', ''),
         new PropertyMeta('customLoadBalancer', 'customLoadBalancer', "customLoadBalancer", 'CustomLoadBalancerDefinition', '', '', false, false, false, true, '', ''),
         new PropertyMeta('failoverLoadBalancer', 'failoverLoadBalancer', "failoverLoadBalancer", 'FailoverLoadBalancerDefinition', '', '', false, false, false, true, '', ''),
         new PropertyMeta('randomLoadBalancer', 'randomLoadBalancer', "randomLoadBalancer", 'RandomLoadBalancerDefinition', '', '', false, false, false, true, '', ''),
@@ -1205,6 +1222,7 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('logName', 'Log Name', "Sets the name of the logger. The name is default the routeId or the source:line if source location is enabled. You can also specify the name using tokens: ${class} - the logger class name (org.apache.camel.processor.LogProcessor) ${contextId} - the camel context id ${routeId} - the route id ${groupId} - the route group id ${nodeId} - the node id ${nodePrefixId} - the node prefix id ${source} - the source:line (source location must be enabled) ${source.name} - the source filename (source location must be enabled) ${source.line} - the source line number (source location must be enabled) For example to use the route and node id you can specify the name as: ${routeId}/${nodeId}", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('marker', 'Marker', "To use slf4j marker", 'string', '', '', false, false, false, false, 'advanced', ''),
         new PropertyMeta('logger', 'Logger', "To refer to a custom logger instance to lookup from the registry.", 'string', '', '', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('logLanguage', 'Log Language', "To configure the language to use. By default, the simple language is used. However, Camel also supports other languages such as groovy.", 'string', '', '', false, false, false, false, 'advanced', ''),
     ], [
     ]),
     new ElementMeta('loop', 'LoopDefinition', 'Loop', "Processes a message multiple times", 'eip,routing', [
@@ -1215,6 +1233,7 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('copy', 'Copy', "If the copy attribute is true, a copy of the input Exchange is used for each iteration. That means each iteration will start from a copy of the same message. By default loop will loop the same exchange all over, so each iteration may have different message content.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('doWhile', 'Do While', "Enables the while loop that loops until the predicate evaluates to false or null.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('breakOnShutdown', 'Break On Shutdown', "If the breakOnShutdown attribute is true, then the loop will not iterate until it reaches the end when Camel is shut down.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('onPrepare', 'On Prepare', "Uses the Processor when preparing the org.apache.camel.Exchange for each loop iteration. This can be used to deep-clone messages, or any custom logic needed before the looping executes.", 'string', '', '', false, false, false, false, 'advanced', 'org.apache.camel.Processor'),
         new PropertyMeta('steps', 'steps', "steps", 'CamelElement', '', '', false, false, true, true, '', ''),
     ], [
         new ExchangePropertyMeta('CamelLoopIndex', 'Loop Index', 'producer', 'int', 'Index of the current iteration (0 based).'),
@@ -1224,8 +1243,8 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('disabled', 'Disabled', "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
-        new PropertyMeta('variableSend', 'Variable Send', "To use a variable to store the received message body (only body, not headers). This is handy for easy access to the received message body via variables. Important: When using receive variable then the received body is stored only in this variable and not on the current org.apache.camel.Message .", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('variableReceive', 'Variable Receive', "To use a variable to store the received message body (only body, not headers). This is handy for easy access to the received message body via variables. Important: When using receive variable then the received body is stored only in this variable and not on the current org.apache.camel.Message .", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('variableSend', 'Variable Send', "To use a variable as the source for the message body to send. This makes it handy to use variables for user data and to easily control what data to use for sending and receiving. Important: When using send variable then the message body is taken from this variable instead of the current message, however the headers from the message will still be used as well. In other words, the variable is used instead of the message body, but everything else is as usual.", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('variableReceive', 'Variable Receive', "To use a variable to store the received message body (only body, not headers). This makes it handy to use variables for user data and to easily control what data to use for sending and receiving. Important: When using receive variable then the received body is stored only in this variable and not on the current message.", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('asn1', 'asn1', "asn1", 'ASN1DataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('avro', 'avro', "avro", 'AvroDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('barcode', 'barcode', "barcode", 'BarcodeDataFormat', '', '', false, false, false, true, '', ''),
@@ -1239,6 +1258,7 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('fhirJson', 'fhirJson', "fhirJson", 'FhirJsonDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('fhirXml', 'fhirXml', "fhirXml", 'FhirXmlDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('flatpack', 'flatpack', "flatpack", 'FlatpackDataFormat', '', '', false, false, false, true, '', ''),
+        new PropertyMeta('fury', 'fury', "fury", 'FuryDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('grok', 'grok', "grok", 'GrokDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('gzipDeflater', 'gzipDeflater', "gzipDeflater", 'GzipDeflaterDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('hl7', 'hl7', "hl7", 'HL7DataFormat', '', '', false, false, false, true, '', ''),
@@ -1253,6 +1273,7 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('pgp', 'pgp', "pgp", 'PGPDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('protobuf', 'protobuf', "protobuf", 'ProtobufDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('rss', 'rss', "rss", 'RssDataFormat', '', '', false, false, false, true, '', ''),
+        new PropertyMeta('smooks', 'smooks', "smooks", 'SmooksDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('soap', 'soap', "soap", 'SoapDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('swiftMt', 'swiftMt', "swiftMt", 'SwiftMtDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('swiftMx', 'swiftMx', "swiftMx", 'SwiftMxDataFormat', '', '', false, false, false, true, '', ''),
@@ -1291,21 +1312,6 @@ export const CamelModelMetadata: ElementMeta[] = [
         new ExchangePropertyMeta('CamelMulticastComplete', 'Multicast Complete', 'producer', 'boolean', 'Whether this Exchange is the last.'),
         new ExchangePropertyMeta('CamelToEndpoint', 'To Endpoint', 'producer', 'String', 'Endpoint URI where this Exchange is being sent to'),
     ]),
-    new ElementMeta('onFallback', 'OnFallbackDefinition', 'On Fallback', "Route to be executed when Circuit Breaker EIP executes fallback", 'eip,routing,error', [
-        new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('disabled', 'Disabled', "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
-        new PropertyMeta('fallbackViaNetwork', 'Fallback Via Network', "Whether the fallback goes over the network. If the fallback will go over the network it is another possible point of failure. It is important to execute the fallback command on a separate thread-pool, otherwise if the main command were to become latent and fill the thread-pool this would prevent the fallback from running if the two commands share the same pool.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
-        new PropertyMeta('steps', 'steps', "steps", 'CamelElement', '', '', false, false, true, true, '', ''),
-    ], [
-    ]),
-    new ElementMeta('otherwise', 'OtherwiseDefinition', 'Otherwise', "Route to be executed when all other choices evaluate to false", 'eip,routing', [
-        new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('disabled', 'Disabled', "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
-        new PropertyMeta('steps', 'steps', "steps", 'CamelElement', '', '', false, false, true, true, '', ''),
-    ], [
-    ]),
     new ElementMeta('pausable', 'PausableDefinition', 'Pausable', "Pausable EIP to support resuming processing from last known offset.", 'eip,routing', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
@@ -1333,7 +1339,7 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('disabled', 'Disabled', "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
-        new PropertyMeta('variableReceive', 'Variable Receive', "To use a variable to store the received message body (only body, not headers). This is handy for easy access to the received message body via variables. Important: When using receive variable then the received body is stored only in this variable and not on the current Message .", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('variableReceive', 'Variable Receive', "To use a variable to store the received message body (only body, not headers). This makes it handy to use variables for user data and to easily control what data to use for sending and receiving. Important: When using receive variable then the received body is stored only in this variable and not on the current message.", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('uri', 'Uri', "Sets the uri of the endpoint to poll from.", 'string', '', '', true, false, false, false, '', ''),
         new PropertyMeta('timeout', 'Timeout', "Timeout in millis when polling from the external service. The timeout has influence about the poll enrich behavior. It basically operations in three different modes: negative value - Waits until a message is available and then returns it. Warning that this method could block indefinitely if no messages are available. 0 - Attempts to receive a message exchange immediately without waiting and returning null if a message exchange is not available yet. positive value - Attempts to receive a message exchange, waiting up to the given timeout to expire if a message is not yet available. Returns null if timed out The default value is 20000 (20 seconds).", 'string', '', '20000', false, false, false, false, 'advanced', ''),
         new PropertyMeta('parameters', 'parameters', "parameters", 'object', '', '', false, false, false, false, '', ''),
@@ -1344,7 +1350,7 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('disabled', 'Disabled', "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('expression', 'Expression', "Expression that computes the endpoint uri to use as the resource endpoint to enrich from", 'ExpressionDefinition', '', '', true, false, false, true, '', ''),
-        new PropertyMeta('variableReceive', 'Variable Receive', "To use a variable to store the received message body (only body, not headers). This is handy for easy access to the received message body via variables. Important: When using receive variable then the received body is stored only in this variable and not on the current org.apache.camel.Message .", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('variableReceive', 'Variable Receive', "To use a variable to store the received message body (only body, not headers). This makes it handy to use variables for user data and to easily control what data to use for sending and receiving. Important: When using receive variable then the received body is stored only in this variable and not on the current message.", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('aggregationStrategy', 'Aggregation Strategy', "Sets the AggregationStrategy to be used to merge the reply from the external service, into a single outgoing message. By default Camel will use the reply from the external service as outgoing message.", 'string', '', '', false, false, false, false, '', 'org.apache.camel.AggregationStrategy'),
         new PropertyMeta('aggregationStrategyMethodName', 'Aggregation Strategy Method Name', "This option can be used to explicit declare the method name to use, when using POJOs as the AggregationStrategy.", 'string', '', '', false, false, false, false, 'advanced', ''),
         new PropertyMeta('aggregationStrategyMethodAllowNull', 'Aggregation Strategy Method Allow Null', "If this option is false then the aggregate method is not used if there was no data to enrich. If this option is true then null values is used as the oldExchange (when no data to enrich), when using POJOs as the AggregationStrategy.", 'string', '', '', false, false, false, false, 'advanced', ''),
@@ -1634,8 +1640,8 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('disabled', 'Disabled', "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
-        new PropertyMeta('variableSend', 'Variable Send', "To use a variable as the source for the message body to send. This makes it handy to use variables for user data and to easily control what data to use for sending and receiving. Important: When using send variable then the message body is taken from this variable instead of the current Message , however the headers from the Message will still be used as well. In other words, the variable is used instead of the message body, but everything else is as usual.", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('variableReceive', 'Variable Receive', "To use a variable to store the received message body (only body, not headers). This is handy for easy access to the received message body via variables. Important: When using receive variable then the received body is stored only in this variable and not on the current org.apache.camel.Message .", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('variableSend', 'Variable Send', "To use a variable as the source for the message body to send. This makes it handy to use variables for user data and to easily control what data to use for sending and receiving. Important: When using send variable then the message body is taken from this variable instead of the current message, however the headers from the message will still be used as well. In other words, the variable is used instead of the message body, but everything else is as usual.", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('variableReceive', 'Variable Receive', "To use a variable to store the received message body (only body, not headers). This makes it handy to use variables for user data and to easily control what data to use for sending and receiving. Important: When using receive variable then the received body is stored only in this variable and not on the current message.", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('uri', 'Uri', "Sets the uri of the endpoint to send to.", 'string', '', '', true, false, false, false, '', ''),
         new PropertyMeta('pattern', 'Pattern', "Sets the optional ExchangePattern used to invoke this endpoint", 'string', 'InOnly, InOut', '', false, false, false, false, 'advanced', ''),
         new PropertyMeta('parameters', 'parameters', "parameters", 'object', '', '', false, false, false, false, '', ''),
@@ -1647,7 +1653,7 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('disabled', 'Disabled', "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('uri', 'Uri', "The uri of the endpoint to send to. The uri can be dynamic computed using the org.apache.camel.language.simple.SimpleLanguage expression.", 'string', '', '', true, false, false, false, '', ''),
-        new PropertyMeta('variableSend', 'Variable Send', "To use a variable to store the received message body (only body, not headers). This is handy for easy access to the received message body via variables. Important: When using receive variable then the received body is stored only in this variable and not on the current org.apache.camel.Message .", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('variableSend', 'Variable Send', "To use a variable as the source for the message body to send. This makes it handy to use variables for user data and to easily control what data to use for sending and receiving. Important: When using send variable then the message body is taken from this variable instead of the current message, however the headers from the message will still be used as well. In other words, the variable is used instead of the message body, but everything else is as usual.", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('variableReceive', 'Variable Receive', "To use a variable as the source for the message body to send. This makes it handy to use variables for user data and to easily control what data to use for sending and receiving. Important: When using send variable then the message body is taken from this variable instead of the current Message , however the headers from the Message will still be used as well. In other words, the variable is used instead of the message body, but everything else is as usual.", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('pattern', 'Pattern', "Sets the optional ExchangePattern used to invoke this endpoint", 'string', 'InOnly, InOut', '', false, false, false, false, 'advanced', ''),
         new PropertyMeta('cacheSize', 'Cache Size', "Sets the maximum size used by the org.apache.camel.spi.ProducerCache which is used to cache and reuse producers when using this recipient list, when uris are reused. Beware that when using dynamic endpoints then it affects how well the cache can be utilized. If each dynamic endpoint is unique then its best to turn off caching by setting this to -1, which allows Camel to not cache both the producers and endpoints; they are regarded as prototype scoped and will be stopped and discarded after use. This reduces memory usage as otherwise producers/endpoints are stored in memory in the caches. However if there are a high degree of dynamic endpoints that have been used before, then it can benefit to use the cache to reuse both producers and endpoints and therefore the cache size can be set accordingly or rely on the default size (1000). If there is a mix of unique and used before dynamic endpoints, then setting a reasonable cache size can help reduce memory usage to avoid storing too many non frequent used producers.", 'number', '', '', false, false, false, false, 'advanced', ''),
@@ -1690,8 +1696,8 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('disabled', 'Disabled', "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
-        new PropertyMeta('doCatch', 'doCatch', "doCatch", 'CatchDefinition', '', '', false, false, true, true, '', ''),
-        new PropertyMeta('doFinally', 'doFinally', "doFinally", 'FinallyDefinition', '', '', false, false, false, true, '', ''),
+        new PropertyMeta('doCatch', 'Do Catch', "Catches exceptions as part of a try, catch, finally block", 'CatchDefinition', '', '', false, false, true, true, '', ''),
+        new PropertyMeta('doFinally', 'Do Finally', "Path traversed when a try, catch, finally block exits", 'FinallyDefinition', '', '', false, false, false, true, '', ''),
         new PropertyMeta('steps', 'steps', "steps", 'CamelElement', '', '', false, false, true, true, '', ''),
     ], [
     ]),
@@ -1699,8 +1705,8 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('disabled', 'Disabled', "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
-        new PropertyMeta('variableSend', 'Variable Send', "To use a variable to store the received message body (only body, not headers). This is handy for easy access to the received message body via variables. Important: When using receive variable then the received body is stored only in this variable and not on the current org.apache.camel.Message .", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('variableReceive', 'Variable Receive', "To use a variable to store the received message body (only body, not headers). This is handy for easy access to the received message body via variables. Important: When using receive variable then the received body is stored only in this variable and not on the current org.apache.camel.Message .", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('variableSend', 'Variable Send', "To use a variable as the source for the message body to send. This makes it handy to use variables for user data and to easily control what data to use for sending and receiving. Important: When using send variable then the message body is taken from this variable instead of the current message, however the headers from the message will still be used as well. In other words, the variable is used instead of the message body, but everything else is as usual.", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('variableReceive', 'Variable Receive', "To use a variable to store the received message body (only body, not headers). This makes it handy to use variables for user data and to easily control what data to use for sending and receiving. Important: When using receive variable then the received body is stored only in this variable and not on the current message.", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('allowNullBody', 'Allow Null Body', "Indicates whether null is allowed as value of a body to unmarshall.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('asn1', 'asn1', "asn1", 'ASN1DataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('avro', 'avro', "avro", 'AvroDataFormat', '', '', false, false, false, true, '', ''),
@@ -1715,6 +1721,7 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('fhirJson', 'fhirJson', "fhirJson", 'FhirJsonDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('fhirXml', 'fhirXml', "fhirXml", 'FhirXmlDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('flatpack', 'flatpack', "flatpack", 'FlatpackDataFormat', '', '', false, false, false, true, '', ''),
+        new PropertyMeta('fury', 'fury', "fury", 'FuryDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('grok', 'grok', "grok", 'GrokDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('gzipDeflater', 'gzipDeflater', "gzipDeflater", 'GzipDeflaterDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('hl7', 'hl7', "hl7", 'HL7DataFormat', '', '', false, false, false, true, '', ''),
@@ -1729,6 +1736,7 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('pgp', 'pgp', "pgp", 'PGPDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('protobuf', 'protobuf', "protobuf", 'ProtobufDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('rss', 'rss', "rss", 'RssDataFormat', '', '', false, false, false, true, '', ''),
+        new PropertyMeta('smooks', 'smooks', "smooks", 'SmooksDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('soap', 'soap', "soap", 'SoapDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('swiftMt', 'swiftMt', "swiftMt", 'SwiftMtDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('swiftMx', 'swiftMx', "swiftMx", 'SwiftMxDataFormat', '', '', false, false, false, true, '', ''),
@@ -1753,22 +1761,6 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('predicateExceptionFactory', 'Predicate Exception Factory', "The bean id of custom PredicateExceptionFactory to use for creating the exception when the validation fails. By default, Camel will throw PredicateValidationException. By using a custom factory you can control which exception to throw instead.", 'string', '', '', false, false, false, false, 'advanced', 'org.apache.camel.spi.PredicateExceptionFactory'),
     ], [
     ]),
-    new ElementMeta('when', 'WhenDefinition', 'When', "Triggers a route when the expression evaluates to true", 'eip,routing', [
-        new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('disabled', 'Disabled', "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
-        new PropertyMeta('expression', 'Expression', "Expression used as the predicate to evaluate whether this when should trigger and route the message or not.", 'ExpressionDefinition', '', '', true, false, false, true, '', ''),
-        new PropertyMeta('steps', 'steps', "steps", 'CamelElement', '', '', false, false, true, true, '', ''),
-    ], [
-    ]),
-    new ElementMeta('whenSkipSendToEndpoint', 'WhenSkipSendToEndpointDefinition', 'When Skip Send To Endpoint', "Predicate to determine if the message should be sent or not to the endpoint, when using interceptSentToEndpoint.", 'configuration', [
-        new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('disabled', 'Disabled', "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
-        new PropertyMeta('expression', 'Expression', "Expression used as the predicate to evaluate whether the message should be sent or not to the endpoint", 'ExpressionDefinition', '', '', true, false, false, true, '', ''),
-        new PropertyMeta('steps', 'steps', "steps", 'CamelElement', '', '', false, false, true, true, '', ''),
-    ], [
-    ]),
     new ElementMeta('wireTap', 'WireTapDefinition', 'Wire Tap', "Routes a copy of a message (or creates a new message) to a secondary destination while continue routing the original message.", 'eip,routing', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
@@ -1778,7 +1770,7 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('onPrepare', 'On Prepare', "Uses the Processor when preparing the org.apache.camel.Exchange to be sent. This can be used to deep-clone messages that should be sent, or any custom logic needed before the exchange is sent.", 'string', '', '', false, false, false, false, 'advanced', 'org.apache.camel.Processor'),
         new PropertyMeta('executorService', 'Executor Service', "Uses a custom thread pool", 'string', '', '', false, false, false, false, 'advanced', ''),
         new PropertyMeta('uri', 'Uri', "The uri of the endpoint to send to. The uri can be dynamic computed using the org.apache.camel.language.simple.SimpleLanguage expression.", 'string', '', '', true, false, false, false, '', ''),
-        new PropertyMeta('variableSend', 'Variable Send', "To use a variable to store the received message body (only body, not headers). This is handy for easy access to the received message body via variables. Important: When using receive variable then the received body is stored only in this variable and not on the current org.apache.camel.Message .", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('variableSend', 'Variable Send', "To use a variable as the source for the message body to send. This makes it handy to use variables for user data and to easily control what data to use for sending and receiving. Important: When using send variable then the message body is taken from this variable instead of the current message, however the headers from the message will still be used as well. In other words, the variable is used instead of the message body, but everything else is as usual.", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('variableReceive', 'Variable Receive', "To use a variable as the source for the message body to send. This makes it handy to use variables for user data and to easily control what data to use for sending and receiving. Important: When using send variable then the message body is taken from this variable instead of the current Message , however the headers from the Message will still be used as well. In other words, the variable is used instead of the message body, but everything else is as usual.", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('pattern', 'Pattern', "Sets the optional ExchangePattern used to invoke this endpoint", 'string', 'InOnly, InOut', '', false, false, false, false, 'advanced', ''),
         new PropertyMeta('cacheSize', 'Cache Size', "Sets the maximum size used by the org.apache.camel.spi.ProducerCache which is used to cache and reuse producers when using this recipient list, when uris are reused. Beware that when using dynamic endpoints then it affects how well the cache can be utilized. If each dynamic endpoint is unique then its best to turn off caching by setting this to -1, which allows Camel to not cache both the producers and endpoints; they are regarded as prototype scoped and will be stopped and discarded after use. This reduces memory usage as otherwise producers/endpoints are stored in memory in the caches. However if there are a high degree of dynamic endpoints that have been used before, then it can benefit to use the cache to reuse both producers and endpoints and therefore the cache size can be set accordingly or rely on the default size (1000). If there is a mix of unique and used before dynamic endpoints, then setting a reasonable cache size can help reduce memory usage to avoid storing too many non frequent used producers.", 'number', '', '', false, false, false, false, 'advanced', ''),
@@ -1793,6 +1785,7 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('disabled', 'Disabled', "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('onWhen', 'On When', "To use an expression to only trigger intercepting in specific situations", 'OnWhenDefinition', '', '', false, false, false, true, '', ''),
         new PropertyMeta('steps', 'steps', "steps", 'CamelElement', '', '', false, false, true, true, '', ''),
     ], [
     ]),
@@ -1801,6 +1794,7 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('disabled', 'Disabled', "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('uri', 'Uri', "Intercept incoming messages from the uri or uri pattern. If this option is not configured, then all incoming messages is intercepted.", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('onWhen', 'On When', "To use an expression to only trigger intercepting in specific situations", 'OnWhenDefinition', '', '', false, false, false, true, '', ''),
         new PropertyMeta('steps', 'steps', "steps", 'CamelElement', '', '', false, false, true, true, '', ''),
     ], [
         new ExchangePropertyMeta('CamelInterceptedEndpoint', 'Intercepted Endpoint', 'producer', 'String', 'The endpoint URI that was intercepted'),
@@ -1812,6 +1806,7 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('uri', 'Uri', "Intercept sending to the uri or uri pattern.", 'string', '', '', true, false, false, false, '', ''),
         new PropertyMeta('skipSendToOriginalEndpoint', 'Skip Send To Original Endpoint', "If set to true then the message is not sent to the original endpoint. By default (false) the message is both intercepted and then sent to the original endpoint.", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('afterUri', 'After Uri', "After sending to the endpoint then send the message to this uri which allows to process its result.", 'string', '', '', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('onWhen', 'On When', "To use an expression to only trigger intercepting sending to an endpoint in specific situations", 'OnWhenDefinition', '', '', false, false, false, true, '', ''),
         new PropertyMeta('steps', 'steps', "steps", 'CamelElement', '', '', false, false, true, true, '', ''),
     ], [
         new ExchangePropertyMeta('CamelInterceptedEndpoint', 'Intercepted Endpoint', 'producer', 'String', 'The endpoint URI that was intercepted'),
@@ -1826,7 +1821,7 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('parallelProcessing', 'Parallel Processing', "If enabled then the on completion process will run asynchronously by a separate thread from a thread pool. By default this is false, meaning the on completion process will run synchronously using the same caller thread as from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('executorService', 'Executor Service', "To use a custom Thread Pool to be used for parallel processing. Notice if you set this option, then parallel processing is automatic implied, and you do not have to enable that option as well.", 'string', '', '', false, false, false, false, 'advanced', ''),
         new PropertyMeta('useOriginalMessage', 'Use Original Message', "Will use the original input message body when an org.apache.camel.Exchange for this on completion. The original input message is defensively copied, and the copied message body is converted to org.apache.camel.StreamCache if possible (stream caching is enabled, can be disabled globally or on the original route), to ensure the body can be read when the original message is being used later. If the body is converted to org.apache.camel.StreamCache then the message body on the current org.apache.camel.Exchange is replaced with the org.apache.camel.StreamCache body. If the body is not converted to org.apache.camel.StreamCache then the body will not be able to re-read when accessed later. Important: The original input means the input message that are bounded by the current org.apache.camel.spi.UnitOfWork . An unit of work typically spans one route, or multiple routes if they are connected using internal endpoints such as direct or seda. When messages is passed via external endpoints such as JMS or HTTP then the consumer will create a new unit of work, with the message it received as input as the original input. Also some EIP patterns such as splitter, multicast, will create a new unit of work boundary for the messages in their sub-route (eg the split message); however these EIPs have an option named shareUnitOfWork which allows to combine with the parent unit of work in regard to error handling and therefore use the parent original message. By default this feature is off.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
-        new PropertyMeta('onWhen', 'On When', "Sets an additional predicate that should be true before the onCompletion is triggered. To be used for fine grained controlling whether a completion callback should be invoked or not", 'WhenDefinition', '', '', false, false, false, true, '', ''),
+        new PropertyMeta('onWhen', 'On When', "To use an expression to only trigger routing this completion steps in specific situations", 'OnWhenDefinition', '', '', false, false, false, true, '', ''),
         new PropertyMeta('steps', 'steps', "steps", 'CamelElement', '', '', false, false, true, true, '', ''),
     ], [
         new ExchangePropertyMeta('CamelOnCompletion', 'On Completion', 'producer', 'boolean', 'Flag to mark that this exchange is currently being executed as onCompletion'),
@@ -1836,7 +1831,7 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('disabled', 'Disabled', "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('exception', 'Exception', "A set of exceptions to react upon.", 'string', '', '', true, false, true, true, '', ''),
-        new PropertyMeta('onWhen', 'On When', "Sets an additional predicate that should be true before the onException is triggered. To be used for fine grained controlling whether a thrown exception should be intercepted by this exception type or not.", 'WhenDefinition', '', '', false, false, false, true, '', ''),
+        new PropertyMeta('onWhen', 'On When', "To use an expression to only trigger this in specific situations", 'OnWhenDefinition', '', '', false, false, false, true, '', ''),
         new PropertyMeta('retryWhile', 'Retry While', "Sets the retry while predicate. Will continue retrying until predicate returns false.", 'ExpressionSubElementDefinition', '', '', false, false, false, true, 'advanced', ''),
         new PropertyMeta('redeliveryPolicy', 'Redelivery Policy', "Used for configuring redelivery options", 'RedeliveryPolicyDefinition', '', '', false, false, false, true, '', ''),
         new PropertyMeta('redeliveryPolicyRef', 'Redelivery Policy Ref', "Sets a reference to a redelivery policy to lookup in the org.apache.camel.spi.Registry to be used.", 'string', '', '', false, false, false, false, 'advanced', ''),
@@ -1867,7 +1862,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     new ElementMeta('route', 'RouteDefinition', 'Route', "A Camel route", 'configuration', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('group', 'Group', "The group that this route belongs to; could be the name of the RouteBuilder class or be explicitly configured in the XML. May be null.", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('group', 'Group', "The group name for this route. Multiple routes can belong to the same group.", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('nodePrefixId', 'Node Prefix Id', "Sets a prefix to use for all node ids (not route id).", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('routeConfigurationId', 'Route Configuration Id', "The route configuration id or pattern this route should use for configuration. Multiple id/pattern can be separated by comma.", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('autoStartup', 'Auto Startup', "Whether to auto start this route", 'boolean', '', 'true', false, false, false, false, '', ''),
@@ -2037,12 +2032,32 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('validate', 'Validate', "Whether if validation is required for this input type.", 'boolean', '', 'false', false, false, false, false, '', ''),
     ], [
     ]),
+    new ElementMeta('onFallback', 'OnFallbackDefinition', 'On Fallback', "Route to be executed when Circuit Breaker EIP executes fallback", 'eip,routing,error', [
+        new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('fallbackViaNetwork', 'Fallback Via Network', "Whether the fallback goes over the network. If the fallback will go over the network it is another possible point of failure. It is important to execute the fallback command on a separate thread-pool, otherwise if the main command were to become latent and fill the thread-pool this would prevent the fallback from running if the two commands share the same pool.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('steps', 'steps', "steps", 'CamelElement', '', '', false, false, true, true, '', ''),
+    ], [
+    ]),
+    new ElementMeta('onWhen', 'OnWhenDefinition', 'On When', "To use a predicate to determine when to trigger this.", 'configuration', [
+        new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('expression', 'Expression', "expression", 'ExpressionDefinition', '', '', true, false, false, true, '', ''),
+    ], [
+    ]),
     new ElementMeta('optimisticLockRetryPolicy', 'OptimisticLockRetryPolicyDefinition', 'Optimistic Lock Retry Policy', "To configure optimistic locking", 'configuration', [
         new PropertyMeta('maximumRetries', 'Maximum Retries', "Sets the maximum number of retries", 'number', '', '', false, false, false, false, '', ''),
         new PropertyMeta('retryDelay', 'Retry Delay', "Sets the delay in millis between retries", 'string', '', '50', false, false, false, false, '', ''),
         new PropertyMeta('maximumRetryDelay', 'Maximum Retry Delay', "Sets the upper value of retry in millis between retries, when using exponential or random backoff", 'string', '', '1000', false, false, false, false, '', ''),
         new PropertyMeta('exponentialBackOff', 'Exponential Back Off', "Enable exponential backoff", 'boolean', '', 'true', false, false, false, false, 'advanced', ''),
         new PropertyMeta('randomBackOff', 'Random Back Off', "Enables random backoff", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
+    ], [
+    ]),
+    new ElementMeta('otherwise', 'OtherwiseDefinition', 'Otherwise', "Route to be executed when all other choices evaluate to false", 'eip,routing', [
+        new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled late at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('steps', 'steps', "steps", 'CamelElement', '', '', false, false, true, true, '', ''),
     ], [
     ]),
     new ElementMeta('outputType', 'OutputTypeDefinition', 'Output Type', "Set the expected data type of the output message. If the actual message type is different at runtime, camel look for a required Transformer and apply if exists. If validate attribute is true then camel applies Validator as well. Type name consists of two parts, 'scheme' and 'name' connected with ':'. For Java type 'name' is a fully qualified class name. For example {code java:java.lang.String} , {code json:ABCOrder} . It's also possible to specify only scheme part, so that it works like a wildcard. If only 'xml' is specified, all the XML message matches. It's handy to add only one transformer/validator for all the XML-Java transformation.", 'configuration', [
@@ -2168,6 +2183,14 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('value', 'Value', "Property value", 'string', '', '', true, false, false, false, '', ''),
     ], [
     ]),
+    new ElementMeta('when', 'WhenDefinition', 'When', "Triggers a route when the expression evaluates to true", 'eip,routing', [
+        new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled late at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('expression', 'Expression', "Expression used as the predicate to evaluate whether this when should trigger and route the message or not.", 'ExpressionDefinition', '', '', true, false, false, true, '', ''),
+        new PropertyMeta('steps', 'steps', "steps", 'CamelElement', '', '', false, false, true, true, '', ''),
+    ], [
+    ]),
     new ElementMeta('batchConfig', 'BatchResequencerConfig', 'Batch Config', "Configures batch-processing resequence eip.", 'configuration,eip', [
         new PropertyMeta('batchSize', 'Batch Size', "Sets the size of the batch to be re-ordered. The default size is 100.", 'number', '', '100', false, false, false, false, '', ''),
         new PropertyMeta('batchTimeout', 'Batch Timeout', "Sets the timeout for collecting elements to be re-ordered. The default timeout is 1000 msec.", 'string', '', '1000', false, false, false, false, '', ''),
@@ -2199,6 +2222,7 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('fhirJson', 'fhirJson', "fhirJson", 'FhirJsonDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('fhirXml', 'fhirXml', "fhirXml", 'FhirXmlDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('flatpack', 'flatpack', "flatpack", 'FlatpackDataFormat', '', '', false, false, false, true, '', ''),
+        new PropertyMeta('fury', 'fury', "fury", 'FuryDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('grok', 'grok', "grok", 'GrokDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('gzipDeflater', 'gzipDeflater', "gzipDeflater", 'GzipDeflaterDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('hl7', 'hl7', "hl7", 'HL7DataFormat', '', '', false, false, false, true, '', ''),
@@ -2213,6 +2237,7 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('pgp', 'pgp', "pgp", 'PGPDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('protobuf', 'protobuf', "protobuf", 'ProtobufDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('rss', 'rss', "rss", 'RssDataFormat', '', '', false, false, false, true, '', ''),
+        new PropertyMeta('smooks', 'smooks', "smooks", 'SmooksDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('soap', 'soap', "soap", 'SoapDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('swiftMt', 'swiftMt', "swiftMt", 'SwiftMtDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('swiftMx', 'swiftMx', "swiftMx", 'SwiftMxDataFormat', '', '', false, false, false, true, '', ''),
@@ -2631,35 +2656,35 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('scopes', 'Scopes', "The scopes to allow (separate multiple scopes by comma)", 'string', '', '', false, false, false, false, '', ''),
     ], [
     ]),
-    new ElementMeta('langChain4jCharacterTokenizer', 'LangChain4jCharacterTokenizerDefinition', 'LangChain4J Tokenizer with character splitter', "null", 'eip,transformation,ai', [
+    new ElementMeta('langChain4jCharacterTokenizer', 'LangChain4jCharacterTokenizerDefinition', 'LangChain4J Tokenizer with character splitter', "Camel AI: Tokenizer for splitting by character.", 'eip,transformation,ai', [
         new PropertyMeta('id', 'Id', "The id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('tokenizerType', 'Tokenizer Type', "Sets the tokenizer type", 'string', 'OPEN_AI, AZURE, QWEN', '', true, false, false, false, '', ''),
         new PropertyMeta('maxTokens', 'Max Tokens', "Sets the maximum number of tokens on each segment", 'number', '', '', true, false, false, false, '', ''),
         new PropertyMeta('maxOverlap', 'Max Overlap', "Sets the maximum number of tokens that can overlap in each segment", 'number', '', '', true, false, false, false, '', ''),
     ], [
     ]),
-    new ElementMeta('langChain4jLineTokenizer', 'LangChain4jLineTokenizerDefinition', 'LangChain4J Tokenizer with line splitter', "null", 'eip,transformation,ai', [
+    new ElementMeta('langChain4jLineTokenizer', 'LangChain4jLineTokenizerDefinition', 'LangChain4J Tokenizer with line splitter', "Camel AI: Tokenizer for splitting line by line.", 'eip,transformation,ai', [
         new PropertyMeta('id', 'Id', "The id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('tokenizerType', 'Tokenizer Type', "Sets the tokenizer type", 'string', 'OPEN_AI, AZURE, QWEN', '', true, false, false, false, '', ''),
         new PropertyMeta('maxTokens', 'Max Tokens', "Sets the maximum number of tokens on each segment", 'number', '', '', true, false, false, false, '', ''),
         new PropertyMeta('maxOverlap', 'Max Overlap', "Sets the maximum number of tokens that can overlap in each segment", 'number', '', '', true, false, false, false, '', ''),
     ], [
     ]),
-    new ElementMeta('langChain4jParagraphTokenizer', 'LangChain4jParagraphTokenizerDefinition', 'LangChain4J Tokenizer with paragraph splitter', "null", 'eip,transformation,ai', [
+    new ElementMeta('langChain4jParagraphTokenizer', 'LangChain4jParagraphTokenizerDefinition', 'LangChain4J Tokenizer with paragraph splitter', "Camel AI: Tokenizer for splitting by paragraphs.", 'eip,transformation,ai', [
         new PropertyMeta('id', 'Id', "The id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('tokenizerType', 'Tokenizer Type', "Sets the tokenizer type", 'string', 'OPEN_AI, AZURE, QWEN', '', true, false, false, false, '', ''),
         new PropertyMeta('maxTokens', 'Max Tokens', "Sets the maximum number of tokens on each segment", 'number', '', '', true, false, false, false, '', ''),
         new PropertyMeta('maxOverlap', 'Max Overlap', "Sets the maximum number of tokens that can overlap in each segment", 'number', '', '', true, false, false, false, '', ''),
     ], [
     ]),
-    new ElementMeta('langChain4jSentenceTokenizer', 'LangChain4jSentenceTokenizerDefinition', 'LangChain4J Tokenizer with sentence splitter', "null", 'eip,transformation,ai', [
+    new ElementMeta('langChain4jSentenceTokenizer', 'LangChain4jSentenceTokenizerDefinition', 'LangChain4J Tokenizer with sentence splitter', "Camel AI: Tokenizer for splitting by sentences.", 'eip,transformation,ai', [
         new PropertyMeta('id', 'Id', "The id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('tokenizerType', 'Tokenizer Type', "Sets the tokenizer type", 'string', 'OPEN_AI, AZURE, QWEN', '', true, false, false, false, '', ''),
         new PropertyMeta('maxTokens', 'Max Tokens', "Sets the maximum number of tokens on each segment", 'number', '', '', true, false, false, false, '', ''),
         new PropertyMeta('maxOverlap', 'Max Overlap', "Sets the maximum number of tokens that can overlap in each segment", 'number', '', '', true, false, false, false, '', ''),
     ], [
     ]),
-    new ElementMeta('langChain4jWordTokenizer', 'LangChain4jWordTokenizerDefinition', 'LangChain4J Tokenizer with word splitter', "null", 'eip,transformation,ai', [
+    new ElementMeta('langChain4jWordTokenizer', 'LangChain4jWordTokenizerDefinition', 'LangChain4J Tokenizer with word splitter', "Camel AI: Tokenizer for splitting by word.", 'eip,transformation,ai', [
         new PropertyMeta('id', 'Id', "The id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('tokenizerType', 'Tokenizer Type', "Sets the tokenizer type", 'string', 'OPEN_AI, AZURE, QWEN', '', true, false, false, false, '', ''),
         new PropertyMeta('maxTokens', 'Max Tokens', "Sets the maximum number of tokens on each segment", 'number', '', '', true, false, false, false, '', ''),
@@ -2698,6 +2723,7 @@ export const SensitiveKeys: string[] = [
     "consumersecret",
     "proxyuser",
     "oauthclientsecret",
+    "truststorepassword",
     "accesstokensecret",
     "securerandom",
     "refreshtoken",
@@ -2713,7 +2739,6 @@ export const SensitiveKeys: string[] = [
     "privatekeyfile",
     "zookeeperpassword",
     "apiuser",
-    "cipherkey",
     "personalaccesstoken",
     "authkey",
     "privatekeyname",
@@ -2733,12 +2758,14 @@ export const SensitiveKeys: string[] = [
     "subscribekey",
     "certresourcepassword",
     "clientsecretcredential",
+    "keystorepassword",
     "oauthclientid",
     "apikey",
     "keystorePassword",
     "clientsecret",
     "tokencredential",
     "blobstoragesharedkeycredential",
+    "kerberosauthticket",
     "proxypassword",
     "queueownerawsaccountid",
     "token",
@@ -2749,6 +2776,7 @@ export const SensitiveKeys: string[] = [
     "api_key",
     "sasljaasconfig",
     "httpproxypassword",
+    "realm",
     "user",
     "api_secret",
     "passcode",

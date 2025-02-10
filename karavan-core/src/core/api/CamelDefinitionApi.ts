@@ -22,6 +22,7 @@ import {CamelElement} from "../model/IntegrationDefinition";
 import {
     ProcessorDefinition,
     BeansDeserializer,
+    DataFormatsDefinitionDeserializer,
     ErrorHandlerDeserializer,
     OutputAwareFromDefinition,
     AggregateDefinition,
@@ -61,6 +62,7 @@ import {
     OnCompletionDefinition,
     OnExceptionDefinition,
     OnFallbackDefinition,
+    OnWhenDefinition,
     OptimisticLockRetryPolicyDefinition,
     OtherwiseDefinition,
     OutputDefinition,
@@ -126,7 +128,6 @@ import {
     ValidateDefinition,
     ValueDefinition,
     WhenDefinition,
-    WhenSkipSendToEndpointDefinition,
     WireTapDefinition,
     BeanConstructorDefinition,
     BeanConstructorsDefinition,
@@ -149,6 +150,7 @@ import {
     FhirJsonDataFormat,
     FhirXmlDataFormat,
     FlatpackDataFormat,
+    FuryDataFormat,
     GrokDataFormat,
     GzipDeflaterDataFormat,
     HL7DataFormat,
@@ -163,6 +165,7 @@ import {
     ParquetAvroDataFormat,
     ProtobufDataFormat,
     RssDataFormat,
+    SmooksDataFormat,
     SoapDataFormat,
     SwiftMtDataFormat,
     SwiftMxDataFormat,
@@ -327,12 +330,6 @@ export class CamelDefinitionApi {
         if (element?.multicast !== undefined) { 
             def.multicast = CamelDefinitionApi.createMulticastDefinition(element.multicast); 
         }
-        if (element?.onFallback !== undefined) { 
-            def.onFallback = CamelDefinitionApi.createOnFallbackDefinition(element.onFallback); 
-        }
-        if (element?.otherwise !== undefined) { 
-            def.otherwise = CamelDefinitionApi.createOtherwiseDefinition(element.otherwise); 
-        }
         if (element?.pausable !== undefined) { 
             def.pausable = CamelDefinitionApi.createPausableDefinition(element.pausable); 
         }
@@ -450,12 +447,6 @@ export class CamelDefinitionApi {
         if (element?.validate !== undefined) { 
             def.validate = CamelDefinitionApi.createValidateDefinition(element.validate); 
         }
-        if (element?.when !== undefined) { 
-            def.when = CamelDefinitionApi.createWhenDefinition(element.when); 
-        }
-        if (element?.whenSkipSendToEndpoint !== undefined) { 
-            def.whenSkipSendToEndpoint = CamelDefinitionApi.createWhenSkipSendToEndpointDefinition(element.whenSkipSendToEndpoint); 
-        }
         if (element?.wireTap !== undefined) { 
             def.wireTap = CamelDefinitionApi.createWireTapDefinition(element.wireTap); 
         }
@@ -464,6 +455,12 @@ export class CamelDefinitionApi {
 
     static createBeansDeserializer = (element: any): BeansDeserializer => { 
         const def = element ? new BeansDeserializer({...element}) : new BeansDeserializer();
+        def.uuid = element?.uuid ? element.uuid : def.uuid; 
+        return def;
+    }
+
+    static createDataFormatsDefinitionDeserializer = (element: any): DataFormatsDefinitionDeserializer => { 
+        const def = element ? new DataFormatsDefinitionDeserializer({...element}) : new DataFormatsDefinitionDeserializer();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
         return def;
     }
@@ -537,7 +534,7 @@ export class CamelDefinitionApi {
         const def = element ? new CatchDefinition({...element}) : new CatchDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
         if (element?.onWhen !== undefined) { 
-            def.onWhen = CamelDefinitionApi.createWhenDefinition(element.onWhen); 
+            def.onWhen = CamelDefinitionApi.createOnWhenDefinition(element.onWhen); 
         }
         def.steps = CamelDefinitionApi.createSteps(element?.steps);
         return def;
@@ -800,6 +797,9 @@ export class CamelDefinitionApi {
     static createInterceptDefinition = (element: any): InterceptDefinition => { 
         const def = element ? new InterceptDefinition({...element}) : new InterceptDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
+        if (element?.onWhen !== undefined) { 
+            def.onWhen = CamelDefinitionApi.createOnWhenDefinition(element.onWhen); 
+        }
         def.steps = CamelDefinitionApi.createSteps(element?.steps);
         return def;
     }
@@ -807,6 +807,9 @@ export class CamelDefinitionApi {
     static createInterceptFromDefinition = (element: any): InterceptFromDefinition => { 
         const def = element ? new InterceptFromDefinition({...element}) : new InterceptFromDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
+        if (element?.onWhen !== undefined) { 
+            def.onWhen = CamelDefinitionApi.createOnWhenDefinition(element.onWhen); 
+        }
         def.steps = CamelDefinitionApi.createSteps(element?.steps);
         return def;
     }
@@ -817,6 +820,9 @@ export class CamelDefinitionApi {
         }
         const def = element ? new InterceptSendToEndpointDefinition({...element}) : new InterceptSendToEndpointDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
+        if (element?.onWhen !== undefined) { 
+            def.onWhen = CamelDefinitionApi.createOnWhenDefinition(element.onWhen); 
+        }
         def.steps = CamelDefinitionApi.createSteps(element?.steps);
         return def;
     }
@@ -918,6 +924,9 @@ export class CamelDefinitionApi {
         if (element?.flatpack !== undefined) { 
             def.flatpack = CamelDefinitionApi.createFlatpackDataFormat(element.flatpack); 
         }
+        if (element?.fury !== undefined) { 
+            def.fury = CamelDefinitionApi.createFuryDataFormat(element.fury); 
+        }
         if (element?.grok !== undefined) { 
             def.grok = CamelDefinitionApi.createGrokDataFormat(element.grok); 
         }
@@ -959,6 +968,9 @@ export class CamelDefinitionApi {
         }
         if (element?.rss !== undefined) { 
             def.rss = CamelDefinitionApi.createRssDataFormat(element.rss); 
+        }
+        if (element?.smooks !== undefined) { 
+            def.smooks = CamelDefinitionApi.createSmooksDataFormat(element.smooks); 
         }
         if (element?.soap !== undefined) { 
             def.soap = CamelDefinitionApi.createSoapDataFormat(element.soap); 
@@ -1016,7 +1028,7 @@ export class CamelDefinitionApi {
         const def = element ? new OnCompletionDefinition({...element}) : new OnCompletionDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
         if (element?.onWhen !== undefined) { 
-            def.onWhen = CamelDefinitionApi.createWhenDefinition(element.onWhen); 
+            def.onWhen = CamelDefinitionApi.createOnWhenDefinition(element.onWhen); 
         }
         def.steps = CamelDefinitionApi.createSteps(element?.steps);
         return def;
@@ -1026,7 +1038,7 @@ export class CamelDefinitionApi {
         const def = element ? new OnExceptionDefinition({...element}) : new OnExceptionDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
         if (element?.onWhen !== undefined) { 
-            def.onWhen = CamelDefinitionApi.createWhenDefinition(element.onWhen); 
+            def.onWhen = CamelDefinitionApi.createOnWhenDefinition(element.onWhen); 
         }
         if (element?.retryWhile !== undefined) { 
             def.retryWhile = CamelDefinitionApi.createExpressionSubElementDefinition(element.retryWhile); 
@@ -1048,6 +1060,14 @@ export class CamelDefinitionApi {
         const def = element ? new OnFallbackDefinition({...element}) : new OnFallbackDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
         def.steps = CamelDefinitionApi.createSteps(element?.steps);
+        return def;
+    }
+
+    static createOnWhenDefinition = (element: any): OnWhenDefinition => { 
+        const def = element ? new OnWhenDefinition({...element}) : new OnWhenDefinition();
+        def.uuid = element?.uuid ? element.uuid : def.uuid; 
+        def.expression = CamelDefinitionApi.createExpressionDefinition(element.expression); 
+
         return def;
     }
 
@@ -1597,6 +1617,9 @@ export class CamelDefinitionApi {
         if (element?.flatpack !== undefined) { 
             def.flatpack = CamelDefinitionApi.createFlatpackDataFormat(element.flatpack); 
         }
+        if (element?.fury !== undefined) { 
+            def.fury = CamelDefinitionApi.createFuryDataFormat(element.fury); 
+        }
         if (element?.grok !== undefined) { 
             def.grok = CamelDefinitionApi.createGrokDataFormat(element.grok); 
         }
@@ -1638,6 +1661,9 @@ export class CamelDefinitionApi {
         }
         if (element?.rss !== undefined) { 
             def.rss = CamelDefinitionApi.createRssDataFormat(element.rss); 
+        }
+        if (element?.smooks !== undefined) { 
+            def.smooks = CamelDefinitionApi.createSmooksDataFormat(element.smooks); 
         }
         if (element?.soap !== undefined) { 
             def.soap = CamelDefinitionApi.createSoapDataFormat(element.soap); 
@@ -1700,15 +1726,6 @@ export class CamelDefinitionApi {
 
     static createWhenDefinition = (element: any): WhenDefinition => { 
         const def = element ? new WhenDefinition({...element}) : new WhenDefinition();
-        def.uuid = element?.uuid ? element.uuid : def.uuid; 
-        def.expression = CamelDefinitionApi.createExpressionDefinition(element.expression); 
-
-        def.steps = CamelDefinitionApi.createSteps(element?.steps);
-        return def;
-    }
-
-    static createWhenSkipSendToEndpointDefinition = (element: any): WhenSkipSendToEndpointDefinition => { 
-        const def = element ? new WhenSkipSendToEndpointDefinition({...element}) : new WhenSkipSendToEndpointDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
         def.expression = CamelDefinitionApi.createExpressionDefinition(element.expression); 
 
@@ -1874,6 +1891,9 @@ export class CamelDefinitionApi {
         if (element?.flatpack !== undefined) { 
             def.flatpack = CamelDefinitionApi.createFlatpackDataFormat(element.flatpack); 
         }
+        if (element?.fury !== undefined) { 
+            def.fury = CamelDefinitionApi.createFuryDataFormat(element.fury); 
+        }
         if (element?.grok !== undefined) { 
             def.grok = CamelDefinitionApi.createGrokDataFormat(element.grok); 
         }
@@ -1915,6 +1935,9 @@ export class CamelDefinitionApi {
         }
         if (element?.rss !== undefined) { 
             def.rss = CamelDefinitionApi.createRssDataFormat(element.rss); 
+        }
+        if (element?.smooks !== undefined) { 
+            def.smooks = CamelDefinitionApi.createSmooksDataFormat(element.smooks); 
         }
         if (element?.soap !== undefined) { 
             def.soap = CamelDefinitionApi.createSoapDataFormat(element.soap); 
@@ -1975,6 +1998,12 @@ export class CamelDefinitionApi {
 
     static createFlatpackDataFormat = (element: any): FlatpackDataFormat => { 
         const def = element ? new FlatpackDataFormat({...element}) : new FlatpackDataFormat();
+        def.uuid = element?.uuid ? element.uuid : def.uuid; 
+        return def;
+    }
+
+    static createFuryDataFormat = (element: any): FuryDataFormat => { 
+        const def = element ? new FuryDataFormat({...element}) : new FuryDataFormat();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
         return def;
     }
@@ -2059,6 +2088,12 @@ export class CamelDefinitionApi {
 
     static createRssDataFormat = (element: any): RssDataFormat => { 
         const def = element ? new RssDataFormat({...element}) : new RssDataFormat();
+        def.uuid = element?.uuid ? element.uuid : def.uuid; 
+        return def;
+    }
+
+    static createSmooksDataFormat = (element: any): SmooksDataFormat => { 
+        const def = element ? new SmooksDataFormat({...element}) : new SmooksDataFormat();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
         return def;
     }
@@ -2851,6 +2886,9 @@ export class CamelDefinitionApi {
         if (element?.flatpack !== undefined) { 
             def.flatpack = CamelDefinitionApi.createFlatpackDataFormat(element.flatpack); 
         }
+        if (element?.fury !== undefined) { 
+            def.fury = CamelDefinitionApi.createFuryDataFormat(element.fury); 
+        }
         if (element?.grok !== undefined) { 
             def.grok = CamelDefinitionApi.createGrokDataFormat(element.grok); 
         }
@@ -2892,6 +2930,9 @@ export class CamelDefinitionApi {
         }
         if (element?.rss !== undefined) { 
             def.rss = CamelDefinitionApi.createRssDataFormat(element.rss); 
+        }
+        if (element?.smooks !== undefined) { 
+            def.smooks = CamelDefinitionApi.createSmooksDataFormat(element.smooks); 
         }
         if (element?.soap !== undefined) { 
             def.soap = CamelDefinitionApi.createSoapDataFormat(element.soap); 
@@ -3008,6 +3049,7 @@ export class CamelDefinitionApi {
        switch (name) { 
             case 'ProcessorDefinition': return CamelDefinitionApi.createProcessorDefinition(newBody);
             case 'BeansDeserializer': return CamelDefinitionApi.createBeansDeserializer(newBody);
+            case 'DataFormatsDefinitionDeserializer': return CamelDefinitionApi.createDataFormatsDefinitionDeserializer(newBody);
             case 'ErrorHandlerDeserializer': return CamelDefinitionApi.createErrorHandlerDeserializer(newBody);
             case 'OutputAwareFromDefinition': return CamelDefinitionApi.createOutputAwareFromDefinition(newBody);
             case 'AggregateDefinition': return CamelDefinitionApi.createAggregateDefinition(newBody);
@@ -3047,6 +3089,7 @@ export class CamelDefinitionApi {
             case 'OnCompletionDefinition': return CamelDefinitionApi.createOnCompletionDefinition(newBody);
             case 'OnExceptionDefinition': return CamelDefinitionApi.createOnExceptionDefinition(newBody);
             case 'OnFallbackDefinition': return CamelDefinitionApi.createOnFallbackDefinition(newBody);
+            case 'OnWhenDefinition': return CamelDefinitionApi.createOnWhenDefinition(newBody);
             case 'OptimisticLockRetryPolicyDefinition': return CamelDefinitionApi.createOptimisticLockRetryPolicyDefinition(newBody);
             case 'OtherwiseDefinition': return CamelDefinitionApi.createOtherwiseDefinition(newBody);
             case 'OutputDefinition': return CamelDefinitionApi.createOutputDefinition(newBody);
@@ -3112,7 +3155,6 @@ export class CamelDefinitionApi {
             case 'ValidateDefinition': return CamelDefinitionApi.createValidateDefinition(newBody);
             case 'ValueDefinition': return CamelDefinitionApi.createValueDefinition(newBody);
             case 'WhenDefinition': return CamelDefinitionApi.createWhenDefinition(newBody);
-            case 'WhenSkipSendToEndpointDefinition': return CamelDefinitionApi.createWhenSkipSendToEndpointDefinition(newBody);
             case 'WireTapDefinition': return CamelDefinitionApi.createWireTapDefinition(newBody);
             case 'BeanConstructorDefinition': return CamelDefinitionApi.createBeanConstructorDefinition(newBody);
             case 'BeanConstructorsDefinition': return CamelDefinitionApi.createBeanConstructorsDefinition(newBody);
@@ -3135,6 +3177,7 @@ export class CamelDefinitionApi {
             case 'FhirJsonDataFormat': return CamelDefinitionApi.createFhirJsonDataFormat(newBody);
             case 'FhirXmlDataFormat': return CamelDefinitionApi.createFhirXmlDataFormat(newBody);
             case 'FlatpackDataFormat': return CamelDefinitionApi.createFlatpackDataFormat(newBody);
+            case 'FuryDataFormat': return CamelDefinitionApi.createFuryDataFormat(newBody);
             case 'GrokDataFormat': return CamelDefinitionApi.createGrokDataFormat(newBody);
             case 'GzipDeflaterDataFormat': return CamelDefinitionApi.createGzipDeflaterDataFormat(newBody);
             case 'HL7DataFormat': return CamelDefinitionApi.createHL7DataFormat(newBody);
@@ -3149,6 +3192,7 @@ export class CamelDefinitionApi {
             case 'ParquetAvroDataFormat': return CamelDefinitionApi.createParquetAvroDataFormat(newBody);
             case 'ProtobufDataFormat': return CamelDefinitionApi.createProtobufDataFormat(newBody);
             case 'RssDataFormat': return CamelDefinitionApi.createRssDataFormat(newBody);
+            case 'SmooksDataFormat': return CamelDefinitionApi.createSmooksDataFormat(newBody);
             case 'SoapDataFormat': return CamelDefinitionApi.createSoapDataFormat(newBody);
             case 'SwiftMtDataFormat': return CamelDefinitionApi.createSwiftMtDataFormat(newBody);
             case 'SwiftMxDataFormat': return CamelDefinitionApi.createSwiftMxDataFormat(newBody);
@@ -3298,6 +3342,7 @@ export class CamelDefinitionApi {
             case 'FhirJsonDataFormat': return CamelDefinitionApi.createFhirJsonDataFormat(newBody);
             case 'FhirXmlDataFormat': return CamelDefinitionApi.createFhirXmlDataFormat(newBody);
             case 'FlatpackDataFormat': return CamelDefinitionApi.createFlatpackDataFormat(newBody);
+            case 'FuryDataFormat': return CamelDefinitionApi.createFuryDataFormat(newBody);
             case 'GrokDataFormat': return CamelDefinitionApi.createGrokDataFormat(newBody);
             case 'GzipDeflaterDataFormat': return CamelDefinitionApi.createGzipDeflaterDataFormat(newBody);
             case 'HL7DataFormat': return CamelDefinitionApi.createHL7DataFormat(newBody);
@@ -3312,6 +3357,7 @@ export class CamelDefinitionApi {
             case 'PGPDataFormat': return CamelDefinitionApi.createPGPDataFormat(newBody);
             case 'ProtobufDataFormat': return CamelDefinitionApi.createProtobufDataFormat(newBody);
             case 'RssDataFormat': return CamelDefinitionApi.createRssDataFormat(newBody);
+            case 'SmooksDataFormat': return CamelDefinitionApi.createSmooksDataFormat(newBody);
             case 'SoapDataFormat': return CamelDefinitionApi.createSoapDataFormat(newBody);
             case 'SwiftMtDataFormat': return CamelDefinitionApi.createSwiftMtDataFormat(newBody);
             case 'SwiftMxDataFormat': return CamelDefinitionApi.createSwiftMxDataFormat(newBody);

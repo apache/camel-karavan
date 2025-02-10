@@ -30,6 +30,7 @@ import {CamelDefinitionYaml} from "../src/core/api/CamelDefinitionYaml";
 import {SimpleExpression} from "../src/core/model/CamelDefinition";
 import {Integration} from "../src/core/model/IntegrationDefinition";
 import * as fs from 'fs';
+import { OnWhenDefinition } from '../lib/model/CamelDefinition';
 
 describe('Add Step', () => {
 
@@ -88,7 +89,7 @@ describe('Add Step', () => {
             const c: CatchDefinition = t.doCatch ? t.doCatch[0] : new CatchDefinition();
             const parentUuid = c.uuid || "";
 
-            const w: WhenDefinition = new WhenDefinition({expression: new ExpressionDefinition({simple: new SimpleExpression({expression:"${body} != null"})})});
+            const w: OnWhenDefinition = new OnWhenDefinition({expression: new ExpressionDefinition({simple: new SimpleExpression({expression:"${body} != null"})})});
             const i2 = CamelDefinitionApiExt.addStepToIntegration(i1, w, parentUuid);
 
             if (i2.spec.flows) {
