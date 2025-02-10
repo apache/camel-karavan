@@ -25,7 +25,7 @@ import {
     MenuToggle,
     DropdownList,
     DropdownItem, Flex, Popover, FlexItem, Badge, ClipboardCopy,
-    Switch, Tooltip, Label,
+    Switch, Tooltip, Label, Button,
 } from '@patternfly/react-core';
 import './DslProperties.css';
 import "@patternfly/patternfly/patternfly.css";
@@ -300,9 +300,13 @@ export function PropertiesHeader(props: Props) {
 
     function getIdInput() {
         return (
-            <Label isEditable color='blue' isCompact onEditComplete={(event, newText) => onPropertyChange("id", newText)}>
-                {(selectedStep as any)?.id || ''}
-            </Label>
+            (selectedStep as any)?.id !== undefined
+                ? <Label isEditable color='blue' isCompact onEditComplete={(event, newText) => onPropertyChange("id", newText)}>
+                    {(selectedStep as any)?.id || ''}
+                    </Label>
+                : <Button variant="link" onClick={event => onPropertyChange("id", "rc-" + Math.floor(1000 + Math.random() * 9000).toString())}>
+                    Add Id
+                </Button>
         )
     }
 

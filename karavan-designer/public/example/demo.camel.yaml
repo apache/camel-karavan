@@ -1,22 +1,32 @@
-- beans:
-    - name: userService
-      type: "org.apache.camel.example.rest.UserService"
 - route:
+    id: route-1eda
     from:
+      id: from-b189
       uri: direct
       parameters:
         name: getUser
       steps:
         - to:
+            id: to-6d55
             uri: bean
             parameters:
               beanName: userService
-              method: "getUser(${header.id})"
+              method: getUser(${header.id})
         - filter:
-            simple:
-              expression: "${body} == null"
+            id: filter-64ac
+            expression:
+              simple:
+                id: simple-12cd
+                expression: ${body} == null
             steps:
               - setHeader:
+                  id: setHeader-392d
                   name: Exchange.HTTP_RESPONSE_CODE
-                  constant:
-                    expression: 404
+                  expression:
+                    constant:
+                      id: constant-9d21
+                      expression: 404
+#- beans:
+#    - name: userService
+#      type: org.apache.camel.example.rest.UserService
+- routeConfiguration: {}
