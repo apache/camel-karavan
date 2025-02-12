@@ -48,6 +48,7 @@
     "octokit": "^4.0.2",
     "react": "18.3.1",
     "react-dom": "18.3.1",
+    "react-resizable-panels": "^2.1.7",
     "rxjs": "7.8.1",
     "usehooks-ts": "^3.1.0",
     "uuid": "10.0.0",

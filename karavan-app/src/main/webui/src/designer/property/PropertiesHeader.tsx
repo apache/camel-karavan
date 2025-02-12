@@ -25,12 +25,11 @@ import {
     MenuToggle,
     DropdownList,
     DropdownItem, Flex, Popover, FlexItem, Badge, ClipboardCopy,
-    Switch, Tooltip,
+    Switch, Tooltip, Label, Button,
 } from '@patternfly/react-core';
-import '../karavan.css';
 import './DslProperties.css';
 import "@patternfly/patternfly/patternfly.css";
-import {CamelUi} from "../utils/CamelUi";
+import {CamelUi, RouteToCreate} from "../utils/CamelUi";
 import {useDesignerStore} from "../DesignerStore";
 import {shallow} from "zustand/shallow";
 import {usePropertiesHook} from "./usePropertiesHook";
@@ -47,7 +46,7 @@ interface Props {
 
 export function PropertiesHeader(props: Props) {
 
-    const {saveAsRoute, convertStep} = usePropertiesHook(props.designerType);
+    const {saveAsRoute, convertStep, onPropertyChange} = usePropertiesHook(props.designerType);
     const {openSelectorToReplaceFrom} = useRouteDesignerHook();
 
     const [selectedStep, dark] = useDesignerStore((s) => [s.selectedStep, s.dark], shallow)
@@ -299,10 +298,23 @@ export function PropertiesHeader(props: Props) {
         )
     }
 
+    function getIdInput() {
+        return (
+            (selectedStep as any)?.id !== undefined
+                ? <Label isEditable color='blue' isCompact onEditComplete={(event, newText) => onPropertyChange("id", newText)}>
+                    {(selectedStep as any)?.id || ''}
+                    </Label>
+                : <Button variant="link" onClick={event => onPropertyChange("id", "rc-" + Math.floor(1000 + Math.random() * 9000).toString())}>
+                    Add Id
+                </Button>
+        )
+    }
+
     return (
         <div className="headers">
             <div className="top">
                 <Title headingLevel="h1" size="md">{title}</Title>
+                {getIdInput()}
                 {getHeaderMenu()}
                 {isStepComponent && getComponentStepTypeSwitch()}
             </div>

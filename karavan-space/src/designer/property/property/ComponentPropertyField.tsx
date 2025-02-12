@@ -123,6 +123,7 @@ export function ComponentPropertyField(props: Props) {
         }
         return (
             <Select
+                className={valueChangedClassName}
                 id={id} name={id}
                 variant={SelectVariant.typeahead}
                 aria-label={property.name}
@@ -175,7 +176,7 @@ export function ComponentPropertyField(props: Props) {
             selectOptions.push(...uris.map((value: string) =>
                 <SelectOption key={value} value={value ? value.trim() : value}/>));
         }
-        return <InputGroup id={id} name={id}>
+        return <InputGroup id={id} name={id} className={valueChangedClassName}>
             <InputGroupItem isFill>
                 <Select
                     id={id} name={id}
@@ -254,7 +255,7 @@ export function ComponentPropertyField(props: Props) {
         const inInfrastructure = InfrastructureAPI.infrastructure !== 'local';
         const noInfraSelectorButton = ["uri", "id", "description", "group"].includes(property.name);
         const icon = InfrastructureAPI.infrastructure === 'kubernetes' ? KubernetesIcon("infra-button") : <DockerIcon/>
-        return <InputGroup>
+        return <InputGroup  className={valueChangedClassName}>
             {inInfrastructure && !showEditor && !noInfraSelectorButton &&
                 <Tooltip position="bottom-end"
                          content={"Select from " + capitalize((InfrastructureAPI.infrastructure))}>
@@ -310,7 +311,7 @@ export function ComponentPropertyField(props: Props) {
 
     function getSpecialStringInput(property: ComponentProperty) {
         return (
-            <InputGroup>
+            <InputGroup  className={valueChangedClassName}>
                 <InputGroupItem isFill>
                     <TextInput
                         className="text-field" isRequired
@@ -346,6 +347,7 @@ export function ComponentPropertyField(props: Props) {
         }
         return (
             <Select
+                className={valueChangedClassName}
                 id={id} name={id}
                 variant={SelectVariant.single}
                 aria-label={property.name}
@@ -368,7 +370,7 @@ export function ComponentPropertyField(props: Props) {
         const isDisabled = textValue?.toString().includes("{") || textValue?.toString().includes("}")
         const isChecked = textValue !== undefined ? Boolean(textValue) : (property.defaultValue !== undefined && ['true', true].includes(property.defaultValue))
         return (
-            <TextInputGroup className="input-group">
+            <TextInputGroup className={"input-group " + valueChangedClassName}>
                 <InputGroupItem>
                     <Switch
                         id={id} name={id}
@@ -411,7 +413,7 @@ export function ComponentPropertyField(props: Props) {
 
 
     function getLabel(property: ComponentProperty, value: any) {
-        const labelClassName = PropertyUtil.hasComponentPropertyValueChanged(property, value) ? 'value-changed' : 'transparent';
+        const labelClassName = PropertyUtil.hasComponentPropertyValueChanged(property, value) ? 'value-changed-label' : '';
         return (
             <div style={{display: "flex", flexDirection: 'row', alignItems: 'center', gap: '3px'}}>
                 <Text className={labelClassName}>{property.displayName}</Text>
@@ -436,6 +438,7 @@ export function ComponentPropertyField(props: Props) {
     const property: ComponentProperty = props.property;
     const value = props.value;
     const validated = (property.secret && !isSensitiveFieldValid(value)) ? ValidatedOptions.error : ValidatedOptions.default;
+    const valueChangedClassName = PropertyUtil.hasComponentPropertyValueChanged(property, value) ? 'value-changed' : '';
     return (
         <FormGroup
             key={id}

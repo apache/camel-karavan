@@ -16,11 +16,7 @@
  */
 import React, {useEffect} from 'react';
 import {
-    Button,
-    Drawer,
-    DrawerContent,
-    DrawerContentBody,
-    DrawerPanelContent, Flex, FlexItem, Gallery, GalleryItem,
+    Button, Flex, FlexItem, Gallery, GalleryItem,
     Modal,
     PageSection,
 } from '@patternfly/react-core';
@@ -34,7 +30,6 @@ import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
 import {BeanCard} from "./BeanCard";
 import {useDesignerStore, useIntegrationStore} from "../DesignerStore";
 import {shallow} from "zustand/shallow";
-import {DslProperties} from "../property/DslProperties";
 
 export function BeansDesigner() {
 
@@ -100,55 +95,37 @@ export function BeansDesigner() {
         setSelectedStep(bean);
     }
 
-    function getPropertiesPanel() {
-        return (
-            <DrawerPanelContent isResizable
-                                hasNoBorder
-                                defaultSize={'800px'}
-                                maxSize={'800px'}
-                                minSize={'400px'}>
-                <DslProperties designerType={'beans'}/>
-            </DrawerPanelContent>
-        )
-    }
-
     const beans = CamelUi.getBeans(integration);
     return (
         <PageSection className="bean-designer" isFilled padding={{default: 'noPadding'}}>
-            <Drawer isExpanded isInline>
-                <DrawerContent panelContent={getPropertiesPanel()}>
-                    <DrawerContentBody>
-                        <Gallery className="gallery"
-                                 hasGutter
-                                 maxWidths={{
-                                     default: '100%',
-                                 }}
-                        >
-                            {beans?.map((bean, index) => (
-                                <GalleryItem key={bean.uuid + index}>
-                                    <BeanCard bean={bean}
-                                              selectedStep={selectedStep}
-                                              selectElement={selectBean}
-                                              deleteElement={onShowDeleteConfirmation}
-                                    />
-                                </GalleryItem>
-                            ))}
-                            <GalleryItem>
-                                <Flex direction={{default: "row"}} justifyContent={{default: "justifyContentCenter"}}>
-                                    <FlexItem>
-                                        <Button
-                                            variant={beans?.length === 0 ? "primary" : "secondary"}
-                                            data-click="ADD_REST"
-                                            icon={<PlusIcon/>}
-                                            onClick={e => createBean()}>Create bean
-                                        </Button>
-                                    </FlexItem>
-                                </Flex>
-                            </GalleryItem>
-                        </Gallery>
-                    </DrawerContentBody>
-                </DrawerContent>
-            </Drawer>
+            <Gallery className="gallery"
+                     hasGutter
+                     maxWidths={{
+                         default: '100%',
+                     }}
+            >
+                {beans?.map((bean, index) => (
+                    <GalleryItem key={bean.uuid + index}>
+                        <BeanCard bean={bean}
+                                  selectedStep={selectedStep}
+                                  selectElement={selectBean}
+                                  deleteElement={onShowDeleteConfirmation}
+                        />
+                    </GalleryItem>
+                ))}
+                <GalleryItem>
+                    <Flex direction={{default: "row"}} justifyContent={{default: "justifyContentCenter"}}>
+                        <FlexItem>
+                            <Button
+                                variant={beans?.length === 0 ? "primary" : "secondary"}
+                                data-click="ADD_REST"
+                                icon={<PlusIcon/>}
+                                onClick={e => createBean()}>Create bean
+                            </Button>
+                        </FlexItem>
+                    </Flex>
+                </GalleryItem>
+            </Gallery>
             {getDeleteConfirmation()}
         </PageSection>
     )

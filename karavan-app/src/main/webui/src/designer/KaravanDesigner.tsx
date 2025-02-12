@@ -44,6 +44,8 @@ import {KameletDesigner} from "./kamelet/KameletDesigner";
 import {BeanFactoryDefinition} from "karavan-core/lib/model/CamelDefinition";
 import {VariableUtil} from "karavan-core/lib/api/VariableUtil";
 import {ErrorBoundaryState, ErrorBoundaryWrapper} from "./ErrorBoundaryWrapper";
+import {Panel, PanelGroup, PanelResizeHandle} from 'react-resizable-panels';
+import {MainPropertiesPanel} from "./property/MainPropertiesPanel";
 
 interface Props {
     onSave: (filename: string, yaml: string, propertyOnly: boolean) => void
@@ -59,14 +61,14 @@ interface Props {
     propertyPlaceholders: string[]
     beans: BeanFactoryDefinition[]
     files: IntegrationFile[]
+    mainRightPanel?: React.ReactNode
 }
 
 export function KaravanDesigner(props: Props) {
 
-    const [tab, setTab] = useState<string>('routes');
-    const [setDark, setSelectedStep, reset, badge, message, setPropertyPlaceholders, setBeans] =
+    const [setDark, setSelectedStep, reset, badge, message, setPropertyPlaceholders, setBeans, tab, setTab] =
         useDesignerStore((s) =>
-            [s.setDark, s.setSelectedStep, s.reset, s.notificationBadge, s.notificationMessage, s.setPropertyPlaceholders, s.setBeans], shallow)
+            [s.setDark, s.setSelectedStep, s.reset, s.notificationBadge, s.notificationMessage, s.setPropertyPlaceholders, s.setBeans, s.tab, s.setTab], shallow)
     const [integration, setIntegration, resetFiles, setVariables] = useIntegrationStore((s) =>
         [s.integration, s.setIntegration, s.resetFiles, s.setVariables], shallow)
 
@@ -121,6 +123,7 @@ export function KaravanDesigner(props: Props) {
                 return Integration.createNew(filename, 'plain');
             }
         } catch (e) {
+            console.error(e)
             EventBus.sendAlert("Error parsing YAML", (e as Error).message, 'danger')
             return Integration.createNew(filename, 'plain');
         }
@@ -136,6 +139,7 @@ export function KaravanDesigner(props: Props) {
             const clone = CamelUtil.cloneIntegration(integration);
             return CamelDefinitionYaml.integrationToYaml(clone);
         } catch (e) {
+            console.error(e)
             EventBus.sendAlert('Error parsing Yaml', (e as Error).message, 'danger');
             return '';
         }
@@ -182,32 +186,53 @@ export function KaravanDesigner(props: Props) {
         }
     }, [state]);
 
+    function getMainPart() {
+        return (
+            <PageSection variant={props.dark ? PageSectionVariants.darker : PageSectionVariants.light} className="page" isFilled padding={{default: 'noPadding'}}>
+                <div className={"main-tabs-wrapper"}>
+                    <Tabs className="main-tabs"
+                          activeKey={tab}
+                          onSelect={(event, tabIndex: string | number) => {
+                              const tab = tabIndex.toString() as "routes" | "rest" | "beans" | "kamelet" | "code";
+                              if (["routes", "rest", "beans", "kamelet", "code"].includes(tab)) {
+                                  setTab(tab);
+                              } else {
+                                  setTab(undefined); // Handle unexpected values
+                              }
+                              setSelectedStep(undefined);
+                          }}
+                          style={{width: "100%"}}>
+                        {isKamelet && <Tab eventKey='kamelet' title={getTab("Definitions", "Kamelet Definitions", "kamelet")}></Tab>}
+                        <Tab eventKey='routes' title={getTab("Routes", "Integration flows", "routes")}></Tab>
+                        {!isKamelet && <Tab eventKey='rest' title={getTab("REST", "REST services", "rest")}></Tab>}
+                        <Tab eventKey='beans' title={getTab("Beans", "Beans Configuration", "beans")}></Tab>
+                        {props.showCodeTab && <Tab eventKey='code' title={getTab("YAML", "YAML Code", "code", true)}></Tab>}
+                    </Tabs>
+                </div>
+                <ErrorBoundaryWrapper onError={handleError}>
+                    {tab === 'kamelet' && <KameletDesigner/>}
+                    {tab === 'routes' && <RouteDesigner/>}
+                    {tab === 'rest' && <RestDesigner/>}
+                    {tab === 'beans' && <BeansDesigner/>}
+                    {tab === 'code' && <CodeEditor/>}
+                </ErrorBoundaryWrapper>
+            </PageSection>
+        )
+    }
+
     return (
-        <PageSection variant={props.dark ? PageSectionVariants.darker : PageSectionVariants.light}
-                     className="page"
-                     isFilled padding={{default: 'noPadding'}}>
-            <div className={"main-tabs-wrapper"}>
-                <Tabs className="main-tabs"
-                      activeKey={tab}
-                      onSelect={(event, tabIndex) => {
-                          setTab(tabIndex.toString());
-                          setSelectedStep(undefined);
-                      }}
-                      style={{width: "100%"}}>
-                    {isKamelet && <Tab eventKey='kamelet' title={getTab("Definitions", "Kamelet Definitions", "kamelet")}></Tab>}
-                    <Tab eventKey='routes' title={getTab("Routes", "Integration flows", "routes")}></Tab>
-                    {!isKamelet && <Tab eventKey='rest' title={getTab("REST", "REST services", "rest")}></Tab>}
-                    <Tab eventKey='beans' title={getTab("Beans", "Beans Configuration", "beans")}></Tab>
-                    {props.showCodeTab && <Tab eventKey='code' title={getTab("YAML", "YAML Code", "code", true)}></Tab>}
-                </Tabs>
-            </div>
-            <ErrorBoundaryWrapper onError={handleError}>
-                {tab === 'kamelet' && <KameletDesigner/>}
-                {tab === 'routes' && <RouteDesigner/>}
-                {tab === 'rest' && <RestDesigner/>}
-                {tab === 'beans' && <BeansDesigner/>}
-                {tab === 'code' && <CodeEditor/>}
-            </ErrorBoundaryWrapper>
-        </PageSection>
+        (tab !== 'code' && tab !== 'kamelet')
+        ? <PanelGroup direction="horizontal" style={{backgroundColor: 'white'}}>
+            <Panel minSize={10} defaultSize={70}>
+                {getMainPart()}
+            </Panel>
+            <PanelResizeHandle className='resize-handler'/>
+            <Panel minSize={10} defaultSize={30}>
+                {props.mainRightPanel || <MainPropertiesPanel/>}
+            </Panel>
+        </PanelGroup>
+        : <PanelGroup direction="horizontal" style={{backgroundColor: 'white'}}>
+                {getMainPart()}
+            </PanelGroup>
     )
 }

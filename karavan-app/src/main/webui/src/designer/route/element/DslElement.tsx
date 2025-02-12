@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 import React, {CSSProperties, useState} from 'react';
-import {Tooltip,} from '@patternfly/react-core';
 import '../../karavan.css';
 import './DslElement.css';
 import {CamelElement} from "karavan-core/lib/model/IntegrationDefinition";
@@ -53,9 +52,9 @@ export function DslElement(props: Props) {
 
     const [integration] = useIntegrationStore((s) => [s.integration], shallow)
 
-    const [selectedUuids, selectedStep, showMoveConfirmation, setShowMoveConfirmation, setMoveElements] =
+    const [selectedUuids, selectedStep, showMoveConfirmation, setShowMoveConfirmation, setMoveElements, passedRouteId, failedRouteId, isDebugging] =
         useDesignerStore((s) =>
-            [s.selectedUuids, s.selectedStep, s.showMoveConfirmation, s.setShowMoveConfirmation, s.setMoveElements], shallow)
+            [s.selectedUuids, s.selectedStep, s.showMoveConfirmation, s.setShowMoveConfirmation, s.setMoveElements, s.passedRouteId, s.failedRouteId, s.isDebugging], shallow)
     const [isDragging, setIsDragging] = useState<boolean>(false);
 
     const [isDraggedOver, setIsDraggedOver] = useState<boolean>(false);
@@ -65,13 +64,13 @@ export function DslElement(props: Props) {
         if (isInsert && props.parent) {
             openSelector(props.parent.uuid, props.parent.dslName, showSteps, props.position);
         } else {
-            openSelector(props.step.uuid, props.step.dslName, showSteps);
+            openSelector(step.uuid, step.dslName, showSteps);
         }
     }
 
     function onSelectElement(evt: React.MouseEvent) {
         evt.stopPropagation();
-        selectElement(props.step);
+        selectElement(step);
     }
 
     function dragElement(event: React.DragEvent<HTMLDivElement>, element: CamelElement) {
@@ -91,11 +90,10 @@ export function DslElement(props: Props) {
     }
 
     function isElementSelected(): boolean {
-        return selectedUuids.includes(props.step.uuid);
+        return selectedUuids.includes(step.uuid);
     }
 
     function hasBorder(): boolean {
-        const step = props.step;
         if (['FilterDefinition', 'RouteDefinition', 'RouteConfigurationDefinition'].includes(step.dslName)) {
             return true;
         }
@@ -108,25 +106,24 @@ export function DslElement(props: Props) {
         ].includes(step.dslName)) {
             return false;
         }
-        return props.step?.hasSteps();
+        return step?.hasSteps();
     }
 
     function isNotDraggable(): boolean {
-        return ['FromDefinition', 'RouteConfigurationDefinition', 'RouteDefinition', 'WhenDefinition', 'OtherwiseDefinition'].includes(props.step.dslName);
+        return ['FromDefinition', 'RouteConfigurationDefinition', 'RouteDefinition', 'WhenDefinition', 'OtherwiseDefinition'].includes(step.dslName);
     }
 
     function isAddStepButtonLeft(): boolean {
         return ['MulticastDefinition', 'LoadBalanceDefinition']
-            .includes(props.step.dslName);
+            .includes(step.dslName);
     }
 
     function isHorizontal(): boolean {
-        return ['MulticastDefinition', 'LoadBalanceDefinition'].includes(props.step.dslName);
+        return ['MulticastDefinition', 'LoadBalanceDefinition'].includes(step.dslName);
     }
 
 
     function isInStepWithChildren() {
-        const step: CamelElement = props.step;
         const children = CamelDefinitionApiExt.getElementChildrenDefinition(step.dslName);
         return children.filter((c: ChildElement) => c.name === 'steps' || c.multiple).length > 0 && props.inSteps;
     }
@@ -170,7 +167,6 @@ export function DslElement(props: Props) {
     }
 
     function getChildElements() {
-        const step: CamelElement = props.step;
         let children: ChildElement[] = CamelDefinitionApiExt.getElementChildrenDefinition(step.dslName);
         const notOnlySteps = children.filter(c => c.name === 'steps').length === 1
             && children.filter(c => c.multiple && c.name !== 'steps').length > 0;
@@ -194,7 +190,6 @@ export function DslElement(props: Props) {
     }
 
     function getChildDslElements(child: ChildElement, index: number, notOnlySteps: boolean) {
-        const step = props.step;
         const children: CamelElement[] = CamelDefinitionApiExt.getElementChildren(step, child);
         if (children.length > 0) {
             return (
@@ -241,7 +236,7 @@ export function DslElement(props: Props) {
     function getAddStepButton() {
         const {step} = props;
         const hideAddButton = step.dslName === 'StepDefinition' && !CamelDisplayUtil.isStepDefinitionExpanded(integration, step.uuid, selectedUuids.at(0));
-        if (hideAddButton) return (<></>)
+        if (hideAddButton || isDebugging) return (<></>)
         else return (
             <button type="button"
                     aria-label="Add"
@@ -252,26 +247,47 @@ export function DslElement(props: Props) {
         )
     }
 
-    const element: CamelElement = props.step;
+    function getBorderColor() {
+        if (step.dslName === 'RouteDefinition' && (step as any).id === failedRouteId) {
+            return 'var(--pf-v5-global--danger-color--100)';
+        } else if (step.dslName === 'RouteDefinition' && (step as any).id === passedRouteId) {
+            return "var(--pf-v5-global--palette--green-400)";
+        } else {
+            return isElementSelected() ? "var(--step-border-color-selected)" : "var(--step-border-color)";
+        }
+    }
+
+    function getBorderWidth() {
+        if (step.dslName === 'RouteDefinition' && (step as any).id === passedRouteId) {
+            return "2px";
+        } else if (step.dslName === 'RouteDefinition' && (step as any).id === failedRouteId) {
+            return "2px";
+        } else {
+            return '1px';
+        }
+    }
+
+    const step: CamelElement = props.step;
     const className = "step-element"
-        + (!props.step.showChildren ? " hidden-step" : "")
-        + ((element as any).disabled ? " disabled " : "");
+        + (!step.showChildren ? " hidden-step" : "")
+        + ((step as any).disabled ? " disabled " : "");
     return (
-        <div key={"root" + element.uuid}
+        <div key={"root" + step.uuid}
              className={className}
              ref={el => sendPosition(el)}
              style={{
+                 borderWidth: getBorderWidth(),
                  borderStyle: hasBorder() ? "dashed" : "none",
-                 borderColor: isElementSelected() ? "var(--step-border-color-selected)" : "var(--step-border-color)",
+                 borderColor:  getBorderColor(),
                  marginTop: isInStepWithChildren() ? "16px" : "8px",
-                 zIndex: element.dslName === 'ToDefinition' ? 20 : 10,
+                 zIndex: step.dslName === 'ToDefinition' ? 20 : 10,
                  boxShadow: isDraggedOver ? "0px 0px 1px 2px var(--step-border-color-selected)" : "none",
              }}
              onMouseOver={event => event.stopPropagation()}
              onClick={event => onSelectElement(event)}
              onDragStart={event => {
                  event.stopPropagation();
-                 event.dataTransfer.setData("text/plain", element.uuid);
+                 event.dataTransfer.setData("text/plain", step.uuid);
                  (event.target as any).style.opacity = .5;
                  setIsDragging(true);
              }}
@@ -282,14 +298,14 @@ export function DslElement(props: Props) {
              onDragOver={event => {
                  event.preventDefault();
                  event.stopPropagation();
-                 if (element.dslName !== 'FromDefinition' && !isDragging) {
+                 if (step.dslName !== 'FromDefinition' && !isDragging) {
                      setIsDraggedOver(true);
                  }
              }}
              onDragEnter={event => {
                  event.preventDefault();
                  event.stopPropagation();
-                 if (element.dslName !== 'FromDefinition') {
+                 if (step.dslName !== 'FromDefinition') {
                      setIsDraggedOver(true);
                  }
              }}
@@ -298,11 +314,11 @@ export function DslElement(props: Props) {
                  event.stopPropagation();
                  setIsDraggedOver(false);
              }}
-             onDrop={event => dragElement(event, element)}
+             onDrop={event => dragElement(event, step)}
              draggable={!isNotDraggable()}
         >
             <DslElementHeader headerRef={headerRef}
-                              step={props.step}
+                              step={step}
                               parent={props.parent}
                               nextStep={props.nextStep}
                               prevStep={props.prevStep}

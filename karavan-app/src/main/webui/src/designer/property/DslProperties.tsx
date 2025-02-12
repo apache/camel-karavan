@@ -119,6 +119,7 @@ export function DslProperties(props: Props) {
         const dslName = selectedStep?.dslName;
         return CamelDefinitionApiExt.getElementProperties(dslName)
             .filter((p: PropertyMeta) => p.name !== 'uri') // do not show uri
+            .filter((p: PropertyMeta) => p.name !== 'id') // do not show id
             // .filer((p: PropertyMeta) => (showAdvanced && p.label.includes('advanced')) || (!showAdvanced && !p.label.includes('advanced')))
             .filter((p: PropertyMeta) => !p.isObject || (p.isObject && !CamelUi.dslHasSteps(p.type)) || (p.name === 'onWhen'))
             .filter((p: PropertyMeta) => !(dslName === 'RestDefinition' && ['get', 'post', 'put', 'patch', 'delete', 'head'].includes(p.name)))

@@ -16,15 +16,10 @@
  */
 import React, {useCallback, useEffect, useRef} from 'react';
 import {
-    Drawer,
-    DrawerPanelContent,
-    DrawerContent,
-    DrawerContentBody,
-    Button
+    Button,
 } from '@patternfly/react-core';
 import '../karavan.css';
 import {DslSelector} from "../selector/DslSelector";
-import {DslProperties} from "../property/DslProperties";
 import {DslConnections} from "./DslConnections";
 import PlusIcon from "@patternfly/react-icons/dist/esm/icons/plus-icon";
 import {DslElement} from "./element/DslElement";
@@ -34,7 +29,6 @@ import {useConnectionsStore, useDesignerStore, useIntegrationStore, useSelectorS
 import {shallow} from "zustand/shallow";
 import useResizeObserver from "./useResizeObserver";
 import {Command, EventBus} from "../utils/EventBus";
-import useMutationsObserver from "./useDrawerMutationsObserver";
 import {DeleteConfirmation} from "./DeleteConfirmation";
 import {DslElementMoveModal} from "./element/DslElementMoveModal";
 import {RouteTemplateElement} from "./element/RouteTemplateElement";
@@ -45,13 +39,15 @@ export function RouteDesigner() {
         isSourceKamelet, isActionKamelet, isKamelet, isSinkKamelet, createRouteTemplate} = useRouteDesignerHook();
 
     const [integration] = useIntegrationStore((state) => [state.integration], shallow)
-    const [showDeleteConfirmation, setPosition, width, height, top, left, showMoveConfirmation, setShowMoveConfirmation] =
+    const [showDeleteConfirmation, setPosition, width, height, top, left, showMoveConfirmation, setShowMoveConfirmation, passedIds, selectedStep, isDebugging] =
         useDesignerStore((s) =>
-        [s.showDeleteConfirmation, s.setPosition, s.width, s.height, s.top, s.left, s.showMoveConfirmation, s.setShowMoveConfirmation], shallow)
+        [s.showDeleteConfirmation, s.setPosition, s.width, s.height, s.top, s.left, s.showMoveConfirmation, s.setShowMoveConfirmation, s.passedNodeIds, s.selectedStep, s.isDebugging], shallow)
 
     const [showSelector] = useSelectorStore((s) => [s.showSelector], shallow)
 
     const [clearSteps] = useConnectionsStore((s) => [s.clearSteps], shallow)
+
+    const [key, setKey] = React.useState<string | number>();
 
     const onChangeGraphSize = useCallback((target: HTMLDivElement)  => {
         changeGraphSize();
@@ -68,39 +64,34 @@ export function RouteDesigner() {
     }
 
     const firstRef = useResizeObserver(onChangeGraphSize);
-    const secondRef = useMutationsObserver(onChangeGraphSize);
     const printerRef = useRef<HTMLDivElement | null>(null);
     const flowRef = useRef<HTMLDivElement | null>(null);
+
+    useEffect(() => {
+        if (selectedStep === undefined) {
+            setKey(Math.random.toString())
+        }
+    }, []);
 
     useEffect(()=> {
         const interval = setInterval(() => {
             changeGraphSize();
         }, 300);
         const commandSub = EventBus.onCommand()?.subscribe((command: Command) => onCommand(command, printerRef));
-        if (flowRef.current === null) {
-            clearSteps();
-        } else {
-            changeGraphSize();
+        try {
+            if (flowRef.current === null) {
+                clearSteps();
+            } else {
+                changeGraphSize();
+            }
+        } catch (error) {
+            console.error(error);
         }
         return ()=> {
             clearInterval(interval)
             commandSub?.unsubscribe();
         }
     }, [showSelector, integration])
-
-    function getPropertiesPanel() {
-        return (
-            <DrawerPanelContent style={{transform: "initial"}}
-                                isResizable
-                                hasNoBorder
-                                defaultSize={'400px'}
-                                maxSize={'800px'}
-                                minSize={'400px'}
-            >
-                <DslProperties designerType={'routes'}/>
-            </DrawerPanelContent>
-        )
-    }
 
     function getGraphButtons() {
         const routes = CamelUi.getRoutes(integration);
@@ -188,20 +179,16 @@ export function RouteDesigner() {
                                         parent={undefined}/>
                         )
                     })}
-                    {getGraphButtons()}
+                    {!isDebugging && getGraphButtons()}
                 </div>
             </div>)
     }
 
     const hasFlows = integration?.spec?.flows !== undefined;
     return (
-        <div className="dsl-page" ref={firstRef}>
-            <div className="dsl-page-columns" ref={secondRef}>
-                <Drawer isExpanded isInline>
-                    <DrawerContent panelContent={getPropertiesPanel()}>
-                        <DrawerContentBody>{hasFlows && getGraph()}</DrawerContentBody>
-                    </DrawerContent>
-                </Drawer>
+        <div className="dsl-page" ref={firstRef} key={key}>
+            <div className="dsl-page-columns">
+                {hasFlows && getGraph()}
             </div>
             {showSelector && <DslSelector/>}
             {showDeleteConfirmation && <DeleteConfirmation/>}

@@ -161,10 +161,34 @@
     width: 30px;
     height: 30px;
 }
+
 .karavan .step-element .header-icon-diamond .icon {
     transform: rotate(-45deg);
 }
 
+.karavan .step-element .element-border-passed {
+    border-width: 2px;
+    background-color: var(--pf-v5-global--palette--green-100);
+    border-color: var(--pf-v5-global--palette--green-400);
+}
+
+.karavan .step-element .header-icon-border-passed {
+    border-width: 2px;
+    background-color: var(--pf-v5-global--palette--green-100);
+    border-color: var(--pf-v5-global--palette--green-400);
+}
+
+.karavan .step-element .header-icon-border-current {
+    border-width: 2px;
+    background-color: var(--pf-v5-global--palette--gold-100);
+    border-color: var(--pf-v5-global--palette--gold-400);
+}
+
+.karavan .step-element .header-icon-border-failed {
+    border-width: 2px;
+    background-color: var(--pf-v5-global--palette--red-100);
+    border-color: var(--pf-v5-global--palette--red-200);
+}
 
 .karavan .step-element .route-icons {
     position: absolute;

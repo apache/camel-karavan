@@ -22,6 +22,7 @@ export function SalesforceIcon() {
                 xmlns="http://www.w3.org/2000/svg"
                 xmlnsXlink="http://www.w3.org/1999/xlink"
                 viewBox="0 0 273 191"
+                width="32px" height="32px"
                 className="icon"
             >
                 <defs>
@@ -47,7 +48,7 @@ export function SalesforceIcon() {
 }
 export function SlackIcon() {
     return (
-        <svg xmlns="http://www.w3.org/2000/svg" width={127} height={127} className="icon">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 127 127" width={32} height={32} className="icon">
             <g fill="none">
                 <path
                     fill="#E01E5A"

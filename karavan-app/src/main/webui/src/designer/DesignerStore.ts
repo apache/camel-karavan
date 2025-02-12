@@ -36,12 +36,15 @@ interface IntegrationState {
     setVariables: (variables: string[]) => void;
     addVariable: (variable: string) => void;
     getVariables: () => string[];
+    key: string;
+    setKey: (key: string) => void;
 }
 
 export const useIntegrationStore = createWithEqualityFn<IntegrationState>((set, get) => ({
     integration: Integration.createNew("demo", "plain"),
     propertyOnly: false,
     json: '{}',
+    key: '',
     setIntegration: (integration: Integration, propertyOnly: boolean) => {
         set((state: IntegrationState) => {
             const json = JSON.stringify(integration);
@@ -88,6 +91,9 @@ export const useIntegrationStore = createWithEqualityFn<IntegrationState>((set, 
         const otherVariables = VariableUtil.findVariables(otherFiles);
         currentVariables.concat(otherVariables);
         return currentVariables;
+    },
+    setKey: (key: string) => {
+        set({key: key});
     },
 }), shallow)
 
@@ -197,27 +203,35 @@ export const useConnectionsStore = createWithEqualityFn<ConnectionsState>((set) 
 }), shallow)
 
 type DesignerState = {
-    dark: boolean;
-    notificationBadge: boolean;
-    notificationMessage: [string, string];
-    shiftKeyPressed: boolean;
-    showDeleteConfirmation: boolean;
-    showMoveConfirmation: boolean;
-    deleteMessage: string;
-    selectedStep?: CamelElement;
-    selectedUuids: string[];
-    clipboardSteps: CamelElement[];
-    width: number,
-    height: number,
-    top: number,
-    left: number,
-    moveElements: [string | undefined, string | undefined],
-    propertyPlaceholders: string[],
+    isDebugging: boolean
+    dark: boolean
+    notificationBadge: boolean
+    notificationMessage: [string, string]
+    shiftKeyPressed: boolean
+    showDeleteConfirmation: boolean
+    showMoveConfirmation: boolean
+    deleteMessage: string
+    selectedStep?: CamelElement
+    selectedUuids: string[]
+    passedNodeIds: string[]
+    passedRouteId?: string
+    failedRouteId?: string
+    suspendedNodeId?: string
+    failed: boolean
+    clipboardSteps: CamelElement[]
+    width: number
+    height: number
+    top: number
+    left: number
+    moveElements: [string | undefined, string | undefined]
+    propertyPlaceholders: string[]
     parameterPlaceholders: [string, string][], // route template parameters
-    beans: BeanFactoryDefinition[]
+    beans: BeanFactoryDefinition[],
+    tab?: "routes" | "rest" | "beans" | "kamelet" | "code"
 }
 
 const designerState: DesignerState = {
+    isDebugging: false,
     notificationBadge: false,
     notificationMessage: ['', ''],
     dark: false,
@@ -226,6 +240,11 @@ const designerState: DesignerState = {
     showMoveConfirmation: false,
     deleteMessage: '',
     selectedUuids: [],
+    passedNodeIds: [],
+    passedRouteId: undefined,
+    failedRouteId: undefined,
+    suspendedNodeId: undefined,
+    failed: false,
     clipboardSteps: [],
     width: 0,
     height: 0,
@@ -234,17 +253,23 @@ const designerState: DesignerState = {
     moveElements: [undefined, undefined],
     propertyPlaceholders: [],
     parameterPlaceholders: [],
-    beans: []
+    beans: [],
 };
 
 type DesignerAction = {
     setDark: (dark: boolean) => void;
+    setDebugging: (isDebugging: boolean) => void;
     setShiftKeyPressed: (shiftKeyPressed: boolean) => void;
     setShowDeleteConfirmation: (showDeleteConfirmation: boolean) => void;
     setShowMoveConfirmation: (showMoveConfirmation: boolean) => void;
     setDeleteMessage: (deleteMessage: string) => void;
     setSelectedStep: (selectedStep?: CamelElement) => void;
     setSelectedUuids: (selectedUuids: string[]) => void;
+    setPassedNodeIds: (passedNodeIds: string[]) => void;
+    setPassedRouteId: (passedRouteId?: string) => void;
+    setFailedRouteId: (failedRouteId?: string) => void;
+    setSuspendedNodeId: (suspendedNodeId?: string) => void;
+    setFailed: (failed: boolean) => void;
     setClipboardSteps: (clipboardSteps: CamelElement[]) => void;
     setPosition: (width: number, height: number, top: number, left: number) => void;
     reset: () => void;
@@ -253,12 +278,19 @@ type DesignerAction = {
     setPropertyPlaceholders: (propertyPlaceholders: string[]) => void;
     setParameterPlaceholders: (parameterPlaceholders: [string, string][]) => void;
     setBeans: (beans: BeanFactoryDefinition[]) => void;
+    setTab: (tab?: "routes" | "rest" | "beans" | "kamelet" | "code") => void;
 }
 
 export const useDesignerStore = createWithEqualityFn<DesignerState & DesignerAction>((set) => ({
     ...designerState,
     setDark: (dark: boolean) => {
         set({dark: dark})
+    },
+    setDebugging: (isDebugging: boolean) => {
+        set({isDebugging: isDebugging})
+    },
+    setFailed: (failed: boolean) => {
+        set({failed: failed})
     },
     setShiftKeyPressed: (shiftKeyPressed: boolean) => {
         set({shiftKeyPressed: shiftKeyPressed})
@@ -281,6 +313,22 @@ export const useDesignerStore = createWithEqualityFn<DesignerState & DesignerAct
             state.selectedUuids.push(...selectedUuids);
             return state;
         })
+    },
+    setPassedNodeIds: (passedNodeIds: string[]) => {
+        set((state: DesignerState) => {
+            state.passedNodeIds.length = 0;
+            state.passedNodeIds.push(...passedNodeIds);
+            return state;
+        })
+    },
+    setPassedRouteId: (passedRouteId?: string) => {
+        set({passedRouteId: passedRouteId})
+    },
+    setFailedRouteId: (failedRouteId?: string) => {
+        set({failedRouteId: failedRouteId})
+    },
+    setSuspendedNodeId: (suspendedNodeId?: string) => {
+        set({suspendedNodeId: suspendedNodeId})
     },
     setClipboardSteps: (clipboardSteps: CamelElement[]) => {
         set((state: DesignerState) => {
@@ -323,5 +371,8 @@ export const useDesignerStore = createWithEqualityFn<DesignerState & DesignerAct
         set((state: DesignerState) => {
             return {beans: [...beans]};
         })
+    },
+    setTab: (tab?: "routes" | "rest" | "beans" | "kamelet" | "code")  => {
+        set({tab: tab})
     },
 }), shallow)
