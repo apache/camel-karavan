@@ -203,6 +203,14 @@ export function KameletDefinitionPropertyCard(props: Props) {
                     }
                 })
                 integration.spec.definition.properties = newObject;
+
+                if (required.includes(oldKey)) {
+                    const newRequired = [...required];
+                    const index = newRequired.findIndex(r => r === oldKey);
+                    newRequired.splice(index, 1);
+                    newRequired.push(newKey)
+                    integration.spec.definition.required = newRequired;
+                }
                 setIntegration(integration, true);
             }
         }
@@ -242,9 +250,8 @@ export function KameletDefinitionPropertyCard(props: Props) {
             const index = newRequired.findIndex(r => r === key);
             newRequired.splice(index, 1);
         }
-        if (integration.spec.definition?.required) {
-            integration.spec.definition.required.length = 0;
-            integration.spec.definition.required.push(...newRequired)
+        if (integration.spec.definition !== undefined) {
+            integration.spec.definition.required = newRequired;
         }
         setIntegration(integration, true);
     }
