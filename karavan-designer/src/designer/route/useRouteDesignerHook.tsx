@@ -182,6 +182,14 @@ export function useRouteDesignerHook() {
         }
     }
 
+    function copyPasteStep(step: CamelElement, parentUuid: string, position: number): void {
+        if (step) {
+            const clone = CamelUtil.cloneStep(step, true);
+            (clone as any).id = (clone as any).stepName + "-" + clone.uuid.substring(0,4);
+            addStep(clone, parentUuid, position + 1);
+        }
+    }
+
     function copyToClipboard(): void {
         const steps: CamelElement[] = []
         selectedUuids.forEach(selectedUuid => {
@@ -397,6 +405,6 @@ export function useRouteDesignerHook() {
     return {
         deleteElement, selectElement, moveElement, onShowDeleteConfirmation, onDslSelect, openSelector,
         createRouteConfiguration, onCommand, handleKeyDown, handleKeyUp, unselectElement, isKamelet, isSourceKamelet,
-        isActionKamelet, isSinkKamelet, openSelectorToReplaceFrom, createRouteTemplate
+        isActionKamelet, isSinkKamelet, openSelectorToReplaceFrom, createRouteTemplate, copyPasteStep
     }
 }

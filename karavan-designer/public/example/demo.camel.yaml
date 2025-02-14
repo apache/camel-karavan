@@ -7,6 +7,12 @@
         name: getUser
       steps:
         - to:
+            id: to-a36b
+            uri: amqp
+            parameters:
+              destinationName: hello
+              clientId: world
+        - to:
             id: to-6d55
             uri: bean
             parameters:
@@ -26,7 +32,4 @@
                     constant:
                       id: constant-9d21
                       expression: 404
-#- beans:
-#    - name: userService
-#      type: org.apache.camel.example.rest.UserService
 - routeConfiguration: {}

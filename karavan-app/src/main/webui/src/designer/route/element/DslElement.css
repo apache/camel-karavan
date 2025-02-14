@@ -235,6 +235,20 @@
     z-index: 100;
 }
 
+.karavan .step-element .copy-element-button {
+    position: absolute;
+    bottom: 9px;
+    line-height: 1;
+    border: 0;
+    padding: 0;
+    margin: 0 0 0 -30px;
+    background: transparent;
+    color: var(--pf-v5-global--primary-color--100);
+    visibility: hidden;
+    z-index: 100;
+}
+
+.karavan .step-element .header:hover .copy-element-button,
 .karavan .step-element .header:hover .insert-element-button {
     visibility: visible;
 }

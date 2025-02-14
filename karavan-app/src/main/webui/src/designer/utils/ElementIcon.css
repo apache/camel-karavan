@@ -24,6 +24,13 @@
     vertical-align: text-bottom;
 }
 
+.copy-button-icon {
+    width: 20px;
+    height: 20px;
+    background: transparent;
+    vertical-align: text-bottom;
+}
+
 .delete-button-icon {
     fill: var(--pf-v5-global--danger-color--100);
     width: 20px;

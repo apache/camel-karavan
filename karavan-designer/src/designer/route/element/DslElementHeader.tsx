@@ -26,7 +26,7 @@ import {CamelDisplayUtil} from "karavan-core/lib/api/CamelDisplayUtil";
 import {useDesignerStore, useIntegrationStore} from "../../DesignerStore";
 import {shallow} from "zustand/shallow";
 import {useRouteDesignerHook} from "../useRouteDesignerHook";
-import {AddElementIcon, DeleteElementIcon, InsertElementIcon} from "../../utils/ElementIcons";
+import {AddElementIcon, DeleteElementIcon, InsertElementIcon, CopyElementIcon} from "../../utils/ElementIcons";
 import { RouteConfigurationDefinition} from "karavan-core/lib/model/CamelDefinition";
 import {AutoStartupIcon, ErrorHandlerIcon} from "../../icons/OtherIcons";
 
@@ -50,7 +50,8 @@ export function DslElementHeader(props: Props) {
         openSelector,
         isKamelet,
         isSourceKamelet,
-        isActionKamelet
+        isActionKamelet,
+        copyPasteStep
     } = useRouteDesignerHook();
 
     const [integration] = useIntegrationStore((s) => [s.integration], shallow)
@@ -217,6 +218,7 @@ export function DslElementHeader(props: Props) {
             !['FromDefinition', 'RouteConfigurationDefinition', 'RouteTemplateDefinition', 'RouteDefinition', 'CatchDefinition', 'FinallyDefinition', 'WhenDefinition', 'OtherwiseDefinition'].includes(step.dslName)
             && !inRouteConfiguration;
         const showDeleteButton = !('RouteDefinition' === step.dslName && 'RouteTemplateDefinition' === parent?.dslName);
+        const showCopyButton = ['ToDefinition', 'ToDynamicDefinition', 'PollDefinition'].includes(step.dslName);
         const headerClasses = getHeaderClasses();
         const childrenInfo = getChildrenInfo(step) || [];
         const hasWideChildrenElement = getHasWideChildrenElement(childrenInfo)
@@ -250,6 +252,7 @@ export function DslElementHeader(props: Props) {
                 {!isDebugging && showInsertButton && getInsertElementButton()}
                 {!isDebugging && showDeleteButton && getDeleteButton()}
                 {!isDebugging && showAddButton && getAddElementButton()}
+                {!isDebugging && showCopyButton && getCopyElementButton()}
             </div>
         )
     }
@@ -313,14 +316,31 @@ export function DslElementHeader(props: Props) {
 
     function getAddElementButton() {
         return (
-            <Tooltip position={"bottom"}
-                     content={<div>{"Add DSL element to " + CamelDisplayUtil.getTitle(step)}</div>}>
+            <Tooltip position={"bottom"} content={<div>{"Add DSL element to " + CamelDisplayUtil.getTitle(step)}</div>}>
                 <button
                     type="button"
                     aria-label="Add"
                     onClick={e => onOpenSelector(e, false)}
                     className={"add-element-button"}>
                     <AddElementIcon/>
+                </button>
+            </Tooltip>
+        )
+    }
+    function getCopyElementButton() {
+        return (
+            <Tooltip position={"left"} content={"Copy element"}>
+                <button
+                    type="button"
+                    aria-label="Copy"
+                    onClick={e => {
+                        e.stopPropagation();
+                        if (props.parent) {
+                            copyPasteStep(step, props.parent?.uuid, props.position)
+                        }
+                    }}
+                    className={"copy-element-button"}>
+                    <CopyElementIcon/>
                 </button>
             </Tooltip>
         )
