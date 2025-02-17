@@ -66,11 +66,10 @@ export function ProjectPage() {
 
     function refreshData(){
         ProjectService.refreshAllContainerStatuses();
+        ProjectService.refreshCamelStatus(project.projectId, config.environment);
         if (tabIndex === 'build' || tabIndex === 'container') {
             ProjectService.refreshAllDeploymentStatuses();
             ProjectService.refreshImages(project.projectId);
-        } else if (tabIndex === 'dashboard') {
-            ProjectService.refreshCamelStatus(project.projectId, config.environment);
         } else if (tabIndex === 'trace' && refreshTrace) {
             ProjectService.refreshCamelTraces(project.projectId, config.environment);
         }
