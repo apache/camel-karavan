@@ -45,7 +45,7 @@
     "html-to-image": "1.11.11",
     "karavan-core": "file:../karavan-core",
     "netlify-auth-providers": "^1.0.0-alpha5",
-    "octokit": "^4.0.2",
+    "octokit": "^4.1.2",
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "react-resizable-panels": "^2.1.7",
