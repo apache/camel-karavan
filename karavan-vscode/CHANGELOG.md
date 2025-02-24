@@ -3,9 +3,9 @@
 ## 4.10.0
 0. Camel 4.10.0
 1. Kamelets 4.10.0
-3. Jkube 1.18.0
+3. Jkube 1.18.1
 4. JBang v0.123.0
-4. Quarkus 3.15.3
+4. Quarkus 3.18.3
 
 ## 4.8.0
 0. Camel 4.7.0
