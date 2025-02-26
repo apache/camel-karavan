@@ -152,7 +152,7 @@ export class CamelUtil {
     static isKameletComponent = (element: CamelElement | undefined): boolean => {
         if (element?.dslName === 'KameletDefinition') {
             return true;
-        } else if (element?.dslName === 'FromDefinition' || element?.dslName === 'ToDefinition') {
+        } else if (element?.dslName === 'FromDefinition' || element?.dslName === 'ToDefinition' || element?.dslName === 'ToDynamicDefinition') {
             const uri: string = (element as any).uri;
             return uri !== undefined && uri.startsWith('kamelet:');
         } else {
@@ -166,7 +166,7 @@ export class CamelUtil {
         } else if (element.dslName === 'ToDefinition' && (element as ToDefinition).uri?.startsWith('kamelet:')) {
             const kameletName = (element as ToDefinition).uri?.replace('kamelet:', '');
             return KameletApi.findKameletByName(kameletName);
-        } else if (['FromDefinition', 'FromDefinition', 'ToDefinition'].includes(element.dslName)) {
+        } else if (['FromDefinition', 'ToDynamicDefinition', 'ToDefinition'].includes(element.dslName)) {
             const uri: string = (element as any).uri;
             return uri !== undefined ? KameletApi.findKameletByUri(uri) : undefined;
         } else {

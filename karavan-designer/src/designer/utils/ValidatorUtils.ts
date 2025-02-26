@@ -23,6 +23,10 @@ export function isSensitiveFieldValid(field: string): boolean {
         const content = field.slice(2, -2).trim();
         return content !== "";
     }
+    if (field.startsWith("${") && field.endsWith("}")) {
+        const content = field.slice(2, -1).trim();
+        return content !== "";
+    }
     return false;
 }
 

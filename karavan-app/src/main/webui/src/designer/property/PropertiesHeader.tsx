@@ -29,7 +29,7 @@ import {
 } from '@patternfly/react-core';
 import './DslProperties.css';
 import "@patternfly/patternfly/patternfly.css";
-import {CamelUi, RouteToCreate} from "../utils/CamelUi";
+import {CamelUi} from "../utils/CamelUi";
 import {useDesignerStore} from "../DesignerStore";
 import {shallow} from "zustand/shallow";
 import {usePropertiesHook} from "./usePropertiesHook";
@@ -243,7 +243,7 @@ export function PropertiesHeader(props: Props) {
     const component = ComponentApi.findStepComponent(selectedStep);
     const groups = (isFrom || isPoll) ? ['consumer', 'common'] : ['producer', 'common'];
     const isKamelet = CamelUi.isKamelet(selectedStep);
-    const isStepComponent = !isFrom && selectedStep !== undefined && !isKamelet && ['ToDefinition', 'PollDefinition', 'ToDynamicDefinition'].includes(selectedStep?.dslName);
+    const showSwitchers = !isFrom && selectedStep !== undefined && ['ToDefinition', 'PollDefinition', 'ToDynamicDefinition'].includes(selectedStep?.dslName);
 
     function changeStepType(poll: boolean, dynamic: boolean) {
         if (selectedStep) {
@@ -263,7 +263,7 @@ export function PropertiesHeader(props: Props) {
         }
     }
 
-    function getComponentStepTypeSwitch() {
+    function getStepTypeSwitch() {
         const pollSupported = !component?.component.producerOnly;
         return (<div style={{display: 'flex', flexDirection: 'row', justifyContent: 'end', width: '100%', gap: '10px'}}>
                 <Tooltip content='Send messages to a dynamic endpoint evaluated on-demand' position='top-end'>
@@ -279,7 +279,7 @@ export function PropertiesHeader(props: Props) {
                         isReversed
                     />
                 </Tooltip>
-                {pollSupported &&
+                {pollSupported && !isKamelet &&
                     <Tooltip content='Simple Polling Consumer to obtain the additional data' position='top-end'>
                         <Switch
                             id="step-type-poll"
@@ -303,7 +303,7 @@ export function PropertiesHeader(props: Props) {
             (selectedStep as any)?.id !== undefined
                 ? <Label isEditable color='blue' isCompact onEditComplete={(event, newText) => onPropertyChange("id", newText)}>
                     {(selectedStep as any)?.id || ''}
-                    </Label>
+                </Label>
                 : <Button variant="link" onClick={event => onPropertyChange("id", "rc-" + Math.floor(1000 + Math.random() * 9000).toString())}>
                     Add Id
                 </Button>
@@ -316,7 +316,7 @@ export function PropertiesHeader(props: Props) {
                 <Title headingLevel="h1" size="md">{title}</Title>
                 {getIdInput()}
                 {getHeaderMenu()}
-                {isStepComponent && getComponentStepTypeSwitch()}
+                {showSwitchers && getStepTypeSwitch()}
             </div>
             <Text component={TextVariants.p}>{descriptionLines.at(0)}</Text>
             {descriptionLines.length > 1 && getDescriptionSection()}
