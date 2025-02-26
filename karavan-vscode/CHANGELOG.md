@@ -1,5 +1,12 @@
 # Changelog
 
+## 4.10.1
+0. Camel 4.10.1
+1. Kamelets 4.10.1
+3. Jkube 1.18.1
+4. JBang v0.123.0
+4. Quarkus 3.18.4
+
 ## 4.10.0
 0. Camel 4.10.0
 1. Kamelets 4.10.0
