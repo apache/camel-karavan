@@ -714,7 +714,7 @@ export class CamelUi {
             return k ? this.getIconFromSource(k.icon()) : CamelUi.getIconForDslName(element.dslName);
         } else if ("FromDefinition" === element.dslName && component !== undefined && component.component.remote !== true) {
             return this.getIconForComponent(component?.component.title, component?.component.label);
-        } else if (element.dslName === "ToDefinition" && (element as ToDefinition).uri?.startsWith("kamelet:")) {
+        } else if (["ToDefinition", "ToDynamicDefinition"].includes(element.dslName) && (element as ToDefinition).uri?.startsWith("kamelet:")) {
             return k ? this.getIconFromSource(k.icon()) : CamelUi.getIconForDslName(element.dslName);
         } else if (element.dslName === "ToDefinition" && component && component.component.remote !== true) {
             return this.getIconForComponent(component?.component.title, component?.component.label);
@@ -792,7 +792,7 @@ export class CamelUi {
                     <image href={icon} className="icon"/>
                 </svg>
             )
-        } else if (element.dslName === "ToDefinition" && (element as ToDefinition).uri?.startsWith("kamelet:")) {
+        } else if (["ToDefinition", "ToDynamicDefinition"].includes(element.dslName) && (element as any).uri?.startsWith("kamelet:")) {
             const icon = k ? k.icon() : CamelUi.getIconSrcForName(element.dslName);
             return  (
                 <svg className="icon">
