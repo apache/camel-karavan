@@ -41,4 +41,4 @@ body:
       description: What Karavan version are you running?
       options:
         - 4.8.0
-        - 4.10.1
+        - 4.10.2

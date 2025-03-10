@@ -21,7 +21,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.apache.camel.karavan</groupId>
     <artifactId>karavan</artifactId>
-    <version>4.10.1</version>
+    <version>4.10.2</version>
 
     <properties>
         <compiler-plugin.version>3.11.0</compiler-plugin.version>
@@ -33,7 +33,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
         <quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
-        <quarkus.platform.version>3.18.4</quarkus.platform.version>
+        <quarkus.platform.version>3.19.2</quarkus.platform.version>
         <surefire-plugin.version>3.1.0</surefire-plugin.version>
         <jgit.version>3.3.3</jgit.version>
         <quinoa.version>2.5.1</quinoa.version>

@@ -9,7 +9,7 @@ on:
     branches: [ main ]
 
 env:
-  TAG: 4.10.1
+  TAG: 4.10.2
 
 jobs:
   build:
