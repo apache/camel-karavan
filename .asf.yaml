@@ -36,3 +36,4 @@ github:
     rebase:  true
   features:
     issues: true
+    discussions: true
