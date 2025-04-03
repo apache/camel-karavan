@@ -69,13 +69,13 @@
   </repositories>
   <properties>
     <maven.compiler.source>17</maven.compiler.source>
-    <version.camel-kamelet>4.10.2</version.camel-kamelet>
+    <version.camel-kamelet>4.10.3</version.camel-kamelet>
     <compiler-plugin.version>3.8.1</compiler-plugin.version>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <version.vertx>4.5.13</version.vertx>
     <surefire-plugin.version>3.0.0-M5</surefire-plugin.version>
     <maven.compiler.target>17</maven.compiler.target>
-    <version.camel-core>4.10.2</version.camel-core>
+    <version.camel-core>4.10.3</version.camel-core>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.parameters>true</maven.compiler.parameters>
   </properties>

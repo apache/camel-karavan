@@ -101,10 +101,10 @@ export class CamelDefinitionYaml {
 
         if (object.dslName === 'RouteTemplateDefinition') {
             object.route.inArray = true;
-        } else if (object.dslName.endsWith('Expression')) {
+        } else if (object.dslName?.endsWith('Expression')) {
             delete object.language;
             delete object.expressionName;
-        } else if (object.dslName.endsWith('DataFormat')) {
+        } else if (object.dslName?.endsWith('DataFormat')) {
             delete object.dataFormatName;
         } else if (object.dslName === 'BeanFactoryDefinition') {
             if (object.properties && Object.keys(object.properties).length === 0) {
