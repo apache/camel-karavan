@@ -19,6 +19,7 @@ notifications:
   commits: commits@camel.apache.org
   issues: commits@camel.apache.org
   pullrequests: commits@camel.apache.org
+  discussions: users@camel.apache.org
 github:
   description: "Apache Camel Karavan a Low-code Data Integration Platform"
   homepage: https://camel.apache.org
@@ -37,5 +38,3 @@ github:
   features:
     issues: true
     discussions: true
-  notifications:
-    discussions: users@camel.apache.org
