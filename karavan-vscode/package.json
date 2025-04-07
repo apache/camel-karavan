@@ -795,6 +795,7 @@
   },
   "overrides": {
     "@svgr/webpack": "$@svgr/webpack",
-    "core-js": "^3.30.1"
+    "core-js": "^3.30.1",
+    "@babel/runtime": "7.26.10"
   }
 }
