@@ -80,5 +80,8 @@
   },
   "resolutions": {
     "@types/react": "^18"
+  },
+  "overrides": {
+    "@babel/runtime": "7.26.10"
   }
 }

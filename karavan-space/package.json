@@ -71,5 +71,8 @@
     "vite": "^6.2.5",
     "vite-plugin-svgr": "^4.3.0",
     "vite-tsconfig-paths": "^5.1.4"
+  },
+  "overrides": {
+    "@babel/runtime": "7.26.10"
   }
 }

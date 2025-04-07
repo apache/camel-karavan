@@ -27,7 +27,7 @@
     "@patternfly/patternfly": "^5.4.0",
     "@patternfly/react-core": "^5.4.0",
     "@patternfly/react-table": "^5.4.0",
-    "@patternfly/react-topology": "^5.4.0",
+    "@patternfly/react-topology": "^5.4.1",
     "@types/js-yaml": "4.0.9",
     "@types/uuid": "10.0.0",
     "axios": "1.8.2",
@@ -57,5 +57,8 @@
     "vite": "^6.2.5",
     "vite-plugin-svgr": "^4.3.0",
     "vite-tsconfig-paths": "^5.1.4"
+  },
+  "overrides": {
+    "@babel/runtime": "7.26.10"
   }
 }
