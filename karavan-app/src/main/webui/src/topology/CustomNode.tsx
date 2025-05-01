@@ -18,12 +18,13 @@
 import * as React from 'react';
 import {RegionsIcon} from '@patternfly/react-icons';
 
-import {DefaultNode, observer} from '@patternfly/react-topology';
-import {getDesignerIcon} from "../designer/icons/KaravanIcons";
+import {DefaultNode, observer, WithContextMenuProps} from '@patternfly/react-topology';
+import {BeanIcon, getDesignerIcon} from "../designer/icons/KaravanIcons";
 import {CamelUi} from "../designer/utils/CamelUi";
 import './topology.css';
 import {RouteDefinition} from "karavan-core/lib/model/CamelDefinition";
-import {AutoStartupIcon, ErrorHandlerIcon} from "../designer/icons/OtherIcons";
+import {AutoStartupFalseIcon, ErrorHandlerIcon} from "../designer/icons/OtherIcons";
+import {useTopologyHook} from "./useTopologyHook";
 
 export const COLOR_ORANGE = '#ef9234';
 export const COLOR_BLUE = '#2b9af3';
@@ -36,9 +37,15 @@ function getIcon(data: any) {
                 {getDesignerIcon(data.icon)}
             </g>
         )
+    } else if (data.icon === 'bean') {
+        return (
+            <g transform={`translate(8, 8) scale(0.75)`}>
+                <BeanIcon/>
+            </g>
+        )
     } else if (data.icon === 'element') {
         return (
-            <g transform={`translate(14, 14)`}>
+            <g transform={`translate(8, 8) scale(0.75)`}>
                 {CamelUi.getConnectionIcon(data.step)}
             </g>
         )
@@ -46,10 +53,20 @@ function getIcon(data: any) {
     return <RegionsIcon/>;
 }
 
+function isDisable(data: any) {
+    if ((data && data?.step?.dslName === 'RouteDefinition')) {
+        const route: RouteDefinition = data?.step;
+        const autoStartup =  route?.autoStartup === false;
+        return autoStartup;
+    } else if (data?.type === 'step' && data?.outgoing && data?.disabled) {
+        return true;
+    }
+    return false;
+}
+
 function getAttachments(data: any) {
     if (data && data?.step?.dslName === 'RouteDefinition') {
         const route: RouteDefinition = data?.step;
-        const autoStartup =  route?.autoStartup !== false;
         const errorHandler =  route?.errorHandler !== undefined;
         return (
             <g className="pf-topology__node__label__badge auto-start" transform="translate(-4, -4)">
@@ -58,44 +75,69 @@ function getAttachments(data: any) {
                         {ErrorHandlerIcon()}
                     </g>
                 }
-                {autoStartup &&
+                {isDisable(data) &&
                     <g className="" transform="translate(-4, -4)">
-                        {AutoStartupIcon()}
+                        {AutoStartupFalseIcon()}
                     </g>
                 }
             </g>
         )
-    } else <></>
+    } else if (isDisable(data)) {
+        return (
+            <g className="pf-topology__node__label__badge auto-start" transform="translate(-4, -4)">
+                <g className="" transform="translate(-4, -4)">
+                    {AutoStartupFalseIcon()}
+                </g>
+            </g>
+        )
+    } else {
+        return (<></>)
+    }
 }
 
-const CustomNode: React.FC<any> = observer(({element, ...rest}) => {
+const CustomNode: React.FC<any & WithContextMenuProps>  = observer(({element, onContextMenu, contextMenuOpen, ...rest}) => {
+
+    const {selectFile} = useTopologyHook();
 
     const data = element.getData();
     const badge: string = ['API', 'RT'].includes(data.badge) ? data.badge : data.badge?.substring(0, 1).toUpperCase();
     let badgeColor = COLOR_ORANGE;
+    let colorClass = 'route';
     if (badge === 'C') {
         badgeColor = COLOR_BLUE;
+        colorClass = 'component'
     } else if (badge === 'K') {
         badgeColor = COLOR_GREEN;
+        colorClass = 'kamelet';
     }
     if (element.getLabel()?.length > 30) {
         element.setLabel(element.getLabel()?.substring(0, 30) + '...');
     }
+    const disableClass = isDisable(data) ? 'disable-node' : '';
 
     return (
+        <g onDoubleClick={event => {
+            event.stopPropagation();
+            selectFile(data.fileName)
+        }}>
         <DefaultNode
-            badge={badge}
+            badge={badge === 'API' ? badge : undefined}
             badgeColor={badgeColor}
             badgeBorderColor={badgeColor}
             showStatusDecorator
-            className={"common-node common-node-" + badge}
-            scaleLabel={false}
+            className={"common-node common-node-" + badge + " topology-color-" + colorClass + " " + disableClass}
+            scaleLabel={true}
             element={element}
+            onContextMenu={onContextMenu}
+            contextMenuOpen={contextMenuOpen}
             attachments={getAttachments(data)}
+            hideContextMenuKebab={false}
             {...rest}
+            on
         >
             {getIcon(data)}
         </DefaultNode>
+        </g>
     )
 })
 export default CustomNode;

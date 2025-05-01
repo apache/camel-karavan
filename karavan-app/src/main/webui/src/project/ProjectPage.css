@@ -59,29 +59,6 @@
     font-size: 14px;
 }
 
-.karavan .project-page .dashboard-card {
-    margin-bottom: 16px;
-}
-
-.karavan .project-page .dashboard-card .runner-toolbar {
-    line-height: 24px;
-    row-gap: 24px;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-}
-.karavan .project-page .dashboard-card .runner-toolbar .row {
-    line-height: 24px;
-    height: 30px;
-}
-
-.karavan .project-page .dashboard-card .pf-v5-c-panel__header {
-    padding: 0;
-}
-.karavan .project-page .dashboard-card .pf-v5-c-panel__main {
-    max-height: 212px;
-}
-
 .karavan .project-page .project-status {
     margin-bottom: 16px;
 }

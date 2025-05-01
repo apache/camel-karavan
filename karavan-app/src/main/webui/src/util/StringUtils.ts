@@ -78,3 +78,17 @@ export function isValidPassword(password: string): boolean {
 export function getMegabytes(bytes?: number): number {
     return (bytes ? (bytes / 1024 / 1024) : 0);
 }
+
+export function nameToProjectId(str: string): string {
+    let kebab = str
+        .replace(/([a-z])([A-Z])/g, '$1-$2')     // handle camelCase to kebab
+        .replace(/[^a-zA-Z0-9]+/g, '-')           // replace non-alphanumeric with dash
+        .toLowerCase()
+        .replace(/^-+|-+$/g, '');                 // trim leading/trailing dashes
+
+    // Ensure the first character is a letter
+    if (!/^[a-z]/.test(kebab)) {
+        kebab = 't-' + kebab;
+    }
+    return kebab;
+}

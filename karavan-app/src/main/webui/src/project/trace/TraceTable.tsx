@@ -21,7 +21,7 @@ import {
     EmptyState,
     EmptyStateIcon,
     EmptyStateVariant,
-    EmptyStateHeader
+    EmptyStateHeader,
 } from '@patternfly/react-core';
 import '../../designer/karavan.css';
 import {RunnerInfoTraceModal} from "./RunnerInfoTraceModal";

@@ -31,7 +31,7 @@ export function DeleteFileModal () {
     const {file, operation} = useFileStore();
 
     function closeModal () {
-        useFileStore.setState({operation: "none"})
+        useFileStore.setState({operation: "none", file: undefined})
     }
 
     function isKameletsProject(): boolean {
@@ -41,7 +41,7 @@ export function DeleteFileModal () {
     function confirmAndCloseModal() {
         if (file) ProjectService.deleteFile(file);
         if (isKameletsProject()) KameletApi.removeKamelet(file?.code || '');
-        useFileStore.setState({operation: "none"});
+        useFileStore.setState({operation: "none", file: undefined});
     }
 
     const isOpen= operation === "delete";

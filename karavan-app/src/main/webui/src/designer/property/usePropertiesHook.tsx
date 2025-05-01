@@ -22,7 +22,7 @@ import {
 import {CamelElement} from "karavan-core/lib/model/IntegrationDefinition";
 import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt";
 import {CamelDefinitionApi} from "karavan-core/lib/api/CamelDefinitionApi";
-import {RouteToCreate} from "../utils/CamelUi";
+import {CamelUi, RouteToCreate} from "../utils/CamelUi";
 import {useDesignerStore, useIntegrationStore} from "../DesignerStore";
 import {shallow} from "zustand/shallow";
 import {CamelMetadataApi} from "karavan-core/lib/model/CamelMetadata";
@@ -48,11 +48,7 @@ export function usePropertiesHook(designerType: 'routes' | 'rest' | 'beans' = 'r
     function onRoutePropertyUpdate(element: CamelElement, newRoute?: RouteToCreate) {
         if (newRoute) {
             let i = CamelDefinitionApiExt.updateIntegrationRouteElement(integration, element);
-            const f = CamelDefinitionApi.createFromDefinition({
-                uri: newRoute.componentName,
-                parameters: {name: newRoute.name}
-            });
-            const r = CamelDefinitionApi.createRouteDefinition({from: f, id: newRoute.name})
+            const r = CamelUi.createRouteFromComponent(newRoute.componentName, 'name', newRoute.name);
             i = CamelDefinitionApiExt.addStepToIntegration(i, r, '');
             const clone = CamelUtil.cloneIntegration(i);
             setIntegration(clone, false);
@@ -112,6 +108,30 @@ export function usePropertiesHook(designerType: 'routes' | 'rest' | 'beans' = 'r
             (clone as any)[fieldId] = value;
             setSelectedStep(clone)
             onPropertyUpdate(clone, newRoute);
+        }
+    }
+
+    function onDisableStep(step: CamelElement, disabled: boolean = false) {
+        if (step) {
+            const clone = CamelUtil.cloneStep(step);
+            if (disabled) {
+                (clone as any).disabled = true;
+            } else {
+                delete (clone as any).disabled;
+            }
+            onPropertyUpdate(clone);
+        }
+    }
+
+    function onAutoStartRoute(route: CamelElement, autoStartup: boolean = true) {
+        if (route) {
+            const clone = CamelUtil.cloneStep(route);
+            if (!autoStartup) {
+                (clone as any).autoStartup = false;
+            } else {
+                delete (clone as any).autoStartup;
+            }
+            onPropertyUpdate(clone);
         }
     }
 
@@ -221,6 +241,8 @@ export function usePropertiesHook(designerType: 'routes' | 'rest' | 'beans' = 'r
         onParametersChange,
         onDataFormatChange,
         onExpressionChange,
-        getInternalComponentName
+        getInternalComponentName,
+        onDisableStep,
+        onAutoStartRoute
     }
 }

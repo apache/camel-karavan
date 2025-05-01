@@ -26,7 +26,13 @@ import {BeanFactoryDefinition} from "karavan-core/lib/model/CamelDefinition";
 import {KameletApi} from "karavan-core/lib/api/KameletApi";
 import {CamelDefinitionYaml} from "karavan-core/lib/api/CamelDefinitionYaml";
 import {TopologyUtils} from "karavan-core/lib/api/TopologyUtils";
-import {IntegrationFile} from "karavan-core/lib/model/IntegrationDefinition";
+import {Integration, IntegrationFile} from "karavan-core/lib/model/IntegrationDefinition";
+import {CamelUi} from "../designer/utils/CamelUi";
+import {toKebabCase} from "../designer/utils/ValidatorUtils";
+import {KaravanApi} from "../api/KaravanApi";
+import {EventBus} from "../designer/utils/EventBus";
+import {getIntegrations} from "../topology/TopologyApi";
+import {useDesignerStore, useIntegrationStore} from "../designer/DesignerStore";
 
 interface Props {
     projectId: string
@@ -36,25 +42,18 @@ export function DesignerEditor(props: Props) {
 
     const [file, designerTab, setFile] = useFileStore((s) => [s.file, s.designerTab, s.setFile], shallow)
     const [files] = useFilesStore((s) => [s.files], shallow);
-    const [propertyPlaceholders, setPropertyPlaceholders] = useState<string[]>([]);
+    const [key, setKey] = useIntegrationStore((s) => [s.key, s.setKey], shallow);
+    const [setSelectedStep] = useDesignerStore((s) => [s.setSelectedStep], shallow)
+    const [propertyPlaceholders, setPropertyPlaceholders] = useState< [string, string][]>([]);
     const [beans, setBeans] = useState<BeanFactoryDefinition[]>([]);
-    const [key, setKey] = useState<string>();
     const [code, setCode] = useState<string>();
 
     useEffect(() => {
         setCode(file?.code);
         const pp = CodeUtils.getPropertyPlaceholders(files);
-        setPropertyPlaceholders(prevState => {
-            prevState.length = 0;
-            prevState.push(...pp);
-            return prevState;
-        })
+        setPropertyPlaceholders(pp);
         const bs = CodeUtils.getBeans(files);
-        setBeans(prevState => {
-            prevState.length = 0;
-            prevState.push(...bs);
-            return prevState;
-        });
+        setBeans(bs)
         setKey(Math.random().toString());
         return () => {
             //save custom kamelet on page unload
@@ -84,30 +83,92 @@ export function DesignerEditor(props: Props) {
         }
     }
 
-    function internalConsumerClick(uri?: string, name?: string, routeId?: string) {
+    function onCreateNewRoute(componentName: string, propertyName: string, propertyValue: string) {
+        try {
+            const integrations = getIntegrations(files);
+            const incomingNodes = TopologyUtils.findTopologyIncomingNodes(integrations)
+                .filter(n => n.from?.uri === componentName && n.from?.parameters?.[propertyName] === propertyValue);
+            if (incomingNodes.length > 0) {
+                internalConsumerClick(undefined, undefined, incomingNodes[0].routeId, incomingNodes[0].fileName);
+            } else {
+                createNewRoute(componentName, propertyName, propertyValue);
+            }
+        } catch (err: any){
+            console.error(err)
+        }
+    }
+
+    function createNewRoute(componentName: string, propertyName: string, propertyValue: string) {
+        try {
+            const name = 'from-' + componentName + '-' + toKebabCase(propertyValue);
+            const newRoute = CamelUi.createRouteFromComponent(componentName, propertyName, propertyValue);
+            const newIntegration = Integration.createNew(propertyValue, 'plain');
+            newIntegration.spec.flows = [newRoute];
+            const code = CamelDefinitionYaml.integrationToYaml(newIntegration);
+            const fileName = name + '.camel.yaml';
+            const file = new ProjectFile(fileName, props.projectId, code, Date.now());
+            KaravanApi.saveProjectFile(file, (result, newFile) => {
+                if (result) {
+                    setFile('select', newFile);
+                    setKey(Math.random().toString());
+                } else {
+                    EventBus.sendAlert('Error creating file', 'Error: ' +newFile?.toString());
+                }
+            });
+        } catch (err: any){
+            console.error(err)
+        }
+    }
+
+    function internalConsumerClick(uri?: string, name?: string, routeId?: string, fileName?: string) {
+        let done = false;
         const integrations = files.filter(f => f.name.endsWith(".camel.yaml"))
             .map(f => CamelDefinitionYaml.yamlToIntegration(f.name, f.code));
-        if (uri && name) {
+        if (fileName) {
+            const uniqueUri = uri + ':name=' + name;
+            const outgoingNodes = TopologyUtils.findTopologyRouteOutgoingNodes(integrations);
+            let step = outgoingNodes.filter(node => node.uniqueUri === uniqueUri).at(0)?.step;
+            if (step === undefined) {
+                const restUri = uri + ':' + name;
+                const restNodes = TopologyUtils.findTopologyRestNodes(integrations);
+                restNodes.filter(restNode => restNode.uris.includes(restUri)).forEach(restNode => {
+                    step = restNode.rest.get?.filter(m => m.to === restUri).at(0)
+                        || restNode.rest.post?.filter(m => m.to === restUri).at(0)
+                        || restNode.rest.put?.filter(m => m.to === restUri).at(0)
+                        || restNode.rest.delete?.filter(m => m.to === restUri).at(0)
+                        || restNode.rest.patch?.filter(m => m.to === restUri).at(0)
+                        || restNode.rest.head?.filter(m => m.to === restUri).at(0);
+                })
+            }
+            switchToFile(fileName);
+            setSelectedStep(step)
+            done = true;
+        } else if (uri && name) {
             const routes = TopologyUtils.findTopologyRouteNodes(integrations);
             for (const route of routes) {
-                if (route?.from?.uri === uri && route?.from?.parameters?.name === name) {
-                    const switchToFile = files.filter(f => f.name === route.fileName).at(0);
-                    if (switchToFile) {
-                        setFile('select', switchToFile);
-                        setKey(Math.random().toString())
-                    }
+                if (route?.from?.uri === uri && (route?.from?.parameters?.name === name || route?.from?.parameters?.address === name)) {
+                    switchToFile(route.fileName);
+                    setSelectedStep(route?.from);
+                    done = true;
                 }
             }
         } else {
-            const nodes = TopologyUtils.findTopologyRouteOutgoingNodes(integrations)
-                .filter(t => t.routeId === routeId);
+            const nodes = TopologyUtils.findTopologyRouteOutgoingNodes(integrations).filter(t => t.routeId === routeId);
             for (const node of nodes) {
-                const switchToFile = files.filter(f => f.name === node.fileName).at(0);
-                if (switchToFile) {
-                    setFile('select', switchToFile);
-                    setKey(Math.random().toString())
-                }
+                switchToFile(node.fileName);
+                done = true;
             }
+        }
+        if (!done) {
+            EventBus.sendAlert('Warning', 'Route not found. Possibly not created.', 'warning');
+        }
+    }
+
+    function switchToFile(fileName: string) {
+        const file = files.filter(f => f.name === fileName).at(0);
+        if (file) {
+            setFile('select', file);
+            setKey(Math.random().toString())
         }
     }
 
@@ -126,6 +187,7 @@ export function DesignerEditor(props: Props) {
                              onSavePropertyPlaceholder={onSavePropertyPlaceholder}
                              beans={beans}
                              onInternalConsumerClick={internalConsumerClick}
+                             onCreateNewRoute={onCreateNewRoute}
                              files={files.map(f => new IntegrationFile(f.name, f.code))}
             />
             : <></>

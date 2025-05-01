@@ -16,8 +16,8 @@
  */
 
 import React, {useState} from 'react';
-import {Button, Flex, FlexItem, Modal, Spinner, Switch, Tooltip, TooltipPosition} from '@patternfly/react-core';
-import '../../designer/karavan.css';
+import {Button, FlexItem, Modal, Spinner, Switch, Tooltip, TooltipPosition} from '@patternfly/react-core';
+import './Package.css';
 import DeleteIcon from "@patternfly/react-icons/dist/esm/icons/trash-icon";
 import StopIcon from "@patternfly/react-icons/dist/esm/icons/stop-icon";
 import DeployIcon from "@patternfly/react-icons/dist/esm/icons/upload-icon";
@@ -31,7 +31,7 @@ interface Props {
     env: string,
 }
 
-export function ContainerButtons (props: Props) {
+export function ContainerButtons(props: Props) {
 
     const [config] = useAppConfigStore((state) => [state.config], shallow)
     const [status] = useDevModeStore((state) => [state.status], shallow)
@@ -50,7 +50,7 @@ export function ContainerButtons (props: Props) {
     const isLoading = status === 'wip';
 
     function act() {
-        KaravanApi.manageContainer(project.projectId, 'project', project.projectId, actionType, pullImage ? 'always' : 'never',res => {
+        KaravanApi.manageContainer(project.projectId, 'packaged', project.projectId, actionType, pullImage ? 'always' : 'never', res => {
             const response = res?.response;
             if (response?.status === 500) {
                 EventBus.sendAlert('Error', response.data !== undefined && response.data.length > 0 ? response.data : response.statusText, 'warning')
@@ -89,38 +89,38 @@ export function ContainerButtons (props: Props) {
         </Modal>)
     }
 
-    return (<Flex className="toolbar" direction={{default: "row"}} alignItems={{default: "alignItemsCenter"}}>
-        <FlexItem>
-            {(inTransit || isLoading) && <Spinner size="lg" aria-label="spinner"/>}
-        </FlexItem>
-        {!isRunning && config.infrastructure !== 'kubernetes' && commands.includes('deploy') && <FlexItem>
-            <Tooltip content="Deploy container" position={TooltipPosition.bottom}>
-                <Button className="dev-action-button" size="sm"
-                        isDisabled={(!(commands.length === 0) && !commands.includes('deploy')) || inTransit}
-                        variant={"primary"}
-                        icon={<DeployIcon/>}
-                        onClick={() => {
-                            setActionType('deploy');
-                            setShowConfirmation(true);
-                        }}>Deploy</Button>
-            </Tooltip>
-        </FlexItem>}
-        {!isRunning && config.infrastructure !== 'kubernetes' && <FlexItem>
-            <Tooltip content="Run container" position={TooltipPosition.bottom}>
-                <Button className="dev-action-button" size="sm"
-                        isDisabled={(!(commands.length === 0) && !commands.includes('run')) || inTransit}
-                        variant={"primary"}
-                        icon={<RunIcon/>}
-                        onClick={() => {
-                            setActionType('run');
-                            setShowConfirmation(true);
-                        }}>
-                    {"Run"}
-                </Button>
-            </Tooltip>
-        </FlexItem>}
-        {config.infrastructure !== 'kubernetes' &&
-            <FlexItem>
+    return (
+        <div className="toolbar">
+            <div>
+                {(inTransit || isLoading) && <Spinner size="lg" aria-label="spinner"/>}
+            </div>
+            <div>
+                <Tooltip content="Deploy container" position={TooltipPosition.bottom}>
+                    <Button className="dev-action-button" size="sm"
+                            isDisabled={(!(commands.length === 0) && !commands.includes('deploy')) || inTransit}
+                            variant={"primary"}
+                            icon={<DeployIcon/>}
+                            onClick={() => {
+                                setActionType('deploy');
+                                setShowConfirmation(true);
+                            }}>Deploy</Button>
+                </Tooltip>
+            </div>
+            <div>
+                <Tooltip content="Run container" position={TooltipPosition.bottom}>
+                    <Button className="dev-action-button" size="sm"
+                            isDisabled={(!(commands.length === 0) && !commands.includes('run')) || inTransit}
+                            variant={"primary"}
+                            icon={<RunIcon/>}
+                            onClick={() => {
+                                setActionType('run');
+                                setShowConfirmation(true);
+                            }}>
+                        Run
+                    </Button>
+                </Tooltip>
+            </div>
+            <div>
                 <Tooltip content="Stop container" position={TooltipPosition.bottom}>
                     <Button className="dev-action-button" size="sm"
                             isDisabled={!commands.includes('stop') || inTransit}
@@ -130,23 +130,24 @@ export function ContainerButtons (props: Props) {
                                 setActionType('stop');
                                 setShowConfirmation(true);
                             }}>
+                        Stop
                     </Button>
                 </Tooltip>
-            </FlexItem>
-        }
-        <FlexItem>
-            <Tooltip content="Delete container" position={TooltipPosition.bottom}>
-                <Button className="dev-action-button" size="sm"
-                        isDisabled={!commands.includes('delete') || inTransit}
-                        variant={"control"}
-                        icon={<DeleteIcon/>}
-                        onClick={() => {
-                            setActionType('delete');
-                            setShowConfirmation(true);
-                        }}>
-                </Button>
-            </Tooltip>
-        </FlexItem>
-        {showConfirmation && getConfirmationModal()}
-    </Flex>);
+            </div>
+            <div>
+                <Tooltip content="Delete container" position={TooltipPosition.bottom}>
+                    <Button className="dev-action-button" size="sm"
+                            isDisabled={!commands.includes('delete') || inTransit}
+                            variant={"control"}
+                            icon={<DeleteIcon/>}
+                            onClick={() => {
+                                setActionType('delete');
+                                setShowConfirmation(true);
+                            }}>
+                        Delete
+                    </Button>
+                </Tooltip>
+            </div>
+            {showConfirmation && getConfirmationModal()}
+        </div>);
 }

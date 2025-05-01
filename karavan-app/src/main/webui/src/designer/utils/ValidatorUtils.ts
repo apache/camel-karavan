@@ -30,4 +30,16 @@ export function isSensitiveFieldValid(field: string): boolean {
     return false;
 }
 
+export function toKebabCase(value: string): string {
+    if (value.includes('_')) {
+        // Convert snake_case to kebab-case
+        return value.replace(/_/g, '-');
+    } else if (/[a-z][A-Z]/.test(value)) {
+        // Convert camelCase to kebab-case
+        return value.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
+    }
+    // Assume already in kebab-case or other format, return as-is
+    return value;
+}
+
 

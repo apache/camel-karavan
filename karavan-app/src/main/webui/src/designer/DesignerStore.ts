@@ -34,8 +34,6 @@ interface IntegrationState {
     resetFiles: (files: IntegrationFile []) => void
     variables: string[],
     setVariables: (variables: string[]) => void;
-    addVariable: (variable: string) => void;
-    getVariables: () => string[];
     key: string;
     setKey: (key: string) => void;
 }
@@ -75,22 +73,6 @@ export const useIntegrationStore = createWithEqualityFn<IntegrationState>((set, 
         set((state: IntegrationState) => {
             return {variables: [...variables]};
         })
-    },
-    addVariable: (variable: string) => {
-        set((state: IntegrationState) => {
-            const vars = VariableUtil.findVariables(state.files);
-            if (!vars.includes(variable)) vars.push(variable);
-            return {variables: VariableUtil.sortVariables(vars)};
-        });
-    },
-    getVariables: () => {
-        const files = get().files;
-        const integration = get().integration;
-        const otherFiles = files.filter(file => file.name !== integration.metadata.name);
-        const currentVariables = VariableUtil.findVariablesInIntegrations([integration]);
-        const otherVariables = VariableUtil.findVariables(otherFiles);
-        currentVariables.concat(otherVariables);
-        return currentVariables;
     },
     setKey: (key: string) => {
         set({key: key});
@@ -224,7 +206,7 @@ type DesignerState = {
     top: number
     left: number
     moveElements: [string | undefined, string | undefined]
-    propertyPlaceholders: string[]
+    propertyPlaceholders:  [string, string][]
     parameterPlaceholders: [string, string][], // route template parameters
     beans: BeanFactoryDefinition[],
     tab?: "routes" | "rest" | "beans" | "kamelet" | "code"
@@ -275,7 +257,7 @@ type DesignerAction = {
     reset: () => void;
     setNotification: (notificationBadge: boolean, notificationMessage: [string, string]) => void;
     setMoveElements: (moveElements: [string | undefined, string | undefined]) => void;
-    setPropertyPlaceholders: (propertyPlaceholders: string[]) => void;
+    setPropertyPlaceholders: (propertyPlaceholders:  [string, string][]) => void;
     setParameterPlaceholders: (parameterPlaceholders: [string, string][]) => void;
     setBeans: (beans: BeanFactoryDefinition[]) => void;
     setTab: (tab?: "routes" | "rest" | "beans" | "kamelet" | "code") => void;
@@ -353,7 +335,7 @@ export const useDesignerStore = createWithEqualityFn<DesignerState & DesignerAct
     setMoveElements: (moveElements: [string | undefined, string | undefined]) => {
         set({moveElements: moveElements})
     },
-    setPropertyPlaceholders: (propertyPlaceholders: string[]) => {
+    setPropertyPlaceholders: (propertyPlaceholders:  [string, string][]) => {
         set((state: DesignerState) => {
             state.propertyPlaceholders.length = 0;
             state.propertyPlaceholders.push(...propertyPlaceholders);

@@ -41,24 +41,25 @@ import {BeansDesigner} from "./beans/BeansDesigner";
 import {CodeEditor} from "./editor/CodeEditor";
 import BellIcon from '@patternfly/react-icons/dist/esm/icons/bell-icon';
 import {KameletDesigner} from "./kamelet/KameletDesigner";
-import {BeanFactoryDefinition} from "karavan-core/lib/model/CamelDefinition";
-import {VariableUtil} from "karavan-core/lib/api/VariableUtil";
+import {BeanFactoryDefinition, RouteDefinition, RouteTemplateDefinition} from "karavan-core/lib/model/CamelDefinition";
 import {ErrorBoundaryState, ErrorBoundaryWrapper} from "./ErrorBoundaryWrapper";
 import {Panel, PanelGroup, PanelResizeHandle} from 'react-resizable-panels';
 import {MainPropertiesPanel} from "./property/MainPropertiesPanel";
+import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt";
 
 interface Props {
     onSave: (filename: string, yaml: string, propertyOnly: boolean) => void
-    onSaveCustomCode: (name: string, code: string) => void
+    onSaveCustomCode: (name: string, code: string, active: boolean) => void
     onGetCustomCode: (name: string, javaType: string) => Promise<string | undefined>
     onSavePropertyPlaceholder: (key: string, value: string) => void
-    onInternalConsumerClick: (uri?: string, name?: string, routeId?: string) => void
+    onInternalConsumerClick: (uri?: string, name?: string, routeId?: string, fileName?: string) => void
+    onCreateNewRoute: (componentName: string, propertyName: string, propertyValue: string) => void
     filename: string
     yaml: string
     dark: boolean
     showCodeTab: boolean
     tab?: "routes" | "rest" | "beans" | "kamelet"
-    propertyPlaceholders: string[]
+    propertyPlaceholders:  [string, string][]
     beans: BeanFactoryDefinition[]
     files: IntegrationFile[]
     mainRightPanel?: React.ReactNode
@@ -66,11 +67,11 @@ interface Props {
 
 export function KaravanDesigner(props: Props) {
 
-    const [setDark, setSelectedStep, reset, badge, message, setPropertyPlaceholders, setBeans, tab, setTab] =
+    const [setDark, setSelectedStep, reset, badge, message, setPropertyPlaceholders, setBeans, tab, setTab, selectedStep, setSelectedUuids] =
         useDesignerStore((s) =>
-            [s.setDark, s.setSelectedStep, s.reset, s.notificationBadge, s.notificationMessage, s.setPropertyPlaceholders, s.setBeans, s.tab, s.setTab], shallow)
-    const [integration, setIntegration, resetFiles, setVariables] = useIntegrationStore((s) =>
-        [s.integration, s.setIntegration, s.resetFiles, s.setVariables], shallow)
+            [s.setDark, s.setSelectedStep, s.reset, s.notificationBadge, s.notificationMessage, s.setPropertyPlaceholders, s.setBeans, s.tab, s.setTab, s.selectedStep, s.setSelectedUuids], shallow)
+    const [integration, setIntegration, resetFiles] = useIntegrationStore((s) =>
+        [s.integration, s.setIntegration, s.resetFiles], shallow)
 
     useEffect(() => {
         const sub = EventBus.onIntegrationUpdate()?.subscribe((update: IntegrationUpdate) =>
@@ -82,8 +83,8 @@ export function KaravanDesigner(props: Props) {
             InfrastructureAPI.setOnSave(props.onSave);
             InfrastructureAPI.setOnSavePropertyPlaceholder(props.onSavePropertyPlaceholder);
             InfrastructureAPI.setOnInternalConsumerClick(props.onInternalConsumerClick);
+            InfrastructureAPI.setOnCreateNewRoute(props.onCreateNewRoute);
 
-            setSelectedStep(undefined);
             const i = makeIntegration(props.yaml, props.filename);
             setIntegration(i, false);
             let designerTab = i.kind === 'Kamelet' ? 'kamelet' : props.tab;
@@ -97,11 +98,11 @@ export function KaravanDesigner(props: Props) {
             reset();
             setDark(props.dark);
             setPropertyPlaceholders(props.propertyPlaceholders)
-            setVariables(VariableUtil.findVariables(props.files))
             setBeans(props.beans)
             resetFiles(props.files)
+            resolveSelectedStep(i);
         } catch (e: any) {
-            console.log(e)
+            console.error(e)
             EventBus.sendAlert(' ' + e?.name, '' + e?.message, 'danger');
         }
         return () => {
@@ -112,6 +113,29 @@ export function KaravanDesigner(props: Props) {
             setIntegration(Integration.createNew("demo"), false);
         };
     }, []);
+
+    function resolveSelectedStep(i: Integration) {
+        try {
+            if (selectedStep) {
+                const step = CamelDefinitionApiExt.findElementById(i, (selectedStep as any).id)
+                if (step) {
+                    setSelectedStep(step);
+                    setSelectedUuids([step?.uuid])
+                }
+            } else {
+                const r = CamelDefinitionApiExt.getFlowsOfTypes(integration, ['RouteDefinition', 'RouteTemplateDefinition'])?.at(0);
+                if (r) {
+                    const step = r?.dslName === 'RouteDefinition' ? (r as RouteDefinition).from : (r as RouteTemplateDefinition).route?.from;
+                    if (step) {
+                        setSelectedStep(step);
+                        setSelectedUuids([step?.uuid])
+                    }
+                }
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    }
 
     function makeIntegration(yaml: string, filename: string): Integration {
         try {

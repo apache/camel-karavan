@@ -32,7 +32,7 @@ export class DockerComposeService {
     container_name: string = '';
     image: string = '';
     restart: string = '';
-    ports: string [] =[];
+    ports: string [] = [];
     depends_on: string [] =[];
     environment: any = {};
     healthcheck?: Healthcheck;
@@ -66,5 +66,16 @@ export class ServicesYaml {
             result.services.push(service);
         })
         return result;
+    }
+}
+
+export class DevService {
+    name: string = '';
+    image: string = '';
+    environments: any = {};
+    ports: string [] = [];
+
+    public constructor(init?: Partial<DevService>) {
+        Object.assign(this, init);
     }
 }

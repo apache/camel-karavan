@@ -1,0 +1,4 @@
+.karavan .project-page .project-package .toolbar {
+    display: flex;
+    gap: 12px;
+}

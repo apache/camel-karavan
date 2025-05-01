@@ -180,7 +180,7 @@ export function PropertyPlaceholderDropdown(props: Props) {
                 {hasPlaceholders &&
                     <DropdownGroup label="Application Properties" className='property-placeholder-dropdown'>
                         {propertyPlaceholders.map((pp, index) =>
-                            <DropdownItem value={pp} key={index}>{pp}</DropdownItem>
+                            <DropdownItem value={pp[0]} key={index}>{pp[0]}</DropdownItem>
                         )}
                     </DropdownGroup>
                 }

@@ -23,6 +23,7 @@ import {DslProperties} from "./DslProperties";
 import {getDesignerIcon} from "../icons/KaravanIcons";
 import {useDesignerStore} from "../DesignerStore";
 import {shallow} from "zustand/shallow";
+import { ExpressionEditor } from './expression/ExpressionEditor';
 
 export function MainPropertiesPanel() {
 
@@ -69,11 +70,11 @@ export function MainPropertiesPanel() {
 
     function getPropertiesPanel() {
         if (tab === "routes") {
-            return <DslProperties designerType={"routes"}/>
+            return <DslProperties designerType={"routes"} expressionEditor={ExpressionEditor}/>
         } else if (tab === "rest") {
-            return <DslProperties designerType={"rest"}/>
+            return <DslProperties designerType={"rest"} expressionEditor={ExpressionEditor}/>
         } else if (tab === "beans") {
-            return <DslProperties designerType={"beans"}/>
+            return <DslProperties designerType={"beans"} expressionEditor={ExpressionEditor}/>
         } else {
             return <></>
         }

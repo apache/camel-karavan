@@ -14,34 +14,37 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-.karavan .refresher {
-    width: 34px;
-    height: 34px;
+.switch-placeholder {
+    margin: auto;
+    padding-right: 12px;
 }
 
-.karavan .refresher .spinner {
-    position: absolute;
-    width: 34px;
-    height: 34px;
+.karavan .properties .route-variable .pf-v5-c-toggle-group__button:before,
+.karavan .properties .route-variable .pf-v5-c-toggle-group__button {
+    border-start-end-radius: 0;
+    border-end-end-radius: 0;
 }
 
-.karavan .refresher .button {
-    position: absolute;
-    width: 34px;
-    height: 34px;
-    padding: 0;
-    font-size: 16px;
+.karavan .properties .infra-button {
+    width: 1em;
+    height: 1em;
+    vertical-align: -0.125em;
+}
+.karavan .properties .open-config-buton {
+    padding: 0 7px 0 7px;
 }
 
-.karavan .refresher .button .pf-v5-c-button__icon {
-    margin: 0;
+.karavan .properties .kamelet-property-form-group:hover .button-clear {
+    visibility: visible;
 }
 
-.karavan .toolbar .dev-action-button-place {
-    --pf-v5-l-flex--spacer: 12px;
+.karavan .properties .kamelet-property-form-group .button-clear {
+    visibility: hidden;
+}
+.karavan .properties .kamelet-property-form-group:hover .boolean-field {
+    visibility: visible;
 }
 
-.karavan .toolbar .dev-action-button-place:last-child {
-    --pf-v5-l-flex--spacer: 0;
+.karavan .properties .kamelet-property-form-group .boolean-field {
+    visibility: hidden;
 }

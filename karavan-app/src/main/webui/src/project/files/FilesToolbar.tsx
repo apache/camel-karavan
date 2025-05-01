@@ -66,7 +66,7 @@ export function FileToolbar () {
     }
 
     function canAddFiles(): boolean {
-        return !['templates', 'services'].includes(project.projectId);
+        return !['templates'].includes(project.projectId);
     }
 
     function onKeyDown(event: React.KeyboardEvent<HTMLDivElement>): void {

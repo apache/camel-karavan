@@ -26,10 +26,10 @@ export class SsoApi {
     static auth(after: () => void) {
         KaravanApi.getConfig((config: any) => {
             SsoApi.keycloak = new Keycloak({url: config.url, realm: config.realm, clientId: config.clientId});
-            SsoApi.keycloak.init({onLoad: 'login-required', flow: 'hybrid', checkLoginIframe: false}).then((value: any) => {
+            SsoApi.keycloak.init({onLoad: 'login-required', flow: 'hybrid', checkLoginIframe: false}).then(value => {
                 console.log('SsoApi', 'User is now authenticated.');
                 after();
-            }).catch((reason: any) => {
+            }).catch(reason => {
                 console.log('SsoApi', 'Error:', reason);
                 window.location.reload();
             });
@@ -38,11 +38,11 @@ export class SsoApi {
 
     static logout(after: () => void) {
         if (SsoApi.keycloak) {
-            SsoApi.keycloak.logout().then((value: any) => {
+            SsoApi.keycloak.logout().then(value => {
                 console.log('SsoApi', 'User is now logout.');
                 useAppConfigStore.setState({isAuthorized: false})
                 window.location.reload();
-            }).catch((reason: any) => {
+            }).catch(reason => {
                 console.log('SsoApi', 'Error:', reason);
                 window.location.reload();
             });

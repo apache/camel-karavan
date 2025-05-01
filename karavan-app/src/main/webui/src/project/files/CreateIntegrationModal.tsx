@@ -27,7 +27,7 @@ import {
 import '../../designer/karavan.css';
 import {KameletTypes} from "karavan-core/lib/model/IntegrationDefinition";
 import {useFileStore, useProjectStore} from "../../api/ProjectStore";
-import {getProjectFileTypeName, ProjectFile} from "../../api/ProjectModels";
+import {getProjectFileTypeName, ProjectFile, RESERVED_WORDS} from "../../api/ProjectModels";
 import {ProjectService} from "../../api/ProjectService";
 import {shallow} from "zustand/shallow";
 import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
@@ -159,7 +159,7 @@ export function CreateIntegrationModal() {
                 {getTextFieldSuffix('name', 'Name', getFileSuffix(), {
                     regex: v => isValidFileName(v) || 'Only characters, numbers and dashes allowed',
                     length: v => v.length > 3 || 'File name should be longer that 3 characters',
-                    name: v => !['templates', 'kamelets', 'karavan'].includes(v) || "'templates', 'kamelets', 'karavan' can't be used as project",
+                    name: v => !RESERVED_WORDS.includes(v) || "Reserved word",
                 })}
                 {isKamelet &&
                     <FormGroup label="Copy from" fieldId="kamelet">

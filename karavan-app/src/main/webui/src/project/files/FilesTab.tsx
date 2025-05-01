@@ -156,7 +156,7 @@ export function FilesTab() {
                             <Th key='type' width={20}>Type</Th>
                             <Th key='filename' width={40}>Filename</Th>
                             <Th key='status' width={30}>Status</Th>
-                            <Th key='action'></Th>
+                            <Th key='action' ></Th>
                         </Tr>
                     </Thead>
                     <Tbody>

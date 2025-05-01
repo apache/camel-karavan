@@ -38,7 +38,7 @@ export function ProjectTitle() {
         useProjectStore((s) => [s.project, s.tabIndex, s.setTabIndex], shallow);
     const [file,setFile, operation] = useFileStore((s) => [s.file, s.setFile, s.operation], shallow);
 
-    const isFile = file !== undefined;
+    const isFile = file !== undefined && operation !== 'delete';
     const isLog = file !== undefined && file.name.endsWith("log");
     const filename = file ? file.name.substring(0, file.name.lastIndexOf('.')) : "";
 

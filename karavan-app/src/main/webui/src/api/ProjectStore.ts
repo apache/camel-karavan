@@ -28,7 +28,6 @@ import {ProjectEventBus} from "./ProjectEventBus";
 import {unstable_batchedUpdates} from "react-dom";
 import {createWithEqualityFn} from "zustand/traditional";
 import {shallow} from "zustand/shallow";
-import {useState} from "react";
 
 interface AppConfigState {
     isAuthorized: boolean;

@@ -23,11 +23,10 @@ import {
     InputGroup,
     Tooltip,
     Button,
-    capitalize,
     InputGroupItem,
     TextInputGroup,
     TextVariants,
-    Text, ValidatedOptions, FormHelperText, HelperText, HelperTextItem
+    Text, ValidatedOptions, FormHelperText, HelperText, HelperTextItem, TextInputGroupMain, TextInputGroupUtilities
 } from '@patternfly/react-core';
 import {
     Select,
@@ -36,27 +35,25 @@ import {
     SelectOption
 } from '@patternfly/react-core/deprecated';
 import '../../karavan.css';
+import './ComponentPropertyField.css';
 import "@patternfly/patternfly/patternfly.css";
 import HelpIcon from "@patternfly/react-icons/dist/js/icons/help-icon";
 import {ComponentProperty} from "karavan-core/lib/model/ComponentModels";
 import {CamelUi, RouteToCreate} from "../../utils/CamelUi";
 import {CamelElement} from "karavan-core/lib/model/IntegrationDefinition";
 import {ToDefinition} from "karavan-core/lib/model/CamelDefinition";
-import {InfrastructureSelector} from "./InfrastructureSelector";
+import {ConfigurationSelectorModal} from "./ConfigurationSelectorModal";
 import {InfrastructureAPI} from "../../utils/InfrastructureAPI";
-import DockerIcon from "@patternfly/react-icons/dist/js/icons/docker-icon";
 import PlusIcon from "@patternfly/react-icons/dist/esm/icons/plus-icon";
 import {usePropertiesHook} from "../usePropertiesHook";
 import {useDesignerStore, useIntegrationStore} from "../../DesignerStore";
 import {shallow} from "zustand/shallow";
-import {KubernetesIcon} from "../../icons/ComponentIcons";
-import EditorIcon from "@patternfly/react-icons/dist/js/icons/code-icon";
-import {ExpressionModalEditor} from "../../../expression/ExpressionModalEditor";
-import {PropertyPlaceholderDropdown} from "./PropertyPlaceholderDropdown";
 import {INTERNAL_COMPONENTS} from "karavan-core/lib/api/ComponentApi";
 import {PropertyUtil} from "./PropertyUtil";
 import {isSensitiveFieldValid} from "../../utils/ValidatorUtils";
 import ExclamationCircleIcon from "@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon";
+import CogIcon from "@patternfly/react-icons/dist/js/icons/cog-icon";
+import TimesIcon from "@patternfly/react-icons/dist/esm/icons/times-icon";
 
 const prefix = "parameters";
 const beanPrefix = "#bean:";
@@ -65,7 +62,8 @@ interface Props {
     property: ComponentProperty,
     element?: CamelElement,
     value: any,
-    onParameterChange?: (parameter: string, value: string | number | boolean | any, pathParameter?: boolean, newRoute?: RouteToCreate) => void
+    onParameterChange?: (parameter: string, value: string | number | boolean | any, pathParameter?: boolean, newRoute?: RouteToCreate) => void,
+    expressionEditor: React.ComponentType<any>
 }
 
 export function ComponentPropertyField(props: Props) {
@@ -77,9 +75,9 @@ export function ComponentPropertyField(props: Props) {
         [s.dark, s.setSelectedStep, s.beans], shallow)
 
     const [selectStatus, setSelectStatus] = useState<Map<string, boolean>>(new Map<string, boolean>());
-    const [showEditor, setShowEditor] = useState<boolean>(false);
-    const [infrastructureSelector, setInfrastructureSelector] = useState<boolean>(false);
-    const [infrastructureSelectorProperty, setInfrastructureSelectorProperty] = useState<string | undefined>(undefined);
+    const [configurationSelector, setConfigurationSelector] = useState<boolean>(false);
+    const [configurationSelectorProperty, setConfigurationSelectorProperty] = useState<string | undefined>(undefined);
+    const [configurationSelectorDefaultTab, setConfigurationSelectorDefaultTab] = useState<string>('properties');
     const [id, setId] = useState<string>(prefix + "-" + props.property.name);
     const [textValue, setTextValue] = useState<any>();
     const ref = useRef<any>(null);
@@ -203,10 +201,11 @@ export function ComponentPropertyField(props: Props) {
                 <Tooltip position="bottom-end" content={"Create route"}>
                     <Button isDisabled={value === undefined} variant="control" onClick={e => {
                         if (value) {
-                            const newRoute = !internalUris.includes(value.toString())
-                                ? CamelUi.createNewInternalRoute(componentName.concat(...':', value.toString()))
-                                : undefined;
-                            parametersChanged(property.name, value, property.kind === 'path', newRoute);
+                            InfrastructureAPI.onCreateNewRoute(componentName, property.name, value);
+                        //     const newRoute = !internalUris.includes(value.toString())
+                        //         ? CamelUi.createNewInternalRoute(componentName.concat(...':', value.toString()))
+                        //         : undefined;
+                        //     parametersChanged(property.name, value, property.kind === 'path', newRoute);
                         }
                     }}>
                         {<PlusIcon/>}
@@ -226,86 +225,90 @@ export function ComponentPropertyField(props: Props) {
             const selectedText = prevValue.substring(cursorStart, cursorEnd)
             value = prevValue.replace(selectedText, value);
         }
-        const propertyName = infrastructureSelectorProperty;
+        const propertyName = configurationSelectorProperty;
         if (propertyName) {
             if (value.startsWith("config") || value.startsWith("secret")) value = "{{" + value + "}}";
             setTextValue(value);
             parametersChanged(propertyName, value);
-            setInfrastructureSelector(false);
-            setInfrastructureSelectorProperty(undefined);
+            setConfigurationSelector(false);
+            setConfigurationSelectorProperty(undefined);
         }
     }
 
     function openInfrastructureSelector(propertyName: string) {
-        setInfrastructureSelector(true);
-        setInfrastructureSelectorProperty(propertyName);
+        setConfigurationSelector(true);
+        setConfigurationSelectorProperty(propertyName);
+    }
+
+    function closeConfigurationSelector() {
+        setConfigurationSelector(false);
     }
 
 
     function getInfrastructureSelectorModal() {
         return (
-            <InfrastructureSelector
+            configurationSelector && <ConfigurationSelectorModal
                 dark={false}
-                isOpen={infrastructureSelector}
-                onClose={() => setInfrastructureSelector(false)}
+                isOpen={configurationSelector}
+                onClose={() => closeConfigurationSelector()}
+                name={property.name}
+                customCode={value}
+                defaultTabIndex={configurationSelectorDefaultTab}
+                dslLanguage={undefined}
+                title={property.displayName}
+                onSave={(fieldId, value1) => {
+                    parametersChanged(property.name, value1)
+                    setTextValue(value1);
+                    closeConfigurationSelector();
+                }}
+                expressionEditor={props.expressionEditor}
                 onSelect={selectInfrastructure}/>)
     }
 
+    function getOpenConfigButton(property: ComponentProperty, configurationSelectorDefaultTab: string = 'properties') {
+        return (
+            <Tooltip position="bottom-end" content="Open config selector">
+                <Button variant="control" className='open-config-buton' onClick={e => {
+                    setConfigurationSelectorDefaultTab(configurationSelectorDefaultTab)
+                    openInfrastructureSelector(property.name)
+                }}>
+                    <CogIcon style={{fill: 'var(--pf-v5-global--Color--200)'}}/>
+                </Button>
+            </Tooltip>
+        )
+    }
     function getStringInput(property: ComponentProperty) {
-        const inInfrastructure = InfrastructureAPI.infrastructure !== 'local';
         const noInfraSelectorButton = ["uri", "id", "description", "group"].includes(property.name);
-        const icon = InfrastructureAPI.infrastructure === 'kubernetes' ? KubernetesIcon("infra-button") : <DockerIcon/>
         return <InputGroup  className={valueChangedClassName}>
-            {inInfrastructure && !showEditor && !noInfraSelectorButton &&
-                <Tooltip position="bottom-end"
-                         content={"Select from " + capitalize((InfrastructureAPI.infrastructure))}>
-                    <Button variant="control" onClick={e => openInfrastructureSelector(property.name)}>
-                        {icon}
-                    </Button>
-                </Tooltip>}
-            {(!showEditor || property.secret) &&
-                <TextInput className="text-field" isRequired ref={ref}
-                           type="text"
-                           validated={validated}
-                           autoComplete="off"
-                           id={id} name={id}
-                           value={(textValue !== undefined ? textValue : property.defaultValue) || ''}
-                           onBlur={_ => parametersChanged(property.name, textValue, property.kind === 'path')}
-                           onChange={(_, v) => {
-                               setTextValue(v);
-                               setCheckChanges(true);
-                           }}
+            <TextInputGroup>
+                <TextInputGroupMain
+                    className="text-field"
+                    ref={ref}
+                    type="text"
+                    autoComplete="off"
+                    id={id} name={id}
+                    value={(textValue !== undefined ? textValue : property.defaultValue) || ''}
+                    onBlur={_ => parametersChanged(property.name, textValue, property.kind === 'path')}
+                    onChange={(_, v) => {
+                        setTextValue(v);
+                        setCheckChanges(true);
+                    }}
                 />
-            }
-            <InputGroupItem>
-                <Tooltip position="bottom-end" content={"Show Editor"}>
-                    <Button variant="control" onClick={e => setShowEditor(!showEditor)}>
-                        <EditorIcon/>
+                <TextInputGroupUtilities>
+                    <Button variant="plain" className='button-clear' onClick={_ => {
+                        parametersChanged(property.name, '');
+                        setTextValue('');
+                        setCheckChanges(true);
+                    }}>
+                        <TimesIcon aria-hidden={true}/>
                     </Button>
-                </Tooltip>
-            </InputGroupItem>
-            {showEditor && <InputGroupItem>
-                <ExpressionModalEditor name={property.name}
-                                       customCode={value}
-                                       showEditor={showEditor}
-                                       dark={dark}
-                                       dslLanguage={undefined}
-                                       title={property.displayName}
-                                       onClose={() => setShowEditor(false)}
-                                       onSave={(fieldId, value1) => {
-                                           setTextValue(value1);
-                                           parametersChanged(property.name, value1, property.kind === 'path')
-                                           setShowEditor(false);
-                                           setCheckChanges(false);
-                                       }}/>
-            </InputGroupItem>}
-            <InputGroupItem>
-                <PropertyPlaceholderDropdown property={property} value={value} onComponentPropertyChange={(parameter, v) => {
-                    onParametersChange(parameter, v);
-                    setTextValue(v);
-                    setCheckChanges(false);
-                }}/>
-            </InputGroupItem>
+                </TextInputGroupUtilities>
+            </TextInputGroup>
+            {!noInfraSelectorButton &&
+                <InputGroupItem>
+                    {getOpenConfigButton(property)}
+                </InputGroupItem>
+            }
         </InputGroup>
     }
 
@@ -313,27 +316,34 @@ export function ComponentPropertyField(props: Props) {
         return (
             <InputGroup  className={valueChangedClassName}>
                 <InputGroupItem isFill>
-                    <TextInput
-                        className="text-field" isRequired
-                        type="text"
-                        validated={validated}
-                        autoComplete="off"
-                        id={id} name={id}
-                        value={(textValue !== undefined ? textValue : property.defaultValue) || ''}
-                        onBlur={_ => parametersChanged(property.name, textValue, property.kind === 'path')}
-                        onChange={(_, v) => {
-                            setTextValue(v);
-                            setCheckChanges(true);
-                        }}
-                        customIcon={<Text component={TextVariants.p}>{property.type}</Text>}
-                    />
+                    <TextInputGroup className='special-text-field'>
+                        <TextInputGroupMain
+                            ref={ref}
+                            className="text-field"
+                            type="text"
+                            autoComplete="off"
+                            id={id} name={id}
+                            value={(textValue !== undefined ? textValue : property.defaultValue) || ''}
+                            onBlur={_ => parametersChanged(property.name, textValue, property.kind === 'path')}
+                            onChange={(_, v) => {
+                                setTextValue(v);
+                                setCheckChanges(true);
+                            }}
+                        />
+                        <TextInputGroupUtilities>
+                            <Text component={TextVariants.p}>{property.type}</Text>
+                            <Button variant="plain" className='button-clear' onClick={_ => {
+                                parametersChanged(property.name, '');
+                                setTextValue('');
+                                setCheckChanges(true);
+                            }}>
+                                <TimesIcon aria-hidden={true}/>
+                            </Button>
+                        </TextInputGroupUtilities>
+                    </TextInputGroup>
                 </InputGroupItem>
                 <InputGroupItem>
-                    <PropertyPlaceholderDropdown property={property} value={textValue} onComponentPropertyChange={(_, v) => {
-                        setTextValue(v);
-                        onParametersChange(property.name, v)
-                        setCheckChanges(true);
-                    }}/>
+                    {getOpenConfigButton(property)}
                 </InputGroupItem>
             </InputGroup>
         )
@@ -387,6 +397,7 @@ export function ComponentPropertyField(props: Props) {
                 </InputGroupItem>
                 <InputGroupItem isFill>
                     <TextInput
+                        ref={ref}
                         id={property.name + "-placeholder"}
                         name={property.name + "-placeholder"}
                         type="text"
@@ -401,11 +412,7 @@ export function ComponentPropertyField(props: Props) {
                     />
                 </InputGroupItem>
                 <InputGroupItem>
-                    <PropertyPlaceholderDropdown property={property} value={value} onDslPropertyChange={(_, v) => {
-                        setTextValue(v);
-                        onParametersChange(property.name, v);
-                        setCheckChanges(false);
-                    }}/>
+                    {getOpenConfigButton(property)}
                 </InputGroupItem>
             </TextInputGroup>
         )
@@ -442,6 +449,7 @@ export function ComponentPropertyField(props: Props) {
     return (
         <FormGroup
             key={id}
+            className='component-property-form-group'
             label={getLabel(property, value)}
             isRequired={property.required}
             labelIcon={

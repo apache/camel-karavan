@@ -16,7 +16,7 @@
  */
 import React from 'react';
 import {ClipboardCopy, Text, TextContent} from '@patternfly/react-core';
-import './ExpressionModalEditor.css'
+import './ExpressionEditor.css'
 import {Table, Tbody, Td, Tr} from "@patternfly/react-table";
 import {Context, ExpressionFunctions, ExpressionVariables} from "./ExpressionContextModel";
 

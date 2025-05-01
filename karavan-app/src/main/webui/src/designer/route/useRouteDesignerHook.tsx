@@ -47,7 +47,7 @@ export function useRouteDesignerHook() {
             s.width, s.height, s.dark], shallow)
     const [setParentId, setShowSelector, setSelectorTabIndex, setParentDsl, setShowSteps, setSelectedPosition, routeId, setRouteId, isRouteTemplate, setIsRouteTemplate] = useSelectorStore((s) =>
         [s.setParentId, s.setShowSelector, s.setSelectorTabIndex, s.setParentDsl, s.setShowSteps, s.setSelectedPosition, s.routeId, s.setRouteId,
-        s.isRouteTemplate, s.setIsRouteTemplate], shallow)
+            s.isRouteTemplate, s.setIsRouteTemplate], shallow)
 
     function onCommand(command: Command, printerRef: React.MutableRefObject<HTMLDivElement | null>) {
         switch (command.command) {

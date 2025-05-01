@@ -16,13 +16,7 @@
  */
 
 import React, {useState} from 'react';
-import {
-    Button,
-    DescriptionList,
-    DescriptionListTerm,
-    DescriptionListGroup,
-    DescriptionListDescription, Spinner, Tooltip, Flex, FlexItem, LabelGroup, Label, Modal, CardBody, Card
-} from '@patternfly/react-core';
+import {Button, Card, CardBody, Flex, FlexItem, Label, LabelGroup, Modal, Spinner, Text, TextContent, Tooltip} from '@patternfly/react-core';
 import '../../designer/karavan.css';
 import {KaravanApi} from "../../api/KaravanApi";
 import BuildIcon from "@patternfly/react-icons/dist/esm/icons/build-icon";
@@ -34,9 +28,8 @@ import DeleteIcon from "@patternfly/react-icons/dist/esm/icons/times-circle-icon
 import {useLogStore, useProjectStore, useStatusesStore} from "../../api/ProjectStore";
 import {shallow} from "zustand/shallow";
 import {EventBus} from "../../designer/utils/EventBus";
-import {getShortCommit} from "../../util/StringUtils";
 
-export function BuildPanel () {
+export function BuildPanel() {
 
     const [project] = useProjectStore((s) => [s.project], shallow);
     const [setShowLog] = useLogStore((s) => [s.setShowLog], shallow);
@@ -51,7 +44,7 @@ export function BuildPanel () {
     function deleteEntity() {
         const buildName = getBuildName();
         if (buildName) {
-            KaravanApi.manageContainer(project.projectId, 'build', buildName, 'delete', 'never',res => {
+            KaravanApi.manageContainer(project.projectId, 'build', buildName, 'delete', 'never', res => {
                 EventBus.sendAlert("Container deleted", "Container " + buildName + " deleted", 'info')
                 setShowLog(false, 'container', undefined)
             });
@@ -60,7 +53,7 @@ export function BuildPanel () {
 
     function build() {
         setIsBuilding(true);
-        setShowLog(false,'none')
+        setShowLog(false, 'none')
         KaravanApi.buildProject(project, tag, res => {
             if (res.status === 200 || res.status === 201) {
                 setIsBuilding(false);
@@ -74,17 +67,19 @@ export function BuildPanel () {
     function buildButton() {
         const status = containers.filter(c => c.projectId === project.projectId && c.type === 'build').at(0);
         const isRunning = status?.state === 'running';
-        return (<Tooltip content={"Build project"} position={"left"}>
-            <Button isLoading={isBuilding ? true : undefined}
-                    isDisabled={isBuilding || isRunning || isPushing}
-                    size="sm"
-                    variant="primary"
-                    className="project-button dev-action-button"
-                    icon={!isBuilding ? <BuildIcon/> : <div></div>}
-                    onClick={e => build()}>
-                {isBuilding ? "..." : "Build"}
-            </Button>
-        </Tooltip>)
+        return (
+            <Tooltip content={"Build project"} position={"left"}>
+                <Button isLoading={isBuilding ? true : undefined}
+                        isDisabled={isBuilding || isRunning || isPushing}
+                        size="sm"
+                        variant="primary"
+                        className="project-button dev-action-button"
+                        icon={!isBuilding ? <BuildIcon/> : <div></div>}
+                        onClick={e => build()}>
+                    {isBuilding ? "..." : "Build"}
+                </Button>
+            </Tooltip>
+        )
     }
 
     function getContainerStatus() {
@@ -141,7 +136,6 @@ export function BuildPanel () {
                                    color={color}>{buildTime + "s"}</Label>}
                     </LabelGroup>
                 </FlexItem>
-                <FlexItem>{buildButton()}</FlexItem>
             </Flex>
         )
     }
@@ -181,23 +175,30 @@ export function BuildPanel () {
         </Modal>)
     }
 
+    function getTitle(title: string, width: string = 'auto') {
+        return (
+            <TextContent style={{width: width}}>
+                <Text component='h4'>{title}</Text>
+            </TextContent>
+        )
+    }
+
     return (
-        <Card className="project-status" >
+        <Card className="project-status">
             <CardBody>
-                <DescriptionList isHorizontal horizontalTermWidthModifier={{default: '20ch'}}>
-                    <DescriptionListGroup>
-                        <DescriptionListTerm>Tag</DescriptionListTerm>
-                        <DescriptionListDescription>
-                            {getBuildTag()}
-                        </DescriptionListDescription>
-                    </DescriptionListGroup>
-                    <DescriptionListGroup>
-                        <DescriptionListTerm>Build container</DescriptionListTerm>
-                        <DescriptionListDescription>
-                            {getBuildState()}
-                        </DescriptionListDescription>
-                    </DescriptionListGroup>
-                </DescriptionList>
+                <div style={{display: 'flex', flexDirection: 'row', justifyContent: 'start', gap: '16px'}}>
+                    <div style={{display: 'flex', flexDirection: 'row', justifyContent: 'start', alignItems: 'center', gap: '16px', width: '200px'}}>
+                        {getTitle("Build with tag", '90px')}
+                        {getBuildTag()}
+                    </div>
+                    <div style={{display: 'flex', flexDirection: 'row', justifyContent: 'start', alignItems: 'center', gap: '16px'}}>
+                        {getTitle("Status")}
+                        {getBuildState()}
+                    </div>
+                    <div style={{flex: '2', display: 'flex', flexDirection: 'row', justifyContent: 'end', alignItems: 'center'}}>
+                        {buildButton()}
+                    </div>
+                </div>
             </CardBody>
             {showDeleteConfirmation && getDeleteConfirmation()}
         </Card>

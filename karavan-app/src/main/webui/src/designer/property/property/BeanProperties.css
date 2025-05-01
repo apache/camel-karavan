@@ -15,18 +15,31 @@
  * limitations under the License.
  */
 
-import React from 'react';
-import '../../designer/karavan.css';
-import {BuildPanel} from "./BuildPanel";
-import {PageSection} from "@patternfly/react-core";
+.karavan .properties .bean-properties .pf-v5-c-form__group-control {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
 
-export function ProjectBuildTab () {
+.karavan .properties .bean-property {
+    display: flex;
+    flex-direction: row;
+    gap: 3px;
+}
 
-    return (
-        <PageSection className="project-tab-panel project-build-panel" padding={{default: "padding"}}>
-            <div>
-                <BuildPanel/>
-            </div>
-        </PageSection>
-    )
+.karavan .properties .bean-property .argument-name,
+.karavan .properties .bean-property .field-name {
+    flex: 1;
+}
+
+.karavan .properties .bean-property .field-value {
+    flex: 2;
+}
+.karavan .properties .bean-property .argument-value {
+    flex: 4;
+}
+
+.karavan .properties .bean-property .delete-button {
+    padding: 3px;
+    color: #b1b1b7;
 }

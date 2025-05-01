@@ -22,19 +22,18 @@ import {
     PageSection, Tab, Tabs,
 } from '@patternfly/react-core';
 import './ProjectPage.css';
-import {ProjectToolbar} from "./ProjectToolbar";
 import {ProjectLogPanel} from "../log/ProjectLogPanel";
 import {BUILD_IN_PROJECTS, Project} from "../api/ProjectModels";
 import {useAppConfigStore, useFilesStore, useFileStore, useProjectsStore, useProjectStore} from "../api/ProjectStore";
 import {MainToolbar} from "../designer/MainToolbar";
 import {ProjectTitle} from "./ProjectTitle";
-import {ProjectPanel} from "./ProjectPanel";
 import {FileEditor} from "../editor/FileEditor";
 import {shallow} from "zustand/shallow";
-import {useParams} from "react-router-dom";
-import {KaravanApi} from "../api/KaravanApi";
-import {ImageDownloadToolbar} from "./ImageDownloadToolbar";
+import {useNavigate, useParams} from "react-router-dom";
 import {ProjectService} from "../api/ProjectService";
+import {ProjectPanel} from "./ProjectPanel";
+import {ProjectToolbar} from "./ProjectToolbar";
+import {ImageDownloadToolbar} from "./ImageDownloadToolbar";
 
 export function ProjectPage() {
 
@@ -46,13 +45,14 @@ export function ProjectPage() {
         useProjectStore((s) => [s.project, s.setProject, s.tabIndex, s.setTabIndex, s.refreshTrace], shallow);
 
     let {projectId} = useParams();
+    const navigate = useNavigate();
 
     useEffect(() => {
         const p = projects.filter(project => project.projectId === projectId).at(0);
         if (p) {
             setProject(p, "select");
-        } else if (projectId) {
-            KaravanApi.getProject(projectId, project1 => setProject(project1, "select"));
+        } else {
+            navigate('/');
         }
         return () => {
             setProject(new Project(), "none");
@@ -60,14 +60,14 @@ export function ProjectPage() {
     }, []);
 
     useEffect(() => {
-        const interval = setInterval(() => refreshData(), 1300)
+        const interval = setInterval(() => refreshData(),700)
         return () => clearInterval(interval);
     }, [tabIndex, refreshTrace, project]);
 
     function refreshData(){
         ProjectService.refreshAllContainerStatuses();
         ProjectService.refreshCamelStatus(project.projectId, config.environment);
-        if (tabIndex === 'build' || tabIndex === 'container') {
+        if (tabIndex === 'package') {
             ProjectService.refreshAllDeploymentStatuses();
             ProjectService.refreshImages(project.projectId);
         } else if (tabIndex === 'trace' && refreshTrace) {
@@ -88,33 +88,27 @@ export function ProjectPage() {
     }
 
     const showFilePanel = file !== undefined && operation === 'select';
-    const isKubernetes = config.infrastructure === 'kubernetes'
-    const containerTabName = isKubernetes ? "Deployment" : "Container"
-    const isDevEnvironment = config.environment === 'dev';
-    const showBuildTab = isKubernetes || isDevEnvironment;
+
     return (
         <PageSection className="project-page" padding={{default: 'noPadding'}}>
             <PageSection className="tools-section" padding={{default: 'noPadding'}}>
                 <MainToolbar title={<ProjectTitle/>} tools={<ProjectToolbar/>} toolsStart={<ImageDownloadToolbar/>}/>
             </PageSection>
-            <PageSection className="tabs-section" padding={{default: 'noPadding'}}>
-                <Flex direction={{default: "column"}} spaceItems={{default: "spaceItemsNone"}}>
-                    <FlexItem className="project-tabs">
-                        {showTabs() &&
-                            <Tabs activeKey={tabIndex} onSelect={(event, tabIndex) => {
-                                setTabIndex(tabIndex);
-                            }}>
-                                {<Tab eventKey="topology" title="Topology"/>}
-                                <Tab eventKey="files" title="Files"/>
-                                {<Tab eventKey="trace" title="Trace"/>}
-                                {showBuildTab && <Tab eventKey="build" title="Build"/>}
-                                <Tab eventKey="container" title={containerTabName}/>
-                                {hasReadme() && <Tab eventKey="readme" title="Readme"/>}
-                            </Tabs>
-                        }
-                    </FlexItem>
-                </Flex>
-            </PageSection>
+            <Flex direction={{default: "column"}} spaceItems={{default: "spaceItemsNone"}}>
+                <FlexItem className="project-tabs">
+                    {showTabs() &&
+                        <Tabs activeKey={tabIndex} onSelect={(event, tabIndex) => {
+                            setTabIndex(tabIndex);
+                        }}>
+                            {<Tab eventKey="topology" title="Topology"/>}
+                            <Tab eventKey="files" title="Files"/>
+                            {<Tab eventKey="trace" title="Trace"/>}
+                            {<Tab eventKey="package" title="Package"/>}
+                            {hasReadme() && <Tab eventKey="readme" title="Readme"/>}
+                        </Tabs>
+                    }
+                </FlexItem>
+            </Flex>
             {showFilePanel && <FileEditor projectId={project.projectId}/>}
             {!showFilePanel && <ProjectPanel/>}
             <ProjectLogPanel/>

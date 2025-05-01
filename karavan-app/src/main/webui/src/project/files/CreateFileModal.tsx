@@ -25,7 +25,7 @@ import {
 } from '@patternfly/react-core';
 import '../../designer/karavan.css';
 import {useFileStore, useProjectStore} from "../../api/ProjectStore";
-import {getProjectFileTypeName, ProjectFile} from "../../api/ProjectModels";
+import {getProjectFileTypeName, ProjectFile, RESERVED_WORDS} from "../../api/ProjectModels";
 import {ProjectService} from "../../api/ProjectService";
 import {shallow} from "zustand/shallow";
 import {SubmitHandler, useForm} from "react-hook-form";
@@ -94,7 +94,7 @@ export function CreateFileModal() {
         <Modal
             title="Create file"
             variant={ModalVariant.small}
-            isOpen={["create", "copy"].includes(operation)}
+            isOpen={["create"].includes(operation)}
             onClose={closeModal}
             onKeyDown={onKeyDown}
             actions={[
@@ -110,7 +110,7 @@ export function CreateFileModal() {
                 {getTextField('name', 'Name', {
                     regex: v => isValidFileName(v) || 'Not a valid filename',
                     length: v => v.length > 5 || 'File name should be longer that 5 characters',
-                    name: v => !['templates', 'kamelets', 'karavan'].includes(v) || "'templates', 'kamelets', 'karavan' can't be used as filename",
+                    name: v => !RESERVED_WORDS.includes(v) || "Reserved word",
                 })}
                 {backendError &&
                     <FormAlert>

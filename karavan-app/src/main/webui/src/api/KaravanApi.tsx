@@ -339,6 +339,8 @@ export class KaravanApi {
                 .then(res => {
                     if (res.status === 200) {
                         after(true, res.data);
+                    } else {
+                        after(false, res?.data);
                     }
                 }).catch(err => {
                 after(false, err);
@@ -586,7 +588,7 @@ export class KaravanApi {
     }
 
     static async manageContainer(projectId: string,
-                                 type: 'devmode' | 'devservice' | 'project' | 'internal' | 'build' | 'unknown',
+                                 type: 'devmode' | 'devservice' | 'packaged' | 'internal' | 'build' | 'unknown',
                                  name: string,
                                  command: 'deploy' | 'run' | 'pause' | 'stop' | 'delete',
                                  pullImage: 'always' | 'ifNotExists' | 'never',
@@ -599,7 +601,7 @@ export class KaravanApi {
         });
     }
 
-    static async deleteContainer(projectId: string, type: 'devmode' | 'devservice' | 'project' | 'internal' | 'build' | 'unknown', name: string, after: (res: AxiosResponse<any>) => void) {
+    static async deleteContainer(projectId: string, type: 'devmode' | 'devservice' | 'packaged' | 'internal' | 'build' | 'unknown', name: string, after: (res: AxiosResponse<any>) => void) {
         instance.delete('/ui/container/' + projectId + '/' + type + "/" + name)
             .then(res => {
                 after(res);

@@ -34,25 +34,17 @@
     padding: 0 7px 0 7px;
 }
 
-.karavan .properties .object-field .dsl-property-form-group .boolean-text-field:hover .button-clear,
-.karavan .properties .object-field .dsl-property-form-group .text-field:hover .button-clear,
-.karavan .properties .dsl-property-form-group .kamelet-property-form-group .text-field:hover .button-clear,
-.karavan .properties .dsl-property-form-group:hover .boolean-text-field .button-clear,
-.karavan .properties .dsl-property-form-group:hover .text-field .button-clear {
+.karavan .properties .component-property-form-group:hover .button-clear {
     visibility: visible;
 }
 
-.karavan .properties .object-field .dsl-property-form-group .boolean-text-field .button-clear,
-.karavan .properties .object-field .dsl-property-form-group .text-field .button-clear,
-.karavan .properties .dsl-property-form-group .kamelet-property-form-group .text-field .button-clear,
-.karavan .properties .dsl-property-form-group .boolean-text-field .button-clear,
-.karavan .properties .dsl-property-form-group .text-field .button-clear {
+.karavan .properties .component-property-form-group .button-clear {
     visibility: hidden;
 }
-.karavan .properties .dsl-property-form-group:hover .boolean-field{
+.karavan .properties .component-property-form-group:hover .boolean-field {
     visibility: visible;
 }
 
-.karavan .properties .dsl-property-form-group .boolean-field{
+.karavan .properties .component-property-form-group .boolean-field {
     visibility: hidden;
 }

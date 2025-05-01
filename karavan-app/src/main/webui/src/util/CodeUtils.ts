@@ -1,10 +1,28 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 import {ProjectFile} from "../api/ProjectModels";
 import {BeanFactoryDefinition} from "karavan-core/lib/model/CamelDefinition";
-import {Integration, KameletTypes, MetadataLabels} from "karavan-core/lib/model/IntegrationDefinition";
+import {Integration, IntegrationFile, KameletTypes, MetadataLabels} from "karavan-core/lib/model/IntegrationDefinition";
 import {CamelDefinitionYaml} from "karavan-core/lib/api/CamelDefinitionYaml";
 import {CamelUi} from "../designer/utils/CamelUi";
 import {KameletApi} from "karavan-core/lib/api/KameletApi";
 import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
+import {EventBus} from "../designer/utils/EventBus";
 
 export class CodeUtils {
 
@@ -17,14 +35,23 @@ export class CodeUtils {
         return result;
     }
 
-    static getIntegrations(files: ProjectFile[]): Integration[] {
-        return files
-            .filter(f => f.name.endsWith('.camel.yaml'))
-                .map(f => CamelDefinitionYaml.yamlToIntegration(f.name, f.code));
+
+    static getIntegrations(files: IntegrationFile[]): Integration[] {
+        const integrations: Integration[] = [];
+        files.filter((file) => file.name.endsWith(".camel.yaml")).forEach((file) => {
+            try {
+                const i = CamelDefinitionYaml.yamlToIntegration(file.name, file.code);
+                integrations.push(i);
+            } catch (e: any){
+                console.error(e);
+                EventBus.sendAlert(`Error parsing ${file.name}`, e?.message, 'danger');
+            }
+        })
+        return integrations;
     }
 
-    static getPropertyPlaceholders(files: ProjectFile[]): string[] {
-        const result: string[] = []
+    static getPropertyPlaceholders(files: ProjectFile[]): [string, string][] {
+        const result: [string, string][] = []
         const code = CodeUtils.getPropertyCode(files);
         if (code) {
             const lines = code.split('\n').map((line) => line.trim());
@@ -34,7 +61,7 @@ export class CodeUtils {
                 .forEach(line => {
                     const parts = line.split("=");
                     if (parts.length > 0) {
-                        result.push(parts[0]);
+                        result.push([parts[0], parts[1]]);
                     }
                 })
         }

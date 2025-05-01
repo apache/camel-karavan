@@ -5,10 +5,8 @@
   "type": "module",
   "scripts": {
     "copy-designer": "cp -r ../../../../karavan-designer/src/designer src",
-    "copy-expression": "cp -r ../../../../karavan-designer/src/expression src",
     "copy-knowledgebase": "cp -r ../../../../karavan-designer/src/knowledgebase src",
-    "copy-topology": "cp -r ../../../../karavan-designer/src/topology src",
-    "copy-code": " npm run copy-designer && npm run copy-expression && npm run copy-knowledgebase &&  npm run copy-topology",
+    "copy-code": " npm run copy-designer && npm run copy-knowledgebase",
     "dev": "npm run copy-code && vite --port 3003",
     "build": "npm run copy-code && tsc && vite build",
     "serve": "npm run copy-code && vite preview"

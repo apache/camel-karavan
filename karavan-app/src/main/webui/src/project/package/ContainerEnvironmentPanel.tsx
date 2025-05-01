@@ -42,7 +42,7 @@ interface Props {
     env: string,
 }
 
-export function ContainerPanel(props: Props) {
+export function ContainerEnvironmentPanel(props: Props) {
 
     const {config} = useAppConfigStore();
     const [project] = useProjectStore((s) => [s.project], shallow);
@@ -84,23 +84,27 @@ export function ContainerPanel(props: Props) {
     }
 
     function getStatusBadge(cs: ContainerStatus) {
-        return config.infrastructure === 'kubernetes' ? cs.phase : cs.state
+        return isKubernetes ? cs.phase : cs.state
     }
 
     const env = props.env;
     const conts = containers
         .filter(c => c.env === env)
-        .filter(d => d.projectId === project?.projectId && d.type === 'project');
+        .filter(d => d.projectId === project?.projectId && d.type === 'packaged');
+
+    const isKubernetes = config.infrastructure === 'kubernetes';
+    const noContainersText  = isKubernetes ? 'No pods' : 'No containers';
+
     return (
         <Flex justifyContent={{default: "justifyContentSpaceBetween"}}
               alignItems={{default: "alignItemsFlexStart"}}>
             <FlexItem>
-                {conts.length === 0 && <Label icon={<DownIcon/>} color={"grey"}>No pods</Label>}
+                {conts.length === 0 && <Label icon={<DownIcon/>} color={"grey"}>{noContainersText}</Label>}
                 <Flex direction={{default: 'column'}}>
                     {conts.map((cs: ContainerStatus, index) => {
                             const ready = cs.state === 'running';
                             return (
-                                <Card isCompact isRounded isFlat isPlain>
+                                <Card isCompact isRounded isFlat isPlain key={index}>
                                     <CardBody>
                                         <Flex justifyContent={{default: 'justifyContentSpaceBetween'}}>
                                             <Label icon={ready ? <UpIcon/> : <DownIcon/>} color={ready ? "green" : "grey"}>
@@ -121,61 +125,21 @@ export function ContainerPanel(props: Props) {
                                                     {cs.image}
                                                 </ClipboardCopy>
                                             </Label>
-                                            <Button
+                                            {isKubernetes && <Button
                                                 isDanger
                                                 icon={<DeleteIcon/>}
                                                 className="labeled-button"
                                                 variant="link" onClick={e => {
                                                 setShowDeleteConfirmation(true);
                                                 setDeleteEntityName(cs.containerName);
-                                            }}></Button>
+                                            }}></Button>}
                                         </Flex>
                                     </CardBody>
                                 </Card>
-
-                                // <Flex>
-                                //     <Label icon={ready ? <UpIcon/> : <DownIcon/>} color={ready ? "green" : "grey"}>
-                                //         <Button variant="link" className="dev-action-button labeled-button"
-                                //                 onClick={e => {
-                                //                     setShowLog(true, 'container', cs.containerName);
-                                //                 }}>
-                                //             {cs.containerName}
-                                //         </Button>
-                                //         <Label icon=<ImageIcon/> isCompact>
-                                //             <Button variant="link" className="dev-action-button labeled-button"
-                                //                     onClick={e => {
-                                //                         setShowLog(true, 'container', cs.containerName);
-                                //                     }}>
-                                //                 Image: {cs.image}
-                                //             </Button>
-                                //         </Label>
-                                //         {getBadge(cs)}
-                                //         <Button
-                                //             icon={<DeleteIcon/>}
-                                //             className="labeled-button"
-                                //             variant="link" onClick={e => {
-                                //             setShowDeleteConfirmation(true);
-                                //             setDeleteEntityName(cs.containerName);
-                                //         }}
-                                //         >
-                                //         </Button>
-                                //     </Label>
-                                //     <Label icon=<ImageIcon/> color={ready ? "green" : "grey"}>
-                                //         <Button variant="link" className="dev-action-button labeled-button"
-                                //                 onClick={e => {
-                                //                     setShowLog(true, 'container', cs.containerName);
-                                //                 }}>
-                                //             {cs.image}
-                                //         </Button>
-                                //     </Label>
-                                // </Flex>
                             )
                         }
                     )}
                 </Flex>
-            </FlexItem>
-            <FlexItem>
-                {env === config.environment && config.infrastructure !== 'kubernetes' && <ContainerButtons env={env}/>}
             </FlexItem>
             {showDeleteConfirmation && getDeleteConfirmation()}
         </Flex>

@@ -70,7 +70,7 @@ export class DeploymentStatus {
     replicas: number = 0;
     readyReplicas: number = 0;
     unavailableReplicas: number = 0;
-    type: 'devmode' | 'devservice' | 'project' | 'internal' | 'build' | 'unknown' = 'unknown';
+    type: 'devmode' | 'devservice' | 'packaged' | 'internal' | 'build' | 'unknown' = 'unknown';
 }
 
 export class ServiceStatus {
@@ -98,13 +98,14 @@ export class ContainerStatus {
     deployment: string = '';
     projectId: string = '';
     env: string = '';
-    type: 'devmode' | 'devservice' | 'project' | 'internal' | 'build' | 'unknown' = 'unknown';
+    type: 'devmode' | 'devservice' | 'packaged' | 'internal' | 'build' | 'unknown' = 'unknown';
     memoryInfo: string = '';
     cpuInfo: string = '';
     created: string = '';
     finished: string = '';
     image: string = '';
     commit: string = '';
+    podId: string = '';
     ports: ContainerPort [] = [];
     commands: string [] = [];
     inTransit: boolean = false;

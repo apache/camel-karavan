@@ -33,7 +33,12 @@ import {INTERNAL_COMPONENTS} from "karavan-core/lib/api/ComponentApi";
 const overlapGap: number = 40;
 const DIAMETER: number = 34;
 const RADIUS: number = DIAMETER / 2;
-type ConnectionType =  'internal' | 'remote' | 'nav' | 'poll' | 'dynamic';
+type ConnectionType = 'internal' | 'remote' | 'nav' | 'poll' | 'dynamic';
+
+interface IncomingLink {
+    name: string;
+    fileName: string;
+}
 
 export function DslConnections() {
 
@@ -44,21 +49,48 @@ export function DslConnections() {
         useConnectionsStore((s) => [s.steps, s.addStep, s.deleteStep, s.clearSteps], shallow)
 
     const [svgKey, setSvgKey] = useState<string>('svgKey');
-    const [tons, setTons] = useState<Map<string, string[]>>(new Map<string, string[]>());
+    const [tons, setTons] = useState<Map<string, IncomingLink[]>>(new Map<string, IncomingLink[]>());
 
     useEffect(() => {
         const integrations = getIntegrations(files);
         setTons(prevState => {
-            const data = new Map<string, string[]>();
+            const data = new Map<string, IncomingLink[]>();
             TopologyUtils.findTopologyRouteOutgoingNodes(integrations).forEach(t => {
                 const key = (t.step as any)?.uri + ':' + (t.step as any)?.parameters?.name;
                 if (data.has(key)) {
                     const list = data.get(key) || [];
-                    list.push(t.routeId);
+                    list.push({name: t.routeId, fileName: t.fileName});
                     data.set(key, list);
                 } else {
-                    data.set(key, [t.routeId]);
+                    data.set(key, [{name: t.routeId, fileName: t.fileName}]);
                 }
+            });
+            TopologyUtils.findTopologyRestNodes(integrations).forEach(t => {
+                t.rest?.get?.forEach(def => {
+                    if (def.to) {
+                        data.set(def.to, [{name: 'get:' + (def.path || ''), fileName: t.fileName}])
+                    }
+                })
+                t.rest?.post?.forEach(def => {
+                    if (def.to) {
+                        data.set(def.to, [{name: 'post:' + (def.path || ''), fileName: t.fileName}])
+                    }
+                })
+                t.rest?.delete?.forEach(def => {
+                    if (def.to) {
+                        data.set(def.to, [{name: 'delete:' + (def.path || ''), fileName: t.fileName}])
+                    }
+                })
+                t.rest?.patch?.forEach(def => {
+                    if (def.to) {
+                        data.set(def.to, [{name: 'patch:' + (def.path || ''), fileName: t.fileName}])
+                    }
+                })
+                t.rest?.head?.forEach(def => {
+                    if (def.to) {
+                        data.set(def.to, [{name: 'head:' + (def.path || ''), fileName: t.fileName}])
+                    }
+                })
             });
             return data;
         });
@@ -154,7 +186,7 @@ export function DslConnections() {
             const uri = step?.uri;
             const internalCall: boolean = step && uri && step?.dslName === 'FromDefinition' && INTERNAL_COMPONENTS.includes(uri);
             const name: string = internalCall ? (step?.parameters?.name) : undefined;
-            const routes = internalCall ? tons.get(uri + ':' + name) || [] : [];
+            const links = internalCall ? tons.get(uri + ':' + name) || [] : [];
             const isInternal = data[2] === 'internal';
             const fromY = pos.headerRect.y + pos.headerRect.height / 2 - top;
             const r = pos.headerRect.height / 2;
@@ -166,8 +198,20 @@ export function DslConnections() {
                            style={{display: "block", position: "absolute", top: imageY, left: imageX}}
                     >
                         {CamelUi.getConnectionIcon(pos.step)}
-                        {routes.map((routeId, index) =>
-                            <Tooltip key={`${routeId}:${index}`} content={`Go to route:${routeId}`} position={"right"}>
+                        {links.map((link, index) =>
+                            <Tooltip key={`${link.name}:${index}`}
+                                     content={
+                                         <div>
+                                             <div>
+                                                 {`Go to ${link.name}`}
+                                             </div>
+                                             <div>
+                                                 {uri}:{name}
+                                             </div>
+                                         </div>
+
+                                     }
+                                     position={"right"}>
                                 <Button style={{
                                     position: 'absolute',
                                     left: 27,
@@ -178,8 +222,8 @@ export function DslConnections() {
                                 }}
                                         variant={'link'}
                                         aria-label="Goto"
-                                        onClick={_ => InfrastructureAPI.onInternalConsumerClick(undefined, undefined, routeId)}>
-                                    {routeId}
+                                        onClick={_ => InfrastructureAPI.onInternalConsumerClick(uri, name, link.name, link.fileName)}>
+                                    {link.name}
                                 </Button>
                             </Tooltip>
                         )}
@@ -250,7 +294,7 @@ export function DslConnections() {
 
             const className = isNav
                 ? 'path-incoming-nav'
-                : (isPoll ? 'path-poll' : (isDynamic ? 'path-dynamic' :'path-incoming'))
+                : (isPoll ? 'path-poll' : (isDynamic ? 'path-dynamic' : 'path-incoming'))
 
             return (!isInternal
                     ? <g key={pos.step.uuid + "-outgoing"}>

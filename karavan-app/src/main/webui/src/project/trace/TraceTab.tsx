@@ -40,7 +40,7 @@ export function TraceTab() {
     const [containerName, setContainerName] = useState<string>();
 
     const camelContainers = containers
-        .filter(c => c.projectId === project.projectId && ['devmode', 'project'].includes(c.type));
+        .filter(c => c.projectId === project.projectId && ['devmode', 'packaged'].includes(c.type));
 
     function getContainer() {
         return containerName ? containerName : camelContainers.at(0)?.containerName;

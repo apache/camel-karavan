@@ -218,12 +218,12 @@ export function ImagesPanel() {
                     <Table aria-label="Images" variant={"compact"} className={"table"}>
                         <Thead>
                             <Tr>
-                                <Th key='status' modifier={"fitContent"}>Status</Th>
+                                <Th key='status' modifier={"fitContent"}>Active</Th>
                                 <Th key='image' width={20}>Image</Th>
                                 <Th key='tag' width={10}>Tag</Th>
                                 <Th key='size' width={10}>Size</Th>
                                 <Th key='created' width={10}>Created</Th>
-                                <Th key='actions' width={20}></Th>
+                                <Th key='actions' aria-label='actions' modifier={"fitContent"} textCenter>Actions</Th>
                             </Tr>
                         </Thead>
                         <Tbody>
