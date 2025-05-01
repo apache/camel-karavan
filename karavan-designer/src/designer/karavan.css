@@ -443,24 +443,6 @@
     overflow-wrap: anywhere;
 }
 
-/*Beans*/
-.karavan .rest-page .properties .bean-properties .pf-v5-c-form__group-control {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-}
-
-.karavan .rest-page .properties .bean-property {
-    display: flex;
-    flex-direction: row;
-    gap: 3px;
-}
-
-.karavan .rest-page .properties .bean-property .delete-button {
-    padding: 3px;
-    color: #b1b1b7;
-}
-
 /*YAML*/
 .karavan .yaml-page {
     height: 100px;

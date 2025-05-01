@@ -16,7 +16,7 @@
  */
 
 import * as React from 'react';
-import './topology.css';
+import './TopologyLegend.css';
 import {
     Badge,
     Card,
@@ -33,11 +33,11 @@ export function TopologyLegend () {
         <Card isCompact isFlat isRounded className="topology-legend-card">
             <CardTitle>Legend</CardTitle>
             <CardBody className='card-body'>
-                <Label icon={<Badge style={{backgroundColor: COLOR_ORANGE, padding: 0}}>API</Badge>}>REST API</Label>
-                <Label icon={<Badge style={{backgroundColor: COLOR_ORANGE, padding: 0}}>R</Badge>}>Route</Label>
-                <Label icon={<Badge style={{backgroundColor: COLOR_ORANGE, padding: 0}}>RT</Badge>}>Route Template</Label>
-                <Label icon={<Badge style={{backgroundColor: COLOR_BLUE, padding: 0}}>C</Badge>}>Component</Label>
-                <Label icon={<Badge style={{backgroundColor: COLOR_GREEN, padding: 0}}>K</Badge>}>Kamelet</Label>
+                <Label className='orange' icon={<Badge style={{backgroundColor: COLOR_ORANGE, padding: 0}}>API</Badge>}>REST</Label>
+                <Label className='orange'>Route</Label>
+                <Label className='orange route-template'>Route Template</Label>
+                <Label className='blue'>Component</Label>
+                <Label className='green'>Kamelet</Label>
             </CardBody>
         </Card>
     )

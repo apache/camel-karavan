@@ -71,7 +71,7 @@
 .karavan .step-element .header .delete-button,
 .element-builder .header .delete-button {
     position: absolute;
-    top: -11px;
+    top: -10px;
     line-height: 1;
     border: 0;
     padding: 0;
@@ -224,7 +224,7 @@
 
 .karavan .step-element .insert-element-button {
     position: absolute;
-    top: -11px;
+    top: -10px;
     line-height: 1;
     border: 0;
     padding: 0;
@@ -248,6 +248,33 @@
     z-index: 100;
 }
 
+.karavan .step-element .disable-step-button {
+    position: absolute;
+    bottom: 9px;
+    line-height: 1;
+    border: 0;
+    padding: 0;
+    margin: 0 0 0 10px;
+    background: transparent;
+    color: #909090;
+    visibility: hidden;
+}
+
+.karavan .step-element .auto-startup-button {
+    position: absolute;
+    top: 36px;
+    right: 5px;
+    line-height: 1;
+    border: 0;
+    padding: 0;
+    margin: 0 0 0 10px;
+    background: transparent;
+    color: #909090;
+    visibility: hidden;
+}
+
+.karavan .step-element .header-route:hover .auto-startup-button,
+.karavan .step-element .header:hover .disable-step-button,
 .karavan .step-element .header:hover .copy-element-button,
 .karavan .step-element .header:hover .insert-element-button {
     visibility: visible;

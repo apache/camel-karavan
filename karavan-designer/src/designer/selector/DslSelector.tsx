@@ -33,7 +33,6 @@ import {CamelUi} from "../utils/CamelUi";
 import {DslMetaModel} from "../utils/DslMetaModel";
 import {useDesignerStore, useSelectorStore} from "../DesignerStore";
 import {shallow} from "zustand/shallow";
-import {useRouteDesignerHook} from "../route/useRouteDesignerHook";
 import {ComponentApi} from 'karavan-core/lib/api/ComponentApi';
 import {KameletApi} from 'karavan-core/lib/api/KameletApi';
 import TimesIcon from "@patternfly/react-icons/dist/esm/icons/times-icon";
@@ -43,6 +42,7 @@ import {DslCard} from "./DslCard";
 import {useDebounceValue} from 'usehooks-ts';
 
 interface Props {
+    onDslSelect: (dsl: DslMetaModel, parentId: string, position?: number | undefined) => void,
     tabIndex?: string | number
 }
 
@@ -55,8 +55,6 @@ export function DslSelector(props: Props) {
                 s.selectedPosition, s.selectedToggles, s.addSelectedToggle, s.deleteSelectedToggle], shallow)
 
     const [dark] = useDesignerStore((s) => [s.dark], shallow)
-
-    const {onDslSelect} = useRouteDesignerHook();
 
     const [filterShown, setFilterShown] = useState<string>('');
     const [filter, setFilter] = useDebounceValue('', 300);
@@ -109,7 +107,7 @@ export function DslSelector(props: Props) {
         evt.stopPropagation();
         setFilter('');
         setShowSelector(false);
-        onDslSelect(dsl, parentId, selectedPosition);
+        props.onDslSelect(dsl, parentId, selectedPosition);
         addPreferredElement(getDslMetaModelType(dsl), dsl)
     }
 

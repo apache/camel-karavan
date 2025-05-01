@@ -18,16 +18,17 @@ export class InfrastructureAPI {
 
     // code API
     static onGetCustomCode: (name: string, javaType: string) => Promise<string | undefined>;
-    static onSaveCustomCode: (name: string, code: string) => void;
+    static onSaveCustomCode: (name: string, code: string, active: boolean) => void;
     static onSave: (filename: string, yaml: string, propertyOnly: boolean) => void;
     static onSavePropertyPlaceholder: (key: string, value: string) => void;
-    static onInternalConsumerClick: (uri?: string, name?: string, routeId?: string) => void;
+    static onInternalConsumerClick: (uri?: string, name?: string, routeId?: string, fileName?: string) => void;
+    static onCreateNewRoute: (componentName: string, propertyName: string, propertyValue: string) => void;
 
     static setOnGetCustomCode(onGetCustomCode: (name: string, javaType: string) => Promise<string | undefined>){
         this.onGetCustomCode = onGetCustomCode
     }
 
-    static setOnSaveCustomCode(onSaveCustomCode: (name: string, code: string) => void){
+    static setOnSaveCustomCode(onSaveCustomCode: (name: string, code: string, active: boolean) => void){
         this.onSaveCustomCode = onSaveCustomCode
     }
 
@@ -39,8 +40,11 @@ export class InfrastructureAPI {
         this.onSavePropertyPlaceholder = onSavePropertyPlaceholder
     }
 
-    static setOnInternalConsumerClick(onInternalConsumerClick:(uri?: string, name?: string, routeId?: string) => void){
+    static setOnInternalConsumerClick(onInternalConsumerClick:(uri?: string, name?: string, routeId?: string, fileName?: string) => void){
         this.onInternalConsumerClick = onInternalConsumerClick
+    }
+    static setOnCreateNewRoute(onCreateNewRoute:(componentName: string, propertyName: string, propertyValue: string) => void){
+        this.onCreateNewRoute = onCreateNewRoute
     }
 
     // Kubernetes/Docker API

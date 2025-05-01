@@ -21,6 +21,7 @@ import {CamelElement} from "karavan-core/lib/model/IntegrationDefinition";
 import {useDesignerStore} from "../DesignerStore";
 import {shallow} from "zustand/shallow";
 import {DeleteElementIcon} from "../utils/ElementIcons";
+import {InfrastructureAPI} from "../utils/InfrastructureAPI";
 
 interface Props<T extends CamelElement> {
     method: T
@@ -42,14 +43,25 @@ export function RestMethodCard<T extends CamelElement> (props: Props<T>) {
         props.deleteElement(props.method);
     }
 
+    function onInternalConsumerClick (evt: React.MouseEvent) {
+        try {
+            evt.stopPropagation();
+            const split = method?.to?.split(':');
+            InfrastructureAPI.onInternalConsumerClick(split[0], split[1], undefined);
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
     const method: any = props.method;
     return (
         <div className={selectedStep?.uuid === method.uuid ? "method-card method-card-selected" : "method-card method-card-unselected"} onClick={e => selectElement(e)}>
             <div className="method">{method.dslName.replace('Definition', '').toUpperCase()}</div>
             <div className="rest-method-desc">
-                <div className="title">{method.path}</div>
+                <div className="title">/{method.path}</div>
                 <div className="description">{method.description}</div>
             </div>
+            <Button variant="link" className="internal-consumer-button" onClick={e => onInternalConsumerClick(e)}>{method?.to}</Button>
             <Button variant="link" className="delete-button" onClick={e => onDelete(e)}>{DeleteElementIcon()}</Button>
         </div>
     )

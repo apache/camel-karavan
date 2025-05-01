@@ -18,6 +18,37 @@
 import "./ElementIcon.css"
 import React from 'react'
 
+export function EnableStepIcon() {
+    return (
+        <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="copy-button-icon"
+            fill="none"
+            viewBox="0 0 27 27"
+        >
+            <circle cx="13.5" cy="13.5" r="12" stroke="var(--pf-v5-global--primary-color--100)" strokeWidth="2"/>
+            <polygon
+                points="11,9 11,18 18,13.5"
+                fill="var(--pf-v5-global--primary-color--100)"
+            />
+        </svg>
+    )
+}
+export function DisableStepIcon() {
+    return (
+        <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="copy-button-icon"
+            fill="none"
+            viewBox="0 0 27 27"
+        >
+            <circle cx="13.5" cy="13.5" r="12" stroke="var(--pf-v5-global--primary-color--100)" strokeWidth="2"/>
+            <rect x="9" y="8" width="2.5" height="11" rx="1" fill="var(--pf-v5-global--primary-color--100)"/>
+            <rect x="15.5" y="8" width="2.5" height="11" rx="1" fill="var(--pf-v5-global--primary-color--100)"/>
+        </svg>
+    )
+}
+
 export function CopyElementIcon() {
     return (
         <svg
@@ -29,11 +60,9 @@ export function CopyElementIcon() {
             <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                strokeWidth={2}
-                style={{
-                    stroke: "var(--pf-v5-global--primary-color--100)",
-                }}
-                d="M9.41 2.34a9.996 9.996 0 0 1 9.661 2.589c3.905 3.905 3.905 10.237 0 14.142-3.905 3.905-10.237 3.905-14.142 0a9.996 9.996 0 0 1-2.59-9.66M15 9v6m0 0H9m6 0L5 5"
+                strokeWidth="2"
+                style={{ stroke: "var(--pf-v5-global--primary-color--100)" }}
+                d="M10.76 2.67a11.375 11.375 0 0 1 10.99 2.946c4.444 4.444 4.444 11.635 0 16.079s-11.635 4.444-16.079 0a11.375 11.375 0 0 1-2.946-10.99M17.14 10.29v6.86m0 0h-6.86m6.86 0L5.71 5.71"
             />
         </svg>
     )
@@ -47,14 +76,8 @@ export function DeleteElementIcon() {
             viewBox="0 0 32 32"
             className="delete-button-icon"
         >
-            <path d="M16 2C8.2 2 2 8.2 2 16s6.2 14 14 14 14-6.2 14-14S23.8 2 16 2zm0 26C9.4 28 4 22.6 4 16S9.4 4 16 4s12 5.4 12 12-5.4 12-12 12z" />
-            <path
-                d="M0 0h32v32H0z"
-                style={{
-                    fill: "none",
-                }}
-            />
-            <path d="M21.4 23 16 17.6 10.6 23 9 21.4l5.4-5.4L9 10.6 10.6 9l5.4 5.4L21.4 9l1.6 1.6-5.4 5.4 5.4 5.4z" />
+            <circle cx="16" cy="16" r="14" stroke="var(--pf-v5-global--danger-color--100)" stroke-width="2" fill="none"/>
+            <path d="M21.4 23 16 17.6 10.6 23 9 21.4l5.4-5.4L9 10.6 10.6 9l5.4 5.4L21.4 9l1.6 1.6-5.4 5.4 5.4 5.4z"></path>
         </svg>
     )
 }
@@ -89,14 +112,7 @@ export function InsertElementIcon() {
             className="insert-button-icon"
         >
             <path d="m16 8-1.43 1.393L20.15 15H8v2h12.15l-5.58 5.573L16 24l8-8-8-8z" />
-            <path d="M16 30a14 14 0 1 1 14-14 14.016 14.016 0 0 1-14 14Zm0-26a12 12 0 1 0 12 12A12.014 12.014 0 0 0 16 4Z" />
-            <path
-                d="M0 0h32v32H0z"
-                data-name="&lt;Transparent Rectangle&gt;"
-                style={{
-                    fill: "none",
-                }}
-            />
+            <circle cx="16" cy="16" r="14" stroke="var(--pf-v5-global--primary-color--100)" stroke-width="2" fill="none"/>
         </svg>
     )
 }

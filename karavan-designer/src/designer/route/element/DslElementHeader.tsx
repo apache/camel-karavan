@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import React, {CSSProperties, useMemo} from 'react';
+import React, {CSSProperties, useEffect, useMemo} from 'react';
 import {Text, Tooltip,} from '@patternfly/react-core';
 import '../../karavan.css';
 import './DslElement.css';
@@ -26,9 +26,10 @@ import {CamelDisplayUtil} from "karavan-core/lib/api/CamelDisplayUtil";
 import {useDesignerStore, useIntegrationStore} from "../../DesignerStore";
 import {shallow} from "zustand/shallow";
 import {useRouteDesignerHook} from "../useRouteDesignerHook";
-import {AddElementIcon, DeleteElementIcon, InsertElementIcon, CopyElementIcon} from "../../utils/ElementIcons";
-import { RouteConfigurationDefinition} from "karavan-core/lib/model/CamelDefinition";
-import {AutoStartupIcon, ErrorHandlerIcon} from "../../icons/OtherIcons";
+import {AddElementIcon, DeleteElementIcon, InsertElementIcon, CopyElementIcon, DisableStepIcon, EnableStepIcon} from "../../utils/ElementIcons";
+import {RouteConfigurationDefinition} from "karavan-core/lib/model/CamelDefinition";
+import {AutoStartupFalseIcon, ErrorHandlerIcon} from "../../icons/OtherIcons";
+import {usePropertiesHook} from "../../property/usePropertiesHook";
 
 interface Props {
     headerRef: React.RefObject<HTMLDivElement>
@@ -54,13 +55,21 @@ export function DslElementHeader(props: Props) {
         copyPasteStep
     } = useRouteDesignerHook();
 
+    const {onDisableStep, onAutoStartRoute} = usePropertiesHook();
+
     const [integration] = useIntegrationStore((s) => [s.integration], shallow)
 
-    const [selectedUuids, selectedStep, showMoveConfirmation, setShowMoveConfirmation, setMoveElements, passedIds, passedRouteId, failed, failedRouteId, suspendedNodeId, isDebugging] =
+    const [selectedStep, showMoveConfirmation, setShowMoveConfirmation, setMoveElements, passedIds, passedRouteId, failed, failedRouteId, suspendedNodeId, isDebugging] =
         useDesignerStore((s) =>
-            [s.selectedUuids, s.selectedStep, s.showMoveConfirmation, s.setShowMoveConfirmation, s.setMoveElements, s.passedNodeIds, s.passedRouteId, s.failed, s.failedRouteId, s.suspendedNodeId, s.isDebugging], shallow)
+            [s.selectedStep, s.showMoveConfirmation, s.setShowMoveConfirmation, s.setMoveElements, s.passedNodeIds, s.passedRouteId, s.failed, s.failedRouteId, s.suspendedNodeId, s.isDebugging], shallow)
 
     const step: CamelElement = props.step;
+    const disabled = (step as any).disabled === true;
+    const autoStartup = (step as any).autoStartup === undefined || (step as any).autoStartup === true;
+
+    useEffect(() => {
+        // console.log("DslElementHeader selectedStep", selectedStep, selectedUuids)
+    }, [selectedStep])
 
     function onOpenSelector(evt: React.MouseEvent, showSteps: boolean = true, isInsert: boolean = false) {
         evt.stopPropagation();
@@ -77,7 +86,7 @@ export function DslElementHeader(props: Props) {
     }
 
     function isElementSelected(): boolean {
-        return selectedUuids.includes(step.uuid);
+        return (selectedStep as any)?.id === (step as any).id;
     }
 
     function isWide(): boolean {
@@ -218,7 +227,9 @@ export function DslElementHeader(props: Props) {
             !['FromDefinition', 'RouteConfigurationDefinition', 'RouteTemplateDefinition', 'RouteDefinition', 'CatchDefinition', 'FinallyDefinition', 'WhenDefinition', 'OtherwiseDefinition'].includes(step.dslName)
             && !inRouteConfiguration;
         const showDeleteButton = !('RouteDefinition' === step.dslName && 'RouteTemplateDefinition' === parent?.dslName);
-        const showCopyButton = ['ToDefinition', 'ToDynamicDefinition', 'PollDefinition'].includes(step.dslName);
+        const showCopyButton = !['FromDefinition', 'RouteConfigurationDefinition', 'RouteTemplateDefinition', 'RouteDefinition', 'CatchDefinition', 'FinallyDefinition', 'WhenDefinition', 'OtherwiseDefinition'].includes(step.dslName)
+        const showDisableButton = Object.getOwnPropertyNames(step).includes('disabled')
+        const showAutoStartupButton =  Object.getOwnPropertyNames(step).includes('autoStartup')
         const headerClasses = getHeaderClasses();
         const childrenInfo = getChildrenInfo(step) || [];
         const hasWideChildrenElement = getHasWideChildrenElement(childrenInfo)
@@ -233,10 +244,12 @@ export function DslElementHeader(props: Props) {
                 }
                 {'RouteDefinition' === step.dslName &&
                     <div className={"route-icons"}>
-                        {(step as any).autoStartup !== false && <AutoStartupIcon/>}
+                        {(step as any).autoStartup === false && <AutoStartupFalseIcon/>}
                         {(step as any).errorHandler !== undefined && <ErrorHandlerIcon/>}
                     </div>
                 }
+                {'RouteDefinition' === step.dslName && getAutoStartupButton()}
+
                 {'RouteConfigurationDefinition' === step.dslName &&
                     <div className={"route-icons"}>
                         {(step as any).errorHandler !== undefined && <ErrorHandlerIcon/>}
@@ -253,6 +266,7 @@ export function DslElementHeader(props: Props) {
                 {!isDebugging && showDeleteButton && getDeleteButton()}
                 {!isDebugging && showAddButton && getAddElementButton()}
                 {!isDebugging && showCopyButton && getCopyElementButton()}
+                {!isDebugging && showDisableButton && getDisableStepButton()}
             </div>
         )
     }
@@ -263,9 +277,19 @@ export function DslElementHeader(props: Props) {
         } else if (isKamelet() && step.dslName === 'FromDefinition' && (step as any).uri === 'kamelet:source') {
             return "Source";
         } else {
-            let description: string = (step as any).description;
-            description = description !== undefined && description?.length > 32 ? description.substring(0, 32).concat("...") : description;
-            return description ? description : CamelUi.getElementTitle(step);
+            const description: string = (step as any).description;
+            if (description === undefined && step.dslName.startsWith('Set')) {
+                const name = (step as any).name || '';
+                const result = CamelUi.getElementTitle(step).concat(' ', name);
+                return result.length > 32 ? result.substring(0, 32).concat("...") : result;
+            } else if (description === undefined && step.dslName.startsWith('Convert')) {
+                const type = (step as any).type || '';
+                const result = CamelUi.getElementTitle(step).concat(' ', type);
+                return result.length > 32 ? result.substring(0, 32).concat("...") : result;
+            } else {
+                const result = description !== undefined && description?.length > 32 ? description.substring(0, 32).concat("...") : description;
+                return result || CamelUi.getElementTitle(step);
+            }
         }
     }
 
@@ -341,6 +365,40 @@ export function DslElementHeader(props: Props) {
                     }}
                     className={"copy-element-button"}>
                     <CopyElementIcon/>
+                </button>
+            </Tooltip>
+        )
+    }
+
+    function getDisableStepButton() {
+        return (
+            <Tooltip position={"right"} content={disabled ? "Enable" : "Disable"}>
+                <button
+                    type="button"
+                    aria-label="Disable"
+                    onClick={e => {
+                        e.stopPropagation();
+                        onDisableStep(step, !disabled)
+                    }}
+                    className={"disable-step-button"}>
+                    {disabled ? <EnableStepIcon/> : <DisableStepIcon/>}
+                </button>
+            </Tooltip>
+        )
+    }
+
+    function getAutoStartupButton() {
+        return (
+            <Tooltip position={"right"} content={autoStartup ? "Disable" : "Enable"}>
+                <button
+                    type="button"
+                    aria-label="AutoStartup"
+                    onClick={e => {
+                        e.stopPropagation();
+                        onAutoStartRoute(step, !autoStartup)
+                    }}
+                    className={"auto-startup-button"}>
+                    {autoStartup ? <DisableStepIcon/> : <EnableStepIcon/>}
                 </button>
             </Tooltip>
         )

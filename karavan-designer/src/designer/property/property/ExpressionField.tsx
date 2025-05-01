@@ -44,6 +44,7 @@ interface Props {
     property: PropertyMeta,
     value: CamelElement,
     onExpressionChange?: (propertyName: string, exp: ExpressionDefinition) => void,
+    expressionEditor: React.ComponentType<any>
 }
 
 export function ExpressionField(props: Props) {
@@ -190,6 +191,7 @@ export function ExpressionField(props: Props) {
                                           onDataFormatChange={dataFormat => {
                                           }}
                                           onPropertyChange={propertyChanged}
+                                          expressionEditor={props.expressionEditor}
                 />}
                 <ExpandableSection
                     toggleText={'Expression properties'}
@@ -207,6 +209,7 @@ export function ExpressionField(props: Props) {
                                           onDataFormatChange={dataFormat => {
                                           }}
                                           onPropertyChange={propertyChanged}
+                                          expressionEditor={props.expressionEditor}
                         />
                     )}
                 </ExpandableSection>

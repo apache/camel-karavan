@@ -57,7 +57,7 @@ export function RestCard(props: Props) {
             className={props.selectedStep?.uuid === rest.uuid ? "rest-card rest-card-selected" : "rest-card rest-card-unselected"}
             onClick={e => selectElement(e)}>
             <div className="header">
-                <div className="title">REST</div>
+                <div className="title">Service</div>
                 <div className="title">{rest.path}</div>
                 <div className="description">{rest.description}</div>
                 <Tooltip position={"bottom"} content={<div>Add REST method</div>}>
