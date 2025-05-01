@@ -39,8 +39,8 @@ import org.yaml.snakeyaml.constructor.SafeConstructor;
 import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.file.FileSystem;
 import java.nio.file.*;
+import java.nio.file.FileSystem;
 import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -400,7 +400,7 @@ public class CodeService {
             var canonicalName = toEnvFormat(envName);
             val = ConfigProvider.getConfig().getConfigValue(canonicalName);
         }
-        return val != null? val.getValue() : null;
+        return val != null? val.getValue() : System.getProperty(envName, null);
     }
 
     private static String toEnvFormat(String input) {

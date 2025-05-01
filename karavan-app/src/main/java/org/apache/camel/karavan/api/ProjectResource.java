@@ -100,7 +100,7 @@ public class ProjectResource extends AbstractApiResource {
             LOGGER.info("Deleting containers");
             Response res1 = devModeResource.deleteDevMode(projectId, true);
             Response res2 = containerResource.deleteContainer(projectId, ContainerType.devmode.name(), projectId);
-            Response res3 = containerResource.deleteContainer(projectId, ContainerType.project.name(), projectId);
+            Response res3 = containerResource.deleteContainer(projectId, ContainerType.packaged.name(), projectId);
             LOGGER.info("Deleting deployments");
             Response res4 = infrastructureResource.deleteDeployment(null, projectId);
         }

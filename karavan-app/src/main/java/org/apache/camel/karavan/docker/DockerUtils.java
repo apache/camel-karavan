@@ -104,6 +104,14 @@ public class DockerUtils {
         return portBindings;
     }
 
+    static List<ExposedPort> getExposedPorts(Map<Integer, Integer> ports) {
+        List<ExposedPort> exposedPorts = new ArrayList<>(ports.size());
+        ports.forEach((hostPort, containerPort) -> {
+            exposedPorts.add(ExposedPort.tcp(containerPort));
+        });
+        return exposedPorts;
+    }
+
     public static PodContainerStatus getContainerStatus(Container container, String environment) {
         String name = container.getNames()[0].replace("/", "");
         List<ContainerPort> ports = Arrays.stream(container.getPorts())
@@ -166,8 +174,8 @@ public class DockerUtils {
             return ContainerType.devmode;
         } else if (Objects.equals(type, ContainerType.devservice.name())) {
             return ContainerType.devservice;
-        } else if (Objects.equals(type, ContainerType.project.name())) {
-            return ContainerType.project;
+        } else if (Objects.equals(type, ContainerType.packaged.name())) {
+            return ContainerType.packaged;
         } else if (Objects.equals(type, ContainerType.internal.name())) {
             return ContainerType.internal;
         } else if (Objects.equals(type, ContainerType.build.name())) {

@@ -56,7 +56,7 @@ public class CamelStatusScheduler {
          if (ConfigService.inKubernetes()) {
              karavanCache.getPodContainerStatuses(environment).stream()
                      .filter(cs -> Objects.equals(cs.getLabels().get(LABEL_KUBERNETES_RUNTIME), CAMEL_PREFIX))
-                     .filter(cs -> Objects.equals(cs.getType(), ContainerType.devmode) || Objects.equals(cs.getType(), ContainerType.project))
+                     .filter(cs -> Objects.equals(cs.getType(), ContainerType.devmode) || Objects.equals(cs.getType(), ContainerType.packaged))
                      .filter(cs -> Objects.equals(cs.getCamelRuntime(), KaravanConstants.CamelRuntime.CAMEL_MAIN.getValue()))
                      .forEach(cs -> {
                          CamelStatusRequest csr = new CamelStatusRequest(cs.getProjectId(), cs.getContainerName());
@@ -67,7 +67,7 @@ public class CamelStatusScheduler {
          } else {
              karavanCache.getPodContainerStatuses(environment).stream()
                      .filter(cs -> Objects.equals(cs.getCamelRuntime(), KaravanConstants.CamelRuntime.CAMEL_MAIN.getValue()))
-                     .filter(cs -> Objects.equals(cs.getType(), ContainerType.devmode) || Objects.equals(cs.getType(), ContainerType.project))
+                     .filter(cs -> Objects.equals(cs.getType(), ContainerType.devmode) || Objects.equals(cs.getType(), ContainerType.packaged))
                      .forEach(cs -> {
                          CamelStatusRequest csr = new CamelStatusRequest(cs.getProjectId(), cs.getContainerName());
                          eventBus.publish(CMD_COLLECT_CAMEL_STATUS,

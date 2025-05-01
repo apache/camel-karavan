@@ -94,7 +94,7 @@ public class InfrastructureResource {
         if (resources == null) {
             return Response.status(Response.Status.NOT_FOUND).entity("Resource file " + KUBERNETES_YAML_FILENAME + " not found").build();
         }
-        kubernetesService.startDeployment(resources.getCode(), Map.of(LABEL_TYPE, ContainerType.project.name()));
+        kubernetesService.startDeployment(resources.getCode(), Map.of(LABEL_TYPE, ContainerType.packaged.name()));
         return Response.ok().build();
     }
 

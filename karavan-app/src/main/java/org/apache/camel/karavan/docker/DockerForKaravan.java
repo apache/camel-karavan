@@ -91,7 +91,7 @@ public class DockerForKaravan {
                 env, compose.getPortsMap(), healthCheck,
                 containerLabels,
                 compose.getVolumes(), null, RestartPolicy.noRestart(), DockerService.PULL_IMAGE.ifNotExists,
-                compose.getCpus(), compose.getCpu_percent(), compose.getMem_limit(), compose.getMem_reservation());
+                compose.getCpus(), compose.getCpu_percent(), compose.getMem_limit(), compose.getMem_reservation(), compose.getCommand());
     }
 
     public void runBuildProject(Project project, String script, DockerComposeService compose, Map<String, String> sshFiles, String tag) throws Exception {

@@ -142,7 +142,7 @@ public class DockerService {
         }
     }
 
-    public Container createContainerFromCompose(DockerComposeService compose, Map<String, String> labels, PULL_IMAGE pullImage, String... command) throws InterruptedException {
+    public Container createContainerFromCompose(DockerComposeService compose, Map<String, String> labels, PULL_IMAGE pullImage) throws InterruptedException {
         List<Container> containers = findContainer(compose.getContainer_name());
         if (containers.isEmpty()) {
             HealthCheck healthCheck = DockerUtils.getHealthCheck(compose.getHealthcheck());
@@ -160,7 +160,7 @@ public class DockerService {
 
             return createContainer(compose.getContainer_name(), compose.getImage(),
                     env, compose.getPortsMap(), healthCheck, labels, compose.getVolumes(), networkName, restartPolicy, pullImage,
-                    compose.getCpus(), compose.getCpu_percent(), compose.getMem_limit(), compose.getMem_reservation(), command);
+                    compose.getCpus(), compose.getCpu_percent(), compose.getMem_limit(), compose.getMem_reservation(), compose.getCommand());
 
         } else {
             LOGGER.info("Compose Service already exists: " + containers.get(0).getId());
@@ -178,7 +178,7 @@ public class DockerService {
                                      HealthCheck healthCheck, Map<String, String> labels,
                                      List<DockerComposeVolume> volumes, String network, RestartPolicy restartPolicy,
                                      PULL_IMAGE pullImage, String cpus, String cpu_percent, String mem_limit, String mem_reservation,
-                                     String... command) throws InterruptedException {
+                                     String dockerCommand) throws InterruptedException {
         List<Container> containers = findContainer(name);
         if (containers.isEmpty()) {
             if (Objects.equals(labels.get(LABEL_TYPE), ContainerType.devmode.name())
@@ -187,13 +187,15 @@ public class DockerService {
                 LOGGER.info("Pulling DevMode image from DockerHub: " + image);
                 pullImageFromDockerHub(image, Objects.equals(pullImage, PULL_IMAGE.always));
             }
-            if (Objects.equals(labels.get(LABEL_TYPE), ContainerType.project.name())) {
+            if (Objects.equals(labels.get(LABEL_TYPE), ContainerType.packaged.name())) {
                 LOGGER.info("Pulling Project image from Registry: " + image);
                 pullImage(image, Objects.equals(pullImage, PULL_IMAGE.always));
             }
 
-            try (CreateContainerCmd createContainerCmd = getDockerClient().createContainerCmd(image).withName(name).withLabels(labels).withEnv(env).withHostName(name).withHealthcheck(healthCheck)) {
-                Ports portBindings = DockerUtils.getPortBindings(ports);
+            Ports portBindings = DockerUtils.getPortBindings(ports);
+            List<ExposedPort> exposePorts = DockerUtils.getExposedPorts(ports);
+            try (CreateContainerCmd createContainerCmd = getDockerClient().createContainerCmd(image)
+                    .withName(name).withLabels(labels).withEnv(env).withHostName(name).withExposedPorts(exposePorts).withHealthcheck(healthCheck)) {
 
                 List<Mount> mounts = new ArrayList<>();
                 if (volumes != null && !volumes.isEmpty()) {
@@ -205,8 +207,9 @@ public class DockerService {
                         mounts.add(mount);
                     });
                 }
-                if (command.length > 0) {
-                    createContainerCmd.withCmd(command);
+                if (dockerCommand != null) {
+                    createContainerCmd.withCmd("/bin/sh", "-c", dockerCommand);
+                    System.out.println(dockerCommand);
                 }
                 if (Objects.equals(labels.get(LABEL_PROJECT_ID), ContainerType.build.name())) {
                     mounts.add(new Mount().withType(MountType.BIND).withSource("/var/run/docker.sock").withTarget("/var/run/docker.sock"));

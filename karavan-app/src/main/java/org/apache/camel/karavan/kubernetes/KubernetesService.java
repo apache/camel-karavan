@@ -16,8 +16,6 @@
  */
 package org.apache.camel.karavan.kubernetes;
 
-import org.apache.camel.karavan.model.KubernetesConfigMap;
-import org.apache.camel.karavan.model.KubernetesSecret;
 import io.fabric8.kubernetes.api.model.*;
 import io.fabric8.kubernetes.api.model.apps.Deployment;
 import io.fabric8.kubernetes.client.KubernetesClient;
@@ -32,7 +30,8 @@ import jakarta.enterprise.inject.Produces;
 import jakarta.inject.Inject;
 import org.apache.camel.karavan.KaravanConstants;
 import org.apache.camel.karavan.model.ContainerType;
-import org.apache.camel.karavan.model.Project;
+import org.apache.camel.karavan.model.KubernetesConfigMap;
+import org.apache.camel.karavan.model.KubernetesSecret;
 import org.apache.camel.karavan.service.CodeService;
 import org.apache.camel.karavan.service.ConfigService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -41,6 +40,7 @@ import org.jboss.logging.Logger;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 import static org.apache.camel.karavan.KaravanConstants.*;
 import static org.apache.camel.karavan.service.CodeService.BUILD_SCRIPT_FILENAME;
@@ -349,24 +349,29 @@ public class KubernetesService {
             Pod old = client.pods().inNamespace(getNamespace()).withName(projectId).get();
             if (old == null) {
                 Pod pod = getDevModePod(projectId, verbose, compile, podLabels, projectDevmodeImage, deploymentFragment, envVars);
-                Pod result = client.resource(pod).serverSideApply();
-                copyFilesToContainer(result, files, "/karavan/code");
-                copyFilesToContainer(result, Map.of(".karavan.done", "done"), "/tmp");
-                LOGGER.info("Created pod " + result.getMetadata().getName());
+                Pod result = client.resource(pod).serverSideApply(); // important
+                result = client.pods().inNamespace(getNamespace()).withName(projectId).waitUntilReady(30, TimeUnit.SECONDS);
+                LOGGER.info("Pod " + result.getMetadata().getName() + " status " + result.getStatus());
+                var copyFiles = copyFilesToContainer(result, files, "/karavan/code");
+                LOGGER.info("Pod files copy result is " + copyFiles);
+                var copyDone = copyFilesToContainer(result, Map.of(".karavan.done", "done"), "/tmp");
+                LOGGER.info("Pod files copy done is " + copyDone);
+                LOGGER.info("Pod pod " + result.getMetadata().getName());
             }
         }
         createService(projectId, podLabels);
     }
 
-    private void copyFilesToContainer(Pod pod, Map<String, String> files, String dirName) {
+    private boolean copyFilesToContainer(Pod pod, Map<String, String> files, String dirName) {
         try (KubernetesClient client = kubernetesClient()) {
             String temp = codeService.saveProjectFilesInTemp(files);
-            client.pods().inNamespace(getNamespace())
+            return client.pods().inNamespace(getNamespace())
                     .withName(pod.getMetadata().getName())
                     .dir(dirName)
                     .upload(Paths.get(temp));
         } catch (Exception e) {
             LOGGER.info("Error copying filed to devmode pod: " + (e.getCause() != null ? e.getCause().getMessage() : e.getMessage()));
+            return false;
         }
     }
 

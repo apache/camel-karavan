@@ -124,11 +124,11 @@ public class ContainerResource {
                 dockerService.createContainerFromCompose(dockerComposeService, labels, needPull(command));
                 dockerService.runContainer(dockerComposeService.getContainer_name());
             }
-        } else if (Objects.equals(type, ContainerType.project.name())) {
+        } else if (Objects.equals(type, ContainerType.packaged.name())) {
             DockerComposeService dockerComposeService = projectService.getProjectDockerComposeService(projectId);
             if (dockerComposeService != null) {
                 Map<String, String> labels = new HashMap<>();
-                labels.put(LABEL_TYPE, ContainerType.project.name());
+                labels.put(LABEL_TYPE, ContainerType.packaged.name());
                 labels.put(LABEL_CAMEL_RUNTIME, CamelRuntime.CAMEL_MAIN.getValue());
                 labels.put(LABEL_PROJECT_ID, projectId);
                 dockerService.createContainerFromCompose(dockerComposeService, labels, needPull(command));

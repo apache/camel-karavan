@@ -21,7 +21,7 @@ public enum ContainerType {
     internal,
     devmode,
     devservice,
-    project,
+    packaged,
     build,
     unknown,
 }

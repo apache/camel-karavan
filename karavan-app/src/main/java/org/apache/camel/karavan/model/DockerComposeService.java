@@ -32,6 +32,7 @@ public class DockerComposeService {
     private String cpu_percent;
     private String mem_limit;
     private String mem_reservation;
+    private String command;
     private List<String> ports = new ArrayList<>();
     private List<DockerComposeVolume> volumes = new ArrayList<>();
     private List<String> expose = new ArrayList<>();
@@ -185,6 +186,14 @@ public class DockerComposeService {
 
     public void setLabels(Map<String,String> labels) {
         this.labels = labels;
+    }
+
+    public String getCommand() {
+        return command;
+    }
+
+    public void setCommand(String command) {
+        this.command = command;
     }
 
     @Override
