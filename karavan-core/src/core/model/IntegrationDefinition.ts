@@ -118,7 +118,7 @@ export class Metadata {
 
 export class Integration {
     apiVersion: string = 'camel.apache.org/v1';
-    kind: string = 'Integration' || 'Kamelet';
+    kind: 'Integration' | 'Kamelet' = 'Integration';
     metadata: Metadata = new Metadata();
     spec: Spec = new Spec();
     type: 'crd' | 'plain' | 'kamelet' = 'plain';

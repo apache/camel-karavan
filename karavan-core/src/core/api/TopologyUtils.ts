@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 import {
+    BeanFactoryDefinition,
     DeleteDefinition,
     FromDefinition,
     GetDefinition,
@@ -29,6 +30,7 @@ import {
     Integration,
 } from '../model/IntegrationDefinition';
 import {
+    TopologyBeanNode,
     TopologyIncomingNode,
     TopologyOutgoingNode,
     TopologyRestNode, TopologyRouteConfigurationNode,
@@ -227,7 +229,7 @@ export class TopologyUtils {
                 const routes = i.spec.flows?.filter(flow => flow.dslName === 'RouteConfigurationDefinition');
                 const routeElements = routes?.map(r => {
                     const id = 'route-' + r.id;
-                    const title = '' + (r.description ? r.description : r.id);
+                    const title = '' + (r.description ? r.description : (r.id || 'default'));
                     return new TopologyRouteConfigurationNode(id, r.id, title, filename, r);
                 }) || [];
                 result.push(...routeElements);
@@ -333,6 +335,25 @@ export class TopologyUtils {
         return result;
     };
 
+    static findTopologyBeanNodes = (integrations: Integration[]): TopologyBeanNode[] => {
+        const result: TopologyBeanNode[] = [];
+        integrations.forEach(integration => {
+            const beans = TopologyUtils.getBeans(integration);
+            const topologyBeans = beans.map((bean) => new TopologyBeanNode(bean.name, bean.name, integration.metadata.name));
+            result.push(...topologyBeans);
+        })
+        return result;
+    }
+
+    static getBeans = (integration: Integration): BeanFactoryDefinition[] => {
+        const result: BeanFactoryDefinition[] = [];
+        const beans = integration.spec.flows?.filter((e: any) => e.dslName === 'Beans');
+        if (beans && beans.length > 0 && beans[0].beans) {
+            result.push(...beans[0].beans);
+        }
+        return result;
+    }
+
     static findOutgoingInStep = (step: CamelElement, result: CamelElement[]): CamelElement[] => {
         if (step !== undefined) {
             const el = (step as any);
@@ -396,10 +417,10 @@ export class TopologyUtils {
         }
     }
 
-    static getNodeIdByUniqueUri(tins: TopologyIncomingNode[], uniqueUri: string): string [] {
-        const result: string[] = [];
+    static getNodeIdByUniqueUri(tins: TopologyIncomingNode[], uniqueUri: string): TopologyIncomingNode [] {
+        const result: TopologyIncomingNode[] = [];
         tins.filter(r => r.uniqueUri === uniqueUri)
-            ?.forEach(node => result.push(node.id));
+            ?.forEach(node => result.push(node));
         return result;
     }
 

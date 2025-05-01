@@ -36,15 +36,15 @@ export class CamelDefinitionApiExt {
     private constructor() {}
 
     // additional helper functions for more readability
-    private static getFlowsOfType(integration: Integration, type: string): CamelElement[] {
+    static getFlowsOfType(integration: Integration, type: string): CamelElement[] {
         return integration.spec.flows?.filter(flow => flow.dslName === type) ?? [];
     }
 
-    private static getFlowsOfTypes(integration: Integration, types: string[]): CamelElement[] {
+    static getFlowsOfTypes(integration: Integration, types: string[]): CamelElement[] {
         return integration.spec.flows?.filter(flow => types.includes(flow.dslName)) ?? [];
     }
 
-    private static getFlowsNotOfTypes(integration: Integration, types: string[]): any[] {
+    static getFlowsNotOfTypes(integration: Integration, types: string[]): any[] {
         return integration.spec.flows?.filter(flow => !types.includes(flow.dslName)) ?? [];
     }
 
