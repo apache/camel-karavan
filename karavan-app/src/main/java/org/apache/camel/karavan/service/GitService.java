@@ -100,14 +100,23 @@ public class GitService {
     }
 
     public GitConfig getGitConfig() {
-        if (ephemeral) {
-            repository = "http://karavan.git";
-            username = Optional.of("karavan");
-            password = Optional.of("karavan");
-            privateKeyPath = Optional.empty();
-            knownHostsPath = Optional.empty();
+        try {
+            if (ephemeral) {
+                repository = "http://karavan.git";
+                username = Optional.of("karavan");
+                password = Optional.of("karavan");
+                privateKeyPath = Optional.empty();
+                knownHostsPath = Optional.empty();
+            }
+            if (repository == null || repository.isBlank()) {
+                LOGGER.error("Git repository configuration 'karavan.git.repository' is missing or empty. Please set it in your application properties.");
+                throw new IllegalStateException("Missing required configuration: karavan.git.repository");
+            }
+            return new GitConfig(repository, username.orElse(null), password.orElse(null), branch, privateKeyPath.orElse(null));
+        } catch (Exception e) {
+            LOGGER.error("Failed to load Git configuration: " + e.getMessage(), e);
+            throw e;
         }
-        return new GitConfig(repository, username.orElse(null), password.orElse(null), branch, privateKeyPath.orElse(null));
     }
 
     public Tuple2<String,String> getSShFiles() {
