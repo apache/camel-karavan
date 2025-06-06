@@ -54,8 +54,8 @@ public final class CamelDefinitionApiGenerator extends AbstractGenerator {
             String className = classSimple(classFullName);
             camelModel.append("    ").append(className).append(",\n");
         });
-        camelModel.append("} from '../model/CamelDefinition';\n");
-        camelModel.append("import {CamelUtil} from './CamelUtil';\n\n");
+        camelModel.append("} from '../model/CamelDefinition.js';\n");
+        camelModel.append("import {CamelUtil} from './CamelUtil.js';\n\n");
 
 
         camelModel.append("export class CamelDefinitionApi { \n\n");
