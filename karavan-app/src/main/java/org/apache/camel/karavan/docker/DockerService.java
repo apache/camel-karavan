@@ -382,6 +382,7 @@ public class DockerService {
         try (ListImagesCmd cmd = getDockerClientNotConnectedToRegistry().listImagesCmd().withShowAll(true)) {
             List<Image> images = cmd.exec();
             List<String> tags = images.stream()
+                    .filter(i -> i.getRepoTags() != null)
                     .map(i -> Arrays.stream(i.getRepoTags()).collect(Collectors.toList()))
                     .flatMap(Collection::stream)
                     .toList();
