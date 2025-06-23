@@ -165,7 +165,7 @@ public class GitService {
         LOGGER.info("Read projects...");
         List<GitRepo> result = new ArrayList<>();
         try {
-            String folder = git.getRepository().getDirectory().getAbsolutePath().replace("/.git", "");
+            String folder = git.getRepository().getDirectory().getAbsolutePath().replace(File.separator + ".git", "");
             List<String> projects = readProjectsFromFolder(folder, filter);
             for (String project : projects) {
                 Map<String, String> filesRead = readProjectFilesFromFolder(folder, project);
@@ -173,7 +173,7 @@ public class GitService {
                 for (Map.Entry<String, String> entry : filesRead.entrySet()) {
                     String name = entry.getKey();
                     String body = entry.getValue();
-                    Tuple2<String, Integer> fileCommit = lastCommit(git, project + File.separator + name);
+                    Tuple2<String, Integer> fileCommit = lastCommit(git, project + "/" + name);
                     files.add(new GitRepoFile(name, fileCommit.getItem2().longValue() * 1000, body));
                 }
                 Tuple2<String, Integer> commit = lastCommit(git, project);
