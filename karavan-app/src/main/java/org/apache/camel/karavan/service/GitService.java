@@ -290,7 +290,7 @@ public class GitService {
         LOGGER.info("Commit and push changes to the branch " + branch);
         AddCommand add = git.add();
         for (String fileName : fileNames) {
-            add = add.addFilepattern(projectId + File.separator + fileName);
+            add = add.addFilepattern(projectId + "/" + fileName);
         }
         LOGGER.info("Git add: " + add.call());
         RevCommit commit = git.commit().setMessage(message).setAuthor(new PersonIdent(authorName, authorEmail)).call();
@@ -315,7 +315,7 @@ public class GitService {
     private void addDeletedFolderToIndex(Git git, String projectId) {
         LOGGER.infof("Add folder %s to git index.", projectId);
         try {
-            git.rm().addFilepattern(projectId + File.separator).call();
+            git.rm().addFilepattern(projectId + "/").call();
         } catch (GitAPIException e) {
             throw new RuntimeException(e);
         }
@@ -333,6 +333,7 @@ public class GitService {
             addDeletedFolderToIndex(git, projectId);
             commitAddedAndPush(git, gitConfig.getBranch(), commitMessage, authorName, authorEmail, List.of("."), projectId);
             LOGGER.info("Delete Temp folder " + folder);
+            git.close();
             vertx.fileSystem().deleteRecursiveBlocking(folder, true);
             LOGGER.infof("Project %s deleted from Git", projectId);
         } catch (RefNotFoundException e) {
