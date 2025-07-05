@@ -278,7 +278,7 @@ public class GitService {
             if (files.stream().filter(pf -> Objects.equals(pf.getName(), filename)).count() == 0) {
                 try {
                     LOGGER.info("Add deleted file " + filename);
-                    git.rm().addFilepattern(project.getProjectId() + File.separator + filename).call();
+                    git.rm().addFilepattern(project.getProjectId() + "/" + filename).call();
                 } catch (GitAPIException e) {
                     throw new RuntimeException(e);
                 }
