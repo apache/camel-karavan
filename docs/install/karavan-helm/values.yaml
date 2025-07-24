@@ -1,0 +1,50 @@
+replicaCount: 1
+
+image:
+  repository: ghcr.io/apache/camel-karavan
+  tag: "4.10.2"
+  pullPolicy: Always
+
+env:
+  KARAVAN_CONTAINER_STATUS_INTERVAL: "disabled"
+  KARAVAN_CONTAINER_STATISTICS_INTERVAL: "disabled"
+  KARAVAN_CAMEL_STATUS_INTERVAL: "3s"
+  KARAVAN_DEVMODE_IMAGE: "ghcr.io/apache/camel-karavan-devmode:4.10.2"
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 8080
+  nodePort: 30777
+  enableNodePort: false
+  httpsPort: 443
+
+resources:
+  requests:
+    memory: "1024Mi"
+
+secret:
+  keycloak:
+    url: "https://localhost"
+    realm: "karavan"
+    frontendClientId: "karavan"
+    backendClientId: "karavan"
+    backendSecret: "secret"
+  git:
+    repository: "http://reporitory/karavan/karavan.git"
+    username: "karavan"
+    password: "karavan"
+    branch: "main"
+  containerImage:
+    registry: "registry:5000"
+    group: "karavan"
+    registryUsername: ""
+    registryPassword: ""
+
+ingress:
+  enabled: true
+  host: "hostname.local"
+  annotations: 
+    kubernetes.io/ingress.class: nginx
+  tls: false
+  tlsSecretName: "" 

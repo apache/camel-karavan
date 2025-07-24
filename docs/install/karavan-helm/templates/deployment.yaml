@@ -1,0 +1,85 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}
+  labels:
+    app: {{ .Release.Name }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}
+    spec:
+      containers:
+      - name: {{ .Release.Name }}
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        env:
+        - name: KARAVAN_CONTAINER_STATUS_INTERVAL
+          value: {{ .Values.env.KARAVAN_CONTAINER_STATUS_INTERVAL | quote }}
+        - name: KARAVAN_CONTAINER_STATISTICS_INTERVAL
+          value: {{ .Values.env.KARAVAN_CONTAINER_STATISTICS_INTERVAL | quote }}
+        - name: KARAVAN_CAMEL_STATUS_INTERVAL
+          value: {{ .Values.env.KARAVAN_CAMEL_STATUS_INTERVAL | quote }}
+        - name: KARAVAN_DEVMODE_IMAGE
+          value: {{ .Values.env.KARAVAN_DEVMODE_IMAGE | quote }}
+        - name: KARAVAN_GIT_REPOSITORY
+          valueFrom:
+            secretKeyRef:
+              key: karavan.git.repository
+              name: {{ .Release.Name }}
+        - name: KARAVAN_GIT_USERNAME
+          valueFrom:
+            secretKeyRef:
+              key: karavan.git.username
+              name: {{ .Release.Name }}
+        - name: KARAVAN_GIT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: karavan.git.password
+              name: {{ .Release.Name }}
+        - name: KARAVAN_GIT_BRANCH
+          valueFrom:
+            secretKeyRef:
+              key: karavan.git.branch
+              name: {{ .Release.Name }}
+        - name: KARAVAN_KEYCLOAK_URL
+          valueFrom:
+            secretKeyRef:
+              key: karavan.keycloak.url
+              name: {{ .Release.Name }}
+        - name: KARAVAN_KEYCLOAK_REALM
+          valueFrom:
+            secretKeyRef:
+              key: karavan.keycloak.realm
+              name: {{ .Release.Name }}
+        - name: KARAVAN_KEYCLOAK_FRONTEND_CLIENTID
+          valueFrom:
+            secretKeyRef:
+              key: karavan.keycloak.frontend.clientId
+              name: {{ .Release.Name }}
+        - name: KARAVAN_KEYCLOAK_BACKEND_CLIENTID
+          valueFrom:
+            secretKeyRef:
+              key: karavan.keycloak.backend.clientId
+              name: {{ .Release.Name }}
+        - name: KARAVAN_KEYCLOAK_BACKEND_SECRET
+          valueFrom:
+            secretKeyRef:
+              key: karavan.keycloak.backend.secret
+              name: {{ .Release.Name }}
+        - name: KUBERNETES_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        ports:
+        - containerPort: {{ .Values.service.targetPort }}
+          name: karavan
+        resources:
+          requests:
+            memory: {{ .Values.resources.requests.memory | quote }}
+      serviceAccountName: {{ .Release.Name }} 
