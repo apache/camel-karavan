@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import React, {useState} from 'react';
+import React, {useMemo, useState} from 'react';
 import {
     CodeBlock,
     CodeBlockCode, Flex,
@@ -22,7 +22,6 @@ import {
     Tabs, TabTitleText, Text, TextContent, TextVariants
 } from '@patternfly/react-core';
 import '../../designer/karavan.css';
-import {Caption, Table, Tbody, Td, Th, Thead, Tr} from "@patternfly/react-table";
 
 interface Props {
     trace: any
@@ -30,15 +29,18 @@ interface Props {
 
 export function RunnerInfoTraceMessage (props: Props) {
 
-    const [tab, setTab] = useState<string | number>('variables');
-    const [variableName, setVariableName] = useState<string | number>();
+    const [tab, setTab] = useState<string>('variables');
+    const [valueName, setValueName] = useState<string>();
 
     const message = props.trace?.message;
-    const headers: any[] = message?.headers ? [...message?.headers] : [];
-    const properties: any[] = message?.exchangeProperties ? [...message?.exchangeProperties] : [];
-    const variables: any[] = message?.exchangeVariables ? [...message?.exchangeVariables] : [];
+    const data: Record<string, any[]> = {
+        headers: message?.headers ? [...message?.headers] : [],
+        properties: message?.exchangeProperties ? [...message?.exchangeProperties] : [],
+        variables: message?.exchangeVariables ? [...message?.exchangeVariables] : [],
+    }
     const body = message?.body?.value;
-    const variable = variables.filter(v => v.key === variableName)?.at(0);
+    const values = useMemo(() => (data[tab] ?? []), [tab, data]);
+    const value = useMemo(() => values.filter(v => v.key === valueName)?.at(0), [tab, values, valueName]);
 
     function getBody() {
         return (
@@ -48,76 +50,28 @@ export function RunnerInfoTraceMessage (props: Props) {
         )
     }
 
-    function getVariableValue() {
-        if (variable?.value !== undefined) {
-            const isObject = variable?.value instanceof Object;
+    function getValueValue() {
+        if (value?.value !== undefined) {
+            const isObject = value?.value instanceof Object;
             return (
                 <CodeBlock title="Body">
-                    <CodeBlockCode id="code-content">{isObject ? JSON.stringify(variable.value) : variable.value}</CodeBlockCode>
+                    <CodeBlockCode id="code-content">{isObject ? JSON.stringify(value.value) : value.value}</CodeBlockCode>
                 </CodeBlock>
             )
         }
     }
 
-    function getVariableType() {
-        if (variable?.value !== undefined) {
+    function getValueType() {
+        if (value !== undefined) {
             return (
                 <TextContent className="title">
                     <Flex gap={{default: "gap"}}>
                         <Text component={TextVariants.p}>Type:</Text>
-                        <Text component={TextVariants.h6}>{variable.type}</Text>
+                        <Text component={TextVariants.h6}>{value.type}</Text>
                     </Flex>
                 </TextContent>
             )
         }
-    }
-
-    function getHeaders() {
-        return (
-            <Table aria-label="Simple table" variant={'compact'} borders={true} className='table'>
-                <Caption>Exchange message headers</Caption>
-                <Thead>
-                    <Tr>
-                        <Th>Key</Th>
-                        <Th>Type</Th>
-                        <Th>Value</Th>
-                    </Tr>
-                </Thead>
-                <Tbody>
-                    {headers.map((header: any, index: number) => (
-                        <Tr key={header[0] + "-" + index}>
-                            <Td dataLabel={'key'}>{header.key}</Td>
-                            <Td dataLabel={'type'}>{header.type}</Td>
-                            <Td dataLabel={'value'}>{header.value}</Td>
-                        </Tr>
-                    ))}
-                </Tbody>
-            </Table>
-        )
-    }
-
-    function getProperties() {
-        return (
-            <Table aria-label="Simple table" variant={'compact'} borders={true} className='table'>
-                <Caption>Exchange message properties</Caption>
-                <Thead>
-                    <Tr>
-                        <Th>Key</Th>
-                        <Th>Type</Th>
-                        <Th>Value</Th>
-                    </Tr>
-                </Thead>
-                <Tbody>
-                    {properties.map((header: any, index: number) => (
-                        <Tr key={header[0] + "-" + index}>
-                            <Td dataLabel={'key'}>{header.key}</Td>
-                            <Td dataLabel={'type'}>{header.type}</Td>
-                            <Td dataLabel={'value'}>{header.value}</Td>
-                        </Tr>
-                    ))}
-                </Tbody>
-            </Table>
-        )
     }
 
     return (
@@ -125,25 +79,23 @@ export function RunnerInfoTraceMessage (props: Props) {
             <TextContent className="title">
                 <Text component={TextVariants.h3}>Message</Text>
             </TextContent>
-            <Tabs activeKey={tab} onSelect={(event, eventKey) => setTab(eventKey)}>
+            <Tabs activeKey={tab} onSelect={(event, eventKey) => setTab(eventKey.toString())}>
                 <Tab eventKey={'variables'} title={<TabTitleText>Variables</TabTitleText>}/>
                 <Tab eventKey={'body'} title={<TabTitleText>Body</TabTitleText>}/>
                 <Tab eventKey={'headers'} title={<TabTitleText>Headers</TabTitleText>}/>
                 <Tab eventKey={'properties'} title={<TabTitleText>Properties</TabTitleText>}/>
             </Tabs>
-            {tab === 'variables' && variables.length > 0 &&
+            {['variables', 'headers', 'properties'].includes(tab) && values.length > 0 &&
                 <>
-                    <Tabs key={variableName} activeKey={variableName} onSelect={(event, eventKey) => setVariableName(eventKey)}>
-                        {variables.map(v => (<Tab eventKey={v.key} title={<TabTitleText>{v.key}</TabTitleText>}/>))}
+                    <Tabs key={valueName} activeKey={valueName} onSelect={(event, eventKey) => setValueName(eventKey.toString())}>
+                        {values.map(v => (<Tab eventKey={v.key} title={<TabTitleText>{v.key}</TabTitleText>}/>))}
                     </Tabs>
-                    {getVariableType()}
+                    {getValueType()}
                 </>
             }
             <div className="scrollable">
-                {tab === 'variables' && getVariableValue()}
                 {tab === 'body' && getBody()}
-                {tab === 'headers' && getHeaders()}
-                {tab === 'properties' && getProperties()}
+                {['variables', 'headers', 'properties'].includes(tab) && getValueValue()}
             </div>
         </div>
     );
