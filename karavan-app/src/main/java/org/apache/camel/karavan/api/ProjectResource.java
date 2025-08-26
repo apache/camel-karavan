@@ -33,7 +33,9 @@ import org.apache.camel.karavan.service.ConfigService;
 import org.apache.camel.karavan.service.GitService;
 import org.apache.camel.karavan.service.ProjectService;
 import org.jboss.logging.Logger;
+import org.jboss.resteasy.reactive.PartType;
 
+import java.io.InputStream;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -185,6 +187,73 @@ public class ProjectResource extends AbstractApiResource {
             return Response.ok(projectService.copy(sourceProject, project)).build();
         } catch (Exception e) {
             return Response.serverError().entity(e.getMessage()).build();
+        }
+    }
+
+    @POST
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
+    @Path("/upload")
+    public Response upload(ProjectArchiveUploadMultiPart projectArchiveUploadMultiPart) {
+        try {
+            projectService.importProjectFromArchiveFile(projectArchiveUploadMultiPart.getFile(), projectArchiveUploadMultiPart.isOverwriteExistingFiles());
+            return Response.ok().build();
+        } catch (Exception e) {
+            return Response.status(Response.Status.CONFLICT).entity(e.getMessage()).build();
+        }
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_OCTET_STREAM)
+    @Path("/download/{projectId}")
+    public Response download(@PathParam("projectId") String projectId) {
+        try {
+            return Response.ok(projectService.downloadProjectArchiveFile(projectId)).header("Content-Disposition", "attachment;filename=" + projectId + ".zip").build();
+        } catch (Exception e) {
+            return Response.status(Response.Status.CONFLICT).entity(e.getMessage()).build();
+        }
+    }
+
+    public static class ProjectArchiveUploadMultiPart {
+
+        @FormParam("file")
+        @PartType(MediaType.APPLICATION_OCTET_STREAM)
+        public InputStream file;
+
+        @FormParam("overwriteExistingFiles")
+        @PartType(MediaType.TEXT_PLAIN)
+        Boolean overwriteExistingFiles;
+
+        public ProjectArchiveUploadMultiPart(InputStream file, Boolean overwriteExistingFiles) {
+            this.file = file;
+            this.overwriteExistingFiles = overwriteExistingFiles;
+        }
+
+        public ProjectArchiveUploadMultiPart() {
+        }
+
+        public InputStream getFile() {
+            return file;
+        }
+
+        public void setFile(InputStream file) {
+            this.file = file;
+        }
+
+        public Boolean isOverwriteExistingFiles() {
+            return overwriteExistingFiles;
+        }
+
+        public void setOverwriteExistingFiles(Boolean overwriteExistingFiles) {
+            this.overwriteExistingFiles = overwriteExistingFiles;
+        }
+
+        @Override
+        public String toString() {
+            return "ProjectArchiveFile{" +
+                    "file=" + file +
+                    ", overwriteExistingFiles=" + overwriteExistingFiles +
+                    '}';
         }
     }
 }

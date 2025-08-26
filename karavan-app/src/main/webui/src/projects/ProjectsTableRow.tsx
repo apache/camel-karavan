@@ -21,6 +21,7 @@ import '../designer/karavan.css';
 import {Td, Tr} from "@patternfly/react-table";
 import DeleteIcon from "@patternfly/react-icons/dist/js/icons/times-icon";
 import CopyIcon from "@patternfly/react-icons/dist/esm/icons/copy-icon";
+import DownloadIcon from "@patternfly/react-icons/dist/js/icons/download-icon";
 import {Project} from '../api/ProjectModels';
 import {useAppConfigStore, useLogStore, useProjectStore, useStatusesStore,} from "../api/ProjectStore";
 import {shallow} from "zustand/shallow";
@@ -89,6 +90,14 @@ export function ProjectsTableRow (props: Props) {
                 {!isBuildIn &&
                     <Flex direction={{default: "row"}} justifyContent={{default: "justifyContentFlexEnd"}}
                           spaceItems={{default: 'spaceItemsNone'}}>
+                        <FlexItem>
+                            <Tooltip content={"Download project"} position={"bottom"}>
+                                <Button className="dev-action-button" variant={"plain"} icon={<DownloadIcon/>}
+                                        onClick={e => {
+                                            setProject(project, "download");
+                                        }}></Button>
+                            </Tooltip>
+                        </FlexItem>
                         <FlexItem>
                             <Tooltip content={"Copy project"} position={"bottom"}>
                                 <Button className="dev-action-button" variant={"plain"} icon={<CopyIcon/>}
