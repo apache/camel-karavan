@@ -27,11 +27,17 @@ import org.apache.camel.karavan.docker.DockerComposeConverter;
 import org.apache.camel.karavan.docker.DockerForKaravan;
 import org.apache.camel.karavan.kubernetes.KubernetesService;
 import org.apache.camel.karavan.model.*;
+import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
+import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream;
+import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -154,6 +160,72 @@ public class ProjectService {
         importProjectFromRepo(repo);
     }
 
+    public void importProjectFromArchiveFile(InputStream projectArchiveInputStream, boolean overwriteExistingFiles) throws Exception {
+        LOGGER.info("Import project(s) from archive file");
+        try {
+            ZipArchiveInputStream zipArchiveInputStream = new ZipArchiveInputStream(projectArchiveInputStream);
+            ZipArchiveEntry zipArchiveEntry = zipArchiveInputStream.getNextEntry();
+            Map<String, String> projects = new HashMap<>();
+            Map<String, List<ProjectFile>> files = new HashMap<>();
+            while (zipArchiveEntry != null) {
+                if (zipArchiveInputStream.canReadEntryData(zipArchiveEntry)) {
+                    String zipArchiveEntryName = zipArchiveEntry.getName().replace("\\", "/");
+                    if (!zipArchiveEntry.isDirectory() && StringUtils.countMatches(zipArchiveEntryName, "/") == 1) {
+                        String[] nameParts = zipArchiveEntryName.split("/");
+                        if (Arrays.stream(nameParts).allMatch(name -> !name.isBlank() && !name.equals(".") && !name.equals(".."))) {
+                            String parentFolderName = nameParts[nameParts.length - 2];
+                            String fileName = nameParts[nameParts.length - 1];
+                            if (parentFolderName.matches("[a-zA-Z0-9-]{5,}")) {
+                                boolean projectFileExists = karavanCache.getProjectFile(parentFolderName, fileName) != null;
+                                if (!projectFileExists || overwriteExistingFiles) {
+                                    LOGGER.debug("Importing file: " + zipArchiveEntryName);
+                                    ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+                                    byte[] buffer = new byte[4096];
+                                    int len;
+                                    while ((len = zipArchiveInputStream.read(buffer)) != -1) {
+                                        byteArrayOutputStream.write(buffer, 0, len);
+                                    }
+                                    String fileContent = byteArrayOutputStream.toString(zipArchiveInputStream.getCharset());
+                                    if (fileName.equals(APPLICATION_PROPERTIES_FILENAME)) {
+                                        String projectName = codeService.getProjectName(fileContent);
+                                        projects.put(parentFolderName, projectName);
+                                    } else if (!projects.containsKey(parentFolderName)) {
+                                        projects.put(parentFolderName, parentFolderName);
+                                    }
+                                    List<ProjectFile> projectFiles = new ArrayList<>();
+                                    if (files.containsKey(parentFolderName)) {
+                                        projectFiles.addAll(files.get(parentFolderName));
+                                    }
+                                    projectFiles.add(new ProjectFile(fileName, fileContent, parentFolderName, null));
+                                    files.put(parentFolderName, projectFiles);
+                                } else {
+                                    LOGGER.debug("Skipping file: " + zipArchiveEntryName);
+                                }
+                            }
+                        }
+                    }
+                    zipArchiveEntry = zipArchiveInputStream.getNextEntry();
+                }
+            }
+            zipArchiveInputStream.close();
+
+            for (Map.Entry<String, String> entry : projects.entrySet()) {
+                Project project = new Project(entry.getKey(), entry.getValue());
+                karavanCache.saveProject(project, false);
+            }
+
+            for (Map.Entry<String, List<ProjectFile>> entry : files.entrySet()) {
+                for (ProjectFile projectFile : entry.getValue()) {
+                    karavanCache.saveProjectFile(projectFile, false, false);
+                }
+            }
+
+        } catch (Exception e) {
+            LOGGER.error("Error during project import", e);
+            throw e;
+        }
+    }
+
     private void importProjectFromRepo(GitRepo repo) {
         LOGGER.info("Import project from GitRepo " + repo.getName());
         try {
@@ -167,6 +239,29 @@ public class ProjectService {
         } catch (Exception e) {
             LOGGER.error("Error during project import", e);
         }
+    }
+
+    public byte[] downloadProjectArchiveFile(String projectId) throws Exception {
+        Project project = karavanCache.getProject(projectId);
+        if (project != null) {
+
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            ZipArchiveOutputStream zipOutputStream = new ZipArchiveOutputStream(byteArrayOutputStream);
+            List<ProjectFile> projectFiles = karavanCache.getProjectFiles(projectId);
+
+            for (ProjectFile projectFile : projectFiles) {
+                ZipArchiveEntry entry = new ZipArchiveEntry(projectId + "/" + projectFile.getName());
+                byte[] data = projectFile.getCode().getBytes(StandardCharsets.UTF_8);
+                entry.setSize(data.length);
+                zipOutputStream.putArchiveEntry(entry);
+                zipOutputStream.write(data);
+                zipOutputStream.closeArchiveEntry();
+            }
+
+            zipOutputStream.finish();
+            return byteArrayOutputStream.toByteArray();
+        }
+        return null;
     }
 
     public Project getProjectFromRepo(GitRepo repo) {

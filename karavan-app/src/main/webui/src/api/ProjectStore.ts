@@ -124,11 +124,11 @@ interface ProjectState {
     images: ContainerImage [],
     setImages: (images: ContainerImage []) => void;
     project: Project;
-    setProject: (project: Project, operation:  "create" | "select" | "delete"| "none" | "copy") => void;
-    operation: "create" | "select" | "delete" | "none" | "copy";
+    setProject: (project: Project, operation:  "create" | "select" | "delete"| "none" | "copy" | "upload" | "download") => void;
+    operation: "create" | "select" | "delete" | "none" | "copy" | "upload" | "download";
     tabIndex: string | number;
     setTabIndex: (tabIndex: string | number) => void;
-    setOperation: (o: "create" | "select" | "delete"| "none" | "copy") => void;
+    setOperation: (o: "create" | "select" | "delete"| "none" | "copy" | "upload" | "download") => void;
     camelStatuses: CamelStatus[],
     setCamelStatuses: (camelStatuses: CamelStatus[]) => void;
     camelTraces: CamelStatus[],
@@ -145,7 +145,7 @@ export const useProjectStore = createWithEqualityFn<ProjectState>((set) => ({
     isPushing: false,
     isPulling: false,
     isRunning: false,
-    setProject: (project: Project, operation:  "create" | "select" | "delete"| "none" | "copy") => {
+    setProject: (project: Project, operation:  "create" | "select" | "delete"| "none" | "copy" | "upload" | "download") => {
         set((state: ProjectState) => ({
             project: project,
             operation: operation,
@@ -157,7 +157,7 @@ export const useProjectStore = createWithEqualityFn<ProjectState>((set) => ({
             tabIndex: state.tabIndex
         }));
     },
-    setOperation: (o: "create" | "select" | "delete"| "none" | "copy") => {
+    setOperation: (o: "create" | "select" | "delete"| "none" | "copy" | "upload" | "download") => {
         set((state: ProjectState) => ({
             operation: o
         }));

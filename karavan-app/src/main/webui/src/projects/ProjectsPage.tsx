@@ -47,6 +47,7 @@ import {shallow} from "zustand/shallow";
 import {KaravanApi} from "../api/KaravanApi";
 import {ProjectsToolbar} from "./ProjectsToolbar";
 import {ProjectService} from "../api/ProjectService";
+import {UploadProjectModal} from "./UploadProjectModal";
 
 interface Props {
     tools?: React.ReactNode
@@ -56,7 +57,7 @@ export function ProjectsPage (props: Props) {
 
     const [projects, setProjects, filter, setFilter]
         = useProjectsStore((s) => [s.projects, s.setProjects, s.filter, s.setFilter], shallow)
-    const [operation] = useProjectStore((s) => [s.operation], shallow)
+    const [project, operation, setOperation] = useProjectStore((s) => [s.project, s.operation, s.setOperation], shallow)
 
     useEffect(() => {
         KaravanApi.getProjects((projects: Project[]) => {
@@ -68,6 +69,12 @@ export function ProjectsPage (props: Props) {
         }, 2000)
         return () => clearInterval(interval);
     }, []);
+
+    useEffect(() => {
+        if (["download"].includes(operation)) {
+            KaravanApi.downloadProjectArchiveFile(project, () => setOperation("none"));
+        }
+    }, [operation]);
 
     function title() {
         return <TextContent>
@@ -127,6 +134,7 @@ export function ProjectsPage (props: Props) {
             </PageSection>
             {["create", "copy"].includes(operation) && <CreateProjectModal/>}
             {["delete"].includes(operation) && <DeleteProjectModal/>}
+            {["upload"].includes(operation) && <UploadProjectModal/>}
         </PageSection>
 
     )

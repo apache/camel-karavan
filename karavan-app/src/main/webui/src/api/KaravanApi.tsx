@@ -377,6 +377,44 @@ export class KaravanApi {
         });
     }
 
+    static async uploadProjectArchiveFile(formData: FormData, after: (result: boolean, data: any) => void) {
+        try {
+            instance.post('/ui/project/upload', formData, { headers: {'Content-Type': 'multipart/form-data'} })
+                .then(res => {
+                    if (res.status === 200) {
+                        after(true, res.data);
+                    } else {
+                        after(false, res?.data);
+                    }
+                }).catch(err => {
+                after(false, err);
+            });
+        } catch (error: any) {
+            after(false, error);
+        }
+    }
+
+    static downloadProjectArchiveFile(project: Project, after: (result: boolean, res: AxiosResponse<Project> | any) => void) {
+        try {
+            instance.get('/ui/project/download/' + project.projectId, { headers: {'Accept' : 'application/octet-stream'},  responseType: 'blob' })
+                .then(res => {
+                    if (res.status === 200) {
+                        const url = window.URL.createObjectURL(new Blob([res.data]));
+                        const link = document.createElement("a");
+                        link.href = url;
+                        link.setAttribute("download", project.projectId + ".zip");
+                        link.click();
+                        setTimeout(() => window.URL.revokeObjectURL(url), 0);
+                        after(true, res);
+                    }
+                }).catch(err => {
+                after(false, err);
+            });
+        } catch (error: any) {
+            after(false, error);
+        }
+    }
+
     static async push(params: {}, after: (res: AxiosResponse<any>) => void) {
         instance.post('/ui/git', params)
             .then(res => {
