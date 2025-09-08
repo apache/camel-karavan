@@ -147,14 +147,16 @@ import {
     CsvDataFormat,
     CustomDataFormat,
     DataFormatsDefinition,
+    DfdlDataFormat,
     FhirJsonDataFormat,
     FhirXmlDataFormat,
     FlatpackDataFormat,
-    FuryDataFormat,
+    ForyDataFormat,
     GrokDataFormat,
     GzipDeflaterDataFormat,
     HL7DataFormat,
     IcalDataFormat,
+    Iso8583DataFormat,
     JacksonXMLDataFormat,
     JaxbDataFormat,
     JsonApiDataFormat,
@@ -915,6 +917,9 @@ export class CamelDefinitionApi {
         if (element?.custom !== undefined) { 
             def.custom = CamelDefinitionApi.createCustomDataFormat(element.custom); 
         }
+        if (element?.dfdl !== undefined) { 
+            def.dfdl = CamelDefinitionApi.createDfdlDataFormat(element.dfdl); 
+        }
         if (element?.fhirJson !== undefined) { 
             def.fhirJson = CamelDefinitionApi.createFhirJsonDataFormat(element.fhirJson); 
         }
@@ -924,8 +929,8 @@ export class CamelDefinitionApi {
         if (element?.flatpack !== undefined) { 
             def.flatpack = CamelDefinitionApi.createFlatpackDataFormat(element.flatpack); 
         }
-        if (element?.fury !== undefined) { 
-            def.fury = CamelDefinitionApi.createFuryDataFormat(element.fury); 
+        if (element?.fory !== undefined) { 
+            def.fory = CamelDefinitionApi.createForyDataFormat(element.fory); 
         }
         if (element?.grok !== undefined) { 
             def.grok = CamelDefinitionApi.createGrokDataFormat(element.grok); 
@@ -938,6 +943,9 @@ export class CamelDefinitionApi {
         }
         if (element?.ical !== undefined) { 
             def.ical = CamelDefinitionApi.createIcalDataFormat(element.ical); 
+        }
+        if (element?.iso8583 !== undefined) { 
+            def.iso8583 = CamelDefinitionApi.createIso8583DataFormat(element.iso8583); 
         }
         if (element?.jacksonXml !== undefined) { 
             def.jacksonXml = CamelDefinitionApi.createJacksonXMLDataFormat(element.jacksonXml); 
@@ -1529,7 +1537,7 @@ export class CamelDefinitionApi {
             def.langChain4jCharacterTokenizer = CamelDefinitionApi.createLangChain4jCharacterTokenizerDefinition(element.langChain4jCharacterTokenizer); 
         }
         if (element?.langChain4jLineTokenizer !== undefined) { 
-            def.langChain4jLineTokenizer = CamelDefinitionApi.createLangChain4jTokenizerDefinition(element.langChain4jLineTokenizer); 
+            def.langChain4jLineTokenizer = CamelDefinitionApi.createLangChain4jLineTokenizerDefinition(element.langChain4jLineTokenizer); 
         }
         if (element?.langChain4jParagraphTokenizer !== undefined) { 
             def.langChain4jParagraphTokenizer = CamelDefinitionApi.createLangChain4jParagraphTokenizerDefinition(element.langChain4jParagraphTokenizer); 
@@ -1608,6 +1616,9 @@ export class CamelDefinitionApi {
         if (element?.custom !== undefined) { 
             def.custom = CamelDefinitionApi.createCustomDataFormat(element.custom); 
         }
+        if (element?.dfdl !== undefined) { 
+            def.dfdl = CamelDefinitionApi.createDfdlDataFormat(element.dfdl); 
+        }
         if (element?.fhirJson !== undefined) { 
             def.fhirJson = CamelDefinitionApi.createFhirJsonDataFormat(element.fhirJson); 
         }
@@ -1617,8 +1628,8 @@ export class CamelDefinitionApi {
         if (element?.flatpack !== undefined) { 
             def.flatpack = CamelDefinitionApi.createFlatpackDataFormat(element.flatpack); 
         }
-        if (element?.fury !== undefined) { 
-            def.fury = CamelDefinitionApi.createFuryDataFormat(element.fury); 
+        if (element?.fory !== undefined) { 
+            def.fory = CamelDefinitionApi.createForyDataFormat(element.fory); 
         }
         if (element?.grok !== undefined) { 
             def.grok = CamelDefinitionApi.createGrokDataFormat(element.grok); 
@@ -1631,6 +1642,9 @@ export class CamelDefinitionApi {
         }
         if (element?.ical !== undefined) { 
             def.ical = CamelDefinitionApi.createIcalDataFormat(element.ical); 
+        }
+        if (element?.iso8583 !== undefined) { 
+            def.iso8583 = CamelDefinitionApi.createIso8583DataFormat(element.iso8583); 
         }
         if (element?.jacksonXml !== undefined) { 
             def.jacksonXml = CamelDefinitionApi.createJacksonXMLDataFormat(element.jacksonXml); 
@@ -1891,8 +1905,8 @@ export class CamelDefinitionApi {
         if (element?.flatpack !== undefined) { 
             def.flatpack = CamelDefinitionApi.createFlatpackDataFormat(element.flatpack); 
         }
-        if (element?.fury !== undefined) { 
-            def.fury = CamelDefinitionApi.createFuryDataFormat(element.fury); 
+        if (element?.fory !== undefined) { 
+            def.fory = CamelDefinitionApi.createForyDataFormat(element.fory); 
         }
         if (element?.grok !== undefined) { 
             def.grok = CamelDefinitionApi.createGrokDataFormat(element.grok); 
@@ -1905,6 +1919,9 @@ export class CamelDefinitionApi {
         }
         if (element?.ical !== undefined) { 
             def.ical = CamelDefinitionApi.createIcalDataFormat(element.ical); 
+        }
+        if (element?.iso8583 !== undefined) { 
+            def.iso8583 = CamelDefinitionApi.createIso8583DataFormat(element.iso8583); 
         }
         if (element?.jacksonXml !== undefined) { 
             def.jacksonXml = CamelDefinitionApi.createJacksonXMLDataFormat(element.jacksonXml); 
@@ -1984,6 +2001,15 @@ export class CamelDefinitionApi {
         return def;
     }
 
+    static createDfdlDataFormat = (element: any): DfdlDataFormat => { 
+        if (element && typeof element === 'string') {
+            element = {schemaUri: element};
+        }
+        const def = element ? new DfdlDataFormat({...element}) : new DfdlDataFormat();
+        def.uuid = element?.uuid ? element.uuid : def.uuid; 
+        return def;
+    }
+
     static createFhirJsonDataFormat = (element: any): FhirJsonDataFormat => { 
         const def = element ? new FhirJsonDataFormat({...element}) : new FhirJsonDataFormat();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
@@ -2002,8 +2028,8 @@ export class CamelDefinitionApi {
         return def;
     }
 
-    static createFuryDataFormat = (element: any): FuryDataFormat => { 
-        const def = element ? new FuryDataFormat({...element}) : new FuryDataFormat();
+    static createForyDataFormat = (element: any): ForyDataFormat => { 
+        const def = element ? new ForyDataFormat({...element}) : new ForyDataFormat();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
         return def;
     }
@@ -2028,6 +2054,12 @@ export class CamelDefinitionApi {
 
     static createIcalDataFormat = (element: any): IcalDataFormat => { 
         const def = element ? new IcalDataFormat({...element}) : new IcalDataFormat();
+        def.uuid = element?.uuid ? element.uuid : def.uuid; 
+        return def;
+    }
+
+    static createIso8583DataFormat = (element: any): Iso8583DataFormat => { 
+        const def = element ? new Iso8583DataFormat({...element}) : new Iso8583DataFormat();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
         return def;
     }
@@ -2737,6 +2769,7 @@ export class CamelDefinitionApi {
         def.dataFormatProperty = element && element?.dataFormatProperty ? element?.dataFormatProperty.map((x:any) => CamelDefinitionApi.createRestPropertyDefinition(x)) :[];
         def.apiProperty = element && element?.apiProperty ? element?.apiProperty.map((x:any) => CamelDefinitionApi.createRestPropertyDefinition(x)) :[];
         def.corsHeaders = element && element?.corsHeaders ? element?.corsHeaders.map((x:any) => CamelDefinitionApi.createRestPropertyDefinition(x)) :[];
+        def.validationLevels = element && element?.validationLevels ? element?.validationLevels.map((x:any) => CamelDefinitionApi.createRestPropertyDefinition(x)) :[];
         return def;
     }
 
@@ -2774,8 +2807,8 @@ export class CamelDefinitionApi {
         if (element?.basicAuth !== undefined) { 
             def.basicAuth = CamelDefinitionApi.createBasicAuthDefinition(element.basicAuth); 
         }
-        if (element?.bearer !== undefined) { 
-            def.bearer = CamelDefinitionApi.createBearerTokenDefinition(element.bearer); 
+        if (element?.bearerToken !== undefined) { 
+            def.bearerToken = CamelDefinitionApi.createBearerTokenDefinition(element.bearerToken); 
         }
         if (element?.mutualTLS !== undefined) { 
             def.mutualTLS = CamelDefinitionApi.createMutualTLSDefinition(element.mutualTLS); 
@@ -2886,8 +2919,8 @@ export class CamelDefinitionApi {
         if (element?.flatpack !== undefined) { 
             def.flatpack = CamelDefinitionApi.createFlatpackDataFormat(element.flatpack); 
         }
-        if (element?.fury !== undefined) { 
-            def.fury = CamelDefinitionApi.createFuryDataFormat(element.fury); 
+        if (element?.fory !== undefined) { 
+            def.fory = CamelDefinitionApi.createForyDataFormat(element.fory); 
         }
         if (element?.grok !== undefined) { 
             def.grok = CamelDefinitionApi.createGrokDataFormat(element.grok); 
@@ -2900,6 +2933,9 @@ export class CamelDefinitionApi {
         }
         if (element?.ical !== undefined) { 
             def.ical = CamelDefinitionApi.createIcalDataFormat(element.ical); 
+        }
+        if (element?.iso8583 !== undefined) { 
+            def.iso8583 = CamelDefinitionApi.createIso8583DataFormat(element.iso8583); 
         }
         if (element?.jacksonXml !== undefined) { 
             def.jacksonXml = CamelDefinitionApi.createJacksonXMLDataFormat(element.jacksonXml); 
@@ -3174,14 +3210,16 @@ export class CamelDefinitionApi {
             case 'CsvDataFormat': return CamelDefinitionApi.createCsvDataFormat(newBody);
             case 'CustomDataFormat': return CamelDefinitionApi.createCustomDataFormat(newBody);
             case 'DataFormatsDefinition': return CamelDefinitionApi.createDataFormatsDefinition(newBody);
+            case 'DfdlDataFormat': return CamelDefinitionApi.createDfdlDataFormat(newBody);
             case 'FhirJsonDataFormat': return CamelDefinitionApi.createFhirJsonDataFormat(newBody);
             case 'FhirXmlDataFormat': return CamelDefinitionApi.createFhirXmlDataFormat(newBody);
             case 'FlatpackDataFormat': return CamelDefinitionApi.createFlatpackDataFormat(newBody);
-            case 'FuryDataFormat': return CamelDefinitionApi.createFuryDataFormat(newBody);
+            case 'ForyDataFormat': return CamelDefinitionApi.createForyDataFormat(newBody);
             case 'GrokDataFormat': return CamelDefinitionApi.createGrokDataFormat(newBody);
             case 'GzipDeflaterDataFormat': return CamelDefinitionApi.createGzipDeflaterDataFormat(newBody);
             case 'HL7DataFormat': return CamelDefinitionApi.createHL7DataFormat(newBody);
             case 'IcalDataFormat': return CamelDefinitionApi.createIcalDataFormat(newBody);
+            case 'Iso8583DataFormat': return CamelDefinitionApi.createIso8583DataFormat(newBody);
             case 'JacksonXMLDataFormat': return CamelDefinitionApi.createJacksonXMLDataFormat(newBody);
             case 'JaxbDataFormat': return CamelDefinitionApi.createJaxbDataFormat(newBody);
             case 'JsonApiDataFormat': return CamelDefinitionApi.createJsonApiDataFormat(newBody);
@@ -3339,14 +3377,16 @@ export class CamelDefinitionApi {
             case 'CryptoDataFormat': return CamelDefinitionApi.createCryptoDataFormat(newBody);
             case 'CsvDataFormat': return CamelDefinitionApi.createCsvDataFormat(newBody);
             case 'CustomDataFormat': return CamelDefinitionApi.createCustomDataFormat(newBody);
+            case 'DfdlDataFormat': return CamelDefinitionApi.createDfdlDataFormat(newBody);
             case 'FhirJsonDataFormat': return CamelDefinitionApi.createFhirJsonDataFormat(newBody);
             case 'FhirXmlDataFormat': return CamelDefinitionApi.createFhirXmlDataFormat(newBody);
             case 'FlatpackDataFormat': return CamelDefinitionApi.createFlatpackDataFormat(newBody);
-            case 'FuryDataFormat': return CamelDefinitionApi.createFuryDataFormat(newBody);
+            case 'ForyDataFormat': return CamelDefinitionApi.createForyDataFormat(newBody);
             case 'GrokDataFormat': return CamelDefinitionApi.createGrokDataFormat(newBody);
             case 'GzipDeflaterDataFormat': return CamelDefinitionApi.createGzipDeflaterDataFormat(newBody);
             case 'HL7DataFormat': return CamelDefinitionApi.createHL7DataFormat(newBody);
             case 'IcalDataFormat': return CamelDefinitionApi.createIcalDataFormat(newBody);
+            case 'Iso8583DataFormat': return CamelDefinitionApi.createIso8583DataFormat(newBody);
             case 'JacksonXMLDataFormat': return CamelDefinitionApi.createJacksonXMLDataFormat(newBody);
             case 'JaxbDataFormat': return CamelDefinitionApi.createJaxbDataFormat(newBody);
             case 'JsonDataFormat': return CamelDefinitionApi.createJsonDataFormat(newBody);

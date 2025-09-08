@@ -139,11 +139,12 @@ export const DataFormats: [string, string, string][] = [
     ['fhirJson','FHIR JSon',"Marshall and unmarshall FHIR objects to/from JSON."],
     ['fhirXml','FHIR XML',"Marshall and unmarshall FHIR objects to/from XML."],
     ['flatpack','Flatpack',"Marshal and unmarshal Java lists and maps to/from flat files (such as CSV, delimited, or fixed length formats) using Flatpack library."],
-    ['fury','Fury',"Serialize and deserialize messages using Apache Fury"],
+    ['fory','Fory',"Serialize and deserialize messages using Apache Fory"],
     ['grok','Grok',"Unmarshal unstructured data to objects using Logstash based Grok patterns."],
     ['gzipDeflater','GZip Deflater',"Compress and decompress messages using java.util.zip.GZIPStream."],
     ['hl7','HL7',"Marshal and unmarshal HL7 (Health Care) model objects using the HL7 MLLP codec."],
     ['ical','iCal',"Marshal and unmarshal iCal (.ics) documents to/from model objects."],
+    ['iso8583','ISO-8583',"Create, edit and read ISO-8583 messages."],
     ['jacksonXml','Jackson XML',"Unmarshal an XML payloads to POJOs and back using XMLMapper extension of Jackson."],
     ['jaxb','JAXB',"Unmarshal XML payloads to POJOs and back using JAXB2 XML marshalling standard."],
     ['json','JSon',"Marshal POJOs to JSON and back."],
@@ -317,11 +318,12 @@ export const CamelDataFormatMetadata: ElementMeta[] = [
         new PropertyMeta('fhirJson', 'fhirJson', "fhirJson", 'FhirJsonDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('fhirXml', 'fhirXml', "fhirXml", 'FhirXmlDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('flatpack', 'flatpack', "flatpack", 'FlatpackDataFormat', '', '', false, false, false, true, '', ''),
-        new PropertyMeta('fury', 'fury', "fury", 'FuryDataFormat', '', '', false, false, false, true, '', ''),
+        new PropertyMeta('fory', 'fory', "fory", 'ForyDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('grok', 'grok', "grok", 'GrokDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('gzipDeflater', 'gzipDeflater', "gzipDeflater", 'GzipDeflaterDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('hl7', 'hl7', "hl7", 'HL7DataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('ical', 'ical', "ical", 'IcalDataFormat', '', '', false, false, false, true, '', ''),
+        new PropertyMeta('iso8583', 'iso8583', "iso8583", 'Iso8583DataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('jacksonXml', 'jacksonXml', "jacksonXml", 'JacksonXMLDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('jaxb', 'jaxb', "jaxb", 'JaxbDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('json', 'json', "json", 'JsonDataFormat', '', '', false, false, false, true, '', ''),
@@ -405,12 +407,12 @@ export const CamelDataFormatMetadata: ElementMeta[] = [
         new PropertyMeta('parserFactoryRef', 'Parser Factory Ref', "References to a custom parser factory to lookup in the registry", 'string', '', '', false, false, false, false, 'advanced', ''),
     ], [
     ]),
-    new ElementMeta('fury', 'FuryDataFormat', 'Fury', "Serialize and deserialize messages using Apache Fury", 'dataformat,transformation', [
+    new ElementMeta('fory', 'ForyDataFormat', 'Fory', "Serialize and deserialize messages using Apache Fory", 'dataformat,transformation', [
         new PropertyMeta('id', 'Id', "The id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('unmarshalType', 'Unmarshal Type', "Class of the java type to use when unmarshalling", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('requireClassRegistration', 'Require Class Registration', "Whether to require register classes", 'boolean', '', 'true', false, false, false, false, 'advanced', ''),
-        new PropertyMeta('threadSafe', 'Thread Safe', "Whether to use the threadsafe fury", 'boolean', '', 'true', false, false, false, false, 'advanced', ''),
-        new PropertyMeta('allowAutoWiredFury', 'Allow Auto Wired Fury', "Whether to auto-discover Fury from the registry", 'boolean', '', 'true', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('threadSafe', 'Thread Safe', "Whether to use the threadsafe Fory", 'boolean', '', 'true', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('allowAutoWiredFory', 'Allow Auto Wired Fory', "Whether to auto-discover Fory from the registry", 'boolean', '', 'true', false, false, false, false, 'advanced', ''),
     ], [
     ]),
     new ElementMeta('grok', 'GrokDataFormat', 'Grok', "Unmarshal unstructured data to objects using Logstash based Grok patterns.", 'dataformat,transformation', [
@@ -435,6 +437,13 @@ export const CamelDataFormatMetadata: ElementMeta[] = [
         new PropertyMeta('validating', 'Validating', "Whether to validate.", 'boolean', '', 'false', false, false, false, false, '', ''),
     ], [
     ]),
+    new ElementMeta('iso8583', 'Iso8583DataFormat', 'ISO-8583', "Create, edit and read ISO-8583 messages.", 'dataformat,transformation,finance', [
+        new PropertyMeta('id', 'Id', "The id of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('configFile', 'Config File', "The j8583 configuration file to load from classpath", 'string', '', 'j8583-config.xml', false, false, false, false, '', ''),
+        new PropertyMeta('isoType', 'Iso Type', "The default ISO-Type to use", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('allowAutoWiredMessageFormat', 'Allow Auto Wired Message Format', "Whether to auto-discover com.solab.iso8583.MessageFactory from the registry", 'boolean', '', 'true', false, false, false, false, 'advanced', ''),
+    ], [
+    ]),
     new ElementMeta('jacksonXml', 'JacksonXMLDataFormat', 'Jackson XML', "Unmarshal an XML payloads to POJOs and back using XMLMapper extension of Jackson.", 'dataformat,transformation,xml', [
         new PropertyMeta('id', 'Id', "The id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('xmlMapper', 'Xml Mapper', "Lookup and use the existing XmlMapper with the given id.", 'string', '', '', false, false, false, false, 'advanced', ''),
@@ -453,6 +462,7 @@ export const CamelDataFormatMetadata: ElementMeta[] = [
         new PropertyMeta('enableFeatures', 'Enable Features', "Set of features to enable on the Jackson com.fasterxml.jackson.databind.ObjectMapper. The features should be a name that matches a enum from com.fasterxml.jackson.databind.SerializationFeature, com.fasterxml.jackson.databind.DeserializationFeature, or com.fasterxml.jackson.databind.MapperFeature Multiple features can be separated by comma", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('disableFeatures', 'Disable Features', "Set of features to disable on the Jackson com.fasterxml.jackson.databind.ObjectMapper. The features should be a name that matches a enum from com.fasterxml.jackson.databind.SerializationFeature, com.fasterxml.jackson.databind.DeserializationFeature, or com.fasterxml.jackson.databind.MapperFeature Multiple features can be separated by comma", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('contentTypeHeader', 'Content Type Header', "Whether the data format should set the Content-Type header with the type from the data format. For example application/xml for data formats marshalling to XML, or application/json for data formats marshalling to JSON", 'boolean', '', 'true', false, false, false, false, '', ''),
+        new PropertyMeta('maxStringLength', 'Max String Length', "Sets the maximum string length (in chars or bytes, depending on input context). The default is 20,000,000. This limit is not exact, the limit is applied when we increase internal buffer sizes and an exception will happen at sizes greater than this limit. Some text values that are a little bigger than the limit may be treated as valid but no text values with sizes less than or equal to this limit will be treated as invalid.", 'number', '', '', false, false, false, false, 'advanced', ''),
     ], [
     ]),
     new ElementMeta('jaxb', 'JaxbDataFormat', 'JAXB', "Unmarshal XML payloads to POJOs and back using JAXB2 XML marshalling standard.", 'dataformat,transformation,xml', [
@@ -510,6 +520,7 @@ export const CamelDataFormatMetadata: ElementMeta[] = [
         new PropertyMeta('namingStrategy', 'Naming Strategy', "If set then Jackson will use the the defined Property Naming Strategy.Possible values are: LOWER_CAMEL_CASE, LOWER_DOT_CASE, LOWER_CASE, KEBAB_CASE, SNAKE_CASE and UPPER_CAMEL_CASE", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('contentTypeHeader', 'Content Type Header', "Whether the data format should set the Content-Type header with the type from the data format. For example application/xml for data formats marshalling to XML, or application/json for data formats marshalling to JSON", 'boolean', '', 'true', false, false, false, false, '', ''),
         new PropertyMeta('dateFormatPattern', 'Date Format Pattern', "To configure the date format while marshall or unmarshall Date fields in JSON using Gson", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('maxStringLength', 'Max String Length', "Jackson. Sets the maximum string length (in chars or bytes, depending on input context). The default is 20,000,000. This limit is not exact, the limit is applied when we increase internal buffer sizes and an exception will happen at sizes greater than this limit. Some text values that are a little bigger than the limit may be treated as valid but no text values with sizes less than or equal to this limit will be treated as invalid.", 'number', '', '', false, false, false, false, 'advanced', ''),
     ], [
     ]),
     new ElementMeta('lzf', 'LZFDataFormat', 'LZF Deflate Compression', "Compress and decompress streams using LZF deflate algorithm.", 'dataformat,transformation', [
@@ -595,12 +606,12 @@ export const CamelDataFormatMetadata: ElementMeta[] = [
         new PropertyMeta('schema', 'Schema', "To validate against an existing schema. Your can use the prefix classpath:, file: or http: to specify how the resource should be resolved. You can separate multiple schema files by using the ',' character.", 'string', '', '', false, false, false, false, '', ''),
     ], [
     ]),
-    new ElementMeta('swiftMt', 'SwiftMtDataFormat', 'SWIFT MT', "Encode and decode SWIFT MT messages.", 'dataformat,transformation,swift', [
+    new ElementMeta('swiftMt', 'SwiftMtDataFormat', 'SWIFT MT', "Encode and decode SWIFT MT messages.", 'dataformat,transformation,finance', [
         new PropertyMeta('id', 'Id', "The id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('writeInJson', 'Write In Json', "The flag indicating that messages must be marshalled in a JSON format.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
     ], [
     ]),
-    new ElementMeta('swiftMx', 'SwiftMxDataFormat', 'SWIFT MX', "Encode and decode SWIFT MX messages.", 'dataformat,transformation,swift', [
+    new ElementMeta('swiftMx', 'SwiftMxDataFormat', 'SWIFT MX', "Encode and decode SWIFT MX messages.", 'dataformat,transformation,finance', [
         new PropertyMeta('id', 'Id', "The id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('writeConfigRef', 'Write Config Ref', "Refers to a specific configuration to use when marshalling a message to lookup from the registry.", 'string', '', '', false, false, false, false, 'advanced', ''),
         new PropertyMeta('writeInJson', 'Write In Json', "The flag indicating that messages must be marshalled in a JSON format.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
@@ -994,7 +1005,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     new ElementMeta('aggregate', 'AggregateDefinition', 'Aggregate', "Aggregates many messages into a single message", 'eip,routing', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('disabled', 'Disabled', "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('correlationExpression', 'Correlation Expression', "The expression used to calculate the correlation key to use for aggregation. The Exchange which has the same correlation key is aggregated together. If the correlation key could not be evaluated an Exception is thrown. You can disable this by using the ignoreBadCorrelationKeys option.", 'ExpressionSubElementDefinition', '', '', true, false, false, true, '', ''),
         new PropertyMeta('completionPredicate', 'Completion Predicate', "A Predicate to indicate when an aggregated exchange is complete. If this is not specified and the AggregationStrategy object implements Predicate, the aggregationStrategy object will be used as the completionPredicate.", 'ExpressionSubElementDefinition', '', '', false, false, false, true, 'advanced', ''),
         new PropertyMeta('completionTimeoutExpression', 'Completion Timeout Expression', "Time in millis that an aggregated exchange should be inactive before its complete (timeout). This option can be set as either a fixed value or using an Expression which allows you to evaluate a timeout dynamically - will use Long as result. If both are set Camel will fallback to use the fixed value if the Expression result was null or 0. You cannot use this option together with completionInterval, only one of the two can be used. By default the timeout checker runs every second, you can use the completionTimeoutCheckerInterval option to configure how frequently to run the checker. The timeout is an approximation and there is no guarantee that the a timeout is triggered exactly after the timeout value. It is not recommended to use very low timeout values or checker intervals.", 'ExpressionSubElementDefinition', '', '', false, false, false, true, 'advanced', ''),
@@ -1035,7 +1046,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     new ElementMeta('bean', 'BeanDefinition', 'Bean', "Calls a Java bean", 'eip,endpoint', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('disabled', 'Disabled', "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('ref', 'Ref', "Sets a reference to an existing bean to use, which is looked up from the registry", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('method', 'Method', "Sets the method name on the bean to use", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('beanType', 'Bean Type', "Sets the class name (fully qualified) of the bean to use", 'string', '', '', false, false, false, false, '', ''),
@@ -1045,7 +1056,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     new ElementMeta('doCatch', 'CatchDefinition', 'Do Catch', "Catches exceptions as part of a try, catch, finally block", 'error', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('disabled', 'Disabled', "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('exception', 'Exception', "The exception(s) to catch.", 'string', '', '', false, false, true, true, '', ''),
         new PropertyMeta('onWhen', 'On When', "Used for triggering doCatch in specific situations", 'OnWhenDefinition', '', '', false, false, false, true, '', ''),
         new PropertyMeta('steps', 'steps', "steps", 'CamelElement', '', '', false, false, true, true, '', ''),
@@ -1057,7 +1068,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     new ElementMeta('choice', 'ChoiceDefinition', 'Choice', "Route messages based on a series of predicates", 'eip,routing', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('disabled', 'Disabled', "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('when', 'When', "Sets the when nodes", 'WhenDefinition', '', '', false, false, true, true, '', ''),
         new PropertyMeta('otherwise', 'Otherwise', "Sets the otherwise node", 'OtherwiseDefinition', '', '', false, false, false, true, '', ''),
         new PropertyMeta('precondition', 'Precondition', "Indicates whether this Choice EIP is in precondition mode or not. If so its branches (when/otherwise) are evaluated during startup to keep at runtime only the branch that matched.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
@@ -1066,7 +1077,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     new ElementMeta('circuitBreaker', 'CircuitBreakerDefinition', 'Circuit Breaker', "Route messages in a fault tolerance way using Circuit Breaker", 'eip,routing,error', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('disabled', 'Disabled', "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('configuration', 'Configuration', "Refers to a circuit breaker configuration (such as resillience4j, or microprofile-fault-tolerance) to use for configuring the circuit breaker EIP.", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('resilience4jConfiguration', 'Resilience4j Configuration', "Configures the circuit breaker to use Resilience4j with the given configuration.", 'Resilience4jConfigurationDefinition', '', '', false, false, false, true, '', ''),
         new PropertyMeta('faultToleranceConfiguration', 'Fault Tolerance Configuration', "Configures the circuit breaker to use MicroProfile Fault Tolerance with the given configuration.", 'FaultToleranceConfigurationDefinition', '', '', false, false, false, true, '', ''),
@@ -1078,11 +1089,13 @@ export const CamelModelMetadata: ElementMeta[] = [
         new ExchangePropertyMeta('CamelResponseShortCircuited', 'Response Short Circuited', 'producer', 'boolean', 'Whether the exchange was short circuited by the breaker'),
         new ExchangePropertyMeta('CamelResponseTimedOut', 'Response Timed Out', 'producer', 'boolean', 'Whether the exchange timed out during processing by the circuit breaker'),
         new ExchangePropertyMeta('CamelResponseRejected', 'Response Rejected', 'producer', 'boolean', 'Whether the circuit breaker rejected processing the exchange'),
+        new ExchangePropertyMeta('CamelResponseIgnored', 'Response Ignored', 'producer', 'boolean', 'Whether the circuit breaker ignored an exception during processing'),
+        new ExchangePropertyMeta('CamelResponseState', 'Response State', 'producer', 'String', 'The state of the circuit breaker'),
     ]),
     new ElementMeta('claimCheck', 'ClaimCheckDefinition', 'Claim Check', "The Claim Check EIP allows you to replace message content with a claim check (a unique key), which can be used to retrieve the message content at a later time.", 'eip,routing', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('disabled', 'Disabled', "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('operation', 'Operation', "The claim check operation to use. The following operations are supported: Get - Gets (does not remove) the claim check by the given key. GetAndRemove - Gets and removes the claim check by the given key. Set - Sets a new (will override if key already exists) claim check with the given key. Push - Sets a new claim check on the stack (does not use key). Pop - Gets the latest claim check from the stack (does not use key).", 'string', 'Get, GetAndRemove, Set, Push, Pop', '', false, false, false, false, '', ''),
         new PropertyMeta('key', 'Key', "To use a specific key for claim check id (for dynamic keys use simple language syntax as the key).", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('filter', 'Filter', "Specify a filter to control what data gets merged data back from the claim check repository. The following syntax is supported: body - to aggregate the message body attachments - to aggregate all the message attachments headers - to aggregate all the message headers header:pattern - to aggregate all the message headers that matches the pattern. The following pattern rules are applied in this order: exact match, returns true wildcard match (pattern ends with a and the name starts with the pattern), returns true regular expression match, returns true otherwise returns false You can specify multiple rules separated by comma. For example, the following includes the message body and all headers starting with foo: body,header:foo. The syntax supports the following prefixes which can be used to specify include,exclude, or remove - to include (which is the default mode) - - to exclude (exclude takes precedence over include) -- - to remove (remove takes precedence) For example to exclude a header name foo, and remove all headers starting with bar, -header:foo,--headers:bar Note you cannot have both include and exclude header:pattern at the same time.", 'string', '', '', false, false, false, false, '', ''),
@@ -1093,7 +1106,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     new ElementMeta('convertBodyTo', 'ConvertBodyDefinition', 'Convert Body To', "Converts the message body to another type", 'eip,transformation', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('disabled', 'Disabled', "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('type', 'Type', "The java type to convert to", 'string', '', '', true, false, false, false, '', ''),
         new PropertyMeta('mandatory', 'Mandatory', "When mandatory then the conversion must return a value (cannot be null), if this is not possible then NoTypeConversionAvailableException is thrown. Setting this to false could mean conversion is not possible and the value is null.", 'boolean', '', 'true', false, false, false, false, 'advanced', ''),
         new PropertyMeta('charset', 'Charset', "To use a specific charset when converting", 'string', '', '', false, false, false, false, 'advanced', ''),
@@ -1102,7 +1115,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     new ElementMeta('convertHeaderTo', 'ConvertHeaderDefinition', 'Convert Header To', "Converts the message header to another type", 'eip,transformation', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('disabled', 'Disabled', "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('name', 'Name', "Name of message header to convert its value The simple language can be used to define a dynamic evaluated header name to be used. Otherwise a constant name will be used.", 'string', '', '', true, false, false, false, '', ''),
         new PropertyMeta('type', 'Type', "The java type to convert to", 'string', '', '', true, false, false, false, '', ''),
         new PropertyMeta('toName', 'To Name', "To use another header to store the result. By default, the result is stored in the same header. This option allows to use another header. The simple language can be used to define a dynamic evaluated header name to be used. Otherwise a constant name will be used.", 'string', '', '', false, false, false, false, '', ''),
@@ -1113,7 +1126,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     new ElementMeta('convertVariableTo', 'ConvertVariableDefinition', 'Convert Variable To', "Converts the variable to another type", 'eip,transformation', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('disabled', 'Disabled', "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('name', 'Name', "Name of variable to convert its value The simple language can be used to define a dynamic evaluated header name to be used. Otherwise a constant name will be used.", 'string', '', '', true, false, false, false, '', ''),
         new PropertyMeta('type', 'Type', "The java type to convert to", 'string', '', '', true, false, false, false, '', ''),
         new PropertyMeta('toName', 'To Name', "To use another variable to store the result. By default, the result is stored in the same variable. This option allows to use another variable. The simple language can be used to define a dynamic evaluated variable name to be used. Otherwise a constant name will be used.", 'string', '', '', false, false, false, false, '', ''),
@@ -1124,7 +1137,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     new ElementMeta('delay', 'DelayDefinition', 'Delay', "Delays processing for a specified length of time", 'eip,routing', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('disabled', 'Disabled', "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('expression', 'Expression', "Expression to define how long time to wait (in millis)", 'ExpressionDefinition', '', '', true, false, false, true, '', ''),
         new PropertyMeta('asyncDelayed', 'Async Delayed', "Enables asynchronous delay which means the thread will not block while delaying.", 'boolean', '', 'true', false, false, false, false, 'advanced', ''),
         new PropertyMeta('callerRunsWhenRejected', 'Caller Runs When Rejected', "Whether or not the caller should run the task when it was rejected by the thread pool. Is by default true", 'boolean', '', 'true', false, false, false, false, 'advanced', ''),
@@ -1134,7 +1147,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     new ElementMeta('dynamicRouter', 'DynamicRouterDefinition', 'Dynamic Router', "Route messages based on dynamic rules", 'eip,routing', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('disabled', 'Disabled', "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('expression', 'Expression', "Expression to call that returns the endpoint(s) to route to in the dynamic routing. Important: The expression will be called in a while loop fashion, until the expression returns null which means the dynamic router is finished.", 'ExpressionDefinition', '', '', true, false, false, true, '', ''),
         new PropertyMeta('uriDelimiter', 'Uri Delimiter', "Sets the uri delimiter to use", 'string', '', ',', false, false, false, false, '', ''),
         new PropertyMeta('ignoreInvalidEndpoints', 'Ignore Invalid Endpoints', "Ignore the invalidate endpoint exception when try to create a producer with that endpoint", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
@@ -1144,7 +1157,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     new ElementMeta('enrich', 'EnrichDefinition', 'Enrich', "Enriches a message with data from a secondary resource", 'eip,transformation', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('disabled', 'Disabled', "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('expression', 'Expression', "Expression that computes the endpoint uri to use as the resource endpoint to enrich from", 'ExpressionDefinition', '', '', true, false, false, true, '', ''),
         new PropertyMeta('variableSend', 'Variable Send', "To use a variable to store the received message body (only body, not headers). This makes it handy to use variables for user data and to easily control what data to use for sending and receiving. Important: When using receive variable then the received body is stored only in this variable and not on the current message.", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('variableReceive', 'Variable Receive', "To use a variable as the source for the message body to send. This makes it handy to use variables for user data and to easily control what data to use for sending and receiving. Important: When using send variable then the message body is taken from this variable instead of the current message, however the headers from the message will still be used as well. In other words, the variable is used instead of the message body, but everything else is as usual.", 'string', '', '', false, false, false, false, '', ''),
@@ -1155,7 +1168,7 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('shareUnitOfWork', 'Share Unit Of Work', "Shares the org.apache.camel.spi.UnitOfWork with the parent and the resource exchange. Enrich will by default not share unit of work between the parent exchange and the resource exchange. This means the resource exchange has its own individual unit of work.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('cacheSize', 'Cache Size', "Sets the maximum size used by the org.apache.camel.spi.ProducerCache which is used to cache and reuse producer when uris are reused. Beware that when using dynamic endpoints then it affects how well the cache can be utilized. If each dynamic endpoint is unique then its best to turn off caching by setting this to -1, which allows Camel to not cache both the producers and endpoints; they are regarded as prototype scoped and will be stopped and discarded after use. This reduces memory usage as otherwise producers/endpoints are stored in memory in the caches. However if there are a high degree of dynamic endpoints that have been used before, then it can benefit to use the cache to reuse both producers and endpoints and therefore the cache size can be set accordingly or rely on the default size (1000). If there is a mix of unique and used before dynamic endpoints, then setting a reasonable cache size can help reduce memory usage to avoid storing too many non frequent used producers.", 'number', '', '', false, false, false, false, 'advanced', ''),
         new PropertyMeta('ignoreInvalidEndpoint', 'Ignore Invalid Endpoint', "Ignore the invalidate endpoint exception when try to create a producer with that endpoint", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
-        new PropertyMeta('allowOptimisedComponents', 'Allow Optimised Components', "Whether to allow components to optimise enricher if they are org.apache.camel.spi.SendDynamicAware .", 'boolean', '', 'true', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('allowOptimisedComponents', 'Allow Optimised Components', "Whether to allow components to optimise enricher if they are org.apache.camel.spi.SendDynamicAware", 'boolean', '', 'true', false, false, false, false, 'advanced', ''),
         new PropertyMeta('autoStartComponents', 'Auto Start Components', "Whether to auto startup components when enricher is starting up.", 'boolean', '', 'true', false, false, false, false, 'advanced', ''),
     ], [
         new ExchangePropertyMeta('CamelToEndpoint', 'To Endpoint', 'producer', 'String', 'Endpoint URI where this Exchange is being sent to'),
@@ -1163,7 +1176,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     new ElementMeta('filter', 'FilterDefinition', 'Filter', "Filter out messages based using a predicate", 'eip,routing', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('disabled', 'Disabled', "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('expression', 'Expression', "Expression to determine if the message should be filtered or not. If the expression returns an empty value or false then the message is filtered (dropped), otherwise the message is continued being routed.", 'ExpressionDefinition', '', '', true, false, false, true, '', ''),
         new PropertyMeta('statusPropertyName', 'Status Property Name', "Name of exchange property to use for storing the status of the filtering. Setting this allows to know if the filter predicate evaluated as true or false.", 'string', '', '', false, false, false, false, 'advanced', ''),
         new PropertyMeta('steps', 'steps', "steps", 'CamelElement', '', '', false, false, true, true, '', ''),
@@ -1172,7 +1185,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     new ElementMeta('doFinally', 'FinallyDefinition', 'Do Finally', "Path traversed when a try, catch, finally block exits", 'error', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('disabled', 'Disabled', "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('steps', 'steps', "steps", 'CamelElement', '', '', false, false, true, true, '', ''),
     ], [
         new ExchangePropertyMeta('CamelExceptionCaught', 'Exception Caught', 'producer', 'java.lang.Exception', 'Stores the caught exception due to a processing error of the current Exchange'),
@@ -1182,7 +1195,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     new ElementMeta('idempotentConsumer', 'IdempotentConsumerDefinition', 'Idempotent Consumer', "Filters out duplicate messages", 'eip,routing', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('disabled', 'Disabled', "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('expression', 'Expression', "Expression used to calculate the correlation key to use for duplicate check. The Exchange which has the same correlation key is regarded as a duplicate and will be rejected.", 'ExpressionDefinition', '', '', true, false, false, true, '', ''),
         new PropertyMeta('idempotentRepository', 'Idempotent Repository', "Sets the reference name of the message id repository", 'string', '', '', false, false, false, false, '', 'org.apache.camel.spi.IdempotentRepository'),
         new PropertyMeta('eager', 'Eager', "Sets whether to eagerly add the key to the idempotent repository or wait until the exchange is complete. Eager is default enabled.", 'boolean', '', 'true', false, false, false, false, 'advanced', ''),
@@ -1202,7 +1215,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     new ElementMeta('loadBalance', 'LoadBalanceDefinition', 'Load Balance', "Balances message processing among a number of nodes", 'eip,routing', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('disabled', 'Disabled', "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('customLoadBalancer', 'customLoadBalancer', "customLoadBalancer", 'CustomLoadBalancerDefinition', '', '', false, false, false, true, '', ''),
         new PropertyMeta('failoverLoadBalancer', 'failoverLoadBalancer', "failoverLoadBalancer", 'FailoverLoadBalancerDefinition', '', '', false, false, false, true, '', ''),
         new PropertyMeta('randomLoadBalancer', 'randomLoadBalancer', "randomLoadBalancer", 'RandomLoadBalancerDefinition', '', '', false, false, false, true, '', ''),
@@ -1216,7 +1229,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     new ElementMeta('log', 'LogDefinition', 'Logger', "Used for printing custom messages to the logger.", 'eip,routing', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('disabled', 'Disabled', "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('message', 'Message', "Sets the log message (uses simple language)", 'string', '', '', true, false, false, false, '', ''),
         new PropertyMeta('loggingLevel', 'Logging Level', "Sets the logging level. The default value is INFO", 'string', 'TRACE, DEBUG, INFO, WARN, ERROR, OFF', 'INFO', false, false, false, false, '', ''),
         new PropertyMeta('logName', 'Log Name', "Sets the name of the logger. The name is default the routeId or the source:line if source location is enabled. You can also specify the name using tokens: ${class} - the logger class name (org.apache.camel.processor.LogProcessor) ${contextId} - the camel context id ${routeId} - the route id ${groupId} - the route group id ${nodeId} - the node id ${nodePrefixId} - the node prefix id ${source} - the source:line (source location must be enabled) ${source.name} - the source filename (source location must be enabled) ${source.line} - the source line number (source location must be enabled) For example to use the route and node id you can specify the name as: ${routeId}/${nodeId}", 'string', '', '', false, false, false, false, '', ''),
@@ -1228,7 +1241,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     new ElementMeta('loop', 'LoopDefinition', 'Loop', "Processes a message multiple times", 'eip,routing', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('disabled', 'Disabled', "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('expression', 'Expression', "Expression to define how many times we should loop. Notice the expression is only evaluated once, and should return a number as how many times to loop. A value of zero or negative means no looping. The loop is like a for-loop fashion, if you want a while loop, then the dynamic router may be a better choice.", 'ExpressionDefinition', '', '', true, false, false, true, '', ''),
         new PropertyMeta('copy', 'Copy', "If the copy attribute is true, a copy of the input Exchange is used for each iteration. That means each iteration will start from a copy of the same message. By default loop will loop the same exchange all over, so each iteration may have different message content.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('doWhile', 'Do While', "Enables the while loop that loops until the predicate evaluates to false or null.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
@@ -1242,7 +1255,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     new ElementMeta('marshal', 'MarshalDefinition', 'Marshal', "Marshals data into a specified format for transmission over a transport or component", 'eip,dataformat,transformation', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('disabled', 'Disabled', "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('variableSend', 'Variable Send', "To use a variable as the source for the message body to send. This makes it handy to use variables for user data and to easily control what data to use for sending and receiving. Important: When using send variable then the message body is taken from this variable instead of the current message, however the headers from the message will still be used as well. In other words, the variable is used instead of the message body, but everything else is as usual.", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('variableReceive', 'Variable Receive', "To use a variable to store the received message body (only body, not headers). This makes it handy to use variables for user data and to easily control what data to use for sending and receiving. Important: When using receive variable then the received body is stored only in this variable and not on the current message.", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('asn1', 'asn1', "asn1", 'ASN1DataFormat', '', '', false, false, false, true, '', ''),
@@ -1255,14 +1268,16 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('crypto', 'crypto', "crypto", 'CryptoDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('csv', 'csv', "csv", 'CsvDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('custom', 'custom', "custom", 'CustomDataFormat', '', '', false, false, false, true, '', ''),
+        new PropertyMeta('dfdl', 'dfdl', "dfdl", 'DfdlDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('fhirJson', 'fhirJson', "fhirJson", 'FhirJsonDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('fhirXml', 'fhirXml', "fhirXml", 'FhirXmlDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('flatpack', 'flatpack', "flatpack", 'FlatpackDataFormat', '', '', false, false, false, true, '', ''),
-        new PropertyMeta('fury', 'fury', "fury", 'FuryDataFormat', '', '', false, false, false, true, '', ''),
+        new PropertyMeta('fory', 'fory', "fory", 'ForyDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('grok', 'grok', "grok", 'GrokDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('gzipDeflater', 'gzipDeflater', "gzipDeflater", 'GzipDeflaterDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('hl7', 'hl7', "hl7", 'HL7DataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('ical', 'ical', "ical", 'IcalDataFormat', '', '', false, false, false, true, '', ''),
+        new PropertyMeta('iso8583', 'iso8583', "iso8583", 'Iso8583DataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('jacksonXml', 'jacksonXml', "jacksonXml", 'JacksonXMLDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('jaxb', 'jaxb', "jaxb", 'JaxbDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('json', 'json', "json", 'JsonDataFormat', '', '', false, false, false, true, '', ''),
@@ -1293,7 +1308,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     new ElementMeta('multicast', 'MulticastDefinition', 'Multicast', "Routes the same message to multiple paths either sequentially or in parallel.", 'eip,routing', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('disabled', 'Disabled', "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('aggregationStrategy', 'Aggregation Strategy', "Refers to an AggregationStrategy to be used to assemble the replies from the multicasts, into a single outgoing message from the Multicast. By default Camel will use the last reply as the outgoing message. You can also use a POJO as the AggregationStrategy", 'string', '', '', false, false, false, false, '', 'org.apache.camel.AggregationStrategy'),
         new PropertyMeta('aggregationStrategyMethodName', 'Aggregation Strategy Method Name', "This option can be used to explicit declare the method name to use, when using POJOs as the AggregationStrategy.", 'string', '', '', false, false, false, false, 'advanced', ''),
         new PropertyMeta('aggregationStrategyMethodAllowNull', 'Aggregation Strategy Method Allow Null', "If this option is false then the aggregate method is not used if there was no data to enrich. If this option is true then null values is used as the oldExchange (when no data to enrich), when using POJOs as the AggregationStrategy", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
@@ -1315,7 +1330,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     new ElementMeta('pausable', 'PausableDefinition', 'Pausable', "Pausable EIP to support resuming processing from last known offset.", 'eip,routing', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('disabled', 'Disabled', "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('consumerListener', 'Consumer Listener', "Sets the consumer listener to use", 'string', '', '', true, false, false, false, '', ''),
         new PropertyMeta('untilCheck', 'Until Check', "References to a java.util.function.Predicate to use for until checks. The predicate is responsible for evaluating whether the processing can resume or not. Such predicate should return true if the consumption can resume, or false otherwise. The exact point of when the predicate is called is dependent on the component, and it may be called on either one of the available events. Implementations should not assume the predicate to be called at any specific point.", 'string', '', '', true, false, false, false, '', ''),
     ], [
@@ -1323,14 +1338,14 @@ export const CamelModelMetadata: ElementMeta[] = [
     new ElementMeta('pipeline', 'PipelineDefinition', 'Pipeline', "Routes the message to a sequence of processors.", 'eip,routing', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('disabled', 'Disabled', "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('steps', 'steps', "steps", 'CamelElement', '', '', false, false, true, true, '', ''),
     ], [
     ]),
     new ElementMeta('policy', 'PolicyDefinition', 'Policy', "Defines a policy the route will use", 'configuration', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('disabled', 'Disabled', "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('ref', 'Ref', "Sets a reference to use for lookup the policy in the registry.", 'string', '', '', true, false, false, false, '', ''),
         new PropertyMeta('steps', 'steps', "steps", 'CamelElement', '', '', false, false, true, true, '', ''),
     ], [
@@ -1338,7 +1353,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     new ElementMeta('poll', 'PollDefinition', 'Poll', "Polls a message from a static endpoint", 'eip,routing', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('disabled', 'Disabled', "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('variableReceive', 'Variable Receive', "To use a variable to store the received message body (only body, not headers). This makes it handy to use variables for user data and to easily control what data to use for sending and receiving. Important: When using receive variable then the received body is stored only in this variable and not on the current message.", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('uri', 'Uri', "Sets the uri of the endpoint to poll from.", 'string', '', '', true, false, false, false, '', ''),
         new PropertyMeta('timeout', 'Timeout', "Timeout in millis when polling from the external service. The timeout has influence about the poll enrich behavior. It basically operations in three different modes: negative value - Waits until a message is available and then returns it. Warning that this method could block indefinitely if no messages are available. 0 - Attempts to receive a message exchange immediately without waiting and returning null if a message exchange is not available yet. positive value - Attempts to receive a message exchange, waiting up to the given timeout to expire if a message is not yet available. Returns null if timed out The default value is 20000 (20 seconds).", 'string', '', '20000', false, false, false, false, 'advanced', ''),
@@ -1348,7 +1363,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     new ElementMeta('pollEnrich', 'PollEnrichDefinition', 'Poll Enrich', "Enriches messages with data polled from a secondary resource", 'eip,transformation', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('disabled', 'Disabled', "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('expression', 'Expression', "Expression that computes the endpoint uri to use as the resource endpoint to enrich from", 'ExpressionDefinition', '', '', true, false, false, true, '', ''),
         new PropertyMeta('variableReceive', 'Variable Receive', "To use a variable to store the received message body (only body, not headers). This makes it handy to use variables for user data and to easily control what data to use for sending and receiving. Important: When using receive variable then the received body is stored only in this variable and not on the current message.", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('aggregationStrategy', 'Aggregation Strategy', "Sets the AggregationStrategy to be used to merge the reply from the external service, into a single outgoing message. By default Camel will use the reply from the external service as outgoing message.", 'string', '', '', false, false, false, false, '', 'org.apache.camel.AggregationStrategy'),
@@ -1356,8 +1371,9 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('aggregationStrategyMethodAllowNull', 'Aggregation Strategy Method Allow Null', "If this option is false then the aggregate method is not used if there was no data to enrich. If this option is true then null values is used as the oldExchange (when no data to enrich), when using POJOs as the AggregationStrategy.", 'string', '', '', false, false, false, false, 'advanced', ''),
         new PropertyMeta('aggregateOnException', 'Aggregate On Exception', "If this option is false then the aggregate method is not used if there was an exception thrown while trying to retrieve the data to enrich from the resource. Setting this option to true allows end users to control what to do if there was an exception in the aggregate method. For example to suppress the exception or set a custom message body etc.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('timeout', 'Timeout', "Timeout in millis when polling from the external service. The timeout has influence about the poll enrich behavior. It basically operations in three different modes: negative value - Waits until a message is available and then returns it. Warning that this method could block indefinitely if no messages are available. 0 - Attempts to receive a message exchange immediately without waiting and returning null if a message exchange is not available yet. positive value - Attempts to receive a message exchange, waiting up to the given timeout to expire if a message is not yet available. Returns null if timed out The default value is -1 and therefore the method could block indefinitely, and therefore its recommended to use a timeout value", 'string', '', '-1', false, false, false, false, '', ''),
-        new PropertyMeta('cacheSize', 'Cache Size', "Sets the maximum size used by the org.apache.camel.spi.ConsumerCache which is used to cache and reuse consumers when uris are reused. Beware that when using dynamic endpoints then it affects how well the cache can be utilized. If each dynamic endpoint is unique then its best to turn off caching by setting this to -1, which allows Camel to not cache both the producers and endpoints; they are regarded as prototype scoped and will be stopped and discarded after use. This reduces memory usage as otherwise producers/endpoints are stored in memory in the caches. However if there are a high degree of dynamic endpoints that have been used before, then it can benefit to use the cache to reuse both producers and endpoints and therefore the cache size can be set accordingly or rely on the default size (1000). If there is a mix of unique and used before dynamic endpoints, then setting a reasonable cache size can help reduce memory usage to avoid storing too many non frequent used producers.", 'number', '', '', false, false, false, false, 'advanced', ''),
-        new PropertyMeta('ignoreInvalidEndpoint', 'Ignore Invalid Endpoint', "Ignore the invalidate endpoint exception when try to create a producer with that endpoint", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('cacheSize', 'Cache Size', "Sets the maximum size used by the org.apache.camel.spi.ConsumerCache which is used to cache and reuse consumers when uris are reused. Beware that when using dynamic endpoints then it affects how well the cache can be utilized. If each dynamic endpoint is unique then its best to turn off caching by setting this to -1, which allows Camel to not cache both the consumers and endpoints; they are regarded as prototype scoped and will be stopped and discarded after use. This reduces memory usage as otherwise consumers/endpoints are stored in memory in the caches. However, if there are a high degree of dynamic endpoints that have been used before, then it can benefit to use the cache to reuse both consumers and endpoints and therefore the cache size can be set accordingly or rely on the default size (1000). If there is a mix of unique and used before dynamic endpoints, then setting a reasonable cache size can help reduce memory usage to avoid storing too many non-frequent used consumers.", 'number', '', '', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('ignoreInvalidEndpoint', 'Ignore Invalid Endpoint', "Ignore the invalidate endpoint exception when try to create a consumer with that endpoint", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('allowOptimisedComponents', 'Allow Optimised Components', "Whether to allow components to optimise if they are org.apache.camel.spi.PollDynamicAware", 'boolean', '', 'true', false, false, false, false, 'advanced', ''),
         new PropertyMeta('autoStartComponents', 'Auto Start Components', "Whether to auto startup components when poll enricher is starting up.", 'boolean', '', 'true', false, false, false, false, 'advanced', ''),
     ], [
         new ExchangePropertyMeta('CamelToEndpoint', 'To Endpoint', 'producer', 'String', 'Endpoint URI where this Exchange is being sent to'),
@@ -1365,14 +1381,14 @@ export const CamelModelMetadata: ElementMeta[] = [
     new ElementMeta('process', 'ProcessDefinition', 'Process', "Calls a Camel processor", 'eip,endpoint', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('disabled', 'Disabled', "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('ref', 'Ref', "Reference to the Processor to lookup in the registry to use. A Processor is a class of type org.apache.camel.Processor, which can are to be called by this EIP. In this processor you have custom Java code, that can work with the message, such as to do custom business logic, special message manipulations and so on. By default, the ref, will lookup the bean in the Camel registry. The ref can use prefix that controls how the processor is obtained. You can use #bean:myBean where myBean is the id of the Camel processor (lookup). Can also be used for creating new beans by their class name by prefixing with #class, eg #class:com.foo.MyClassType. And it is also possible to refer to singleton beans by their type in the registry by prefixing with #type: syntax, eg #type:com.foo.MyClassType", 'string', '', '', true, false, false, false, '', 'org.apache.camel.Processor'),
     ], [
     ]),
     new ElementMeta('recipientList', 'RecipientListDefinition', 'Recipient List', "Route messages to a number of dynamically specified recipients", 'eip,routing', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('disabled', 'Disabled', "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('expression', 'Expression', "Expression that returns which endpoints (url) to send the message to (the recipients). If the expression return an empty value then the message is not sent to any recipients.", 'ExpressionDefinition', '', '', true, false, false, true, '', ''),
         new PropertyMeta('delimiter', 'Delimiter', "Delimiter used if the Expression returned multiple endpoints. Can be turned off using the value false. The default value is ,", 'string', '', ',', false, false, false, false, '', ''),
         new PropertyMeta('aggregationStrategy', 'Aggregation Strategy', "Sets the AggregationStrategy to be used to assemble the replies from the recipients, into a single outgoing message from the RecipientList. By default Camel will use the last reply as the outgoing message. You can also use a POJO as the AggregationStrategy", 'string', '', '', false, false, false, false, '', 'org.apache.camel.AggregationStrategy'),
@@ -1396,14 +1412,14 @@ export const CamelModelMetadata: ElementMeta[] = [
     new ElementMeta('removeHeader', 'RemoveHeaderDefinition', 'Remove Header', "Removes a named header from the message", 'eip,transformation', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('disabled', 'Disabled', "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('name', 'Name', "Name of header to remove", 'string', '', '', true, false, false, false, '', ''),
     ], [
     ]),
     new ElementMeta('removeHeaders', 'RemoveHeadersDefinition', 'Remove Headers', "Removes message headers whose name matches a specified pattern", 'eip,transformation', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('disabled', 'Disabled', "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('pattern', 'Pattern', "Name or pattern of headers to remove. The pattern is matched in the following order: 1 = exact match 2 = wildcard (pattern ends with a and the name starts with the pattern) 3 = regular expression (all of above is case in-sensitive).", 'string', '', '', true, false, false, false, '', ''),
         new PropertyMeta('excludePattern', 'Exclude Pattern', "Name or patter of headers to not remove. The pattern is matched in the following order: 1 = exact match 2 = wildcard (pattern ends with a and the name starts with the pattern) 3 = regular expression (all of above is case in-sensitive).", 'string', '', '', false, false, false, false, 'advanced', ''),
     ], [
@@ -1411,7 +1427,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     new ElementMeta('removeProperties', 'RemovePropertiesDefinition', 'Remove Properties', "Removes message exchange properties whose name matches a specified pattern", 'eip,transformation', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('disabled', 'Disabled', "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('pattern', 'Pattern', "Name or pattern of properties to remove. The pattern is matched in the following order: 1 = exact match 2 = wildcard (pattern ends with a and the name starts with the pattern) 3 = regular expression (all of above is case in-sensitive).", 'string', '', '', true, false, false, false, '', ''),
         new PropertyMeta('excludePattern', 'Exclude Pattern', "Name or pattern of properties to not remove. The pattern is matched in the following order: 1 = exact match 2 = wildcard (pattern ends with a and the name starts with the pattern) 3 = regular expression (all of above is case in-sensitive).", 'string', '', '', false, false, false, false, 'advanced', ''),
     ], [
@@ -1419,21 +1435,21 @@ export const CamelModelMetadata: ElementMeta[] = [
     new ElementMeta('removeProperty', 'RemovePropertyDefinition', 'Remove Property', "Removes a named property from the message exchange", 'eip,transformation', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('disabled', 'Disabled', "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('name', 'Name', "Name of property to remove.", 'string', '', '', true, false, false, false, '', ''),
     ], [
     ]),
     new ElementMeta('removeVariable', 'RemoveVariableDefinition', 'Remove Variable', "Removes a named variable", 'eip,transformation', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('disabled', 'Disabled', "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('name', 'Name', "Name of variable to remove.", 'string', '', '', true, false, false, false, '', ''),
     ], [
     ]),
     new ElementMeta('resequence', 'ResequenceDefinition', 'Resequence', "Resequences (re-order) messages based on an expression", 'eip,routing', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('disabled', 'Disabled', "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('expression', 'Expression', "Expression to use for re-ordering the messages, such as a header with a sequence number", 'ExpressionDefinition', '', '', true, false, false, true, '', ''),
         new PropertyMeta('batchConfig', 'batchConfig', "batchConfig", 'BatchResequencerConfig', '', '', false, false, false, true, '', ''),
         new PropertyMeta('streamConfig', 'streamConfig', "streamConfig", 'StreamResequencerConfig', '', '', false, false, false, true, '', ''),
@@ -1443,16 +1459,16 @@ export const CamelModelMetadata: ElementMeta[] = [
     new ElementMeta('resumable', 'ResumableDefinition', 'Resumable', "Resume EIP to support resuming processing from last known offset.", 'eip,routing', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('disabled', 'Disabled', "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('resumeStrategy', 'Resume Strategy', "Sets the resume strategy to use", 'string', '', '', true, false, false, false, '', ''),
-        new PropertyMeta('loggingLevel', 'Logging Level', "loggingLevel", 'string', 'TRACE, DEBUG, INFO, WARN, ERROR, OFF', 'ERROR', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('loggingLevel', 'Logging Level', "The logging level to use in case of failures.", 'string', 'TRACE, DEBUG, INFO, WARN, ERROR, OFF', 'ERROR', false, false, false, false, 'advanced', ''),
         new PropertyMeta('intermittent', 'Intermittent', "Sets whether the offsets will be intermittently present or whether they must be present in every exchange", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
     ], [
     ]),
     new ElementMeta('rollback', 'RollbackDefinition', 'Rollback', "Forces a rollback by stopping routing the message", 'eip,routing', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('disabled', 'Disabled', "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('message', 'Message', "Message to use in rollback exception", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('markRollbackOnly', 'Mark Rollback Only', "Mark the transaction for rollback only (cannot be overruled to commit)", 'boolean', '', 'false', false, false, false, false, '', ''),
         new PropertyMeta('markRollbackOnlyLast', 'Mark Rollback Only Last', "Mark only last sub transaction for rollback only. When using sub transactions (if the transaction manager support this)", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
@@ -1461,7 +1477,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     new ElementMeta('routingSlip', 'RoutingSlipDefinition', 'Routing Slip', "Routes a message through a series of steps that are pre-determined (the slip)", 'eip,routing', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('disabled', 'Disabled', "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('expression', 'Expression', "Expression to define the routing slip, which defines which endpoints to route the message in a pipeline style. Notice the expression is evaluated once, if you want a more dynamic style, then the dynamic router eip is a better choice.", 'ExpressionDefinition', '', '', true, false, false, true, '', ''),
         new PropertyMeta('uriDelimiter', 'Uri Delimiter', "Sets the uri delimiter to use", 'string', '', ',', false, false, false, false, '', ''),
         new PropertyMeta('ignoreInvalidEndpoints', 'Ignore Invalid Endpoints', "Ignore the invalidate endpoint exception when try to create a producer with that endpoint", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
@@ -1473,7 +1489,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     new ElementMeta('saga', 'SagaDefinition', 'Saga', "Enables Sagas on the route", 'eip,routing', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('disabled', 'Disabled', "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('sagaService', 'Saga Service', "Refers to the id to lookup in the registry for the specific CamelSagaService to use.", 'string', '', '', false, false, false, false, 'advanced', ''),
         new PropertyMeta('propagation', 'Propagation', "Set the Saga propagation mode (REQUIRED, REQUIRES_NEW, MANDATORY, SUPPORTS, NOT_SUPPORTED, NEVER).", 'string', 'REQUIRED, REQUIRES_NEW, MANDATORY, SUPPORTS, NOT_SUPPORTED, NEVER', 'REQUIRED', false, false, false, false, 'advanced', ''),
         new PropertyMeta('completionMode', 'Completion Mode', "Determine how the saga should be considered complete. When set to AUTO, the saga is completed when the exchange that initiates the saga is processed successfully, or compensated when it completes exceptionally. When set to MANUAL, the user must complete or compensate the saga using the saga:complete or saga:compensate endpoints.", 'string', 'AUTO, MANUAL', 'AUTO', false, false, false, false, 'advanced', ''),
@@ -1487,7 +1503,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     new ElementMeta('sample', 'SamplingDefinition', 'Sample', "Extract a sample of the messages passing through a route", 'eip,routing', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('disabled', 'Disabled', "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('samplePeriod', 'Sample Period', "Sets the sample period during which only a single Exchange will pass through.", 'string', '', '1000', false, false, false, false, '', ''),
         new PropertyMeta('messageFrequency', 'Message Frequency', "Sets the sample message count which only a single Exchange will pass through after this many received.", 'number', '', '', false, false, false, false, '', ''),
     ], [
@@ -1495,28 +1511,28 @@ export const CamelModelMetadata: ElementMeta[] = [
     new ElementMeta('script', 'ScriptDefinition', 'Script', "Executes a script from a language which does not change the message body.", 'eip,transformation', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('disabled', 'Disabled', "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
-        new PropertyMeta('expression', 'Expression', "Expression to return the transformed message body (the new message body to use)", 'ExpressionDefinition', '', '', true, false, false, true, '', ''),
+        new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('expression', 'Expression', "Script to be executed.", 'ExpressionDefinition', '', '', true, false, false, true, '', ''),
     ], [
     ]),
     new ElementMeta('setBody', 'SetBodyDefinition', 'Set Body', "Sets the contents of the message body", 'eip,transformation', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('disabled', 'Disabled', "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('expression', 'Expression', "Expression that returns the new body to use", 'ExpressionDefinition', '', '', true, false, false, true, '', ''),
     ], [
     ]),
     new ElementMeta('setExchangePattern', 'SetExchangePatternDefinition', 'Set Exchange Pattern', "Sets the exchange pattern on the message exchange", 'configuration', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('disabled', 'Disabled', "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('pattern', 'Pattern', "Sets the new exchange pattern of the Exchange to be used from this point forward", 'string', 'InOnly, InOut', '', true, false, false, false, '', ''),
     ], [
     ]),
     new ElementMeta('setHeader', 'SetHeaderDefinition', 'Set Header', "Sets the value of a message header", 'eip,transformation', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('disabled', 'Disabled', "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('name', 'Name', "Name of message header to set a new value The simple language can be used to define a dynamic evaluated header name to be used. Otherwise a constant name will be used.", 'string', '', '', true, false, false, false, '', ''),
         new PropertyMeta('expression', 'Expression', "Expression to return the value of the header", 'ExpressionDefinition', '', '', true, false, false, true, '', ''),
     ], [
@@ -1524,14 +1540,14 @@ export const CamelModelMetadata: ElementMeta[] = [
     new ElementMeta('setHeaders', 'SetHeadersDefinition', 'Set Headers', "Allows setting multiple headers on the message at the same time.", 'eip,transformation', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('disabled', 'Disabled', "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('headers', 'Headers', "Contains the headers to be set", 'SetHeaderDefinition', '', '', true, false, true, true, '', ''),
     ], [
     ]),
     new ElementMeta('setProperty', 'SetPropertyDefinition', 'Set Property', "Sets a named property on the message exchange", 'eip,transformation', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('disabled', 'Disabled', "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('name', 'Name', "Name of exchange property to set a new value. The simple language can be used to define a dynamic evaluated exchange property name to be used. Otherwise a constant name will be used.", 'string', '', '', true, false, false, false, '', ''),
         new PropertyMeta('expression', 'Expression', "Expression to return the value of the message exchange property", 'ExpressionDefinition', '', '', true, false, false, true, '', ''),
     ], [
@@ -1539,7 +1555,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     new ElementMeta('setVariable', 'SetVariableDefinition', 'Set Variable', "Sets the value of a variable", 'eip,transformation', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('disabled', 'Disabled', "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('name', 'Name', "Name of variable to set a new value The simple language can be used to define a dynamic evaluated variable name to be used. Otherwise a constant name will be used.", 'string', '', '', true, false, false, false, '', ''),
         new PropertyMeta('expression', 'Expression', "Expression to return the value of the variable", 'ExpressionDefinition', '', '', true, false, false, true, '', ''),
     ], [
@@ -1547,14 +1563,14 @@ export const CamelModelMetadata: ElementMeta[] = [
     new ElementMeta('setVariables', 'SetVariablesDefinition', 'Set Variables', "Allows setting multiple variables at the same time.", 'eip,transformation', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('disabled', 'Disabled', "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('variables', 'Variables', "Contains the variables to be set", 'SetVariableDefinition', '', '', true, false, true, true, '', ''),
     ], [
     ]),
     new ElementMeta('sort', 'SortDefinition', 'Sort', "Sorts the contents of the message", 'eip,transformation', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('disabled', 'Disabled', "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('expression', 'Expression', "Optional expression to sort by something else than the message body", 'ExpressionDefinition', '', '', true, false, false, true, '', ''),
         new PropertyMeta('comparator', 'Comparator', "Sets the comparator to use for sorting", 'string', '', '', false, false, false, false, 'advanced', ''),
     ], [
@@ -1562,7 +1578,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     new ElementMeta('split', 'SplitDefinition', 'Split', "Splits a single message into many sub-messages.", 'eip,routing', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('disabled', 'Disabled', "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('expression', 'Expression', "Expression of how to split the message body, such as as-is, using a tokenizer, or using a xpath.", 'ExpressionDefinition', '', '', true, false, false, true, '', ''),
         new PropertyMeta('delimiter', 'Delimiter', "Delimiter used in splitting messages. Can be turned off using the value false. To force not splitting then the delimiter can be set to single to use the value as a single list, this can be needed in some special situations. The default value is comma.", 'string', '', ',', false, false, false, false, '', ''),
         new PropertyMeta('aggregationStrategy', 'Aggregation Strategy', "Sets a reference to the AggregationStrategy to be used to assemble the replies from the split messages, into a single outgoing message from the Splitter. By default Camel will use the original incoming message to the splitter (leave it unchanged). You can also use a POJO as the AggregationStrategy", 'string', '', '', false, false, false, false, '', 'org.apache.camel.AggregationStrategy'),
@@ -1586,7 +1602,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     new ElementMeta('step', 'StepDefinition', 'Step', "Routes the message to a sequence of processors which is grouped together as one logical name", 'eip,routing', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('disabled', 'Disabled', "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('steps', 'steps', "steps", 'CamelElement', '', '', false, false, true, true, '', ''),
     ], [
         new ExchangePropertyMeta('CamelStepId', 'Step Id', 'producer', 'String', 'The id of the Step EIP'),
@@ -1594,13 +1610,13 @@ export const CamelModelMetadata: ElementMeta[] = [
     new ElementMeta('stop', 'StopDefinition', 'Stop', "Stops the processing of the current message", 'eip,routing', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('disabled', 'Disabled', "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
     ], [
     ]),
     new ElementMeta('threads', 'ThreadsDefinition', 'Threads', "Specifies that all steps after this node are processed asynchronously", 'eip,routing', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('disabled', 'Disabled', "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('executorService', 'Executor Service', "To use a custom thread pool", 'string', '', '', false, false, false, false, 'advanced', ''),
         new PropertyMeta('poolSize', 'Pool Size', "Sets the core pool size", 'number', '', '', false, false, false, false, '', ''),
         new PropertyMeta('maxPoolSize', 'Max Pool Size', "Sets the maximum pool size", 'number', '', '', false, false, false, false, '', ''),
@@ -1616,7 +1632,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     new ElementMeta('throttle', 'ThrottleDefinition', 'Throttle', "Controls the rate at which messages are passed to the next node in the route", 'eip,routing', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('disabled', 'Disabled', "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('expression', 'Expression', "Expression to configure the maximum number of messages to throttle per request", 'ExpressionDefinition', '', '', true, false, false, true, '', ''),
         new PropertyMeta('mode', 'Mode', "Sets the throttling mode to one of the available modes enumerated in ThrottlingMode", 'string', 'TotalRequests, ConcurrentRequests', 'TotalRequests', false, false, false, false, '', ''),
         new PropertyMeta('correlationExpression', 'Correlation Expression', "The expression used to calculate the correlation key to use for throttle grouping. The Exchange which has the same correlation key is throttled together.", 'ExpressionSubElementDefinition', '', '', false, false, false, true, '', ''),
@@ -1630,7 +1646,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     new ElementMeta('throwException', 'ThrowExceptionDefinition', 'Throw Exception', "Throws an exception", 'error', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('disabled', 'Disabled', "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('message', 'Message', "To create a new exception instance and use the given message as caused message (supports simple language)", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('exceptionType', 'Exception Type', "The class of the exception to create using the message.", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('ref', 'Ref', "Reference to the exception instance to lookup from the registry to throw", 'string', '', '', false, false, false, false, 'advanced', ''),
@@ -1639,7 +1655,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     new ElementMeta('to', 'ToDefinition', 'To', "Sends the message to a static endpoint", 'eip,routing', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('disabled', 'Disabled', "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('variableSend', 'Variable Send', "To use a variable as the source for the message body to send. This makes it handy to use variables for user data and to easily control what data to use for sending and receiving. Important: When using send variable then the message body is taken from this variable instead of the current message, however the headers from the message will still be used as well. In other words, the variable is used instead of the message body, but everything else is as usual.", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('variableReceive', 'Variable Receive', "To use a variable to store the received message body (only body, not headers). This makes it handy to use variables for user data and to easily control what data to use for sending and receiving. Important: When using receive variable then the received body is stored only in this variable and not on the current message.", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('uri', 'Uri', "Sets the uri of the endpoint to send to.", 'string', '', '', true, false, false, false, '', ''),
@@ -1651,7 +1667,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     new ElementMeta('toD', 'ToDynamicDefinition', 'To D', "Sends the message to a dynamic endpoint", 'eip,routing', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('disabled', 'Disabled', "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('uri', 'Uri', "The uri of the endpoint to send to. The uri can be dynamic computed using the org.apache.camel.language.simple.SimpleLanguage expression.", 'string', '', '', true, false, false, false, '', ''),
         new PropertyMeta('variableSend', 'Variable Send', "To use a variable as the source for the message body to send. This makes it handy to use variables for user data and to easily control what data to use for sending and receiving. Important: When using send variable then the message body is taken from this variable instead of the current message, however the headers from the message will still be used as well. In other words, the variable is used instead of the message body, but everything else is as usual.", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('variableReceive', 'Variable Receive', "To use a variable as the source for the message body to send. This makes it handy to use variables for user data and to easily control what data to use for sending and receiving. Important: When using send variable then the message body is taken from this variable instead of the current Message , however the headers from the Message will still be used as well. In other words, the variable is used instead of the message body, but everything else is as usual.", 'string', '', '', false, false, false, false, '', ''),
@@ -1667,9 +1683,9 @@ export const CamelModelMetadata: ElementMeta[] = [
     new ElementMeta('tokenizer', 'TokenizerDefinition', 'Specialized tokenizer for AI applications', "Represents a Camel tokenizer for AI.", 'eip,transformation,ai', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('disabled', 'Disabled', "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('langChain4jCharacterTokenizer', 'langChain4jCharacterTokenizer', "langChain4jCharacterTokenizer", 'LangChain4jCharacterTokenizerDefinition', '', '', false, false, false, true, '', ''),
-        new PropertyMeta('langChain4jLineTokenizer', 'langChain4jLineTokenizer', "langChain4jLineTokenizer", 'LangChain4jTokenizerDefinition', '', '', false, false, false, true, '', ''),
+        new PropertyMeta('langChain4jLineTokenizer', 'langChain4jLineTokenizer', "langChain4jLineTokenizer", 'LangChain4jLineTokenizerDefinition', '', '', false, false, false, true, '', ''),
         new PropertyMeta('langChain4jParagraphTokenizer', 'langChain4jParagraphTokenizer', "langChain4jParagraphTokenizer", 'LangChain4jParagraphTokenizerDefinition', '', '', false, false, false, true, '', ''),
         new PropertyMeta('langChain4jSentenceTokenizer', 'langChain4jSentenceTokenizer', "langChain4jSentenceTokenizer", 'LangChain4jSentenceTokenizerDefinition', '', '', false, false, false, true, '', ''),
         new PropertyMeta('langChain4jWordTokenizer', 'langChain4jWordTokenizer', "langChain4jWordTokenizer", 'LangChain4jWordTokenizerDefinition', '', '', false, false, false, true, '', ''),
@@ -1678,7 +1694,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     new ElementMeta('transacted', 'TransactedDefinition', 'Transacted', "Enables transaction on the route", 'configuration', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('disabled', 'Disabled', "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('ref', 'Ref', "Sets a reference to use for lookup the policy in the registry.", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('steps', 'steps', "steps", 'CamelElement', '', '', false, false, true, true, '', ''),
     ], [
@@ -1686,7 +1702,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     new ElementMeta('transform', 'TransformDefinition', 'Transform', "Transforms the message body based on an expression", 'eip,transformation', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('disabled', 'Disabled', "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('expression', 'Expression', "Expression to return the transformed message body (the new message body to use)", 'ExpressionDefinition', '', '', true, false, false, true, '', ''),
         new PropertyMeta('fromType', 'From Type', "From type used in data type transformation.", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('toType', 'To Type', "To type used as a target data type in the transformation.", 'string', '', '', false, false, false, false, '', ''),
@@ -1695,7 +1711,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     new ElementMeta('doTry', 'TryDefinition', 'Do Try', "Marks the beginning of a try, catch, finally block", 'eip,routing,error', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('disabled', 'Disabled', "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('doCatch', 'Do Catch', "Catches exceptions as part of a try, catch, finally block", 'CatchDefinition', '', '', false, false, true, true, '', ''),
         new PropertyMeta('doFinally', 'Do Finally', "Path traversed when a try, catch, finally block exits", 'FinallyDefinition', '', '', false, false, false, true, '', ''),
         new PropertyMeta('steps', 'steps', "steps", 'CamelElement', '', '', false, false, true, true, '', ''),
@@ -1704,7 +1720,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     new ElementMeta('unmarshal', 'UnmarshalDefinition', 'Unmarshal', "Converts the message data received from the wire into a format that Apache Camel processors can consume", 'eip,dataformat,transformation', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('disabled', 'Disabled', "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('variableSend', 'Variable Send', "To use a variable as the source for the message body to send. This makes it handy to use variables for user data and to easily control what data to use for sending and receiving. Important: When using send variable then the message body is taken from this variable instead of the current message, however the headers from the message will still be used as well. In other words, the variable is used instead of the message body, but everything else is as usual.", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('variableReceive', 'Variable Receive', "To use a variable to store the received message body (only body, not headers). This makes it handy to use variables for user data and to easily control what data to use for sending and receiving. Important: When using receive variable then the received body is stored only in this variable and not on the current message.", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('allowNullBody', 'Allow Null Body', "Indicates whether null is allowed as value of a body to unmarshall.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
@@ -1718,14 +1734,16 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('crypto', 'crypto', "crypto", 'CryptoDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('csv', 'csv', "csv", 'CsvDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('custom', 'custom', "custom", 'CustomDataFormat', '', '', false, false, false, true, '', ''),
+        new PropertyMeta('dfdl', 'dfdl', "dfdl", 'DfdlDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('fhirJson', 'fhirJson', "fhirJson", 'FhirJsonDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('fhirXml', 'fhirXml', "fhirXml", 'FhirXmlDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('flatpack', 'flatpack', "flatpack", 'FlatpackDataFormat', '', '', false, false, false, true, '', ''),
-        new PropertyMeta('fury', 'fury', "fury", 'FuryDataFormat', '', '', false, false, false, true, '', ''),
+        new PropertyMeta('fory', 'fory', "fory", 'ForyDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('grok', 'grok', "grok", 'GrokDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('gzipDeflater', 'gzipDeflater', "gzipDeflater", 'GzipDeflaterDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('hl7', 'hl7', "hl7", 'HL7DataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('ical', 'ical', "ical", 'IcalDataFormat', '', '', false, false, false, true, '', ''),
+        new PropertyMeta('iso8583', 'iso8583', "iso8583", 'Iso8583DataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('jacksonXml', 'jacksonXml', "jacksonXml", 'JacksonXMLDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('jaxb', 'jaxb', "jaxb", 'JaxbDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('json', 'json', "json", 'JsonDataFormat', '', '', false, false, false, true, '', ''),
@@ -1756,7 +1774,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     new ElementMeta('validate', 'ValidateDefinition', 'Validate', "Validates a message based on an expression", 'eip,transformation', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('disabled', 'Disabled', "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('expression', 'Expression', "Expression to use for validation as a predicate. The expression should return either true or false. If returning false the message is invalid and an exception is thrown.", 'ExpressionDefinition', '', '', true, false, false, true, '', ''),
         new PropertyMeta('predicateExceptionFactory', 'Predicate Exception Factory', "The bean id of custom PredicateExceptionFactory to use for creating the exception when the validation fails. By default, Camel will throw PredicateValidationException. By using a custom factory you can control which exception to throw instead.", 'string', '', '', false, false, false, false, 'advanced', 'org.apache.camel.spi.PredicateExceptionFactory'),
     ], [
@@ -1764,7 +1782,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     new ElementMeta('wireTap', 'WireTapDefinition', 'Wire Tap', "Routes a copy of a message (or creates a new message) to a secondary destination while continue routing the original message.", 'eip,routing', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('disabled', 'Disabled', "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('copy', 'Copy', "Uses a copy of the original exchange", 'boolean', '', 'true', false, false, false, false, 'advanced', ''),
         new PropertyMeta('dynamicUri', 'Dynamic Uri', "Whether the uri is dynamic or static. If the uri is dynamic then the simple language is used to evaluate a dynamic uri to use as the wire-tap destination, for each incoming message. This works similar to how the toD EIP pattern works. If static then the uri is used as-is as the wire-tap destination.", 'boolean', '', 'true', false, false, false, false, 'advanced', ''),
         new PropertyMeta('onPrepare', 'On Prepare', "Uses the Processor when preparing the org.apache.camel.Exchange to be sent. This can be used to deep-clone messages that should be sent, or any custom logic needed before the exchange is sent.", 'string', '', '', false, false, false, false, 'advanced', 'org.apache.camel.Processor'),
@@ -1784,25 +1802,31 @@ export const CamelModelMetadata: ElementMeta[] = [
     new ElementMeta('intercept', 'InterceptDefinition', 'Intercept', "Intercepts a message at each step in the route", 'configuration', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('disabled', 'Disabled', "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('onWhen', 'On When', "To use an expression to only trigger intercepting in specific situations", 'OnWhenDefinition', '', '', false, false, false, true, '', ''),
         new PropertyMeta('steps', 'steps', "steps", 'CamelElement', '', '', false, false, true, true, '', ''),
     ], [
+        new ExchangePropertyMeta('CamelInterceptedNodeId', 'Intercepted Node Id', 'producer', 'String', 'The intercepted route's node ID'),
+        new ExchangePropertyMeta('CamelInterceptedRouteEndpointUri', 'Intercepted Route Endpoint Uri', 'producer', 'String', 'The route's endpoint URI that was intercepted'),
+        new ExchangePropertyMeta('CamelInterceptedRouteId', 'Intercepted Route Id', 'producer', 'String', 'The intercepted route's ID'),
     ]),
     new ElementMeta('interceptFrom', 'InterceptFromDefinition', 'Intercept From', "Intercepts incoming messages", 'configuration', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('disabled', 'Disabled', "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('uri', 'Uri', "Intercept incoming messages from the uri or uri pattern. If this option is not configured, then all incoming messages is intercepted.", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('onWhen', 'On When', "To use an expression to only trigger intercepting in specific situations", 'OnWhenDefinition', '', '', false, false, false, true, '', ''),
         new PropertyMeta('steps', 'steps', "steps", 'CamelElement', '', '', false, false, true, true, '', ''),
     ], [
         new ExchangePropertyMeta('CamelInterceptedEndpoint', 'Intercepted Endpoint', 'producer', 'String', 'The endpoint URI that was intercepted'),
+        new ExchangePropertyMeta('CamelInterceptedNodeId', 'Intercepted Node Id', 'producer', 'String', 'The intercepted route's node ID'),
+        new ExchangePropertyMeta('CamelInterceptedRouteEndpointUri', 'Intercepted Route Endpoint Uri', 'producer', 'String', 'The route's endpoint URI that was intercepted'),
+        new ExchangePropertyMeta('CamelInterceptedRouteId', 'Intercepted Route Id', 'producer', 'String', 'The intercepted route's ID'),
     ]),
     new ElementMeta('interceptSendToEndpoint', 'InterceptSendToEndpointDefinition', 'Intercept Send To Endpoint', "Intercepts messages being sent to an endpoint", 'configuration', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('disabled', 'Disabled', "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('uri', 'Uri', "Intercept sending to the uri or uri pattern.", 'string', '', '', true, false, false, false, '', ''),
         new PropertyMeta('skipSendToOriginalEndpoint', 'Skip Send To Original Endpoint', "If set to true then the message is not sent to the original endpoint. By default (false) the message is both intercepted and then sent to the original endpoint.", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('afterUri', 'After Uri', "After sending to the endpoint then send the message to this uri which allows to process its result.", 'string', '', '', false, false, false, false, 'advanced', ''),
@@ -1810,11 +1834,14 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('steps', 'steps', "steps", 'CamelElement', '', '', false, false, true, true, '', ''),
     ], [
         new ExchangePropertyMeta('CamelInterceptedEndpoint', 'Intercepted Endpoint', 'producer', 'String', 'The endpoint URI that was intercepted'),
+        new ExchangePropertyMeta('CamelInterceptedNodeId', 'Intercepted Node Id', 'producer', 'String', 'The intercepted route's node ID'),
+        new ExchangePropertyMeta('CamelInterceptedRouteEndpointUri', 'Intercepted Route Endpoint Uri', 'producer', 'String', 'The route's endpoint URI that was intercepted'),
+        new ExchangePropertyMeta('CamelInterceptedRouteId', 'Intercepted Route Id', 'producer', 'String', 'The intercepted route's ID'),
     ]),
     new ElementMeta('onCompletion', 'OnCompletionDefinition', 'On Completion', "Route to be executed when normal route processing completes", 'configuration', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('disabled', 'Disabled', "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('mode', 'Mode', "Sets the on completion mode. The default value is AfterConsumer", 'string', 'AfterConsumer, BeforeConsumer', 'AfterConsumer', false, false, false, false, 'advanced', ''),
         new PropertyMeta('onCompleteOnly', 'On Complete Only', "Will only synchronize when the org.apache.camel.Exchange completed successfully (no errors).", 'boolean', '', 'false', false, false, false, false, '', ''),
         new PropertyMeta('onFailureOnly', 'On Failure Only', "Will only synchronize when the org.apache.camel.Exchange ended with failure (exception or FAULT message).", 'boolean', '', 'false', false, false, false, false, '', ''),
@@ -1829,7 +1856,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     new ElementMeta('onException', 'OnExceptionDefinition', 'On Exception', "Route to be executed when an exception is thrown", 'error', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('disabled', 'Disabled', "Whether to disable this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('exception', 'Exception', "A set of exceptions to react upon.", 'string', '', '', true, false, true, true, '', ''),
         new PropertyMeta('onWhen', 'On When', "To use an expression to only trigger this in specific situations", 'OnWhenDefinition', '', '', false, false, false, true, '', ''),
         new PropertyMeta('retryWhile', 'Retry While', "Sets the retry while predicate. Will continue retrying until predicate returns false.", 'ExpressionSubElementDefinition', '', '', false, false, false, true, 'advanced', ''),
@@ -1894,7 +1921,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     new ElementMeta('templatedRoute', 'TemplatedRouteDefinition', 'Templated Route', "Defines a templated route (a route built from a route template)", 'configuration', [
         new PropertyMeta('routeTemplateRef', 'Route Template Ref', "Sets the id of the route template to use to build the route.", 'string', '', '', true, false, false, false, '', ''),
         new PropertyMeta('routeId', 'Route Id', "Sets the id of the route built from the route template.", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('prefixId', 'Prefix Id', "Sets a prefix to use for all node ids (not route id).", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('prefixId', 'Prefix Id', "Sets a prefix to use for all node ids (not route id).", 'string', '', '', false, false, false, false, 'advanced', ''),
         new PropertyMeta('beans', 'beans', "beans", 'BeanFactoryDefinition', '', '', false, false, true, true, '', ''),
         new PropertyMeta('parameters', 'parameters', "parameters", 'TemplatedRouteParameterDefinition', '', '', false, false, true, true, '', ''),
     ], [
@@ -1918,6 +1945,7 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('bindingPackageScan', 'Binding Package Scan', "Package name to use as base (offset) for classpath scanning of POJO classes are located when using binding mode is enabled for JSon or XML. Multiple package names can be separated by comma.", 'string', '', '', false, false, false, false, 'consumer,advanced', ''),
         new PropertyMeta('skipBindingOnErrorCode', 'Skip Binding On Error Code', "Whether to skip binding on output if there is a custom HTTP error code header. This allows to build custom error messages that do not bind to json / xml etc, as success messages otherwise will do.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('clientRequestValidation', 'Client Request Validation', "Whether to enable validation of the client request to check: 1) Content-Type header matches what the Rest DSL consumes; returns HTTP Status 415 if validation error. 2) Accept header matches what the Rest DSL produces; returns HTTP Status 406 if validation error. 3) Missing required data (query parameters, HTTP headers, body); returns HTTP Status 400 if validation error. 4) Parsing error of the message body (JSon, XML or Auto binding mode must be enabled); returns HTTP Status 400 if validation error.", 'boolean', '', 'false', false, false, false, false, 'consumer,advanced', ''),
+        new PropertyMeta('clientResponseValidation', 'Client Response Validation', "Whether to check what Camel is returning as response to the client: 1) Status-code and Content-Type matches Rest DSL response messages. 2) Check whether expected headers is included according to the Rest DSL repose message headers. 3) If the response body is JSon then check whether its valid JSon. Returns 500 if validation error detected.", 'boolean', '', 'false', false, false, false, false, 'consumer,advanced', ''),
         new PropertyMeta('enableCORS', 'Enable CORS', "Whether to enable CORS headers in the HTTP response. The default value is false.", 'boolean', '', 'false', false, false, false, false, 'consumer,advanced', ''),
         new PropertyMeta('enableNoContentResponse', 'Enable No Content Response', "Whether to return HTTP 204 with an empty body when a response contains an empty JSON object or XML root object. The default value is false.", 'boolean', '', 'false', false, false, false, false, 'consumer,advanced', ''),
         new PropertyMeta('inlineRoutes', 'Inline Routes', "Inline routes in rest-dsl which are linked using direct endpoints. Each service in Rest DSL is an individual route, meaning that you would have at least two routes per service (rest-dsl, and the route linked from rest-dsl). By inlining (default) allows Camel to optimize and inline this as a single route, however this requires to use direct endpoints, which must be unique per service. If a route is not using direct endpoint then the rest-dsl is not inlined, and will become an individual route. This option is default true.", 'boolean', '', 'true', false, false, false, false, 'consumer', ''),
@@ -1929,6 +1957,7 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('dataFormatProperty', 'Data Format Property', "Allows to configure as many additional properties for the data formats in use. For example set property prettyPrint to true to have json outputted in pretty mode. The properties can be prefixed to denote the option is only for either JSON or XML and for either the IN or the OUT. The prefixes are: json.in. json.out. xml.in. xml.out. For example a key with value xml.out.mustBeJAXBElement is only for the XML data format for the outgoing. A key without a prefix is a common key for all situations.", 'RestPropertyDefinition', '', '', false, false, true, true, 'advanced', ''),
         new PropertyMeta('apiProperty', 'Api Property', "Allows to configure as many additional properties for the api documentation. For example set property api.title to my cool stuff", 'RestPropertyDefinition', '', '', false, false, true, true, 'consumer,advanced', ''),
         new PropertyMeta('corsHeaders', 'Cors Headers', "Allows to configure custom CORS headers.", 'RestPropertyDefinition', '', '', false, false, true, true, 'consumer,advanced', ''),
+        new PropertyMeta('validationLevels', 'Validation Levels', "Allows to configure custom validation levels when using camel-openapi-validator with client request/response validator.", 'RestPropertyDefinition', '', '', false, false, true, true, 'consumer,advanced', ''),
     ], [
     ]),
     new ElementMeta('rest', 'RestDefinition', 'Rest', "Defines a rest service using the rest-dsl", 'rest', [
@@ -1941,6 +1970,7 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('bindingMode', 'Binding Mode', "Sets the binding mode to use. This option will override what may be configured on a parent level The default value is auto", 'string', 'off, auto, json, xml, json_xml', 'off', false, false, false, false, '', ''),
         new PropertyMeta('skipBindingOnErrorCode', 'Skip Binding On Error Code', "Whether to skip binding on output if there is a custom HTTP error code header. This allows to build custom error messages that do not bind to json / xml etc, as success messages otherwise will do. This option will override what may be configured on a parent level", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('clientRequestValidation', 'Client Request Validation', "Whether to enable validation of the client request to check: 1) Content-Type header matches what the Rest DSL consumes; returns HTTP Status 415 if validation error. 2) Accept header matches what the Rest DSL produces; returns HTTP Status 406 if validation error. 3) Missing required data (query parameters, HTTP headers, body); returns HTTP Status 400 if validation error. 4) Parsing error of the message body (JSon, XML or Auto binding mode must be enabled); returns HTTP Status 400 if validation error.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('clientResponseValidation', 'Client Response Validation', "Whether to check what Camel is returning as response to the client: 1) Status-code and Content-Type matches Rest DSL response messages. 2) Check whether expected headers is included according to the Rest DSL repose message headers. 3) If the response body is JSon then check whether its valid JSon. Returns 500 if validation error detected.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('enableCORS', 'Enable CORS', "Whether to enable CORS headers in the HTTP response. This option will override what may be configured on a parent level The default value is false.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('enableNoContentResponse', 'Enable No Content Response', "Whether to return HTTP 204 with an empty body when a response contains an empty JSON object or XML root object. The default value is false.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('apiDocs', 'Api Docs', "Whether to include or exclude this rest operation in API documentation. This option will override what may be configured on a parent level. The default value is true.", 'boolean', '', 'true', false, false, false, false, 'advanced', ''),
@@ -1969,6 +1999,7 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('constructors', 'Constructors', "Optional constructor arguments for creating the bean. Arguments correspond to specific index of the constructor argument list, starting from zero.", 'object', '', '', false, false, false, false, '', ''),
         new PropertyMeta('properties', 'Properties', "Optional properties to set on the created bean.", 'object', '', '', false, false, false, false, '', ''),
         new PropertyMeta('script', 'Script', "The script to execute that creates the bean when using scripting languages. If the script use the prefix resource: such as resource:classpath:com/foo/myscript.groovy, resource:file:/var/myscript.groovy, then its loaded from the external resource.", 'string', '', '', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('scriptPropertyPlaceholders', 'scriptPropertyPlaceholders', "scriptPropertyPlaceholders", 'boolean', '', '', false, false, false, false, '', ''),
     ], [
     ]),
     new ElementMeta('contextScan', 'ContextScanDefinition', 'Context Scan', "Scans for Java org.apache.camel.builder.RouteBuilder instances in the context org.apache.camel.spi.Registry .", 'configuration', [
@@ -1992,7 +2023,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     ]),
     new ElementMeta('faultToleranceConfiguration', 'FaultToleranceConfigurationDefinition', 'Fault Tolerance Configuration', "MicroProfile Fault Tolerance Circuit Breaker EIP configuration", 'configuration,eip,error', [
         new PropertyMeta('id', 'Id', "The id of this node", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('circuitBreaker', 'Circuit Breaker', "Refers to an existing io.smallrye.faulttolerance.core.circuit.breaker.CircuitBreaker instance to lookup and use from the registry. When using this, then any other circuit breaker options are not in use.", 'string', '', '', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('typedGuard', 'Typed Guard', "Refers to an existing io.smallrye.faulttolerance.api.TypedGuard instance to lookup and use from the registry. When using this, then any other TypedGuard circuit breaker options are not in use.", 'string', '', '', false, false, false, false, 'advanced', ''),
         new PropertyMeta('delay', 'Delay', "Control how long the circuit breaker stays open. The default is 5 seconds.", 'string', '', '5000', false, false, false, false, '', ''),
         new PropertyMeta('successThreshold', 'Success Threshold', "Controls the number of trial calls which are allowed when the circuit breaker is half-open", 'number', '', '1', false, false, false, false, '', ''),
         new PropertyMeta('requestVolumeThreshold', 'Request Volume Threshold', "Controls the size of the rolling window used when the circuit breaker is closed", 'number', '', '20', false, false, false, false, '', ''),
@@ -2000,11 +2031,10 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('timeoutEnabled', 'Timeout Enabled', "Whether timeout is enabled or not on the circuit breaker. Default is false.", 'boolean', '', 'false', false, false, false, false, '', ''),
         new PropertyMeta('timeoutDuration', 'Timeout Duration', "Configures the thread execution timeout. Default value is 1 second.", 'string', '', '1000', false, false, false, false, '', ''),
         new PropertyMeta('timeoutPoolSize', 'Timeout Pool Size', "Configures the pool size of the thread pool when timeout is enabled. Default value is 10.", 'number', '', '10', false, false, false, false, 'advanced', ''),
-        new PropertyMeta('timeoutScheduledExecutorService', 'Timeout Scheduled Executor Service', "References to a custom thread pool to use when timeout is enabled", 'string', '', '', false, false, false, false, 'advanced', ''),
         new PropertyMeta('bulkheadEnabled', 'Bulkhead Enabled', "Whether bulkhead is enabled or not on the circuit breaker. Default is false.", 'boolean', '', 'false', false, false, false, false, '', ''),
         new PropertyMeta('bulkheadMaxConcurrentCalls', 'Bulkhead Max Concurrent Calls', "Configures the max amount of concurrent calls the bulkhead will support.", 'number', '', '10', false, false, false, false, 'advanced', ''),
         new PropertyMeta('bulkheadWaitingTaskQueue', 'Bulkhead Waiting Task Queue', "Configures the task queue size for holding waiting tasks to be processed by the bulkhead.", 'number', '', '10', false, false, false, false, 'advanced', ''),
-        new PropertyMeta('bulkheadExecutorService', 'Bulkhead Executor Service', "References to a custom thread pool to use when bulkhead is enabled.", 'string', '', '', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('threadOffloadExecutorService', 'Thread Offload Executor Service', "References a custom thread pool to use when offloading a guarded action to another thread.", 'string', '', '', false, false, false, false, 'advanced', ''),
     ], [
     ]),
     new ElementMeta('from', 'FromDefinition', 'From', "Act as a message source as input to a route", 'eip,routing', [
@@ -2056,7 +2086,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     new ElementMeta('otherwise', 'OtherwiseDefinition', 'Otherwise', "Route to be executed when all other choices evaluate to false", 'eip,routing', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled late at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('steps', 'steps', "steps", 'CamelElement', '', '', false, false, true, true, '', ''),
     ], [
     ]),
@@ -2117,7 +2147,7 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('config', 'Config', "Refers to an existing io.github.resilience4j.circuitbreaker.CircuitBreakerConfig instance to lookup and use from the registry.", 'string', '', '', false, false, false, false, 'advanced', ''),
         new PropertyMeta('failureRateThreshold', 'Failure Rate Threshold', "Configures the failure rate threshold in percentage. If the failure rate is equal or greater than the threshold the CircuitBreaker transitions to open and starts short-circuiting calls. The threshold must be greater than 0 and not greater than 100. Default value is 50 percentage.", 'number', '', '50', false, false, false, false, '', ''),
         new PropertyMeta('permittedNumberOfCallsInHalfOpenState', 'Permitted Number Of Calls In Half Open State', "Configures the number of permitted calls when the CircuitBreaker is half open. The size must be greater than 0. Default size is 10.", 'number', '', '10', false, false, false, false, 'advanced', ''),
-        new PropertyMeta('throwExceptionWhenHalfOpenOrOpenState', 'Throw Exception When Half Open Or Open State', "Whether to throw io.github.resilience4j.circuitbreaker.CallNotPermittedException when the call is rejected due circuit breaker is half open or open.", 'boolean', '', 'false', false, false, false, false, '', ''),
+        new PropertyMeta('throwExceptionWhenHalfOpenOrOpenState', 'Throw Exception When Half Open Or Open State', "Whether to throw io.github.resilience4j.circuitbreaker.CallNotPermittedException when the call is rejected due circuit breaker is half open (and was not attempted but rejected immediately) or open (always rejected). This option is only in use when there is NOT a fallback configured on the circuit breaker. When there is a fallback then the fallback is always executed and CallNotPermittedException is not thrown.", 'boolean', '', 'false', false, false, false, false, '', ''),
         new PropertyMeta('slidingWindowSize', 'Sliding Window Size', "Configures the size of the sliding window which is used to record the outcome of calls when the CircuitBreaker is closed. slidingWindowSize configures the size of the sliding window. Sliding window can either be count-based or time-based. If slidingWindowType is COUNT_BASED, the last slidingWindowSize calls are recorded and aggregated. If slidingWindowType is TIME_BASED, the calls of the last slidingWindowSize seconds are recorded and aggregated. The slidingWindowSize must be greater than 0. The minimumNumberOfCalls must be greater than 0. If the slidingWindowType is COUNT_BASED, the minimumNumberOfCalls cannot be greater than slidingWindowSize . If the slidingWindowType is TIME_BASED, you can pick whatever you want. Default slidingWindowSize is 100.", 'number', '', '100', false, false, false, false, '', ''),
         new PropertyMeta('slidingWindowType', 'Sliding Window Type', "Configures the type of the sliding window which is used to record the outcome of calls when the CircuitBreaker is closed. Sliding window can either be count-based or time-based. If slidingWindowType is COUNT_BASED, the last slidingWindowSize calls are recorded and aggregated. If slidingWindowType is TIME_BASED, the calls of the last slidingWindowSize seconds are recorded and aggregated. Default slidingWindowType is COUNT_BASED.", 'string', 'TIME_BASED, COUNT_BASED', 'COUNT_BASED', false, false, false, false, 'advanced', ''),
         new PropertyMeta('minimumNumberOfCalls', 'Minimum Number Of Calls', "Configures the minimum number of calls which are required (per sliding window period) before the CircuitBreaker can calculate the error rate. For example, if minimumNumberOfCalls is 10, then at least 10 calls must be recorded, before the failure rate can be calculated. If only 9 calls have been recorded the CircuitBreaker will not transition to open even if all 9 calls have failed. Default minimumNumberOfCalls is 100", 'number', '', '100', false, false, false, false, '', ''),
@@ -2186,7 +2216,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     new ElementMeta('when', 'WhenDefinition', 'When', "Triggers a route when the expression evaluates to true", 'eip,routing', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route during build time. Once an EIP has been disabled then it cannot be enabled late at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('expression', 'Expression', "Expression used as the predicate to evaluate whether this when should trigger and route the message or not.", 'ExpressionDefinition', '', '', true, false, false, true, '', ''),
         new PropertyMeta('steps', 'steps', "steps", 'CamelElement', '', '', false, false, true, true, '', ''),
     ], [
@@ -2222,11 +2252,12 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('fhirJson', 'fhirJson', "fhirJson", 'FhirJsonDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('fhirXml', 'fhirXml', "fhirXml", 'FhirXmlDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('flatpack', 'flatpack', "flatpack", 'FlatpackDataFormat', '', '', false, false, false, true, '', ''),
-        new PropertyMeta('fury', 'fury', "fury", 'FuryDataFormat', '', '', false, false, false, true, '', ''),
+        new PropertyMeta('fory', 'fory', "fory", 'ForyDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('grok', 'grok', "grok", 'GrokDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('gzipDeflater', 'gzipDeflater', "gzipDeflater", 'GzipDeflaterDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('hl7', 'hl7', "hl7", 'HL7DataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('ical', 'ical', "ical", 'IcalDataFormat', '', '', false, false, false, true, '', ''),
+        new PropertyMeta('iso8583', 'iso8583', "iso8583", 'Iso8583DataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('jacksonXml', 'jacksonXml', "jacksonXml", 'JacksonXMLDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('jaxb', 'jaxb', "jaxb", 'JaxbDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('json', 'json', "json", 'JsonDataFormat', '', '', false, false, false, true, '', ''),
@@ -2434,6 +2465,7 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('bindingMode', 'Binding Mode', "Sets the binding mode to use. This option will override what may be configured on a parent level The default value is off", 'string', 'off, auto, json, xml, json_xml', 'off', false, false, false, false, '', ''),
         new PropertyMeta('skipBindingOnErrorCode', 'Skip Binding On Error Code', "Whether to skip binding on output if there is a custom HTTP error code header. This allows to build custom error messages that do not bind to json / xml etc, as success messages otherwise will do. This option will override what may be configured on a parent level", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('clientRequestValidation', 'Client Request Validation', "Whether to enable validation of the client request to check: 1) Content-Type header matches what the Rest DSL consumes; returns HTTP Status 415 if validation error. 2) Accept header matches what the Rest DSL produces; returns HTTP Status 406 if validation error. 3) Missing required data (query parameters, HTTP headers, body); returns HTTP Status 400 if validation error. 4) Parsing error of the message body (JSon, XML or Auto binding mode must be enabled); returns HTTP Status 400 if validation error.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('clientResponseValidation', 'Client Response Validation', "Whether to check what Camel is returning as response to the client: 1) Status-code and Content-Type matches Rest DSL response messages. 2) Check whether expected headers is included according to the Rest DSL repose message headers. 3) If the response body is JSon then check whether its valid JSon. Returns 500 if validation error detected.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('enableCORS', 'Enable CORS', "Whether to enable CORS headers in the HTTP response. This option will override what may be configured on a parent level The default value is false.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('enableNoContentResponse', 'Enable No Content Response', "Whether to return HTTP 204 with an empty body when a response contains an empty JSON object or XML root object. The default value is false.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('apiDocs', 'Api Docs', "Whether to include or exclude this rest operation in API documentation. The default value is true.", 'boolean', '', 'true', false, false, false, false, 'advanced', ''),
@@ -2458,6 +2490,7 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('bindingMode', 'Binding Mode', "Sets the binding mode to use. This option will override what may be configured on a parent level The default value is off", 'string', 'off, auto, json, xml, json_xml', 'off', false, false, false, false, '', ''),
         new PropertyMeta('skipBindingOnErrorCode', 'Skip Binding On Error Code', "Whether to skip binding on output if there is a custom HTTP error code header. This allows to build custom error messages that do not bind to json / xml etc, as success messages otherwise will do. This option will override what may be configured on a parent level", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('clientRequestValidation', 'Client Request Validation', "Whether to enable validation of the client request to check: 1) Content-Type header matches what the Rest DSL consumes; returns HTTP Status 415 if validation error. 2) Accept header matches what the Rest DSL produces; returns HTTP Status 406 if validation error. 3) Missing required data (query parameters, HTTP headers, body); returns HTTP Status 400 if validation error. 4) Parsing error of the message body (JSon, XML or Auto binding mode must be enabled); returns HTTP Status 400 if validation error.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('clientResponseValidation', 'Client Response Validation', "Whether to check what Camel is returning as response to the client: 1) Status-code and Content-Type matches Rest DSL response messages. 2) Check whether expected headers is included according to the Rest DSL repose message headers. 3) If the response body is JSon then check whether its valid JSon. Returns 500 if validation error detected.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('enableCORS', 'Enable CORS', "Whether to enable CORS headers in the HTTP response. This option will override what may be configured on a parent level The default value is false.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('enableNoContentResponse', 'Enable No Content Response', "Whether to return HTTP 204 with an empty body when a response contains an empty JSON object or XML root object. The default value is false.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('apiDocs', 'Api Docs', "Whether to include or exclude this rest operation in API documentation. The default value is true.", 'boolean', '', 'true', false, false, false, false, 'advanced', ''),
@@ -2482,6 +2515,7 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('bindingMode', 'Binding Mode', "Sets the binding mode to use. This option will override what may be configured on a parent level The default value is off", 'string', 'off, auto, json, xml, json_xml', 'off', false, false, false, false, '', ''),
         new PropertyMeta('skipBindingOnErrorCode', 'Skip Binding On Error Code', "Whether to skip binding on output if there is a custom HTTP error code header. This allows to build custom error messages that do not bind to json / xml etc, as success messages otherwise will do. This option will override what may be configured on a parent level", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('clientRequestValidation', 'Client Request Validation', "Whether to enable validation of the client request to check: 1) Content-Type header matches what the Rest DSL consumes; returns HTTP Status 415 if validation error. 2) Accept header matches what the Rest DSL produces; returns HTTP Status 406 if validation error. 3) Missing required data (query parameters, HTTP headers, body); returns HTTP Status 400 if validation error. 4) Parsing error of the message body (JSon, XML or Auto binding mode must be enabled); returns HTTP Status 400 if validation error.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('clientResponseValidation', 'Client Response Validation', "Whether to check what Camel is returning as response to the client: 1) Status-code and Content-Type matches Rest DSL response messages. 2) Check whether expected headers is included according to the Rest DSL repose message headers. 3) If the response body is JSon then check whether its valid JSon. Returns 500 if validation error detected.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('enableCORS', 'Enable CORS', "Whether to enable CORS headers in the HTTP response. This option will override what may be configured on a parent level The default value is false.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('enableNoContentResponse', 'Enable No Content Response', "Whether to return HTTP 204 with an empty body when a response contains an empty JSON object or XML root object. The default value is false.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('apiDocs', 'Api Docs', "Whether to include or exclude this rest operation in API documentation. The default value is true.", 'boolean', '', 'true', false, false, false, false, 'advanced', ''),
@@ -2500,6 +2534,7 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('disabled', 'Disabled', "Whether to disable all the REST services from the OpenAPI contract from the route during build time. Once an REST service has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('specification', 'Specification', "Path to the OpenApi specification file.", 'string', '', '', true, false, false, false, '', ''),
+        new PropertyMeta('apiContextPath', 'Api Context Path', "Whether to enable api-doc that exposes the OpenAPI specification file as a REST endpoint. This allows clients to obtain the specification from the running Camel application.", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('routeId', 'Route Id', "Sets the id of the route", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('missingOperation', 'Missing Operation', "Whether to fail, ignore or return a mock response for OpenAPI operations that are not mapped to a corresponding route.", 'string', 'fail, ignore, mock', 'fail', false, false, false, false, '', ''),
         new PropertyMeta('mockIncludePattern', 'Mock Include Pattern', "Used for inclusive filtering of mock data from directories. The pattern is using Ant-path style pattern. Multiple patterns can be specified separated by comma.", 'string', '', 'classpath:camel-mock/**', false, false, false, false, 'advanced', ''),
@@ -2541,6 +2576,7 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('bindingMode', 'Binding Mode', "Sets the binding mode to use. This option will override what may be configured on a parent level The default value is off", 'string', 'off, auto, json, xml, json_xml', 'off', false, false, false, false, '', ''),
         new PropertyMeta('skipBindingOnErrorCode', 'Skip Binding On Error Code', "Whether to skip binding on output if there is a custom HTTP error code header. This allows to build custom error messages that do not bind to json / xml etc, as success messages otherwise will do. This option will override what may be configured on a parent level", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('clientRequestValidation', 'Client Request Validation', "Whether to enable validation of the client request to check: 1) Content-Type header matches what the Rest DSL consumes; returns HTTP Status 415 if validation error. 2) Accept header matches what the Rest DSL produces; returns HTTP Status 406 if validation error. 3) Missing required data (query parameters, HTTP headers, body); returns HTTP Status 400 if validation error. 4) Parsing error of the message body (JSon, XML or Auto binding mode must be enabled); returns HTTP Status 400 if validation error.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('clientResponseValidation', 'Client Response Validation', "Whether to check what Camel is returning as response to the client: 1) Status-code and Content-Type matches Rest DSL response messages. 2) Check whether expected headers is included according to the Rest DSL repose message headers. 3) If the response body is JSon then check whether its valid JSon. Returns 500 if validation error detected.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('enableCORS', 'Enable CORS', "Whether to enable CORS headers in the HTTP response. This option will override what may be configured on a parent level The default value is false.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('enableNoContentResponse', 'Enable No Content Response', "Whether to return HTTP 204 with an empty body when a response contains an empty JSON object or XML root object. The default value is false.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('apiDocs', 'Api Docs', "Whether to include or exclude this rest operation in API documentation. The default value is true.", 'boolean', '', 'true', false, false, false, false, 'advanced', ''),
@@ -2565,6 +2601,7 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('bindingMode', 'Binding Mode', "Sets the binding mode to use. This option will override what may be configured on a parent level The default value is off", 'string', 'off, auto, json, xml, json_xml', 'off', false, false, false, false, '', ''),
         new PropertyMeta('skipBindingOnErrorCode', 'Skip Binding On Error Code', "Whether to skip binding on output if there is a custom HTTP error code header. This allows to build custom error messages that do not bind to json / xml etc, as success messages otherwise will do. This option will override what may be configured on a parent level", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('clientRequestValidation', 'Client Request Validation', "Whether to enable validation of the client request to check: 1) Content-Type header matches what the Rest DSL consumes; returns HTTP Status 415 if validation error. 2) Accept header matches what the Rest DSL produces; returns HTTP Status 406 if validation error. 3) Missing required data (query parameters, HTTP headers, body); returns HTTP Status 400 if validation error. 4) Parsing error of the message body (JSon, XML or Auto binding mode must be enabled); returns HTTP Status 400 if validation error.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('clientResponseValidation', 'Client Response Validation', "Whether to check what Camel is returning as response to the client: 1) Status-code and Content-Type matches Rest DSL response messages. 2) Check whether expected headers is included according to the Rest DSL repose message headers. 3) If the response body is JSon then check whether its valid JSon. Returns 500 if validation error detected.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('enableCORS', 'Enable CORS', "Whether to enable CORS headers in the HTTP response. This option will override what may be configured on a parent level The default value is false.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('enableNoContentResponse', 'Enable No Content Response', "Whether to return HTTP 204 with an empty body when a response contains an empty JSON object or XML root object. The default value is false.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('apiDocs', 'Api Docs', "Whether to include or exclude this rest operation in API documentation. The default value is true.", 'boolean', '', 'true', false, false, false, false, 'advanced', ''),
@@ -2589,6 +2626,7 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('bindingMode', 'Binding Mode', "Sets the binding mode to use. This option will override what may be configured on a parent level The default value is off", 'string', 'off, auto, json, xml, json_xml', 'off', false, false, false, false, '', ''),
         new PropertyMeta('skipBindingOnErrorCode', 'Skip Binding On Error Code', "Whether to skip binding on output if there is a custom HTTP error code header. This allows to build custom error messages that do not bind to json / xml etc, as success messages otherwise will do. This option will override what may be configured on a parent level", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('clientRequestValidation', 'Client Request Validation', "Whether to enable validation of the client request to check: 1) Content-Type header matches what the Rest DSL consumes; returns HTTP Status 415 if validation error. 2) Accept header matches what the Rest DSL produces; returns HTTP Status 406 if validation error. 3) Missing required data (query parameters, HTTP headers, body); returns HTTP Status 400 if validation error. 4) Parsing error of the message body (JSon, XML or Auto binding mode must be enabled); returns HTTP Status 400 if validation error.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('clientResponseValidation', 'Client Response Validation', "Whether to check what Camel is returning as response to the client: 1) Status-code and Content-Type matches Rest DSL response messages. 2) Check whether expected headers is included according to the Rest DSL repose message headers. 3) If the response body is JSon then check whether its valid JSon. Returns 500 if validation error detected.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('enableCORS', 'Enable CORS', "Whether to enable CORS headers in the HTTP response. This option will override what may be configured on a parent level The default value is false.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('enableNoContentResponse', 'Enable No Content Response', "Whether to return HTTP 204 with an empty body when a response contains an empty JSON object or XML root object. The default value is false.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('apiDocs', 'Api Docs', "Whether to include or exclude this rest operation in API documentation. The default value is true.", 'boolean', '', 'true', false, false, false, false, 'advanced', ''),
@@ -2610,6 +2648,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     ]),
     new ElementMeta('responseMessage', 'ResponseMessageDefinition', 'Response Message', "To specify the rest operation response messages.", 'rest', [
         new PropertyMeta('code', 'Code', "The response code such as a HTTP status code", 'string', '', '200', false, false, false, false, '', ''),
+        new PropertyMeta('contentType', 'Content Type', "The response content-type such as application/json.", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('message', 'Message', "The response message (description)", 'string', '', '', true, false, false, false, '', ''),
         new PropertyMeta('responseModel', 'Response Model', "The response model", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('header', 'Header', "Adds a response header", 'ResponseHeaderDefinition', '', '', false, false, true, true, '', ''),
@@ -2626,6 +2665,7 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('outType', 'Out Type', "Sets the class name to use for binding from POJO to output for the outgoing data The name of the class of the input data. Append a to the end of the name if you want the input to be an array type.", 'string', '', '', false, false, false, false, 'advanced', ''),
         new PropertyMeta('skipBindingOnErrorCode', 'Skip Binding On Error Code', "Whether to skip binding on output if there is a custom HTTP error code header. This allows to build custom error messages that do not bind to json / xml etc, as success messages otherwise will do.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('clientRequestValidation', 'Client Request Validation', "Whether to enable validation of the client request to check: 1) Content-Type header matches what the Rest DSL consumes; returns HTTP Status 415 if validation error. 2) Accept header matches what the Rest DSL produces; returns HTTP Status 406 if validation error. 3) Missing required data (query parameters, HTTP headers, body); returns HTTP Status 400 if validation error. 4) Parsing error of the message body (JSon, XML or Auto binding mode must be enabled); returns HTTP Status 400 if validation error.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('clientResponseValidation', 'Client Response Validation', "Whether to check what Camel is returning as response to the client: 1) Status-code and Content-Type matches Rest DSL response messages. 2) Check whether expected headers is included according to the Rest DSL repose message headers. 3) If the response body is JSon then check whether its valid JSon. Returns 500 if validation error detected.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('enableCORS', 'Enable CORS', "Whether to enable CORS headers in the HTTP response. The default value is false.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('enableNoContentResponse', 'Enable No Content Response', "Whether to return HTTP 204 with an empty body when a response contains an empty JSON object or XML root object. The default value is false.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('component', 'Component', "Sets the component name that this definition will apply to", 'string', '', '', false, false, false, false, 'advanced', ''),
@@ -2639,7 +2679,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     new ElementMeta('securityDefinitions', 'RestSecuritiesDefinition', 'Rest Security Definitions', "To configure rest security definitions.", 'rest,security,configuration', [
         new PropertyMeta('apiKey', 'apiKey', "apiKey", 'ApiKeyDefinition', '', '', false, false, false, true, '', ''),
         new PropertyMeta('basicAuth', 'basicAuth', "basicAuth", 'BasicAuthDefinition', '', '', false, false, false, true, '', ''),
-        new PropertyMeta('bearer', 'bearer', "bearer", 'BearerTokenDefinition', '', '', false, false, false, true, '', ''),
+        new PropertyMeta('bearerToken', 'bearerToken', "bearerToken", 'BearerTokenDefinition', '', '', false, false, false, true, '', ''),
         new PropertyMeta('mutualTLS', 'mutualTLS', "mutualTLS", 'MutualTLSDefinition', '', '', false, false, false, true, '', ''),
         new PropertyMeta('oauth2', 'oauth2', "oauth2", 'OAuth2Definition', '', '', false, false, false, true, '', ''),
         new PropertyMeta('openIdConnect', 'openIdConnect', "openIdConnect", 'OpenIdConnectDefinition', '', '', false, false, false, true, '', ''),
@@ -2661,6 +2701,7 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('tokenizerType', 'Tokenizer Type', "Sets the tokenizer type", 'string', 'OPEN_AI, AZURE, QWEN', '', true, false, false, false, '', ''),
         new PropertyMeta('maxTokens', 'Max Tokens', "Sets the maximum number of tokens on each segment", 'number', '', '', true, false, false, false, '', ''),
         new PropertyMeta('maxOverlap', 'Max Overlap', "Sets the maximum number of tokens that can overlap in each segment", 'number', '', '', true, false, false, false, '', ''),
+        new PropertyMeta('modelName', 'Model Name', "Sets the model name", 'string', '', '', false, false, false, false, '', ''),
     ], [
     ]),
     new ElementMeta('langChain4jLineTokenizer', 'LangChain4jLineTokenizerDefinition', 'LangChain4J Tokenizer with line splitter', "Camel AI: Tokenizer for splitting line by line.", 'eip,transformation,ai', [
@@ -2668,6 +2709,7 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('tokenizerType', 'Tokenizer Type', "Sets the tokenizer type", 'string', 'OPEN_AI, AZURE, QWEN', '', true, false, false, false, '', ''),
         new PropertyMeta('maxTokens', 'Max Tokens', "Sets the maximum number of tokens on each segment", 'number', '', '', true, false, false, false, '', ''),
         new PropertyMeta('maxOverlap', 'Max Overlap', "Sets the maximum number of tokens that can overlap in each segment", 'number', '', '', true, false, false, false, '', ''),
+        new PropertyMeta('modelName', 'Model Name', "Sets the model name", 'string', '', '', false, false, false, false, '', ''),
     ], [
     ]),
     new ElementMeta('langChain4jParagraphTokenizer', 'LangChain4jParagraphTokenizerDefinition', 'LangChain4J Tokenizer with paragraph splitter', "Camel AI: Tokenizer for splitting by paragraphs.", 'eip,transformation,ai', [
@@ -2675,6 +2717,7 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('tokenizerType', 'Tokenizer Type', "Sets the tokenizer type", 'string', 'OPEN_AI, AZURE, QWEN', '', true, false, false, false, '', ''),
         new PropertyMeta('maxTokens', 'Max Tokens', "Sets the maximum number of tokens on each segment", 'number', '', '', true, false, false, false, '', ''),
         new PropertyMeta('maxOverlap', 'Max Overlap', "Sets the maximum number of tokens that can overlap in each segment", 'number', '', '', true, false, false, false, '', ''),
+        new PropertyMeta('modelName', 'Model Name', "Sets the model name", 'string', '', '', false, false, false, false, '', ''),
     ], [
     ]),
     new ElementMeta('langChain4jSentenceTokenizer', 'LangChain4jSentenceTokenizerDefinition', 'LangChain4J Tokenizer with sentence splitter', "Camel AI: Tokenizer for splitting by sentences.", 'eip,transformation,ai', [
@@ -2682,6 +2725,7 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('tokenizerType', 'Tokenizer Type', "Sets the tokenizer type", 'string', 'OPEN_AI, AZURE, QWEN', '', true, false, false, false, '', ''),
         new PropertyMeta('maxTokens', 'Max Tokens', "Sets the maximum number of tokens on each segment", 'number', '', '', true, false, false, false, '', ''),
         new PropertyMeta('maxOverlap', 'Max Overlap', "Sets the maximum number of tokens that can overlap in each segment", 'number', '', '', true, false, false, false, '', ''),
+        new PropertyMeta('modelName', 'Model Name', "Sets the model name", 'string', '', '', false, false, false, false, '', ''),
     ], [
     ]),
     new ElementMeta('langChain4jWordTokenizer', 'LangChain4jWordTokenizerDefinition', 'LangChain4J Tokenizer with word splitter', "Camel AI: Tokenizer for splitting by word.", 'eip,transformation,ai', [
@@ -2689,6 +2733,85 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('tokenizerType', 'Tokenizer Type', "Sets the tokenizer type", 'string', 'OPEN_AI, AZURE, QWEN', '', true, false, false, false, '', ''),
         new PropertyMeta('maxTokens', 'Max Tokens', "Sets the maximum number of tokens on each segment", 'number', '', '', true, false, false, false, '', ''),
         new PropertyMeta('maxOverlap', 'Max Overlap', "Sets the maximum number of tokens that can overlap in each segment", 'number', '', '', true, false, false, false, '', ''),
+        new PropertyMeta('modelName', 'Model Name', "Sets the model name", 'string', '', '', false, false, false, false, '', ''),
+    ], [
+    ]),
+    new ElementMeta('customTransformer', 'CustomTransformerDefinition', 'Custom Transformer', "To use a custom transformer on a route level.", 'transformation', [
+        new PropertyMeta('ref', 'Ref', "Set a bean reference of the Transformer", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('className', 'Class Name', "Set a class name of the Transformer", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('scheme', 'Scheme', "Set a scheme name supported by the transformer. If you specify 'csv', the transformer will be picked up for all of 'csv' from/to Java transformation. Note that the scheme matching is performed only when no exactly matched transformer exists.", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('name', 'Name', "Set the transformer name under which the transformer gets referenced when specifying the input/output data type on routes. If you specify a transformer name that matches a data type scheme like 'csv' the transformer will be picked up for all of 'csv:' from/to Java transformation. Note that the scheme matching is performed only when no exactly matched transformer exists.", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('fromType', 'From Type', "Set the 'from' data type name. If you specify 'xml:XYZ', the transformer will be picked up if source type is 'xml:XYZ'. If you specify just 'xml', the transformer matches with all of 'xml' source type like 'xml:ABC' or 'xml:DEF'.", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('toType', 'To Type', "Set the 'to' data type name. If you specify 'json:XYZ', the transformer will be picked up if destination type is 'json:XYZ'. If you specify just 'json', the transformer matches with all of 'json' destination type like 'json:ABC' or 'json:DEF'.", 'string', '', '', false, false, false, false, '', ''),
+    ], [
+    ]),
+    new ElementMeta('dataFormatTransformer', 'DataFormatTransformerDefinition', 'Data Format Transformer', "Represents a org.apache.camel.processor.transformer.DataFormatTransformer which leverages org.apache.camel.spi.DataFormat to perform transformation. One of the DataFormat 'ref' or DataFormat 'type' needs to be specified.", 'dataformat,transformation', [
+        new PropertyMeta('scheme', 'Scheme', "Set a scheme name supported by the transformer. If you specify 'csv', the transformer will be picked up for all of 'csv' from/to Java transformation. Note that the scheme matching is performed only when no exactly matched transformer exists.", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('name', 'Name', "Set the transformer name under which the transformer gets referenced when specifying the input/output data type on routes. If you specify a transformer name that matches a data type scheme like 'csv' the transformer will be picked up for all of 'csv:' from/to Java transformation. Note that the scheme matching is performed only when no exactly matched transformer exists.", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('fromType', 'From Type', "Set the 'from' data type name. If you specify 'xml:XYZ', the transformer will be picked up if source type is 'xml:XYZ'. If you specify just 'xml', the transformer matches with all of 'xml' source type like 'xml:ABC' or 'xml:DEF'.", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('toType', 'To Type', "Set the 'to' data type name. If you specify 'json:XYZ', the transformer will be picked up if destination type is 'json:XYZ'. If you specify just 'json', the transformer matches with all of 'json' destination type like 'json:ABC' or 'json:DEF'.", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('asn1', 'asn1', "asn1", 'ASN1DataFormat', '', '', false, false, false, true, '', ''),
+        new PropertyMeta('avro', 'avro', "avro", 'AvroDataFormat', '', '', false, false, false, true, '', ''),
+        new PropertyMeta('barcode', 'barcode', "barcode", 'BarcodeDataFormat', '', '', false, false, false, true, '', ''),
+        new PropertyMeta('base64', 'base64', "base64", 'Base64DataFormat', '', '', false, false, false, true, '', ''),
+        new PropertyMeta('beanio', 'beanio', "beanio", 'BeanioDataFormat', '', '', false, false, false, true, '', ''),
+        new PropertyMeta('bindy', 'bindy', "bindy", 'BindyDataFormat', '', '', false, false, false, true, '', ''),
+        new PropertyMeta('cbor', 'cbor', "cbor", 'CBORDataFormat', '', '', false, false, false, true, '', ''),
+        new PropertyMeta('crypto', 'crypto', "crypto", 'CryptoDataFormat', '', '', false, false, false, true, '', ''),
+        new PropertyMeta('csv', 'csv', "csv", 'CsvDataFormat', '', '', false, false, false, true, '', ''),
+        new PropertyMeta('custom', 'custom', "custom", 'CustomDataFormat', '', '', false, false, false, true, '', ''),
+        new PropertyMeta('fhirJson', 'fhirJson', "fhirJson", 'FhirJsonDataFormat', '', '', false, false, false, true, '', ''),
+        new PropertyMeta('fhirXml', 'fhirXml', "fhirXml", 'FhirXmlDataFormat', '', '', false, false, false, true, '', ''),
+        new PropertyMeta('flatpack', 'flatpack', "flatpack", 'FlatpackDataFormat', '', '', false, false, false, true, '', ''),
+        new PropertyMeta('fory', 'fory', "fory", 'ForyDataFormat', '', '', false, false, false, true, '', ''),
+        new PropertyMeta('grok', 'grok', "grok", 'GrokDataFormat', '', '', false, false, false, true, '', ''),
+        new PropertyMeta('gzipDeflater', 'gzipDeflater', "gzipDeflater", 'GzipDeflaterDataFormat', '', '', false, false, false, true, '', ''),
+        new PropertyMeta('hl7', 'hl7', "hl7", 'HL7DataFormat', '', '', false, false, false, true, '', ''),
+        new PropertyMeta('ical', 'ical', "ical", 'IcalDataFormat', '', '', false, false, false, true, '', ''),
+        new PropertyMeta('iso8583', 'iso8583', "iso8583", 'Iso8583DataFormat', '', '', false, false, false, true, '', ''),
+        new PropertyMeta('jacksonXml', 'jacksonXml', "jacksonXml", 'JacksonXMLDataFormat', '', '', false, false, false, true, '', ''),
+        new PropertyMeta('jaxb', 'jaxb', "jaxb", 'JaxbDataFormat', '', '', false, false, false, true, '', ''),
+        new PropertyMeta('json', 'json', "json", 'JsonDataFormat', '', '', false, false, false, true, '', ''),
+        new PropertyMeta('jsonApi', 'jsonApi', "jsonApi", 'JsonApiDataFormat', '', '', false, false, false, true, '', ''),
+        new PropertyMeta('lzf', 'lzf', "lzf", 'LZFDataFormat', '', '', false, false, false, true, '', ''),
+        new PropertyMeta('mimeMultipart', 'mimeMultipart', "mimeMultipart", 'MimeMultipartDataFormat', '', '', false, false, false, true, '', ''),
+        new PropertyMeta('parquetAvro', 'parquetAvro', "parquetAvro", 'ParquetAvroDataFormat', '', '', false, false, false, true, '', ''),
+        new PropertyMeta('pgp', 'pgp', "pgp", 'PGPDataFormat', '', '', false, false, false, true, '', ''),
+        new PropertyMeta('protobuf', 'protobuf', "protobuf", 'ProtobufDataFormat', '', '', false, false, false, true, '', ''),
+        new PropertyMeta('rss', 'rss', "rss", 'RssDataFormat', '', '', false, false, false, true, '', ''),
+        new PropertyMeta('smooks', 'smooks', "smooks", 'SmooksDataFormat', '', '', false, false, false, true, '', ''),
+        new PropertyMeta('soap', 'soap', "soap", 'SoapDataFormat', '', '', false, false, false, true, '', ''),
+        new PropertyMeta('swiftMt', 'swiftMt', "swiftMt", 'SwiftMtDataFormat', '', '', false, false, false, true, '', ''),
+        new PropertyMeta('swiftMx', 'swiftMx', "swiftMx", 'SwiftMxDataFormat', '', '', false, false, false, true, '', ''),
+        new PropertyMeta('syslog', 'syslog', "syslog", 'SyslogDataFormat', '', '', false, false, false, true, '', ''),
+        new PropertyMeta('tarFile', 'tarFile', "tarFile", 'TarFileDataFormat', '', '', false, false, false, true, '', ''),
+        new PropertyMeta('thrift', 'thrift', "thrift", 'ThriftDataFormat', '', '', false, false, false, true, '', ''),
+        new PropertyMeta('tidyMarkup', 'tidyMarkup', "tidyMarkup", 'TidyMarkupDataFormat', '', '', false, false, false, true, '', ''),
+        new PropertyMeta('univocityCsv', 'univocityCsv', "univocityCsv", 'UniVocityCsvDataFormat', '', '', false, false, false, true, '', ''),
+        new PropertyMeta('univocityFixed', 'univocityFixed', "univocityFixed", 'UniVocityFixedDataFormat', '', '', false, false, false, true, '', ''),
+        new PropertyMeta('univocityTsv', 'univocityTsv', "univocityTsv", 'UniVocityTsvDataFormat', '', '', false, false, false, true, '', ''),
+        new PropertyMeta('xmlSecurity', 'xmlSecurity', "xmlSecurity", 'XMLSecurityDataFormat', '', '', false, false, false, true, '', ''),
+        new PropertyMeta('yaml', 'yaml', "yaml", 'YAMLDataFormat', '', '', false, false, false, true, '', ''),
+        new PropertyMeta('zipDeflater', 'zipDeflater', "zipDeflater", 'ZipDeflaterDataFormat', '', '', false, false, false, true, '', ''),
+        new PropertyMeta('zipFile', 'zipFile', "zipFile", 'ZipFileDataFormat', '', '', false, false, false, true, '', ''),
+    ], [
+    ]),
+    new ElementMeta('endpointTransformer', 'EndpointTransformerDefinition', 'Endpoint Transformer', "To use a Camel endpoint to perform transformation on the route level.", 'transformation', [
+        new PropertyMeta('ref', 'Ref', "Set the reference of the Endpoint.", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('uri', 'Uri', "Set the URI of the Endpoint.", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('scheme', 'Scheme', "Set a scheme name supported by the transformer. If you specify 'csv', the transformer will be picked up for all of 'csv' from/to Java transformation. Note that the scheme matching is performed only when no exactly matched transformer exists.", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('name', 'Name', "Set the transformer name under which the transformer gets referenced when specifying the input/output data type on routes. If you specify a transformer name that matches a data type scheme like 'csv' the transformer will be picked up for all of 'csv:' from/to Java transformation. Note that the scheme matching is performed only when no exactly matched transformer exists.", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('fromType', 'From Type', "Set the 'from' data type name. If you specify 'xml:XYZ', the transformer will be picked up if source type is 'xml:XYZ'. If you specify just 'xml', the transformer matches with all of 'xml' source type like 'xml:ABC' or 'xml:DEF'.", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('toType', 'To Type', "Set the 'to' data type name. If you specify 'json:XYZ', the transformer will be picked up if destination type is 'json:XYZ'. If you specify just 'json', the transformer matches with all of 'json' destination type like 'json:ABC' or 'json:DEF'.", 'string', '', '', false, false, false, false, '', ''),
+    ], [
+    ]),
+    new ElementMeta('loadTransformer', 'LoadTransformerDefinition', 'Load Transformer', "To load custom transformers from classpath scanning to be used for route level transformations.", 'transformation', [
+        new PropertyMeta('packageScan', 'Package Scan', "Set the classpath location to scan for annotated transformers.", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('defaults', 'Defaults', "Enable loading of default transformers.", 'boolean', '', 'false', false, false, false, false, '', ''),
+        new PropertyMeta('scheme', 'Scheme', "Set a scheme name supported by the transformer. If you specify 'csv', the transformer will be picked up for all of 'csv' from/to Java transformation. Note that the scheme matching is performed only when no exactly matched transformer exists.", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('name', 'Name', "Set the transformer name under which the transformer gets referenced when specifying the input/output data type on routes. If you specify a transformer name that matches a data type scheme like 'csv' the transformer will be picked up for all of 'csv:' from/to Java transformation. Note that the scheme matching is performed only when no exactly matched transformer exists.", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('fromType', 'From Type', "Set the 'from' data type name. If you specify 'xml:XYZ', the transformer will be picked up if source type is 'xml:XYZ'. If you specify just 'xml', the transformer matches with all of 'xml' source type like 'xml:ABC' or 'xml:DEF'.", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('toType', 'To Type', "Set the 'to' data type name. If you specify 'json:XYZ', the transformer will be picked up if destination type is 'json:XYZ'. If you specify just 'json', the transformer matches with all of 'json' destination type like 'json:ABC' or 'json:DEF'.", 'string', '', '', false, false, false, false, '', ''),
     ], [
     ]),
     new ElementMeta('transformers', 'TransformersDefinition', 'Transformations', "To configure transformers.", 'transformation', [
@@ -2696,6 +2819,23 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('dataFormatTransformer', 'dataFormatTransformer', "dataFormatTransformer", 'DataFormatTransformerDefinition', '', '', false, false, false, true, '', ''),
         new PropertyMeta('endpointTransformer', 'endpointTransformer', "endpointTransformer", 'EndpointTransformerDefinition', '', '', false, false, false, true, '', ''),
         new PropertyMeta('loadTransformer', 'loadTransformer', "loadTransformer", 'LoadTransformerDefinition', '', '', false, false, false, true, '', ''),
+    ], [
+    ]),
+    new ElementMeta('customValidator', 'CustomValidatorDefinition', 'Custom Validator', "To use a custom validator on the route level.", 'validation', [
+        new PropertyMeta('ref', 'Ref', "Set a bean reference of the Validator", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('className', 'Class Name', "Set a class name of the Validator", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('type', 'Type', "Set the data type name. If you specify 'xml:XYZ', the validator will be picked up if message type is 'xml:XYZ'. If you specify just 'xml', the validator matches with all of 'xml' message type like 'xml:ABC' or 'xml:DEF'.", 'string', '', '', false, false, false, false, '', ''),
+    ], [
+    ]),
+    new ElementMeta('endpointValidator', 'EndpointValidatorDefinition', 'Endpoint Validator', "To use a Camel endpoint to perform validation on the route level.", 'validation', [
+        new PropertyMeta('ref', 'Ref', "Set the reference of the Endpoint.", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('uri', 'Uri', "Set the URI of the Endpoint.", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('type', 'Type', "Set the data type name. If you specify 'xml:XYZ', the validator will be picked up if message type is 'xml:XYZ'. If you specify just 'xml', the validator matches with all of 'xml' message type like 'xml:ABC' or 'xml:DEF'.", 'string', '', '', false, false, false, false, '', ''),
+    ], [
+    ]),
+    new ElementMeta('predicateValidator', 'PredicateValidatorDefinition', 'Predicate Validator', "To use a predicate to perform validation on the route level.", 'validation', [
+        new PropertyMeta('expression', 'Expression', "expression", 'ExpressionDefinition', '', '', true, false, false, true, '', ''),
+        new PropertyMeta('type', 'Type', "Set the data type name. If you specify 'xml:XYZ', the validator will be picked up if message type is 'xml:XYZ'. If you specify just 'xml', the validator matches with all of 'xml' message type like 'xml:ABC' or 'xml:DEF'.", 'string', '', '', false, false, false, false, '', ''),
     ], [
     ]),
     new ElementMeta('validators', 'ValidatorsDefinition', 'Validations', "To configure validators.", 'validation', [
