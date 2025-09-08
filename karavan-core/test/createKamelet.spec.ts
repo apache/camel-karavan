@@ -25,7 +25,7 @@ describe('Create Kamelet', () => {
 
     it('Create new Kamelet from existing', () => {
         const kamelet = fs.readFileSync('test/timer-source.kamelet.yaml', { encoding: 'utf8', flag: 'r' });
-        KameletApi.saveKamelets([kamelet]);
+        KameletApi.saveCamelKamelets([kamelet]);
         const code = CamelUtil.createNewKameletCode("custom-timer-source.kamelet.yaml", 'source', "timer-source")
         console.log(code);
         // if (i.spec.flows) {

@@ -87,6 +87,8 @@ export class ComponentProperty {
     secret: boolean = false;
     enum: string[] = [];
     required: boolean = false;
+    supportFileReference: boolean = false;
+    inputLanguage: string = '';
     defaultValue: string | number | boolean | any;
     value: string | any;
 

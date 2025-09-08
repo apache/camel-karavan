@@ -274,6 +274,8 @@ export class ComponentApi {
                 prop.description = value.description;
                 prop.type = value.type;
                 prop.displayName = value.displayName;
+                prop.supportFileReference = value.supportFileReference;
+                prop.inputLanguage = value.inputLanguage;
                 prop.group = value.group;
                 prop.type = value.type;
                 prop.deprecated = value.deprecated;

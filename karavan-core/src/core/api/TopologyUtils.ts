@@ -23,7 +23,7 @@ import {
     PatchDefinition,
     PostDefinition,
     PutDefinition,
-    RestDefinition, RouteConfigurationDefinition, RouteDefinition, RouteTemplateDefinition, SagaDefinition,
+    RestDefinition, RouteConfigurationDefinition, RouteDefinition, SagaDefinition,
 } from '../model/CamelDefinition';
 import {
     CamelElement,
@@ -31,7 +31,7 @@ import {
 } from '../model/IntegrationDefinition';
 import {
     TopologyBeanNode,
-    TopologyIncomingNode,
+    TopologyIncomingNode, TopologyOpenApiNode, TopologyOpenApiOperation,
     TopologyOutgoingNode,
     TopologyRestNode, TopologyRouteConfigurationNode,
     TopologyRouteNode,
@@ -46,6 +46,11 @@ const outgoingDefinitions: string[] = ['ToDefinition', 'KameletDefinition', 'ToD
 export class ChildElement {
     constructor(public name: string = '', public className: string = '', public multiple: boolean = false) {
     }
+}
+
+export interface IncomingLink {
+    name: string;
+    fileName: string;
 }
 
 export class TopologyUtils {
@@ -83,7 +88,7 @@ export class TopologyUtils {
         const uri: string = (element as any).uri || '';
         let result = uri.startsWith('kamelet') ? TopologyUtils.cutKameletUriSuffix(uri).concat(':') : uri.concat(':');
         const className = element.dslName;
-        if (className === 'FromDefinition' || className === 'ToDefinition') {
+        if (['FromDefinition', 'ToDefinition', 'ToDynamicDefinition', 'WireTapDefinition'].includes(className)) {
             if (!CamelUtil.isKameletComponent(element)) {
                 const requiredProperties = CamelUtil.getComponentProperties(element).filter(p => p.required);
                 for (const property of requiredProperties) {
@@ -159,6 +164,55 @@ export class TopologyUtils {
             }
         });
         return result;
+    };
+
+
+    static findTopologyOpenApiNodes = (json: string): TopologyOpenApiNode => {
+        const operations: TopologyOpenApiOperation[] = [];
+        let title = 'OpenAPI';
+
+        try {
+            const openapi = JSON.parse(json);
+
+            // Get API title if available
+            if (openapi.info && typeof openapi.info.title === "string") {
+                title = openapi.info.title;
+            }
+
+            const HTTP_METHODS = [
+                'get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace'
+            ];
+
+            if (openapi.paths) {
+                for (const path in openapi.paths) {
+                    const pathItem = openapi.paths[path];
+
+                    for (const method of HTTP_METHODS) {
+                        if (pathItem[method]) {
+                            const op = pathItem[method];
+                            const operationId = op.operationId || '';
+                            // Use operation summary, or description, or fallback to operationId
+                            const opTitle =
+                                op.summary ||
+                                op.description ||
+                                operationId ||
+                                `${method.toUpperCase()} ${path}`;
+                            operations.push(
+                                new TopologyOpenApiOperation(
+                                    path,
+                                    opTitle,
+                                    method.toUpperCase(),
+                                    operationId
+                                )
+                            );
+                        }
+                    }
+                }
+            }
+        } catch (err) {
+            console.error(err);
+        }
+        return new TopologyOpenApiNode('openapi.json', title, operations);
     };
 
     static findTopologyIncomingNodes = (integration: Integration[]): TopologyIncomingNode[] => {
@@ -417,8 +471,15 @@ export class TopologyUtils {
         }
     }
 
-    static getNodeIdByUniqueUri(tins: TopologyIncomingNode[], uniqueUri: string): TopologyIncomingNode [] {
+    static getIncomingNodeByUniqueUri(tins: TopologyIncomingNode[], uniqueUri: string): TopologyIncomingNode [] {
         const result: TopologyIncomingNode[] = [];
+        tins.filter(r => r.uniqueUri === uniqueUri)
+            ?.forEach(node => result.push(node));
+        return result;
+    }
+
+    static getOutgoingNodeByUniqueUri(tins: TopologyOutgoingNode[], uniqueUri: string): TopologyOutgoingNode [] {
+        const result: TopologyOutgoingNode[] = [];
         tins.filter(r => r.uniqueUri === uniqueUri)
             ?.forEach(node => result.push(node));
         return result;
@@ -429,5 +490,61 @@ export class TopologyUtils {
         if (parts.length > 1) {
             return TopologyUtils.getRouteIdByUriAndName(tins, parts[0], parts[1]);
         }
+    }
+
+    static getIncomingLinkMap(integrations: Integration[], openApiJson?: string): Map<string, IncomingLink[]> {
+        const data = new Map<string, IncomingLink[]>();
+        TopologyUtils.findTopologyRouteOutgoingNodes(integrations).forEach(t => {
+            const key = (t.step as any)?.uri + ':' + (t.step as any)?.parameters?.name;
+            if (data.has(key)) {
+                const list = data.get(key) || [];
+                list.push({name: t.routeId, fileName: t.fileName});
+                data.set(key, list);
+            } else {
+                data.set(key, [{name: t.routeId, fileName: t.fileName}]);
+            }
+        });
+        TopologyUtils.findTopologyRestNodes(integrations).forEach(t => {
+            t.rest?.get?.forEach(def => {
+                if (def.to) {
+                    data.set(def.to, [{name: 'get:' + (def.path || ''), fileName: t.fileName}])
+                }
+            })
+            t.rest?.post?.forEach(def => {
+                if (def.to) {
+                    data.set(def.to, [{name: 'post:' + (def.path || ''), fileName: t.fileName}])
+                }
+            })
+            t.rest?.delete?.forEach(def => {
+                if (def.to) {
+                    data.set(def.to, [{name: 'delete:' + (def.path || ''), fileName: t.fileName}])
+                }
+            })
+            t.rest?.patch?.forEach(def => {
+                if (def.to) {
+                    data.set(def.to, [{name: 'patch:' + (def.path || ''), fileName: t.fileName}])
+                }
+            })
+            t.rest?.head?.forEach(def => {
+                if (def.to) {
+                    data.set(def.to, [{name: 'head:' + (def.path || ''), fileName: t.fileName}])
+                }
+            })
+        });
+        if (openApiJson) {
+            const nodes = TopologyUtils.findTopologyOpenApiNodes(openApiJson);
+            nodes.operations.filter(o => o.operationId?.length > 0)
+                .forEach((operation) => {
+                    const uri = 'direct:' + operation.operationId;
+                    const newLink: IncomingLink = {name: `${operation.method} ${operation.path}`, fileName: nodes.fileName};
+                    const currentLinks = data.get(uri);
+                    if (currentLinks) {
+                        data.set(uri, [...currentLinks, newLink]);
+                    } else {
+                        data.set(uri, [newLink]);
+                    }
+                })
+        }
+        return data;
     }
 }

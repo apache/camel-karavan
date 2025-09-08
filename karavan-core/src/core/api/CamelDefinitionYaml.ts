@@ -322,7 +322,7 @@ export class CamelDefinitionYaml {
         flows.filter((e: any) => e.hasOwnProperty('route'))
             .forEach((f: any) => result.push(CamelDefinitionYamlStep.readRouteDefinition(f.route)));
         flows.filter((e: any) => e.hasOwnProperty('from'))
-            .forEach((f: any) =>  result.push(CamelDefinitionYamlStep.readRouteDefinition(new RouteDefinition({from: f.from}))));
+            .forEach((f: any) =>  result.push(CamelDefinitionYamlStep.readRouteDefinition(new RouteDefinition({from: f.from, id: f.id}))));
         flows.filter((e: any) => e.hasOwnProperty('beans'))
             .forEach((b: any) => result.push(CamelDefinitionYaml.readBeanDefinition(b)));
         flows.filter((e: any) => e.hasOwnProperty('routeConfiguration'))

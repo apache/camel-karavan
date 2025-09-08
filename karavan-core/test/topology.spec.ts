@@ -45,7 +45,7 @@ describe('Topology functions', () => {
         const yamls = fs.readFileSync('test/metadata/kamelets.yaml',{encoding:'utf8', flag:'r'});
         const kamelets: string[] = [];
         yamls.split(/\n?---\n?/).map(c => c.trim()).forEach(z => kamelets.push(z));
-        KameletApi.saveKamelets(kamelets, true);
+        KameletApi.saveCamelKamelets(kamelets, true);
     }
 
 });

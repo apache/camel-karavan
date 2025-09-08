@@ -60,6 +60,7 @@ export class Annotations {
     'camel.apache.org/kamelet.icon': string | any = '';
     'camel.apache.org/catalog.version': string | any = '';
     'camel.apache.org/kamelet.support.level': string | any = '';
+    'camel.apache.org/karavan.designer.stepType': string | any = '';
 
     public constructor(init?: Partial<Annotations>) {
         Object.assign(this, init);

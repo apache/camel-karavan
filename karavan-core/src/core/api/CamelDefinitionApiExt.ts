@@ -446,6 +446,22 @@ export class CamelDefinitionApiExt {
         return integration;
     };
 
+    static deleteRouteFromIntegration = (
+        integration: Integration,
+        routeId: string,
+    ): Integration => {
+        const newFlows: any[] = [];
+        const flows: any[] = integration.spec.flows ?? [];
+        newFlows.push(...flows.filter(flow => flow.dslName !== 'RouteDefinition'));
+        newFlows.push(
+            ...flows.filter(
+                flow => flow.dslName === 'RouteDefinition' && flow.id !== routeId,
+            ),
+        );
+        integration.spec.flows = newFlows;
+        return integration;
+    };
+
     static updateRouteTemplateToIntegration = (integration: Integration, e: CamelElement): Integration => {
         const elementClone = CamelUtil.cloneStep(e);
         const integrationClone: Integration = CamelUtil.cloneIntegration(integration);

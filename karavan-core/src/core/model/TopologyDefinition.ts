@@ -36,6 +36,33 @@ export class TopologyRestNode {
     }
 }
 
+export class TopologyOpenApiOperation {
+    path: string;
+    title: string;
+    method: string;
+    operationId: string;
+
+    constructor(path: string, title: string, method: string, operationId: string) {
+        this.path = path;
+        this.title = title;
+        this.method = method;
+        this.operationId = operationId;
+    }
+}
+
+export class TopologyOpenApiNode {
+    fileName: string;
+    title: string;
+    operations: TopologyOpenApiOperation[];
+
+    constructor(fileName: string, title: string, operations: TopologyOpenApiOperation[]) {
+        this.fileName = fileName;
+        this.title = title;
+        this.operations = operations;
+    }
+}
+
+
 export class TopologyIncomingNode {
     id: string;
     type: 'internal' | 'external';

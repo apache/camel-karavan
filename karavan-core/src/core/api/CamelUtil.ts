@@ -152,7 +152,7 @@ export class CamelUtil {
     static isKameletComponent = (element: CamelElement | undefined): boolean => {
         if (element?.dslName === 'KameletDefinition') {
             return true;
-        } else if (element?.dslName === 'FromDefinition' || element?.dslName === 'ToDefinition' || element?.dslName === 'ToDynamicDefinition') {
+        } else if (element && ['FromDefinition', 'ToDefinition', 'WireTapDefinition', 'ToDynamicDefinition'].includes(element?.dslName)) {
             const uri: string = (element as any).uri;
             return uri !== undefined && uri.startsWith('kamelet:');
         } else {
@@ -166,7 +166,7 @@ export class CamelUtil {
         } else if (element.dslName === 'ToDefinition' && (element as ToDefinition).uri?.startsWith('kamelet:')) {
             const kameletName = (element as ToDefinition).uri?.replace('kamelet:', '');
             return KameletApi.findKameletByName(kameletName);
-        } else if (['FromDefinition', 'ToDynamicDefinition', 'ToDefinition'].includes(element.dslName)) {
+        } else if (['FromDefinition', 'ToDynamicDefinition', 'ToDefinition', 'WireTapDefinition'].includes(element.dslName)) {
             const uri: string = (element as any).uri;
             return uri !== undefined ? KameletApi.findKameletByUri(uri) : undefined;
         } else {
@@ -376,7 +376,7 @@ export class CamelUtil {
         const meta: MetadataLabels = new MetadataLabels({ 'camel.apache.org/kamelet.type': kameletType });
         integration.metadata.labels = meta;
         if (copyFromKameletName !== undefined && copyFromKameletName !== '') {
-            const kamelet = KameletApi.getKamelets().filter(k => k.metadata.name === copyFromKameletName).at(0);
+            const kamelet = KameletApi.getAllKamelets().filter(k => k.metadata.name === copyFromKameletName).at(0);
             if (kamelet) {
                 (integration as any).spec = kamelet.spec;
                 (integration as any).metadata.labels = kamelet.metadata.labels;

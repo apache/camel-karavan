@@ -17,31 +17,61 @@
 import { KameletModel, Property } from '../model/KameletModels';
 import * as yaml from 'js-yaml';
 
-const Kamelets: KameletModel[] = [];
-const CustomNames: string[] = [];
+const CamelKamelets: KameletModel[] = [];
+const CustomKamelets: KameletModel[] = [];
+const ProjectKamelets: KameletModel[] = [];
 const BlockedKamelets: string[] = [];
+
 export class KameletApi {
     private constructor() {}
 
     static getCustomKameletNames = (): string[] => {
-        return CustomNames;
+        return CustomKamelets.map(k => k.metadata.name);
     };
 
-    static saveCustomKameletNames = (names: string[]) => {
-        CustomNames.length = 0;
-        CustomNames.push(...names);
+    static getProjectKameletNames = (): string[] => {
+        return ProjectKamelets.map(k => k.metadata.name);
     };
 
-    static saveCustomKameletName = (name: string) => {
-        CustomNames.push(name);
-    }
-
-    static removeCustomKameletName = (name: string) => {
-        const index = CustomNames.indexOf(name);
-        if (index > -1) {
-            CustomNames.splice(index,1);
+    static saveCustomKamelet = (yaml: string): void => {
+        const kamelet: KameletModel = KameletApi.yamlToKamelet(yaml);
+        const kameletIndex = CustomKamelets.findIndex((k: KameletModel) => k.metadata.name === kamelet.metadata.name);
+        if (kameletIndex === -1) {
+            CustomKamelets.push(kamelet);
+        } else {
+            CustomKamelets.splice(kameletIndex, 1, kamelet)
         }
-    }
+    };
+
+    static saveCustomKamelets = (kameletYamls: string[], clean: boolean = false): void => {
+        const kamelets: KameletModel[] = kameletYamls.map(text => KameletApi.yamlToKamelet(text));
+        if (clean) CustomKamelets.length = 0;
+        CustomKamelets.push(
+            ...kamelets.sort((a, b) =>
+                a.spec.definition.title.localeCompare(b.spec.definition.title, undefined, { sensitivity: 'base' }),
+            ),
+        );
+    };
+
+    static saveProjectKamelets = (kameletYamls: string[], clean: boolean = false): void => {
+        const kamelets: KameletModel[] = kameletYamls.map(text => KameletApi.yamlToKamelet(text));
+        if (clean) ProjectKamelets.length = 0;
+        ProjectKamelets.push(
+            ...kamelets.sort((a, b) =>
+                a.spec.definition.title.localeCompare(b.spec.definition.title, undefined, { sensitivity: 'base' }),
+            ),
+        );
+    };
+
+    static saveProjectKamelet = (yaml: string): void => {
+        const kamelet: KameletModel = KameletApi.yamlToKamelet(yaml);
+        const kameletIndex = ProjectKamelets.findIndex((k: KameletModel) => k.metadata.name === kamelet.metadata.name);
+        if (kameletIndex === -1) {
+            ProjectKamelets.push(kamelet);
+        } else {
+            ProjectKamelets.splice(kameletIndex, 1, kamelet)
+        }
+    };
 
     static getKameletProperties = (kameletName: string): Property[] => {
         const kamelet: KameletModel | undefined = KameletApi.findKameletByName(kameletName);
@@ -71,8 +101,8 @@ export class KameletApi {
         }
     };
 
-    static getKamelets = (): KameletModel[] => {
-        return Kamelets.sort((a, b) => a.title().localeCompare(b.title(), undefined, { sensitivity: 'base' }));
+    static getAllKamelets = (): KameletModel[] => {
+        return [...ProjectKamelets, ...CustomKamelets, ...CamelKamelets].sort((a, b) => a.title().localeCompare(b.title(), undefined, { sensitivity: 'base' }));
     };
 
     static jsonToKamelet = (json: string): KameletModel => {
@@ -82,7 +112,11 @@ export class KameletApi {
     };
 
     static findKameletByName = (name: string): KameletModel | undefined => {
-        return Kamelets.find((k: KameletModel) => k.metadata.name === name);
+        for (const list of [ProjectKamelets, CustomKamelets, CamelKamelets]) {
+            const found = list.find((k) => k.metadata.name === name);
+            if (found) return found;
+        }
+        return undefined;
     };
 
     static findKameletByUri = (uri: string): KameletModel | undefined => {
@@ -94,37 +128,16 @@ export class KameletApi {
         return KameletApi.jsonToKamelet(JSON.stringify(fromYaml));
     };
 
-    static saveKamelets = (kameletYamls: string[], clean: boolean = false): void => {
+    static saveCamelKamelets = (kameletYamls: string[], clean: boolean = false): void => {
         const kamelets: KameletModel[] = kameletYamls.map(text => KameletApi.yamlToKamelet(text));
-        if (clean) Kamelets.length = 0;
-        Kamelets.push(
+        if (clean) CamelKamelets.length = 0;
+        CamelKamelets.push(
             ...kamelets.sort((a, b) =>
                 a.spec.definition.title.localeCompare(b.spec.definition.title, undefined, { sensitivity: 'base' }),
             ),
         );
     };
 
-    static saveKamelet = (yaml: string): void => {
-        const kamelet: KameletModel = KameletApi.yamlToKamelet(yaml);
-        const kameletIndex = Kamelets.findIndex((k: KameletModel) => k.metadata.name === kamelet.metadata.name);
-        if (kameletIndex === -1) {
-            Kamelets.push(kamelet);
-            KameletApi.saveCustomKameletName(kamelet.metadata.name);
-        }
-        else {
-            Kamelets.splice(kameletIndex, 1, kamelet)
-        }
-    };
-
-    static removeKamelet = (yaml: string): void => {
-        const kamelet: KameletModel = KameletApi.yamlToKamelet(yaml);
-        const kameletIndex = Kamelets.findIndex((k: KameletModel) => k.metadata.name === kamelet.metadata.name);
-        if (kameletIndex > -1) {
-            Kamelets.splice(kameletIndex,1);
-            KameletApi.removeCustomKameletName(kamelet.metadata.name);
-        }
-    };
-    
     static saveBlockedKameletNames = (names: string[]): void => {
         BlockedKamelets.length = 0;
         BlockedKamelets.push(...names);
@@ -140,7 +153,7 @@ export class KameletApi {
         }
         return BlockedKamelets;
     }
-    
+
     static getBlockedKameletNames = () => {
         return BlockedKamelets;
     }
