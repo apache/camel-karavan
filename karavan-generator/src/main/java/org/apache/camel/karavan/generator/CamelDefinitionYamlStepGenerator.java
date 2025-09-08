@@ -31,13 +31,17 @@ public final class CamelDefinitionYamlStepGenerator extends AbstractGenerator {
     final static String modelTemplate = "karavan-generator/src/main/resources/CamelDefinitionYamlStep.ts";
     final static String targetModel = "karavan-core/src/core/api/CamelDefinitionYamlStep.ts";
 
+    public CamelDefinitionYamlStepGenerator(String rootPath) {
+        super(rootPath);
+    }
+
     public static void main(String[] args) throws Exception {
-        CamelDefinitionYamlStepGenerator.generate();
+        CamelDefinitionYamlStepGenerator.generate(args[0]);
         System.exit(0);
     }
 
-    public static void generate() throws Exception {
-        CamelDefinitionYamlStepGenerator g = new CamelDefinitionYamlStepGenerator();
+    public static void generate(String rootPath) throws Exception {
+        CamelDefinitionYamlStepGenerator g = new CamelDefinitionYamlStepGenerator(rootPath);
         g.createCamelDefinitions();
     }
 

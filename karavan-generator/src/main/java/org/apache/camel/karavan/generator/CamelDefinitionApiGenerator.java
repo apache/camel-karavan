@@ -31,13 +31,17 @@ public final class CamelDefinitionApiGenerator extends AbstractGenerator {
     final static String modelTemplate = "karavan-generator/src/main/resources/CamelDefinitionApi.ts";
     final static String targetModel = "karavan-core/src/core/api/CamelDefinitionApi.ts";
 
+    public CamelDefinitionApiGenerator(String rootPath) {
+        super(rootPath);
+    }
+
     public static void main(String[] args) throws Exception {
-        CamelDefinitionApiGenerator.generate();
+        CamelDefinitionApiGenerator.generate(args[0]);
         System.exit(0);
     }
 
-    public static void generate() throws Exception {
-        CamelDefinitionApiGenerator g = new CamelDefinitionApiGenerator();
+    public static void generate(String rootPath) throws Exception {
+        CamelDefinitionApiGenerator g = new CamelDefinitionApiGenerator(rootPath);
         g.createCamelDefinitions();
     }
 

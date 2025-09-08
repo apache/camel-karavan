@@ -21,25 +21,23 @@ import java.nio.file.Paths;
 public final class KaravanGenerator {
 
     public static void main(String[] args) throws Exception {
-        String[] paths = new String[] {
-                "karavan-designer/public",
-                "karavan-core/test",
-                "karavan-app/src/main/resources",
-                "karavan-vscode"
-        };
-        if (args.length > 0) {
-            paths = new String[] {args[0]};
-        }
+        String rootPath = args.length > 0 ? args[0] : "";
+        boolean all = args.length == 0;
+        String[] paths = all
+                ? new String[] {"karavan-core/test", "karavan-app/src/main/resources", "karavan-designer/public", "karavan-vscode"}
+                : new String[] {"karavan-core/test", "karavan-app/src/main/resources"};
+        System.out.println("Generating Root Path: " + rootPath);
         for (String path : paths) {
+            System.out.println("    Generating Path: " + path);
             AbstractGenerator.clearDirectory(Paths.get(path + "/metadata").toFile());
         }
-        CamelDefinitionGenerator.generate();
-        CamelDefinitionApiGenerator.generate();
-        CamelDefinitionYamlStepGenerator.generate();
-        CamelMetadataGenerator.generate();
-        KameletGenerator.generate(paths);
-        CamelComponentsGenerator.generate(paths);
-        CamelSpiBeanGenerator.generate(paths);
+        CamelDefinitionGenerator.generate(rootPath);
+        CamelDefinitionApiGenerator.generate(rootPath);
+        CamelDefinitionYamlStepGenerator.generate(rootPath);
+        CamelMetadataGenerator.generate(rootPath);
+        KameletGenerator.generate(rootPath, paths);
+        CamelComponentsGenerator.generate(rootPath, paths);
+        CamelSpiBeanGenerator.generate(rootPath, paths);
         System.exit(0);
     }
 

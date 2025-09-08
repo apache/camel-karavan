@@ -39,10 +39,14 @@ import java.util.stream.Collectors;
 
 public class KameletGenerator extends AbstractGenerator {
 
-    public static void generate(String... paths) throws Exception {
-        KameletGenerator g = new KameletGenerator();
+    public KameletGenerator(String rootPath) {
+        super(rootPath);
+    }
+
+    public static void generate(String rootPath, String... paths) throws Exception {
+        KameletGenerator g = new KameletGenerator(rootPath);
         for (String path : paths) {
-            g.createKamelets(path + "/metadata", true);
+            g.createKamelets(rootPath.concat(File.separator).concat(path) + "/metadata", true);
         }
     }
 

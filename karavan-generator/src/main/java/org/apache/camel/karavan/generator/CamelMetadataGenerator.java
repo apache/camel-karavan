@@ -27,13 +27,17 @@ public final class CamelMetadataGenerator extends AbstractGenerator {
     final static String modelHeader = "karavan-generator/src/main/resources/CamelMetadata.header.ts";
     final static String targetModel = "karavan-core/src/core/model/CamelMetadata.ts";
 
+    public CamelMetadataGenerator(String rootPath) {
+        super(rootPath);
+    }
+
     public static void main(String[] args) throws Exception {
-        CamelMetadataGenerator.generate();
+        CamelMetadataGenerator.generate(args[0]);
         System.exit(0);
     }
 
-    public static void generate() throws Exception {
-        CamelMetadataGenerator g = new CamelMetadataGenerator();
+    public static void generate(String rootPath) throws Exception {
+        CamelMetadataGenerator g = new CamelMetadataGenerator(rootPath);
         g.createCamelDefinitions();
     }
 

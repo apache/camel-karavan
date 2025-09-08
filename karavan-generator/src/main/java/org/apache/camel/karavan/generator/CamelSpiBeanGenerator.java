@@ -23,13 +23,17 @@ public final class CamelSpiBeanGenerator extends AbstractGenerator {
     final static String modelHeader = "karavan-generator/src/main/resources/CamelMetadata.header.ts";
     final static String targetModel = "karavan-core/src/core/model/CamelMetadata.ts";
 
-    public static void main(String[] args) throws Exception {
-        CamelSpiBeanGenerator.generate();
-        System.exit(0);
+    public CamelSpiBeanGenerator(String rootPath) {
+        super(rootPath);
     }
 
-    public static void generate(String... paths) throws Exception {
-        CamelSpiBeanGenerator g = new CamelSpiBeanGenerator();
+//    public static void main(String[] args) throws Exception {
+//        CamelSpiBeanGenerator.generate();
+//        System.exit(0);
+//    }
+
+    public static void generate(String rootPath, String... paths) throws Exception {
+        CamelSpiBeanGenerator g = new CamelSpiBeanGenerator(rootPath);
         for (String path : paths) {
             g.createCamelBeans(path + "/metadata");
         }

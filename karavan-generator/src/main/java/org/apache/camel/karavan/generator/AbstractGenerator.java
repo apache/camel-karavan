@@ -45,6 +45,11 @@ public class AbstractGenerator {
 
     Logger LOGGER = Logger.getLogger(AbstractGenerator.class.getName());
     protected static boolean print = false;
+    protected final String rootPath;
+
+    public AbstractGenerator(String rootPath) {
+        this.rootPath = rootPath;
+    }
 
     protected void print(String line) {
         if (print) {
@@ -252,6 +257,7 @@ public class AbstractGenerator {
     }
 
     protected void saveFile(String folder, String fileName, String text) {
+        folder = rootPath.concat(File.separator).concat(folder);
         Path path = Paths.get(folder);
         try {
             if (!Files.exists(path)) {
@@ -266,7 +272,7 @@ public class AbstractGenerator {
     }
 
     protected void writeFileText(String filePath, String data) throws IOException {
-        Files.writeString(Paths.get(filePath), data);
+        Files.writeString(Paths.get(rootPath.concat(File.separator).concat(filePath)), data);
     }
 
     protected JsonObject getProperties(JsonObject definitions, String classname) {

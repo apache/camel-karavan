@@ -16,11 +16,9 @@
  */
 package org.apache.camel.karavan.generator;
 
-import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public final class CamelDefinitionGenerator extends AbstractGenerator {
 
@@ -28,13 +26,17 @@ public final class CamelDefinitionGenerator extends AbstractGenerator {
     final static String modelTemplate = "karavan-generator/src/main/resources/CamelDefinition.ts";
     final static String targetModel = "karavan-core/src/core/model/CamelDefinition.ts";
 
+    public CamelDefinitionGenerator(String rootPath) {
+        super(rootPath);
+    }
+
     public static void main(String[] args) throws Exception {
-        CamelDefinitionGenerator.generate();
+        CamelDefinitionGenerator.generate(args[0]);
         System.exit(0);
     }
 
-    public static void generate() throws Exception {
-        CamelDefinitionGenerator g = new CamelDefinitionGenerator();
+    public static void generate(String rootPath) throws Exception {
+        CamelDefinitionGenerator g = new CamelDefinitionGenerator(rootPath);
         g.createCamelDefinitions();
     }
 

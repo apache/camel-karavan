@@ -26,13 +26,17 @@ import java.util.stream.Collectors;
 
 public final class CamelComponentsGenerator extends AbstractGenerator {
 
-    public static void main(String[] args) throws Exception {
-        CamelComponentsGenerator.generate();
-        System.exit(0);
+    public CamelComponentsGenerator(String rootPath) {
+        super(rootPath);
     }
 
-    public static void generate(String... paths) throws Exception {
-        CamelComponentsGenerator g = new CamelComponentsGenerator();
+//    public static void main(String[] args) throws Exception {
+//        CamelComponentsGenerator.generate();
+//        System.exit(0);
+//    }
+
+    public static void generate(String rootPath, String... paths) throws Exception {
+        CamelComponentsGenerator g = new CamelComponentsGenerator(rootPath);
         for (String path : paths) {
             g.createCreateComponents(path + "/metadata", true);
         }
@@ -58,7 +62,6 @@ public final class CamelComponentsGenerator extends AbstractGenerator {
                 list.append(name).append("\n");
             }
         }
-//        saveFile(path, "components.properties", list.toString());
         if (singleFile) {
             sources.append("]");
             saveFile(path, "components.json", sources.toString());
