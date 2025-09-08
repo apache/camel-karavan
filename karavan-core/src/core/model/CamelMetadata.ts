@@ -1035,13 +1035,13 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('completeAllOnStop', 'Complete All On Stop', "Indicates to wait to complete all current and partial (pending) aggregated exchanges when the context is stopped. This also means that we will wait for all pending exchanges which are stored in the aggregation repository to complete so the repository is empty before we can stop. You may want to enable this when using the memory based aggregation repository that is memory based only, and do not store data on disk. When this option is enabled, then the aggregator is waiting to complete all those exchanges before its stopped, when stopping CamelContext or the route using it.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('steps', 'steps', "steps", 'CamelElement', '', '', false, false, true, true, '', ''),
     ], [
-        new ExchangePropertyMeta('CamelAggregatedSize', 'Aggregated Size', 'producer', 'int', 'Number of exchanges that was grouped together.'),
-        new ExchangePropertyMeta('CamelAggregatedTimeout', 'Aggregated Timeout', 'producer', 'long', 'The time in millis this group will timeout'),
-        new ExchangePropertyMeta('CamelAggregatedCompletedBy', 'Aggregated Completed By', 'producer', 'String', 'Enum that tell how this group was completed'),
-        new ExchangePropertyMeta('CamelAggregatedCorrelationKey', 'Aggregated Correlation Key', 'producer', 'String', 'The correlation key for this aggregation group'),
-        new ExchangePropertyMeta('CamelAggregationCompleteCurrentGroup', 'Aggregation Complete Current Group', 'consumer', 'boolean', 'Input property. Set to true to force completing the current group. This allows to overrule any existing completion predicates, sizes, timeouts etc, and complete the group.'),
-        new ExchangePropertyMeta('CamelAggregationCompleteAllGroups', 'Aggregation Complete All Groups', 'consumer', 'boolean', 'Input property. Set to true to force completing all the groups (excluding this message). This allows to overrule any existing completion predicates, sizes, timeouts etc, and complete the group. This message is considered a signal message only, the message headers/contents will not be processed otherwise. Instead use CamelAggregationCompleteAllGroupsInclusive if this message should be included in the aggregator.'),
-        new ExchangePropertyMeta('CamelAggregationCompleteAllGroupsInclusive', 'Aggregation Complete All Groups Inclusive', 'consumer', 'boolean', 'Input property. Set to true to force completing all the groups (including this message). This allows to overrule any existing completion predicates, sizes, timeouts etc, and complete the group.'),
+        new ExchangePropertyMeta('CamelAggregatedSize', 'Aggregated Size', 'producer', 'int', "Number of exchanges that was grouped together."),
+        new ExchangePropertyMeta('CamelAggregatedTimeout', 'Aggregated Timeout', 'producer', 'long', "The time in millis this group will timeout"),
+        new ExchangePropertyMeta('CamelAggregatedCompletedBy', 'Aggregated Completed By', 'producer', 'String', "Enum that tell how this group was completed"),
+        new ExchangePropertyMeta('CamelAggregatedCorrelationKey', 'Aggregated Correlation Key', 'producer', 'String', "The correlation key for this aggregation group"),
+        new ExchangePropertyMeta('CamelAggregationCompleteCurrentGroup', 'Aggregation Complete Current Group', 'consumer', 'boolean', "Input property. Set to true to force completing the current group. This allows to overrule any existing completion predicates, sizes, timeouts etc, and complete the group."),
+        new ExchangePropertyMeta('CamelAggregationCompleteAllGroups', 'Aggregation Complete All Groups', 'consumer', 'boolean', "Input property. Set to true to force completing all the groups (excluding this message). This allows to overrule any existing completion predicates, sizes, timeouts etc, and complete the group. This message is considered a signal message only, the message headers/contents will not be processed otherwise. Instead use CamelAggregationCompleteAllGroupsInclusive if this message should be included in the aggregator."),
+        new ExchangePropertyMeta('CamelAggregationCompleteAllGroupsInclusive', 'Aggregation Complete All Groups Inclusive', 'consumer', 'boolean', "Input property. Set to true to force completing all the groups (including this message). This allows to overrule any existing completion predicates, sizes, timeouts etc, and complete the group."),
     ]),
     new ElementMeta('bean', 'BeanDefinition', 'Bean', "Calls a Java bean", 'eip,endpoint', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
@@ -1061,9 +1061,9 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('onWhen', 'On When', "Used for triggering doCatch in specific situations", 'OnWhenDefinition', '', '', false, false, false, true, '', ''),
         new PropertyMeta('steps', 'steps', "steps", 'CamelElement', '', '', false, false, true, true, '', ''),
     ], [
-        new ExchangePropertyMeta('CamelExceptionCaught', 'Exception Caught', 'producer', 'java.lang.Exception', 'Stores the caught exception due to a processing error of the current Exchange'),
-        new ExchangePropertyMeta('CamelFailureEndpoint', 'Failure Endpoint', 'producer', 'String', 'Endpoint URI where the Exchange failed during processing'),
-        new ExchangePropertyMeta('CamelFailureRouteId', 'Failure Route Id', 'producer', 'String', 'Route ID where the Exchange failed during processing'),
+        new ExchangePropertyMeta('CamelExceptionCaught', 'Exception Caught', 'producer', 'java.lang.Exception', "Stores the caught exception due to a processing error of the current Exchange"),
+        new ExchangePropertyMeta('CamelFailureEndpoint', 'Failure Endpoint', 'producer', 'String', "Endpoint URI where the Exchange failed during processing"),
+        new ExchangePropertyMeta('CamelFailureRouteId', 'Failure Route Id', 'producer', 'String', "Route ID where the Exchange failed during processing"),
     ]),
     new ElementMeta('choice', 'ChoiceDefinition', 'Choice', "Route messages based on a series of predicates", 'eip,routing', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
@@ -1084,13 +1084,13 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('onFallback', 'On Fallback', "The fallback route path to execute that does not go over the network. This should be a static or cached result that can immediately be returned upon failure. If the fallback requires network connection then use onFallbackViaNetwork() .", 'OnFallbackDefinition', '', '', false, false, false, true, '', ''),
         new PropertyMeta('steps', 'steps', "steps", 'CamelElement', '', '', false, false, true, true, '', ''),
     ], [
-        new ExchangePropertyMeta('CamelResponseSuccessfulExecution', 'Response Successful Execution', 'producer', 'boolean', 'Whether the exchange was processed successfully by the circuit breaker'),
-        new ExchangePropertyMeta('CamelResponseFromFallback', 'Response From Fallback', 'producer', 'boolean', 'Whether the exchange was processed by the onFallback by the circuit breaker'),
-        new ExchangePropertyMeta('CamelResponseShortCircuited', 'Response Short Circuited', 'producer', 'boolean', 'Whether the exchange was short circuited by the breaker'),
-        new ExchangePropertyMeta('CamelResponseTimedOut', 'Response Timed Out', 'producer', 'boolean', 'Whether the exchange timed out during processing by the circuit breaker'),
-        new ExchangePropertyMeta('CamelResponseRejected', 'Response Rejected', 'producer', 'boolean', 'Whether the circuit breaker rejected processing the exchange'),
-        new ExchangePropertyMeta('CamelResponseIgnored', 'Response Ignored', 'producer', 'boolean', 'Whether the circuit breaker ignored an exception during processing'),
-        new ExchangePropertyMeta('CamelResponseState', 'Response State', 'producer', 'String', 'The state of the circuit breaker'),
+        new ExchangePropertyMeta('CamelResponseSuccessfulExecution', 'Response Successful Execution', 'producer', 'boolean', "Whether the exchange was processed successfully by the circuit breaker"),
+        new ExchangePropertyMeta('CamelResponseFromFallback', 'Response From Fallback', 'producer', 'boolean', "Whether the exchange was processed by the onFallback by the circuit breaker"),
+        new ExchangePropertyMeta('CamelResponseShortCircuited', 'Response Short Circuited', 'producer', 'boolean', "Whether the exchange was short circuited by the breaker"),
+        new ExchangePropertyMeta('CamelResponseTimedOut', 'Response Timed Out', 'producer', 'boolean', "Whether the exchange timed out during processing by the circuit breaker"),
+        new ExchangePropertyMeta('CamelResponseRejected', 'Response Rejected', 'producer', 'boolean', "Whether the circuit breaker rejected processing the exchange"),
+        new ExchangePropertyMeta('CamelResponseIgnored', 'Response Ignored', 'producer', 'boolean', "Whether the circuit breaker ignored an exception during processing"),
+        new ExchangePropertyMeta('CamelResponseState', 'Response State', 'producer', 'String', "The state of the circuit breaker"),
     ]),
     new ElementMeta('claimCheck', 'ClaimCheckDefinition', 'Claim Check', "The Claim Check EIP allows you to replace message content with a claim check (a unique key), which can be used to retrieve the message content at a later time.", 'eip,routing', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
@@ -1171,7 +1171,7 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('allowOptimisedComponents', 'Allow Optimised Components', "Whether to allow components to optimise enricher if they are org.apache.camel.spi.SendDynamicAware", 'boolean', '', 'true', false, false, false, false, 'advanced', ''),
         new PropertyMeta('autoStartComponents', 'Auto Start Components', "Whether to auto startup components when enricher is starting up.", 'boolean', '', 'true', false, false, false, false, 'advanced', ''),
     ], [
-        new ExchangePropertyMeta('CamelToEndpoint', 'To Endpoint', 'producer', 'String', 'Endpoint URI where this Exchange is being sent to'),
+        new ExchangePropertyMeta('CamelToEndpoint', 'To Endpoint', 'producer', 'String', "Endpoint URI where this Exchange is being sent to"),
     ]),
     new ElementMeta('filter', 'FilterDefinition', 'Filter', "Filter out messages based using a predicate", 'eip,routing', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
@@ -1188,9 +1188,9 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('steps', 'steps', "steps", 'CamelElement', '', '', false, false, true, true, '', ''),
     ], [
-        new ExchangePropertyMeta('CamelExceptionCaught', 'Exception Caught', 'producer', 'java.lang.Exception', 'Stores the caught exception due to a processing error of the current Exchange'),
-        new ExchangePropertyMeta('CamelFailureEndpoint', 'Failure Endpoint', 'producer', 'String', 'Endpoint URI where the Exchange failed during processing'),
-        new ExchangePropertyMeta('CamelFailureRouteId', 'Failure Route Id', 'producer', 'String', 'Route ID where the Exchange failed during processing'),
+        new ExchangePropertyMeta('CamelExceptionCaught', 'Exception Caught', 'producer', 'java.lang.Exception', "Stores the caught exception due to a processing error of the current Exchange"),
+        new ExchangePropertyMeta('CamelFailureEndpoint', 'Failure Endpoint', 'producer', 'String', "Endpoint URI where the Exchange failed during processing"),
+        new ExchangePropertyMeta('CamelFailureRouteId', 'Failure Route Id', 'producer', 'String', "Route ID where the Exchange failed during processing"),
     ]),
     new ElementMeta('idempotentConsumer', 'IdempotentConsumerDefinition', 'Idempotent Consumer', "Filters out duplicate messages", 'eip,routing', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
@@ -1204,7 +1204,7 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('removeOnFailure', 'Remove On Failure', "Sets whether to remove or keep the key on failure. The default behavior is to remove the key on failure.", 'boolean', '', 'true', false, false, false, false, 'advanced', ''),
         new PropertyMeta('steps', 'steps', "steps", 'CamelElement', '', '', false, false, true, true, '', ''),
     ], [
-        new ExchangePropertyMeta('CamelDuplicateMessage', 'Duplicate Message', 'producer', 'boolean', 'Whether this exchange is a duplicate detected by the Idempotent Consumer EIP'),
+        new ExchangePropertyMeta('CamelDuplicateMessage', 'Duplicate Message', 'producer', 'boolean', "Whether this exchange is a duplicate detected by the Idempotent Consumer EIP"),
     ]),
     new ElementMeta('kamelet', 'KameletDefinition', 'Kamelet', "To call Kamelets in special situations", 'eip,routing', [
         new PropertyMeta('name', 'Name', "Name of the Kamelet (templateId/routeId) to call. Options for the kamelet can be specified using uri syntax, eg mynamecount=4&type=gold.", 'string', '', '', true, false, false, false, '', ''),
@@ -1249,8 +1249,8 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('onPrepare', 'On Prepare', "Uses the Processor when preparing the org.apache.camel.Exchange for each loop iteration. This can be used to deep-clone messages, or any custom logic needed before the looping executes.", 'string', '', '', false, false, false, false, 'advanced', 'org.apache.camel.Processor'),
         new PropertyMeta('steps', 'steps', "steps", 'CamelElement', '', '', false, false, true, true, '', ''),
     ], [
-        new ExchangePropertyMeta('CamelLoopIndex', 'Loop Index', 'producer', 'int', 'Index of the current iteration (0 based).'),
-        new ExchangePropertyMeta('CamelLoopSize', 'Loop Size', 'producer', 'int', 'Total number of loops. This is not available if running the loop in while loop mode.'),
+        new ExchangePropertyMeta('CamelLoopIndex', 'Loop Index', 'producer', 'int', "Index of the current iteration (0 based)."),
+        new ExchangePropertyMeta('CamelLoopSize', 'Loop Size', 'producer', 'int', "Total number of loops. This is not available if running the loop in while loop mode."),
     ]),
     new ElementMeta('marshal', 'MarshalDefinition', 'Marshal', "Marshals data into a specified format for transmission over a transport or component", 'eip,dataformat,transformation', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
@@ -1323,9 +1323,9 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('shareUnitOfWork', 'Share Unit Of Work', "Shares the org.apache.camel.spi.UnitOfWork with the parent and each of the sub messages. Multicast will by default not share unit of work between the parent exchange and each multicasted exchange. This means each sub exchange has its own individual unit of work.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('steps', 'steps', "steps", 'CamelElement', '', '', false, false, true, true, '', ''),
     ], [
-        new ExchangePropertyMeta('CamelMulticastIndex', 'Multicast Index', 'producer', 'int', 'An index counter that increases for each Exchange being multicasted. The counter starts from 0.'),
-        new ExchangePropertyMeta('CamelMulticastComplete', 'Multicast Complete', 'producer', 'boolean', 'Whether this Exchange is the last.'),
-        new ExchangePropertyMeta('CamelToEndpoint', 'To Endpoint', 'producer', 'String', 'Endpoint URI where this Exchange is being sent to'),
+        new ExchangePropertyMeta('CamelMulticastIndex', 'Multicast Index', 'producer', 'int', "An index counter that increases for each Exchange being multicasted. The counter starts from 0."),
+        new ExchangePropertyMeta('CamelMulticastComplete', 'Multicast Complete', 'producer', 'boolean', "Whether this Exchange is the last."),
+        new ExchangePropertyMeta('CamelToEndpoint', 'To Endpoint', 'producer', 'String', "Endpoint URI where this Exchange is being sent to"),
     ]),
     new ElementMeta('pausable', 'PausableDefinition', 'Pausable', "Pausable EIP to support resuming processing from last known offset.", 'eip,routing', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
@@ -1376,7 +1376,7 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('allowOptimisedComponents', 'Allow Optimised Components', "Whether to allow components to optimise if they are org.apache.camel.spi.PollDynamicAware", 'boolean', '', 'true', false, false, false, false, 'advanced', ''),
         new PropertyMeta('autoStartComponents', 'Auto Start Components', "Whether to auto startup components when poll enricher is starting up.", 'boolean', '', 'true', false, false, false, false, 'advanced', ''),
     ], [
-        new ExchangePropertyMeta('CamelToEndpoint', 'To Endpoint', 'producer', 'String', 'Endpoint URI where this Exchange is being sent to'),
+        new ExchangePropertyMeta('CamelToEndpoint', 'To Endpoint', 'producer', 'String', "Endpoint URI where this Exchange is being sent to"),
     ]),
     new ElementMeta('process', 'ProcessDefinition', 'Process', "Calls a Camel processor", 'eip,endpoint', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
@@ -1406,8 +1406,8 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('cacheSize', 'Cache Size', "Sets the maximum size used by the org.apache.camel.spi.ProducerCache which is used to cache and reuse producers when using this recipient list, when uris are reused. Beware that when using dynamic endpoints then it affects how well the cache can be utilized. If each dynamic endpoint is unique then its best to turn off caching by setting this to -1, which allows Camel to not cache both the producers and endpoints; they are regarded as prototype scoped and will be stopped and discarded after use. This reduces memory usage as otherwise producers/endpoints are stored in memory in the caches. However if there are a high degree of dynamic endpoints that have been used before, then it can benefit to use the cache to reuse both producers and endpoints and therefore the cache size can be set accordingly or rely on the default size (1000). If there is a mix of unique and used before dynamic endpoints, then setting a reasonable cache size can help reduce memory usage to avoid storing too many non frequent used producers.", 'number', '', '', false, false, false, false, 'advanced', ''),
         new PropertyMeta('shareUnitOfWork', 'Share Unit Of Work', "Shares the org.apache.camel.spi.UnitOfWork with the parent and each of the sub messages. Recipient List will by default not share unit of work between the parent exchange and each recipient exchange. This means each sub exchange has its own individual unit of work.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
     ], [
-        new ExchangePropertyMeta('CamelRecipientListEndpoint', 'Recipient List Endpoint', 'producer', 'String', 'The endpoint uri of this recipient list'),
-        new ExchangePropertyMeta('CamelToEndpoint', 'To Endpoint', 'producer', 'String', 'Endpoint URI where this Exchange is being sent to'),
+        new ExchangePropertyMeta('CamelRecipientListEndpoint', 'Recipient List Endpoint', 'producer', 'String', "The endpoint uri of this recipient list"),
+        new ExchangePropertyMeta('CamelToEndpoint', 'To Endpoint', 'producer', 'String', "Endpoint URI where this Exchange is being sent to"),
     ]),
     new ElementMeta('removeHeader', 'RemoveHeaderDefinition', 'Remove Header', "Removes a named header from the message", 'eip,transformation', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
@@ -1483,8 +1483,8 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('ignoreInvalidEndpoints', 'Ignore Invalid Endpoints', "Ignore the invalidate endpoint exception when try to create a producer with that endpoint", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('cacheSize', 'Cache Size', "Sets the maximum size used by the org.apache.camel.spi.ProducerCache which is used to cache and reuse producers when using this routing slip, when uris are reused. Beware that when using dynamic endpoints then it affects how well the cache can be utilized. If each dynamic endpoint is unique then its best to turn off caching by setting this to -1, which allows Camel to not cache both the producers and endpoints; they are regarded as prototype scoped and will be stopped and discarded after use. This reduces memory usage as otherwise producers/endpoints are stored in memory in the caches. However if there are a high degree of dynamic endpoints that have been used before, then it can benefit to use the cache to reuse both producers and endpoints and therefore the cache size can be set accordingly or rely on the default size (1000). If there is a mix of unique and used before dynamic endpoints, then setting a reasonable cache size can help reduce memory usage to avoid storing too many non frequent used producers.", 'number', '', '', false, false, false, false, 'advanced', ''),
     ], [
-        new ExchangePropertyMeta('CamelSlipEndpoint', 'Slip Endpoint', 'producer', 'String', 'The endpoint uri of this routing slip'),
-        new ExchangePropertyMeta('CamelToEndpoint', 'To Endpoint', 'producer', 'String', 'Endpoint URI where this Exchange is being sent to'),
+        new ExchangePropertyMeta('CamelSlipEndpoint', 'Slip Endpoint', 'producer', 'String', "The endpoint uri of this routing slip"),
+        new ExchangePropertyMeta('CamelToEndpoint', 'To Endpoint', 'producer', 'String', "Endpoint URI where this Exchange is being sent to"),
     ]),
     new ElementMeta('saga', 'SagaDefinition', 'Saga', "Enables Sagas on the route", 'eip,routing', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
@@ -1595,9 +1595,9 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('shareUnitOfWork', 'Share Unit Of Work', "Shares the org.apache.camel.spi.UnitOfWork with the parent and each of the sub messages. Splitter will by default not share unit of work between the parent exchange and each split exchange. This means each split exchange has its own individual unit of work.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('steps', 'steps', "steps", 'CamelElement', '', '', false, false, true, true, '', ''),
     ], [
-        new ExchangePropertyMeta('CamelSplitIndex', 'Split Index', 'producer', 'int', 'A split counter that increases for each Exchange being split. The counter starts from 0.'),
-        new ExchangePropertyMeta('CamelSplitComplete', 'Split Complete', 'producer', 'boolean', 'Whether this Exchange is the last.'),
-        new ExchangePropertyMeta('CamelSplitSize', 'Split Size', 'producer', 'int', 'The total number of Exchanges that was split. This property is not applied for stream based splitting, except for the very last message because then Camel knows the total size.'),
+        new ExchangePropertyMeta('CamelSplitIndex', 'Split Index', 'producer', 'int', "A split counter that increases for each Exchange being split. The counter starts from 0."),
+        new ExchangePropertyMeta('CamelSplitComplete', 'Split Complete', 'producer', 'boolean', "Whether this Exchange is the last."),
+        new ExchangePropertyMeta('CamelSplitSize', 'Split Size', 'producer', 'int', "The total number of Exchanges that was split. This property is not applied for stream based splitting, except for the very last message because then Camel knows the total size."),
     ]),
     new ElementMeta('step', 'StepDefinition', 'Step', "Routes the message to a sequence of processors which is grouped together as one logical name", 'eip,routing', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
@@ -1605,7 +1605,7 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('steps', 'steps', "steps", 'CamelElement', '', '', false, false, true, true, '', ''),
     ], [
-        new ExchangePropertyMeta('CamelStepId', 'Step Id', 'producer', 'String', 'The id of the Step EIP'),
+        new ExchangePropertyMeta('CamelStepId', 'Step Id', 'producer', 'String', "The id of the Step EIP"),
     ]),
     new ElementMeta('stop', 'StopDefinition', 'Stop', "Stops the processing of the current message", 'eip,routing', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
@@ -1662,7 +1662,7 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('pattern', 'Pattern', "Sets the optional ExchangePattern used to invoke this endpoint", 'string', 'InOnly, InOut', '', false, false, false, false, 'advanced', ''),
         new PropertyMeta('parameters', 'parameters', "parameters", 'object', '', '', false, false, false, false, '', ''),
     ], [
-        new ExchangePropertyMeta('CamelToEndpoint', 'To Endpoint', 'producer', 'String', 'Endpoint URI where this Exchange is being sent to'),
+        new ExchangePropertyMeta('CamelToEndpoint', 'To Endpoint', 'producer', 'String', "Endpoint URI where this Exchange is being sent to"),
     ]),
     new ElementMeta('toD', 'ToDynamicDefinition', 'To D', "Sends the message to a dynamic endpoint", 'eip,routing', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
@@ -1678,7 +1678,7 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('autoStartComponents', 'Auto Start Components', "Whether to auto startup components when toD is starting up.", 'boolean', '', 'true', false, false, false, false, 'advanced', ''),
         new PropertyMeta('parameters', 'parameters', "parameters", 'object', '', '', false, false, false, false, '', ''),
     ], [
-        new ExchangePropertyMeta('CamelToEndpoint', 'To Endpoint', 'producer', 'String', 'Endpoint URI where this Exchange is being sent to'),
+        new ExchangePropertyMeta('CamelToEndpoint', 'To Endpoint', 'producer', 'String', "Endpoint URI where this Exchange is being sent to"),
     ]),
     new ElementMeta('tokenizer', 'TokenizerDefinition', 'Specialized tokenizer for AI applications', "Represents a Camel tokenizer for AI.", 'eip,transformation,ai', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
@@ -1797,7 +1797,7 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('autoStartComponents', 'Auto Start Components', "Whether to auto startup components when toD is starting up.", 'boolean', '', 'true', false, false, false, false, 'advanced', ''),
         new PropertyMeta('parameters', 'parameters', "parameters", 'object', '', '', false, false, false, false, '', ''),
     ], [
-        new ExchangePropertyMeta('CamelToEndpoint', 'To Endpoint', 'producer', 'String', 'Endpoint URI where this Exchange is being sent to'),
+        new ExchangePropertyMeta('CamelToEndpoint', 'To Endpoint', 'producer', 'String', "Endpoint URI where this Exchange is being sent to"),
     ]),
     new ElementMeta('intercept', 'InterceptDefinition', 'Intercept', "Intercepts a message at each step in the route", 'configuration', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
@@ -1806,9 +1806,9 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('onWhen', 'On When', "To use an expression to only trigger intercepting in specific situations", 'OnWhenDefinition', '', '', false, false, false, true, '', ''),
         new PropertyMeta('steps', 'steps', "steps", 'CamelElement', '', '', false, false, true, true, '', ''),
     ], [
-        new ExchangePropertyMeta('CamelInterceptedNodeId', 'Intercepted Node Id', 'producer', 'String', 'The intercepted route's node ID'),
-        new ExchangePropertyMeta('CamelInterceptedRouteEndpointUri', 'Intercepted Route Endpoint Uri', 'producer', 'String', 'The route's endpoint URI that was intercepted'),
-        new ExchangePropertyMeta('CamelInterceptedRouteId', 'Intercepted Route Id', 'producer', 'String', 'The intercepted route's ID'),
+        new ExchangePropertyMeta('CamelInterceptedNodeId', 'Intercepted Node Id', 'producer', 'String', "The intercepted route's node ID"),
+        new ExchangePropertyMeta('CamelInterceptedRouteEndpointUri', 'Intercepted Route Endpoint Uri', 'producer', 'String', "The route's endpoint URI that was intercepted"),
+        new ExchangePropertyMeta('CamelInterceptedRouteId', 'Intercepted Route Id', 'producer', 'String', "The intercepted route's ID"),
     ]),
     new ElementMeta('interceptFrom', 'InterceptFromDefinition', 'Intercept From', "Intercepts incoming messages", 'configuration', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
@@ -1818,10 +1818,10 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('onWhen', 'On When', "To use an expression to only trigger intercepting in specific situations", 'OnWhenDefinition', '', '', false, false, false, true, '', ''),
         new PropertyMeta('steps', 'steps', "steps", 'CamelElement', '', '', false, false, true, true, '', ''),
     ], [
-        new ExchangePropertyMeta('CamelInterceptedEndpoint', 'Intercepted Endpoint', 'producer', 'String', 'The endpoint URI that was intercepted'),
-        new ExchangePropertyMeta('CamelInterceptedNodeId', 'Intercepted Node Id', 'producer', 'String', 'The intercepted route's node ID'),
-        new ExchangePropertyMeta('CamelInterceptedRouteEndpointUri', 'Intercepted Route Endpoint Uri', 'producer', 'String', 'The route's endpoint URI that was intercepted'),
-        new ExchangePropertyMeta('CamelInterceptedRouteId', 'Intercepted Route Id', 'producer', 'String', 'The intercepted route's ID'),
+        new ExchangePropertyMeta('CamelInterceptedEndpoint', 'Intercepted Endpoint', 'producer', 'String', "The endpoint URI that was intercepted"),
+        new ExchangePropertyMeta('CamelInterceptedNodeId', 'Intercepted Node Id', 'producer', 'String', "The intercepted route's node ID"),
+        new ExchangePropertyMeta('CamelInterceptedRouteEndpointUri', 'Intercepted Route Endpoint Uri', 'producer', 'String', "The route's endpoint URI that was intercepted"),
+        new ExchangePropertyMeta('CamelInterceptedRouteId', 'Intercepted Route Id', 'producer', 'String', "The intercepted route's ID"),
     ]),
     new ElementMeta('interceptSendToEndpoint', 'InterceptSendToEndpointDefinition', 'Intercept Send To Endpoint', "Intercepts messages being sent to an endpoint", 'configuration', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
@@ -1833,10 +1833,10 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('onWhen', 'On When', "To use an expression to only trigger intercepting sending to an endpoint in specific situations", 'OnWhenDefinition', '', '', false, false, false, true, '', ''),
         new PropertyMeta('steps', 'steps', "steps", 'CamelElement', '', '', false, false, true, true, '', ''),
     ], [
-        new ExchangePropertyMeta('CamelInterceptedEndpoint', 'Intercepted Endpoint', 'producer', 'String', 'The endpoint URI that was intercepted'),
-        new ExchangePropertyMeta('CamelInterceptedNodeId', 'Intercepted Node Id', 'producer', 'String', 'The intercepted route's node ID'),
-        new ExchangePropertyMeta('CamelInterceptedRouteEndpointUri', 'Intercepted Route Endpoint Uri', 'producer', 'String', 'The route's endpoint URI that was intercepted'),
-        new ExchangePropertyMeta('CamelInterceptedRouteId', 'Intercepted Route Id', 'producer', 'String', 'The intercepted route's ID'),
+        new ExchangePropertyMeta('CamelInterceptedEndpoint', 'Intercepted Endpoint', 'producer', 'String', "The endpoint URI that was intercepted"),
+        new ExchangePropertyMeta('CamelInterceptedNodeId', 'Intercepted Node Id', 'producer', 'String', "The intercepted route's node ID"),
+        new ExchangePropertyMeta('CamelInterceptedRouteEndpointUri', 'Intercepted Route Endpoint Uri', 'producer', 'String', "The route's endpoint URI that was intercepted"),
+        new ExchangePropertyMeta('CamelInterceptedRouteId', 'Intercepted Route Id', 'producer', 'String', "The intercepted route's ID"),
     ]),
     new ElementMeta('onCompletion', 'OnCompletionDefinition', 'On Completion', "Route to be executed when normal route processing completes", 'configuration', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
@@ -1851,7 +1851,7 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('onWhen', 'On When', "To use an expression to only trigger routing this completion steps in specific situations", 'OnWhenDefinition', '', '', false, false, false, true, '', ''),
         new PropertyMeta('steps', 'steps', "steps", 'CamelElement', '', '', false, false, true, true, '', ''),
     ], [
-        new ExchangePropertyMeta('CamelOnCompletion', 'On Completion', 'producer', 'boolean', 'Flag to mark that this exchange is currently being executed as onCompletion'),
+        new ExchangePropertyMeta('CamelOnCompletion', 'On Completion', 'producer', 'boolean', "Flag to mark that this exchange is currently being executed as onCompletion"),
     ]),
     new ElementMeta('onException', 'OnExceptionDefinition', 'On Exception', "Route to be executed when an exception is thrown", 'error', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
@@ -1870,9 +1870,9 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('useOriginalBody', 'Use Original Body', "Will use the original input org.apache.camel.Message body (original body only) when an org.apache.camel.Exchange is moved to the dead letter queue. Notice: this only applies when all redeliveries attempt have failed and the org.apache.camel.Exchange is doomed for failure. Instead of using the current inprogress org.apache.camel.Exchange IN message we use the original IN message instead. This allows you to store the original input in the dead letter queue instead of the inprogress snapshot of the IN message. For instance if you route transform the IN body during routing and then failed. With the original exchange store in the dead letter queue it might be easier to manually re submit the org.apache.camel.Exchange again as the IN message is the same as when Camel received it. So you should be able to send the org.apache.camel.Exchange to the same input. The difference between useOriginalMessage and useOriginalBody is that the former includes both the original body and headers, where as the latter only includes the original body. You can use the latter to enrich the message with custom headers and include the original message body. The former wont let you do this, as its using the original message body and headers as they are. You cannot enable both useOriginalMessage and useOriginalBody. The original input message is defensively copied, and the copied message body is converted to org.apache.camel.StreamCache if possible (stream caching is enabled, can be disabled globally or on the original route), to ensure the body can be read when the original message is being used later. If the body is converted to org.apache.camel.StreamCache then the message body on the current org.apache.camel.Exchange is replaced with the org.apache.camel.StreamCache body. If the body is not converted to org.apache.camel.StreamCache then the body will not be able to re-read when accessed later. Important: The original input means the input message that are bounded by the current org.apache.camel.spi.UnitOfWork . An unit of work typically spans one route, or multiple routes if they are connected using internal endpoints such as direct or seda. When messages is passed via external endpoints such as JMS or HTTP then the consumer will create a new unit of work, with the message it received as input as the original input. Also some EIP patterns such as splitter, multicast, will create a new unit of work boundary for the messages in their sub-route (eg the split message); however these EIPs have an option named shareUnitOfWork which allows to combine with the parent unit of work in regard to error handling and therefore use the parent original message. By default this feature is off.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('steps', 'steps', "steps", 'CamelElement', '', '', false, false, true, true, '', ''),
     ], [
-        new ExchangePropertyMeta('CamelExceptionCaught', 'Exception Caught', 'producer', 'java.lang.Exception', 'Stores the caught exception due to a processing error of the current Exchange'),
-        new ExchangePropertyMeta('CamelFailureEndpoint', 'Failure Endpoint', 'producer', 'String', 'Endpoint URI where the Exchange failed during processing'),
-        new ExchangePropertyMeta('CamelFailureRouteId', 'Failure Route Id', 'producer', 'String', 'Route ID where the Exchange failed during processing'),
+        new ExchangePropertyMeta('CamelExceptionCaught', 'Exception Caught', 'producer', 'java.lang.Exception', "Stores the caught exception due to a processing error of the current Exchange"),
+        new ExchangePropertyMeta('CamelFailureEndpoint', 'Failure Endpoint', 'producer', 'String', "Endpoint URI where the Exchange failed during processing"),
+        new ExchangePropertyMeta('CamelFailureRouteId', 'Failure Route Id', 'producer', 'String', "Route ID where the Exchange failed during processing"),
     ]),
     new ElementMeta('routeConfiguration', 'RouteConfigurationDefinition', 'Route Configuration', "Reusable configuration for Camel route(s).", 'configuration', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
@@ -2017,9 +2017,9 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('refErrorHandler', 'refErrorHandler', "refErrorHandler", 'RefErrorHandlerDefinition', '', '', false, false, false, true, '', ''),
         new PropertyMeta('springTransactionErrorHandler', 'springTransactionErrorHandler', "springTransactionErrorHandler", 'SpringTransactionErrorHandlerDefinition', '', '', false, false, false, true, '', ''),
     ], [
-        new ExchangePropertyMeta('CamelExceptionCaught', 'Exception Caught', 'producer', 'java.lang.Exception', 'Stores the caught exception due to a processing error of the current Exchange'),
-        new ExchangePropertyMeta('CamelFailureEndpoint', 'Failure Endpoint', 'producer', 'String', 'Endpoint URI where the Exchange failed during processing'),
-        new ExchangePropertyMeta('CamelFailureRouteId', 'Failure Route Id', 'producer', 'String', 'Route ID where the Exchange failed during processing'),
+        new ExchangePropertyMeta('CamelExceptionCaught', 'Exception Caught', 'producer', 'java.lang.Exception', "Stores the caught exception due to a processing error of the current Exchange"),
+        new ExchangePropertyMeta('CamelFailureEndpoint', 'Failure Endpoint', 'producer', 'String', "Endpoint URI where the Exchange failed during processing"),
+        new ExchangePropertyMeta('CamelFailureRouteId', 'Failure Route Id', 'producer', 'String', "Route ID where the Exchange failed during processing"),
     ]),
     new ElementMeta('faultToleranceConfiguration', 'FaultToleranceConfigurationDefinition', 'Fault Tolerance Configuration', "MicroProfile Fault Tolerance Circuit Breaker EIP configuration", 'configuration,eip,error', [
         new PropertyMeta('id', 'Id', "The id of this node", 'string', '', '', false, false, false, false, '', ''),

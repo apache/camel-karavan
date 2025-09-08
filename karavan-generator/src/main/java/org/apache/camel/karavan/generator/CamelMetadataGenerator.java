@@ -228,7 +228,7 @@ public final class CamelMetadataGenerator extends AbstractGenerator {
                 if (exchangeProperties != null) {
                     exchangeProperties.getMap().forEach((ep, eps) -> {
                         Map<String, String> vals = (HashMap<String, String>) eps;
-                        code.append(String.format("        new ExchangePropertyMeta('%s', '%s', '%s', '%s', '%s'),\n",
+                        code.append(String.format("        new ExchangePropertyMeta('%s', '%s', '%s', '%s', \"%s\"),\n",
                                 ep, vals.get("displayName"), vals.get("label"), vals.get("javaType"), vals.get("description")));
                     });
                 }
