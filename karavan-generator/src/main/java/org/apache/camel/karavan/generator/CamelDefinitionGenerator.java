@@ -75,7 +75,7 @@ public final class CamelDefinitionGenerator extends AbstractGenerator {
         properties.keySet().stream().sorted(getComparator(stepName)).forEach(name -> {
             JsonObject attributeValue = properties.get(name);
             boolean req = required.contains(name);
-            String generatedValue = ("id".equals(name) && stepName != null && !"routeConfiguration".equals(stepName)) ? "'" + stepName + "-' + uuidv4().substring(0,4)" : null;
+            String generatedValue = ("id".equals(name) && stepName != null && !"routeConfiguration".equals(stepName)) ? "'" + stepName + "' + uuidv4().substring(0,4)" : null;
             String attributeType = getAttributeType(name, attributeValue, req, definitions, generatedValue);
 
             var excludeProperty  = excludeProperty(stepName, name, attributeType);
