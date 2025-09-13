@@ -41,7 +41,7 @@
     "@patternfly/react-topology": "^5.4.0",
     "@types/js-yaml": "4.0.9",
     "@types/uuid": "9.0.8",
-    "axios": "1.8.2",
+    "axios": "1.12.0",
     "html-to-image": "1.11.11",
     "karavan-core": "file:../karavan-core",
     "netlify-auth-providers": "^1.0.0-alpha5",
