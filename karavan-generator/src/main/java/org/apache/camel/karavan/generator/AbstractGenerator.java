@@ -264,7 +264,7 @@ public class AbstractGenerator {
                 Files.createDirectories(path);
             }
             File targetFile = Paths.get(folder, fileName).toFile();
-//            LOGGER.info("Saving file " + targetFile.getAbsolutePath());
+            LOGGER.info("Saving file " + targetFile.getAbsolutePath());
             Files.copy(new ByteArrayInputStream(text.getBytes()), targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
             e.printStackTrace();

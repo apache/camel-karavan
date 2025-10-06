@@ -69,7 +69,7 @@
   </repositories>
   <properties>
     <maven.compiler.source>17</maven.compiler.source>
-    <version.camel-kamelet>4.14.0</version.camel-kamelet>
+    <version.camel-kamelet>4.14.1</version.camel-kamelet>
     <compiler-plugin.version>3.8.1</compiler-plugin.version>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <version.vertx>4.5.13</version.vertx>
