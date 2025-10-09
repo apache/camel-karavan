@@ -100,6 +100,8 @@ public class AbstractGenerator {
             className = "securityDefinitions";
         } else if (className.endsWith("Definition")) {
             className = className.substring(0, className.length() - 10);
+        } else if ("DfdlDataFormat".equals(className)) {
+            return "dfdl";
         } else if (className.endsWith("DataFormat")) {
             return getDataFormatStepNameForClass().get(className);
         } else if (className.endsWith("Expression")) {
