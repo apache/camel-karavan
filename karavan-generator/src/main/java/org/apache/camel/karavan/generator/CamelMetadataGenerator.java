@@ -51,7 +51,9 @@ public final class CamelMetadataGenerator extends AbstractGenerator {
         // Generate DataFormats
         JsonObject dataformats = getProperties(definitions, "org.apache.camel.model.dataformat.DataFormatsDefinition");
         camelModel.append("\nexport const DataFormats: [string, string, string][] = [\n");
-        dataformats.getMap().forEach((name, val) -> {
+        var keys = new ArrayList<>(dataformats.getMap().keySet());
+        keys.add("dfdl"); // Fix
+        keys.stream().sorted().forEach((name) -> {
             String json = getMetaDataFormat(name);
             JsonObject model = new JsonObject(json).getJsonObject("model");
             String title = model.getString("title");
