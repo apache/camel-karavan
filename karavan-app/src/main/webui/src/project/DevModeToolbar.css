@@ -34,14 +34,6 @@
     font-size: 16px;
 }
 
-.karavan .refresher .button .pf-v5-c-button__icon {
+.karavan .refresher .button .pf-v6-c-button__icon {
     margin: 0;
-}
-
-.karavan .toolbar .dev-action-button-place {
-    --pf-v5-l-flex--spacer: 12px;
-}
-
-.karavan .toolbar .dev-action-button-place:last-child {
-    --pf-v5-l-flex--spacer: 0;
 }

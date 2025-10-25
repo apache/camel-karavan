@@ -16,28 +16,13 @@
  */
 
 import React, {useEffect, useState} from 'react';
-import {
-    Badge,
-    Button,
-    Flex,
-    FlexItem,
-    Label,
-    Spinner, ToggleGroup, ToggleGroupItem,
-    Tooltip,
-    TooltipPosition
-} from '@patternfly/react-core';
-import '../designer/karavan.css';
-import DevIcon from "@patternfly/react-icons/dist/esm/icons/dev-icon";
-import ReloadIcon from "@patternfly/react-icons/dist/esm/icons/bolt-icon";
-import DeleteIcon from "@patternfly/react-icons/dist/esm/icons/trash-icon";
-import {useAppConfigStore, useLogStore, useProjectStore, useStatusesStore} from "../api/ProjectStore";
-import {ProjectService} from "../api/ProjectService";
+import {Badge, Button, Flex, FlexItem, Label, Spinner, ToggleGroup, ToggleGroupItem, Tooltip, TooltipPosition} from '@patternfly/react-core';
+import {BoltIcon, DevIcon, ErrorCircleOIcon, RunningIcon, StopIcon, TrashIcon} from '@patternfly/react-icons';
+import {useAppConfigStore, useLogStore, useProjectStore, useStatusesStore} from "@/api/ProjectStore";
+import {ProjectService} from "@/api/ProjectService";
 import {shallow} from "zustand/shallow";
-import UpIcon from "@patternfly/react-icons/dist/esm/icons/running-icon";
-import DownIcon from "@patternfly/react-icons/dist/esm/icons/error-circle-o-icon";
-import {ContainerStatus} from "../api/ProjectModels";
+import {ContainerStatus} from "@/api/ProjectModels";
 import "./DevModeToolbar.css"
-import StopIcon from "@patternfly/react-icons/dist/js/icons/stop-icon";
 
 interface Props {
     reloadOnly?: boolean
@@ -66,7 +51,7 @@ export function DevModeToolbar(props: Props) {
     const showLogDevMode = containerDevMode && ['running', 'paused', 'exited'].includes(containerDevMode?.state);
     const inTransit = containerDevMode?.inTransit;
     const color = (isRunning || allRunning) ? "green" : "grey";
-    const icon = (isRunning || allRunning) ? <UpIcon/> : <DownIcon/>;
+    const icon = (isRunning || allRunning) ? <RunningIcon/> : <ErrorCircleOIcon/>;
     const inDevMode = containerDevMode?.type === 'devmode';
 
     useEffect(() => {
@@ -82,7 +67,7 @@ export function DevModeToolbar(props: Props) {
         {containersProject.length > 0 && <FlexItem>
             <Label icon={icon} color={color}>
                 <Tooltip content={"Show log"} position={TooltipPosition.bottom}>
-                    <Button className='labeled-button'
+                    <Button className='karavan-labeled-button'
                             variant="link"
                             isDisabled={!allRunning}
                             onClick={e => {}}>
@@ -96,7 +81,7 @@ export function DevModeToolbar(props: Props) {
         {containerDevMode?.containerId && <FlexItem>
             <Label icon={icon} color={color}>
                 <Tooltip content={"Show log"} position={TooltipPosition.bottom}>
-                    <Button className='labeled-button'
+                    <Button className='karavan-labeled-button'
                             variant="link"
                             isDisabled={!showLogDevMode}
                             onClick={e =>
@@ -148,7 +133,7 @@ export function DevModeToolbar(props: Props) {
                 <Button className="project-button dev-action-button" size="sm"
                         isDisabled={inTransit}
                         variant={"primary"}
-                        icon={<ReloadIcon/>}
+                        icon={<BoltIcon/>}
                         onClick={() => ProjectService.reloadDevModeCode(project)}>Reload
                 </Button>
             </Tooltip>
@@ -171,7 +156,7 @@ export function DevModeToolbar(props: Props) {
                 <Button className="dev-action-button" size="sm"
                         isDisabled={!commands.includes('delete') || inTransit}
                         variant={"control"}
-                        icon={<DeleteIcon/>}
+                        icon={<TrashIcon/>}
                         onClick={() => {
                             setShowSpinner(true);
                             ProjectService.deleteDevModeContainer(project);

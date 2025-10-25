@@ -16,44 +16,20 @@
  */
 
 import React, {useEffect, useState} from 'react';
-import {
-    Toolbar,
-    ToolbarContent,
-    ToolbarItem,
-    PageSection,
-    TextContent,
-    Text,
-    Button,
-    Bullseye,
-    EmptyState,
-    EmptyStateVariant,
-    EmptyStateIcon,
-    Spinner, EmptyStateHeader
-} from '@patternfly/react-core';
+import {Bullseye, Button, Content, EmptyState, EmptyStateVariant, Spinner, Toolbar, ToolbarContent, ToolbarItem,} from '@patternfly/react-core';
 import '../designer/karavan.css';
-import RefreshIcon from '@patternfly/react-icons/dist/esm/icons/sync-alt-icon';
-import {
-    Td,
-    Th,
-    Thead,
-    Tr
-} from '@patternfly/react-table';
-import {
-    Table
-} from '@patternfly/react-table/deprecated';
-import SearchIcon from '@patternfly/react-icons/dist/esm/icons/search-icon';
+import {SearchIcon, SyncAltIcon} from '@patternfly/react-icons';
+import {InnerScrollContainer, OuterScrollContainer, Table, Td, Th, Thead, Tr} from '@patternfly/react-table';
 import {ServicesTableRow} from "./ServicesTableRow";
-import {useStatusesStore} from "../api/ProjectStore";
-import {MainToolbar} from "../designer/MainToolbar";
-import {ProjectType} from "../api/ProjectModels";
-import {KaravanApi} from "../api/KaravanApi";
-import {DockerComposeService, DockerCompose, ServicesYaml} from "../api/ServiceModels";
+import {useStatusesStore} from "@/api/ProjectStore";
+import {DOCKER_COMPOSE, ProjectType} from "@/api/ProjectModels";
+import {KaravanApi} from "@/api/KaravanApi";
+import {DockerCompose, DockerComposeService, ServicesYaml} from "@/api/ServiceModels";
 import {shallow} from "zustand/shallow";
-import {ProjectLogPanel} from "../log/ProjectLogPanel";
-import {ProjectService} from "../api/ProjectService";
+import {ProjectService} from "@/api/ProjectService";
+import {RightPanel} from "@/components/RightPanel";
 
-
-export function ServicesPage () {
+export function ServicesPage() {
 
     const [services, setServices] = useState<DockerCompose>();
     const [containers] = useStatusesStore((state) => [state.containers, state.setContainers], shallow);
@@ -69,7 +45,7 @@ export function ServicesPage () {
 
     function getServices() {
         KaravanApi.getFiles(ProjectType.services.toString(), files => {
-            const file = files.filter(f => f.name === 'docker-compose.yaml').at(0);
+            const file = files.filter(f => f.name === DOCKER_COMPOSE).at(0);
             if (file) {
                 const services: DockerCompose = ServicesYaml.yamlToServices(file.code);
                 setServices(services);
@@ -81,16 +57,16 @@ export function ServicesPage () {
         return <Toolbar id="toolbar-group-types">
             <ToolbarContent>
                 <ToolbarItem>
-                    <Button variant="link" icon={<RefreshIcon/>} onClick={e => getServices()}/>
+                    <Button variant="link" icon={<SyncAltIcon/>} onClick={e => getServices()}/>
                 </ToolbarItem>
             </ToolbarContent>
         </Toolbar>
     }
 
     function title() {
-        return <TextContent>
-            <Text component="h2">Dev Services</Text>
-        </TextContent>
+        return <Content>
+            <Content component="h2">Dev Services</Content>
+        </Content>
     }
 
     function getEmptyState() {
@@ -101,8 +77,7 @@ export function ServicesPage () {
                         {loading &&
                             <Spinner className="progress-stepper" diameter="80px" aria-label="Loading..."/>}
                         {!loading &&
-                            <EmptyState variant={EmptyStateVariant.sm}>
-                                <EmptyStateHeader titleText="No results found" icon={<EmptyStateIcon icon={SearchIcon}/>} headingLevel="h2" />
+                            <EmptyState headingLevel="h2" icon={SearchIcon} titleText="No results found" variant={EmptyStateVariant.sm}>
                             </EmptyState>
                         }
                     </Bullseye>
@@ -117,35 +92,39 @@ export function ServicesPage () {
 
     function getServicesTable() {
         return (
-            <Table aria-label="Services" variant={"compact"}>
-                <Thead>
-                    <Tr>
-                        <Th />
-                        <Th key='name'>Name</Th>
-                        <Th key='container_name'>Container Name</Th>
-                        <Th key='image'>Image</Th>
-                        <Th key='ports'>Ports</Th>
-                        <Th key='state'>State</Th>
-                        <Th key='action'></Th>
-                    </Tr>
-                </Thead>
-                {services?.services.map((service: DockerComposeService, index: number) => (
-                    <ServicesTableRow key={service.container_name} index={index} service={service} container={getContainer(service.container_name)}/>
-                ))}
-                {services?.services.length === 0 && getEmptyState()}
-            </Table>
+            <OuterScrollContainer>
+                <InnerScrollContainer>
+                    <Table aria-label="Services" variant={"compact"} isStickyHeader>
+                        <Thead>
+                            <Tr>
+                                <Th/>
+                                <Th key='name'>Name</Th>
+                                <Th key='container_name'>Container Name</Th>
+                                <Th key='image'>Image</Th>
+                                <Th key='ports'>Ports</Th>
+                                <Th key='state'>State</Th>
+                                <Th key='action'></Th>
+                            </Tr>
+                        </Thead>
+                        {services?.services.map((service: DockerComposeService, index: number) => (
+                            <ServicesTableRow key={service.container_name} index={index} service={service} container={getContainer(service.container_name)}/>
+                        ))}
+                        {services?.services.length === 0 && getEmptyState()}
+                    </Table>
+                </InnerScrollContainer>
+            </OuterScrollContainer>
         )
     }
 
     return (
-        <PageSection className="kamelet-section projects-page" padding={{default: 'noPadding'}}>
-            <PageSection className="tools-section" padding={{default: 'noPadding'}}>
-                <MainToolbar title={title()} tools={getTools()}/>
-            </PageSection>
-            <PageSection isFilled className="scrolled-page">
-                {getServicesTable()}
-            </PageSection>
-            <ProjectLogPanel/>
-        </PageSection>
+        <RightPanel
+            title={title()}
+            tools={getTools()}
+            mainPanel={
+                <div className="right-panel-card">
+                    {getServicesTable()}
+                </div>
+            }
+        />
     )
 }

@@ -14,31 +14,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import React, {JSX, useEffect, useState} from 'react';
+import React, {ReactElement, useEffect, useState} from 'react';
 import './DslConnections.css';
 import {DslPosition, EventBus} from "../utils/EventBus";
 import {CamelUi} from "../utils/CamelUi";
 import {useConnectionsStore, useDesignerStore, useIntegrationStore} from "../DesignerStore";
 import {shallow} from "zustand/shallow";
 import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt";
-import {TopologyUtils} from "karavan-core/lib/api/TopologyUtils";
+import {IncomingLink, TopologyUtils} from "karavan-core/lib/api/TopologyUtils";
 import {CamelElement} from "karavan-core/lib/model/IntegrationDefinition";
 import {v4 as uuidv4} from "uuid";
 import {Button, Tooltip} from "@patternfly/react-core";
 import {InfrastructureAPI} from "../utils/InfrastructureAPI";
 import {getIntegrations} from "../../topology/TopologyApi";
-import {ComponentApi} from "karavan-core/lib/api/ComponentApi";
-import {INTERNAL_COMPONENTS} from "karavan-core/lib/api/ComponentApi";
+import {ComponentApi, INTERNAL_COMPONENTS} from "karavan-core/lib/api/ComponentApi";
 
 const overlapGap: number = 40;
 const DIAMETER: number = 34;
 const RADIUS: number = DIAMETER / 2;
 type ConnectionType = 'internal' | 'remote' | 'nav' | 'poll' | 'dynamic';
-
-interface IncomingLink {
-    name: string;
-    fileName: string;
-}
 
 export function DslConnections() {
 
@@ -53,47 +47,10 @@ export function DslConnections() {
 
     useEffect(() => {
         const integrations = getIntegrations(files);
-        setTons(prevState => {
-            const data = new Map<string, IncomingLink[]>();
-            TopologyUtils.findTopologyRouteOutgoingNodes(integrations).forEach(t => {
-                const key = (t.step as any)?.uri + ':' + (t.step as any)?.parameters?.name;
-                if (data.has(key)) {
-                    const list = data.get(key) || [];
-                    list.push({name: t.routeId, fileName: t.fileName});
-                    data.set(key, list);
-                } else {
-                    data.set(key, [{name: t.routeId, fileName: t.fileName}]);
-                }
-            });
-            TopologyUtils.findTopologyRestNodes(integrations).forEach(t => {
-                t.rest?.get?.forEach(def => {
-                    if (def.to) {
-                        data.set(def.to, [{name: 'get:' + (def.path || ''), fileName: t.fileName}])
-                    }
-                })
-                t.rest?.post?.forEach(def => {
-                    if (def.to) {
-                        data.set(def.to, [{name: 'post:' + (def.path || ''), fileName: t.fileName}])
-                    }
-                })
-                t.rest?.delete?.forEach(def => {
-                    if (def.to) {
-                        data.set(def.to, [{name: 'delete:' + (def.path || ''), fileName: t.fileName}])
-                    }
-                })
-                t.rest?.patch?.forEach(def => {
-                    if (def.to) {
-                        data.set(def.to, [{name: 'patch:' + (def.path || ''), fileName: t.fileName}])
-                    }
-                })
-                t.rest?.head?.forEach(def => {
-                    if (def.to) {
-                        data.set(def.to, [{name: 'head:' + (def.path || ''), fileName: t.fileName}])
-                    }
-                })
-            });
-            return data;
-        });
+        const openApiFile = files.filter(f => f.name === 'openapi.json')?.at(0);
+        const openApiJson = openApiFile?.code;
+        const data = TopologyUtils.getIncomingLinkMap(integrations, openApiJson);
+        setTons(data);
         const sub1 = EventBus.onPosition()?.subscribe((evt: DslPosition) => setPosition(evt));
         return () => {
             sub1?.unsubscribe();
@@ -202,14 +159,8 @@ export function DslConnections() {
                             <Tooltip key={`${link.name}:${index}`}
                                      content={
                                          <div>
-                                             <div>
-                                                 {`Go to ${link.name}`}
-                                             </div>
-                                             <div>
-                                                 {uri}:{name}
-                                             </div>
+                                             {`Go to ${link.name}`}
                                          </div>
-
                                      }
                                      position={"right"}>
                                 <Button style={{
@@ -372,8 +323,8 @@ export function DslConnections() {
         return ['ChoiceDefinition', 'MulticastDefinition', 'LoadBalanceDefinition', 'TryDefinition', 'RouteConfigurationDefinition'].includes(pos.step.dslName);
     }
 
-    function addArrowToList(list: JSX.Element[], from?: DslPosition, to?: DslPosition, fromHeader?: boolean, toHeader?: boolean): JSX.Element[] {
-        const result: JSX.Element[] = [...list];
+    function addArrowToList(list: ReactElement[], from?: DslPosition, to?: DslPosition, fromHeader?: boolean, toHeader?: boolean): ReactElement[] {
+        const result: ReactElement[] = [...list];
         if (from && to) {
             const rect1 = fromHeader === true ? from.headerRect : from.rect;
             const rect2 = toHeader === true ? to.headerRect : to.rect;
@@ -387,8 +338,8 @@ export function DslConnections() {
         return uuid ? steps.get(uuid)?.parent?.dslName : undefined;
     }
 
-    function getArrow(pos: DslPosition): JSX.Element[] {
-        const list: JSX.Element[] = [];
+    function getArrow(pos: DslPosition): ReactElement[] {
+        const list: ReactElement[] = [];
 
         if (pos.parent && pos.parent.dslName === 'TryDefinition' && pos.position === 0) {
             const parent = steps.get(pos.parent.uuid);
@@ -471,7 +422,6 @@ export function DslConnections() {
             !['MulticastDefinition', 'LoadBalanceDefinition'].includes(pos.parent?.dslName))) {
             const next = steps.get(pos.nextstep.uuid);
             if (next && !isSpecial(next) && next.inSteps) {
-                // console.log(pos)
                 // const to = steps.get(parent.nextstep.uuid);
                 // list.push(...addArrowToList(list, pos, to, true, true))
             }

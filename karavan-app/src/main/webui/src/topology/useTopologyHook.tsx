@@ -14,23 +14,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import React from "react";
 import {shallow} from "zustand/shallow";
-import {useFilesStore, useFileStore} from "../api/ProjectStore";
-import {EventBus} from "../designer/utils/EventBus";
+import {useFilesStore, useFileStore, useProjectStore} from "@/api/ProjectStore";
+import {EventBus} from "@/designer/utils/EventBus";
 import {CamelDefinitionYaml} from "karavan-core/lib/api/CamelDefinitionYaml";
 import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt";
 import {RouteDefinition} from "karavan-core/lib/model/CamelDefinition";
-import {ProjectService} from "../api/ProjectService";
+import {ProjectService} from "@/api/ProjectService";
+import {ModalConfirmationProps} from "@/components/ModalConfirmation";
 
-export function useTopologyHook() {
+export function useTopologyHook(setConfirmationProps?: React.Dispatch<React.SetStateAction<ModalConfirmationProps | undefined>>) {
 
     const [setFile] = useFileStore((s) => [s.setFile], shallow);
     const [files] = useFilesStore((s) => [s.files], shallow);
+    const [setTabIndex] = useProjectStore((s) => [s.setTabIndex], shallow);
 
     function selectFile(fileName: string) {
         const file = files.filter(f => f.name === fileName)?.at(0);
         if (file) {
             setFile('select', file);
+            setTabIndex(0);
         }
     }
 
@@ -57,7 +61,63 @@ export function useTopologyHook() {
         }
     }
 
+    function deleteRoute(fileName: string, routeId: string) {
+        try {
+            const file = files.filter(f => f.name === fileName)?.at(0);
+            if (file) {
+                const integration = CamelDefinitionYaml.yamlToIntegration(file.name, file?.code);
+                const newIntegration = CamelDefinitionApiExt.deleteRouteFromIntegration(integration, routeId);
+                const isEmpty = newIntegration?.spec.flows?.length === 0 && newIntegration?.spec.template === undefined;
+                const propsClose: ModalConfirmationProps = {
+                    isOpen: false, title: '', message: '', onConfirm: () => {
+                    }, onCancel: () => {
+                    }
+                };
+                const props: ModalConfirmationProps = {
+                    isOpen: true,
+                    title: 'Confirmation',
+                    btnConfirmVariant: 'danger',
+                    message: `Delete route ${isEmpty ? ' and file ' + fileName : ''}`,
+                    onConfirm: () => {
+                        if (isEmpty) {
+                            ProjectService.deleteFile(file);
+                        } else {
+                            file.code = CamelDefinitionYaml.integrationToYaml(newIntegration);
+                            ProjectService.updateFile(file, true);
+                        }
+                    },
+                    onCancel: () => setConfirmationProps?.(propsClose)
+                };
+                setConfirmationProps?.({...props})
+            }
+        } catch (e: any) {
+            console.error(e);
+            EventBus.sendAlert('Error deleting Route', e?.message);
+        }
+    }
+
+    function setRouteGroup (fileName: string, elementId: string, groupName: string) {
+        try {
+            const file = files.filter(f => f.name === fileName)?.at(0);
+            if (file) {
+                const integration = CamelDefinitionYaml.yamlToIntegration(file.name, file?.code);
+                const element = CamelDefinitionApiExt.findElementById(integration, elementId);
+                if (element) {
+                    if (element.dslName === 'RouteDefinition') {
+                        (element as RouteDefinition).group = groupName;
+                    }
+                    const newIntegration = CamelDefinitionApiExt.updateIntegrationRouteElement(integration, element);
+                    file.code = CamelDefinitionYaml.integrationToYaml(newIntegration);
+                    ProjectService.updateFile(file, true);
+                }
+
+            }
+        } catch (e: any) {
+            EventBus.sendAlert('Error changing Route group', e?.message);
+        }
+    }
+
     return {
-        selectFile, setDisabled
+        selectFile, setDisabled, deleteRoute, setRouteGroup
     }
 }

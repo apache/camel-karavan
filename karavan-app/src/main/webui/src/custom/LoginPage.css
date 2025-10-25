@@ -1,0 +1,19 @@
+.karavan .login-page {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--pf-t--global--background--color--secondary--default);
+}
+.karavan .login-page .logo-panel {
+    background-color: var(--pf-t--color--gray--95);
+    height: 64px;
+}
+
+.karavan .login-page .login {
+    width: 470px;
+}
+
+.karavan .login-page .logo {
+    /*height: 48px;*/
+}

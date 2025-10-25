@@ -17,7 +17,6 @@
 
 import React, {useEffect, useState} from 'react';
 import {Tab, Tabs, TabTitleIcon, TabTitleText,} from '@patternfly/react-core';
-import "@patternfly/patternfly/patternfly.css";
 import './DslProperties.css';
 import {DslProperties} from "./DslProperties";
 import {getDesignerIcon} from "../icons/KaravanIcons";

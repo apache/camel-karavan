@@ -22,18 +22,18 @@ import "@patternfly/patternfly/patternfly-charts.css";
 import './index.css';
 import {Main} from "./main/Main";
 import {BrowserRouter} from "react-router-dom";
-// import {ThemeProvider} from "@/main/ThemeContext";
-// import {AuthProvider} from "@/auth/AuthProvider";
+import {ThemeProvider} from "@/main/ThemeContext";
+import {AuthProvider} from "@/auth/AuthProvider";
 
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
     <React.StrictMode>
         <BrowserRouter>
-            {/*<ThemeProvider>*/}
-            {/*    <AuthProvider>*/}
+            <ThemeProvider>
+                <AuthProvider>
                     <Main />
-                {/*</AuthProvider>*/}
-            {/*</ThemeProvider>*/}
+                </AuthProvider>
+            </ThemeProvider>
         </BrowserRouter>
     </React.StrictMode>
 );

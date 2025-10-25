@@ -16,28 +16,26 @@
  */
 import React, {useState} from 'react';
 import {
-    Dropdown,
-    MenuToggleElement,
-    MenuToggle,
-    DropdownList,
-    DropdownItem,
-    Popover,
-    Flex,
-    TextInput,
-    FormGroup,
-    Form,
     Button,
+    Divider,
+    Dropdown,
+    DropdownGroup,
+    DropdownItem,
+    DropdownList,
+    Flex,
     FlexItem,
-    DropdownGroup, Divider
+    Form,
+    FormGroup,
+    MenuToggle,
+    MenuToggleElement,
+    Popover,
+    TextInput
 } from '@patternfly/react-core';
-import '../../karavan.css';
 import './PropertyPlaceholderDropdown.css';
-import "@patternfly/patternfly/patternfly.css";
 import {ComponentProperty} from "karavan-core/lib/model/ComponentModels";
 import {useDesignerStore} from "../../DesignerStore";
 import {shallow} from "zustand/shallow";
-import EllipsisVIcon from "@patternfly/react-icons/dist/esm/icons/ellipsis-v-icon";
-import AddIcon from "@patternfly/react-icons/dist/js/icons/plus-icon";
+import {EllipsisVIcon, PlusIcon} from '@patternfly/react-icons';
 import {InfrastructureAPI} from "../../utils/InfrastructureAPI";
 import {PropertyMeta} from "karavan-core/lib/model/CamelMetadata";
 import {RouteToCreate} from "../../utils/CamelUi";
@@ -150,7 +148,7 @@ export function PropertyPlaceholderDropdown(props: Props) {
                         onClick={() => onMenuToggleClick()}
                         isExpanded={isOpenPlaceholdersDropdown}
             >
-                {showAddButton ? <AddIcon/> : <EllipsisVIcon/>}
+                {showAddButton ? <PlusIcon/> : <EllipsisVIcon/>}
                 {showAddButton && getPopover()}
             </MenuToggle>
         )

@@ -20,7 +20,7 @@
     display: flex;
     flex-direction: column;
     width: fit-content;
-    border-color: var(--pf-v5-global--Color--200);
+    border-color: var(--pf-t--global--color--brand--default);
     border-radius: 42px;
     border-width: 1px;
     min-width: 120px;
@@ -48,7 +48,7 @@
 }
 
 .karavan .dsl-page .flows .step-element .header-bottom-not-selected {
-    border-bottom: 1px dashed var(--pf-v5-global--Color--200);
+    border-bottom: 1px dashed var(--step-border-color);
 }
 
 .karavan .dsl-page .flows .step-element .header-route:hover {
@@ -96,12 +96,14 @@
 }
 
 .karavan .step-element .selected .header-icon {
-    border-color: var(--pf-v5-global--primary-color--100);
-    background-color: var(--pf-v5-global--palette--blue-50);
+    border-color: var(--step-border-color-selected);
+    /*fill: var(--step-border-color-selected);*/
+    background-color: var(--pf-t--global--background--color--primary--default);
     border-width: 2px;
 }
 
 .karavan .step-element .header .header-text {
+    color: var(--step-border-color-selected);
     position: absolute;
     top: 8px;
     left: 0;
@@ -114,10 +116,6 @@
     width: 50%
 }
 
-.karavan .step-element .header .text-bottom {
-    background-color: rgba(255, 255, 255, 0.2);
-}
-
 .karavan .step-element .header .text-right {
     padding-left: 21px;
     width: 50%;
@@ -125,15 +123,17 @@
 }
 
 .karavan .step-element .header .header-text-required {
-    color: var(--pf-v5-global--danger-color--100);
+    color: var(--pf-t--color--red--50);
     font-weight: bold;
 }
 
+.pf-v6-theme-dark .karavan .step-element .header-icon {
+    background-color: var(--pf-t--global--icon--color--disabled);
+}
+
 .karavan .step-element .header-icon {
-    border-color: var(--pf-v5-global--Color--300);
     border-style: solid;
     border-width: 1px;
-    background: white;
     width: 33px;
     height: 33px;
     margin: auto;
@@ -146,8 +146,8 @@
     border-radius: 33px;
 }
 
-.karavan .step-element .header-icon-circle .dynamic{
-    fill: var(--pf-v5-global--Color--400);
+.karavan .step-element .header-icon-circle .dynamic {
+    fill: var(--pf-t--global--color--brand--default);
 }
 
 .karavan .step-element .header-icon-square {
@@ -168,26 +168,26 @@
 
 .karavan .step-element .element-border-passed {
     border-width: 2px;
-    background-color: var(--pf-v5-global--palette--green-100);
-    border-color: var(--pf-v5-global--palette--green-400);
+    background-color: var(--pf-t--color--green--20);
+    border-color: var(--pf-t--color--green--50);
 }
 
 .karavan .step-element .header-icon-border-passed {
     border-width: 2px;
-    background-color: var(--pf-v5-global--palette--green-100);
-    border-color: var(--pf-v5-global--palette--green-400);
+    background-color: var(--pf-t--color--green--20);
+    border-color: var(--pf-t--color--green--50);
 }
 
 .karavan .step-element .header-icon-border-current {
     border-width: 2px;
-    background-color: var(--pf-v5-global--palette--gold-100);
-    border-color: var(--pf-v5-global--palette--gold-400);
+    background-color: var(--pf-t--color--orange--20);
+    border-color: var(--pf-t--color--orange--50);
 }
 
 .karavan .step-element .header-icon-border-failed {
     border-width: 2px;
-    background-color: var(--pf-v5-global--palette--red-100);
-    border-color: var(--pf-v5-global--palette--red-200);
+    background-color: var(--pf-t--color--red--20);
+    border-color: var(--pf-t--color--red--50);
 }
 
 .karavan .step-element .route-icons {
@@ -202,10 +202,9 @@
     width: auto;
     border: none;
     -webkit-user-select: none;
-    -khtml-user-select: none;
     -moz-user-select: none;
-    -o-user-select: none;
     user-select: none;
+    /*fill: var(--pf-t--global--text--color--subtle);*/
 }
 
 .karavan .step-element .add-element-button {
@@ -216,7 +215,7 @@
     border: 0;
     padding: 0;
     background: transparent;
-    color: var(--pf-v5-global--primary-color--100);
+    color: var(--pf-t--global--color--brand--default);
     visibility: hidden;
     z-index: 100;
     position: absolute;
@@ -230,7 +229,7 @@
     padding: 0;
     margin: 0 0 0 -30px;
     background: transparent;
-    color: var(--pf-v5-global--primary-color--100);
+    color: var(--pf-t--global--color--brand--default);
     visibility: hidden;
     z-index: 100;
 }
@@ -243,7 +242,7 @@
     padding: 0;
     margin: 0 0 0 -30px;
     background: transparent;
-    color: var(--pf-v5-global--primary-color--100);
+    color: var(--pf-t--global--color--brand--default);
     visibility: hidden;
     z-index: 100;
 }
@@ -298,7 +297,7 @@
     padding: 0;
     margin: 0;
     background: transparent;
-    color: var(--pf-v5-global--primary-color--100);
+    color: var(--pf-t--global--color--brand--default);
     visibility: hidden;
     z-index: 100;
 }
@@ -314,7 +313,7 @@
     padding: 0;
     margin: 0 0 0 10px;
     background: transparent;
-    color: var(--pf-v5-global--primary-color--100);
+    color: var(--pf-t--global--color--brand--default);
     visibility: hidden;
 }
 

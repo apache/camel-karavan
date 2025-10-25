@@ -31,15 +31,57 @@ export function isSensitiveFieldValid(field: string): boolean {
 }
 
 export function toKebabCase(value: string): string {
-    if (value.includes('_')) {
-        // Convert snake_case to kebab-case
-        return value.replace(/_/g, '-');
-    } else if (/[a-z][A-Z]/.test(value)) {
-        // Convert camelCase to kebab-case
-        return value.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
+    return value
+        // snake_case → kebab
+        .replace(/_/g, '-')
+        // camelCase → kebab
+        .replace(/([a-z0-9])([A-Z])/g, '$1-$2')
+        // collapse multiple dashes
+        .replace(/-+/g, '-')
+        // lowercase everything
+        .toLowerCase();
+}
+
+
+export function toCamelCase(input: string): string {
+    return input.trim()
+        .toLowerCase()
+        .replace(/[-_\s]+(.)?/g, (_, char) => (char ? char.toUpperCase() : ''));
+}
+
+export function fromCamelCase(input: string): string {
+    return input
+        // Insert a space before all caps (but not at the start)
+        .replace(/([a-z])([A-Z])/g, '$1 $2')
+        // Handle sequences of capitals (like "ID" or "HTML")
+        .replace(/([A-Z]+)([A-Z][a-z])/g, '$1 $2')
+        // Lowercase first letter if you want a fully normalized sentence
+        .trim();
+}
+
+export function toSpecialRouteId(input: string): string {
+    // 1. Normalize to lowercase
+    let name = input.toLowerCase();
+
+    // 2. Replace spaces and underscores with dashes
+    name = name.replace(/[\s_]+/g, '-');
+
+    // 3. Remove invalid characters (keep a-z, 0-9, dash, dot)
+    name = name.replace(/[^a-z0-9.-]/g, '');
+
+    // 4. Collapse multiple dashes
+    name = name.replace(/-+/g, '-');
+
+    // 5. Trim leading/trailing dashes or dots
+    name = name.replace(/^[-.]+|[-.]+$/g, '');
+
+    // 6. Enforce length limit (32 chars max)
+    if (name.length > 32) {
+        name = name.slice(0, 32);
     }
-    // Assume already in kebab-case or other format, return as-is
-    return value;
+    // 7. Ensure last char is alphanumeric
+    name = name.replace(/[^a-z0-9]+$/g, '');
+    return name;
 }
 
 

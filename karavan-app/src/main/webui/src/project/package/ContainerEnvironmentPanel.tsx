@@ -16,27 +16,19 @@
  */
 
 import React, {useState} from 'react';
-import {
-    Badge,
-    Button,
-    Card,
-    CardBody,
-    Flex,
-    FlexItem,
-    Label,
-    Modal, ClipboardCopy,
-} from '@patternfly/react-core';
+import {Button, ClipboardCopy, Flex, FlexItem, Label} from '@patternfly/react-core';
+
 import '../../designer/karavan.css';
-import UpIcon from "@patternfly/react-icons/dist/esm/icons/running-icon";
 import DownIcon from "@patternfly/react-icons/dist/esm/icons/error-circle-o-icon";
-import {useAppConfigStore, useLogStore, useProjectStore, useStatusesStore} from "../../api/ProjectStore";
+import {useAppConfigStore, useLogStore, useProjectStore, useStatusesStore} from "@/api/ProjectStore";
 import {shallow} from "zustand/shallow";
-import {ContainerStatus} from "../../api/ProjectModels";
-import {ContainerButtons} from "./ContainerButtons";
+import {ContainerStatus} from "@/api/ProjectModels";
 import DeleteIcon from "@patternfly/react-icons/dist/esm/icons/times-circle-icon";
 import ImageIcon from "@patternfly/react-icons/dist/esm/icons/cube-icon";
-import {KaravanApi} from "../../api/KaravanApi";
-import {EventBus} from "../../designer/utils/EventBus";
+import {KaravanApi} from "@/api/KaravanApi";
+import {EventBus} from "@/designer/utils/EventBus";
+import {ContainerButton} from "@/components/ContainerButton";
+import {ModalConfirmation} from "@/components/ModalConfirmation";
 
 interface Props {
     env: string,
@@ -46,7 +38,6 @@ export function ContainerEnvironmentPanel(props: Props) {
 
     const {config} = useAppConfigStore();
     const [project] = useProjectStore((s) => [s.project], shallow);
-    const [setShowLog] = useLogStore((s) => [s.setShowLog], shallow);
     const [containers] = useStatusesStore((s) => [s.containers], shallow);
     const [showDeleteConfirmation, setShowDeleteConfirmation] = useState<boolean>(false);
     const [deleteEntityName, setDeleteEntityName] = useState<string>();
@@ -61,28 +52,6 @@ export function ContainerEnvironmentPanel(props: Props) {
         }
     }
 
-    function getDeleteConfirmation() {
-        return (<Modal
-            className="modal-delete"
-            title="Confirmation"
-            isOpen={showDeleteConfirmation}
-            onClose={() => setShowDeleteConfirmation(false)}
-            actions={[
-                <Button key="confirm" variant="primary" onClick={e => {
-                    if (deleteEntityName) {
-                        deleteEntity();
-                        setShowDeleteConfirmation(false);
-                    }
-                }}>Delete
-                </Button>,
-                <Button key="cancel" variant="link"
-                        onClick={e => setShowDeleteConfirmation(false)}>Cancel</Button>
-            ]}
-            onEscapePress={e => setShowDeleteConfirmation(false)}>
-            <div>{"Delete container " + deleteEntityName + "?"}</div>
-        </Modal>)
-    }
-
     function getStatusBadge(cs: ContainerStatus) {
         return isKubernetes ? cs.phase : cs.state
     }
@@ -93,7 +62,7 @@ export function ContainerEnvironmentPanel(props: Props) {
         .filter(d => d.projectId === project?.projectId && d.type === 'packaged');
 
     const isKubernetes = config.infrastructure === 'kubernetes';
-    const noContainersText  = isKubernetes ? 'No pods' : 'No containers';
+    const noContainersText = isKubernetes ? 'No pods' : 'No containers';
 
     return (
         <Flex justifyContent={{default: "justifyContentSpaceBetween"}}
@@ -104,44 +73,43 @@ export function ContainerEnvironmentPanel(props: Props) {
                     {conts.map((cs: ContainerStatus, index) => {
                             const ready = cs.state === 'running';
                             return (
-                                <Card isCompact isRounded isFlat isPlain key={index}>
-                                    <CardBody>
-                                        <Flex justifyContent={{default: 'justifyContentSpaceBetween'}}>
-                                            <Label icon={ready ? <UpIcon/> : <DownIcon/>} color={ready ? "green" : "grey"}>
-                                                <Button variant="link" className="dev-action-button labeled-button"
-                                                        onClick={e => {
-                                                            setShowLog(true, 'container', cs.containerName);
-                                                        }}>
-                                                    {cs.containerName}
-                                                </Button>
-                                                <Badge isRead>{cs.type}</Badge>
-                                            </Label>
-                                            <Label icon={ready ? <UpIcon/> : <DownIcon/>} color={ready ? "green" : "grey"}>
-                                                {getStatusBadge(cs)}
-                                            </Label>
-                                            <Label icon={<ImageIcon/>} color={ready ? "green" : "grey"} variant='outline'>
-                                                Image:
-                                                <ClipboardCopy hoverTip="Copy" clickTip="Copied" variant="inline-compact" style={{backgroundColor: 'transparent'}}>
-                                                    {cs.image}
-                                                </ClipboardCopy>
-                                            </Label>
-                                            {isKubernetes && <Button
-                                                isDanger
-                                                icon={<DeleteIcon/>}
-                                                className="labeled-button"
-                                                variant="link" onClick={e => {
-                                                setShowDeleteConfirmation(true);
-                                                setDeleteEntityName(cs.containerName);
-                                            }}></Button>}
-                                        </Flex>
-                                    </CardBody>
-                                </Card>
+                                <div style={{display: 'flex', gap: '8px'}} key={index}>
+                                    <ContainerButton container={cs}/>
+                                    <Label icon={<ImageIcon/>} color={ready ? "green" : "grey"} variant='outline'>
+                                        Image:
+                                        <ClipboardCopy hoverTip="Copy" clickTip="Copied" variant="inline-compact" style={{backgroundColor: 'transparent'}}>
+                                            {cs.image}
+                                        </ClipboardCopy>
+                                    </Label>
+                                    {isKubernetes && <Button
+                                        isDanger
+                                        icon={<DeleteIcon/>}
+                                        className="karavan-labeled-button"
+                                        variant="link" onClick={e => {
+                                        setShowDeleteConfirmation(true);
+                                        setDeleteEntityName(cs.containerName);
+                                    }}></Button>}
+                                </div>
                             )
                         }
                     )}
                 </Flex>
             </FlexItem>
-            {showDeleteConfirmation && getDeleteConfirmation()}
+            {showDeleteConfirmation &&
+                <ModalConfirmation
+                    isOpen={showDeleteConfirmation}
+                    message={"Delete container " + deleteEntityName + "?"}
+                    btnConfirm='Delete'
+                    btnConfirmVariant='danger'
+                    onConfirm={() => {
+                        if (deleteEntityName) {
+                            deleteEntity();
+                            setShowDeleteConfirmation(false);
+                        }
+                    }}
+                    onCancel={() => setShowDeleteConfirmation(false)}
+                />
+            }
         </Flex>
     )
 }

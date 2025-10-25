@@ -18,23 +18,22 @@
 import * as React from 'react';
 import './TopologyLegend.css';
 import {
-    Badge,
     Card,
     CardBody,
     CardTitle,
     Label,
 } from "@patternfly/react-core";
-import {COLOR_BLUE, COLOR_GREEN, COLOR_ORANGE} from "./CustomNode";
+import {getDesignerIcon, OpenApiIcon} from "@/designer/icons/KaravanIcons";
 
 export function TopologyLegend () {
 
-
     return (
-        <Card isCompact isFlat isRounded className="topology-legend-card">
+        <Card isCompact   className="topology-legend-card">
             <CardTitle>Legend</CardTitle>
             <CardBody className='card-body'>
-                <Label className='orange' icon={<Badge style={{backgroundColor: COLOR_ORANGE, padding: 0}}>API</Badge>}>REST</Label>
-                <Label className='orange'>Route</Label>
+                <Label className='orange' icon={<div style={{display: 'flex'}}>{getDesignerIcon('route')}</div>}>Route</Label>
+                <Label className='orange' icon={<div style={{display: 'flex', gap: '6px'}}>{OpenApiIcon()}</div>}>OpenAPI</Label>
+                <Label className='orange' icon={<div style={{display: 'flex'}}>{getDesignerIcon('rest')}</div>}>REST</Label>
                 <Label className='orange route-template'>Route Template</Label>
                 <Label className='blue'>Component</Label>
                 <Label className='green'>Kamelet</Label>

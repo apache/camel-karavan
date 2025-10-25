@@ -21,25 +21,24 @@ import {ComponentApi} from "karavan-core/lib/api/ComponentApi";
 import {CamelMetadataApi} from "karavan-core/lib/model/CamelMetadata";
 import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
 import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt";
-import {
-    BeanFactoryDefinition, FromDefinition,
-    RouteConfigurationDefinition,
-    RouteDefinition,
-    RouteTemplateDefinition,
-    ToDefinition
-} from "karavan-core/lib/model/CamelDefinition";
+import {BeanFactoryDefinition, FromDefinition, RouteConfigurationDefinition, RouteDefinition, RouteTemplateDefinition, ToDefinition} from "karavan-core/lib/model/CamelDefinition";
 import {CamelElement, Integration, IntegrationFile} from "karavan-core/lib/model/IntegrationDefinition";
 import {
-    ActivemqIcon, AmqpIcon, ApiIcon,
+    ActivemqIcon,
+    AmqpIcon,
+    ApiIcon,
     AwsIcon,
     AzureIcon,
     BlockchainIcon,
     CassandraIcon,
     ChatIcon,
     CloudIcon,
-    ClusterIcon, CouchbaseIcon,
+    ClusterIcon,
+    CouchbaseIcon,
     DatabaseIcon,
-    DebeziumIcon, DHIS2Icon, DirectIcon,
+    DebeziumIcon,
+    DHIS2Icon,
+    DirectIcon,
     DocumentIcon,
     FileIcon,
     GithubIcon,
@@ -52,7 +51,8 @@ import {
     IgniteIcon,
     InfinispanIcon,
     IotIcon,
-    KafkaIcon, KameletIcon,
+    KafkaIcon,
+    KameletIcon,
     KubernetesIcon,
     MachineLearningIcon,
     MailIcon,
@@ -64,17 +64,23 @@ import {
     OpenstackIcon,
     RedisIcon,
     RefIcon,
-    RpcIcon, SalesforceIcon,
+    RpcIcon,
+    SalesforceIcon,
     SapIcon,
     SchedulingIcon,
     ScriptIcon,
-    SearchIcon, SlackIcon, SmooksIcon,
+    SearchIcon,
+    SlackIcon,
+    SmooksIcon,
     SocialIcon,
     SpringIcon,
     TerminalIcon,
     TestingIcon,
-    TransformationIcon, TwilioIcon, TwitterIcon,
-    ValidationIcon, VertXIcon,
+    TransformationIcon,
+    TwilioIcon,
+    TwitterIcon,
+    ValidationIcon,
+    VertXIcon,
     WebserviceIcon,
     WorkflowIcon
 } from "../icons/ComponentIcons";
@@ -84,17 +90,27 @@ import {
     FilterIcon,
     Intercept,
     InterceptFrom,
-    InterceptSendToEndpoint, LoadBalanceIcon,
-    OnCompletion, PollIcon,
-    SagaIcon, SetExchangePatternIcon,
+    InterceptSendToEndpoint,
+    LoadBalanceIcon,
+    OnCompletion,
+    PollIcon,
+    SagaIcon,
+    SetExchangePatternIcon,
     SortIcon,
     SplitIcon,
     ToIcon,
 } from "../icons/EipIcons";
-import React from "react";
+import React, {ReactElement} from "react";
 import {TopologyUtils} from "karavan-core/lib/api/TopologyUtils";
-import {getIntegrations} from "../../topology/TopologyApi";
-import {toKebabCase} from "./ValidatorUtils";
+import {getIntegrations} from "@/topology/TopologyApi";
+import {toKebabCase, toSpecialRouteId} from "./ValidatorUtils";
+import {ProjectFile} from "@/api/ProjectModels";
+import {CamelDefinitionYaml} from "karavan-core/lib/api/CamelDefinitionYaml";
+import {EventBus} from "./EventBus";
+import {KaravanApi} from "@/api/KaravanApi";
+import {CamelDefinitionApi} from "karavan-core/lib/api/CamelDefinitionApi";
+import {capitalize} from "@patternfly/react-core";
+import {FILE_WORDS_SEPARATOR} from "karavan-core/lib/contants";
 
 const StepElements: string[] = [
     "AggregateDefinition",
@@ -162,11 +178,14 @@ export const externalIcon =
 
 export class RouteToCreate {
     componentName: string = ''
-    name: string = ''
+    propertyName: string = ''
+    propertyValue: string = ''
 
-    constructor(componentName: string, name: string) {
+
+    constructor(componentName: string, propertyName: string, propertyValue: string) {
         this.componentName = componentName;
-        this.name = name;
+        this.propertyName = propertyName;
+        this.propertyValue = propertyValue;
     }
 }
 
@@ -191,19 +210,102 @@ export class CamelUi {
     static createNewInternalRoute = (uri: string): RouteToCreate | undefined => {
         const uris = uri.toString().split(":");
         const componentName = uris[0];
-        const name = uris[1];
+        const propertyValue = uris[1];
         if (['direct', 'seda'].includes(componentName)) {
-            return new RouteToCreate(componentName, name)
+            return new RouteToCreate(componentName, 'name', propertyValue);
+        } else if ('vertx' === componentName) {
+            return new RouteToCreate(componentName, 'address', propertyValue);
         }
         return undefined;
     }
 
-    static createRouteFromComponent = (componentName: string, propertyName: string, propertyValue: string): RouteDefinition => {
-        const description =  propertyValue.replace(/([a-z])([A-Z])/g, '$1 $2').replace(/[-_]/g, ' ').replace(/\b\w/g, char => char.toUpperCase());
-        const name = toKebabCase(propertyValue);
-        const routeId = 'route-' + name;
-        const newFrom = new FromDefinition({uri: componentName, parameters: {[propertyName]: propertyValue}});
+    // static createRouteFromComponent = (componentName: string, propertyName: string, propertyValue: string, expression: string = '[id: "Hello World"]'): RouteDefinition => {
+    //     const description =  propertyValue.replace(/([a-z])([A-Z])/g, '$1 $2').replace(/[-_]/g, ' ').replace(/\b\w/g, char => char.toUpperCase());
+    //     const name = toKebabCase(propertyValue);
+    //     const routeId = 'route-' + name;
+    //     const newFrom = new FromDefinition({uri: componentName, parameters: {[propertyName]: propertyValue}});
+    //     newFrom.steps = [
+    //         CamelDefinitionApi.createLogDefinition({message : 'body'}),
+    //         CamelDefinitionApi.createSetBodyDefinition({expression: CamelDefinitionApi.createExpressionDefinition({groovy: CamelDefinitionApi.createGroovyExpression({expression: expression})})}),
+    //         CamelDefinitionApi.createMarshalDefinition({json: CamelDefinitionApi.createJsonDataFormat({})})
+    //     ]
+    //     return new RouteDefinition({from: newFrom, description: description, id: routeId, nodePrefixId: routeId});
+    // }
+
+    static createFullStringWithParameters(component: string, parameters: any = {}): string {
+        const params = parameters && Object.keys(parameters).length > 0
+            ? Object.values(parameters).join(FILE_WORDS_SEPARATOR)
+            : "";
+        return `${component}${FILE_WORDS_SEPARATOR}${params}`;
+    }
+
+
+    static createRouteFromComponent = (componentName: string, parameters: any = {}, expression: string = '[id: "Hello World"]'): RouteDefinition => {
+        const stringWithParams = CamelUi.createFullStringWithParameters(componentName, parameters);
+        const description =  stringWithParams.replace(/([a-z])([A-Z])/g, '$1 $2').replace(/[-_]/g, ' ').replace(/\b\w/g, char => char.toUpperCase());
+        const routeId = `route-${toSpecialRouteId(toKebabCase(stringWithParams))}`;
+        const newFrom = new FromDefinition({uri: componentName, parameters: parameters});
+        newFrom.steps = [
+            CamelDefinitionApi.createLogDefinition({message : 'body'}),
+            // CamelDefinitionApi.createSetBodyDefinition({expression: CamelDefinitionApi.createExpressionDefinition({groovy: CamelDefinitionApi.createGroovyExpression({expression: expression})})}),
+            // CamelDefinitionApi.createMarshalDefinition({json: CamelDefinitionApi.createJsonDataFormat({})})
+        ]
         return new RouteDefinition({from: newFrom, description: description, id: routeId, nodePrefixId: routeId});
+    }
+
+    static onCreateNewRoute = (projectId:string, files: ProjectFile[], componentName: string, parameters: any = {}, expression: string, after:(file: ProjectFile) => void): void => {
+        try {
+            const integrations = getIntegrations(files);
+            const incomingNodes = TopologyUtils.findTopologyIncomingNodes(integrations)
+                .filter(n => {
+                    const target = n.from?.parameters ?? {};
+                    return n.from?.uri === componentName && Object.entries(parameters).every(([key, value]) => target[key] === value);
+                });
+            if (incomingNodes.length > 0) {
+                CamelUi.internalConsumerClick(files, undefined, undefined, incomingNodes[0].routeId, incomingNodes[0].fileName);
+            } else {
+                CamelUi.createNewRoute(projectId, componentName, parameters, expression, after);
+            }
+        } catch (err: any){
+            console.error(err)
+        }
+    }
+
+    static createNewRoute = (projectId:string, componentName: string, parameters: any = {}, expression: string, after:(file: ProjectFile) => void): void => {
+        try {
+            const stringWithParams = CamelUi.createFullStringWithParameters(componentName, parameters);
+            const name = `from-${stringWithParams}`;
+            const newRoute = CamelUi.createRouteFromComponent(componentName, parameters, expression);
+            const newIntegration = Integration.createNew(stringWithParams, 'plain');
+            newIntegration.spec.flows = [newRoute];
+            const code = CamelDefinitionYaml.integrationToYaml(newIntegration);
+            const fileName = name + '.camel.yaml';
+            const file = new ProjectFile(fileName, projectId, code, Date.now());
+            KaravanApi.saveProjectFile(file, (result, newFile) => {
+                if (result) {
+                    after(newFile);
+                } else {
+                    EventBus.sendAlert('Error creating file', 'Error: ' +newFile?.toString());
+                }
+            });
+        } catch (err: any){
+            console.error(err)
+        }
+    }
+
+    static createNewFile = (projectId:string, fileName: string, code: string = '', after:(file: ProjectFile) => void): void => {
+        try {
+            const file = new ProjectFile(fileName, projectId, code, Date.now());
+            KaravanApi.saveProjectFile(file, (result, newFile) => {
+                if (result) {
+                    after(newFile);
+                } else {
+                    EventBus.sendAlert('Error creating file', 'Error: ' +newFile?.toString());
+                }
+            });
+        } catch (err: any){
+            console.error(err)
+        }
     }
 
     static getSelectorModelTypes = (parentDsl: string | undefined, showSteps: boolean = true, filter: string | undefined = undefined): [string, number][] => {
@@ -301,13 +403,15 @@ export class CamelUi {
     }
 
     static getKameletDslMetaModel = (type: 'source' | "sink" | "action"): DslMetaModel[] => {
-        return KameletApi.getKamelets().filter((k) => k.metadata.labels["camel.apache.org/kamelet.type"] === type)
+        return KameletApi.getAllKamelets().filter((k) => k.metadata.labels["camel.apache.org/kamelet.type"] === type)
             .map((k) => {
                 const descriptionLines = k.description().split("\n")
                     .filter(line => line !== undefined && line.trim().length > 0);
                 const description = descriptionLines.at(0);
+                const dslType = k.metadata.annotations["camel.apache.org/karavan.designer.stepType"];
+                const dsl = type === 'source' ? "FromDefinition" : (dslType !== undefined ? capitalize(dslType + "Definition"): "ToDefinition")
                 return new DslMetaModel({
-                    dsl: type === 'source' ? "FromDefinition" : "ToDefinition",
+                    dsl: dsl,
                     uri: "kamelet:" + k.metadata.name,
                     labels: k.type(),
                     navigation: "kamelet",
@@ -377,11 +481,86 @@ export class CamelUi {
         return urls;
     }
 
+    static getInternalUrisFromProjectFiles = (files: ProjectFile[], direct: boolean, seda: boolean, vertx: boolean) => {
+        const urls: string[] = [];
+        const integrations = CamelUi.getIntegrations(files);
+        integrations.forEach(i => {
+            if (direct) {
+                urls.push(...CamelUi.getInternalRouteUris(i, "direct"))
+            }
+            if (seda) {
+                urls.push(...CamelUi.getInternalRouteUris(i, "seda"));
+            }
+            if (vertx) {
+                urls.push(...CamelUi.getInternalRouteUris(i, "vertx"));
+            }
+        })
+        return urls;
+    }
+
+    static getIntegrations(files: ProjectFile[]): Integration[] {
+        const integrations: Integration[] = [];
+        files.filter((file) => file.name.endsWith(".camel.yaml")).forEach((file) => {
+            try {
+                const i = CamelDefinitionYaml.yamlToIntegration(file.name, file.code);
+                integrations.push(i);
+            } catch (e: any){
+                console.error(e);
+                EventBus.sendAlert('Error', e?.message, 'danger');
+            }
+        })
+        return integrations;
+    }
+
+    static internalConsumerClick(files: ProjectFile[], uri?: string, name?: string, routeId?: string, fileName?: string, after?:(fileName: string, step?: CamelElement) => void):boolean {
+        let done = false;
+        const integrations = files.filter(f => f.name.endsWith(".camel.yaml"))
+            .map(f => CamelDefinitionYaml.yamlToIntegration(f.name, f.code));
+        if (fileName) {
+            const uniqueUri = uri + ':name=' + name;
+            const outgoingNodes = TopologyUtils.findTopologyRouteOutgoingNodes(integrations);
+            console.debug(outgoingNodes);
+            let step = outgoingNodes.filter(node => node.uniqueUri === uniqueUri).at(0)?.step;
+            if (step === undefined) {
+                const restUri = uri + ':' + name;
+                const restNodes = TopologyUtils.findTopologyRestNodes(integrations);
+                restNodes.filter(restNode => restNode.uris.includes(restUri)).forEach(restNode => {
+                    step = restNode.rest.get?.filter(m => m.to === restUri).at(0)
+                        || restNode.rest.post?.filter(m => m.to === restUri).at(0)
+                        || restNode.rest.put?.filter(m => m.to === restUri).at(0)
+                        || restNode.rest.delete?.filter(m => m.to === restUri).at(0)
+                        || restNode.rest.patch?.filter(m => m.to === restUri).at(0)
+                        || restNode.rest.head?.filter(m => m.to === restUri).at(0);
+                })
+            }
+            after?.(fileName, step);
+            done = true;
+        } else if (uri && name) {
+            const routes = TopologyUtils.findTopologyRouteNodes(integrations);
+            for (const route of routes) {
+                if (route?.from?.uri === uri && (route?.from?.parameters?.name === name || route?.from?.parameters?.address === name)) {
+                    after?.(route.fileName, route?.from);
+                    done = true;
+                }
+            }
+        } else {
+            const nodes = TopologyUtils.findTopologyRouteOutgoingNodes(integrations).filter(t => t.routeId === routeId);
+            for (const node of nodes) {
+                after?.(node.fileName);
+                done = true;
+            }
+        }
+        if (!done && after !== undefined) {
+            EventBus.sendAlert('Warning', 'Route not found. Possibly not created.', 'warning');
+        }
+        return done;
+    }
+
     static getElementTitle = (element: CamelElement): string => {
         if (element.dslName === 'RouteDefinition') {
             const routeId = (element as RouteDefinition).id
             return routeId ? routeId : CamelUtil.capitalizeName((element as any).stepName);
-        } else if (['ToDefinition', 'ToDynamicDefinition', 'PollDefinition', 'FromDefinition', 'KameletDefinition'].includes(element.dslName) && (element as any).uri) {
+        } else if (['ToDefinition', 'ToDynamicDefinition', 'PollDefinition', 'FromDefinition', 'KameletDefinition', 'WireTapDefinition'].includes(element.dslName) && (element as any).uri) {
             const uri = (element as any).uri;
             const kameletTitle = uri && uri.startsWith("kamelet:") ? KameletApi.findKameletByUri(uri)?.title() : undefined;
             return kameletTitle ? kameletTitle : CamelUtil.capitalizeName(ComponentApi.getComponentTitleFromUri(uri) || '');
@@ -578,7 +757,7 @@ export class CamelUi {
         }
     }
 
-    static getIconForDsl = (dsl: DslMetaModel): React.JSX.Element => {
+    static getIconForDsl = (dsl: DslMetaModel): ReactElement => {
         if (dsl.dsl && (dsl.dsl === "KameletDefinition" || dsl.navigation === 'kamelet')) {
             return this.getIconFromSource(CamelUi.getKameletIconByName(dsl.name));
         } else if ((dsl.dsl && dsl.dsl === "FromDefinition")
@@ -591,7 +770,7 @@ export class CamelUi {
         }
     }
 
-    static getIconForComponent = (title: string, label: string): JSX.Element => {
+    static getIconForComponent = (title: string, label: string): ReactElement => {
         const labels = label.split(",");
         if (title === "Ref") {
             return RefIcon();
@@ -714,7 +893,7 @@ export class CamelUi {
         }
     }
 
-    static getIconForElement = (element: CamelElement): JSX.Element => {
+    static getIconForElement = (element: CamelElement): ReactElement => {
         const uri = (element as any).uri;
         const component = ComponentApi.findByName(uri);
         const k: KameletModel | undefined = CamelUtil.getKamelet(element);
@@ -722,7 +901,7 @@ export class CamelUi {
             return k ? this.getIconFromSource(k.icon()) : CamelUi.getIconForDslName(element.dslName);
         } else if ("FromDefinition" === element.dslName && component !== undefined && component.component.remote !== true) {
             return this.getIconForComponent(component?.component.title, component?.component.label);
-        } else if (["ToDefinition", "ToDynamicDefinition"].includes(element.dslName) && (element as ToDefinition).uri?.startsWith("kamelet:")) {
+        } else if (["ToDefinition", "ToDynamicDefinition", 'WireTapDefinition'].includes(element.dslName) && (element as ToDefinition).uri?.startsWith("kamelet:")) {
             return k ? this.getIconFromSource(k.icon()) : CamelUi.getIconForDslName(element.dslName);
         } else if (element.dslName === "ToDefinition" && component && component.component.remote !== true) {
             return this.getIconForComponent(component?.component.title, component?.component.label);
@@ -732,7 +911,7 @@ export class CamelUi {
             return this.getIconForDslName(element.dslName);
         }
     }
-    static getIconForDslName = (dslName: string): JSX.Element => {
+    static getIconForDslName = (dslName: string): ReactElement => {
         switch (dslName) {
             case 'AggregateDefinition':
                 return <AggregateIcon/>;
@@ -783,11 +962,11 @@ export class CamelUi {
         }
     }
 
-    static getIconFromSource = (src: string): JSX.Element => {
+    static getIconFromSource = (src: string): ReactElement => {
         return <img draggable={false} src={src} className="icon" alt="icon"/>
     }
 
-    static getConnectionIcon = (element: CamelElement): JSX.Element => {
+    static getConnectionIcon = (element: CamelElement): ReactElement => {
         const k: KameletModel | undefined = CamelUtil.getKamelet(element);
         const uri = (element as any).uri;
         const component = ComponentApi.findByName(uri);
@@ -800,7 +979,7 @@ export class CamelUi {
                     <image href={icon} className="icon"/>
                 </svg>
             )
-        } else if (["ToDefinition", "ToDynamicDefinition"].includes(element.dslName) && (element as any).uri?.startsWith("kamelet:")) {
+        } else if (["ToDefinition", "ToDynamicDefinition", "WireTapDefinition"].includes(element.dslName) && (element as any).uri?.startsWith("kamelet:")) {
             const icon = k ? k.icon() : CamelUi.getIconSrcForName(element.dslName);
             return  (
                 <svg className="icon">

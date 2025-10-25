@@ -26,10 +26,10 @@ export function EnableStepIcon() {
             fill="none"
             viewBox="0 0 27 27"
         >
-            <circle cx="13.5" cy="13.5" r="12" stroke="var(--pf-v5-global--primary-color--100)" strokeWidth="2"/>
+            <circle cx="13.5" cy="13.5" r="12" stroke="var(--pf-t--global--color--brand--default)" strokeWidth="2"/>
             <polygon
                 points="11,9 11,18 18,13.5"
-                fill="var(--pf-v5-global--primary-color--100)"
+                fill="var(--pf-t--global--color--brand--default)"
             />
         </svg>
     )
@@ -42,9 +42,9 @@ export function DisableStepIcon() {
             fill="none"
             viewBox="0 0 27 27"
         >
-            <circle cx="13.5" cy="13.5" r="12" stroke="var(--pf-v5-global--primary-color--100)" strokeWidth="2"/>
-            <rect x="9" y="8" width="2.5" height="11" rx="1" fill="var(--pf-v5-global--primary-color--100)"/>
-            <rect x="15.5" y="8" width="2.5" height="11" rx="1" fill="var(--pf-v5-global--primary-color--100)"/>
+            <circle cx="13.5" cy="13.5" r="12" stroke="var(--pf-t--global--color--brand--default)" strokeWidth="2"/>
+            <rect x="9" y="8" width="2.5" height="11" rx="1" fill="var(--pf-t--global--color--brand--default)"/>
+            <rect x="15.5" y="8" width="2.5" height="11" rx="1" fill="var(--pf-t--global--color--brand--default)"/>
         </svg>
     )
 }
@@ -61,7 +61,7 @@ export function CopyElementIcon() {
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 strokeWidth="2"
-                style={{ stroke: "var(--pf-v5-global--primary-color--100)" }}
+                style={{ stroke: "var(--pf-t--global--color--brand--default)" }}
                 d="M10.76 2.67a11.375 11.375 0 0 1 10.99 2.946c4.444 4.444 4.444 11.635 0 16.079s-11.635 4.444-16.079 0a11.375 11.375 0 0 1-2.946-10.99M17.14 10.29v6.86m0 0h-6.86m6.86 0L5.71 5.71"
             />
         </svg>
@@ -76,7 +76,7 @@ export function DeleteElementIcon() {
             viewBox="0 0 32 32"
             className="delete-button-icon"
         >
-            <circle cx="16" cy="16" r="14" stroke="var(--pf-v5-global--danger-color--100)" stroke-width="2" fill="none"/>
+            <circle cx="16" cy="16" r="14" stroke="var(--pf-t--global--text--color--status--danger--default)" strokeWidth="2" fill="none"/>
             <path d="M21.4 23 16 17.6 10.6 23 9 21.4l5.4-5.4L9 10.6 10.6 9l5.4 5.4L21.4 9l1.6 1.6-5.4 5.4 5.4 5.4z"></path>
         </svg>
     )
@@ -111,8 +111,8 @@ export function InsertElementIcon() {
             viewBox="0 0 32 32"
             className="insert-button-icon"
         >
-            <path d="m16 8-1.43 1.393L20.15 15H8v2h12.15l-5.58 5.573L16 24l8-8-8-8z" />
-            <circle cx="16" cy="16" r="14" stroke="var(--pf-v5-global--primary-color--100)" stroke-width="2" fill="none"/>
+            <path d="m16 8-1.43 1.393L20.15 15H8v2h12.15l-5.58 5.573L16 24l8-8-8-8z" fill="var(--pf-t--global--color--brand--default)"/>
+            <circle cx="16" cy="16" r="14" stroke="var(--pf-t--global--color--brand--default)" strokeWidth="2" fill="none"/>
         </svg>
     )
 }

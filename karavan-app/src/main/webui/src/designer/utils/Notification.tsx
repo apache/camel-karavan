@@ -16,10 +16,7 @@
  */
 
 import React, {useEffect, useState} from 'react';
-import {
-    Alert,
-    AlertActionCloseButton, AlertGroup,
-} from '@patternfly/react-core';
+import {Alert, AlertActionCloseButton, AlertGroup,} from '@patternfly/react-core';
 import '../karavan.css';
 import {EventBus, ToastMessage} from "./EventBus";
 

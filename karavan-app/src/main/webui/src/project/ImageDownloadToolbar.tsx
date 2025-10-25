@@ -17,14 +17,13 @@
 
 import React, {useEffect} from 'react';
 import {
-    Button,
     FlexItem,
     Toolbar,
     ToolbarContent,
-    Tooltip
+    
 } from '@patternfly/react-core';
 import '../designer/karavan.css';
-import DownloadImageIcon from "@patternfly/react-icons/dist/esm/icons/image-icon";
+
 import {CamelDefinitionYaml} from "karavan-core/lib/api/CamelDefinitionYaml";
 import {useFileStore, useProjectStore} from "../api/ProjectStore";
 import {EventBus} from "../designer/utils/EventBus";

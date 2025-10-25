@@ -17,28 +17,35 @@
 
 import React, {useEffect, useState} from 'react';
 import {
+    Alert,
     Button,
-    Modal,
-    FormGroup,
-    ModalVariant,
+    capitalize,
     Form,
-    ToggleGroupItem, ToggleGroup, Alert, FormAlert, capitalize,
+    FormAlert,
+    FormGroup,
+    Modal,
+    ModalBody,
+    ModalFooter,
+    ModalHeader,
+    ModalVariant,
+    SelectOptionProps,
+    ToggleGroup,
+    ToggleGroupItem
 } from '@patternfly/react-core';
-import '../../designer/karavan.css';
 import {KameletTypes} from "karavan-core/lib/model/IntegrationDefinition";
-import {useFileStore, useProjectStore} from "../../api/ProjectStore";
-import {getProjectFileTypeName, ProjectFile, RESERVED_WORDS} from "../../api/ProjectModels";
-import {ProjectService} from "../../api/ProjectService";
+import {useFileStore, useProjectStore} from "@/api/ProjectStore";
+import {getProjectFileTypeName, ProjectFile, RESERVED_WORDS} from "@/api/ProjectModels";
+import {ProjectService} from "@/api/ProjectService";
 import {shallow} from "zustand/shallow";
 import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
 import {KameletApi} from "karavan-core/lib/api/KameletApi";
-import {TypeaheadSelect, Value} from "../../designer/ui/TypeaheadSelect";
 import {SubmitHandler, useForm} from "react-hook-form";
-import {EventBus} from "../../designer/utils/EventBus";
-import {isValidFileName} from "../../util/StringUtils";
-import {useFormUtil} from "../../util/useFormUtil";
-import {KaravanApi} from "../../api/KaravanApi";
-import {CodeUtils} from "../../util/CodeUtils";
+import {EventBus} from "@/designer/utils/EventBus";
+import {isValidFileName} from "@/util/StringUtils";
+import {useFormUtil} from "@/util/useFormUtil";
+import {KaravanApi} from "@/api/KaravanApi";
+import {CodeUtils} from "@/util/CodeUtils";
+import {FieldSelectScrollable} from "@/components/FieldSelectScrollable";
 
 
 export function CreateIntegrationModal() {
@@ -105,13 +112,10 @@ export function CreateIntegrationModal() {
 
     const isKamelet = designerTab === 'kamelet';
 
-    function listOfValues(type: KameletTypes): Value[] {
-        return KameletApi.getKamelets()
+    function listOfValues(type: KameletTypes): SelectOptionProps[] {
+        return KameletApi.getAllKamelets()
             .filter(k => k.metadata.labels["camel.apache.org/kamelet.type"] === type)
-            .map(k => {
-                const v: Value = {value: k.metadata.name, children: k.spec.definition.title}
-                return v;
-            })
+            .map(k => ({value: k.metadata.name, children: k.spec.definition.title}))
     }
 
     function getFileExtension() {
@@ -128,52 +132,54 @@ export function CreateIntegrationModal() {
 
     return (
         <Modal
-            title={"Create " + (isKamelet ? "Kamelet" : capitalize(designerTab || ' '))}
             variant={ModalVariant.small}
             isOpen={["create", "copy"].includes(operation)}
             onClose={closeModal}
             onKeyDown={onKeyDown}
-            actions={[
+        >
+            <ModalHeader title={"Create " + (isKamelet ? "Kamelet" : capitalize(designerTab || ' '))}/>
+            <ModalBody>
+                <Form autoComplete="off" isHorizontal className="create-file-form">
+                    {isKamelet && <FormGroup label="Type" fieldId="kameletType" isRequired>
+                        <ToggleGroup aria-label="Kamelet Type">
+                            {['source', 'action', 'sink'].map((type) => {
+                                const title = CamelUtil.capitalizeName(type);
+                                return <ToggleGroupItem key={type} text={title} buttonId={type}
+                                                        isSelected={kameletType === type}
+                                                        onChange={(_, selected) => {
+                                                            setKameletType(type as KameletTypes);
+                                                            setSelectedKamelet(undefined)
+                                                        }}/>
+                            })}
+                        </ToggleGroup>
+                    </FormGroup>}
+                    {getTextFieldSuffix('name', 'Name', getFileSuffix(), {
+                        regex: v => isValidFileName(v) || 'Only characters, numbers and dashes allowed',
+                        length: v => v.length > 3 || 'File name should be longer that 3 characters',
+                        name: v => !RESERVED_WORDS.includes(v) || "Reserved word",
+                    })}
+                    {isKamelet &&
+                        <FormGroup label="Copy from" fieldId="kamelet">
+                            <FieldSelectScrollable key={kameletType}
+                                                   selectOptions={listOfValues(kameletType)}
+                                                   onChange={value => setSelectedKamelet(value)} value={undefined}/>
+                        </FormGroup>
+                    }
+                    {backendError &&
+                        <FormAlert>
+                            <Alert variant="danger" title={backendError} aria-live="polite" isInline/>
+                        </FormAlert>
+                    }
+                </Form>
+            </ModalBody>
+            <ModalFooter>
                 <Button key="confirm" variant="primary" onClick={handleSubmit(onSubmit)}
                         isDisabled={Object.getOwnPropertyNames(errors).length > 0}
                 >
                     Save
-                </Button>,
+                </Button>
                 <Button key="cancel" variant="secondary" onClick={closeModal}>Cancel</Button>
-            ]}
-        >
-            <Form autoComplete="off" isHorizontal className="create-file-form">
-                {isKamelet && <FormGroup label="Type" fieldId="kameletType" isRequired>
-                    <ToggleGroup aria-label="Kamelet Type">
-                        {['source', 'action', 'sink'].map((type) => {
-                            const title = CamelUtil.capitalizeName(type);
-                            return <ToggleGroupItem key={type} text={title} buttonId={type}
-                                                    isSelected={kameletType === type}
-                                                    onChange={(_, selected) => {
-                                                        setKameletType(type as KameletTypes);
-                                                        setSelectedKamelet(undefined)
-                                                    }}/>
-                        })}
-                    </ToggleGroup>
-                </FormGroup>}
-                {getTextFieldSuffix('name', 'Name', getFileSuffix(), {
-                    regex: v => isValidFileName(v) || 'Only characters, numbers and dashes allowed',
-                    length: v => v.length > 3 || 'File name should be longer that 3 characters',
-                    name: v => !RESERVED_WORDS.includes(v) || "Reserved word",
-                })}
-                {isKamelet &&
-                    <FormGroup label="Copy from" fieldId="kamelet">
-                        <TypeaheadSelect key={kameletType} listOfValues={listOfValues(kameletType)} onSelect={value => {
-                            setSelectedKamelet(value)
-                        }}/>
-                    </FormGroup>
-                }
-                {backendError &&
-                    <FormAlert>
-                        <Alert variant="danger" title={backendError} aria-live="polite" isInline/>
-                    </FormAlert>
-                }
-            </Form>
+            </ModalFooter>
         </Modal>
     )
 }

@@ -17,23 +17,20 @@
 import React, {useEffect, useState} from 'react';
 import {
     Button,
-    Modal,
     FormGroup,
-    ModalVariant,
     Form,
     FileUpload,
     FormAlert,
-    Alert,
+    Alert, Modal, ModalVariant, ModalHeader, ModalBody, ModalFooter
 } from '@patternfly/react-core';
-import '../../designer/karavan.css';
-import { ProjectFile} from "../../api/ProjectModels";
-import {useFileStore, useProjectStore} from "../../api/ProjectStore";
+import { ProjectFile} from "@/api/ProjectModels";
+import {useFileStore, useProjectStore} from "@/api/ProjectStore";
 import {Accept, DropEvent, FileRejection} from "react-dropzone";
-import {EventBus} from "../../designer/utils/EventBus";
+import {EventBus} from "@/designer/utils/EventBus";
 import {shallow} from "zustand/shallow";
-import {ProjectService} from "../../api/ProjectService";
+import {ProjectService} from "@/api/ProjectService";
 import {SubmitHandler, useForm} from "react-hook-form";
-import {KaravanApi} from "../../api/KaravanApi";
+import {KaravanApi} from "@/api/KaravanApi";
 import {AxiosResponse} from "axios";
 
 export function UploadFileModal() {
@@ -104,52 +101,55 @@ export function UploadFileModal() {
     const accept : Accept = {};
     return (
         <Modal
-            title="Upload"
             variant={ModalVariant.small}
             isOpen={operation === 'upload'}
             onClose={closeModal}
-            actions={[
+        >
+            <ModalHeader title="Upload"/>
+            <ModalBody>
+                <Form>
+                    <FormGroup fieldId="upload">
+                        <FileUpload
+                            id="file-upload"
+                            value={getValues('code')}
+                            filename={getValues('name')}
+                            type="text"
+                            hideDefaultPreview
+                            browseButtonText="Upload"
+                            isLoading={isLoading}
+                            onFileInputChange={(_event, fileHandle: File) => {
+                                handleFileInputChange(fileHandle);
+                            }}
+                            onDataChange={(_event, data) => {
+                                handleTextOrDataChange(data);
+                            }}
+                            onTextChange={(_event, text) => {
+                                handleTextOrDataChange(text);
+                            }}
+                            onReadStarted={(_event, fileHandle: File) => handleFileReadStarted(fileHandle)}
+                            onReadFinished={(_event, fileHandle: File) => handleFileReadFinished(fileHandle)}
+                            allowEditingUploadedText={false}
+                            onClearClick={handleClear}
+                            dropzoneProps={{accept: accept, onDropRejected: handleFileRejected}}
+                        />
+                    </FormGroup>
+                    {backendError &&
+                        <FormAlert>
+                            <Alert variant="danger" title={backendError} aria-live="polite" isInline />
+                        </FormAlert>
+                    }
+                </Form>
+            </ModalBody>
+            <ModalFooter>
                 <Button key="confirm" variant="primary"
                         onClick={handleSubmit(onSubmit)}
                         isDisabled={Object.getOwnPropertyNames(errors).length > 0 || fileNotUploaded}
                 >
                     Save
-                </Button>,
+                </Button>
                 <Button key="cancel" variant="secondary" onClick={closeModal}>Cancel</Button>
-            ]}
-        >
-            <Form>
-                <FormGroup fieldId="upload">
-                    <FileUpload
-                        id="file-upload"
-                        value={getValues('code')}
-                        filename={getValues('name')}
-                        type="text"
-                        hideDefaultPreview
-                        browseButtonText="Upload"
-                        isLoading={isLoading}
-                        onFileInputChange={(_event, fileHandle: File) => {
-                            handleFileInputChange(fileHandle);
-                        }}
-                        onDataChange={(_event, data) => {
-                            handleTextOrDataChange(data);
-                        }}
-                        onTextChange={(_event, text) => {
-                            handleTextOrDataChange(text);
-                        }}
-                        onReadStarted={(_event, fileHandle: File) => handleFileReadStarted(fileHandle)}
-                        onReadFinished={(_event, fileHandle: File) => handleFileReadFinished(fileHandle)}
-                        allowEditingUploadedText={false}
-                        onClearClick={handleClear}
-                        dropzoneProps={{accept: accept, onDropRejected: handleFileRejected}}
-                    />
-                </FormGroup>
-                {backendError &&
-                    <FormAlert>
-                        <Alert variant="danger" title={backendError} aria-live="polite" isInline />
-                    </FormAlert>
-                }
-            </Form>
+            </ModalFooter>
+
         </Modal>
     )
 }

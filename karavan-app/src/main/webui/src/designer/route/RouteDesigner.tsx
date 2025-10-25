@@ -15,10 +15,8 @@
  * limitations under the License.
  */
 import React, {useCallback, useEffect, useRef} from 'react';
-import {
-    Button,
-} from '@patternfly/react-core';
-import '../karavan.css';
+import {Button,} from '@patternfly/react-core';
+import './RouteDesigner.css';
 import {DslSelector} from "../selector/DslSelector";
 import {DslConnections} from "./DslConnections";
 import PlusIcon from "@patternfly/react-icons/dist/esm/icons/plus-icon";
@@ -28,14 +26,13 @@ import {useRouteDesignerHook} from "./useRouteDesignerHook";
 import {useConnectionsStore, useDesignerStore, useIntegrationStore, useSelectorStore} from "../DesignerStore";
 import {shallow} from "zustand/shallow";
 import useResizeObserver from "./useResizeObserver";
-import {Command, EventBus} from "../utils/EventBus";
 import {DeleteConfirmation} from "./DeleteConfirmation";
 import {DslElementMoveModal} from "./element/DslElementMoveModal";
 import {RouteTemplateElement} from "./element/RouteTemplateElement";
 
 export function RouteDesigner() {
 
-    const {openSelector, createRouteConfiguration, onCommand, unselectElement, onDslSelect,
+    const {openSelector, createRouteConfiguration, unselectElement, onDslSelect,
         isSourceKamelet, isActionKamelet, isKamelet, isSinkKamelet, createRouteTemplate} = useRouteDesignerHook();
 
     const [integration] = useIntegrationStore((state) => [state.integration], shallow)
@@ -77,7 +74,6 @@ export function RouteDesigner() {
         const interval = setInterval(() => {
             changeGraphSize();
         }, 300);
-        const commandSub = EventBus.onCommand()?.subscribe((command: Command) => onCommand(command, printerRef));
         try {
             if (flowRef.current === null) {
                 clearSteps();
@@ -89,7 +85,6 @@ export function RouteDesigner() {
         }
         return ()=> {
             clearInterval(interval)
-            commandSub?.unsubscribe();
         }
     }, [showSelector, integration])
 

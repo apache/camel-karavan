@@ -16,60 +16,50 @@
  */
 
 import React, {useState} from 'react';
-import {
-    Toolbar,
-    ToolbarContent,
-    ToolbarItem,
-    TextInput,
-    PageSection,
-    TextContent,
-    Text,
-    Bullseye,
-    EmptyState,
-    EmptyStateVariant,
-    EmptyStateIcon,
-    EmptyStateHeader
-} from '@patternfly/react-core';
+import {Bullseye, Button, Content, EmptyState, EmptyStateVariant, TextInputGroup, TextInputGroupMain, TextInputGroupUtilities,} from '@patternfly/react-core';
 import '../designer/karavan.css';
-import {
-    Tbody,
-    Td,
-    Th,
-    Thead,
-    Tr
-} from '@patternfly/react-table';
-import {
-    Table
-} from '@patternfly/react-table/deprecated';
-import SearchIcon from '@patternfly/react-icons/dist/esm/icons/search-icon';
+import {Table, Tbody, Td, Th, Thead, Tr} from '@patternfly/react-table';
+import {SearchIcon} from '@patternfly/react-icons';
 import {ResourcesTableRow} from "./ResourcesTableRow";
-import {useProjectsStore} from "../api/ProjectStore";
-import {MainToolbar} from "../designer/MainToolbar";
-import {ProjectType} from "../api/ProjectModels";
+import {useProjectsStore} from "@/api/ProjectStore";
+import {ProjectType} from "@/api/ProjectModels";
 import {shallow} from "zustand/shallow";
+import {RightPanel} from "@/components/RightPanel";
+import TimesIcon from "@patternfly/react-icons/dist/esm/icons/times-icon";
 
-export function ResourcesPage () {
+export function ResourcesPage() {
 
     const [projects] = useProjectsStore((state) => [state.projects], shallow)
     const [filter, setFilter] = useState<string>('');
 
-    function getTools() {
-        return <Toolbar id="toolbar-group-types">
-            <ToolbarContent>
-                <ToolbarItem>
-                    <TextInput className="text-field" type="search" id="search" name="search"
-                               autoComplete="off" placeholder="Search by name"
-                               value={filter}
-                               onChange={(_, e) => setFilter(e)}/>
-                </ToolbarItem>
-            </ToolbarContent>
-        </Toolbar>
+    function searchInput() {
+        return (
+            <TextInputGroup className="search">
+                <TextInputGroupMain
+                    value={filter}
+                    id='searchInput'
+                    type="text"
+                    autoComplete={"off"}
+                    autoFocus={true}
+                    icon={<SearchIcon />}
+                    onChange={(_event, value) => {
+                        setFilter(value);
+                    }}
+                    aria-label="text input example"
+                />
+                <TextInputGroupUtilities>
+                    <Button variant="plain" onClick={_ => {
+                        setFilter('');
+                    }}>
+                        <TimesIcon aria-hidden={true}/>
+                    </Button>
+                </TextInputGroupUtilities>
+            </TextInputGroup>
+        )
     }
 
     function title() {
-        return <TextContent>
-            <Text component="h2">Resources</Text>
-        </TextContent>
+        return (<Content component="h2">Resources</Content>)
     }
 
     function getEmptyState() {
@@ -77,9 +67,7 @@ export function ResourcesPage () {
             <Tr>
                 <Td colSpan={8}>
                     <Bullseye>
-                        <EmptyState variant={EmptyStateVariant.sm}>
-                            <EmptyStateHeader titleText="No results found"
-                                              icon={<EmptyStateIcon icon={SearchIcon}/>} headingLevel="h2"/>
+                        <EmptyState headingLevel="h2" icon={SearchIcon} titleText="No results found" variant={EmptyStateVariant.sm}>
                         </EmptyState>
                     </Bullseye>
                 </Td>
@@ -89,14 +77,14 @@ export function ResourcesPage () {
 
     function getProjectsTable() {
         const projs = projects
-            .filter(p => p.type !== ProjectType.normal)
+            .filter(p => p.type !== ProjectType.integration)
             .filter(p => p.name.toLowerCase().includes(filter));
         return (
-            <Table aria-label="Templates" variant={"compact"}>
+            <Table aria-label="Templates" variant={"compact"} isStickyHeader>
                 <Thead>
                     <Tr>
-                        <Th key='projectId'>Project ID</Th>
-                        <Th key='name'>Name</Th>
+                        <Th key='projectId'>Name</Th>
+                        <Th key='name'>Description</Th>
                         <Th key='commit'>Commit</Th>
                     </Tr>
                 </Thead>
@@ -113,14 +101,14 @@ export function ResourcesPage () {
     }
 
     return (
-        <PageSection className="kamelet-section projects-page" padding={{default: 'noPadding'}}>
-            <PageSection className="tools-section" padding={{default: 'noPadding'}}>
-                <MainToolbar title={title()} tools={getTools()}/>
-            </PageSection>
-            <PageSection isFilled className="scrolled-page">
-                {getProjectsTable()}
-            </PageSection>
-        </PageSection>
-
+        <RightPanel
+            title={title()}
+            tools={searchInput()}
+            mainPanel={
+                <div className="right-panel-card">
+                    {getProjectsTable()}
+                </div>
+            }
+        />
     )
 }

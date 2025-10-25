@@ -16,55 +16,52 @@
  */
 
 import React from 'react';
-import {
-    Button, HelperText, HelperTextItem,
-    Modal,
-    ModalVariant, Text, TextContent, TextVariants,
-} from '@patternfly/react-core';
-import '../../designer/karavan.css';
-import {useFileStore} from "../../api/ProjectStore";
-import {ProjectService} from "../../api/ProjectService";
-import { KameletApi } from 'karavan-core/lib/api/KameletApi';
+import {Button, Content, ContentVariants, HelperText, HelperTextItem, Modal, ModalBody, ModalFooter, ModalHeader, ModalVariant} from '@patternfly/react-core';
+import '@/designer/karavan.css';
+import {useFileStore} from "@/api/ProjectStore";
+import {ProjectService} from "@/api/ProjectService";
 
-export function DeleteFileModal () {
+export function DeleteFileModal() {
 
     const {file, operation} = useFileStore();
 
-    function closeModal () {
+    function closeModal() {
         useFileStore.setState({operation: "none", file: undefined})
     }
 
     function isKameletsProject(): boolean {
-        return file?.name.includes ('kamelet.yaml') || false;
+        return file?.name.includes('kamelet.yaml') || false;
     }
 
     function confirmAndCloseModal() {
         if (file) ProjectService.deleteFile(file);
-        if (isKameletsProject()) KameletApi.removeKamelet(file?.code || '');
+        ProjectService.loadCustomKamelets()
         useFileStore.setState({operation: "none", file: undefined});
     }
 
-    const isOpen= operation === "delete";
+    const isOpen = operation === "delete";
     return (
-            <Modal
-                title="Confirmation"
-                variant={ModalVariant.small}
-                isOpen={isOpen}
-                onClose={() => closeModal()}
-                actions={[
-                    <Button key="confirm" variant="danger" onClick={e => confirmAndCloseModal()}>Delete</Button>,
-                    <Button key="cancel" variant="link"
-                            onClick={e => closeModal()}>Cancel</Button>
-                ]}
-                onEscapePress={e => closeModal()}>
-                <TextContent>
-                    <Text component={TextVariants.h3}>Delete file <b>{file?.name}</b> ?</Text>
+        <Modal
+            variant={ModalVariant.small}
+            isOpen={isOpen}
+            onClose={() => closeModal()}
+            onEscapePress={e => closeModal()}>
+            <ModalHeader title='Confirmation'/>
+            <ModalBody>
+                <Content>
+                    <Content component={ContentVariants.h3}>Delete file <b>{file?.name}</b> ?</Content>
                     <HelperText>
                         <HelperTextItem variant="warning">
                             Push changes to delete from <b>git</b> repository
                         </HelperTextItem>
                     </HelperText>
-                </TextContent>
-            </Modal>
+                </Content>
+            </ModalBody>
+            <ModalFooter>
+                <Button key="confirm" variant="danger" onClick={e => confirmAndCloseModal()}>Delete</Button>
+                <Button key="cancel" variant="link"
+                        onClick={e => closeModal()}>Cancel</Button>
+            </ModalFooter>
+        </Modal>
     )
 }

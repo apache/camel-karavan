@@ -17,10 +17,11 @@
 import React from 'react';
 import {
     Button,
-    Flex,
-    Modal, ModalVariant,
+    Flex, Modal,
+    ModalBody, ModalFooter,
+    ModalHeader, ModalVariant
 } from '@patternfly/react-core';
-import '../../karavan.css';
+
 import {useDesignerStore, useIntegrationStore} from "../../DesignerStore";
 import {shallow} from "zustand/shallow";
 import {useRouteDesignerHook} from "../useRouteDesignerHook";
@@ -67,15 +68,22 @@ export function DslElementMoveModal() {
             onClose={event => cancelMove()}
             variant={ModalVariant.small}
         >
-            <Flex direction={{default: "column"}}>
-                <div>Select move type:</div>
-                {canReplace() && <Button key="place" variant="primary" onClick={event => confirmMove(false)}
-                >
-                    Replace (target down)
-                </Button>}
-                <Button key="child" variant="secondary" onClick={event => confirmMove(true)}>Set as child</Button>
-                <Button key="cancel" variant="tertiary" onClick={event => cancelMove()}>Cancel</Button>
-            </Flex>
+            <ModalHeader title=""/>
+            <ModalBody>
+                <Flex direction={{default: "column"}}>
+                    <div>Select move type:</div>
+                    {canReplace() && <Button key="place" variant="primary" onClick={event => confirmMove(false)}
+                    >
+                        Replace (target down)
+                    </Button>}
+                    <Button key="child" variant="secondary" onClick={event => confirmMove(true)}>Set as child</Button>
+                    <Button key="cancel" variant="tertiary" onClick={event => cancelMove()}>Cancel</Button>
+                </Flex>
+            </ModalBody>
+            <ModalFooter>
+
+            </ModalFooter>
+
         </Modal>
     )
 }

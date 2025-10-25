@@ -19,7 +19,7 @@ import React from 'react';
 export function AutoStartupFalseIcon() {
     return (
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" className="icon" width="24px" height="24px">
-            <circle cx="16" cy="16" r="13" fill="white" stroke="black" strokeWidth="1px"/>
+            <circle cx="16" cy="16" r="13" fill="var(--pf-t--global--background--color--primary--default)" stroke="var(--pf-t--global--text--color--regular)" strokeWidth="1px"/>
                 <rect x="12" y="10" width="2" height="12" fill="black"/>
                 <rect x="18" y="10" width="2" height="12" fill="black"/>
         </svg>
@@ -29,7 +29,7 @@ export function AutoStartupFalseIcon() {
 export function ErrorHandlerIcon() {
     return (
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" className="icon" width="24px" height="24px">
-            <circle cx="16" cy="16" r="13" fill="white" stroke="black" strokeWidth="1px"/>
+            <circle cx="16" cy="16" r="13" fill="var(--pf-t--global--background--color--primary--default)" stroke="var(--pf-t--global--text--color--regular)" strokeWidth="1px"/>
             <path d="m19.264 14.98-3.998 7-1.736-1 2.287-4h-3.889l3.993-7 1.737 1-2.284 4z"/>
         </svg>
     );

@@ -15,11 +15,11 @@
  * limitations under the License.
  */
 
-import {SsoApi} from "./SsoApi";
+import {SsoApi} from "@/auth/SsoApi";
 import {EventStreamContentType, fetchEventSource} from "@microsoft/fetch-event-source";
-import {KaravanApi} from "./KaravanApi";
 import {EventSourceMessage} from "@microsoft/fetch-event-source/lib/cjs/parse";
 import {KaravanEvent, NotificationEventBus} from "./NotificationService";
+import {AuthApi, getCurrentUser} from "@/auth/AuthApi";
 
 export class NotificationApi {
 
@@ -31,13 +31,13 @@ export class NotificationApi {
     }
 
     static onSystemMessage (ev: EventSourceMessage) {
-        console.log('onSystemMessage', ev)
+        console.log(`onSystemMessage`, ev);
         const ke = NotificationApi.getKaravanEvent(ev, 'system');
         NotificationEventBus.sendEvent(ke);
     }
 
     static onUserMessage (ev: EventSourceMessage) {
-        console.log('onUserMessage', ev)
+        console.log(`onUserMessage`, ev);
         const ke = NotificationApi.getKaravanEvent(ev, 'user');
         NotificationEventBus.sendEvent(ke);
     }
@@ -46,19 +46,14 @@ export class NotificationApi {
         const fetchData = async () => {
             const headers: any = { Accept: "text/event-stream" };
             let ready = false;
-            if (KaravanApi.authType === 'oidc' && SsoApi.keycloak?.token && SsoApi.keycloak?.token?.length > 0) {
+            if (AuthApi.authType === 'oidc' && SsoApi.keycloak?.token && SsoApi.keycloak?.token?.length > 0) {
                 headers.Authorization = "Bearer " + SsoApi.keycloak?.token;
                 ready = true;
-            } else if (KaravanApi.authType === 'basic' && KaravanApi.basicToken?.length > 0) {
-                headers.Authorization = "Basic " + KaravanApi.basicToken
-                ready = true;
-            } else {
-                ready = KaravanApi.authType === 'public';
             }
             if (ready) {
-                NotificationApi.fetch('/ui/notification/system/' + KaravanApi.getUserId(), controller, headers,
+                NotificationApi.fetch('/ui/notification/system/' + getCurrentUser()?.username, controller, headers,
                     ev => NotificationApi.onSystemMessage(ev));
-                NotificationApi.fetch('/ui/notification/user/' + KaravanApi.getUserId(), controller, headers,
+                NotificationApi.fetch('/ui/notification/user/' + getCurrentUser()?.username, controller, headers,
                     ev => NotificationApi.onUserMessage(ev));
             }
         };
@@ -70,15 +65,20 @@ export class NotificationApi {
             method: "GET",
             headers: headers,
             signal: controller.signal,
+            credentials: "include",
             async onopen(response) {
                 if (response.ok && response.headers.get('content-type') === EventStreamContentType) {
                     return; // everything's good
+                } else if (response.status === 401) {
+                    console.warn("SSE unauthorized: session missing/expired.");
+                    // Optional: trigger a global event/router redirect here
+                    throw new Error("unauthorized");
                 } else if (response.status >= 400 && response.status < 500 && response.status !== 429) {
                     // client-side errors are usually non-retriable:
-                    console.log("Server side error ", response);
+                    console.error("Server side error ", response);
                     // EventBus.sendAlert("Error fetching", `${input} : ${response.statusText}`, "danger");
                 } else {
-                    console.log("Error ", response);
+                    console.error("Error ", response);
                     // EventBus.sendAlert("Error fetching", `${input} : ${response.statusText}`, "danger");
                 }
             },

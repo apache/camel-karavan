@@ -16,26 +16,17 @@
  */
 
 import React from 'react';
-import {
-    Toolbar,
-    ToolbarContent,
-    ToolbarItem,
-    TextInput,
-    Button,
-} from '@patternfly/react-core';
-import './ProjectsPage.css';
-import PlusIcon from '@patternfly/react-icons/dist/esm/icons/plus-icon';
-import {useFileStore, useProjectsStore, useProjectStore} from "../api/ProjectStore";
-import {Project} from "../api/ProjectModels";
+import {Button, TextInput, Toolbar, ToolbarContent, ToolbarItem,} from '@patternfly/react-core';
+import {PlusIcon} from '@patternfly/react-icons';
+import {useProjectsStore, useProjectStore} from "@/api/ProjectStore";
+import {Project} from "@/api/ProjectModels";
 import {shallow} from "zustand/shallow";
 import RefreshIcon from "@patternfly/react-icons/dist/esm/icons/sync-alt-icon";
-import {ProjectService} from "../api/ProjectService";
-import UploadIcon from "@patternfly/react-icons/dist/esm/icons/upload-icon";
+import {ProjectService} from "@/api/ProjectService";
 
 export function ProjectsToolbar () {
 
     const [filter, setFilter] = useProjectsStore((s) => [s.filter, s.setFilter], shallow)
-    const [file, setFile] = useFileStore((s) => [s.file, s.setFile], shallow )
     const [setProject] = useProjectStore((s) => [s.setProject], shallow)
 
     return (
@@ -59,12 +50,6 @@ export function ProjectsToolbar () {
                             onClick={e =>
                                 setProject(new Project(), 'create')}
                     >Create</Button>
-                </ToolbarItem>
-                <ToolbarItem>
-                    <Button className="dev-action-button"
-                            size="sm" variant="secondary"
-                            icon={<UploadIcon/>}
-                            onClick={e => setProject(new Project(), "upload")}>Upload</Button>
                 </ToolbarItem>
             </ToolbarContent>
         </Toolbar>

@@ -15,12 +15,7 @@
  * limitations under the License.
  */
 import React, {useEffect} from 'react';
-import {
-    Button, Flex, FlexItem, Gallery, GalleryItem,
-    Modal,
-    PageSection,
-} from '@patternfly/react-core';
-import '../karavan.css';
+import {Button, Flex, FlexItem, Gallery, GalleryItem, Modal, ModalBody, ModalFooter, ModalHeader, PageSection} from '@patternfly/react-core';
 import './bean.css';
 import {BeanFactoryDefinition} from "karavan-core/lib/model/CamelDefinition";
 import {CamelUi} from "../utils/CamelUi";
@@ -30,6 +25,7 @@ import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
 import {BeanCard} from "./BeanCard";
 import {useDesignerStore, useIntegrationStore} from "../DesignerStore";
 import {shallow} from "zustand/shallow";
+import {ModalConfirmation} from "@/components/ModalConfirmation";
 
 export function BeansDesigner() {
 
@@ -56,26 +52,6 @@ export function BeansDesigner() {
         setSelectedStep(undefined);
     }
 
-
-
-    function getDeleteConfirmation() {
-        return (<Modal
-            className="modal-delete"
-            title="Confirmation"
-            isOpen={showDeleteConfirmation}
-            onClose={() => setShowDeleteConfirmation(false)}
-            actions={[
-                <Button key="confirm" variant="primary" onClick={e => deleteBean()}>Delete</Button>,
-                <Button key="cancel" variant="link"
-                        onClick={e => setShowDeleteConfirmation(false)}>Cancel</Button>
-            ]}
-            onEscapePress={e => setShowDeleteConfirmation(false)}>
-            <div>
-                Delete bean from integration?
-            </div>
-        </Modal>)
-    }
-
     function selectBean(bean?: BeanFactoryDefinition) {
         setSelectedStep(bean);
     }
@@ -85,7 +61,7 @@ export function BeansDesigner() {
             evt.stopPropagation()
             setSelectedStep(undefined);
         }
-    };
+    }
 
     function createBean() {
         const bean = new BeanFactoryDefinition();
@@ -97,7 +73,7 @@ export function BeansDesigner() {
 
     const beans = CamelUi.getBeans(integration);
     return (
-        <PageSection className="bean-designer" isFilled padding={{default: 'noPadding'}}>
+        <PageSection hasBodyWrapper={false} className="bean-designer" isFilled padding={{default: 'noPadding'}}>
             <Gallery className="gallery"
                      hasGutter
                      maxWidths={{
@@ -126,7 +102,14 @@ export function BeansDesigner() {
                     </Flex>
                 </GalleryItem>
             </Gallery>
-            {getDeleteConfirmation()}
+            <ModalConfirmation
+                isOpen={showDeleteConfirmation}
+                message='Delete bean from integration?'
+                btnConfirm='Delete'
+                btnConfirmVariant='danger'
+                onConfirm={() => deleteBean()}
+                onCancel={() => setShowDeleteConfirmation(false)}
+            />
         </PageSection>
     )
 }

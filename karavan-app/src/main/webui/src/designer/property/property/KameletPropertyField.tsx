@@ -16,28 +16,30 @@
  */
 import React, {useEffect, useRef, useState} from 'react';
 import {
-    InputGroup,
     Button,
+    Content,
+    FormGroup,
+    FormGroupLabelHelp,
+    FormHelperText,
+    HelperText,
+    HelperTextItem,
+    InputGroup,
+    Popover,
+    SelectOptionProps,
+    Switch,
+    TextInputGroup,
+    TextInputGroupMain,
+    TextInputGroupUtilities,
     Tooltip,
-    Text,
-    InputGroupItem,
-    ValidatedOptions,
-    FormHelperText, HelperText, HelperTextItem, FormGroup, Popover, Switch, TextInputGroupMain, TextInputGroupUtilities, TextInputGroup
+    ValidatedOptions
 } from '@patternfly/react-core';
-import '../../karavan.css';
 import './KameletPropertyField.css';
-import "@patternfly/patternfly/patternfly.css";
-import ExclamationCircleIcon from '@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon';
+import {CogIcon, ExclamationCircleIcon, TimesIcon} from '@patternfly/react-icons';
 import {Property} from "karavan-core/lib/model/KameletModels";
 import {ConfigurationSelectorModal} from "./ConfigurationSelectorModal";
 import {usePropertiesHook} from "../usePropertiesHook";
-import {Select, SelectDirection, SelectOption, SelectVariant} from "@patternfly/react-core/deprecated";
-import {useDesignerStore} from "../../DesignerStore";
-import {shallow} from "zustand/shallow";
 import {isSensitiveFieldValid} from "../../utils/ValidatorUtils";
-import HelpIcon from "@patternfly/react-icons/dist/js/icons/help-icon";
-import CogIcon from "@patternfly/react-icons/dist/js/icons/cog-icon";
-import TimesIcon from "@patternfly/react-icons/dist/esm/icons/times-icon";
+import {FieldSelectScrollable} from "@/components/FieldSelectScrollable";
 
 interface Props {
     property: Property,
@@ -50,7 +52,6 @@ export function KameletPropertyField(props: Props) {
 
     const {onParametersChange} = usePropertiesHook();
 
-    const [dark] = useDesignerStore((s) => [s.dark], shallow)
     const [configurationSelector, setConfigurationSelector] = useState<boolean>(false);
     const [configurationSelectorProperty, setConfigurationSelectorProperty] = useState<string | undefined>(undefined);
     const [configurationSelectorDefaultTab, setConfigurationSelectorDefaultTab] = useState<string>('properties');
@@ -59,9 +60,9 @@ export function KameletPropertyField(props: Props) {
     const [textValue, setTextValue] = useState<any>();
     const [checkChanges, setCheckChanges] = useState<boolean>(false);
 
-    useEffect(()=> setTextValue(value), [])
+    useEffect(() => setTextValue(value), [])
 
-    useEffect(()=> {
+    useEffect(() => {
         if (checkChanges) {
             const interval = setInterval(() => {
                 if (props.value !== textValue) {
@@ -74,7 +75,7 @@ export function KameletPropertyField(props: Props) {
         }
     }, [checkChanges, textValue])
 
-    function parametersChanged (parameter: string, value: string | number | boolean | any, pathParameter?: boolean)  {
+    function parametersChanged(parameter: string, value: string | number | boolean | any, pathParameter?: boolean) {
         setCheckChanges(false);
         onParametersChange(parameter, value, pathParameter);
         setSelectStatus(new Map<string, boolean>([[parameter, false]]))
@@ -93,13 +94,13 @@ export function KameletPropertyField(props: Props) {
         const textVal = ref.current;
         const cursorStart = textVal.selectionStart;
         const cursorEnd = textVal.selectionEnd;
-        if (cursorStart !== cursorEnd){
-            const prevValue =  props.value;
+        if (cursorStart !== cursorEnd) {
+            const prevValue = props.value;
             const selectedText = prevValue.substring(cursorStart, cursorEnd)
             value = prevValue.replace(selectedText, value);
         }
         const propertyId = configurationSelectorProperty;
-        if (propertyId){
+        if (propertyId) {
             if (value.startsWith("config") || value.startsWith("secret")) value = "{{" + value + "}}";
             setTextValue(value);
             parametersChanged(propertyId, value);
@@ -141,18 +142,18 @@ export function KameletPropertyField(props: Props) {
     function getOpenConfigButton(property: Property, configurationSelectorDefaultTab: string = 'properties') {
         return (
             <Tooltip position="bottom-end" content="Open config selector">
-                <Button variant="control" className='open-config-buton' onClick={e => {
+                <Button icon={<CogIcon/>} variant="control" onClick={e => {
                     setConfigurationSelectorDefaultTab(configurationSelectorDefaultTab)
                     openConfigurationSelector(property.id)
                 }}>
-                    <CogIcon style={{fill: 'var(--pf-v5-global--Color--200)'}}/>
+
                 </Button>
             </Tooltip>
         )
     }
 
-    function isNumeric (num: any) {
-        return (typeof(num) === 'number' || (typeof(num) === "string" && num.trim() !== '')) && !isNaN(num as number);
+    function isNumeric(num: any) {
+        return (typeof (num) === 'number' || (typeof (num) === "string" && num.trim() !== '')) && !isNaN(num as number);
     }
 
     function getSpecialStringInput() {
@@ -161,34 +162,27 @@ export function KameletPropertyField(props: Props) {
         const id = prefix + "-" + property.id;
         const selectFromList: boolean = property.enum !== undefined && property?.enum?.length > 0;
         const showTextInput = (!selectFromList) || property.format === "password";
-        const selectOptions: JSX.Element[] = [];
+        const selectOptions: SelectOptionProps[] = [];
         if (selectFromList && property.enum) {
-            selectOptions.push(...property.enum.map((value: string) =>
-                <SelectOption key={value} value={value ? value.trim() : value}/>));
+            property.enum.forEach(value => {
+                const v = value ? value.trim() : value;
+                selectOptions.push({key: v, value: v, description: v, children: v});
+            })
         }
         return <InputGroup className={valueChangedClassName}>
             {selectFromList &&
-                <Select
-                    id={id} name={id}
-                    placeholderText="Select or type an URI"
-                    variant={SelectVariant.typeahead}
-                    aria-label={property.id}
-                    onToggle={(_event, isExpanded) => {
-                        openSelect(property.id, isExpanded)
+                <FieldSelectScrollable
+                    className='value-changed'
+                    selectOptions={selectOptions}
+                    value={value}
+                    placeholder={'Select...'}
+                    onChange={(selectedValue) => {
+                        if (selectedValue) {
+                            parametersChanged(property.id, selectedValue);
+                            setCheckChanges(false);
+                        }
                     }}
-                    onSelect={(e, value, isPlaceholder) => {
-                        parametersChanged(property.id, value);
-                        setCheckChanges(false);
-                    }}
-                    selections={value}
-                    isOpen={isSelectOpen(property.id)}
-                    isCreatable={true}
-                    createText=""
-                    isInputFilterPersisted={true}
-                    aria-labelledby={property.id}
-                    direction={SelectDirection.down}>
-                    {selectOptions}
-                </Select>
+                />
             }
             {showTextInput &&
                 <TextInputGroup className='text-field'>
@@ -212,20 +206,14 @@ export function KameletPropertyField(props: Props) {
                         }}
                     />
                     <TextInputGroupUtilities>
-                        <Button variant="plain" className='button-clear' onClick={_ => {
+                        <Button icon={<TimesIcon aria-hidden={true}/>} variant="plain" className='button-clear' onClick={_ => {
                             parametersChanged(property.id, '');
                             setTextValue('');
                             setCheckChanges(true);
-                        }}>
-                            <TimesIcon aria-hidden={true}/>
-                        </Button>
+                        }}/>
+                        {showTextInput && getOpenConfigButton(property)}
                     </TextInputGroupUtilities>
                 </TextInputGroup>
-            }
-            {showTextInput &&
-                <InputGroupItem>
-                    {getOpenConfigButton(property)}
-                </InputGroupItem>
             }
         </InputGroup>
     }
@@ -240,7 +228,7 @@ export function KameletPropertyField(props: Props) {
         const labelClassName = hasValueChanged(property, value) ? 'value-changed-label' : '';
         return (
             <div style={{display: "flex", flexDirection: 'row', alignItems: 'center', gap: '3px'}}>
-                <Text className={labelClassName}>{property.title}</Text>
+                <Content component="p" className={labelClassName}>{property.title}</Content>
             </div>
         )
     }
@@ -250,7 +238,7 @@ export function KameletPropertyField(props: Props) {
             validated !== ValidatedOptions.default
                 ? <FormHelperText>
                     <HelperText>
-                        <HelperTextItem icon={<ExclamationCircleIcon />} variant={validated}>
+                        <HelperTextItem icon={<ExclamationCircleIcon/>} variant={validated}>
                             {'Must be a placeholder {{ }} or secret {{secret:name/key}}'}
                         </HelperTextItem>
                     </HelperText>
@@ -259,8 +247,8 @@ export function KameletPropertyField(props: Props) {
         )
     }
 
-    const property =  props.property;
-    const value =  props.value;
+    const property = props.property;
+    const value = props.value;
     const validated = (property.format === 'password' && !isSensitiveFieldValid(value)) ? ValidatedOptions.error : ValidatedOptions.default;
     const prefix = "parameters";
     const id = prefix + "-" + property.id;
@@ -272,8 +260,8 @@ export function KameletPropertyField(props: Props) {
                 className='kamelet-property-form-group'
                 label={getLabel(property, value)}
                 fieldId={id}
-                isRequired={ props.required}
-                labelIcon={
+                isRequired={props.required}
+                labelHelp={
                     <Popover
                         position={"left"}
                         headerContent={property.title}
@@ -285,14 +273,10 @@ export function KameletPropertyField(props: Props) {
                                 {property.example !== undefined && <div>Example: {property.example}</div>}
                             </div>
                         }>
-                        <button type="button" aria-label="More info" onClick={e => e.preventDefault()}
-                                className="pf-v5-c-form__group-label-help">
-                            <HelpIcon />
-                        </button>
+                        <FormGroupLabelHelp aria-label="More info"/>
                     </Popover>
                 }>
-                {/*{property.type === 'string' && getStringInput()}*/}
-                {['string','integer', 'int', 'number'].includes(property.type) && getSpecialStringInput()}
+                {['string', 'integer', 'int', 'number'].includes(property.type) && getSpecialStringInput()}
                 {property.type === 'boolean' && <Switch
                     className={valueChangedClassName}
                     id={id} name={id}

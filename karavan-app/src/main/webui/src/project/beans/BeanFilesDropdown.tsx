@@ -21,11 +21,9 @@ import {
     MenuToggle,
     DropdownList, DropdownItem
 } from '@patternfly/react-core';
-import './BeanFilesDropdown.css';
-import "@patternfly/patternfly/patternfly.css";
 import {shallow} from "zustand/shallow";
 import EllipsisVIcon from "@patternfly/react-icons/dist/esm/icons/ellipsis-v-icon";
-import {useFilesStore} from "../../api/ProjectStore";
+import {useFilesStore} from "@/api/ProjectStore";
 
 const CAMEL_YAML_EXT = ".camel.yaml";
 

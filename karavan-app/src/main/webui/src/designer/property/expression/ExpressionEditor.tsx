@@ -15,45 +15,32 @@
  * limitations under the License.
  */
 import React, {useEffect, useState} from 'react';
-import {
-    Button,
-} from '@patternfly/react-core';
+import '@/monaco-setup';
 import Editor from "@monaco-editor/react";
 import {ExpressionBottomPanel} from "./ExpressionBottomPanel";
 import './ExpressionEditor.css'
 import {ExpressionFunctions, ExpressionVariables} from "./ExpressionContextModel";
-import ArrowDown from "@patternfly/react-icons/dist/esm/icons/angle-down-icon";
-import ArrowUp from "@patternfly/react-icons/dist/esm/icons/angle-up-icon";
+import {useTheme} from "@/main/ThemeContext";
 
 interface Props {
-    name: string,
     customCode: any,
-    onSave: (fieldId: string, value: string | number | boolean | any) => void,
-    onClose: () => void,
+    onChange: (value: string |undefined) => void,
     title: string,
     dslLanguage?: [string, string, string],
-    dark: boolean
 }
 
 export function ExpressionEditor(props: Props) {
 
+    const {isDark} = useTheme();
     const [customCode, setCustomCode] = useState<string | undefined>();
     const [showVariables, setShowVariables] = useState<boolean>(false);
     const [key, setKey] = useState<string>('');
 
-    const {dark, dslLanguage, name, onClose, onSave} = props;
+    const {dslLanguage, onChange} = props;
 
     useEffect(() => {
         setCustomCode(props.customCode)
     },[]);
-
-    function close(){
-        onClose();
-    }
-
-    function closeAndSave(){
-        onSave(name, customCode);
-    }
     
     const language = dslLanguage?.[0];
     const showVars = ExpressionVariables.findIndex(e => e.name === language) > - 1;
@@ -69,7 +56,7 @@ export function ExpressionEditor(props: Props) {
                     width="100%"
                     defaultLanguage={'java'}
                     language={'java'}
-                    theme={dark ? 'vs-dark' : 'light'}
+                    theme={isDark ? 'vs-dark' : 'light'}
                     options={{
                         lineNumbers: "off",
                         folding: false,
@@ -83,24 +70,7 @@ export function ExpressionEditor(props: Props) {
                     onChange={(value, _) => setCustomCode(value)}
                 />
             </div>
-            <div style={{display: "flex", justifyContent: "flex-end", gap: "6px", alignItems: "center", paddingTop: "10px"}}>
-                <Button style={{flex:"1"}} variant="link" icon={showVariables ? <ArrowDown/> : <ArrowUp/>}
-                        size="sm" isInline={true} isDisabled={!show}
-                        onClick={e => {
-                    setShowVariables(!showVariables);
-                    setKey(Math.random().toString());
-                }}
-                />
-                <Button key="save" variant="primary" size="sm"
-                        onClick={e => closeAndSave()}>Save</Button>
-                <Button key="cancel" variant="secondary" size="sm"
-                        onClick={e => close()}>Close</Button>
-            </div>
-            {show && showVariables &&
-                <div className='panel-bottom'>
-                    {dslLanguage && <ExpressionBottomPanel  dslLanguage={dslLanguage}/>}
-                </div>
-            }
+
         </div>
     )
 }

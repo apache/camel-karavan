@@ -18,8 +18,7 @@
 import React from 'react';
 import '../../designer/karavan.css';
 import {BuildPanel} from "./BuildPanel";
-import {PageSection} from "@patternfly/react-core";
-import {useAppConfigStore} from "../../api/ProjectStore";
+import {useAppConfigStore} from "@/api/ProjectStore";
 import {shallow} from "zustand/shallow";
 import {ContainerPanel} from "./ContainerPanel";
 
@@ -31,11 +30,9 @@ export function PackageTab () {
     const showBuildTab = isKubernetes || isDev;
 
     return (
-        <PageSection className="project-tab-panel project-build-panel project-package" padding={{default: "padding"}}>
-            <div>
-                {showBuildTab && <BuildPanel/>}
-                <ContainerPanel/>
-            </div>
-        </PageSection>
+        <div style={{display: 'flex', flexDirection: 'column', gap: '16px', padding: '16px'}}>
+            {showBuildTab && <BuildPanel/>}
+            <ContainerPanel/>
+        </div>
     )
 }

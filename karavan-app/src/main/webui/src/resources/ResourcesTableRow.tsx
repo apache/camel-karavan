@@ -16,19 +16,14 @@
  */
 
 import React from 'react';
-import {
-    Button,
-    Badge,
-    Tooltip,
-} from '@patternfly/react-core';
+import {Badge, Button, Tooltip,} from '@patternfly/react-core';
 import '../designer/karavan.css';
-import { Td, Tr} from "@patternfly/react-table";
-import {Project} from '../api/ProjectModels';
-import {
-    useLogStore,
-} from "../api/ProjectStore";
+import {Td, Tr} from "@patternfly/react-table";
+import {Project} from '@/api/ProjectModels';
+import {useLogStore} from "@/api/ProjectStore";
 import {shallow} from "zustand/shallow";
 import {useNavigate} from "react-router-dom";
+import {ROUTES} from "@/custom/Routes";
 
 interface Props {
     project: Project
@@ -39,10 +34,8 @@ export function ResourcesTableRow (props: Props) {
     const [setShowLog] = useLogStore((state) => [state.setShowLog], shallow);
     const navigate = useNavigate();
 
-
     const project = props.project;
-    const isBuildIn = ['kamelets', 'templates'].includes(project.projectId);
-    const commit = project.lastCommit ? project.lastCommit?.substr(0, 7) : "...";
+    const commit = project.lastCommit ? project.lastCommit?.substr(0, 7) : undefined;
     return (
         <Tr key={project.projectId}>
             <Td>
@@ -50,16 +43,16 @@ export function ResourcesTableRow (props: Props) {
                     // setProject(project, "select");
                     setShowLog(false, 'none');
                     // ProjectEventBus.selectProject(project);
-                    navigate("/projects/"+ project.projectId);
+                    navigate(`${ROUTES.RESOURCES}/${project.projectId}`);
                 }}>
                     {project.projectId}
                 </Button>
             </Td>
             <Td>{project.name}</Td>
             <Td>
-                <Tooltip content={project.lastCommit} position={"bottom"}>
+                {commit && <Tooltip content={project.lastCommit} position={"bottom"}>
                     <Badge className="badge">{commit}</Badge>
-                </Tooltip>
+                </Tooltip>}
             </Td>
         </Tr>
     )

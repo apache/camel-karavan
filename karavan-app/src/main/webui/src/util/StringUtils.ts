@@ -15,6 +15,10 @@
  * limitations under the License.
  */
 
+export function decapitalize(input: string) {
+    return input[0].toLowerCase() + input.substring(1);
+}
+
 export function isEmpty(str: string) {
     return !str?.trim();
 }
@@ -66,7 +70,6 @@ export function hasMinimumLength(password: string, minLength: number = 8): boole
     return password.length >= minLength;
 }
 
-
 export function isValidPassword(password: string): boolean {
     return hasLowercase(password) &&
         hasUppercase(password) &&
@@ -91,4 +94,186 @@ export function nameToProjectId(str: string): string {
         kebab = 't-' + kebab;
     }
     return kebab;
+}
+
+export function pathAndMethodToDescription(path: string, method: string = 'get'): string {
+    // Define verbs for HTTP methods
+    const verbs: Record<string, string> = {
+        get: 'Get',
+        post: 'Create',
+        put: 'Update',
+        patch: 'Update',
+        delete: 'Delete'
+    };
+
+    // Remove leading/trailing slashes and split into parts
+    const parts = path.replace(/^\/|\/$/g, '').split('/');
+    // Separate out resource parts and parameters
+    const resourceParts: string[] = [];
+    const params: string[] = [];
+
+    for (const part of parts) {
+        if (part.startsWith('{') && part.endsWith('}')) {
+            params.push(part.slice(1, -1));
+        } else {
+            resourceParts.push(part);
+        }
+    }
+
+    // Capitalize each resource part and join as a phrase
+    const isPlural = method === 'get' && path.endsWith('/{id}');
+    let resource =
+        resourceParts
+            .map(word => word.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()))
+            .join(' ');
+
+    if (isPlural && resource.endsWith('s')) {
+        resource = resource.slice(0, -1);
+    }
+    // Prepare the params phrase
+    const paramStr = params.length ? ' by ' + params.join(' and ') : '';
+
+    // Final verb
+    const verb = verbs[method.toLowerCase()] || 'Access';
+
+    return `${verb} ${resource}${paramStr}`;
+}
+
+export function dataTypeAndMethodToDescription(
+    dataType: string,
+    method: string,
+    isList: boolean = false
+): string {
+    const pluralize = (word: string) => word.endsWith('s') ? word : word + 's';
+    const typeWord = isList ? pluralize(dataType) : dataType;
+    const typeWordLower = typeWord.charAt(0).toLowerCase() + typeWord.slice(1);
+
+    switch (method.toUpperCase()) {
+        case 'GET':
+            return isList
+                ? `List all ${typeWordLower}`
+                : `Get a ${typeWordLower} by ID`;
+        case 'POST':
+            return `Create a new ${typeWordLower}`;
+        case 'PUT':
+            return `Replace a ${typeWordLower} by ID`;
+        case 'PATCH':
+            return `Update part of a ${typeWordLower} by ID`;
+        case 'DELETE':
+            return `Delete a ${typeWordLower} by ID`;
+        default:
+            return `${method} ${typeWordLower}`;
+    }
+}
+
+function toTitleCase(str: string): string {
+    return str
+        .replace(/([A-Z])/g, ' $1') // add space before capital letters (for camelCase)
+        .replace(/[_-]/g, ' ')      // replace _ and - with space
+        .replace(/\s+/g, ' ')       // collapse multiple spaces
+        .replace(/^./, s => s.toUpperCase()) // capitalize first letter
+        .replace(/ ([a-z])/g, s => s.toUpperCase()); // capitalize after space
+}
+
+function singularize(word: string): string {
+    // Simple plural to singular, you can improve this with a library if needed
+    if (word.endsWith('ies')) return word.slice(0, -3) + 'y';
+    if (word.endsWith('s') && !word.endsWith('ss')) return word.slice(0, -1);
+    return word;
+}
+
+export function pathToDescription(path: string): string {
+    const parts = path.replace(/^\/|\/$/g, '').split('/');
+
+    const resourceParts: string[] = [];
+    const paramParts: string[] = [];
+
+    for (const part of parts) {
+        if (part.startsWith('{') && part.endsWith('}')) {
+            // parameter, e.g. {userId}
+            const paramName = part.slice(1, -1);
+            paramParts.push(
+                toTitleCase(
+                    paramName
+                        .replace(/([a-z])([A-Z])/g, '$1 $2') // split camelCase
+                        .replace(/_/g, ' ')
+                )
+            );
+        } else {
+            resourceParts.push(singularize(toTitleCase(part)));
+        }
+    }
+
+    let description = resourceParts.join(' ');
+    if (paramParts.length) {
+        description += ' by ' + paramParts.join(' and ');
+    }
+
+    return description.trim();
+}
+export function calculateDuration(start: string, end: string): string {
+    const startTime = new Date(start).getTime();
+    const endTime = new Date(end).getTime();
+    if (isNaN(startTime) || isNaN(endTime)) {
+        return('');
+    }
+    let durationMs = endTime - startTime;
+    return durationToString(durationMs);
+}
+
+export function durationToString(durationMs: number): string {
+    if (durationMs < 0) {
+        return 'Invalid duration';
+    }
+
+    const ms = durationMs % 1000;
+    const seconds = Math.floor((durationMs / 1000) % 60);
+    const minutes = Math.floor((durationMs / (1000 * 60)) % 60);
+    const hours = Math.floor((durationMs / (1000 * 60 * 60)) % 24);
+    const days = Math.floor(durationMs / (1000 * 60 * 60 * 24));
+
+    const parts = [];
+    if (days > 0) parts.push(`${days}d`);
+    if (hours > 0) parts.push(`${hours}h`);
+    if (minutes > 0) parts.push(`${minutes}m`);
+    if (seconds > 0) parts.push(`${seconds}s`);
+    if (ms > 0 || parts.length === 0) parts.push(`${ms}ms`);
+
+    return parts.join(' ');
+}
+
+export function toFakeUTCISOString(date: Date): string {
+    const yyyy = date.getFullYear();
+    const mm = String(date.getMonth() + 1).padStart(2, '0');
+    const dd = String(date.getDate()).padStart(2, '0');
+    const hh = String(date.getHours()).padStart(2, '0');
+    const min = String(date.getMinutes()).padStart(2, '0');
+    const sec = String(date.getSeconds()).padStart(2, '0');
+
+    return `${yyyy}-${mm}-${dd}T${hh}:${min}:${sec}Z`;
+}
+
+export function extractTitleFromMarkdown(markdown: string): string | null {
+    // Step 1: Try to find title in the rehype ignore block
+    const rehypeRegex = /<!--rehype:ignore:start-->([\s\S]*?)<!--rehype:ignore:end-->/;
+    const rehypeMatch = markdown.match(rehypeRegex);
+
+    if (rehypeMatch) {
+        const titleTagRegex = /title:\s*(.+)/i;
+        const titleMatch = rehypeMatch[1].match(titleTagRegex);
+        if (titleMatch) {
+            return titleMatch[1].trim();
+        }
+    }
+
+    // Step 2: Fallback to first level-1 heading
+    const headingRegex = /^#\s+(.+)$/m;
+    const headingMatch = markdown.match(headingRegex);
+
+    if (headingMatch) {
+        return headingMatch[1].trim();
+    }
+
+    // If no title found
+    return null;
 }

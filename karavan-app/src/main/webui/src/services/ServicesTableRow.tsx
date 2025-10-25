@@ -16,24 +16,15 @@
  */
 
 import React, {useState} from 'react';
-import {
-    Button,
-    Tooltip,
-    Flex, FlexItem, Label, Spinner, TooltipPosition
-} from '@patternfly/react-core';
+import {Button, Flex, FlexItem, Label, Spinner, Tooltip, TooltipPosition} from '@patternfly/react-core';
 import '../designer/karavan.css';
 import {ExpandableRowContent, Tbody, Td, Tr} from "@patternfly/react-table";
-import StopIcon from "@patternfly/react-icons/dist/js/icons/stop-icon";
-import PlayIcon from "@patternfly/react-icons/dist/esm/icons/play-icon";
-import {DockerComposeService} from "../api/ServiceModels";
-import {ContainerStatus} from "../api/ProjectModels";
-import PauseIcon from "@patternfly/react-icons/dist/esm/icons/pause-icon";
-import DeleteIcon from "@patternfly/react-icons/dist/js/icons/times-icon";
-import {useAppConfigStore, useLogStore} from "../api/ProjectStore";
+import {CheckCircleIcon, ErrorCircleOIcon, PauseIcon, PlayIcon, StopIcon, TimesIcon} from '@patternfly/react-icons';
+import {DockerComposeService} from "@/api/ServiceModels";
+import {ContainerStatus} from "@/api/ProjectModels";
+import {useAppConfigStore, useLogStore} from "@/api/ProjectStore";
 import {shallow} from "zustand/shallow";
-import {KaravanApi} from "../api/KaravanApi";
-import UpIcon from "@patternfly/react-icons/dist/esm/icons/check-circle-icon";
-import DownIcon from "@patternfly/react-icons/dist/esm/icons/error-circle-o-icon";
+import {KaravanApi} from "@/api/KaravanApi";
 
 interface Props {
     index: number
@@ -81,7 +72,7 @@ export function ServicesTableRow (props: Props) {
                     </FlexItem>
                     <FlexItem>
                         <Tooltip content={"Delete container"} position={"bottom"}>
-                            <Button className={'dev-action-button'} variant={"plain"} icon={<DeleteIcon/>} isDisabled={!commands.includes('delete') || inTransit}
+                            <Button className={'dev-action-button'} variant={"plain"} icon={<TimesIcon/>} isDisabled={!commands.includes('delete') || inTransit}
                                     onClick={e => {
                                         KaravanApi.deleteContainer(service.container_name, 'devservice', service.container_name, res => {});
                                     }}></Button>
@@ -101,7 +92,7 @@ export function ServicesTableRow (props: Props) {
     const isRunning = container?.state === 'running';
     const inTransit = container?.inTransit;
     const color = isRunning ? "green" : "grey";
-    const icon = isRunning ? <UpIcon/> : <DownIcon/>;
+    const icon = isRunning ? <CheckCircleIcon/> : <ErrorCircleOIcon/>;
     return (
         <Tbody isExpanded={isExpanded}>
             <Tr key={service.container_name}>
@@ -119,7 +110,7 @@ export function ServicesTableRow (props: Props) {
                 <Td>
                     {container && <Label icon={icon} color={color}>
                         <Tooltip content={"Show log"} position={TooltipPosition.bottom}>
-                            <Button className='labeled-button' variant="link" isDisabled={!isRunning}
+                            <Button className='karavan-labeled-button' variant="link" isDisabled={!isRunning}
                                     onClick={e => {
                                         useLogStore.setState({showLog: true, type: 'container', podName: container.containerName});
                                     }}>

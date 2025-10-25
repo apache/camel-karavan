@@ -16,41 +16,32 @@
  */
 import React, {useEffect, useRef, useState} from 'react';
 import {
-    FormGroup,
-    TextInput,
-    Popover,
-    Switch,
-    ExpandableSection,
-    TextArea,
-    Chip,
-    TextInputGroup,
-    TextInputGroupMain,
-    TextInputGroupUtilities,
-    ChipGroup,
     Button,
-    Text,
-    Tooltip,
-    Card,
-    InputGroup,
-    SelectOptionProps,
-    InputGroupItem,
-    TextVariants,
-    ValidatedOptions,
+    Content,
+    ContentVariants,
+    ExpandableSection,
+    FormGroup,
+    FormGroupLabelHelp,
     FormHelperText,
     HelperText,
     HelperTextItem,
+    InputGroup,
+    InputGroupItem,
+    Label,
+    LabelGroup,
+    Popover,
+    SelectOptionProps,
+    Switch,
+    TextArea,
+    TextInput,
+    TextInputGroup,
+    TextInputGroupMain,
+    TextInputGroupUtilities,
+    Tooltip,
+    ValidatedOptions
 } from '@patternfly/react-core';
-import {
-    Select,
-    SelectVariant,
-    SelectDirection,
-    SelectOption
-} from '@patternfly/react-core/deprecated';
-import '../../karavan.css';
 import './DslPropertyField.css';
-import "@patternfly/patternfly/patternfly.css";
-import HelpIcon from "@patternfly/react-icons/dist/js/icons/help-icon";
-import DeleteIcon from "@patternfly/react-icons/dist/js/icons/times-circle-icon";
+import {CogIcon, ExclamationCircleIcon, PlusCircleIcon, PlusIcon, TimesCircleIcon, TimesIcon} from '@patternfly/react-icons';
 import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
 import {CamelMetadataApi, PropertyMeta} from "karavan-core/lib/model/CamelMetadata";
 import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt";
@@ -59,38 +50,34 @@ import {CamelUi, RouteToCreate} from "../../utils/CamelUi";
 import {ComponentPropertyField} from "./ComponentPropertyField";
 import {CamelElement} from "karavan-core/lib/model/IntegrationDefinition";
 import {KameletPropertyField} from "./KameletPropertyField";
-import PlusIcon from "@patternfly/react-icons/dist/esm/icons/plus-icon";
 import {ObjectField} from "./ObjectField";
 import {CamelDefinitionApi} from "karavan-core/lib/api/CamelDefinitionApi";
-import AddIcon from "@patternfly/react-icons/dist/js/icons/plus-circle-icon";
-import {MediaTypes} from "../../utils/MediaTypes";
 import {ComponentProperty} from "karavan-core/lib/model/ComponentModels";
 import {ConfigurationSelectorModal} from "./ConfigurationSelectorModal";
 import {InfrastructureAPI} from "../../utils/InfrastructureAPI";
-import {useDesignerStore, useIntegrationStore} from "../../DesignerStore";
 import {shallow} from "zustand/shallow";
-import {
-    DataFormatDefinition,
-    ExpressionDefinition,
-    BeanFactoryDefinition
-} from "karavan-core/lib/model/CamelDefinition";
+import {BeanFactoryDefinition, DataFormatDefinition, ExpressionDefinition} from "karavan-core/lib/model/CamelDefinition";
 import {TemplateApi} from "karavan-core/lib/api/TemplateApi";
 import {BeanProperties} from "./BeanProperties";
 import {PropertyPlaceholderDropdown} from "./PropertyPlaceholderDropdown";
 import {VariablesDropdown} from "./VariablesDropdown";
 import {SpiBeanApi} from "karavan-core/lib/api/SpiBeanApi";
-import {SelectField} from "./SelectField";
 import {PropertyUtil} from "./PropertyUtil";
 import {usePropertiesStore} from "../PropertyStore";
 import {Property} from "karavan-core/lib/model/KameletModels";
 import {isSensitiveFieldValid} from "../../utils/ValidatorUtils";
-import ExclamationCircleIcon from "@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon";
 import {EventBus} from "../../utils/EventBus";
-import CogIcon from "@patternfly/react-icons/dist/js/icons/cog-icon";
-import TimesIcon from "@patternfly/react-icons/dist/esm/icons/times-icon";
+import {CamelDefaultStepProperty} from "../../utils/CamelDefaultStepProperty";
+import {useDesignerStore, useIntegrationStore} from "@/designer/DesignerStore";
+import {DslPropertyFieldSelect} from "@/designer/property/property/DslPropertyFieldSelect";
+import {MEDIA_TYPES} from "@/designer/utils/MediaTypes";
+import {DslPropertyFieldSelectScrollable} from "@/designer/property/property/DslPropertyFieldSelectScrollable";
+import {FieldSelectWithCreate} from "@/components/FieldSelectWithCreate";
+import {FileReferenceDropdown} from "@/designer/property/property/FileReferenceDropdown";
 
 const beanPrefix = "#bean:";
 const classPrefix = "#class:";
+const filePrefix = 'resource:';
 
 interface Props {
     property: PropertyMeta,
@@ -107,8 +94,10 @@ interface Props {
 
 export function DslPropertyField(props: Props) {
 
+    const {property, element, value, onPropertyChange, onExpressionChange, onDataFormatChange, onParameterChange, hideLabel, dslLanguage, expressionEditor} = props;
+
     const [integration, setIntegration, files, variables] = useIntegrationStore((s) => [s.integration, s.setIntegration, s.files, s.variables], shallow)
-    const [setSelectedStep, beans, selectedStep] = useDesignerStore((s) => [s.setSelectedStep, s.beans, s.selectedStep], shallow)
+    const [setSelectedStep, beans, selectedStep, stepDoubleClicked, setStepDoubleClicked] = useDesignerStore((s) => [s.setSelectedStep, s.beans, s.selectedStep, s.stepDoubleClicked, s.setStepDoubleClicked], shallow)
     const [propertyFilter, changedOnly, requiredOnly, sensitiveOnly] = usePropertiesStore((s) =>
         [s.propertyFilter, s.changedOnly, s.requiredOnly, s.sensitiveOnly], shallow)
 
@@ -121,15 +110,29 @@ export function DslPropertyField(props: Props) {
     const ref = useRef<any>(null);
     const [textValue, setTextValue] = useState<any>();
     const [checkChanges, setCheckChanges] = useState<boolean>(false);
+    const labelHelpRef = useRef(null);
 
     useEffect(() => {
         setTextValue(value)
     }, [])
 
     useEffect(() => {
+        if (stepDoubleClicked && selectedStep) {
+            const dsp = CamelDefaultStepProperty.findDslDefaultProperty(selectedStep.dslName);
+            if (dsp?.propertyName === property.name) {
+                if (dsp.isExpression && dslLanguage) {
+                    setConfigurationSelectorDefaultTab(dsp.tab)
+                    openConfigurationSelector(property.name);
+                }
+            }
+            setStepDoubleClicked(false)
+        }
+    }, [stepDoubleClicked])
+
+    useEffect(() => {
         if (checkChanges) {
             const interval = setInterval(() => {
-                if (props.value !== textValue) {
+                if (value !== textValue) {
                     propertyChanged(property.name, textValue);
                 }
             }, 700);
@@ -153,7 +156,7 @@ export function DslPropertyField(props: Props) {
 
     function propertyChanged(fieldId: string, value: string | number | boolean | any, newRoute?: RouteToCreate) {
         setCheckChanges(false);
-        props.onPropertyChange?.(fieldId, value, newRoute);
+        onPropertyChange?.(fieldId, value, newRoute);
         clearSelection(fieldId);
     }
 
@@ -166,22 +169,22 @@ export function DslPropertyField(props: Props) {
     }
 
     function arrayDeleteValue(fieldId: string, element: string) {
-        const property: PropertyMeta = props.property;
-        let value = props.value;
-        if (property.isArray && property.type === 'string') {
-            propertyChanged(fieldId, (value as any).filter((x: string) => x !== element))
+        const p: PropertyMeta = property;
+        let v = value;
+        if (p.isArray && p.type === 'string') {
+            propertyChanged(fieldId, (v as any).filter((x: string) => x !== element))
         }
     }
 
     function arraySave(fieldId: string) {
         const newValue = arrayValues.get(fieldId);
-        const property: PropertyMeta = props.property;
-        let value = props.value;
-        if (newValue !== undefined && newValue.length > 0 && property.isArray && property.type === 'string') {
-            if (value) (value as any).push(newValue)
-            else value = [newValue];
+        const p: PropertyMeta = property;
+        let v = value;
+        if (newValue !== undefined && newValue.length > 0 && p.isArray && p.type === 'string') {
+            if (v) (v as any).push(newValue)
+            else v = [newValue];
         }
-        propertyChanged(fieldId, value);
+        propertyChanged(fieldId, v);
         arrayChanged(fieldId, "");
     }
 
@@ -197,12 +200,12 @@ export function DslPropertyField(props: Props) {
             const x = value ? undefined : CamelDefinitionApi.createStep(property.type, {});
             const meta = CamelMetadataApi.getCamelModelMetadataByClassName(property.type);
             const title = meta?.title || property.displayName;
-            const icon = value ? (<DeleteIcon/>) : (<AddIcon/>);
+            const icon = value ? (<TimesCircleIcon/>) : (<PlusCircleIcon/>);
             return (
                 <div style={{display: "flex"}}>
-                    <Text className={labelClassName}>{title}</Text>
+                    <Content component="p" className={labelClassName}>{title}</Content>
                     <Tooltip position={"top"} content={<div>{tooltip}</div>}>
-                        <button className={className} onClick={e => props.onPropertyChange?.(property.name, x)}
+                        <button className={className} onClick={e => onPropertyChange?.(property.name, x)}
                                 aria-label="Add element">
                             {icon}
                         </button>
@@ -211,18 +214,18 @@ export function DslPropertyField(props: Props) {
             )
         }
         if (isParameter(property)) {
-            return isKamelet ? "Kamelet properties:" : isRouteTemplate ? "Parameters:" : "Component properties:";
+            return isKamelet ? "Kamelet properties:" : isRouteTemplate ? "Parameters:" : "Component parameters:";
         } else if (!["ExpressionDefinition"].includes(property.type)) {
             return (
                 <div style={{display: "flex", flexDirection: 'row', alignItems: 'center', gap: '3px'}}>
-                    <Text className={labelClassName}>{CamelUtil.capitalizeName(property.displayName)}</Text>
+                    <Content component="p" className={labelClassName}>{CamelUtil.capitalizeName(property.displayName)}</Content>
                 </div>
             )
         }
     }
 
     function isUriReadOnly(property: PropertyMeta): boolean {
-        const dslName: string = props.element?.dslName || '';
+        const dslName: string = element?.dslName || '';
         return property.name === 'uri'
             && !['ToDynamicDefinition', 'WireTapDefinition', 'InterceptFromDefinition', 'InterceptSendToEndpointDefinition'].includes(dslName)
     }
@@ -234,7 +237,7 @@ export function DslPropertyField(props: Props) {
             const cursorStart = textVal.selectionStart;
             const cursorEnd = textVal.selectionEnd;
             if (cursorStart !== cursorEnd) {
-                const prevValue = props.value;
+                const prevValue = value;
                 const selectedText = prevValue.substring(cursorStart, cursorEnd)
                 value = prevValue.replace(selectedText, value);
             }
@@ -275,7 +278,7 @@ export function DslPropertyField(props: Props) {
                     setTextValue(value1);
                     closeConfigurationSelector();
                 }}
-                expressionEditor={props.expressionEditor}
+                expressionEditor={expressionEditor}
                 onSelect={selectConfiguration}/>)
     }
 
@@ -310,7 +313,7 @@ export function DslPropertyField(props: Props) {
                         id={property.name} name={property.name}
                         value={textValue?.toString() || ''}
                         customIcon={property.type !== 'string' ?
-                            <Text component={TextVariants.p}>{property.type}</Text> : undefined}
+                            <Content component={ContentVariants.p}>{property.type}</Content> : undefined}
                         onBlur={_ => {
                             if (isNumeric((textValue))) {
                                 propertyChanged(property.name, Number(textValue))
@@ -371,20 +374,14 @@ export function DslPropertyField(props: Props) {
                         }}
                     />
                     <TextInputGroupUtilities>
-                        <Button variant="plain" className='button-clear' onClick={_ => {
+                        <Button icon={<TimesIcon aria-hidden={true}/>} variant="plain" className='button-clear' onClick={_ => {
                             propertyChanged(property.name, '');
                             setTextValue('');
                             setCheckChanges(true);
-                        }}>
-                            <TimesIcon aria-hidden={true}/>
-                        </Button>
+                        }}/>
+                        {!noInfraSelectorButton && getOpenConfigButton(property)}
                     </TextInputGroupUtilities>
                 </TextInputGroup>
-                {!noInfraSelectorButton &&
-                    <InputGroupItem>
-                        {getOpenConfigButton(property)}
-                    </InputGroupItem>
-                }
             </InputGroup>
         )
     }
@@ -397,7 +394,7 @@ export function DslPropertyField(props: Props) {
                 InfrastructureAPI.onSaveCustomCode(name, code, true);
             }
             InfrastructureAPI.onInternalConsumerClick(undefined, undefined, undefined, name + '.java');
-        }).catch((reason: any) => console.log(reason))
+        }).catch((reason: any) => console.error(reason))
     }
 
     function getJavaTypeGeneratedInput(property: PropertyMeta, value: any) {
@@ -415,57 +412,93 @@ export function DslPropertyField(props: Props) {
                 })
             );
         }
-        if (value !== undefined && value.length > 0 && selectOptions.filter(o => o.value === value?.toString()).length === 0) {
-            selectOptions.push({
-                value: value, children: value, description: 'Custom Java Class'
-            })
-        }
-        return (
-            <InputGroup className={valueChangedClassName}>
-                <InputGroupItem isFill>
-                    <SelectField
-                        id={property.name}
-                        name={property.name}
-                        placeholder='Select bean'
-                        selectOptions={selectOptions}
-                        value={value?.toString()}
-                        onChange={(name, value) => propertyChanged(property.name, value)}
-                    />
-                </InputGroupItem>
-                <InputGroupItem>
-                    <Tooltip position="bottom-end" content={"Open Java Class"}>
-                        <Button isDisabled={value?.length === 0} variant="control"
-                                onClick={e => showCode(value, property.javaType)}>
-                            <PlusIcon/>
-                        </Button>
-                    </Tooltip>
-                </InputGroupItem>
-            </InputGroup>
-        )
+        files?.filter(f => f.name.endsWith('.java')).forEach((f) => {
+            const name = f.name.replace('.java', '');
+            selectOptions.push({value: name, children: name, description: 'Custom Java Class'})
+        });
+        return <DslPropertyFieldSelect
+            value={value?.toString()}
+            property={property}
+            selectOptions={selectOptions}
+            placeholder='Select bean'
+            onPropertyChange={(_, val) => propertyChanged(property.name, val)}
+            utilities={[
+                <Tooltip position="bottom-end" content={"Open Java Class"}>
+                    <Button icon={<PlusIcon/>} isDisabled={value === undefined || value?.length === 0} variant="plain"
+                            onClick={e => showCode(value, property.javaType)}>
+                    </Button>
+                </Tooltip>
+            ]}
+        />
     }
 
-    function getTextArea(property: PropertyMeta, value: any) {
+    function onFileReferenceClick(text: string) {
+        const inputLanguage = dslLanguage?.[0];
+        const filename = text?.replace(filePrefix, '');
+        if (text?.startsWith(filePrefix) && text?.endsWith("." + inputLanguage) && !files.find(f => f.name === filename)) {
+            InfrastructureAPI.onCreateNewFile(filename, "", true)
+        } else {
+            InfrastructureAPI.onInternalConsumerClick(undefined, undefined, undefined, filename)
+        }
+    }
+
+    function getExpressionFieldEditor(property: PropertyMeta, value: any) {
+        const isNull: boolean = value === undefined || value === null || value?.toString().trim() === '';
+        const isResource: boolean = isNull || value?.startsWith(filePrefix);
+        const isText: boolean = isNull || !value?.startsWith(filePrefix);
+
+        const inputLanguage = dslLanguage?.[0];
+        const options: SelectOptionProps[] = files
+            .filter(f => !inputLanguage || f.name.endsWith(inputLanguage))
+            .map(f => {
+                const val = f.name;
+                return {value: val, label: val, children: val}
+            })
+        const additionalItems  = (!isNull) ? [getOpenConfigButton(property, 'editor')] : []
         return (
-            <InputGroup className={valueChangedClassName}>
-                <InputGroupItem isFill>
-                    <TextArea
-                        className="text-field" isRequired
-                        type={"text"}
-                        id={property.name}
-                        name={property.name}
-                        height={"100px"}
-                        value={textValue?.toString()}
-                        onBlur={_ => propertyChanged(property.name, textValue)}
-                        onChange={(_, v) => {
-                            setTextValue(v);
+            <div>
+                {isText &&
+                    <TextInputGroup className={'text-field ' + valueChangedClassName}>
+                        <TextArea
+                            className="text-field" isRequired
+                            type={"text"}
+                            id={property.name}
+                            name={property.name}
+                            height={"100px"}
+                            value={textValue?.toString()}
+                            onBlur={_ => propertyChanged(property.name, textValue)}
+                            placeholder={`Type ${inputLanguage} expression`}
+                            onChange={(_, v) => {
+                                setTextValue(v);
+                                setCheckChanges(true);
+                            }}
+                        />
+                        <TextInputGroupUtilities>
+                            {getOpenConfigButton(property, 'editor')}
+                        </TextInputGroupUtilities>
+                    </TextInputGroup>
+                }
+                {isResource &&
+                    <FileReferenceDropdown
+                        initialValue={value}
+                        placeholder={`Select or Create expression file (.${inputLanguage})`}
+                        valueChangedClassName={valueChangedClassName}
+                        inputLanguage={inputLanguage}
+                        options={options}
+                        additionalItems={additionalItems}
+                        onChange={(text: string) => {
+                            if (text?.endsWith(`.${inputLanguage}`)) {
+                                const filename = text?.replace(filePrefix, '');
+                                setTextValue(`${filePrefix}${filename}`);
+                            } else if (text?.trim().length === 0) {
+                                setTextValue(text)
+                            }
                             setCheckChanges(true);
                         }}
+                        onFileReferenceClick={onFileReferenceClick}
                     />
-                </InputGroupItem>
-                <InputGroupItem>
-                    {getOpenConfigButton(property, 'editor')}
-                </InputGroupItem>
-            </InputGroup>
+                }
+            </div>
         )
     }
 
@@ -475,8 +508,8 @@ export function DslPropertyField(props: Props) {
                 <ExpressionField
                     property={property}
                     value={value}
-                    expressionEditor={props.expressionEditor}
-                    onExpressionChange={props.onExpressionChange}/>
+                    expressionEditor={expressionEditor}
+                    onExpressionChange={onExpressionChange}/>
             </div>
         )
     }
@@ -486,7 +519,7 @@ export function DslPropertyField(props: Props) {
             <div className="object">
                 {value && <ObjectField property={property}
                                        value={value}
-                                       expressionEditor={props.expressionEditor}
+                                       expressionEditor={expressionEditor}
                                        onPropertyUpdate={propertyChanged}/>}
             </div>
         )
@@ -533,18 +566,14 @@ export function DslPropertyField(props: Props) {
                         }}
                     />
                     <TextInputGroupUtilities>
-                        <Button variant="plain" className='button-clear' onClick={_ => {
+                        <Button icon={<TimesIcon aria-hidden={true}/>} variant="plain" className='button-clear' onClick={_ => {
                             propertyChanged(property.name, '');
                             setTextValue('');
                             setCheckChanges(true);
-                        }}>
-                            <TimesIcon aria-hidden={true}/>
-                        </Button>
+                        }}/>
                     </TextInputGroupUtilities>
-                </TextInputGroup>
-                <InputGroupItem className=''>
                     {getOpenConfigButton(property)}
-                </InputGroupItem>
+                </TextInputGroup>
             </InputGroup>
         )
     }
@@ -555,105 +584,61 @@ export function DslPropertyField(props: Props) {
         }
         return (
             <Tooltip position="bottom-end" content="Open config selector">
-                <Button variant="control" className='open-config-buton' onClick={e => {
+                <Button icon={<CogIcon/>} variant="plain" className='open-config-buton' onClick={e => {
                     setConfigurationSelectorDefaultTab(configurationSelectorDefaultTab)
                     openConfigurationSelector(property.name)
                 }}>
-                    <CogIcon style={{fill: 'var(--pf-v5-global--Color--200)'}}/>
                 </Button>
             </Tooltip>
         )
     }
 
     function getSelectBean(property: PropertyMeta, value: any) {
-        const selectOptions: JSX.Element[] = [];
-        const beans = CamelUi.getBeans(integration);
+        const selectOptions: SelectOptionProps[] = [];
         if (beans) {
-            selectOptions.push(<SelectOption key={0} value={"Select..."} isPlaceholder/>);
-            selectOptions.push(...beans.map((bean) =>
-                <SelectOption key={bean.name} value={bean.name} description={bean.type}/>));
+            selectOptions.push(...beans.map((bean) => ({key: value, value: bean.name, description: bean.type, children: bean.name})));
         }
-        return (
-            <Select
-                className={valueChangedClassName}
-                variant={SelectVariant.single}
-                aria-label={property.name}
-                onToggle={(_event, isExpanded) => {
-                    openSelect(property.name, isExpanded)
-                }}
-                onSelect={(e, value, isPlaceholder) => propertyChanged(property.name, (!isPlaceholder ? value : undefined))}
-                selections={value}
-                isOpen={isSelectOpen(property.name)}
-                aria-labelledby={property.name}
-                direction={SelectDirection.down}
-            >
-                {selectOptions}
-            </Select>
-        )
+        return <DslPropertyFieldSelect value={value}
+                                       property={property}
+                                       selectOptions={selectOptions}
+                                       onPropertyChange={(_, val) => propertyChanged(property.name, val)}
+        />
     }
 
     function getSelect(property: PropertyMeta, value: any) {
-        const selectOptions: JSX.Element[] = []
+        const selectOptions: SelectOptionProps[] = []
         if (property.enumVals && property.enumVals.length > 0) {
-            selectOptions.push(<SelectOption key={0} value={"Select " + property.name} isPlaceholder/>);
-            selectOptions.push(...property.enumVals.split(',').map((value: string) =>
-                <SelectOption key={value} value={value.trim()}/>));
+            selectOptions.push(...property.enumVals.split(',').map((enumVal: string) => {
+                const textValue: string = enumVal?.trim();
+                return ({key: textValue, value: textValue, children: textValue})
+            }));
         }
-        return (
-            <Select
-                className={valueChangedClassName}
-                variant={SelectVariant.single}
-                aria-label={property.name}
-                onToggle={(_event, isExpanded) => {
-                    openSelect(property.name, isExpanded)
-                }}
-                onSelect={(e, value, isPlaceholder) => propertyChanged(property.name, (!isPlaceholder ? value : undefined))}
-                selections={value}
-                isOpen={isSelectOpen(property.name)}
-                id={property.name}
-                aria-labelledby={property.name}
-                direction={SelectDirection.down}
-            >
-                {selectOptions}
-            </Select>
-        )
+        return <DslPropertyFieldSelect value={value}
+                                       property={property}
+                                       selectOptions={selectOptions}
+                                       onPropertyChange={(_, val) => propertyChanged(property.name, val)}
+        />
     }
 
-    function getMediaTypeSelectOptions(filter?: string): JSX.Element [] {
-        const options: JSX.Element [] = [
-            <SelectOption key={0} value="Select Media Type" isPlaceholder/>
-        ];
-        const mediaTypes: JSX.Element[] = filter
-            ? MediaTypes.filter(mt => mt.includes(filter)).map((value: string) =>
-                <SelectOption key={value} value={value.trim()}/>)
-            : MediaTypes.map((value: string) =>
-                <SelectOption key={value} value={value.trim()}/>);
+    function getMediaTypeSelectOptions(filter?: string): SelectOptionProps [] {
+        const options: SelectOptionProps [] = [];
+        const mediaTypes: SelectOptionProps[] = filter
+            ? MEDIA_TYPES.filter(mt => mt.includes(filter)).map((value: string) =>
+                ({value: value.trim(), children: value.trim(), description: value.trim()}))
+            : MEDIA_TYPES.map((value: string) =>
+                ({value: value.trim(), children: value.trim(), description: value.trim()}))
         options.push(...mediaTypes);
         return options;
     }
 
     function getMediaTypeSelect(property: PropertyMeta, value: any) {
-        return (
-            <Select
-                className={valueChangedClassName}
-                placeholderText="Select Media Type"
-                variant={SelectVariant.typeahead}
-                aria-label={property.name}
-                onToggle={(_event, isExpanded) => {
-                    openSelect(property.name, isExpanded)
-                }}
-                onSelect={(e, value, isPlaceholder) => propertyChanged(property.name, (!isPlaceholder ? value : undefined))}
-                selections={value}
-                isOpen={isSelectOpen(property.name)}
-                isCreatable={false}
-                isInputFilterPersisted={false}
-                onFilter={(e, text) => getMediaTypeSelectOptions(text)}
-                aria-labelledby={property.name}
-                direction={SelectDirection.down}
-            >
-                {getMediaTypeSelectOptions()}
-            </Select>
-        )
+        return <DslPropertyFieldSelectScrollable
+            value={value}
+            property={property}
+            selectOptions={getMediaTypeSelectOptions()}
+            placeholder='Select Media Type'
+            onPropertyChange={(_, val) => propertyChanged(property.name, val)}
+        />
     }
 
     function canBeInternalUri(property: PropertyMeta, element?: CamelElement): boolean {
@@ -691,7 +676,9 @@ export function DslPropertyField(props: Props) {
                 propertyChanged(property.name, value, newRoute)
             } else {
                 const split: string = value?.toString().split(':');
-                InfrastructureAPI.onCreateNewRoute(split[0], 'name', split[1]);
+                const componentName = split[0];
+                const propertyName = componentName === 'vertx' ? 'address' : 'name';
+                InfrastructureAPI.onCreateNewRoute(componentName, propertyName, split[1]);
             }
         } catch (error: any) {
             console.error(error);
@@ -699,41 +686,18 @@ export function DslPropertyField(props: Props) {
         }
     }
 
-    function getInternalUriSelect(property: PropertyMeta, value: any) {
-        const selectOptions: JSX.Element[] = [];
+    function getInternalUriSelect() {
         const uris: string[] = CamelUi.getInternalUris(files, true, true, true);
-        if (uris && uris.length > 0) {
-            selectOptions.push(...uris.map((value: string) =>
-                <SelectOption key={value} value={value.trim()}/>));
-        }
         return (
-            <InputGroup className={valueChangedClassName} id={property.name} name={property.name}>
-                <InputGroupItem isFill>
-                    <Select
-                        placeholderText="Select or type an URI"
-                        variant={SelectVariant.typeahead}
-                        aria-label={property.name}
-                        onClear={event => propertyChanged(property.name, undefined, undefined)}
-                        onToggle={(_event, isExpanded) => {
-                            openSelect(property.name, isExpanded)
-                        }}
-                        onSelect={(e, value, isPlaceholder) => {
-                            propertyChanged(property.name, (!isPlaceholder ? value : undefined), undefined)
-                        }}
-                        selections={value}
-                        createText=""
-                        isOpen={isSelectOpen(property.name)}
-                        isCreatable={true}
-                        isInputFilterPersisted={true}
-                        aria-labelledby={property.name}
-                        direction={SelectDirection.down}
-                    >
-                        {selectOptions}
-                    </Select>
-                </InputGroupItem>
-                <InputGroupItem>
-                    <Tooltip position="bottom-end" content={"Create route"}>
-                        <Button isDisabled={value === undefined} variant="control" onClick={e => {
+            <FieldSelectWithCreate
+                placeholder={'Select a URI'}
+                listOfValues={[...uris]}
+                onSelectElement={selectedValue => propertyChanged(property.name, selectedValue)}
+                value={value}
+                className={valueChangedClassName}
+                utilities={[
+                    <Tooltip key={'1'} position="bottom-end" content={"Create route"}>
+                        <Button isDisabled={value === undefined} variant="plain" onClick={e => {
                             if (value) {
                                 createNewRoute(property, value);
                             }
@@ -741,20 +705,20 @@ export function DslPropertyField(props: Props) {
                             {<PlusIcon/>}
                         </Button>
                     </Tooltip>
-                </InputGroupItem>
-            </InputGroup>
+                ]}
+            />
         )
     }
 
-    function onMultiValueObjectUpdate(index: number, fieldId: string, value: CamelElement) {
-        const mValue = [...props.value];
-        mValue[index] = value;
-        props.onPropertyChange?.(fieldId, mValue);
+    function onMultiValueObjectUpdate(index: number, fieldId: string, v: CamelElement) {
+        const mValue = [...value];
+        mValue[index] = v;
+        onPropertyChange?.(fieldId, mValue);
     }
 
     function isKeyValueObject(property: PropertyMeta) {
-        const props = CamelDefinitionApiExt.getElementProperties(property.type);
-        return props.length === 2 && props.filter(p => p.name === 'key').length === 1 && props.filter(p => p.name === 'value').length === 1;
+        const propertiesMetadata = CamelDefinitionApiExt.getElementProperties(property.type);
+        return propertiesMetadata.length === 2 && propertiesMetadata.filter(p => p.name === 'key').length === 1 && propertiesMetadata.filter(p => p.name === 'value').length === 1;
     }
 
     function getMultiObjectFieldProps(property: PropertyMeta, value: any, v: any, index: number, hideLabel: boolean = false) {
@@ -763,22 +727,22 @@ export function DslPropertyField(props: Props) {
                 {v && <ObjectField property={property}
                                    value={v}
                                    hideLabel={hideLabel}
-                                   expressionEditor={props.expressionEditor}
+                                   expressionEditor={expressionEditor}
                                    onPropertyUpdate={(f, v) => onMultiValueObjectUpdate(index, f, v)}
                 />}
             </div>
-            <Button variant="link" className="delete-button" onClick={e => {
+            <Button icon={<TimesCircleIcon/>} variant="link" className="delete-button" onClick={e => {
                 const v = Array.from(value);
                 v.splice(index, 1);
                 propertyChanged(property.name, v);
-            }}><DeleteIcon/></Button>
+            }}></Button>
         </>)
     }
 
     function getMultiValueObjectField(property: PropertyMeta, value: any) {
         const isKeyValue = isKeyValueObject(property);
         return (
-            <div>
+            <div style={{display: 'flex', flexDirection: 'column', gap: '6px', justifyContent: 'flex-start', alignItems: 'stretch'}}>
                 {value && Array.from(value).map((v: any, index: number) => {
                     if (isKeyValue)
                         return <div key={property + "-" + index} className="object-key-value">
@@ -786,20 +750,22 @@ export function DslPropertyField(props: Props) {
                         </div>
                     else
                         return (
-                            <Card key={property + "-" + index} className="object-value" isFlat isRounded>
+                            <div key={property + "-" + index} className="object-value">
                                 {getMultiObjectFieldProps(property, value, v, index)}
-                            </Card>
+                            </div>
                         )
                 })}
-                <Button variant="link" className="add-button"
-                        onClick={e => {
-                            const valArray = value !== null ? [...value] : [];
-                            valArray.push(CamelDefinitionApi.createStep(property.type, {}));
-                            propertyChanged(property.name, valArray);
-                        }}>
-                    <AddIcon/>
-                    {"Add " + property.displayName}
-                </Button>
+                <div>
+                    <Button icon={<PlusCircleIcon/>} variant="link" className="add-button"
+                            onClick={e => {
+                                const valArray = value !== null ? [...value] : [];
+                                valArray.push(CamelDefinitionApi.createStep(property.type, {}));
+                                propertyChanged(property.name, valArray);
+                            }}>
+
+                        {"Add " + property.displayName}
+                    </Button>
+                </div>
             </div>
         )
     }
@@ -814,16 +780,14 @@ export function DslPropertyField(props: Props) {
                                             if (e.key === 'Enter') arraySave(property.name)
                                         }}
                     >
-                        <ChipGroup>
+                        <LabelGroup>
                             {value && Array.from(value).map((v: any, index: number) => (
-                                <Chip key={"chip-" + index} className="chip"
-                                      onClick={() => arrayDeleteValue(property.name, v)}>{v.toString()}</Chip>))}
-                        </ChipGroup>
+                                <Label variant="outline" key={"chip-" + index} className="chip"
+                                       onClose={() => arrayDeleteValue(property.name, v)}>{v.toString()}</Label>))}
+                        </LabelGroup>
                     </TextInputGroupMain>
                     <TextInputGroupUtilities>
-                        <Button variant="plain" onClick={e => arraySave(property.name)} aria-label="Add element">
-                            <PlusIcon/>
-                        </Button>
+                        <Button icon={<PlusIcon/>} variant="plain" onClick={e => arraySave(property.name)} aria-label="Add element"/>
                     </TextInputGroupUtilities>
                 </TextInputGroup>
             </div>
@@ -831,12 +795,10 @@ export function DslPropertyField(props: Props) {
     }
 
     function getKameletPropertyValue(property: Property) {
-        const element = props.element;
         return CamelDefinitionApiExt.getParametersValue(element, property.id)
     }
 
     function getFilteredKameletProperties(): Property[] {
-        const element = props.element;
         const requiredParameters = CamelUtil.getKameletRequiredParameters(element);
         let properties = CamelUtil.getKameletProperties(element)
         const filter = propertyFilter.toLocaleLowerCase()
@@ -854,7 +816,6 @@ export function DslPropertyField(props: Props) {
     }
 
     function getKameletParameters() {
-        const element = props.element;
         const requiredParameters = CamelUtil.getKameletRequiredParameters(element);
         return (
             <div className="parameters">
@@ -863,7 +824,7 @@ export function DslPropertyField(props: Props) {
                         key={property.id}
                         property={property}
                         value={getKameletPropertyValue(property)}
-                        expressionEditor={props.expressionEditor}
+                        expressionEditor={expressionEditor}
                         required={requiredParameters?.includes(property.id)}
                     />)}
             </div>
@@ -871,7 +832,6 @@ export function DslPropertyField(props: Props) {
     }
 
     function getComponentPropertyValue(kp: ComponentProperty) {
-        const element = props.element;
         return CamelDefinitionApiExt.getParametersValue(element, kp.name, kp.kind === 'path');
     }
 
@@ -883,16 +843,16 @@ export function DslPropertyField(props: Props) {
                         key={kp.name}
                         property={kp}
                         value={getComponentPropertyValue(kp)}
-                        element={props.element}
-                        expressionEditor={props.expressionEditor}
-                        onParameterChange={props.onParameterChange}
+                        element={element}
+                        expressionEditor={expressionEditor}
+                        onParameterChange={onParameterChange}
                     />)
                 })}
             </div>
         )
     }
 
-    function getExpandableComponentProperties(properties: ComponentProperty[], label: string) {
+    function getExpandableComponentParameters(properties: ComponentProperty[], label: string) {
         return (
             <ExpandableSection
                 toggleText={label}
@@ -913,8 +873,8 @@ export function DslPropertyField(props: Props) {
                             key={kp.name}
                             property={kp}
                             value={getComponentPropertyValue(kp)}
-                            expressionEditor={props.expressionEditor}
-                            onParameterChange={props.onParameterChange}
+                            expressionEditor={expressionEditor}
+                            onParameterChange={onParameterChange}
                         />
                     )}
                 </div>
@@ -926,6 +886,7 @@ export function DslPropertyField(props: Props) {
         return (
             property.description
                 ? <Popover
+                    triggerRef={labelHelpRef}
                     position={"left"}
                     headerContent={property.displayName}
                     bodyContent={property.description}
@@ -936,12 +897,7 @@ export function DslPropertyField(props: Props) {
                             {property.required && <b>Required</b>}
                         </div>
                     }>
-                    <button type="button" aria-label="More info" onClick={e => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                    }} className="pf-v5-c-form__group-label-help">
-                        <HelpIcon/>
-                    </button>
+                    <FormGroupLabelHelp ref={labelHelpRef} aria-label="More info"/>
                 </Popover>
                 : <div></div>
         )
@@ -956,7 +912,7 @@ export function DslPropertyField(props: Props) {
     }
 
     function getBeanProperties(type: 'constructors' | 'properties') {
-        return <BeanProperties type={type} onChange={changeBean} onClone={changeBean} expressionEditor={props.expressionEditor}/>
+        return <BeanProperties type={type} onChange={changeBean} onClone={changeBean} expressionEditor={expressionEditor}/>
     }
 
     function isMultiValueField(property: PropertyMeta): boolean {
@@ -988,7 +944,6 @@ export function DslPropertyField(props: Props) {
     }
 
     function getComponentParameters(property: PropertyMeta) {
-        const element = props.element;
         const properties = getFilteredComponentProperties();
         const propertiesMain = properties.filter(p => !p.label.includes("advanced") && !p.label.includes("security") && !p.label.includes("scheduler"));
         const propertiesAdvanced = properties.filter(p => p.label.includes("advanced"));
@@ -998,11 +953,11 @@ export function DslPropertyField(props: Props) {
             <>
                 {property.name === 'parameters' && getMainComponentParameters(propertiesMain)}
                 {property.name === 'parameters' && element && propertiesScheduler.length > 0
-                    && getExpandableComponentProperties(propertiesScheduler, "Component scheduler properties")}
+                    && getExpandableComponentParameters(propertiesScheduler, "Component scheduler parameters")}
                 {property.name === 'parameters' && element && propertiesSecurity.length > 0
-                    && getExpandableComponentProperties(propertiesSecurity, "Component security properties")}
+                    && getExpandableComponentParameters(propertiesSecurity, "Component security parameters")}
                 {property.name === 'parameters' && element && propertiesAdvanced.length > 0
-                    && getExpandableComponentProperties(propertiesAdvanced, "Component advanced properties")}
+                    && getExpandableComponentParameters(propertiesAdvanced, "Component advanced parameters")}
             </>
         )
     }
@@ -1034,11 +989,8 @@ export function DslPropertyField(props: Props) {
         )
     }
 
-    const element = props.element;
     const isKamelet = CamelUtil.isKameletComponent(element);
     const isRouteTemplate = element?.dslName === 'RouteTemplateDefinition';
-    const property: PropertyMeta = props.property;
-    const value = props.value;
     const validated = (property.secret && !isSensitiveFieldValid(value)) ? ValidatedOptions.error : ValidatedOptions.default;
     const isVariable = getIsVariable();
     const beanConstructors = element?.dslName === 'BeanFactoryDefinition' && property.name === 'constructors'
@@ -1046,60 +998,60 @@ export function DslPropertyField(props: Props) {
     const isSpi = property.javaType.startsWith("org.apache.camel.spi") || property.javaType.startsWith("org.apache.camel.AggregationStrategy");
     const valueChangedClassName = PropertyUtil.hasDslPropertyValueChanged(property, value) ? 'value-changed' : '';
     return (
-        <>
-            <FormGroup
-                className='dsl-property-form-group'
-                label={props.hideLabel ? undefined : getLabel(property, value, isKamelet)}
-                isRequired={property.required}
-                labelIcon={isParameter(property) ? undefined : getLabelIcon(property)}>
-                {value !== undefined && ["ExpressionDefinition", "ExpressionSubElementDefinition"].includes(property.type)
-                    && getExpressionField(property, value)}
-                {property.isObject && !property.isArray && !["ExpressionDefinition", "ExpressionSubElementDefinition"].includes(property.type)
-                    && getObjectField(property, value)}
-                {property.isObject && property.isArray && !isMultiValueField(property)
-                    && getMultiValueObjectField(property, value)}
-                {property.name === 'expression' && property.type === "string" && !property.isArray
-                    && getTextArea(property, value)}
-                {canBeInternalUri(property, element)
-                    && getInternalUriSelect(property, value)}
-                {canBeMediaType(property, element)
-                    && getMediaTypeSelect(property, value)}
-                {javaTypeGenerated(property)
-                    && getJavaTypeGeneratedInput(property, value)}
-                {['duration', 'integer', 'number'].includes(property.type)
-                    && !isVariable
-                    && property.name !== 'expression'
-                    && !property.name.endsWith("Ref")
-                    && !property.isArray && !property.enumVals
-                    && !canBeInternalUri(property, element)
-                    && !canBeMediaType(property, element)
-                    && !javaTypeGenerated(property)
-                    && getSpecialStringInput(property)}
-                {['string'].includes(property.type)
-                    && !isVariable
-                    && property.name !== 'expression'
-                    && !property.name.endsWith("Ref")
-                    && !property.isArray && !property.enumVals
-                    && !canBeInternalUri(property, element)
-                    && !canBeMediaType(property, element)
-                    && !javaTypeGenerated(property)
-                    && getStringInput(property)}
-                {isVariable && getVariableInput(property)}
-                {['string'].includes(property.type) && property.name.endsWith("Ref") && !property.isArray && !property.enumVals
-                    && getSelectBean(property, value)}
-                {isMultiValueField(property)
-                    && getMultiValueField(property, value)}
-                {property.type === 'boolean'
-                    && getBooleanInput(property)}
-                {property.enumVals
-                    && getSelect(property, value)}
-                {isKamelet && property.name === 'parameters' && getKameletParameters()}
-                {!isKamelet && property.name === 'parameters' && getComponentParameters(property)}
-                {beanConstructors && getBeanProperties('constructors')}
-                {beanProperties && getBeanProperties('properties')}
-                {getValidationHelper()}
-            </FormGroup>
-            {getConfigurationSelectorModal()}
-        </>
+        <FormGroup
+            className='dsl-property-form-group'
+            label={hideLabel ? undefined : getLabel(property, value, isKamelet)}
+            isRequired={property.required}
+            labelHelp={isParameter(property) ? undefined : getLabelIcon(property)}>
+            {value !== undefined && ["ExpressionDefinition", "ExpressionSubElementDefinition"].includes(property.type)
+                && getExpressionField(property, value)}
+            {property.isObject && !property.isArray && !["ExpressionDefinition", "ExpressionSubElementDefinition"].includes(property.type)
+                && getObjectField(property, value)}
+            {property.isObject && property.isArray && !isMultiValueField(property)
+                && getMultiValueObjectField(property, value)}
+            {property.name === 'expression' && property.type === "string" && !property.isArray
+                && getExpressionFieldEditor(property, value)}
+            {canBeInternalUri(property, element)
+                && getInternalUriSelect()}
+            {canBeMediaType(property, element)
+                && getMediaTypeSelect(property, value)}
+            {javaTypeGenerated(property)
+                && getJavaTypeGeneratedInput(property, value)}
+            {['duration', 'integer', 'number'].includes(property.type)
+                && !isVariable
+                && property.name !== 'expression'
+                && !property.name.endsWith("Ref")
+                && !property.isArray && !property.enumVals
+                && !canBeInternalUri(property, element)
+                && !canBeMediaType(property, element)
+                && !javaTypeGenerated(property)
+                && getSpecialStringInput(property)}
+            {['string'].includes(property.type)
+                && !isVariable
+                && property.name !== 'expression'
+                && !property.name.endsWith("Ref")
+                && !property.isArray && !property.enumVals
+                && !canBeInternalUri(property, element)
+                && !canBeMediaType(property, element)
+                && !javaTypeGenerated(property)
+                && getStringInput(property)}
+            {isVariable && getVariableInput(property)}
+            {['string'].includes(property.type)
+                && property.name.endsWith("Ref")
+                && !property.isArray && !property.enumVals
+                && getSelectBean(property, value)}
+            {isMultiValueField(property)
+                && getMultiValueField(property, value)}
+            {property.type === 'boolean'
+                && getBooleanInput(property)}
+            {property.enumVals
+                && getSelect(property, value)}
+            {isKamelet && property.name === 'parameters' && getKameletParameters()}
+            {!isKamelet && property.name === 'parameters' && getComponentParameters(property)}
+            {beanConstructors && getBeanProperties('constructors')}
+            {beanProperties && getBeanProperties('properties')}
+            {getValidationHelper()}
+            {configurationSelector && getConfigurationSelectorModal()}
+        </FormGroup>
     )
 }

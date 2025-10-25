@@ -15,6 +15,25 @@
  * limitations under the License.
  */
 
+export type FileOperation =
+    | "create"
+    | "select"
+    | "delete"
+    | "none"
+    | "copy"
+    | "upload"
+    | "rename"
+    | "diff";
+
+export type ProjectOperation = "create" | "select" | "delete" | "none" | "copy"
+
+export type DesignerTab = "routes" | "rest" | "beans" | "kamelet";
+
+export const DOCKER_COMPOSE = "docker-compose.yaml";
+export const KUBERNETES_YAML = "kubernetes.yaml";
+export const APPLICATION_PROPERTIES = 'application.properties';
+export const BUILD_IN_FILES = [APPLICATION_PROPERTIES, DOCKER_COMPOSE, KUBERNETES_YAML];
+
 export class AppConfig {
     title: string = '';
     version: string = '';
@@ -24,17 +43,29 @@ export class AppConfig {
     status: any[] = [];
     configFilenames: any[] = [];
     advanced: any = {}
+    platformSecretName: string = '';
+    platformConfigName: string = '';
 }
 
 export enum ProjectType {
-    templates ='templates',
-    kamelets ='kamelets',
-    configuration ='configuration',
-    services ='services',
-    normal ='normal',
+    templates = 'templates',
+    kamelets = 'kamelets',
+    configuration = 'configuration',
+    documentation = 'documentation',
+    services = 'services',
+    events = 'events',
+    cache = 'cache',
+    integration = 'integration',
 }
 
-export const BUILD_IN_PROJECTS: string[] = [ProjectType.kamelets.toString(), ProjectType.templates.toString(), ProjectType.configuration.toString(), ProjectType.services.toString()];
+export const BUILD_IN_PROJECTS: string[] = [
+    ProjectType.kamelets.toString(),
+    ProjectType.templates.toString(),
+    ProjectType.configuration.toString(),
+    ProjectType.services.toString(),
+    ProjectType.events.toString(),
+    ProjectType.documentation.toString()
+];
 export const RESERVED_WORDS: string[] = [...BUILD_IN_PROJECTS, 'karavan'];
 
 export class Project {
@@ -42,7 +73,7 @@ export class Project {
     name: string = '';
     lastCommit: string = '';
     lastCommitTimestamp: number = 0;
-    type: string = ProjectType.normal;
+    type: string = ProjectType.integration;
 
     public constructor(projectId: string, name: string, lastCommit: string, type: string);
     public constructor(init?: Partial<Project>);
@@ -90,6 +121,8 @@ export class ContainerPort {
     type: string = '';
 }
 
+export type ContainerType = 'devmode' | 'devservice' | 'packaged' | 'internal' | 'build' | 'unknown';
+
 export class ContainerStatus {
     containerName: string = '';
     containerId: string = '';
@@ -98,7 +131,7 @@ export class ContainerStatus {
     deployment: string = '';
     projectId: string = '';
     env: string = '';
-    type: 'devmode' | 'devservice' | 'packaged' | 'internal' | 'build' | 'unknown' = 'unknown';
+    type: ContainerType = 'unknown';
     memoryInfo: string = '';
     cpuInfo: string = '';
     created: string = '';
@@ -112,6 +145,18 @@ export class ContainerStatus {
     labels: any
 
     public constructor(init?: Partial<ContainerStatus>) {
+        Object.assign(this, init);
+    }
+}
+
+export class PodEvent {
+    id: string = '';
+    containerName: string = '';
+    reason: string = ''
+    note: string = '';
+    creationTimestamp: string = '';
+
+    public constructor(init?: Partial<PodEvent>) {
         Object.assign(this, init);
     }
 }
@@ -165,39 +210,51 @@ export class ContainerImage {
 export const ProjectFileTypes: ProjectFileType[] = [
     new ProjectFileType("INTEGRATION", "Integration", "camel.yaml"),
     new ProjectFileType("KAMELET", "Kamelet", "kamelet.yaml"),
-    new ProjectFileType("CODE", "Code", "java"),
+    new ProjectFileType("JAVA", "Java", "java"),
+    new ProjectFileType("GROOVY", "Groovy", "groovy"),
     new ProjectFileType("PROPERTIES", "Properties", "properties"),
     new ProjectFileType("JSON", "JSON", "json"),
+    new ProjectFileType("OPENAPI", "OpenAPI", "json"),
+    new ProjectFileType("ASYNCAPI", "AsyncAPI", "yaml"),
+    new ProjectFileType("ASYNCAPI", "AsyncAPI", "json"),
     new ProjectFileType("YAML", "YAML", "yaml"),
+    new ProjectFileType("DOCKER", "Docker Compose", "yaml"),
     new ProjectFileType("SH", "Script", "sh"),
     new ProjectFileType("OTHER", "Other", "*"),
 ];
 
-function getProjectFileType (file: ProjectFile) {
+function getProjectFileType(file: ProjectFile) {
     return getProjectFileTypeByName(file.name);
 }
 
-function getProjectFileTypeByName (fileName: string) {
+export function getProjectFileTypeByName(fileName: string): ProjectFileType[] {
+    if (fileName === DOCKER_COMPOSE) return ProjectFileTypes.filter(p => p.name === "DOCKER")
     if (fileName.endsWith(".camel.yaml")) return ProjectFileTypes.filter(p => p.name === "INTEGRATION")
     if (fileName.endsWith(".kamelet.yaml")) return ProjectFileTypes.filter(p => p.name === "KAMELET")
+    if (fileName === "openapi.json") return ProjectFileTypes.filter(p => p.name === "OPENAPI")
+    if (fileName === "asyncapi.json") return ProjectFileTypes.filter(p => p.name === "ASYNCAPI")
+    if (fileName === "asyncapi.yaml") return ProjectFileTypes.filter(p => p.name === "ASYNCAPI")
     if (fileName.endsWith(".json")) return ProjectFileTypes.filter(p => p.name === "JSON")
     if (fileName.endsWith(".yaml")) return ProjectFileTypes.filter(p => p.name === "YAML")
+    if (fileName.endsWith(".yml")) return ProjectFileTypes.filter(p => p.name === "YAML")
+    if (fileName.endsWith(".groovy")) return ProjectFileTypes.filter(p => p.name === "GROOVY")
+    if (fileName.endsWith(".java")) return ProjectFileTypes.filter(p => p.name === "JAVA")
     const extension = fileName.substring(fileName.lastIndexOf('.') + 1);
     return ProjectFileTypes.filter(p => p.extension === extension);
 }
 
-export function getProjectFileTypeName (file: ProjectFile) {
+export function getProjectFileTypeName(file: ProjectFile) {
     const types = getProjectFileType(file);
-    return types.length >0 ? types.map(p => p.name)[0] : "OTHER";
+    return types.length > 0 ? types.map(p => p.name)[0] : "OTHER";
 }
 
-export function getProjectFileTypeTitle (file: ProjectFile) {
+export function getProjectFileTypeTitle(file: ProjectFile) {
     const types = getProjectFileType(file);
-    return types.length >0 ? types.map(p => p.title)[0] : "Other";
+    return types.length > 0 ? types.map(p => p.title)[0] : "Other";
 }
 
-export function getProjectFileTypeByNameTitle (fileName: string) {
+export function getProjectFileTypeByNameTitle(fileName: string) {
     const types = getProjectFileTypeByName(fileName);
-    return types.length >0 ? types.map(p => p.title)[0] : "Other";
+    return types.length > 0 ? types.map(p => p.title)[0] : "Other";
 }
 

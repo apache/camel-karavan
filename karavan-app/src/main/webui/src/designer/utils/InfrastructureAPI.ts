@@ -23,6 +23,7 @@ export class InfrastructureAPI {
     static onSavePropertyPlaceholder: (key: string, value: string) => void;
     static onInternalConsumerClick: (uri?: string, name?: string, routeId?: string, fileName?: string) => void;
     static onCreateNewRoute: (componentName: string, propertyName: string, propertyValue: string) => void;
+    static onCreateNewFile: (fileName: string, code: string, open:boolean) => void;
 
     static setOnGetCustomCode(onGetCustomCode: (name: string, javaType: string) => Promise<string | undefined>){
         this.onGetCustomCode = onGetCustomCode
@@ -45,6 +46,9 @@ export class InfrastructureAPI {
     }
     static setOnCreateNewRoute(onCreateNewRoute:(componentName: string, propertyName: string, propertyValue: string) => void){
         this.onCreateNewRoute = onCreateNewRoute
+    }
+    static setOnCreateNewFile(onCreateNewFile: (fileName: string, code: string, open:boolean) => void){
+        this.onCreateNewFile = onCreateNewFile
     }
 
     // Kubernetes/Docker API

@@ -16,16 +16,8 @@
  */
 import React, {useState} from 'react';
 import {
-    ExpandableSection
+    ExpandableSection, SelectOptionProps
 } from '@patternfly/react-core';
-import {
-    Select,
-    SelectVariant,
-    SelectDirection,
-    SelectOption
-} from '@patternfly/react-core/deprecated';
-import '../../karavan.css';
-import "@patternfly/patternfly/patternfly.css";
 import {CamelMetadataApi, PropertyMeta} from "karavan-core/lib/model/CamelMetadata";
 import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt";
 import {DataFormatDefinition} from "karavan-core/lib/model/CamelDefinition";
@@ -36,28 +28,23 @@ import {DataFormats} from "karavan-core/lib/model/CamelMetadata";
 import {usePropertiesStore} from "../PropertyStore";
 import {shallow} from "zustand/shallow";
 import {PropertyUtil} from "./PropertyUtil";
+import {FieldSelectScrollable} from "@/components/FieldSelectScrollable";
 
 interface Props {
     dslName: string,
     value: CamelElement,
     onDataFormatChange?: (value: DataFormatDefinition) => void
     integration: Integration,
-    dark: boolean,
     expressionEditor: React.ComponentType<any>
 }
 
 export function DataFormatField(props: Props) {
 
     const [propertyFilter, changedOnly, requiredOnly] = usePropertiesStore((s) => [s.propertyFilter, s.changedOnly, s.requiredOnly], shallow)
-    const [selectIsOpen, setSelectIsOpen] = useState<boolean>(false);
     const [showAdvanced, setShowAdvanced] = useState<boolean>(false);
 
     function getDataFormatString() {
         return CamelDefinitionApiExt.getDataFormat(props.value)?.name || 'json';
-    }
-
-    function openSelect() {
-        setSelectIsOpen(true)
     }
 
     function dataFormatChanged(dataFormat: string, value?: CamelElement) {
@@ -76,7 +63,6 @@ export function DataFormatField(props: Props) {
         df.id = pValue.id;
 
         props.onDataFormatChange?.(df);
-        setSelectIsOpen(false);
     }
 
     function propertyChanged(fieldId: string, value: string | number | boolean | any) {
@@ -133,40 +119,32 @@ export function DataFormatField(props: Props) {
             )}
         </>)
     }
-
     const value = getDataFormatValue();
     const dataFormatString = getDataFormatString();
     const dataFormat = DataFormats.find((l: [string, string, string]) => l[0] === dataFormatString);
     const properties = getFilteredProperties();
     const propertiesMain = properties.filter(p => !p.label.includes("advanced"));
     const propertiesAdvanced = properties.filter(p => p.label.includes("advanced"));
-    const selectOptions: JSX.Element[] = []
+    const selectOptions: SelectOptionProps[] = [];
     DataFormats.forEach((lang: [string, string, string]) => {
-        const s = <SelectOption key={lang[0]} value={lang[0]} description={lang[2]}/>;
-        selectOptions.push(s);
+        selectOptions.push({key: lang[0], value: lang[0], description: lang[2], children: lang[1]});
     })
     return (
         <div>
             <div>
-                <label className="pf-v5-c-form__label" htmlFor="expression">
-                    <span className="pf-v5-c-form__label-text">{"Data Format"}</span>
-                    <span className="pf-v5-c-form__label-required" aria-hidden="true"> *</span>
+                <label className="-pf-v6-c-form__label" htmlFor="expression">
+                    <span className="-pf-v6-c-form__label-text">{"Data Format"}</span>
+                    <span className="-pf-v6-c-form__label-required" aria-hidden="true"> *</span>
                 </label>
-                <Select
-                    // className='value-changed'
-                    variant={SelectVariant.typeahead}
-                    aria-label={"dataFormat"}
-                    onToggle={() => {
-                        openSelect()
+                <FieldSelectScrollable
+                    className='value-changed'
+                    selectOptions={selectOptions}
+                    value={dataFormat?.[0]}
+                    placeholder={'Select...'}
+                    onChange={(selectedValue) => {
+                        if (selectedValue) dataFormatChanged(selectedValue, value)
                     }}
-                    onSelect={(_, dataFormat, isPlaceholder) => dataFormatChanged(dataFormat.toString(), value)}
-                    selections={dataFormat}
-                    isOpen={selectIsOpen}
-                    aria-labelledby={"dataFormat"}
-                    direction={SelectDirection.down}
-                >
-                    {selectOptions}
-                </Select>
+                />
             </div>
             <div className="object">
                 <div>

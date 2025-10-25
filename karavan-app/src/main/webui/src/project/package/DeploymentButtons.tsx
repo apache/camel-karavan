@@ -16,13 +16,8 @@
  */
 
 import React, {useState} from 'react';
-import {
-    Button,
-    Flex,
-    FlexItem,
-     Modal,
+import {Button,} from '@patternfly/react-core';
 
-} from '@patternfly/react-core';
 import '../../designer/karavan.css';
 import {useProjectStore, useStatusesStore} from "../../api/ProjectStore";
 import {shallow} from "zustand/shallow";
@@ -31,6 +26,7 @@ import DeployIcon from "@patternfly/react-icons/dist/esm/icons/upload-icon";
 import DeleteIcon from "@patternfly/react-icons/dist/esm/icons/trash-icon";
 import {KaravanApi} from "../../api/KaravanApi";
 import {EventBus} from "../../designer/utils/EventBus";
+import {ModalConfirmation} from "@/components/ModalConfirmation";
 
 interface Props {
     env: string,
@@ -72,75 +68,10 @@ export function DeploymentButtons (props: Props) {
         });
     }
 
-    function getDeleteConfirmation() {
-        return (<Modal
-            className="modal-delete"
-            title="Confirmation"
-            isOpen={showDeleteConfirmation}
-            onClose={() => setShowDeleteConfirmation(false)}
-            actions={[
-                <Button key="confirm" variant="primary" onClick={e => {
-                    if (project.projectId) {
-                        deleteDeployment();
-                        setShowDeleteConfirmation(false);
-                    }
-                }}>Delete
-                </Button>,
-                <Button key="cancel" variant="link"
-                        onClick={e => setShowDeleteConfirmation(false)}>Cancel</Button>
-            ]}
-            onEscapePress={e => setShowDeleteConfirmation(false)}>
-            <div>{"Delete deployment " + project.projectId + "?"}</div>
-        </Modal>)
-    }
-
-    function getRolloutConfirmation() {
-        return (<Modal
-            className="modal-delete"
-            title="Confirmation"
-            isOpen={showRolloutConfirmation}
-            onClose={() => setShowRolloutConfirmation(false)}
-            actions={[
-                <Button key="confirm" variant="primary" onClick={e => {
-                    if (project.projectId) {
-                        rolloutDeployment();
-                        setShowRolloutConfirmation(false);
-                    }
-                }}>Rollout
-                </Button>,
-                <Button key="cancel" variant="link"
-                        onClick={e => setShowRolloutConfirmation(false)}>Cancel</Button>
-            ]}
-            onEscapePress={e => setShowRolloutConfirmation(false)}>
-            <div>{"Rollout deployment " + project.projectId + "?"}</div>
-        </Modal>)
-    }
-
-    function getDeployConfirmation() {
-            return (<Modal
-                className="modal-delete"
-                title="Confirmation"
-                isOpen={showDeployConfirmation}
-                onClose={() => setShowDeployConfirmation(false)}
-                actions={[
-                    <Button key="confirm" variant="primary" onClick={e => {
-                        if (project.projectId) {
-                            startDeployment();
-                            setShowDeployConfirmation(false);
-                        }
-                    }}>Deploy
-                    </Button>,
-                    <Button key="cancel" variant="link"
-                            onClick={e => setShowDeployConfirmation(false)}>Cancel</Button>
-                ]}
-                onEscapePress={e => setShowDeleteConfirmation(false)}>
-                <div>{"Deploy " + project.projectId + "?"}</div>
-            </Modal>)
-        }
 
     function rolloutButton() {
         return (
-            <Button size="sm" variant="secondary"
+            <Button  variant="secondary"
                     className="project-button dev-action-button"
                     icon={<RolloutIcon/>}
                     onClick={e => {
@@ -152,7 +83,7 @@ export function DeploymentButtons (props: Props) {
 
     function deployButton() {
         return (
-            <Button size="sm" variant="primary"
+            <Button  variant="primary"
                     className="project-button dev-action-button"
                     icon={<DeployIcon/>}
                     onClick={e => {
@@ -164,7 +95,7 @@ export function DeploymentButtons (props: Props) {
     }
     function deleteButton() {
         return (
-            <Button size="sm" variant="control"
+            <Button  variant="control"
                     isDanger
                     className="project-button dev-action-button"
                     icon={<DeleteIcon/>}
@@ -179,13 +110,55 @@ export function DeploymentButtons (props: Props) {
     const deploymentStatus = deployments.find(d => d.projectId === project?.projectId);
 
     return (
-        <div className="toolbar">
+        <div style={{flex: '2', display: 'flex', flexDirection: 'row', justifyContent: 'end', alignItems: 'center', gap: '6px'}}>
             {deploymentStatus !== undefined && <div>{rolloutButton()}</div>}
             {deploymentStatus === undefined && <div>{deployButton()}</div>}
             {deploymentStatus !== undefined && <div>{deleteButton()}</div>}
-            {showDeleteConfirmation && getDeleteConfirmation()}
-            {showRolloutConfirmation && getRolloutConfirmation()}
-            {showDeployConfirmation && getDeployConfirmation()}
+            {showDeleteConfirmation &&
+                <ModalConfirmation
+                    isOpen={showDeleteConfirmation}
+                    message={"Delete deployment " + project.projectId + "?"}
+                    btnConfirm='Delete'
+                    btnConfirmVariant='danger'
+                    onConfirm={() => {
+                        if (project.projectId) {
+                            deleteDeployment();
+                            setShowDeleteConfirmation(false);
+                        }
+                    }}
+                    onCancel={() => setShowDeleteConfirmation(false)}
+                />
+            }
+            {showRolloutConfirmation &&
+                <ModalConfirmation
+                    isOpen={showDeleteConfirmation}
+                    message={"Rollout deployment " + project.projectId + "?"}
+                    btnConfirm='Rollout'
+                    btnConfirmVariant='primary'
+                    onConfirm={() => {
+                        if (project.projectId) {
+                            rolloutDeployment();
+                            setShowRolloutConfirmation(false);
+                        }
+                    }}
+                    onCancel={() => setShowDeleteConfirmation(false)}
+                />
+            }
+            {showDeployConfirmation &&
+                <ModalConfirmation
+                    isOpen={showDeleteConfirmation}
+                    message={"Deploy " + project.projectId + "?"}
+                    btnConfirm='Deploy'
+                    btnConfirmVariant='primary'
+                    onConfirm={() => {
+                        if (project.projectId) {
+                            startDeployment();
+                            setShowDeployConfirmation(false);
+                        }
+                    }}
+                    onCancel={() => setShowDeleteConfirmation(false)}
+                />
+            }
         </div>
     )
 }

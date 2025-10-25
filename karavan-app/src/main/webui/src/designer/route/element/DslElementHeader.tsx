@@ -14,25 +14,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import React, {CSSProperties, useEffect, useMemo} from 'react';
-import {Text, Tooltip,} from '@patternfly/react-core';
+import React, {CSSProperties, ReactElement, useCallback, useMemo, useRef} from 'react';
+import {Content, Tooltip,} from '@patternfly/react-core';
 import '../../karavan.css';
 import './DslElement.css';
 import {CamelElement} from "karavan-core/lib/model/IntegrationDefinition";
 import {CamelUi} from "../../utils/CamelUi";
-import {ChildElement, CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt";
+import {CamelDefinitionApiExt, ChildElement} from "karavan-core/lib/api/CamelDefinitionApiExt";
 import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
 import {CamelDisplayUtil} from "karavan-core/lib/api/CamelDisplayUtil";
 import {useDesignerStore, useIntegrationStore} from "../../DesignerStore";
 import {shallow} from "zustand/shallow";
 import {useRouteDesignerHook} from "../useRouteDesignerHook";
-import {AddElementIcon, DeleteElementIcon, InsertElementIcon, CopyElementIcon, DisableStepIcon, EnableStepIcon} from "../../utils/ElementIcons";
+import {AddElementIcon, CopyElementIcon, DeleteElementIcon, DisableStepIcon, EnableStepIcon, InsertElementIcon} from "../../utils/ElementIcons";
 import {RouteConfigurationDefinition} from "karavan-core/lib/model/CamelDefinition";
 import {AutoStartupFalseIcon, ErrorHandlerIcon} from "../../icons/OtherIcons";
 import {usePropertiesHook} from "../../property/usePropertiesHook";
 
 interface Props {
-    headerRef: React.RefObject<HTMLDivElement>
+    headerRef: React.Ref<HTMLDivElement> | undefined
     step: CamelElement,
     parent: CamelElement | undefined,
     nextStep: CamelElement | undefined,
@@ -63,13 +63,25 @@ export function DslElementHeader(props: Props) {
         useDesignerStore((s) =>
             [s.selectedStep, s.showMoveConfirmation, s.setShowMoveConfirmation, s.setMoveElements, s.passedNodeIds, s.passedRouteId, s.failed, s.failedRouteId, s.suspendedNodeId, s.isDebugging], shallow)
 
-    const step: CamelElement = props.step;
+    const {step, parent} = props;
     const disabled = (step as any).disabled === true;
     const autoStartup = (step as any).autoStartup === undefined || (step as any).autoStartup === true;
 
-    useEffect(() => {
-        // console.log("DslElementHeader selectedStep", selectedStep, selectedUuids)
-    }, [selectedStep])
+    const localHeaderRef = useRef<HTMLDivElement>(null);
+
+    // Merge any incoming ref into our local ref
+    const mergedRef = useCallback(
+        (node: HTMLDivElement | null) => {
+            // keep our own ref updated
+            localHeaderRef.current = node;
+
+            // propagate to the incoming ref (supports both callback and RefObject)
+            const r = props.headerRef;
+            if (typeof r === "function") r(node);
+            else if (r && "current" in r) (r as React.MutableRefObject<HTMLDivElement | null>).current = node;
+        },
+        [props.headerRef]
+    );
 
     function onOpenSelector(evt: React.MouseEvent, showSteps: boolean = true, isInsert: boolean = false) {
         evt.stopPropagation();
@@ -158,7 +170,7 @@ export function DslElementHeader(props: Props) {
 
     function getHeaderIconClasses(): string {
         const classes: string[] = ['header-icon'];
-        if (['ToDefinition', 'FromDefinition', 'PollDefinition'].includes(step.dslName)) {
+        if (['ToDefinition', 'FromDefinition', 'PollDefinition', 'WireTapDefinition'].includes(step.dslName)) {
             classes.push('header-icon-square');
         } else if (step.dslName === 'ChoiceDefinition') {
             classes.push('header-icon-diamond');
@@ -174,14 +186,16 @@ export function DslElementHeader(props: Props) {
         if (suspendedNodeId === (step as any).id) {
             classes.push(failed ? "header-icon-border-failed" : "header-icon-border-current")
         }
+        classes.push((step as any)?.disabled ? " disabled " : "")
+        classes.push((parent as any)?.disabled ? " disabled " : "")
         return classes.join(" ");
     }
 
     function getBorderColor() {
         if (step.dslName === 'RouteDefinition' && (step as any).id === failedRouteId) {
-            return 'var(--pf-v5-global--danger-color--100)';
+            return "var(--pf-t--color--red--50)";
         } else if (step.dslName === 'RouteDefinition' && (step as any).id === passedRouteId) {
-            return "var(--pf-v5-global--palette--green-400)";
+            return "var(--pf-t--color--green--50)";
         } else {
             return isElementSelected() ? "var(--step-border-color-selected)" : "var(--step-border-color)";
         }
@@ -234,7 +248,7 @@ export function DslElementHeader(props: Props) {
         const childrenInfo = getChildrenInfo(step) || [];
         const hasWideChildrenElement = getHasWideChildrenElement(childrenInfo)
         return (
-            <div className={"dsl-element " + headerClasses} style={getHeaderStyle()} ref={props.headerRef}>
+            <div className={"dsl-element " + headerClasses} style={getHeaderStyle()} ref={mergedRef}>
                 {!['RouteConfigurationDefinition', 'RouteTemplateDefinition', 'RouteDefinition'].includes(step.dslName) &&
                     <div
                         className={getHeaderIconClasses()}
@@ -301,28 +315,30 @@ export function DslElementHeader(props: Props) {
             checkRequired[1].push('Id should be unique');
         }
         let className = hasWideChildrenElement ? "text text-right" : "text text-bottom";
+        className = className.concat((step as any)?.disabled ? " disabled " : "")
+        className = className.concat((parent as any)?.disabled ? " disabled " : "")
         if (!checkRequired[0]) className = className + " header-text-required";
         if (checkRequired[0]) {
-            return <Text style={{marginTop: (step.dslName === 'ChoiceDefinition' ? '-5px' : 'inherit')}} className={className}>{title}</Text>
+            return <Content component="p" style={{marginTop: (step.dslName === 'ChoiceDefinition' ? '-5px' : 'inherit')}} className={className}>{title}</Content>
         } else return (
             <Tooltip position={"right"} className="tooltip-required-field"
                      content={checkRequired[1].map((text, i) => (<div key={i}>{text}</div>))}>
-                <Text className={className}>{title}</Text>
+                <Content component="p" className={className}>{title}</Content>
             </Tooltip>
         )
     }
 
-    function getHeaderWithTooltip(tooltip: string | React.JSX.Element | undefined) {
+    function getHeaderWithTooltip(tooltip: string | ReactElement | undefined) {
         return (
             <>
                 {getHeader()}
-                <Tooltip triggerRef={props.headerRef} entryDelay={700} position={"left"} content={<div style={{textAlign: 'left'}}>{tooltip}</div>}/>
+                <Tooltip triggerRef={localHeaderRef} entryDelay={700} position={"left"} content={<div style={{textAlign: 'left'}}>{tooltip}</div>}/>
             </>
 
         )
     }
 
-    function getHeaderTooltip(): string | React.JSX.Element | undefined {
+    function getHeaderTooltip(): string | ReactElement | undefined {
         if (CamelUi.isShowExpressionTooltip(step)) {
             const et =  CamelUi.getExpressionTooltip(step);
             const exp = et[1];

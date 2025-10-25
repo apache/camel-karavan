@@ -15,11 +15,10 @@
  * limitations under the License.
  */
 import React, {CSSProperties, useState} from 'react';
-import '../../karavan.css';
 import './DslElement.css';
 import {CamelElement} from "karavan-core/lib/model/IntegrationDefinition";
 import {EventBus} from "../../utils/EventBus";
-import {ChildElement, CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt";
+import {CamelDefinitionApiExt, ChildElement} from "karavan-core/lib/api/CamelDefinitionApiExt";
 import {CamelDisplayUtil} from "karavan-core/lib/api/CamelDisplayUtil";
 import {useDesignerStore, useIntegrationStore} from "../../DesignerStore";
 import {shallow} from "zustand/shallow";
@@ -52,9 +51,9 @@ export function DslElement(props: Props) {
 
     const [integration] = useIntegrationStore((s) => [s.integration], shallow)
 
-    const [selectedUuids, selectedStep, showMoveConfirmation, setShowMoveConfirmation, setMoveElements, passedRouteId, failedRouteId, isDebugging] =
+    const [selectedUuids, selectedStep, showMoveConfirmation, setShowMoveConfirmation, setMoveElements, passedRouteId, failedRouteId, isDebugging, setStepDoubleClicked] =
         useDesignerStore((s) =>
-            [s.selectedUuids, s.selectedStep, s.showMoveConfirmation, s.setShowMoveConfirmation, s.setMoveElements, s.passedRouteId, s.failedRouteId, s.isDebugging], shallow)
+            [s.selectedUuids, s.selectedStep, s.showMoveConfirmation, s.setShowMoveConfirmation, s.setMoveElements, s.passedRouteId, s.failedRouteId, s.isDebugging, s.setStepDoubleClicked], shallow)
     const [isDragging, setIsDragging] = useState<boolean>(false);
 
     const [isDraggedOver, setIsDraggedOver] = useState<boolean>(false);
@@ -68,9 +67,10 @@ export function DslElement(props: Props) {
         }
     }
 
-    function onSelectElement(evt: React.MouseEvent) {
+    function onSelectElement(evt: React.MouseEvent, doubleClicked: boolean = false) {
         evt.stopPropagation();
         selectElement(step);
+        setStepDoubleClicked(doubleClicked);
     }
 
     function dragElement(event: React.DragEvent<HTMLDivElement>, element: CamelElement) {
@@ -249,9 +249,9 @@ export function DslElement(props: Props) {
 
     function getBorderColor() {
         if (step.dslName === 'RouteDefinition' && (step as any).id === failedRouteId) {
-            return 'var(--pf-v5-global--danger-color--100)';
+            return "var(--pf-t--color--red--50)";
         } else if (step.dslName === 'RouteDefinition' && (step as any).id === passedRouteId) {
-            return "var(--pf-v5-global--palette--green-400)";
+            return "var(--pf-t--color--green--50)";
         } else {
             return isElementSelected() ? "var(--step-border-color-selected)" : "var(--step-border-color)";
         }
@@ -268,9 +268,7 @@ export function DslElement(props: Props) {
     }
 
     const step: CamelElement = props.step;
-    const className = "step-element"
-        + (!step.showChildren ? " hidden-step" : "")
-        + ((step as any).disabled ? " disabled " : "");
+    const className = "step-element" + (!step.showChildren ? " hidden-step" : "");
     return (
         <div key={"root" + step.uuid}
              className={className}
@@ -285,6 +283,7 @@ export function DslElement(props: Props) {
              }}
              onMouseOver={event => event.stopPropagation()}
              onClick={event => onSelectElement(event)}
+             onDoubleClick={event => onSelectElement(event, true)}
              onDragStart={event => {
                  event.stopPropagation();
                  event.dataTransfer.setData("text/plain", step.uuid);

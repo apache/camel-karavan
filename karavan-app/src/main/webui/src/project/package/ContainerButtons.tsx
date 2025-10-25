@@ -16,16 +16,15 @@
  */
 
 import React, {useState} from 'react';
-import {Button, FlexItem, Modal, Spinner, Switch, Tooltip, TooltipPosition} from '@patternfly/react-core';
-import './Package.css';
+import {Button, Modal, ModalBody, ModalFooter, ModalHeader, Spinner, Switch, Tooltip, TooltipPosition} from '@patternfly/react-core';
 import DeleteIcon from "@patternfly/react-icons/dist/esm/icons/trash-icon";
 import StopIcon from "@patternfly/react-icons/dist/esm/icons/stop-icon";
 import DeployIcon from "@patternfly/react-icons/dist/esm/icons/upload-icon";
-import {useAppConfigStore, useDevModeStore, useLogStore, useProjectStore, useStatusesStore} from "../../api/ProjectStore";
+import {useAppConfigStore, useDevModeStore, useLogStore, useProjectStore, useStatusesStore} from "@/api/ProjectStore";
 import {shallow} from "zustand/shallow";
 import RunIcon from "@patternfly/react-icons/dist/esm/icons/play-icon";
-import {KaravanApi} from "../../api/KaravanApi";
-import {EventBus} from "../../designer/utils/EventBus";
+import {KaravanApi} from "@/api/KaravanApi";
+import {EventBus} from "@/designer/utils/EventBus";
 
 interface Props {
     env: string,
@@ -61,42 +60,43 @@ export function ContainerButtons(props: Props) {
 
     function getConfirmationModal() {
         return (<Modal
-            className="modal-delete"
-            title="Confirmation"
             isOpen={showConfirmation}
             onClose={() => setShowConfirmation(false)}
-            actions={[
+            onEscapePress={e => setShowConfirmation(false)}>
+            <ModalHeader title='Confirmation'/>
+            <ModalBody>
+                <div>{"Confirm " + actionType + " container?"}</div>
+                {actionType === 'deploy' && <div>
+                    <Switch
+                        label="Pull image"
+                        isChecked={pullImage}
+                        onChange={(_, checked) => setPullImage(checked)}
+                        isReversed
+                    />
+                </div>}
+            </ModalBody>
+            <ModalFooter>
                 <Button key="confirm" variant="primary" onClick={e => {
                     if (actionType && project.projectId) {
                         act();
                         setShowConfirmation(false);
                     }
                 }}>Confirm
-                </Button>,
+                </Button>
                 <Button key="cancel" variant="link"
                         onClick={e => setShowConfirmation(false)}>Cancel</Button>
-            ]}
-            onEscapePress={e => setShowConfirmation(false)}>
-            <div>{"Confirm " + actionType + " container?"}</div>
-            {actionType === 'deploy' && <div>
-                <Switch
-                    label="Pull image"
-                    isChecked={pullImage}
-                    onChange={(_, checked) => setPullImage(checked)}
-                    isReversed
-                />
-            </div>}
+            </ModalFooter>
         </Modal>)
     }
 
     return (
-        <div className="toolbar">
+        <div style={{flex: '2', display: 'flex', flexDirection: 'row', justifyContent: 'end', alignItems: 'center', gap: '6px'}}>
             <div>
                 {(inTransit || isLoading) && <Spinner size="lg" aria-label="spinner"/>}
             </div>
             <div>
                 <Tooltip content="Deploy container" position={TooltipPosition.bottom}>
-                    <Button className="dev-action-button" size="sm"
+                    <Button className="dev-action-button"
                             isDisabled={(!(commands.length === 0) && !commands.includes('deploy')) || inTransit}
                             variant={"primary"}
                             icon={<DeployIcon/>}
@@ -108,7 +108,7 @@ export function ContainerButtons(props: Props) {
             </div>
             <div>
                 <Tooltip content="Run container" position={TooltipPosition.bottom}>
-                    <Button className="dev-action-button" size="sm"
+                    <Button className="dev-action-button"
                             isDisabled={(!(commands.length === 0) && !commands.includes('run')) || inTransit}
                             variant={"primary"}
                             icon={<RunIcon/>}
@@ -122,7 +122,7 @@ export function ContainerButtons(props: Props) {
             </div>
             <div>
                 <Tooltip content="Stop container" position={TooltipPosition.bottom}>
-                    <Button className="dev-action-button" size="sm"
+                    <Button className="dev-action-button"
                             isDisabled={!commands.includes('stop') || inTransit}
                             variant={"control"}
                             icon={<StopIcon/>}
@@ -136,7 +136,7 @@ export function ContainerButtons(props: Props) {
             </div>
             <div>
                 <Tooltip content="Delete container" position={TooltipPosition.bottom}>
-                    <Button className="dev-action-button" size="sm"
+                    <Button className="dev-action-button"
                             isDisabled={!commands.includes('delete') || inTransit}
                             variant={"control"}
                             icon={<DeleteIcon/>}

@@ -1,37 +1,38 @@
-/*
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 import React from 'react';
 import {Badge, Button, Flex, FlexItem, Label, Tooltip} from '@patternfly/react-core';
-import '../designer/karavan.css';
+import './Complexity.css';
 import {Td, Tr} from "@patternfly/react-table";
-import DeleteIcon from "@patternfly/react-icons/dist/js/icons/times-icon";
+import DeleteIcon from "@patternfly/react-icons/dist/js/icons/times-circle-icon";
 import CopyIcon from "@patternfly/react-icons/dist/esm/icons/copy-icon";
-import DownloadIcon from "@patternfly/react-icons/dist/js/icons/download-icon";
-import {Project} from '../api/ProjectModels';
-import {useAppConfigStore, useLogStore, useProjectStore, useStatusesStore,} from "../api/ProjectStore";
+import DevmodeIcon from "@patternfly/react-icons/dist/js/icons/dev-icon";
+import DownloadIcon from "@patternfly/react-icons/dist/esm/icons/download-icon";
+import CheckIcon from "@patternfly/react-icons/dist/js/icons/check-icon";
 import {shallow} from "zustand/shallow";
 import {useNavigate} from "react-router-dom";
+import {BUILD_IN_PROJECTS, Project} from "@/api/ProjectModels";
+import {useAppConfigStore, useLogStore, useProjectStore, useStatusesStore} from "@/api/ProjectStore";
+import {ProjectZipApi} from "./ProjectZipApi";
+import {ComplexityProject} from "./ComplexityModels";
+import {ProjectsTableRowComplexity} from "./ProjectsTableRowComplexity";
+import {ProjectsTableRowActivity} from "./ProjectsTableRowActivity";
+import FileSaver from "file-saver";
+import TimeAgo from 'javascript-time-ago'
+import en from 'javascript-time-ago/locale/en'
+import {PackageIcon} from '@patternfly/react-icons';
+import {ROUTES} from "@/custom/Routes";
+
+TimeAgo.addDefaultLocale(en)
 
 interface Props {
     project: Project
+    complexity: ComplexityProject
+    activeUsers: string[]
+    labels: string[]
+    selectedLabels: string[]
+    onLabelClick: (label: string) => void
 }
 
-export function ProjectsTableRow (props: Props) {
+export function ProjectsTableRow(props: Props) {
 
     const [deployments, containers] = useStatusesStore((state) => [state.deployments, state.containers], shallow)
     const {config} = useAppConfigStore();
@@ -43,63 +44,122 @@ export function ProjectsTableRow (props: Props) {
         return config.environments && Array.isArray(config.environments) ? Array.from(config.environments) : [];
     }
 
-    function getStatusByEnvironments(name: string): [string, any] [] {
+    function getStatusByEnvironments(name: string): [string, any, boolean] [] {
         return getEnvironments().map(e => {
             const env: string = e as string;
-            const status = config.infrastructure === 'kubernetes'
-                ? deployments.find(d => d.projectId === name && d.env === env)
-                : containers.find(d => d.projectId === name && d.env === env);
-            return [env, status != null];
+            if (config.infrastructure === 'kubernetes') {
+                if (env === 'dev') {
+                    const statusD = deployments.find(d => d.projectId === name && d.env === env && d.readyReplicas === d.replicas);
+                    const statusC = containers.find(d => d.projectId === name && d.containerName === name && d.env === env && d.state === 'running' && d.type === 'devmode')
+                    return [env, (statusD !== undefined && statusD != null) || (statusC !== undefined && statusC != null), (statusC !== undefined && statusC != null)];
+                } else {
+                    const status = deployments.find(d => d.projectId === name && d.env === env && d.readyReplicas === d.replicas);
+                    return [env, (status !== undefined && status != null), false];
+                }
+            } else {
+                const status = containers.find(d => d.projectId === name && d.containerName === name && d.env === env && d.state === 'running');
+                return [env, (status !== undefined && status != null), status?.type === 'devmode'];
+            }
         });
     }
 
-    const project = props.project;
-    const isBuildIn = ['kamelets', 'templates'].includes(project.projectId);
-    const commit = project.lastCommit ? project.lastCommit?.substr(0, 7) : undefined;
+    function downloadProject(projectId: string) {
+        ProjectZipApi.downloadZip(projectId, data => {
+            FileSaver.saveAs(data, projectId + ".zip");
+        });
+    }
+
+    function getLastUpdateCell() {
+        const commit = project.lastCommit ? project.lastCommit?.substr(0, 7) : undefined;
+        const commitTimeStamp = commit !== undefined ? project.lastCommitTimestamp : 0;
+        const lastUpdateDate = complexity.lastUpdateDate;
+        const lastUpdateNotCommited = lastUpdateDate > commitTimeStamp;
+        const timeAgo = new TimeAgo('en-US')
+        if (lastUpdateNotCommited) {
+            return (<div style={{textWrap: 'nowrap'}}>{timeAgo.format(new Date(lastUpdateDate))}</div>)
+        } else {
+            return (
+                <Label color='green' icon={<CheckIcon/>}>
+                    <div style={{textWrap: 'nowrap'}}>{timeAgo.format(new Date(commitTimeStamp))}</div>
+                </Label>
+            )
+        }
+    }
+
+    const {project, complexity, activeUsers, labels, selectedLabels, onLabelClick} = props;
+    const isBuildIn = BUILD_IN_PROJECTS.includes(project.projectId);
     return (
         <Tr key={project.projectId}>
-            <Td>
+            <Td style={{verticalAlign: "middle"}}>
                 <Button style={{padding: '6px'}} variant={"link"} onClick={e => {
                     // setProject(project, "select");
                     setShowLog(false, 'none');
                     // ProjectEventBus.selectProject(project);
-                    navigate("/projects/"+ project.projectId);
+                    navigate(`${ROUTES.INTEGRATIONS}/${project.projectId}`);
                 }}>
                     {project.projectId}
                 </Button>
             </Td>
-            <Td>{project.name}</Td>
-            <Td isActionCell>
-                {commit && <Tooltip content={project.lastCommit} position={"bottom"}>
-                    <Badge className="badge">{commit}</Badge>
-                </Tooltip>}
+            <Td style={{verticalAlign: "middle"}}>
+                <div style={{display: 'flex', flexDirection: 'column', alignItems: 'start', justifyContent: 'start', gap: '3px'}}>
+                    <div>
+                        {project.name}
+                    </div>
+                    {labels.length > 0 &&
+                        <div style={{display: 'flex', flexDirection: 'row', gap: '3px'}}>
+                            {labels.map((label) => (
+                                <Badge key={label} isRead={!selectedLabels.includes(label)} style={{fontWeight: 'normal', cursor: 'pointer'}}
+                                       onClick={event => onLabelClick(label)}>
+                                    {label}
+                                </Badge>
+                            ))}
+                        </div>
+                    }
+                </div>
             </Td>
-            <Td noPadding>
+            <Td style={{verticalAlign: "middle"}} isActionCell>
+                <div style={{display: "flex", gap: "3px", marginLeft: '16px', marginRight: '16px'}}>
+                    {getLastUpdateCell()}
+                </div>
+            </Td>
+            <Td noPadding textCenter style={{verticalAlign: "middle"}}>
                 {!isBuildIn &&
-                    <div style={{display: "flex", gap:"2px"}}>
+                    <div style={{display: "flex", gap: "3px", justifyContent: 'center', marginLeft: '16px', marginRight: '16px'}}>
                         {getStatusByEnvironments(project.projectId).map(value => {
+                            const env = value[0];
                             const active = value[1];
                             const color = active ? "green" : "grey"
                             const style = active ? {fontWeight: "bold"} : {}
-                            return <Label key={value.toString()} style={style} color={color} >{value[0]}</Label>
+                            const isDevmode = value[2];
+                            const icon = isDevmode ? <DevmodeIcon/> : <PackageIcon/>;
+                            const showIcon = env === 'dev' && active;
+                            return (
+                                <Label key={value.toString()} style={style} color={color} className='env-label' icon={showIcon && icon}>
+                                    {value[0]}
+                                </Label>
+                            )
                         })}
                     </div>
                 }
             </Td>
-            <Td className="project-action-buttons">
+            <Td noPadding textCenter style={{verticalAlign: "middle"}}>
+                {!isBuildIn && <ProjectsTableRowComplexity complexity={complexity}/>}
+            </Td>
+            <Td noPadding style={{verticalAlign: "middle"}}>
+                {!isBuildIn && <ProjectsTableRowActivity activeUsers={activeUsers}/>}
+            </Td>
+            <Td className="project-action-buttons" modifier={"fitContent"} style={{verticalAlign: "middle"}}>
                 {!isBuildIn &&
-                    <Flex direction={{default: "row"}} justifyContent={{default: "justifyContentFlexEnd"}}
-                          spaceItems={{default: 'spaceItemsNone'}}>
+                    <Flex direction={{default: "row"}} justifyContent={{default: "justifyContentFlexEnd"}} spaceItems={{default: 'spaceItemsNone'}} flexWrap={{default: 'nowrap'}}>
                         <FlexItem>
-                            <Tooltip content={"Download project"} position={"bottom"}>
-                                <Button className="dev-action-button" variant={"plain"} icon={<DownloadIcon/>}
-                                        onClick={e => {
-                                            setProject(project, "download");
-                                        }}></Button>
+                            <Tooltip content={"Delete Integration"} position={"bottom"}>
+                                <Button className="dev-action-button" variant={"link"} isDanger icon={<DeleteIcon/>} onClick={e => {
+                                    setProject(project, "delete");
+                                }}></Button>
                             </Tooltip>
                         </FlexItem>
                         <FlexItem>
-                            <Tooltip content={"Copy project"} position={"bottom"}>
+                            <Tooltip content={"Copy Integration"} position={"bottom"}>
                                 <Button className="dev-action-button" variant={"plain"} icon={<CopyIcon/>}
                                         onClick={e => {
                                             setProject(project, "copy");
@@ -107,10 +167,11 @@ export function ProjectsTableRow (props: Props) {
                             </Tooltip>
                         </FlexItem>
                         <FlexItem>
-                            <Tooltip content={"Delete project"} position={"bottom"}>
-                                <Button className="dev-action-button" variant={"plain"} icon={<DeleteIcon/>} onClick={e => {
-                                    setProject(project, "delete");
-                                }}></Button>
+                            <Tooltip content={"Export Integration"} position={"bottom-end"}>
+                                <Button className="dev-action-button" variant={"plain"} icon={<DownloadIcon/>}
+                                        onClick={e => {
+                                            downloadProject(project.projectId);
+                                        }}></Button>
                             </Tooltip>
                         </FlexItem>
                     </Flex>

@@ -1,158 +1,100 @@
-/*
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-import React, {useEffect, useState} from 'react';
-import {
-    Button,
-    Modal,
-    FormGroup,
-    ModalVariant,
-    Form,
-    FileUpload,
-    FormAlert,
-    Alert, Checkbox,
-} from '@patternfly/react-core';
-import '../designer/karavan.css';
-import {useProjectStore} from "../api/ProjectStore";
-import {Accept, DropEvent, FileRejection} from "react-dropzone";
-import {EventBus} from "../designer/utils/EventBus";
-import {shallow} from "zustand/shallow";
-import {ProjectService} from "../api/ProjectService";
-import {SubmitHandler, useForm} from "react-hook-form";
-import {KaravanApi} from "../api/KaravanApi";
-import {AxiosResponse} from "axios";
+import React, {useState} from 'react';
+import {Button, Content, FileUpload, Form, FormGroup, Modal, ModalBody, ModalFooter, ModalHeader, ModalVariant,} from '@patternfly/react-core';
+import '../../designer/karavan.css';
+import {Accept, DropEvent} from "react-dropzone";
+import {EventBus} from "@/designer/utils/EventBus";
+import {ProjectService} from "@/api/ProjectService";
+import {ProjectZipApi} from "./ProjectZipApi";
+import {ErrorEventBus} from "@/api/ErrorEventBus";
 
-class ProjectArchiveFileUploadForm {
-    file?: File = undefined;
-    overwriteExistingFiles: boolean = false;
-
-    constructor(overwriteExistingFiles: boolean, file?: File) {
-        this.overwriteExistingFiles = overwriteExistingFiles;
-        this.file = file;
-    }
+interface Props {
+    open: boolean,
+    onClose: () => void
 }
 
-export function UploadProjectModal() {
+export function UploadProjectModal(props: Props) {
 
-    const [operation] = useProjectStore((s) => [s.operation], shallow);
+    const [value, setValue] = React.useState<File>();
+    const [filename, setFilename] = React.useState<string>();
     const [isLoading, setIsLoading] = useState(false);
     const [isRejected, setIsRejected] = useState(false);
-    const [isReset, setReset] = useState(false);
-    const [backendError, setBackendError] = useState<string>();
-    const formContext = useForm<ProjectArchiveFileUploadForm>({mode: "all"});
-    const {
-        formState: {errors},
-        handleSubmit,
-        reset,
-        trigger,
-        setValue,
-        getValues
-    } = formContext;
 
-    useEffect(() => {
-        reset(new ProjectArchiveFileUploadForm(false));
-        setBackendError(undefined);
-        setReset(true);
-    }, [reset, operation]);
-
-    React.useEffect(() => {
-        isReset && trigger();
-    }, [trigger, isReset]);
-
-    const onSubmit: SubmitHandler<ProjectArchiveFileUploadForm> = (projectArchiveFile) => {
-        if (projectArchiveFile.file) {
-            const data = new FormData();
-            data.append('overwriteExistingFiles', projectArchiveFile.overwriteExistingFiles.toString());
-            data.append('file', projectArchiveFile.file);
-            KaravanApi.uploadProjectArchiveFile(data, after);
-        }
-    }
-
-    function after (result: boolean, data: AxiosResponse | any) {
-        if (result) {
-            onSuccess(data);
-        } else {
-            setBackendError(JSON.stringify(data?.response?.data));
-        }
-    }
-
-    function onSuccess (data: any) {
-        EventBus.sendAlert( "Success", "File successfully uploaded", "success");
-        ProjectService.refreshProjects();
-        closeModal();
-    }
-
-    function closeModal () {
-        useProjectStore.setState({operation: "none"})
-    }
-
-    const handleFileInputChange = (_: DropEvent, file: File) => setValue('file', file, { shouldValidate: true });
-    const handleFileRejected = (fileRejections: FileRejection[], event: DropEvent) => setIsRejected(true);
-    const handleClear = (event: React.MouseEvent<HTMLButtonElement>) => {
-        setValue('file', undefined);
-        setValue('overwriteExistingFiles', false);
-        setIsRejected(false);
-        setBackendError(undefined);
-        reset(new ProjectArchiveFileUploadForm(false));
+    const handleFileInputChange = (_: any, file: File) => {
+        setFilename(file.name);
     };
-    const handleFileOverwriteCheckboxChange = (event: React.FormEvent<HTMLInputElement>, checked: boolean) => setValue('overwriteExistingFiles', checked, { shouldValidate: true });
 
-    const fileNotUploaded = typeof getValues('file') === 'undefined';
-    const accept : Accept = {};
+    const onReadFinished = (event: DropEvent, fileHandle: File): void => {
+        setValue(fileHandle);
+        setIsLoading(false)
+    }
 
+    const handleClear = (_event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+        setFilename(undefined);
+        setValue(undefined);
+    };
+
+
+    function onConfirm(){
+        if (filename !== undefined && value !== undefined) {
+            ProjectZipApi.uploadZip(value, res => {
+                if (res.status === 200) {
+                    EventBus.sendAlert( "Success", "Integration uploaded", "success");
+                    ProjectService.refreshProjects();
+                } else if (res.status === 304) {
+                    EventBus.sendAlert( "Attention", "Integration already exists", "warning");
+                } else {
+                    ErrorEventBus.sendApiError(res);
+                }
+            })
+            closeModal();
+        }
+    }
+
+    function closeModal() {
+        props.onClose?.()
+    }
+
+    const accept : Accept = {'application/x-zip': ['.zip']};
     return (
         <Modal
-            title="Upload"
+            title="Upload project"
             variant={ModalVariant.small}
-            isOpen={operation === 'upload'}
+            isOpen={props.open}
             onClose={closeModal}
-            actions={[
-                <Button key="confirm" variant="primary"
-                        onClick={handleSubmit(onSubmit)}
-                        isDisabled={Object.getOwnPropertyNames(errors).length > 0 || fileNotUploaded}
-                >
-                    Upload
-                </Button>,
-                <Button key="cancel" variant="secondary" onClick={closeModal}>Cancel</Button>
-            ]}
         >
-            <Form>
-                <FormGroup fieldId="upload">
-                    <FileUpload
-                        id="file-upload"
-                        value={getValues('file')}
-                        filename={getValues('file')?.name}
-                        isLoading={isLoading}
-                        onFileInputChange={handleFileInputChange}
-                        onClearClick={handleClear}
-                        dropzoneProps={{accept: accept, onDropRejected: handleFileRejected}}
-                    />
-                    <Checkbox
-                        id="file-overwrite"
-                        onChange={handleFileOverwriteCheckboxChange}
-                        label="Overwrite existing files"
-                        isChecked={getValues('overwriteExistingFiles')}
-                    />
-                </FormGroup>
-                {backendError &&
-                    <FormAlert>
-                        <Alert variant="danger" title={backendError} aria-live="polite" isInline />
-                    </FormAlert>
-                }
-            </Form>
+            <ModalHeader>
+                <Content component='h2'>Import Integration</Content>
+            </ModalHeader>
+            <ModalBody>
+                <Form>
+                    <FormGroup fieldId="upload">
+                        <FileUpload
+                            id="file-upload"
+                            value={value}
+                            filename={filename}
+                            type="dataURL"
+                            hideDefaultPreview
+                            browseButtonText="Upload"
+                            isLoading={isLoading}
+                            onFileInputChange={handleFileInputChange}
+                            onReadStarted={(_event, fileHandle: File) => setIsLoading(true)}
+                            onReadFinished={onReadFinished}
+                            allowEditingUploadedText={false}
+                            onClearClick={handleClear}
+                            dropzoneProps={{accept: accept, onDropRejected: fileRejections => setIsRejected(true)}}
+                        />
+                    </FormGroup>
+                </Form>
+            </ModalBody>
+            <ModalFooter>
+                <Button key="confirm" variant="primary"
+                        onClick={event => onConfirm()}
+                        isDisabled={filename === undefined || value === undefined}
+                >
+                    Save
+                </Button>
+                <Button key="cancel" variant="secondary" onClick={closeModal}>Cancel</Button>
+            </ModalFooter>
         </Modal>
     )
 }

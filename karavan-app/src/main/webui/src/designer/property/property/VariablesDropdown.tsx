@@ -16,19 +16,22 @@
  */
 import React, {useState} from 'react';
 import {
-    Select,
-    SelectOption,
-    SelectList,
-    SelectOptionProps,
+    Button,
+    InputGroup,
+    InputGroupItem,
     MenuToggle,
     MenuToggleElement,
+    Select,
+    SelectList,
+    SelectOption,
+    SelectOptionProps,
     TextInputGroup,
     TextInputGroupMain,
     TextInputGroupUtilities,
-    Button, InputGroupItem, ToggleGroup, ToggleGroupItem,
-    InputGroup
+    ToggleGroup,
+    ToggleGroupItem
 } from '@patternfly/react-core';
-import TimesIcon from '@patternfly/react-icons/dist/esm/icons/times-icon';
+import {TimesIcon} from '@patternfly/react-icons';
 import {GLOBAL, ROUTE} from "karavan-core/lib/api/VariableUtil";
 
 interface VariablesDropdownProps {
@@ -43,7 +46,7 @@ export const VariablesDropdown: React.FC<VariablesDropdownProps> = ({
                                                                         initialValue = '',
                                                                         options,
                                                                         valueChangedClassName,
-                                                                        placeholder = 'Select a value',
+                                                                        placeholder = 'Select variable name',
                                                                         onChange
                                                                     }) => {
     const [isOpen, setIsOpen] = React.useState(false);
@@ -56,7 +59,7 @@ export const VariablesDropdown: React.FC<VariablesDropdownProps> = ({
     const [activeItemId, setActiveItemId] = React.useState<string | null>(null);
     const textInputRef = React.useRef<HTMLInputElement>(null);
 
-    const CREATE_NEW = 'create';
+    const CREATE_NEW = 'CREATE_NEW_VARIABLE_DEFAULT_NAME';
 
     React.useEffect(() => {
         if (initialValue?.toString().startsWith(GLOBAL)) {
@@ -84,7 +87,7 @@ export const VariablesDropdown: React.FC<VariablesDropdownProps> = ({
             );
 
             if (!options.some((opt) => opt.value === inputValue)) {
-                filteredOptions.push({
+                filteredOptions.unshift({
                     value: CREATE_NEW,
                     children: `Create variable "${inputValue}"`
                 });
@@ -93,8 +96,10 @@ export const VariablesDropdown: React.FC<VariablesDropdownProps> = ({
             if (!isOpen && isUserInput) {
                 setIsOpen(true);
             }
+            if (selected === inputValue) {
+                setIsOpen(false);
+            }
         }
-
         setSelectOptions(filteredOptions);
     }, [inputValue, options]);
 
@@ -112,8 +117,8 @@ export const VariablesDropdown: React.FC<VariablesDropdownProps> = ({
     };
 
     const closeMenu = () => {
-        setIsOpen(false);
         resetActiveAndFocusedItem();
+        setIsOpen(false);
     };
 
     const onSelect = (
@@ -131,7 +136,6 @@ export const VariablesDropdown: React.FC<VariablesDropdownProps> = ({
             setSelected(String(selectedValue));
             setInputValue(String(label));
         }
-
         closeMenu();
     };
 
@@ -205,6 +209,9 @@ export const VariablesDropdown: React.FC<VariablesDropdownProps> = ({
             isFullWidth
         >
             <TextInputGroup isPlain>
+                <TextInputGroupUtilities>
+                    {getToggleGroup()}
+                </TextInputGroupUtilities>
                 <TextInputGroupMain
                     value={inputValue}
                     onClick={() => setIsOpen(true)}
@@ -217,51 +224,52 @@ export const VariablesDropdown: React.FC<VariablesDropdownProps> = ({
                     autoComplete="off"
                     innerRef={textInputRef}
                     placeholder={placeholder}
-                    {...(activeItemId && { 'aria-activedescendant': activeItemId })}
+                    {...(activeItemId && {'aria-activedescendant': activeItemId})}
                     role="combobox"
                     isExpanded={isOpen}
                     aria-controls="variables-dropdown-listbox"
                 />
-                <TextInputGroupUtilities {...(!inputValue ? { style: { display: 'none' } } : {})}>
-                    <Button variant="plain" onClick={onClearButtonClick} aria-label="Clear input value">
-                        <TimesIcon aria-hidden />
-                    </Button>
+                <TextInputGroupUtilities {...(!inputValue ? {style: {display: 'none'}} : {})}>
+                    <Button icon={<TimesIcon aria-hidden/>} variant="plain" onClick={onClearButtonClick} aria-label="Clear input value"/>
                 </TextInputGroupUtilities>
             </TextInputGroup>
         </MenuToggle>
     );
 
+    function getToggleGroup() {
+        return (
+            <ToggleGroup aria-label="Variable type">
+                <ToggleGroupItem text="global:" key='global' buttonId={"global-variable"}
+                                 isSelected={variableType === GLOBAL}
+                                 onChange={(_, selected) => {
+                                     if (selected) {
+                                         setVariableType(GLOBAL);
+                                         onChange(GLOBAL, inputValue);
+                                     } else {
+                                         setVariableType('');
+                                         onChange('', inputValue);
+                                     }
+                                 }}
+                />
+                <ToggleGroupItem text="route:" key='route' buttonId={"route-variable"}
+                                 className='route-variable'
+                                 isSelected={variableType === ROUTE}
+                                 onChange={(_, selected) => {
+                                     if (selected) {
+                                         setVariableType(ROUTE);
+                                         onChange(ROUTE, inputValue);
+                                     } else {
+                                         setVariableType('');
+                                         onChange('', inputValue);
+                                     }
+                                 }}
+                />
+            </ToggleGroup>
+        )
+    }
+
     return (
         <InputGroup className={valueChangedClassName}>
-            <InputGroupItem>
-                <ToggleGroup aria-label="Variable type">
-                    <ToggleGroupItem text="global:" key='global' buttonId={"global-variable"}
-                                     isSelected={variableType === GLOBAL}
-                                     onChange={(_, selected) => {
-                                         if (selected) {
-                                             setVariableType(GLOBAL);
-                                             onChange(GLOBAL, inputValue);
-                                         } else {
-                                             setVariableType('');
-                                             onChange('', inputValue);
-                                         }
-                                     }}
-                    />
-                    <ToggleGroupItem text="route:" key='route' buttonId={"route-variable"}
-                                     className='route-variable'
-                                     isSelected={variableType === ROUTE}
-                                     onChange={(_, selected) => {
-                                         if (selected) {
-                                             setVariableType(ROUTE);
-                                             onChange(ROUTE, inputValue);
-                                         } else {
-                                             setVariableType('');
-                                             onChange('', inputValue);
-                                         }
-                                     }}
-                    />
-                </ToggleGroup>
-            </InputGroupItem>
             <InputGroupItem isFill>
                 <Select
                     id="variables-dropdown"

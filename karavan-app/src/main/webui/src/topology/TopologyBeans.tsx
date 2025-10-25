@@ -25,13 +25,13 @@ import {
     Label,
 } from "@patternfly/react-core";
 import {TopologyUtils} from "karavan-core/lib/api/TopologyUtils";
-import {useFilesStore} from "../api/ProjectStore";
+import {useFilesStore} from "@/api/ProjectStore";
 import {shallow} from "zustand/shallow";
 import {IntegrationFile} from "karavan-core/lib/model/IntegrationDefinition";
 import {getIntegrations} from "./TopologyApi";
 import JavaIcon from "@patternfly/react-icons/dist/js/icons/java-icon";
 import {useTopologyHook} from "./useTopologyHook";
-import {camelIcon, CamelUi} from "../designer/utils/CamelUi";
+import {camelIcon, CamelUi} from "@/designer/utils/CamelUi";
 
 export function TopologyBeans() {
 
@@ -43,12 +43,12 @@ export function TopologyBeans() {
 
     return (
         beans.length > 0
-            ? <Card isCompact isFlat isRounded className="topology-beans-card">
+            ? <Card isCompact   className="topology-beans-card">
                 <CardTitle>Beans</CardTitle>
                 <CardBody className='card-body'>
                     {beans.map((bean, index) => {
                         return (
-                            <Label>
+                            <Label key={index} className='bean-label'>
                                 <Button variant='link'
                                         className='bean-button'
                                         icon={CamelUi.getIconFromSource(camelIcon)}
@@ -63,7 +63,7 @@ export function TopologyBeans() {
                     })}
                     {files.filter(f => f.name.endsWith('.java')).map((file, index) => {
                         return (
-                            <Label>
+                            <Label key={index}>
                                 <Button variant='link'
                                         className='bean-button'
                                         icon={<JavaIcon className='orange'/>}

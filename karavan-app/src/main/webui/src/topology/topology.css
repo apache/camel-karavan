@@ -15,71 +15,77 @@
  * limitations under the License.
  */
 
-.karavan .topology-panel .topology-toolbar {
+.karavan .topology-toolbar {
     width: 100%;
     display: flex;
     flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px 8px 16px;
+    position: relative;
 }
 
-.karavan .topology-panel .topology-toolbar .group-switch {
+.karavan .topology-toolbar::before {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    content: "";
+    border-bottom: var(--pf-t--global--border--color--default) solid var(--pf-t--global--border--width--box--default);
+    border-radius: inherit;
+}
+
+.karavan  .topology-toolbar .group-switch {
+    display: flex;
+    flex-direction: row;
     flex-grow: 4;
     margin-top: auto;
     margin-bottom: auto;
-    margin-left: 6px;
+    margin-left: 0;
     gap: 16px;
 }
 
-.karavan .topology-panel .topology-toolbar .group-switch .pf-v5-c-switch {
+.karavan  .topology-toolbar .group-switch .pf-v6-c-switch {
     column-gap: 0.4em;
 }
 
-.karavan .topology-panel .pf-v5-c-toolbar {
-padding: 0;
-height: fit-content;
-row-gap: 0;
+.topology-actions-dropdown {
+    /*right: 0 !important;*/
 }
 
-.karavan .topology-panel .pf-v5-c-toolbar .pf-v5-c-toolbar__content {
-padding: 0 6px 0 0;
-width: 100%;
-}
-
-.karavan .topology-panel .pf-v5-c-toolbar .pf-v5-c-toolbar__content-section {
-margin: 6px 0 6px 0;
-}
-
-.karavan .topology-panel .pf-v5-c-toolbar .pf-v5-c-toolbar__group{
-width: 100%
+.karavan .topology-panel .pf-topology-control-bar {
+    .pf-v6-c-toolbar {
+        padding: 6px;
+    }
 }
 
 .karavan .topology-panel .properties {
-padding: 16px;
-overflow: auto;
+    padding: 16px;
+    overflow: auto;
 }
 
 .karavan .topology-panel .properties .headers {
-display: none;
+    display: none;
+}
+
+.karavan .topology-panel .common-node {
+    cursor: pointer;
 }
 
 .karavan .topology-panel .common-node .icon {
-height: 32px;
-width: 32px;
+    height: 32px;
+    width: 32px;
 }
 
 .karavan .topology-panel .common-node-R {
 
 }
 
-.karavan .topology-panel .pf-v5-c-panel__header {
-padding-bottom: 0;
+.karavan .topology-panel .pf-v6-c-panel__header {
+    padding-bottom: 0;
 }
 
 .karavan .topology-panel .file-button {
-padding: 0;
-}
-
-.karavan .topology-toolbar {
-padding: 0;
+    padding: 0;
 }
 
 .karavan .topology-toolbar .button-icon-k8s {
@@ -89,77 +95,76 @@ padding: 0;
 }
 
 .karavan .topology-panel .pf-topology__group .pf-topology__group__background {
-stroke-width: 2px;
-stroke-dasharray: 3;
+    stroke-width: 2px;
+    /*stroke-dasharray: 3;*/
 }
 
 .karavan .topology-panel .pf-topology__group .pf-topology__node__label__background {
-opacity: 0.5;
+    opacity: 0.5;
 }
 
 .karavan .topology-panel .auto-start .badge {
-fill: var(--pf-topology__node__label__background--Fill);
-stroke-width: var(--pf-topology__node__label__background--StrokeWidth);
-stroke: var(--pf-topology__node__label__background--Stroke);
+    fill: var(--pf-topology__node__label__background--Fill);
+    stroke-width: var(--pf-topology__node__label__background--StrokeWidth);
+    stroke: var(--pf-topology__node__label__background--Stroke);
 }
 
 .karavan .topology-panel .auto-start .text {
-fill: var(--pf-topology__node__label__text--Fill);
+    fill: var(--pf-topology__node__label__text--Fill);
 }
 
 .karavan .topology-panel .disable-node {
-opacity: 0.6;
-filter: grayscale(100%);
+    opacity: 0.6;
+    filter: grayscale(100%);
 }
 
 .karavan .pf-topology__node__label__badge > text {
-fill: white;
+    fill: white;
 }
 
 .karavan .topology-panel .common-node-RT .pf-topology__node__background {
-outline: 1px dashed grey;
-outline-offset: 2px;
-border-radius: 9px;
-}
-
-.karavan .topology-panel .create-route-dropdown-toggle .create-route-button svg {
-    margin-right: 0.5em;
-}
-
-.karavan .topology-panel .create-route-dropdown-toggle .pf-v5-c-menu-toggle__button {
-    padding-left: 1em;
-    padding-right: 1em;
-}
-
-.karavan .topology-panel .create-route-dropdown-toggle .pf-v5-c-menu-toggle__button:last-child {
-    padding-left: 0;
-    padding-right: 0;
+    outline: 1px dashed grey;
+    outline-offset: 2px;
+    border-radius: 9px;
 }
 
 .pf-topology__group__label .pf-topology__node__label__background {
-fill: grey;
+    fill: grey;
 }
 
 .pf-topology__node.topology-color-component {
---pf-topology__node__label__background--Stroke: #2b9af3;
+    --pf-topology__node__label__background--Stroke: #2b9af3;
 }
 
 .pf-topology__node.topology-color-component .pf-topology__node__background {
---pf-topology__node__background--Stroke: #2b9af3;
+    --pf-topology__node__background--Stroke: #2b9af3;
 }
 
 .pf-topology__node.topology-color-kamelet {
---pf-topology__node__label__background--Stroke: #6ec664;
+    --pf-topology__node__label__background--Stroke: #6ec664;
 }
 
 .pf-topology__node.topology-color-kamelet .pf-topology__node__background {
---pf-topology__node__background--Stroke: #6ec664;
+    --pf-topology__node__background--Stroke: #6ec664;
 }
 
 .pf-topology__node.topology-color-route {
---pf-topology__node__label__background--Stroke: #ef9234;
+    --pf-topology__node__label__background--Stroke: #ef9234;
 }
 
 .pf-topology__node.topology-color-route .pf-topology__node__background {
---pf-topology__node__background--Stroke: #ef9234;
+    --pf-topology__node__background--Stroke: #ef9234;
+}
+
+.pf-topology__edge {
+    text,
+    .pf-topology__edge__tag__background {
+        visibility: hidden;
+    }
+}
+.pf-topology__edge:hover {
+    text,
+    .pf-topology__edge__tag__background {
+        visibility: visible;
+    }
 }

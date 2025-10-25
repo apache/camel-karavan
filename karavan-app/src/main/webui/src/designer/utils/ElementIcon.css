@@ -17,7 +17,7 @@
 
 
 .add-button-icon, .insert-button-icon {
-    fill: var(--pf-v5-global--primary-color--100);
+    fill: var(--pf-t--global--color--brand--default);
     width: 20px;
     height: 20px;
     background: transparent;
@@ -32,7 +32,7 @@
 }
 
 .delete-button-icon {
-    fill: var(--pf-v5-global--danger-color--100);
+    fill: var(--pf-t--global--text--color--status--danger--default);
     width: 20px;
     height: 20px;
     background: transparent;

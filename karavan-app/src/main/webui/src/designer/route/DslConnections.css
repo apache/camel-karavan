@@ -28,28 +28,36 @@
 }
 
 .karavan .dsl-page .graph .connections .arrow {
-    stroke: var(--pf-v5-global--Color--200);
-    fill: var(--pf-v5-global--Color--200);
+    stroke: var(--pf-t--global--text--color--subtle);
+    fill: var(--pf-t--global--text--color--subtle);
 }
 
 .karavan .dsl-page .graph .connections .path {
-    stroke: var(--pf-v5-global--Color--200);
+    stroke: var(--pf-t--global--text--color--subtle);
     stroke-width: 1;
     fill: transparent;
 }
 
 .karavan .dsl-page .graph .connections .circle-outgoing,
 .karavan .dsl-page .graph .connections .circle-incoming {
-    stroke: var(--pf-v5-global--Color--200);
+    stroke: var(--pf-t--global--text--color--subtle);
     stroke-width: 1;
     fill: white;
 }
+
+.pf-v6-theme-dark {
+    .karavan .dsl-page .graph .connections .circle-outgoing,
+    .karavan .dsl-page .graph .connections .circle-incoming {
+        fill: var(--pf-t--global--icon--color--disabled);
+    }
+}
+
 
 .karavan .dsl-page .graph .connections .path-incoming {
     stroke-dasharray: 5;
     -webkit-animation: dashdrawR 0.5s linear infinite;
     animation: dashdrawR 0.5s linear infinite;
-    stroke: var(--pf-v5-global--Color--200);
+    stroke: var(--pf-t--global--text--color--subtle);
     stroke-width: 1;
     fill: transparent;
 }
@@ -58,7 +66,7 @@
     stroke-dasharray: 5;
     -webkit-animation: dashdrawR 0.5s linear infinite;
     animation: dashdrawR 0.5s linear infinite;
-    stroke: var(--pf-v5-global--Color--200);
+    stroke: var(--pf-t--global--text--color--subtle);
     stroke-width: 1;
     fill: transparent;
 }
@@ -67,20 +75,20 @@
     stroke-dasharray: 5;
     -webkit-animation: dashdrawL 0.5s linear infinite;
     animation: dashdrawL 0.5s linear infinite;
-    stroke: var(--pf-v5-global--Color--200);
+    stroke: var(--pf-t--global--text--color--subtle);
     stroke-width: 1;
     fill: transparent;
 }
 
 .karavan .dsl-page .graph .connections .path-incoming-nav {
-    stroke: var(--pf-v5-global--Color--200);
+    stroke: var(--pf-t--global--text--color--subtle);
     stroke-width: 1;
     fill: transparent;
 }
 
 .karavan .dsl-page .graph .connections .path-direct {
     stroke-dasharray: 0;
-    stroke: var(--pf-v5-global--Color--200);
+    stroke: var(--pf-t--global--text--color--subtle);
     stroke-width: 0.7;
     stroke-opacity: 0.7;
     fill: transparent;
@@ -88,7 +96,7 @@
 
 .karavan .dsl-page .graph .connections .path-direct-selected {
     stroke-dasharray: 0;
-    stroke: var(--pf-v5-global--active-color--100);
+    stroke: var(--pf-t--global--color--brand--default);
     stroke-width: 1;
     stroke-opacity: 1;
     fill: transparent;
@@ -96,7 +104,7 @@
 
 .karavan .dsl-page .graph .connections .path-seda {
     stroke-dasharray: 2;
-    stroke: var(--pf-v5-global--Color--200);
+    stroke: var(--pf-t--global--text--color--subtle);
     -webkit-animation: dashdrawR 0.5s linear infinite;
     animation: dashdrawR 0.5s linear infinite;
     stroke-width: 1;

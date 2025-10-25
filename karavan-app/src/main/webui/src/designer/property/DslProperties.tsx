@@ -14,24 +14,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState, ReactElement} from 'react';
 import {
     Button,
+    Content,
+    ContentVariants,
     ExpandableSection,
     Form,
-    Text,
     TextInputGroup,
     TextInputGroupMain,
     TextInputGroupUtilities,
-    TextVariants,
     Title,
     ToggleGroup,
     ToggleGroupItem,
     Tooltip,
 } from '@patternfly/react-core';
-import '../karavan.css';
 import './DslProperties.css';
-import "@patternfly/patternfly/patternfly.css";
 import {DataFormatField} from "./property/DataFormatField";
 import {DslPropertyField} from "./property/DslPropertyField";
 import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt";
@@ -67,8 +65,8 @@ export function DslProperties(props: Props) {
     } =
         usePropertiesHook(props.designerType);
 
-    const [selectedStep, dark, setParameterPlaceholders]
-        = useDesignerStore((s) => [s.selectedStep, s.dark, s.setParameterPlaceholders], shallow)
+    const [selectedStep, setParameterPlaceholders]
+        = useDesignerStore((s) => [s.selectedStep, s.setParameterPlaceholders], shallow)
 
     const [propertyFilter, changedOnly, requiredOnly, setChangedOnly, sensitiveOnly, setSensitiveOnly, setPropertyFilter, setRequiredOnly]
         = usePropertiesStore((s) => [s.propertyFilter, s.changedOnly, s.requiredOnly, s.setChangedOnly, s.sensitiveOnly, s.setSensitiveOnly, s.setPropertyFilter, s.setRequiredOnly], shallow)
@@ -87,13 +85,13 @@ export function DslProperties(props: Props) {
         if (selectedStep) {
             const root = CamelDefinitionApiExt.findTopRouteElement(integration, selectedStep.uuid);
             if ('RouteTemplateDefinition' === root?.dslName) {
-                const paramPlaceholders: [string, string][] = (root as RouteTemplateDefinition).parameters?.map(p => [p.name, p.description ||'']) || [];
+                const paramPlaceholders: [string, string][] = (root as RouteTemplateDefinition).parameters?.map(p => [p.name, p.description || '']) || [];
                 setParameterPlaceholders(paramPlaceholders);
             }
         }
     }
 
-    function getClonableElementHeader(): React.JSX.Element {
+    function getClonableElementHeader(): ReactElement {
         const title = selectedStep && CamelDisplayUtil.getTitle(selectedStep);
         const description = selectedStep?.dslName ? CamelMetadataApi.getCamelModelMetadataByClassName(selectedStep?.dslName)?.description : title;
         const descriptionLines: string [] = description ? description?.split("\n") : [""];
@@ -105,21 +103,21 @@ export function DslProperties(props: Props) {
                         <Button variant="link" onClick={() => cloneElement()} icon={<CloneIcon/>}/>
                     </Tooltip>
                 </div>
-                {descriptionLines.map((desc, index, array) => <Text key={index}
-                                                                    component={TextVariants.p}>{desc}</Text>)}
+                {descriptionLines.map((desc, index, array) => <Content key={index}
+                                                                       component={ContentVariants.p}>{desc}</Content>)}
             </div>
         )
     }
 
-    function getPropertiesHeader(): JSX.Element {
-        if (props.designerType === 'routes') return <PropertiesHeader designerType={props.designerType} />
+    function getPropertiesHeader(): ReactElement {
+        if (props.designerType === 'routes') return <PropertiesHeader designerType={props.designerType}/>
         else return getClonableElementHeader();
     }
 
     function getProperties(): PropertyMeta[] {
         const dslName = selectedStep?.dslName;
         return CamelDefinitionApiExt.getElementProperties(dslName)
-            .filter((p: PropertyMeta) => p.name !== 'uri') // do not show uri
+            .filter((p: PropertyMeta) => dslName === 'InterceptSendToEndpointDefinition' || p.name !== 'uri') // do not show uri except InterceptSendToEndpointDefinition
             .filter((p: PropertyMeta) => p.name !== 'id') // do not show id
             // .filer((p: PropertyMeta) => (showAdvanced && p.label.includes('advanced')) || (!showAdvanced && !p.label.includes('advanced')))
             .filter((p: PropertyMeta) => !p.isObject || (p.isObject && !CamelUi.dslHasSteps(p.type)) || (p.name === 'onWhen'))
@@ -129,7 +127,21 @@ export function DslProperties(props: Props) {
     }
 
     function sortProperties(p1: PropertyMeta, p2: PropertyMeta): number {
-        if (selectedStep?.dslName.startsWith('Set') && p1.name === 'name') return -1;
+        const isConvert = selectedStep?.dslName.startsWith('Convert');
+
+        if (isConvert) {
+            if (p1.name === 'description' && p2.name !== 'description') return 1;
+            if (p1.name !== 'description' && p2.name === 'description') return -1;
+
+            if (p1.name === 'name' && p2.name !== 'name') return -1;
+            if (p1.name !== 'name' && p2.name === 'name') return 1;
+        }
+
+        if (selectedStep?.dslName.startsWith('Set')) {
+            if (p1.name === 'name' && p2.name !== 'name') return -1;
+            if (p1.name !== 'name' && p2.name === 'name') return 1;
+        }
+
         return 0;
     }
 
@@ -178,44 +190,42 @@ export function DslProperties(props: Props) {
 
     function getPropertySelector() {
         return (
-            <div style={{display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '3px', pointerEvents: 'initial', opacity: '1'}}>
-                <ToggleGroup className='property-selector' aria-label="properties selctor">
-                    <ToggleGroupItem
-                        text="Required"
-                        buttonId="requiredOnly"
-                        isSelected={requiredOnly}
-                        onChange={(_, selected) => setRequiredOnly(selected)}
-                    />
-                    <ToggleGroupItem
-                        text="Changed"
-                        buttonId="changedOnly"
-                        isSelected={changedOnly}
-                        onChange={(_, selected) => setChangedOnly(selected)}
-                    />
-                    <ToggleGroupItem
-                        text="Sensitive"
-                        buttonId="sensitiveOnly"
-                        isSelected={sensitiveOnly}
-                        onChange={(_, selected) => setSensitiveOnly(selected)}
-                    />
-                </ToggleGroup>
-                <TextInputGroup>
-                    <TextInputGroupMain
-                        value={propertyFilter}
-                        placeholder="filter by name"
-                        type="text"
-                        autoComplete={"off"}
-                        autoFocus={true}
-                        onChange={(_event, value) => setPropertyFilter(value)}
-                        aria-label="filter by name"
-                    />
-                    <TextInputGroupUtilities>
-                        <Button variant="plain" onClick={_ => setPropertyFilter('')}>
-                            <TimesIcon aria-hidden={true}/>
-                        </Button>
-                    </TextInputGroupUtilities>
-                </TextInputGroup>
-            </div>
+            <TextInputGroup className='property-selector-group'>
+                <TextInputGroupUtilities>
+                    <ToggleGroup className='property-selector' aria-label="properties selctor">
+                        <ToggleGroupItem
+                            text="Required"
+                            buttonId="requiredOnly"
+                            isSelected={requiredOnly}
+                            onChange={(_, selected) => setRequiredOnly(selected)}
+                        />
+                        <ToggleGroupItem
+                            text="Changed"
+                            buttonId="changedOnly"
+                            isSelected={changedOnly}
+                            onChange={(_, selected) => setChangedOnly(selected)}
+                        />
+                        <ToggleGroupItem
+                            text="Sensitive"
+                            buttonId="sensitiveOnly"
+                            isSelected={sensitiveOnly}
+                            onChange={(_, selected) => setSensitiveOnly(selected)}
+                        />
+                    </ToggleGroup>
+                </TextInputGroupUtilities>
+                <TextInputGroupMain
+                    value={propertyFilter}
+                    placeholder="filter by name"
+                    type="text"
+                    autoComplete={"off"}
+                    autoFocus={true}
+                    onChange={(_event, value) => setPropertyFilter(value)}
+                    aria-label="filter by name"
+                />
+                <TextInputGroupUtilities>
+                    <Button icon={<TimesIcon aria-hidden={true}/>} variant="plain" onClick={_ => setPropertyFilter('')}/>
+                </TextInputGroupUtilities>
+            </TextInputGroup>
         )
     }
 
@@ -242,7 +252,7 @@ export function DslProperties(props: Props) {
                         value={selectedStep}
                         onDataFormatChange={onDataFormatChange}
                         expressionEditor={props.expressionEditor}
-                        dark={dark}/>
+                    />
                 }
                 {selectedStep && propertiesAdvanced.length > 0 &&
                     <ExpandableSection

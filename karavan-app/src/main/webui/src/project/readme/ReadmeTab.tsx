@@ -16,29 +16,16 @@
  */
 
 import React from 'react';
-import '../../designer/karavan.css';
-import {
-    Card,
-    CardBody,
-    PageSection
-} from "@patternfly/react-core";
 import MarkdownPreview from '@uiw/react-markdown-preview';
-import {useFilesStore} from "../../api/ProjectStore";
+import {useFilesStore} from "@/api/ProjectStore";
 import {shallow} from "zustand/shallow";
 
-export function ReadmeTab () {
+export function ReadmeTab() {
 
     const [files] = useFilesStore((s) => [s.files], shallow);
 
     const markdown = files.find(f => f.name.toLowerCase() === 'readme.md')?.code;
-    console.log(markdown)
     return (
-        <PageSection className="project-tab-panel project-build-panel" padding={{default: "padding"}}>
-            <Card className="project-status">
-                <CardBody>
-                    <MarkdownPreview source={markdown} />
-                </CardBody>
-            </Card>
-        </PageSection>
+        <MarkdownPreview style={{padding: 16}} source={markdown}/>
     )
 }

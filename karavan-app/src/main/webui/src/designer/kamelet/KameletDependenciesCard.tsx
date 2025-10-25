@@ -15,20 +15,12 @@
  * limitations under the License.
  */
 import React from 'react';
-import {
-    Button,
-    Card,
-    CardBody,
-    CardTitle,
-    FormGroup, FormHelperText, HelperText, HelperTextItem,
-    Label,
-    LabelGroup,
-} from '@patternfly/react-core';
+import {Button, Card, CardBody, CardTitle, FormGroup, FormHelperText, HelperText, HelperTextItem, Label, LabelGroup,} from '@patternfly/react-core';
 import '../karavan.css';
 import './kamelet.css';
 import {useIntegrationStore} from "../DesignerStore";
 import {shallow} from "zustand/shallow";
-import AddIcon from "@patternfly/react-icons/dist/js/icons/plus-circle-icon";
+import {PlusCircleIcon} from '@patternfly/react-icons';
 import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
 
 export function KameletDependenciesCard() {
@@ -59,7 +51,7 @@ export function KameletDependenciesCard() {
     }
 
     return (
-        <Card isClickable isCompact isFlat ouiaId="PropertyCard" className="property-card">
+        <Card isCompact  ouiaId="PropertyCard">
             <CardTitle>
                 Dependencies
             </CardTitle>
@@ -77,7 +69,7 @@ export function KameletDependenciesCard() {
                         numLabels={dependencies.length}
                         isEditable
                         addLabelControl={
-                            <Button variant="link" icon={<AddIcon/>} onClick={event => addDepencency()}>
+                            <Button variant="link" icon={<PlusCircleIcon/>} onClick={event => addDepencency()}>
                                 Add
                             </Button>
                         }

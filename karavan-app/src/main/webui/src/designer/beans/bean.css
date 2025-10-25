@@ -27,12 +27,12 @@
 }
 
 .karavan .bean-card-unselected {
-    border-color: var(--pf-v5-global--Color--200);
+    border-color: var(--pf-t--global--color--brand--200);
     background-color: transparent;
 }
 
 .karavan .bean-card-selected {
-    border-color: var(--pf-v5-global--primary-color--100);
+    border-color: var(--pf-t--global--color--brand--100);
 }
 
 .karavan .bean-card .title {
@@ -66,13 +66,13 @@
     visibility: visible;
 }
 
-.karavan .bean-designer {
-    display: block;
-    height: 100vh;
-    width: 100%;
-    overflow-y: auto;
-    padding-bottom: 106px;
-}
+/*.karavan .bean-designer {*/
+/*    display: block;*/
+/*    height: 100vh;*/
+/*    width: 100%;*/
+/*    overflow-y: auto;*/
+/*    padding-bottom: 106px;*/
+/*}*/
 
 .karavan .bean-designer .gallery {
     padding-top: 16px;
@@ -90,12 +90,6 @@
     justify-content: space-between;
 }
 /*Beans*/
-.karavan .bean-designer .properties .bean-properties .pf-v5-c-form__group-control {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-}
-
 .karavan .bean-designer .properties .bean-property {
     display: flex;
     flex-direction: row;

@@ -15,13 +15,12 @@
  * limitations under the License.
  */
 
-import {CamelElement, Integration} from "karavan-core/lib/model/IntegrationDefinition";
+import {CamelElement, Integration, IntegrationFile} from "karavan-core/lib/model/IntegrationDefinition";
 import {DslPosition, EventBus} from "./utils/EventBus";
 import {createWithEqualityFn} from "zustand/traditional";
 import {shallow} from "zustand/shallow";
 import {BeanFactoryDefinition} from "karavan-core/lib/model/CamelDefinition";
-import {IntegrationFile} from "karavan-core/lib/model/IntegrationDefinition";
-import {VariableUtil} from "karavan-core/lib/api/VariableUtil";
+import {DslMetaModel} from "@/designer/utils/DslMetaModel";
 
 interface IntegrationState {
     integration: Integration;
@@ -83,6 +82,10 @@ export const useIntegrationStore = createWithEqualityFn<IntegrationState>((set, 
 interface SelectorStateState {
     showSelector: boolean;
     setShowSelector: (showSelector: boolean) => void;
+    showProperties: boolean;
+    setShowProperties: (showProperties: boolean) => void;
+    selectedDsl?: DslMetaModel;
+    setSelectedDsl: (selectedDsl?: DslMetaModel) => void;
     showSteps: boolean;
     setShowSteps: (showSteps: boolean) => void;
     parentDsl?: string;
@@ -104,6 +107,7 @@ interface SelectorStateState {
 
 export const useSelectorStore = createWithEqualityFn<SelectorStateState>((set) => ({
     showSelector: false,
+    showProperties: false,
     deleteMessage: '',
     parentId: '',
     showSteps: true,
@@ -125,8 +129,17 @@ export const useSelectorStore = createWithEqualityFn<SelectorStateState>((set) =
     setParentDsl: (parentDsl?: string) => {
         set({parentDsl: parentDsl})
     },
+    setSelectedDsl: (selectedDsl?: DslMetaModel) => {
+        set(state => ({
+            selectedDsl: selectedDsl,
+            showProperties: selectedDsl ? state.showProperties : false
+        }))
+    },
     setShowSelector: (showSelector: boolean) => {
         set({showSelector: showSelector})
+    },
+    setShowProperties: (showProperties: boolean) => {
+        set({showProperties: showProperties})
     },
     setShowSteps: (showSteps: boolean) => {
         set({showSteps: showSteps})
@@ -185,8 +198,8 @@ export const useConnectionsStore = createWithEqualityFn<ConnectionsState>((set) 
 }), shallow)
 
 type DesignerState = {
+    designerSwitch: boolean
     isDebugging: boolean
-    dark: boolean
     notificationBadge: boolean
     notificationMessage: [string, string]
     shiftKeyPressed: boolean
@@ -209,14 +222,15 @@ type DesignerState = {
     propertyPlaceholders:  [string, string][]
     parameterPlaceholders: [string, string][], // route template parameters
     beans: BeanFactoryDefinition[],
-    tab?: "routes" | "rest" | "beans" | "kamelet" | "code"
+    tab?: "routes" | "rest" | "beans" | "kamelet",
+    stepDoubleClicked: boolean,
 }
 
 const designerState: DesignerState = {
+    designerSwitch: true,
     isDebugging: false,
     notificationBadge: false,
     notificationMessage: ['', ''],
-    dark: false,
     shiftKeyPressed: false,
     showDeleteConfirmation: false,
     showMoveConfirmation: false,
@@ -236,10 +250,10 @@ const designerState: DesignerState = {
     propertyPlaceholders: [],
     parameterPlaceholders: [],
     beans: [],
+    stepDoubleClicked: false,
 };
 
 type DesignerAction = {
-    setDark: (dark: boolean) => void;
     setDebugging: (isDebugging: boolean) => void;
     setShiftKeyPressed: (shiftKeyPressed: boolean) => void;
     setShowDeleteConfirmation: (showDeleteConfirmation: boolean) => void;
@@ -260,14 +274,13 @@ type DesignerAction = {
     setPropertyPlaceholders: (propertyPlaceholders:  [string, string][]) => void;
     setParameterPlaceholders: (parameterPlaceholders: [string, string][]) => void;
     setBeans: (beans: BeanFactoryDefinition[]) => void;
-    setTab: (tab?: "routes" | "rest" | "beans" | "kamelet" | "code") => void;
+    setTab: (tab?: "routes" | "rest" | "beans" | "kamelet") => void;
+    setDesignerSwitch: (designerSwitch: boolean) => void;
+    setStepDoubleClicked: (stepDoubleClicked: boolean) => void;
 }
 
 export const useDesignerStore = createWithEqualityFn<DesignerState & DesignerAction>((set) => ({
     ...designerState,
-    setDark: (dark: boolean) => {
-        set({dark: dark})
-    },
     setDebugging: (isDebugging: boolean) => {
         set({isDebugging: isDebugging})
     },
@@ -327,7 +340,10 @@ export const useDesignerStore = createWithEqualityFn<DesignerState & DesignerAct
         set({width: width, height: height, top: top, left: left})
     },
     reset: () => {
-        set(designerState);
+        set(state => {
+            designerState.designerSwitch = state.designerSwitch;
+            return designerState;
+        });
     },
     setNotification: (notificationBadge: boolean, notificationMessage: [string, string]) => {
         set({notificationBadge: notificationBadge, notificationMessage: notificationMessage})
@@ -354,7 +370,13 @@ export const useDesignerStore = createWithEqualityFn<DesignerState & DesignerAct
             return {beans: [...beans]};
         })
     },
-    setTab: (tab?: "routes" | "rest" | "beans" | "kamelet" | "code")  => {
+    setTab: (tab?: "routes" | "rest" | "beans" | "kamelet")  => {
         set({tab: tab})
+    },
+    setDesignerSwitch: (designerSwitch: boolean) => {
+        set({designerSwitch: designerSwitch})
+    },
+    setStepDoubleClicked: (stepDoubleClicked: boolean) => {
+        set({stepDoubleClicked: stepDoubleClicked})
     },
 }), shallow)

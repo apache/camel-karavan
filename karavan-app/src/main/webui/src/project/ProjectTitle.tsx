@@ -16,27 +16,15 @@
  */
 
 import React from 'react';
-import {
-    Badge,
-    Breadcrumb,
-    BreadcrumbItem,
-    Text,
-    TextContent,
-    Flex,
-    FlexItem,
-} from '@patternfly/react-core';
-import '../designer/karavan.css';
-import {getProjectFileTypeTitle} from "../api/ProjectModels";
-import {useFileStore, useProjectStore} from "../api/ProjectStore";
-import TopologyIcon from "@patternfly/react-icons/dist/js/icons/topology-icon";
-import FilesIcon from "@patternfly/react-icons/dist/js/icons/folder-open-icon";
+import {ClipboardCopy, Content, Flex, FlexItem,} from '@patternfly/react-core';
+import './ProjectPage.css';
+import {useFileStore, useProjectStore} from "@/api/ProjectStore";
 import {shallow} from "zustand/shallow";
 
 export function ProjectTitle() {
 
-    const [project, tabIndex, setTabIndex] =
-        useProjectStore((s) => [s.project, s.tabIndex, s.setTabIndex], shallow);
-    const [file,setFile, operation] = useFileStore((s) => [s.file, s.setFile, s.operation], shallow);
+    const [project, tabIndex, setTabIndex] = useProjectStore((s) => [s.project, s.tabIndex, s.setTabIndex], shallow);
+    const [file, setFile, operation] = useFileStore((s) => [s.file, s.setFile, s.operation], shallow);
 
     const isFile = file !== undefined && operation !== 'delete';
     const isLog = file !== undefined && file.name.endsWith("log");
@@ -44,16 +32,14 @@ export function ProjectTitle() {
 
     function getProjectTitle() {
         return (
-            <Flex direction={{default: "column"}}>
+            <Flex direction={{default: "column"}} gap={{default: 'gapNone'}}>
                 <FlexItem>
-                    <TextContent className="title">
-                        <Text component="h2">{project?.projectId}</Text>
-                    </TextContent>
+                    <Content component="h3">{project?.name}</Content>
                 </FlexItem>
                 <FlexItem>
-                    <TextContent>
-                        <Text>{project?.name}</Text>
-                    </TextContent>
+                    <ClipboardCopy hoverTip="Copy" clickTip="Copied" variant="inline-compact">
+                        {project?.projectId}
+                    </ClipboardCopy>
                 </FlexItem>
             </Flex>
         )
@@ -61,42 +47,15 @@ export function ProjectTitle() {
 
     function getFileTitle() {
         return (isFile ?
-                <Flex alignItems={{default: "alignItemsCenter"}}>
-                    <Flex direction={{default: "column"}}>
-                        <FlexItem>
-                            <Breadcrumb>
-                                <BreadcrumbItem to="#" onClick={event => {
-                                    setFile('none', undefined);
-                                }}>
-                                    <div className={"project-breadcrumb"}>{'Back to ' +project?.name + " project"}</div>
-                                </BreadcrumbItem>
-                                <BreadcrumbItem to="#" onClick={_ => {
-                                    setTabIndex('topology');
-                                    setFile('none', undefined);
-                                }}>
-                                    <TopologyIcon/>
-                                </BreadcrumbItem>
-                                <BreadcrumbItem to="#files" onClick={_ => {
-                                    setTabIndex('files');
-                                    setFile('none', undefined);
-                                }}>
-                                    <FilesIcon/>
-                                </BreadcrumbItem>
-                            </Breadcrumb>
-                        </FlexItem>
-                        <FlexItem>
-                            <Flex direction={{default: "row"}}>
-                                <FlexItem>
-                                    <Badge>{getProjectFileTypeTitle(file)}</Badge>
-                                </FlexItem>
-                                <FlexItem>
-                                    <TextContent className="description">
-                                        <Text>{isLog ? filename : file.name}</Text>
-                                    </TextContent>
-                                </FlexItem>
-                            </Flex>
-                        </FlexItem>
-                    </Flex>
+                <Flex direction={{default: "column"}} gap={{default: 'gapNone'}}>
+                    <FlexItem>
+                        <Content component="h3">{project?.name}</Content>
+                    </FlexItem>
+                    <FlexItem>
+                        <ClipboardCopy hoverTip="Copy" clickTip="Copied" variant="inline-compact">
+                            {isLog ? filename : file.name}
+                        </ClipboardCopy>
+                    </FlexItem>
                 </Flex>
                 : <></>
         )

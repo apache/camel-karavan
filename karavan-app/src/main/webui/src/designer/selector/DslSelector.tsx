@@ -16,22 +16,29 @@
  */
 import React, {useEffect, useState} from 'react';
 import {
+    Badge,
+    Bullseye,
     Button,
-    Flex,
-    FlexItem,
+    Card,
+    Content,
+    ContentVariants,
     Gallery,
     Modal,
-    PageSection,
+    ModalBody,
+    ModalFooter,
+    ModalHeader,
+    Skeleton,
     Switch,
+    TextInput,
     TextInputGroup,
-    TextInputGroupUtilities, TextVariants, Text,
+    TextInputGroupUtilities,
     ToggleGroup,
-    ToggleGroupItem, TextContent, Badge, TextInput, Skeleton, Bullseye, Card
+    ToggleGroupItem
 } from '@patternfly/react-core';
 import './DslSelector.css';
 import {CamelUi} from "../utils/CamelUi";
 import {DslMetaModel} from "../utils/DslMetaModel";
-import {useDesignerStore, useSelectorStore} from "../DesignerStore";
+import {useSelectorStore} from "../DesignerStore";
 import {shallow} from "zustand/shallow";
 import {ComponentApi} from 'karavan-core/lib/api/ComponentApi';
 import {KameletApi} from 'karavan-core/lib/api/KameletApi';
@@ -48,13 +55,11 @@ interface Props {
 
 export function DslSelector(props: Props) {
 
-    const [showSelector, showSteps, parentId, parentDsl, setShowSelector,
-        selectedPosition, selectedToggles, addSelectedToggle, deleteSelectedToggle] =
+    const [showSelector, showSteps, parentId, parentDsl, setShowSelector, showProperties, selectedDsl,
+        selectedPosition, selectedToggles, addSelectedToggle, deleteSelectedToggle, setShowProperties, setSelectedDsl] =
         useSelectorStore((s) =>
-            [s.showSelector, s.showSteps, s.parentId, s.parentDsl, s.setShowSelector,
-                s.selectedPosition, s.selectedToggles, s.addSelectedToggle, s.deleteSelectedToggle], shallow)
-
-    const [dark] = useDesignerStore((s) => [s.dark], shallow)
+            [s.showSelector, s.showSteps, s.parentId, s.parentDsl, s.setShowSelector, s.showProperties, s.selectedDsl,
+                s.selectedPosition, s.selectedToggles, s.addSelectedToggle, s.deleteSelectedToggle, s.setShowProperties, s.setSelectedDsl], shallow)
 
     const [filterShown, setFilterShown] = useState<string>('');
     const [filter, setFilter] = useDebounceValue('', 300);
@@ -70,6 +75,12 @@ export function DslSelector(props: Props) {
         setPreferences();
         setReady(true);
         setPageSize(100);
+        setShowProperties(false);
+        setSelectedDsl(undefined);
+        return () => {
+            setShowProperties(false);
+            setSelectedDsl(undefined);
+        }
     }, []);
 
     function setAllElements() {
@@ -103,8 +114,17 @@ export function DslSelector(props: Props) {
         return ['ToDefinition', 'FromDefinition'].includes(dsl.type) ? 'components' : (dsl.uri?.startsWith("kamelet:") ? "kamelets" : 'eip');
     }
 
-    function selectDsl(evt: React.MouseEvent, dsl: any) {
+    function dslCardClick(evt: React.MouseEvent, dsl: any) {
         evt.stopPropagation();
+        if (parentId?.length > 0) {
+            afterSelect(dsl as DslMetaModel);
+        } else {
+            setSelectedDsl(dsl as DslMetaModel);
+            setShowProperties(true)
+        }
+    }
+
+    function afterSelect(dsl: DslMetaModel) {
         setFilter('');
         setShowSelector(false);
         props.onDslSelect(dsl, parentId, selectedPosition);
@@ -119,27 +139,30 @@ export function DslSelector(props: Props) {
 
     function searchInput() {
         return (
-            <TextInputGroup className="search">
-                <TextInput
-                    value={filterShown}
-                    type="text"
-                    autoComplete={"off"}
-                    autoFocus={true}
-                    onChange={(_event, value) => {
-                        setFilterShown(value);
-                        setFilter(value);
-                    }}
-                    aria-label="text input example"
-                />
-                <TextInputGroupUtilities>
-                    <Button variant="plain" onClick={_ => {
-                        setFilterShown('');
-                        setFilter('');
-                    }}>
-                        <TimesIcon aria-hidden={true}/>
-                    </Button>
-                </TextInputGroupUtilities>
-            </TextInputGroup>
+            <div>
+                <TextInputGroup className="search">
+                    <TextInput
+                        id={'modal-special-focus'}
+                        value={filterShown}
+                        type="text"
+                        autoComplete={"off"}
+                        autoFocus={true}
+                        onChange={(_event, value) => {
+                            setFilterShown(value);
+                            setFilter(value);
+                        }}
+                        aria-label="text input example"
+                    />
+                    <TextInputGroupUtilities>
+                        <Button icon={<TimesIcon aria-hidden={true}/>} variant="plain" onClick={_ => {
+                            setFilterShown('');
+                            setFilter('');
+                            setShowProperties(false)
+                            setSelectedDsl(undefined)
+                        }}/>
+                    </TextInputGroupUtilities>
+                </TextInputGroup>
+            </div>
         )
     }
 
@@ -153,7 +176,7 @@ export function DslSelector(props: Props) {
                     <ToggleGroupItem
                         key='eip'
                         text={
-                            <div style={{display: 'flex', flexDirection: 'row'}}>
+                            <div style={{display: 'flex', flexDirection: 'row', alignItems: 'center'}}>
                                 <div style={{marginRight: '6px'}}>Processors</div>
                                 {ready && <Badge isRead={!isEIP} className={isEIP ? "label-eip" : ""}>{eCount}</Badge>}
                             </div>
@@ -169,7 +192,7 @@ export function DslSelector(props: Props) {
                 <ToggleGroupItem
                     key='component'
                     text={
-                        <div style={{display: 'flex', flexDirection: 'row'}}>
+                        <div style={{display: 'flex', flexDirection: 'row', alignItems: 'center'}}>
                             <div style={{marginRight: '6px'}}>Components</div>
                             {ready &&
                                 <Badge isRead={!isComp} className={isComp ? "label-component" : ""}>{cCount}</Badge>}
@@ -185,9 +208,9 @@ export function DslSelector(props: Props) {
                 <ToggleGroupItem
                     key='kamelet'
                     text={
-                        <div style={{display: 'flex', flexDirection: 'row'}}>
+                        <div style={{display: 'flex', flexDirection: 'row', alignItems: 'center'}}>
                             <div style={{marginRight: '6px'}}>Kamelets</div>
-                            {ready && <Badge isRead={!isKam} className={isKam ? "label-kamelet" : ""}>{kCount}</Badge>}
+                            {ready && <Badge isRead={!isKam} className={isKam ? "label-kamelets" : ""}>{kCount}</Badge>}
                         </div>
                     }
                     buttonId="kamelets"
@@ -203,27 +226,24 @@ export function DslSelector(props: Props) {
 
     function getHeader() {
         return (
-            <Flex direction={{default: "row"}}>
-                <FlexItem>
-                    <TextContent>
-                        <Text component={TextVariants.h3}>{title}</Text>
-                    </TextContent>
-                </FlexItem>
-                <FlexItem>
-                    {searchInput()}
-                </FlexItem>
-                <FlexItem>
-                    {getToggles()}
-                </FlexItem>
-                {selectedToggles.includes('kamelets') && <FlexItem>
+            <div style={{display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '16px'}}>
+                <Content component={ContentVariants.h2} style={{textWrap: 'nowrap'}}>{title}</Content>
+                {searchInput()}
+                {getToggles()}
+                {selectedToggles.includes('kamelets') &&
                     <Switch
                         label="Custom only"
                         id="switch"
                         isChecked={customOnly}
-                        onChange={(_event, checked) => setCustomOnly(checked)}
-                    />
-                </FlexItem>}
-            </Flex>
+                        onChange={(_event, checked) => {
+                            setCustomOnly(checked);
+                            if (checked) {
+                                deleteSelectedToggle('eip');
+                                deleteSelectedToggle('components');
+                            }
+                        }}
+                    />}
+            </div>
         )
     }
 
@@ -233,19 +253,20 @@ export function DslSelector(props: Props) {
     }
 
     const title = parentDsl === undefined ? "Select source" : "Select step";
-    const filteredElements: DslMetaModel[] = elements
-        .filter(d => {
+    const filteredElements: DslMetaModel[] = selectedDsl
+        ? [selectedDsl]
+        : elements.filter(d => {
             if (selectedToggles.includes('eip') && d.navigation === 'eip') return true
             else if (selectedToggles.includes('components') && d.navigation === 'component') return true
             else if (selectedToggles.includes('kamelets') && d.navigation === 'kamelet') {
                 if (customOnly) {
-                    return KameletApi.getCustomKameletNames().includes(d.name);
+                    return KameletApi.getCustomKameletNames().includes(d.name) || KameletApi.getProjectKameletNames().includes(d.name);
                 } else {
                     return true;
                 }
             } else return false;
         })
-        .filter(d => CamelUi.checkFilter(d, filter));
+            .filter(d => CamelUi.checkFilter(d, filter));
 
     const eCount = filteredElements.filter(e => e.navigation === 'eip').length;
     const cCount = filteredElements.filter(e => e.navigation === 'component').length;
@@ -254,8 +275,9 @@ export function DslSelector(props: Props) {
     const fElementCount = filteredElements.length;
     const moreElements = fElementCount > pageSize ? fElementCount - pageSize : 0;
 
-    const fastElements: DslMetaModel[] = elements
-        .filter((d: DslMetaModel) => {
+    const fastElements: DslMetaModel[] = selectedDsl
+        ? [selectedDsl]
+        : elements.filter((d: DslMetaModel) => {
             if (selectedToggles.includes('eip') && d.navigation === 'eip') {
                 return preferredElements.includes(d.dsl);
             } else if (d.navigation === 'component' && d.navigation === 'component') {
@@ -264,45 +286,63 @@ export function DslSelector(props: Props) {
                 return preferredElements.includes(d.name)
             }
         })
-        .filter(d => CamelUi.checkFilter(d, filter))
-        .filter((_, i) => i < 7)
+            .filter(d => CamelUi.checkFilter(d, filter))
+            .filter((_, i) => i < 7)
 
     return (
         <Modal
             aria-label={title}
             width={'90%'}
             className='dsl-modal'
+            position="top"
             isOpen={showSelector}
             onClose={() => close()}
-            header={getHeader()}
-            actions={{}}>
-            <PageSection padding={{default: "noPadding"}} variant={dark ? "darker" : "light"}>
+            elementToFocus='#modal-special-focus'
+        >
+            <ModalHeader>
+                {getHeader()}
+            </ModalHeader>
+            <ModalBody>
                 {!ready && [1, 2, 3, 4, 5, 6, 7, 8, 9].map(i =>
                     <React.Fragment key={i}>
                         <Skeleton key={i} width={i * 10 + '%'} screenreaderText="Loading..."/>
                         <br/>
                     </React.Fragment>)
                 }
-                <Gallery key={"fast-gallery"} hasGutter className="dsl-gallery"
-                         minWidths={{default: '150px'}}>
-                    {showSelector && fastElements.map((dsl: DslMetaModel, index: number) =>
-                        <DslFastCard key={dsl.name + ":" + index} dsl={dsl} index={index} onDslSelect={selectDsl} onDeleteFast={deleteFast}/>
-                    )}
-                </Gallery>
-                <Gallery key={"gallery"} hasGutter className="dsl-gallery" minWidths={{default: '200px'}}>
-                    {showSelector && filteredElements.slice(0, pageSize).map((dsl: DslMetaModel, index: number) =>
-                        <DslCard key={dsl.name + ":" + index} dsl={dsl} index={index} onDslSelect={selectDsl}/>
-                    )}
-                    {moreElements > 0 &&
-                        <Card isCompact isPlain isFlat isRounded style={{minHeight: '140px'}}>
-                            <Bullseye>
-                                <Button variant='link'
-                                        onClick={_ => setPageSize(pageSize + 10)}>{`${moreElements} more`}</Button>
-                            </Bullseye>
-                        </Card>
-                    }
-                </Gallery>
-            </PageSection>
+                {!showProperties &&
+                    <Gallery key={"fast-gallery"} hasGutter className="dsl-gallery" minWidths={{default: '150px'}}>
+                        {showSelector && fastElements.map((dsl: DslMetaModel, index: number) =>
+                            <DslFastCard key={dsl.name + ":" + index} dsl={dsl} index={index} onDslSelect={dslCardClick} onDeleteFast={deleteFast}/>
+                        )}
+                    </Gallery>
+                }
+                {!showProperties &&
+                    <Gallery key={"gallery"} hasGutter className="dsl-gallery" minWidths={{default: '200px'}}>
+                        {showSelector && filteredElements.slice(0, pageSize).map((dsl: DslMetaModel, index: number) =>
+                            <DslCard key={dsl.name + ":" + index} dsl={dsl} index={index} onDslCardClick={dslCardClick}/>
+                        )}
+                        {moreElements > 0 &&
+                            <Card isCompact isPlain style={{minHeight: '140px'}}>
+                                <Bullseye>
+                                    <Button variant='link'
+                                            onClick={_ => setPageSize(pageSize + 10)}>{`${moreElements} more`}</Button>
+                                </Bullseye>
+                            </Card>
+                        }
+                    </Gallery>
+                }
+                {showProperties && selectedDsl &&
+                    <Bullseye>
+                        <DslCard key={selectedDsl.name} dsl={selectedDsl} index={0} onDslCardClick={dslCardClick}/>
+                    </Bullseye>
+                }
+
+            </ModalBody>
+            <ModalFooter className="dsl-footer">
+                <Button variant={selectedDsl ? 'tertiary' : 'primary'} onClick={_ => close()}>Close</Button>
+                {showProperties && selectedDsl && <Button variant='secondary' onClick={_ => setSelectedDsl(undefined)}>Back</Button>}
+                {showProperties && selectedDsl && <Button variant='primary' onClick={_ => afterSelect(selectedDsl)}>Select</Button>}
+            </ModalFooter>
         </Modal>
     )
 }

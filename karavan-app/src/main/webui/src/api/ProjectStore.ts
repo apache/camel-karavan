@@ -14,15 +14,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 import {
     AppConfig,
-    DeploymentStatus,
+    CamelStatus,
+    ContainerImage,
     ContainerStatus,
+    DeploymentStatus,
+    DesignerTab,
+    FileOperation,
     Project,
     ProjectFile,
-    ServiceStatus,
-    CamelStatus, ContainerImage,
+    ProjectOperation,
+    ServiceStatus
 } from "./ProjectModels";
 import {ProjectEventBus} from "./ProjectEventBus";
 import {unstable_batchedUpdates} from "react-dom";
@@ -30,8 +33,6 @@ import {createWithEqualityFn} from "zustand/traditional";
 import {shallow} from "zustand/shallow";
 
 interface AppConfigState {
-    isAuthorized: boolean;
-    setAuthorized: (isAuthorized: boolean) => void;
     loading: boolean;
     setLoading: (loading: boolean) => void;
     config: AppConfig;
@@ -41,23 +42,21 @@ interface AppConfigState {
     selectedEnv: string[];
     setSelectedEnv: (selectedEnv: string[]) => void;
     selectEnvironment: (name: string, selected: boolean) => void;
+    dockerInfo: any;
+    setDockerInfo: (info: any) => void;
 }
 
 export const useAppConfigStore = createWithEqualityFn<AppConfigState>((set) => ({
-    isAuthorized: false,
-    setAuthorized: (isAuthorized: boolean)  => {
-        set({isAuthorized: isAuthorized})
-    },
     loading: false,
-    setLoading: (loading: boolean)  => {
+    setLoading: (loading: boolean) => {
         set({loading: loading})
     },
     config: new AppConfig(),
-    setConfig: (config: AppConfig)  => {
+    setConfig: (config: AppConfig) => {
         set({config: config})
     },
     readiness: undefined,
-    setReadiness: (r: any)  => {
+    setReadiness: (r: any) => {
         set((state: AppConfigState) => {
             if (JSON.stringify(r) !== JSON.stringify(state?.readiness)) {
                 return ({readiness: r})
@@ -67,7 +66,7 @@ export const useAppConfigStore = createWithEqualityFn<AppConfigState>((set) => (
         });
     },
     selectedEnv: [],
-    setSelectedEnv: (selectedEnv: string[])   => {
+    setSelectedEnv: (selectedEnv: string[]) => {
         set((state: AppConfigState) => {
             state.selectedEnv.length = 0;
             state.selectedEnv.push(...selectedEnv);
@@ -85,6 +84,12 @@ export const useAppConfigStore = createWithEqualityFn<AppConfigState>((set) => (
             }
             return {selectedEnv: state.selectedEnv};
         });
+    },
+    dockerInfo: {},
+    setDockerInfo: (info: any)  => {
+        set({
+            dockerInfo: info
+        })
     },
 }), shallow)
 
@@ -124,11 +129,11 @@ interface ProjectState {
     images: ContainerImage [],
     setImages: (images: ContainerImage []) => void;
     project: Project;
-    setProject: (project: Project, operation:  "create" | "select" | "delete"| "none" | "copy" | "upload" | "download") => void;
-    operation: "create" | "select" | "delete" | "none" | "copy" | "upload" | "download";
+    setProject: (project: Project, operation: ProjectOperation) => void;
+    operation: "create" | "select" | "delete" | "none" | "copy";
     tabIndex: string | number;
     setTabIndex: (tabIndex: string | number) => void;
-    setOperation: (o: "create" | "select" | "delete"| "none" | "copy" | "upload" | "download") => void;
+    setOperation: (o: ProjectOperation) => void;
     camelStatuses: CamelStatus[],
     setCamelStatuses: (camelStatuses: CamelStatus[]) => void;
     camelTraces: CamelStatus[],
@@ -145,7 +150,7 @@ export const useProjectStore = createWithEqualityFn<ProjectState>((set) => ({
     isPushing: false,
     isPulling: false,
     isRunning: false,
-    setProject: (project: Project, operation:  "create" | "select" | "delete"| "none" | "copy" | "upload" | "download") => {
+    setProject: (project: Project, operation: ProjectOperation) => {
         set((state: ProjectState) => ({
             project: project,
             operation: operation,
@@ -157,7 +162,7 @@ export const useProjectStore = createWithEqualityFn<ProjectState>((set) => ({
             tabIndex: state.tabIndex
         }));
     },
-    setOperation: (o: "create" | "select" | "delete"| "none" | "copy" | "upload" | "download") => {
+    setOperation: (o: ProjectOperation) => {
         set((state: ProjectState) => ({
             operation: o
         }));
@@ -175,19 +180,19 @@ export const useProjectStore = createWithEqualityFn<ProjectState>((set) => ({
         });
     },
     camelStatuses: [],
-    setCamelStatuses: (camelStatuses: CamelStatus[])  => {
+    setCamelStatuses: (camelStatuses: CamelStatus[]) => {
         set((state: ProjectState) => {
             return {camelStatuses: camelStatuses};
         });
     },
     camelTraces: [],
-    setCamelTraces: (camelTraces: CamelStatus[])  => {
+    setCamelTraces: (camelTraces: CamelStatus[]) => {
         set((state: ProjectState) => {
             return {camelTraces: camelTraces};
         });
     },
     refreshTrace: false,
-    setRefreshTrace: (refreshTrace: boolean)  => {
+    setRefreshTrace: (refreshTrace: boolean) => {
         set({refreshTrace: refreshTrace})
     },
 }), shallow)
@@ -243,9 +248,9 @@ export const useFilesStore = createWithEqualityFn<FilesState>((set) => ({
 
 interface FileState {
     file?: ProjectFile;
-    operation: "create" | "select" | "delete" | "none" | "copy" | "upload" | "diff";
-    designerTab?: "routes" | "rest" | "beans" | "kamelet";
-    setFile: (operation:  "create" | "select" | "delete"| "none" | "copy" | "upload" | "diff", file?: ProjectFile, designerTab?: "routes" | "rest" | "beans" | "kamelet") => void;
+    operation: FileOperation;
+    designerTab?: DesignerTab;
+    setFile: (operation: FileOperation, file?: ProjectFile, designerTab?: DesignerTab) => void;
 }
 
 export const useFileStore = createWithEqualityFn<FileState>((set) => ({
@@ -253,7 +258,7 @@ export const useFileStore = createWithEqualityFn<FileState>((set) => ({
     operation: "none",
     designerTab: undefined,
     addProperty: '',
-    setFile: (operation:  "create" | "select" | "delete"| "none" | "copy" | "upload" | "diff", file?: ProjectFile, designerTab?: "routes" | "rest" | "beans" | "kamelet") => {
+    setFile: (operation: FileOperation, file?: ProjectFile, designerTab?: DesignerTab) => {
         set((state: FileState) => ({
             file: file,
             operation: operation,
@@ -266,9 +271,10 @@ interface WizardState {
     showWizard: boolean;
     setShowWizard: (showWizard: boolean) => void;
 }
+
 export const useWizardStore = createWithEqualityFn<WizardState>((set) => ({
     showWizard: false,
-    setShowWizard: (showWizard: boolean)  => {
+    setShowWizard: (showWizard: boolean) => {
         set({showWizard: showWizard})
     },
 }), shallow)
@@ -283,12 +289,12 @@ interface DevModeState {
 export const useDevModeStore = createWithEqualityFn<DevModeState>((set) => ({
     podName: undefined,
     status: "none",
-    setStatus: (status: "none" | "wip") =>  {
+    setStatus: (status: "none" | "wip") => {
         set((state: DevModeState) => ({
             status: status,
         }));
     },
-    setPodName: (podName?: string) =>  {
+    setPodName: (podName?: string) => {
         set((state: DevModeState) => ({
             podName: podName,
         }));
@@ -350,10 +356,10 @@ interface LogState {
 export const useLogStore = createWithEqualityFn<LogState>((set) => ({
     podName: undefined,
     data: '',
-    setData: (data: string)  => {
+    setData: (data: string) => {
         set({data: data})
     },
-    addData: (data: string)  => {
+    addData: (data: string) => {
         set((state: LogState) => {
             const delimiter = state.data.endsWith('\n') ? '' : '\n';
             return ({data: state.data.concat(delimiter, data)})
@@ -366,7 +372,7 @@ export const useLogStore = createWithEqualityFn<LogState>((set) => ({
         })
     },
     currentLine: 0,
-    setCurrentLine: (currentLine: number)  => {
+    setCurrentLine: (currentLine: number) => {
         set((state: LogState) => ({currentLine: currentLine}))
     },
     showLog: false,
@@ -374,23 +380,21 @@ export const useLogStore = createWithEqualityFn<LogState>((set) => ({
         set(() => ({showLog: showLog, type: type, podName: podName}));
     },
     type: "none",
-    setType: (type: 'container' | 'build' | 'none') =>  {
+    setType: (type: 'container' | 'build' | 'none') => {
         set((state: LogState) => ({type: type}));
     },
 }), shallow)
 
-console.log("Start Log Subscriber");
 const sub = ProjectEventBus.onLog()?.subscribe((result: ["add" | "set", string]) => {
     if (result[0] === 'add') {
         unstable_batchedUpdates(() => {
             useLogStore.setState((state: LogState) => {
                 const delimiter = state.data.endsWith('\n') ? '' : '\n';
-                const newData  = state.data ? state.data.concat(delimiter, result[1]) : result[1]
-                return ({data: newData, currentLine: state.currentLine+1});
+                const newData = state.data ? state.data.concat(delimiter, result[1]) : result[1]
+                return ({data: newData, currentLine: state.currentLine + 1});
             })
         })
-    }
-    else if (result[0] === 'set') {
+    } else if (result[0] === 'set') {
         unstable_batchedUpdates(() => {
             useLogStore.setState({data: result[1], currentLine: 0});
         })

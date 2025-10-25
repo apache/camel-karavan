@@ -16,30 +16,25 @@
  */
 
 import React, {useEffect} from 'react';
-import {
-    Alert,
-    Button,
-    Form, FormAlert,
-    Modal,
-    ModalVariant,
-} from '@patternfly/react-core';
-import '../designer/karavan.css';
-import {useProjectsStore, useProjectStore} from "../api/ProjectStore";
-import {ProjectService} from "../api/ProjectService";
-import {Project} from "../api/ProjectModels";
-import {isValidProjectId} from "../util/StringUtils";
-import {EventBus} from "../designer/utils/EventBus";
+import {Alert, Button, Form, FormAlert, Modal, ModalBody, ModalFooter, ModalHeader, ModalVariant} from '@patternfly/react-core';
+import {useProjectsStore, useProjectStore} from "@/api/ProjectStore";
+import {Project, RESERVED_WORDS} from "@/api/ProjectModels";
+import {isValidProjectId, nameToProjectId} from "@/util/StringUtils";
+import {EventBus} from "@/designer/utils/EventBus";
 import {SubmitHandler, useForm} from "react-hook-form";
-import {useFormUtil} from "../util/useFormUtil";
-import {KaravanApi} from "../api/KaravanApi";
+import {useFormUtil} from "@/util/useFormUtil";
+import {KaravanApi} from "@/api/KaravanApi";
 import {AxiosResponse} from "axios";
 import {shallow} from "zustand/shallow";
+import {useNavigate} from "react-router-dom";
+import {ROUTES} from "@/custom/Routes";
 
 export function CreateProjectModal() {
 
     const [project, operation, setOperation] = useProjectStore((s) => [s.project, s.operation, s.setOperation], shallow);
-    const [projects] = useProjectsStore((s) => [s.projects], shallow);
+    const [projects, setProjects] = useProjectsStore((s) => [s.projects, s.setProjects], shallow);
     const [isReset, setReset] = React.useState(false);
+    const [isProjectIdChanged, setIsProjectIdChanged] = React.useState(false);
     const [backendError, setBackendError] = React.useState<string>();
     const formContext = useForm<Project>({mode: "all"});
     const {getTextField} = useFormUtil(formContext);
@@ -47,11 +42,14 @@ export function CreateProjectModal() {
         formState: {errors},
         handleSubmit,
         reset,
-        trigger
+        trigger,
+        setValue,
+        getValues
     } = formContext;
+    const navigate = useNavigate();
 
     useEffect(() => {
-        reset(new Project());
+        reset(project ?? new Project());
         setBackendError(undefined);
         setReset(true);
     }, [reset]);
@@ -74,18 +72,20 @@ export function CreateProjectModal() {
 
     function after (result: boolean, res: AxiosResponse<Project> | any) {
         if (result) {
-            onSuccess(res.projectId);
+            onSuccess(res.data.projectId);
         } else {
             setBackendError(res?.response?.data);
         }
     }
 
     function onSuccess (projectId: string) {
-        const message = operation !== "copy" ? "Project successfully created." : "Project successfully copied.";
+        const message = operation !== "copy" ? "Integration successfully created." : "Integration successfully copied.";
         EventBus.sendAlert( "Success", message, "success");
-        ProjectService.refreshProjectData(projectId);
-        ProjectService.refreshProjects();
-        setOperation("none");
+        KaravanApi.getProjects((projects: Project[]) => {
+            setProjects(projects);
+            setOperation("none");
+            navigate(`${ROUTES.INTEGRATIONS}/${projectId}`);
+        });
     }
 
     function onKeyDown(event: React.KeyboardEvent<HTMLDivElement>): void {
@@ -94,40 +94,51 @@ export function CreateProjectModal() {
         }
     }
 
+    function onNameChange (value: string) {
+        if (!isProjectIdChanged) {
+            setValue('projectId', nameToProjectId(value), {shouldValidate: true})
+        }
+    }
+    function onIdChange (value: string) {
+        setIsProjectIdChanged(true)
+    }
+
     return (
         <Modal
-            title={operation !== 'copy' ? "Create new project" : "Copy project from " + project?.projectId}
             variant={ModalVariant.small}
             isOpen={["create", "copy"].includes(operation)}
             onClose={closeModal}
             onKeyDown={onKeyDown}
-            actions={[
+        >
+
+            <ModalHeader title={operation !== 'copy' ? "Create new Integration" : "Copy Integration from " + project?.projectId}/>
+            <ModalBody>
+                <Form isHorizontal={true} autoComplete="off">
+                    {getTextField('name', 'Name', {
+                        length: v => v.length > 5 || 'Integration name should be longer that 5 characters',
+                    }, 'text', onNameChange)}
+                    {getTextField('projectId', 'Integration ID', {
+                        regex: v => isValidProjectId(v) || 'Only lowercase characters, numbers and dashes allowed',
+                        length: v => v.length > 5 || 'Integration ID should be longer that 5 characters',
+                        name: v => !RESERVED_WORDS.includes(v) || "Reserved word",
+                        uniques: v => !projects.map(p=> p.name).includes(v) || "Integration already exists!",
+                    }, 'text', onIdChange)}
+                    {backendError &&
+                        <FormAlert>
+                            <Alert variant="danger" title={backendError} aria-live="polite" isInline />
+                        </FormAlert>
+                    }
+                </Form>
+            </ModalBody>
+            <ModalFooter>
                 <Button key="confirm" variant="primary"
                         onClick={handleSubmit(onSubmit)}
                         isDisabled={Object.getOwnPropertyNames(errors).length > 0}
                 >
                     Save
-                </Button>,
+                </Button>
                 <Button key="cancel" variant="secondary" onClick={closeModal}>Cancel</Button>
-            ]}
-            className="new-project"
-        >
-            <Form isHorizontal={true} autoComplete="off">
-                {getTextField('projectId', 'ProjectID', {
-                    regex: v => isValidProjectId(v) || 'Only lowercase characters, numbers and dashes allowed',
-                    length: v => v.length > 5 || 'Project ID should be longer that 5 characters',
-                    name: v => !['templates', 'kamelets', 'karavan'].includes(v) || "'templates', 'kamelets', 'karavan' can't be used as project",
-                    uniques: v => !projects.map(p=> p.name).includes(v) || "Project already exists!",
-                })}
-                {getTextField('name', 'Name', {
-                    length: v => v.length > 5 || 'Project name should be longer that 5 characters',
-                })}
-                {backendError &&
-                    <FormAlert>
-                        <Alert variant="danger" title={backendError} aria-live="polite" isInline />
-                    </FormAlert>
-                }
-            </Form>
+            </ModalFooter>
         </Modal>
     )
 }

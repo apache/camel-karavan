@@ -16,21 +16,16 @@
  */
 
 import {KaravanApi} from './KaravanApi';
-import {DeploymentStatus, ContainerStatus, Project, ProjectFile, ServiceStatus, CamelStatus, ContainerImage} from './ProjectModels';
+import {CamelStatus, ContainerImage, ContainerStatus, DeploymentStatus, Project, ProjectFile, ServiceStatus} from './ProjectModels';
 import {TemplateApi} from 'karavan-core/lib/api/TemplateApi';
-import {InfrastructureAPI} from '../designer/utils/InfrastructureAPI';
+import {InfrastructureAPI} from '@/designer/utils/InfrastructureAPI';
 import {unstable_batchedUpdates} from 'react-dom'
-import {
-    useFilesStore,
-    useStatusesStore,
-    useFileStore, useLogStore,
-    useProjectsStore,
-    useProjectStore, useDevModeStore
-} from './ProjectStore';
+import {useDevModeStore, useFilesStore, useFileStore, useLogStore, useProjectsStore, useProjectStore, useStatusesStore} from './ProjectStore';
 import {ProjectEventBus} from './ProjectEventBus';
-import {EventBus} from "../designer/utils/EventBus";
+import {EventBus} from "@/designer/utils/EventBus";
 import {KameletApi} from "karavan-core/lib/api/KameletApi";
-import { ComponentApi } from 'karavan-core/lib/api/ComponentApi';
+import {ComponentApi} from 'karavan-core/lib/api/ComponentApi';
+import {getCurrentUser} from "@/auth/AuthApi";
 
 export class ProjectService {
 
@@ -63,7 +58,7 @@ export class ProjectService {
 
     public static stopDevModeContainer(project: Project) {
         useDevModeStore.setState({status: 'wip'})
-        KaravanApi.manageContainer(project.projectId, 'devmode', project.projectId, 'stop',  'never',res => {
+        KaravanApi.manageContainer(project.projectId, 'devmode', project.projectId, 'stop', 'never', res => {
             useDevModeStore.setState({status: 'none'})
             if (res.status === 200) {
             } else {
@@ -101,10 +96,9 @@ export class ProjectService {
         const params = {
             'projectId': project.projectId,
             'message': commitMessage,
-            'userId': KaravanApi.getUserId(),
+            'userId': getCurrentUser()?.username,
             'fileNames': selectedFileNames.join(","),
         };
-        console.log(params);
         KaravanApi.push(params, res => {
             if (res.status === 200 || res.status === 201) {
                 // ProjectService.refreshProject(project.projectId);
@@ -129,33 +123,46 @@ export class ProjectService {
         });
     }
 
-    static afterKameletsLoad(yamls: string): void {
-        const kamelets: string[] = [];
-        yamls.split(/\n?---\n?/).map(c => c.trim()).forEach(z => kamelets.push(z));
-        KameletApi.saveKamelets(kamelets, true);
-    }
-
-    public static reloadKamelets(projectId?: string) {
-        if (projectId) {
-            KaravanApi.getKameletsForProject(projectId, ProjectService.afterKameletsLoad);
-            useFilesStore.getState().files
-                ?.filter(f => f.name.endsWith('.kamelet.yaml'))
-                .map(f => f.name.replace('.kamelet.yaml', ''))
-                .forEach(name => KameletApi.saveCustomKameletName(name))
-        } else {
-            KaravanApi.getKamelets(ProjectService.afterKameletsLoad)
-        }
-        KaravanApi.getFiles("kamelets", (files: ProjectFile[]) => {
-            files.map(f => f.name.replace('.kamelet.yaml', ''))
-                .forEach(name => KameletApi.saveCustomKameletName(name))
+    public static pullAllProjects() {
+        useProjectStore.setState({isPulling: true})
+        KaravanApi.pull(undefined, res => {
+            if (res.status === 200 || res.status === 201) {
+                useProjectStore.setState({isPulling: false})
+                ProjectService.refreshProjects();
+            } else {
+                EventBus.sendAlert("Error pulling", (res as any)?.response?.data, 'danger')
+            }
+            useProjectStore.setState({isPulling: false})
         });
     }
 
-    public static updateFile(file: ProjectFile, active: boolean) {
+    static afterKameletsLoad(yamls: string, saveCamelKamelets: (kameletYamls: string[], clean?: boolean) => void): void {
+        try {
+            const kamelets: string[] = [];
+            yamls.split(/\n?---\n?/).map(c => c.trim()).forEach(z => kamelets.push(z));
+            saveCamelKamelets(kamelets, true);
+        } catch (e: any) {
+            console.error(e);
+            EventBus.sendAlert("Error updating kamelets", e?.message, 'danger');
+        }
+    }
+
+    public static loadCamelAndCustomKamelets() {
+        KaravanApi.getCamelKamelets(yaml => ProjectService.afterKameletsLoad(yaml, KameletApi.saveCamelKamelets));
+        ProjectService.loadCustomKamelets();
+    }
+
+    public static loadCustomKamelets() {
+        KaravanApi.getCustomKamelets(yaml => ProjectService.afterKameletsLoad(yaml, KameletApi.saveCustomKamelets));
+    }
+
+    public static updateFile(file: ProjectFile, active: boolean, updateFilesStore: boolean = true) {
         KaravanApi.putProjectFile(file, res => {
             if (res.status === 200) {
                 const newFile = res.data;
-                useFilesStore.getState().upsertFile(newFile);
+                if (updateFilesStore) {
+                    useFilesStore.getState().upsertFile(newFile);
+                }
                 if (active) {
                     useFileStore.setState({file: newFile});
                 }
@@ -181,7 +188,7 @@ export class ProjectService {
     }
 
     public static refreshAllContainerStatuses() {
-        KaravanApi.getAllContainerStatuses( (statuses: ContainerStatus[]) => {
+        KaravanApi.getAllContainerStatuses((statuses: ContainerStatus[]) => {
             useStatusesStore.setState({containers: statuses});
         });
     }
@@ -194,7 +201,7 @@ export class ProjectService {
                 const newMap = new Map<string, ContainerStatus>(
                     newContainers.map(container => [container.containerName, container])
                 );
-                const containers =  oldContainers
+                const containers = oldContainers
                     .filter(container => newMap.has(container.containerName))  // Filter out old containers not in new
                     .map(container => newMap.get(container.containerName)!)     // Replace with new containers
                     .concat(newContainers.filter(container => !oldContainers.some(old => old.containerName === container.containerName)));
@@ -210,7 +217,7 @@ export class ProjectService {
     }
 
     public static refreshAllCamelStatuses() {
-        KaravanApi.getAllCamelContextStatuses( (statuses: CamelStatus[]) => {
+        KaravanApi.getAllCamelContextStatuses((statuses: CamelStatus[]) => {
             useStatusesStore.setState({camels: statuses});
         });
     }
@@ -242,7 +249,7 @@ export class ProjectService {
     }
 
     public static refreshAllDeploymentStatuses() {
-        KaravanApi.getAllDeploymentStatuses( (statuses: DeploymentStatus[]) => {
+        KaravanApi.getAllDeploymentStatuses((statuses: DeploymentStatus[]) => {
             useStatusesStore.setState({deployments: statuses});
         });
     }
@@ -256,10 +263,10 @@ export class ProjectService {
     public static deleteProject(project: Project, deleteContainers?: boolean) {
         KaravanApi.deleteProject(project, deleteContainers === true, res => {
             if (res.status === 204) {
-                EventBus.sendAlert( 'Success', 'Project deleted', 'success');
+                EventBus.sendAlert('Success', 'Project deleted', 'success');
                 ProjectService.refreshProjects();
             } else {
-                EventBus.sendAlert( 'Warning', 'Error when deleting project:' + res.statusText, 'warning');
+                EventBus.sendAlert('Warning', 'Error when deleting project:' + res.statusText, 'warning');
             }
         });
     }
@@ -282,8 +289,11 @@ export class ProjectService {
 
     public static refreshProjectFiles(projectId: string) {
         KaravanApi.getFiles(projectId, (files: ProjectFile[]) => {
+            const kameletsYamls = files.filter(f => f.name.endsWith('.kamelet.yaml') && f.code?.length > 0).map(f => f.code).join("\n---\n")
+            if (kameletsYamls && kameletsYamls.length > 0) {
+                ProjectService.afterKameletsLoad(kameletsYamls, KameletApi.saveProjectKamelets);
+            }
             useFilesStore.setState({files: files});
-            ProjectService.reloadKamelets(projectId);
         });
 
         KaravanApi.getFilesDiff(projectId, (diff: any) => {
@@ -302,20 +312,12 @@ export class ProjectService {
                     })
             });
         });
+        KaravanApi.getCustomKamelets(yaml => ProjectService.afterKameletsLoad(yaml, KameletApi.saveCustomKamelets));
         ProjectService.refreshProjectFiles(projectId);
-
-        KaravanApi.getConfigMaps((any: []) => {
-            InfrastructureAPI.setConfigMaps(any);
-        });
-        KaravanApi.getSecrets((any: []) => {
-            InfrastructureAPI.setSecrets(any);
-        });
-        KaravanApi.getServices((any: []) => {
-            InfrastructureAPI.setServices(any);
-        });
-        KaravanApi.getImages(projectId, (images: []) => {
-            useProjectStore.setState({images: images})
-        });
+        KaravanApi.getConfigMaps((any: []) => InfrastructureAPI.setConfigMaps(any));
+        KaravanApi.getSecrets((any: []) => InfrastructureAPI.setSecrets(any));
+        KaravanApi.getServices((any: []) => InfrastructureAPI.setServices(any));
+        KaravanApi.getImages(projectId, (images: []) => useProjectStore.setState({images: images}));
     }
 
     public static reloadBlockedTemplates() {
@@ -323,8 +325,7 @@ export class ProjectService {
             files.filter(f => f.name.endsWith('blocklist.txt')).forEach(file => {
                 if (file.name === 'components-blocklist.txt') {
                     ComponentApi.saveBlockedComponentNames(file.code.split(/\r?\n/));
-                }
-                else if (file.name === "kamelets-blocklist.txt") {
+                } else if (file.name === "kamelets-blocklist.txt") {
                     KameletApi.saveBlockedKameletNames(file.code.split(/\r?\n/));
                 }
             });

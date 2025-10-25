@@ -17,31 +17,29 @@
 import React, {useEffect, useState} from 'react';
 import {
     Button,
+    FormGroupLabelHelp,
     InputGroup,
     InputGroupItem,
     Popover,
-    TextInput, TextInputGroup, TextInputGroupMain, TextInputGroupUtilities,
+    TextInput,
+    TextInputGroup,
+    TextInputGroupMain,
+    TextInputGroupUtilities,
     Tooltip,
     ValidatedOptions,
 } from '@patternfly/react-core';
 import './BeanProperties.css';
-import "@patternfly/patternfly/patternfly.css";
 import {BeanFactoryDefinition,} from "karavan-core/lib/model/CamelDefinition";
 import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
 import {SensitiveKeys} from "karavan-core/lib/model/CamelMetadata";
 import {v4 as uuidv4} from "uuid";
-import DeleteIcon from "@patternfly/react-icons/dist/js/icons/times-icon";
-import AddIcon from "@patternfly/react-icons/dist/js/icons/plus-circle-icon";
-import HelpIcon from "@patternfly/react-icons/dist/js/icons/help-icon";
+import {CogIcon, DockerIcon, PlusCircleIcon, TimesIcon} from '@patternfly/react-icons';
 import {ConfigurationSelectorModal} from "./ConfigurationSelectorModal";
 import {InfrastructureAPI} from "../../utils/InfrastructureAPI";
-import DockerIcon from "@patternfly/react-icons/dist/js/icons/docker-icon";
 import {useDesignerStore} from "../../DesignerStore";
 import {shallow} from "zustand/shallow";
 import {KubernetesIcon} from "../../icons/ComponentIcons";
 import {isSensitiveFieldValid} from "../../utils/ValidatorUtils";
-import TimesIcon from "@patternfly/react-icons/dist/esm/icons/times-icon";
-import CogIcon from "@patternfly/react-icons/dist/js/icons/cog-icon";
 
 interface Props {
     type: 'constructors' | 'properties'
@@ -184,10 +182,10 @@ export function BeanProperties (props: Props) {
     function getOpenConfigButton(uuid: string, propertyName: string) {
         return (
             <Tooltip position="bottom-end" content="Open config selector">
-                <Button variant="control" className='open-config-buton' onClick={e => {
+                <Button icon={<CogIcon/>} variant="control" className='open-config-buton' onClick={e => {
                     openConfigurationSelector(uuid, propertyName)
                 }}>
-                    <CogIcon style={{fill: 'var(--pf-v5-global--Color--200)'}}/>
+                    
                 </Button>
             </Tooltip>
         )
@@ -212,12 +210,7 @@ export function BeanProperties (props: Props) {
                         <b>Required</b>
                     </div>
                 }>
-                <button type="button" aria-label="More info" onClick={e => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                }} className="pf-v5-c-form__group-label-help">
-                    <HelpIcon />
-                </button>
+                <FormGroupLabelHelp aria-label="More info" />
             </Popover>
         )
     }
@@ -253,14 +246,14 @@ export function BeanProperties (props: Props) {
                                         }}/>
                                 </InputGroupItem>
                             </InputGroup>
-                            <Button variant="link" className="delete-button" onClick={e => constructorDeleted(i)}>
-                                <DeleteIcon/>
+                            <Button icon={<TimesIcon/>} variant="link" className="delete-button" onClick={e => constructorDeleted(i)}>
+                                
                             </Button>
                         </div>
                     )
                 })}
-                <Button variant="link" className="add-button" onClick={e => constructorChanged(uuidv4(), constructors.size, '')}>
-                    <AddIcon/>Add argument</Button>
+                <Button icon={<PlusCircleIcon/>} variant="link" className="add-button" onClick={e => constructorChanged(uuidv4(), constructors.size, '')}>
+                    Add argument</Button>
             </>
         )
     }
@@ -299,11 +292,9 @@ export function BeanProperties (props: Props) {
                                         }}
                                     />
                                     <TextInputGroupUtilities>
-                                        <Button variant="plain" className='button-clear' onClick={_ => {
+                                        <Button icon={<TimesIcon aria-hidden={true}/>} variant="plain" className='button-clear' onClick={_ => {
                                             propertyChanged(i, key,'');
-                                        }}>
-                                            <TimesIcon aria-hidden={true}/>
-                                        </Button>
+                                        }} />
                                     </TextInputGroupUtilities>
                                 </TextInputGroup>
                                 <InputGroupItem className=''>
@@ -333,12 +324,12 @@ export function BeanProperties (props: Props) {
                             {/*            }}/>*/}
                             {/*    </InputGroupItem>*/}
                             {/*</InputGroup>*/}
-                            <Button variant="link" className="delete-button" onClick={e => propertyDeleted(i)}><DeleteIcon/></Button>
+                            <Button icon={<TimesIcon/>} variant="link" className="delete-button" onClick={e => propertyDeleted(i)}></Button>
                         </div>
                     )
                 })}
-                <Button variant="link" className="add-button" onClick={e => propertyChanged(uuidv4(), '', '')}>
-                    <AddIcon/>Add property</Button>
+                <Button icon={<PlusCircleIcon/>} variant="link" className="add-button" onClick={e => propertyChanged(uuidv4(), '', '')}>
+                    Add property</Button>
             </>
         )
     }

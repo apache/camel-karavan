@@ -15,12 +15,6 @@
  * limitations under the License.
  */
 
-.karavan .properties .bean-properties .pf-v5-c-form__group-control {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-}
-
 .karavan .properties .bean-property {
     display: flex;
     flex-direction: row;

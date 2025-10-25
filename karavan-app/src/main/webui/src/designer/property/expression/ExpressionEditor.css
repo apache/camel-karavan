@@ -65,11 +65,11 @@
     margin-left: 12px;
 }
 
-.context-column .pf-v5-c-clipboard-copy.pf-m-inline {
+.context-column .pf-v6-c-clipboard-copy.pf-m-inline {
     display: flex;
     width: fit-content;
 }
 
-.context-column .pf-v5-c-clipboard-copy__text{
+.context-column .pf-v6-c-clipboard-copy__text{
     white-space: nowrap;
 }

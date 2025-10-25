@@ -16,26 +16,24 @@
  */
 
 import React, {useEffect} from 'react';
-import {
-    Flex,
-    FlexItem,
-    PageSection, Tab, Tabs,
-} from '@patternfly/react-core';
+import {Flex, FlexItem, PageSection, Tab, Tabs,} from '@patternfly/react-core';
 import './ProjectPage.css';
-import {ProjectLogPanel} from "../log/ProjectLogPanel";
-import {BUILD_IN_PROJECTS, Project} from "../api/ProjectModels";
-import {useAppConfigStore, useFilesStore, useFileStore, useProjectsStore, useProjectStore} from "../api/ProjectStore";
-import {MainToolbar} from "../designer/MainToolbar";
+import {BUILD_IN_PROJECTS, Project} from "@/api/ProjectModels";
+import {useAppConfigStore, useFilesStore, useFileStore, useProjectsStore, useProjectStore} from "@/api/ProjectStore";
+import {MainToolbar} from "@/components/MainToolbar";
 import {ProjectTitle} from "./ProjectTitle";
-import {FileEditor} from "../editor/FileEditor";
 import {shallow} from "zustand/shallow";
 import {useNavigate, useParams} from "react-router-dom";
-import {ProjectService} from "../api/ProjectService";
+import {ProjectService} from "@/api/ProjectService";
 import {ProjectPanel} from "./ProjectPanel";
-import {ProjectToolbar} from "./ProjectToolbar";
-import {ImageDownloadToolbar} from "./ImageDownloadToolbar";
+import {DeveloperManager} from "@/developer/DeveloperManager";
 
-export function ProjectPage() {
+interface Props {
+    projectToolbar: React.ReactNode
+    startToolbar: React.ReactNode
+}
+
+export function ProjectPage(props: Props) {
 
     const [config] = useAppConfigStore((state) => [state.config], shallow);
     const {file, operation} = useFileStore();
@@ -60,11 +58,11 @@ export function ProjectPage() {
     }, []);
 
     useEffect(() => {
-        const interval = setInterval(() => refreshData(),700)
+        const interval = setInterval(() => refreshData(), 700)
         return () => clearInterval(interval);
     }, [tabIndex, refreshTrace, project]);
 
-    function refreshData(){
+    function refreshData() {
         ProjectService.refreshAllContainerStatuses();
         ProjectService.refreshCamelStatus(project.projectId, config.environment);
         if (tabIndex === 'package') {
@@ -90,9 +88,9 @@ export function ProjectPage() {
     const showFilePanel = file !== undefined && operation === 'select';
 
     return (
-        <PageSection className="project-page" padding={{default: 'noPadding'}}>
-            <PageSection className="tools-section" padding={{default: 'noPadding'}}>
-                <MainToolbar title={<ProjectTitle/>} tools={<ProjectToolbar/>} toolsStart={<ImageDownloadToolbar/>}/>
+        <PageSection hasBodyWrapper={false} className="project-page" padding={{default: 'noPadding'}}>
+            <PageSection hasBodyWrapper={false} className="tools-section" padding={{default: 'noPadding'}}>
+                <MainToolbar title={<ProjectTitle/>} tools={props.projectToolbar} toolsStart={isBuildIn() ? <></> : props.startToolbar}/>
             </PageSection>
             <Flex direction={{default: "column"}} spaceItems={{default: "spaceItemsNone"}}>
                 <FlexItem className="project-tabs">
@@ -109,9 +107,8 @@ export function ProjectPage() {
                     }
                 </FlexItem>
             </Flex>
-            {showFilePanel && <FileEditor projectId={project.projectId}/>}
+            {showFilePanel && <DeveloperManager/>}
             {!showFilePanel && <ProjectPanel/>}
-            <ProjectLogPanel/>
         </PageSection>
     )
 }

@@ -15,26 +15,17 @@
  * limitations under the License.
  */
 import React from 'react';
-import {
-    Button,
-    Card,
-    CardBody,
-    CardTitle,
-    Flex,
-    FlexItem,
-    Form,
-    Grid,
-} from '@patternfly/react-core';
+import {Button, Card, CardBody, CardTitle, Flex, FlexItem, Form, Grid,} from '@patternfly/react-core';
 import '../karavan.css';
 import './kamelet.css';
 import {useIntegrationStore} from "../DesignerStore";
 import {shallow} from "zustand/shallow";
-import AddIcon from "@patternfly/react-icons/dist/js/icons/plus-circle-icon";
+import {PlusCircleIcon} from '@patternfly/react-icons';
 import {KameletDefinitionPropertyCard} from "./KameletDefinitionPropertyCard";
 import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
 import {DefinitionProperty} from "karavan-core/lib/model/IntegrationDefinition";
-import { KameletDependenciesCard } from "./KameletDependenciesCard";
-import { KameletInput } from './KameletInput';
+import {KameletDependenciesCard} from "./KameletDependenciesCard";
+import {KameletInput} from './KameletInput';
 
 export function KameletDefinitionsPanel() {
 
@@ -105,13 +96,12 @@ export function KameletDefinitionsPanel() {
                     </Form>
                 </CardBody>
             </Card>
-            <div style={{height: "20px"}}/>
             <Card isCompact ouiaId="PropertiesCard">
                 <CardTitle>
                     <Flex>
                         <FlexItem>Properties</FlexItem>
                         <FlexItem align={{default: "alignRight"}}>
-                            <Button variant={"link"} icon={<AddIcon/>} onClick={event => addNewProperty()}>
+                            <Button variant={"link"} icon={<PlusCircleIcon/>} onClick={event => addNewProperty()}>
                                 Add property
                             </Button>
                         </FlexItem>
@@ -129,7 +119,6 @@ export function KameletDefinitionsPanel() {
                     </Form>
                 </CardBody>
             </Card>
-            <div style={{height: "20px"}}/>
             <KameletDependenciesCard/>
         </>
 

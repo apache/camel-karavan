@@ -15,17 +15,7 @@
  * limitations under the License.
  */
 import React, {useEffect, useState} from 'react';
-import {
-    Badge,
-    Button,
-    PageSection,
-    PageSectionVariants,
-    Tab,
-    Tabs,
-    TabTitleIcon,
-    TabTitleText,
-} from '@patternfly/react-core';
-import './karavan.css';
+import './KaravanDesigner.css';
 import {RouteDesigner} from "./route/RouteDesigner";
 import {CamelDefinitionYaml} from "karavan-core/lib/api/CamelDefinitionYaml";
 import {Integration, IntegrationFile} from "karavan-core/lib/model/IntegrationDefinition";
@@ -33,19 +23,17 @@ import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
 import {CamelUi} from "./utils/CamelUi";
 import {useDesignerStore, useIntegrationStore} from "./DesignerStore";
 import {shallow} from "zustand/shallow";
-import {getDesignerIcon} from "./icons/KaravanIcons";
 import {InfrastructureAPI} from "./utils/InfrastructureAPI";
 import {EventBus, IntegrationUpdate} from "./utils/EventBus";
 import {RestDesigner} from "./rest/RestDesigner";
 import {BeansDesigner} from "./beans/BeansDesigner";
-import {CodeEditor} from "./editor/CodeEditor";
-import BellIcon from '@patternfly/react-icons/dist/esm/icons/bell-icon';
 import {KameletDesigner} from "./kamelet/KameletDesigner";
 import {BeanFactoryDefinition, RouteDefinition, RouteTemplateDefinition} from "karavan-core/lib/model/CamelDefinition";
 import {ErrorBoundaryState, ErrorBoundaryWrapper} from "./ErrorBoundaryWrapper";
 import {Panel, PanelGroup, PanelResizeHandle} from 'react-resizable-panels';
 import {MainPropertiesPanel} from "./property/MainPropertiesPanel";
 import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt";
+import {KaravanDesignerViewSwitch} from "@/designer/KaravanDesignerViewSwitch";
 
 interface Props {
     onSave: (filename: string, yaml: string, propertyOnly: boolean) => void
@@ -54,12 +42,12 @@ interface Props {
     onSavePropertyPlaceholder: (key: string, value: string) => void
     onInternalConsumerClick: (uri?: string, name?: string, routeId?: string, fileName?: string) => void
     onCreateNewRoute: (componentName: string, propertyName: string, propertyValue: string) => void
+    onCreateNewFile: (fileName: string, code: string, open: boolean) => void
     filename: string
     yaml: string
-    dark: boolean
     showCodeTab: boolean
     tab?: "routes" | "rest" | "beans" | "kamelet"
-    propertyPlaceholders:  [string, string][]
+    propertyPlaceholders: [string, string][]
     beans: BeanFactoryDefinition[]
     files: IntegrationFile[]
     mainRightPanel?: React.ReactNode
@@ -67,9 +55,10 @@ interface Props {
 
 export function KaravanDesigner(props: Props) {
 
-    const [setDark, setSelectedStep, reset, badge, message, setPropertyPlaceholders, setBeans, tab, setTab, selectedStep, setSelectedUuids] =
+    const [setSelectedStep, reset, badge, message, setPropertyPlaceholders, setBeans, tab, setTab, selectedStep, setSelectedUuids, setDesignerSwitch] =
         useDesignerStore((s) =>
-            [s.setDark, s.setSelectedStep, s.reset, s.notificationBadge, s.notificationMessage, s.setPropertyPlaceholders, s.setBeans, s.tab, s.setTab, s.selectedStep, s.setSelectedUuids], shallow)
+            [s.setSelectedStep, s.reset, s.notificationBadge, s.notificationMessage, s.setPropertyPlaceholders, s.setBeans, s.tab, s.setTab,
+                s.selectedStep, s.setSelectedUuids, s.setDesignerSwitch], shallow)
     const [integration, setIntegration, resetFiles] = useIntegrationStore((s) =>
         [s.integration, s.setIntegration, s.resetFiles], shallow)
 
@@ -84,6 +73,7 @@ export function KaravanDesigner(props: Props) {
             InfrastructureAPI.setOnSavePropertyPlaceholder(props.onSavePropertyPlaceholder);
             InfrastructureAPI.setOnInternalConsumerClick(props.onInternalConsumerClick);
             InfrastructureAPI.setOnCreateNewRoute(props.onCreateNewRoute);
+            InfrastructureAPI.setOnCreateNewFile(props.onCreateNewFile);
 
             const i = makeIntegration(props.yaml, props.filename);
             setIntegration(i, false);
@@ -96,7 +86,6 @@ export function KaravanDesigner(props: Props) {
             }
             setTab(designerTab || 'routes')
             reset();
-            setDark(props.dark);
             setPropertyPlaceholders(props.propertyPlaceholders)
             setBeans(props.beans)
             resetFiles(props.files)
@@ -169,39 +158,16 @@ export function KaravanDesigner(props: Props) {
         }
     }
 
-    function getTab(title: string, tooltip: string, icon: string, showBadge: boolean = false) {
-        const counts = CamelUi.getFlowCounts(integration);
-        const count = counts.has(icon) && counts.get(icon) ? counts.get(icon) : undefined;
-        const showCount = count && count > 0;
-        const color = showBadge && badge ? "red" : "initial";
-        return (
-            <div className="top-menu-item" style={{color: color}}>
-                <TabTitleIcon>{getDesignerIcon(icon)}</TabTitleIcon>
-                <TabTitleText>{title}</TabTitleText>
-                {showCount && <Badge isRead className="count">{counts.get(icon)}</Badge>}
-                {showBadge && badge &&
-                    <Button variant="link"
-                            icon={<BellIcon color="red"/>}
-                            style={{visibility: (badge ? 'visible' : 'hidden'), padding: '0', margin: '0'}}
-                            onClick={event => EventBus.sendAlert(message[0], message[1], 'danger')}/>
-                }
-            </div>
-        )
-    }
-
-    const isKamelet = integration.type === 'kamelet';
-
-    const [state, setState] = useState<ErrorBoundaryState>({ hasError: false, error: null });
+    const [state, setState] = useState<ErrorBoundaryState>({hasError: false, error: null});
 
     const resetErrorBoundary = () => {
-        setState({ hasError: false, error: null });
+        setState({hasError: false, error: null});
     };
 
     // Mimic `getDerivedStateFromError`
     const handleError = (error: Error) => {
-        setState({ hasError: true, error });
-        setTab('code')
-        console.log(props.filename, error)
+        setState({hasError: true, error});
+        setDesignerSwitch(false)
     }
 
     useEffect(() => {
@@ -212,50 +178,30 @@ export function KaravanDesigner(props: Props) {
 
     function getMainPart() {
         return (
-            <PageSection variant={props.dark ? PageSectionVariants.darker : PageSectionVariants.light} className="page" isFilled padding={{default: 'noPadding'}}>
-                <div className={"main-tabs-wrapper"}>
-                    <Tabs className="main-tabs"
-                          activeKey={tab}
-                          onSelect={(event, tabIndex: string | number) => {
-                              const tab = tabIndex.toString() as "routes" | "rest" | "beans" | "kamelet" | "code";
-                              if (["routes", "rest", "beans", "kamelet", "code"].includes(tab)) {
-                                  setTab(tab);
-                              } else {
-                                  setTab(undefined); // Handle unexpected values
-                              }
-                              setSelectedStep(undefined);
-                          }}
-                          style={{width: "100%"}}>
-                        {isKamelet && <Tab eventKey='kamelet' title={getTab("Definitions", "Kamelet Definitions", "kamelet")}></Tab>}
-                        <Tab eventKey='routes' title={getTab("Routes", "Integration flows", "routes")}></Tab>
-                        {!isKamelet && <Tab eventKey='rest' title={getTab("REST", "REST services", "rest")}></Tab>}
-                        <Tab eventKey='beans' title={getTab("Beans", "Beans Configuration", "beans")}></Tab>
-                        {props.showCodeTab && <Tab eventKey='code' title={getTab("YAML", "YAML Code", "code", true)}></Tab>}
-                    </Tabs>
-                </div>
+            <div className="karavan-designer-page">
+                <KaravanDesignerViewSwitch/>
                 <ErrorBoundaryWrapper onError={handleError}>
                     {tab === 'kamelet' && <KameletDesigner/>}
                     {tab === 'routes' && <RouteDesigner/>}
                     {tab === 'rest' && <RestDesigner/>}
                     {tab === 'beans' && <BeansDesigner/>}
-                    {tab === 'code' && <CodeEditor/>}
                 </ErrorBoundaryWrapper>
-            </PageSection>
+            </div>
         )
     }
 
     return (
-        (tab !== 'code' && tab !== 'kamelet')
-        ? <PanelGroup direction="horizontal" style={{backgroundColor: 'white'}}>
-            <Panel minSize={10} defaultSize={70}>
-                {getMainPart()}
-            </Panel>
-            <PanelResizeHandle className='resize-handler'/>
-            <Panel minSize={10} defaultSize={30}>
-                {props.mainRightPanel || <MainPropertiesPanel/>}
-            </Panel>
-        </PanelGroup>
-        : <PanelGroup direction="horizontal" style={{backgroundColor: 'white'}}>
+        (tab !== 'kamelet')
+            ? <PanelGroup direction="horizontal">
+                <Panel minSize={10} defaultSize={70}>
+                    {getMainPart()}
+                </Panel>
+                <PanelResizeHandle className='resize-handler'/>
+                <Panel minSize={10} defaultSize={30}>
+                    {props.mainRightPanel || <MainPropertiesPanel/>}
+                </Panel>
+            </PanelGroup>
+            : <PanelGroup direction="horizontal">
                 {getMainPart()}
             </PanelGroup>
     )

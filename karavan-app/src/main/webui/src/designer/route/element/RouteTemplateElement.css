@@ -20,7 +20,7 @@
     display: flex;
     flex-direction: column;
     width: fit-content;
-    border-color: var(--pf-v5-global--Color--200);
+    border-color: var(--pf-t--global--border--color--default);
     border-radius: 42px;
     border-width: 1px;
     min-width: 120px;
@@ -33,24 +33,7 @@
     visibility: visible;
 }
 
-.karavan .dsl-page .flows .route-template-element .header .delete-button {
-    position: absolute;
-    top: -11px;
-    line-height: 1;
-    border: 0;
-    padding: 0;
-    margin: 0 0 0 10px;
-    background: transparent;
-    color: #909090;
-    visibility: hidden;
-}
-
-.karavan .dsl-page .flows .route-template-element .header:hover .delete-button,
-.karavan .dsl-page .flows .route-template-element .header-route:hover .delete-button {
-    visibility: visible;
-}
-
-.karavan .dsl-page .flows .route-template-element .delete-button {
+.karavan .dsl-page .flows .route-template-element .header-route .delete-button {
     position: absolute;
     top: 5px;
     right: 5px;
@@ -61,4 +44,9 @@
     background: transparent;
     color: #909090;
     visibility: hidden;
+}
+
+.karavan .dsl-page .flows .route-template-element .header:hover .delete-button,
+.karavan .dsl-page .flows .route-template-element .header-route:hover .delete-button {
+    visibility: visible;
 }

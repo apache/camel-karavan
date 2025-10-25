@@ -26,12 +26,11 @@ import {KameletDefinitionsPanel} from "./KameletDefinitionsPanel";
 export function KameletDesigner() {
 
     return (
-        <PageSection className="kamelet-designer" isFilled padding={{default: 'noPadding'}}>
-            <PageSection className="main">
+        <div className="kamelet-designer">
+            <div className="main">
                 <KameletAnnotationsPanel/>
-                <div style={{height:"20px"}}/>
                 <KameletDefinitionsPanel/>
-            </PageSection>
-        </PageSection>
+            </div>
+        </div>
     )
 }

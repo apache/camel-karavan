@@ -16,114 +16,15 @@
  */
 
 import axios, {AxiosResponse} from "axios";
-import {
-    AppConfig,
-    CamelStatus,
-    DeploymentStatus,
-    ContainerStatus,
-    Project,
-    ProjectFile, ProjectType, ServiceStatus
-} from "./ProjectModels";
+import {AppConfig, CamelStatus, ContainerStatus, DeploymentStatus, PodEvent, Project, ProjectFile, ProjectType, ServiceStatus} from "./ProjectModels";
 import {Buffer} from 'buffer';
-import {SsoApi} from "./SsoApi";
-import {v4 as uuidv4} from "uuid";
-import {useAppConfigStore} from "./ProjectStore";
-import {EventBus} from "../designer/utils/EventBus";
+import {EventBus} from "@/designer/utils/EventBus";
 import {ErrorEventBus} from "./ErrorEventBus";
+import {AuthApi, getCurrentUser} from "@/auth/AuthApi";
 
-const USER_ID_KEY = 'KARAVAN_USER_ID';
-axios.defaults.timeout = 30000;
-axios.defaults.headers.common['Accept'] = 'application/json';
-axios.defaults.headers.common['Content-Type'] = 'application/json';
-const instance = axios.create();
+const instance = AuthApi.getInstance();
 
 export class KaravanApi {
-
-    static me?: any;
-    static authType?: string = undefined;
-    static basicToken: string = '';
-
-    static getInstance() {
-        return instance;
-    }
-
-    static getUserId(): string {
-        if (KaravanApi.authType === 'public') {
-            const userId = localStorage.getItem(USER_ID_KEY);
-            if (userId !== null && userId !== undefined) {
-                return userId;
-            } else {
-                const newId = uuidv4().toString();
-                localStorage.setItem(USER_ID_KEY, newId);
-                return newId;
-            }
-        } else {
-            return KaravanApi.me?.userName;
-        }
-    }
-
-    static setAuthType(authType: string) {
-        KaravanApi.authType = authType;
-        switch (authType) {
-            case "public": {
-                KaravanApi.setPublicAuthentication();
-                break;
-            }
-            case "oidc": {
-                KaravanApi.setOidcAuthentication();
-                break;
-            }
-            case "basic": {
-                KaravanApi.setBasicAuthentication();
-                break;
-            }
-        }
-    }
-
-    static setPublicAuthentication() {
-
-    }
-
-    static setBasicAuthentication() {
-        instance.interceptors.request.use(async config => {
-                config.headers.Authorization = 'Basic ' + KaravanApi.basicToken;
-                return config;
-            },
-            error => {
-                Promise.reject(error)
-            });
-    }
-
-    static setOidcAuthentication() {
-        instance.interceptors.request.use(async config => {
-                config.headers.Authorization = 'Bearer ' + SsoApi.keycloak?.token;
-                return config;
-            },
-            error => {
-                Promise.reject(error)
-            });
-
-        instance.interceptors.response.use((response) => {
-            return response
-        }, async function (error) {
-            const originalRequest = error.config;
-            if ((error?.response?.status === 403 || error?.response?.status === 401) && !originalRequest._retry) {
-                console.log("error", error)
-                return SsoApi.keycloak?.updateToken(30).then(refreshed => {
-                    if (refreshed) {
-                        console.log('SsoApi', 'Token was successfully refreshed');
-                    } else {
-                        console.log('SsoApi', 'Token is still valid');
-                    }
-                    originalRequest._retry = true;
-                    return instance(originalRequest);
-                }).catch(reason => {
-                    console.log('SsoApi', 'Failed to refresh token: ' + reason);
-                });
-            }
-            return Promise.reject(error);
-        });
-    }
 
     static async getReadiness(after: (readiness: any) => void) {
         axios.get('/public/readiness', {headers: {'Accept': 'application/json'}})
@@ -137,44 +38,7 @@ export class KaravanApi {
             ErrorEventBus.sendApiError(err);
         });
     }
-
-    static async getConfig(after: (config: {}) => void) {
-        axios.get('/public/sso-config', {headers: {'Accept': 'application/json'}})
-            .then(res => {
-                if (res.status === 200) {
-                    after(res.data);
-                }
-            }).catch(err => {
-            ErrorEventBus.sendApiError(err);
-        });
-    }
-
-    static async getAuthType(after: (authType: string) => void) {
-        instance.get('/public/auth', {headers: {'Accept': 'text/plain'}})
-            .then(res => {
-                if (res.status === 200) {
-                    const authType = res.data;
-                    KaravanApi.setAuthType(authType);
-                    useAppConfigStore.setState({isAuthorized: authType === 'public'})
-                    after(res.data);
-                }
-            }).catch(err => {
-            ErrorEventBus.sendApiError(err);
-        });
-    }
-
-    static async getMe(after: (user: {}) => void) {
-        instance.get('/ui/users/me')
-            .then(res => {
-                if (res.status === 200) {
-                    KaravanApi.me = res.data;
-                    after(res.data);
-                }
-            }).catch(err => {
-            ErrorEventBus.sendApiError(err);
-        });
-    }
-
+    
     static async getConfiguration(after: (config: AppConfig) => void) {
         instance.get('/ui/configuration')
             .then(res => {
@@ -219,7 +83,7 @@ export class KaravanApi {
         });
     }
 
-    static async getProjects(after: (projects: Project[]) => void, type?: ProjectType.normal) {
+    static async getProjects(after: (projects: Project[]) => void, type?: ProjectType.integration) {
         instance.get('/ui/project' + (type !== undefined ? "?type=" + type : ""))
             .then(res => {
                 if (res.status === 200) {
@@ -238,9 +102,11 @@ export class KaravanApi {
                         after(true, res);
                     }
                 }).catch(err => {
+                console.error(err);
                 after(false, err);
             });
         } catch (error: any) {
+            console.error(error);
             after(false, error);
         }
     }
@@ -285,7 +151,7 @@ export class KaravanApi {
     static async shareConfigurations(after: (res: AxiosResponse<any>) => void, filename?: string,) {
         const params = {
             'filename': filename,
-            'userId': KaravanApi.getUserId()
+            'userId': getCurrentUser()?.username
         };
         instance.post('/ui/configuration/share/', params)
             .then(res => {
@@ -343,6 +209,27 @@ export class KaravanApi {
                         after(false, res?.data);
                     }
                 }).catch(err => {
+                    console.error(err);
+                after(false, err);
+            });
+        } catch (error: any) {
+            console.error(error);
+            after(false, error);
+        }
+    }
+
+    static async renameProjectFile(projectId: string, filename: string, newName: string, after: (result: boolean, err?: Error) => void) {
+        try {
+            instance.patch(`/ui/file/${projectId}/${filename}`, {newName: newName})
+                .then(res => {
+                    if (res.status === 200) {
+                        after(true);
+                    } else if (res.status === 409) {
+                        after(false, {message: res?.data} as Error);
+                    } else {
+                        after(false);
+                    }
+                }).catch(err => {
                 after(false, err);
             });
         } catch (error: any) {
@@ -377,44 +264,6 @@ export class KaravanApi {
         });
     }
 
-    static async uploadProjectArchiveFile(formData: FormData, after: (result: boolean, data: any) => void) {
-        try {
-            instance.post('/ui/project/upload', formData, { headers: {'Content-Type': 'multipart/form-data'} })
-                .then(res => {
-                    if (res.status === 200) {
-                        after(true, res.data);
-                    } else {
-                        after(false, res?.data);
-                    }
-                }).catch(err => {
-                after(false, err);
-            });
-        } catch (error: any) {
-            after(false, error);
-        }
-    }
-
-    static downloadProjectArchiveFile(project: Project, after: (result: boolean, res: AxiosResponse<Project> | any) => void) {
-        try {
-            instance.get('/ui/project/download/' + project.projectId, { headers: {'Accept' : 'application/octet-stream'},  responseType: 'blob' })
-                .then(res => {
-                    if (res.status === 200) {
-                        const url = window.URL.createObjectURL(new Blob([res.data]));
-                        const link = document.createElement("a");
-                        link.href = url;
-                        link.setAttribute("download", project.projectId + ".zip");
-                        link.click();
-                        setTimeout(() => window.URL.revokeObjectURL(url), 0);
-                        after(true, res);
-                    }
-                }).catch(err => {
-                after(false, err);
-            });
-        } catch (error: any) {
-            after(false, error);
-        }
-    }
-
     static async push(params: {}, after: (res: AxiosResponse<any>) => void) {
         instance.post('/ui/git', params)
             .then(res => {
@@ -424,8 +273,8 @@ export class KaravanApi {
         });
     }
 
-    static async pull(projectId: string, after: (res: AxiosResponse<any> | any) => void) {
-        instance.put('/ui/git/' + projectId)
+    static async pull(projectId: string | undefined, after: (res: AxiosResponse<any> | any) => void) {
+        instance.put(`/ui/git/${projectId ?? ''}`)
             .then(res => {
                 after(res);
             }).catch(err => {
@@ -625,6 +474,20 @@ export class KaravanApi {
         });
     }
 
+    static async getPodEvents(containerName: string, after: (podEvents: PodEvent[]) => void) {
+        instance.get('/ui/infrastructure/pod-events/' + containerName, {headers: {'Accept': 'application/json'}})
+            .then(res => {
+                if (res.status === 200) {
+                    after(res.data);
+                } else {
+                    after([]);
+                }
+            }).catch(err => {
+            ErrorEventBus.sendApiError(err);
+            after([]);
+        });
+    }
+
     static async manageContainer(projectId: string,
                                  type: 'devmode' | 'devservice' | 'packaged' | 'internal' | 'build' | 'unknown',
                                  name: string,
@@ -693,7 +556,7 @@ export class KaravanApi {
     static async pullProjectImages(projectId: string, after: (res: AxiosResponse<any>) => void) {
         const params = {
             'projectId': projectId,
-            'userId': KaravanApi.getUserId()
+            'userId': getCurrentUser()?.username
         };
         instance.post('/ui/image/pull/', params)
             .then(res => {
@@ -743,7 +606,7 @@ export class KaravanApi {
         });
     }
 
-    static async getKamelets(after: (yaml: string) => void) {
+    static async getCamelKamelets(after: (yaml: string) => void) {
         instance.get('/ui/metadata/kamelets', {headers: {'Accept': 'text/plain'}, timeout: 0})
             .then(res => {
                 if (res.status === 200) {
@@ -754,8 +617,19 @@ export class KaravanApi {
         });
     }
 
-    static async getKameletsForProject(projectId: string, after: (yaml: string) => void) {
+    static async getProjectKamelets(projectId: string, after: (yaml: string) => void) {
         instance.get('/ui/metadata/kamelets/' + projectId, {headers: {'Accept': 'text/plain'}, timeout: 0})
+            .then(res => {
+                if (res.status === 200) {
+                    after(res.data);
+                }
+            }).catch(err => {
+            ErrorEventBus.sendApiError(err);
+        });
+    }
+
+    static async getCustomKamelets(after: (yaml: string) => void) {
+        instance.get('/ui/metadata/kamelets/kamelets', {headers: {'Accept': 'text/plain'}, timeout: 0})
             .then(res => {
                 if (res.status === 200) {
                     after(res.data);
@@ -787,14 +661,53 @@ export class KaravanApi {
         });
     }
 
-    static async getMainConfiguration(after: (json: string) => void) {
-        instance.get('/ui/metadata/mainConfiguration', {timeout: 0})
+    static async getMetadataConfiguration(configName: string, after: (json: string) => void) {
+        instance.get(`/ui/metadata/${configName}Configuration`, { timeout: 0 })
             .then(res => {
                 if (res.status === 200) {
                     after(JSON.stringify(res.data));
                 }
             }).catch(err => {
             ErrorEventBus.sendApiError(err);
+        });
+    }
+
+    static async getConfigurationChanges(after: (json: string) => void) {
+        instance.get('/ui/metadata/configurationChanges', {timeout: 0})
+            .then(res => {
+                if (res.status === 200) {
+                    after(JSON.stringify(res.data));
+                }
+            }).catch(err => {
+            ErrorEventBus.sendApiError(err);
+        });
+    }
+
+    static async getProjectActivity(after: (activity?: any) => void) {
+        instance.get('/ui/activity')
+            .then(res => {
+                if (res.status === 200) {
+                    after(res.data);
+                } else {
+                    after(undefined);
+                }
+            }).catch(err => {
+            ErrorEventBus.sendApiError(err);
+            after(undefined);
+        });
+    }
+
+    static async getProjectsLabels(after: (labels?: any) => void) {
+        instance.get('/ui/labels')
+            .then(res => {
+                if (res.status === 200) {
+                    after(res.data);
+                } else {
+                    after(undefined);
+                }
+            }).catch(err => {
+            ErrorEventBus.sendApiError(err);
+            after(undefined);
         });
     }
 }

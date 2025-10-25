@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 import React from 'react';
-import {ClipboardCopy, Text, TextContent} from '@patternfly/react-core';
+import {ClipboardCopy, Content, } from '@patternfly/react-core';
 import './ExpressionEditor.css'
 import {Table, Tbody, Td, Tr} from "@patternfly/react-table";
 import {Context, ExpressionFunctions, ExpressionVariables} from "./ExpressionContextModel";
@@ -55,9 +55,9 @@ export function ExpressionBottomPanel(props: Props) {
         return (
             <Tr key='vars' style={{padding: '0'}}>
                 <Td style={{padding: '16px 6px 6px 0px'}}>
-                    <TextContent>
-                        <Text component='h3'>{data}</Text>
-                    </TextContent>
+                    <Content>
+                        <Content component='h3'>{data}</Content>
+                    </Content>
                 </Td>
             </Tr>
         )

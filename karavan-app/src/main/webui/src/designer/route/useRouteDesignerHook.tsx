@@ -20,18 +20,21 @@ import {DslMetaModel} from "../utils/DslMetaModel";
 import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
 import {
     ChoiceDefinition,
-    FromDefinition, GroovyExpression, JsonDataFormat,
+    FromDefinition,
+    GroovyExpression,
+    JsonDataFormat,
     LogDefinition,
     MarshalDefinition,
     RouteConfigurationDefinition,
-    RouteDefinition, SplitDefinition, UnmarshalDefinition
+    RouteDefinition,
+    SplitDefinition,
+    UnmarshalDefinition
 } from "karavan-core/lib/model/CamelDefinition";
 import {CamelElement, MetadataLabels} from "karavan-core/lib/model/IntegrationDefinition";
 import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt";
 import {CamelDefinitionApi} from "karavan-core/lib/api/CamelDefinitionApi";
-import {Command, EventBus} from "../utils/EventBus";
+import {EventBus} from "../utils/EventBus";
 import {CamelDisplayUtil} from "karavan-core/lib/api/CamelDisplayUtil";
-import {toPng} from 'html-to-image';
 import {useDesignerStore, useIntegrationStore, useSelectorStore} from "../DesignerStore";
 import {shallow} from "zustand/shallow";
 import {v4 as uuidv4} from 'uuid';
@@ -41,20 +44,13 @@ export function useRouteDesignerHook() {
     const [integration, setIntegration] = useIntegrationStore((state) => [state.integration, state.setIntegration], shallow)
     const [selectedUuids, clipboardSteps, shiftKeyPressed,
         setShowDeleteConfirmation, setDeleteMessage, selectedStep, setSelectedStep, setSelectedUuids, setClipboardSteps, setShiftKeyPressed,
-        width, height, dark] = useDesignerStore((s) =>
+        width, height] = useDesignerStore((s) =>
         [s.selectedUuids, s.clipboardSteps, s.shiftKeyPressed,
             s.setShowDeleteConfirmation, s.setDeleteMessage, s.selectedStep, s.setSelectedStep, s.setSelectedUuids, s.setClipboardSteps, s.setShiftKeyPressed,
-            s.width, s.height, s.dark], shallow)
+            s.width, s.height], shallow)
     const [setParentId, setShowSelector, setSelectorTabIndex, setParentDsl, setShowSteps, setSelectedPosition, routeId, setRouteId, isRouteTemplate, setIsRouteTemplate] = useSelectorStore((s) =>
         [s.setParentId, s.setShowSelector, s.setSelectorTabIndex, s.setParentDsl, s.setShowSteps, s.setSelectedPosition, s.routeId, s.setRouteId,
             s.isRouteTemplate, s.setIsRouteTemplate], shallow)
-
-    function onCommand(command: Command, printerRef: React.MutableRefObject<HTMLDivElement | null>) {
-        switch (command.command) {
-            case "downloadImage":
-                integrationImageDownload(printerRef);
-        }
-    }
 
     function isKamelet(): boolean {
         return integration.type === 'kamelet';
@@ -108,7 +104,7 @@ export function useRouteDesignerHook() {
         } else if (ce.dslName === 'RouteConfigurationDefinition') {
             message = 'Delete route configuration?';
         } else {
-            message = 'Delete element from route?';
+            message = `"Delete element from route?"`;
         }
         setShowDeleteConfirmation(true);
         setDeleteMessage(message);
@@ -261,7 +257,7 @@ export function useRouteDesignerHook() {
                 } else if (routeId !== undefined) {
                     replaceFrom(dsl)
                 } else {
-                    const nodePrefixId = isKamelet() ? integration.metadata.name : 'route-' + uuidv4().substring(0, 3);
+                    const nodePrefixId = isKamelet() ? integration.metadata.name : 'route' + uuidv4().substring(0, 3);
                     const route = CamelDefinitionApi.createRouteDefinition({
                         from: new FromDefinition({uri: dsl.uri}),
                         nodePrefixId: nodePrefixId
@@ -280,6 +276,10 @@ export function useRouteDesignerHook() {
                 const toD = CamelDefinitionApi.createStep(dsl.dsl, {uri: dsl.uri});
                 addStep(toD, parentId, position)
                 break;
+            case 'WireTapDefinition' :
+                const wireTap = CamelDefinitionApi.createStep(dsl.dsl, {uri: dsl.uri});
+                addStep(wireTap, parentId, position)
+                break;
             case 'KameletDefinition' :
                 const kamelet = CamelDefinitionApi.createStep(dsl.dsl, {name: dsl.name});
                 addStep(kamelet, parentId, position)
@@ -295,7 +295,7 @@ export function useRouteDesignerHook() {
     function setDslDefaults(step: CamelElement): CamelElement {
         if (step.dslName === 'LogDefinition') {
             // eslint-disable-next-line no-template-curly-in-string
-            (step as LogDefinition).message = "${body}";
+            (step as LogDefinition).message = "body";
         }
         if (step.dslName === 'SplitDefinition') {
             const split = (step as SplitDefinition);
@@ -373,38 +373,9 @@ export function useRouteDesignerHook() {
         setSelectedUuids([source]);
     }
 
-    function downloadIntegrationImage(dataUrl: string) {
-        const a = document.createElement('a');
-        a.setAttribute('download', 'karavan-routes.png');
-        a.setAttribute('href', dataUrl);
-        a.click();
-    }
-
-    function integrationImageDownloadFilter(node: HTMLElement) {
-        const exclusionClasses = ['add-flow'];
-        return !exclusionClasses.some(classname => {
-            return node.classList === undefined ? false : node.classList.contains(classname);
-        });
-    }
-
-    function integrationImageDownload(printerRef: React.MutableRefObject<HTMLDivElement | null>) {
-        const ref = printerRef.current;
-        if (ref !== null) {
-            toPng(ref, {
-                style: {overflow: 'hidden'}, cacheBust: true, filter: integrationImageDownloadFilter,
-                height: height, width: width, backgroundColor: dark ? "black" : "white"
-            }).then(v => {
-                toPng(ref, {
-                    style: {overflow: 'hidden'}, cacheBust: true, filter: integrationImageDownloadFilter,
-                    height: height, width: width, backgroundColor: dark ? "black" : "white"
-                }).then(downloadIntegrationImage);
-            })
-        }
-    }
-
     return {
         deleteElement, selectElement, moveElement, onShowDeleteConfirmation, onDslSelect, openSelector,
-        createRouteConfiguration, onCommand, handleKeyDown, handleKeyUp, unselectElement, isKamelet, isSourceKamelet,
+        createRouteConfiguration, handleKeyDown, handleKeyUp, unselectElement, isKamelet, isSourceKamelet,
         isActionKamelet, isSinkKamelet, openSelectorToReplaceFrom, createRouteTemplate, copyPasteStep
     }
 }

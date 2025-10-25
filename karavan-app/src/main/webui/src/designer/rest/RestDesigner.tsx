@@ -16,9 +16,16 @@
  */
 import React, {useEffect} from 'react';
 import {
-    Button, Flex, FlexItem, Gallery, GalleryItem, Modal,
+    Button,
+    Flex,
+    FlexItem,
+    Gallery,
+    GalleryItem, Modal,
+    ModalBody,
+    ModalHeader,
     PageSection
 } from '@patternfly/react-core';
+
 import './rest.css';
 import '../karavan.css';
 import {CamelElement} from "karavan-core/lib/model/IntegrationDefinition";
@@ -38,6 +45,7 @@ import {RestConfigurationCard} from "./RestConfigurationCard";
 import {v4 as uuidv4} from "uuid";
 import {useDesignerStore, useIntegrationStore, useSelectorStore} from "../DesignerStore";
 import {shallow} from "zustand/shallow";
+import {ModalConfirmation} from "@/components/ModalConfirmation";
 
 export function RestDesigner() {
 
@@ -97,24 +105,6 @@ export function RestDesigner() {
         }
     }
 
-    function getDeleteConfirmation() {
-        return (<Modal
-            className="modal-delete"
-            title="Confirmation"
-            isOpen={showDeleteConfirmation}
-            onClose={() => setShowDeleteConfirmation(false)}
-            actions={[
-                <Button key="confirm" variant="primary" onClick={e => deleteElement()}>Delete</Button>,
-                <Button key="cancel" variant="link"
-                        onClick={e => setShowDeleteConfirmation(false)}>Cancel</Button>
-            ]}
-            onEscapePress={e => setShowDeleteConfirmation(false)}>
-            <div>
-                Delete element from integration?
-            </div>
-        </Modal>)
-    }
-
     function closeMethodSelector() {
         setShowSelector(false);
     }
@@ -161,13 +151,13 @@ export function RestDesigner() {
     function getSelectorModal() {
         return (
             <Modal
-                title="Select method"
-                width={'90%'}
-                className='dsl-modal'
+                variant='medium'
                 isOpen={showSelector}
-                onClose={() => closeMethodSelector()}
-                actions={{}}>
-                <RestMethodSelector onMethodSelect={onMethodSelect}/>
+                onClose={() => closeMethodSelector()}>
+                <ModalHeader title="Select method"/>
+                <ModalBody>
+                    <RestMethodSelector onMethodSelect={onMethodSelect}/>
+                </ModalBody>
             </Modal>)
     }
 
@@ -200,7 +190,7 @@ export function RestDesigner() {
     const configData = integration.spec.flows?.filter(f => f.dslName === 'RestConfigurationDefinition');
     const config = configData && Array.isArray(configData) ? configData[0] : undefined;
     return (
-        <PageSection className="rest-designer" isFilled padding={{default: 'noPadding'}}>
+        <PageSection hasBodyWrapper={false} className="rest-designer" isFilled padding={{default: 'noPadding'}}>
             <Gallery className="gallery"
                      hasGutter
                      maxWidths={{
@@ -235,7 +225,14 @@ export function RestDesigner() {
                 </GalleryItem>
             </Gallery>
             {getSelectorModal()}
-            {getDeleteConfirmation()}
+            {<ModalConfirmation
+                isOpen={showDeleteConfirmation}
+                message="Delete element from integration?"
+                btnConfirm='Delete'
+                btnConfirmVariant='danger'
+                onConfirm={() => deleteElement()}
+                onCancel={() => setShowDeleteConfirmation(false)}
+            />}
         </PageSection>
     )
 }

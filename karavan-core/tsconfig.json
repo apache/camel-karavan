@@ -16,9 +16,9 @@
       "ES2021",
       "ES2021.String"
     ],
-      "moduleResolution": "node",
-      "resolveJsonModule": true,
-      "isolatedModules": true
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true
   },
   "tsc-alias": {
     "resolveFullPaths": true,

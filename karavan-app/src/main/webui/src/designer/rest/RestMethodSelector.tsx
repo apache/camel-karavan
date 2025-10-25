@@ -15,13 +15,7 @@
  * limitations under the License.
  */
 import React from 'react';
-import {
-    Badge,
-    Card, CardBody, CardFooter, CardHeader, Gallery, PageSection,
-    Tab, Tabs, TabTitleText,
-    Text
-} from '@patternfly/react-core';
-import '../karavan.css';
+import {Badge, Card, CardBody, CardFooter, CardHeader, Content, Gallery} from '@patternfly/react-core';
 import {CamelUi} from "../utils/CamelUi";
 import {DslMetaModel} from "../utils/DslMetaModel";
 import {useDesignerStore} from "../DesignerStore";
@@ -33,23 +27,23 @@ interface Props {
 
 export function RestMethodSelector(props: Props) {
 
-    const [dark] = useDesignerStore((s) => [s.dark], shallow)
-
-    function selectMethod (evt: React.MouseEvent, method: any) {
+    function selectMethod(evt: React.MouseEvent, method: any) {
         evt.stopPropagation()
         props.onMethodSelect(method);
     }
 
     function getCard(dsl: DslMetaModel, index: number) {
         return (
-            <Card key={dsl.dsl + index}  isCompact className="dsl-card"
+            <Card key={dsl.dsl + index} isCompact style={{cursor: 'pointer'}}
                   onClick={event => selectMethod(event, dsl)}>
                 <CardHeader>
-                    {CamelUi.getIconForDsl(dsl)}
-                    <Text>{dsl.title}</Text>
+                    <div style={{display: "flex", flexDirection: 'row', alignItems: "center", gap: 6}}>
+                        {CamelUi.getIconForDsl(dsl)}
+                        <Content component="h4">{dsl.title}</Content>
+                    </div>
                 </CardHeader>
                 <CardBody>
-                    <Text>{dsl.description}</Text>
+                    <Content component="p">{dsl.description}</Content>
                 </CardBody>
                 <CardFooter>
                     {dsl.navigation.toLowerCase() === "kamelet"
@@ -67,14 +61,8 @@ export function RestMethodSelector(props: Props) {
     }
 
     return (
-        <PageSection variant={dark ? "darker" : "light"}>
-            <Tabs style={{overflow: 'hidden'}} activeKey="methods" onSelect={event => {}}>
-                <Tab eventKey="methods" title={<TabTitleText>Methods</TabTitleText>}>
-                    <Gallery hasGutter className="dsl-gallery">
-                        {CamelUi.getSelectorRestMethodModels().map((dsl: DslMetaModel, index: number) => getCard(dsl, index))}
-                    </Gallery>
-                </Tab>
-            </Tabs>
-        </PageSection>
+        <Gallery hasGutter className="dsl-gallery">
+            {CamelUi.getSelectorRestMethodModels().map((dsl: DslMetaModel, index: number) => getCard(dsl, index))}
+        </Gallery>
     )
 }

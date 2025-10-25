@@ -15,31 +15,15 @@
  * limitations under the License.
  */
 import React, {useState} from 'react';
-import {
-    Button,
-    Card,
-    CardBody,
-    CardTitle,
-    Flex,
-    FlexItem,
-    FormGroup,
-    FormSelect,
-    FormSelectOption,
-    Grid,
-    GridItem,
-    Label,
-    LabelGroup,
-    Modal,
-    Switch,
-} from '@patternfly/react-core';
-import '../karavan.css';
+import {Button, Card, CardBody, CardTitle, Flex, FlexItem, FormGroup, FormSelect, FormSelectOption, Grid, GridItem, Label, LabelGroup, Switch} from '@patternfly/react-core';
 import './kamelet.css';
 import {useIntegrationStore} from "../DesignerStore";
 import {shallow} from "zustand/shallow";
 import {DefinitionProperty} from "karavan-core/lib/model/IntegrationDefinition";
 import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
-import AddIcon from "@patternfly/react-icons/dist/js/icons/plus-circle-icon";
-import { KameletInput } from './KameletInput';
+import {PlusCircleIcon} from '@patternfly/react-icons';
+import {KameletInput} from './KameletInput';
+import {ModalConfirmation} from "@/components/ModalConfirmation";
 
 interface Props {
     index: number
@@ -72,7 +56,8 @@ export function KameletDefinitionPropertyCard(props: Props) {
 
 
     function getPropertyField(field: string, label: string, isRequired: boolean, span: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12) {
-        return (<KameletInput elementKey={key + field} label={label} span={span} value={getPropertyValue(field)} setValue={(value: string) => setPropertyValue(field, value)} type='text' isRequired={isRequired}/>);
+        return (<KameletInput elementKey={key + field} label={label} span={span} value={getPropertyValue(field)} setValue={(value: string) => setPropertyValue(field, value)}
+                              type='text' isRequired={isRequired}/>);
     }
 
     function getPropertyTypeField(field: string, label: string, isRequired: boolean, span: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12) {
@@ -154,7 +139,7 @@ export function KameletDefinitionPropertyCard(props: Props) {
                         numLabels={enumVal?.length || 0}
                         isEditable
                         addLabelControl={
-                            <Button variant="link" icon={<AddIcon/>} onClick={event => addEnum()}>
+                            <Button variant="link" icon={<PlusCircleIcon/>} onClick={event => addEnum()}>
                                 Add
                             </Button>
                         }
@@ -166,7 +151,8 @@ export function KameletDefinitionPropertyCard(props: Props) {
                                 color="grey"
                                 isEditable
                                 onClose={() => deleteEnum(val)}
-                                onEditCancel={(_event, prevText) => {}}
+                                onEditCancel={(_event, prevText) => {
+                                }}
                                 onEditComplete={(event, newText) => {
                                     if (event.type === 'mousedown') {
                                         renameEnum(index, val)
@@ -222,24 +208,6 @@ export function KameletDefinitionPropertyCard(props: Props) {
             delete integration.spec.definition.properties[key];
             setIntegration(integration, true);
         }
-    }
-
-    function getDeleteConfirmation() {
-        return (<Modal
-            className="modal-delete"
-            title="Confirmation"
-            isOpen={showDeleteConfirmation}
-            onClose={() => setShowDeleteConfirmation(false)}
-            actions={[
-                <Button key="confirm" variant="primary" onClick={e => deleteProperty()}>Delete</Button>,
-                <Button key="cancel" variant="link"
-                        onClick={e => setShowDeleteConfirmation(false)}>Cancel</Button>
-            ]}
-            onEscapePress={e => setShowDeleteConfirmation(false)}>
-            <div>
-                Delete {key} property?
-            </div>
-        </Modal>)
     }
 
     function setRequired(checked: boolean) {
@@ -302,7 +270,7 @@ export function KameletDefinitionPropertyCard(props: Props) {
 
 
     return (
-        <Card isClickable isCompact isFlat ouiaId="PropertyCard" className="property-card">
+        <Card isClickable isCompact ouiaId="PropertyCard" className="property-card">
             <CardTitle>
                 {getTitle()}
             </CardTitle>
@@ -318,7 +286,14 @@ export function KameletDefinitionPropertyCard(props: Props) {
                     {/*{getPropertyField("x-descriptors", "Descriptors", false, 12)}*/}
                 </Grid>
             </CardBody>
-            {getDeleteConfirmation()}
+            <ModalConfirmation
+                isOpen={showDeleteConfirmation}
+                message={`Delete ${key} property?`}
+                btnConfirm='Delete'
+                btnConfirmVariant='danger'
+                onConfirm={() => deleteProperty()}
+                onCancel={() => setShowDeleteConfirmation(false)}
+            />
         </Card>
     )
 }

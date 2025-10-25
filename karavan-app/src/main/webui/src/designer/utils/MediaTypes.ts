@@ -15,7 +15,47 @@
  * limitations under the License.
  */
 
-export const MediaTypes: string[] = [
+export const MEDIA_TYPES: string[] = [
+    // Application types
+    'application/json',
+    'application/xml',
+    'application/octet-stream',
+    'application/pdf',
+    'application/javascript',
+    'application/x-www-form-urlencoded',
+    'application/zip',
+    'application/x-zip-compressed',
+    'application/x-gzip',
+    'application/x-tar',
+    'application/msword',
+    'application/vnd.ms-excel',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    'application/xhtml+xml',
+    'application/rtf',
+    'application/soap+xml',
+    'application/x-yaml',
+    'application/x-7z-compressed',
+
+    // Text types
+    'text/plain',
+    'text/html',
+    'text/css',
+    'text/csv',
+
+    // Image types
+    'image/jpeg',
+    'image/png',
+    'image/gif',
+    'image/webp',
+    'image/svg+xml',
+    'image/bmp',
+    'image/tiff',
+    'image/x-icon'
+];
+
+
+export const ALL_MEDIA_TYPES: string[] = [
     'application/1d-interleaved-parityfec',
     'application/3gpdash-qoe-report+xml',
     'application/3gppHal+json',

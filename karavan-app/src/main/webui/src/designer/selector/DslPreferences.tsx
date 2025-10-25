@@ -51,7 +51,7 @@ export function getPreferredElements(type: 'eip' | 'components' | 'kamelets'): s
             (pes as any)[type].forEach((pe: PreferredElement) => result.push(pe.dslKey));
         }
     } catch (e) {
-        console.log(e);
+        console.error(e);
     }
     return result;
 }
@@ -71,7 +71,7 @@ export function addPreferredElement(type: 'eip' | 'components' | 'kamelets', dsl
         (pes as any)[type] = [...list];
         localStorage.setItem(PREFERRED_ELEMENTS_STORAGE_NAME, JSON.stringify(pes));
     } catch (e) {
-        console.log(e);
+        console.error(e);
     }
 }
 
@@ -84,6 +84,6 @@ export function deletePreferredElement(type: 'eip' | 'components' | 'kamelets', 
         (pes as any)[type] = [...list.filter(l => l.dslKey !== dslKey)];
         localStorage.setItem(PREFERRED_ELEMENTS_STORAGE_NAME, JSON.stringify(pes));
     } catch (e) {
-        console.log(e);
+        console.error(e);
     }
 }

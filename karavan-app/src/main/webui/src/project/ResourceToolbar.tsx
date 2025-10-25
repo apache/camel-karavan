@@ -16,18 +16,13 @@
  */
 
 import React, {useState} from 'react';
-import {
-    Button,
-    Flex,
-    FlexItem, Modal, Tooltip, TooltipPosition,
-} from '@patternfly/react-core';
-import '../designer/karavan.css';
-import {useAppConfigStore, useProjectStore} from "../api/ProjectStore";
-import {ProjectService} from "../api/ProjectService";
+import {Button, Flex, FlexItem, Modal, ModalBody, ModalFooter, ModalHeader, Tooltip, TooltipPosition} from '@patternfly/react-core';
+import {useAppConfigStore, useProjectStore} from "@/api/ProjectStore";
+import {ProjectService} from "@/api/ProjectService";
 import {shallow} from "zustand/shallow";
 import RefreshIcon from "@patternfly/react-icons/dist/esm/icons/sync-alt-icon";
-import {ProjectType} from "../api/ProjectModels";
-import {KaravanApi} from "../api/KaravanApi";
+import {ProjectType} from "@/api/ProjectModels";
+import {KaravanApi} from "@/api/KaravanApi";
 import ShareIcon from "@patternfly/react-icons/dist/esm/icons/share-alt-icon";
 
 
@@ -42,24 +37,27 @@ export function ResourceToolbar() {
     const tooltip = isKubernetes ? "Save All Configmaps" : "Save all on shared volume";
     const confirmMessage = isKubernetes ? "Save all configurations as Configmaps" : "Save all configurations on shared volume";
 
-    function shareConfigurations () {
-        KaravanApi.shareConfigurations(res => {});
+    function shareConfigurations() {
+        KaravanApi.shareConfigurations(res => {
+        });
         setShowConfirmation(false);
     }
 
     function getConfirmation() {
         return (<Modal
             className="modal-confirm"
-            title="Confirmation"
             variant={"small"}
             isOpen={showConfirmation}
             onClose={() => setShowConfirmation(false)}
-            actions={[
-                <Button key="confirm" variant="primary" onClick={shareConfigurations}>Confirm</Button>,
-                <Button key="cancel" variant="link" onClick={_ => setShowConfirmation(false)}>Cancel</Button>
-            ]}
             onEscapePress={e => setShowConfirmation(false)}>
-            <div>{confirmMessage}</div>
+            <ModalHeader title="Confirmation"/>
+            <ModalBody>
+                <div>{confirmMessage}</div>
+            </ModalBody>
+            <ModalFooter>
+                <Button key="confirm" variant="primary" onClick={shareConfigurations}>Confirm</Button>
+                <Button key="cancel" variant="link" onClick={_ => setShowConfirmation(false)}>Cancel</Button>
+            </ModalFooter>
         </Modal>)
     }
 
@@ -72,12 +70,12 @@ export function ResourceToolbar() {
                         onClick={e => ProjectService.refreshProjectData(project.projectId)}
                 />
                 {isConfiguration &&
-                <Tooltip content={tooltip} position={TooltipPosition.bottom}>
-                    <Button variant="primary" icon={<ShareIcon/>}
-                            onClick={_ => setShowConfirmation(true)}>
-                        Share all
-                    </Button>
-                </Tooltip>
+                    <Tooltip content={tooltip} position={TooltipPosition.bottom}>
+                        <Button variant="primary" icon={<ShareIcon/>}
+                                onClick={_ => setShowConfirmation(true)}>
+                            Share all
+                        </Button>
+                    </Tooltip>
                 }
             </FlexItem>
         </Flex>

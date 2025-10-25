@@ -49,12 +49,12 @@
 }
 
 .karavan .rest-card-unselected {
-    border-color: var(--pf-v5-global--Color--200);
+    border-color: var(--pf-t--global--border--color--default);
     background-color: transparent;
 }
 
 .karavan .rest-card-selected {
-    border-color: var(--pf-v5-global--primary-color--100);
+    border-color: var(--pf-t--global--color--brand--default);
 }
 
 .karavan .rest-card .title {
@@ -113,7 +113,7 @@
     margin-bottom: 106px;
 }
 /*rests*/
-.karavan .rest-designer .properties .rest-properties .pf-v5-c-form__group-control {
+.karavan .rest-designer .properties .rest-properties .pf-v6-c-form__group-control {
     display: flex;
     flex-direction: column;
     gap: 6px;
@@ -128,12 +128,6 @@
 .karavan .rest-designer .properties .rest-property .delete-button {
     padding: 3px;
     color: #b1b1b7;
-}
-
-.karavan .rest-designer .rest-designer-columns {
-    display: block;
-    height: 100%;
-    background: #fafafa;
 }
 
 .karavan .rest-designer .graph {
@@ -165,18 +159,18 @@
 .karavan .rest-designer .rest-card-unselected,
 .karavan .rest-designer .rest-config-card-unselected,
 .karavan .rest-designer .method-card-unselected {
-    border-color: var(--pf-v5-global--Color--200);
+    border-color: var(--pf-t--global--border--color--default);
     background-color: transparent;
 }
 
 .karavan .rest-designer .rest-card-selected,
 .karavan .rest-designer .rest-config-card-selected,
 .karavan .rest-designer .method-card-selected {
-    border-color: var(--pf-v5-global--primary-color--100);
+    border-color: var(--pf-t--global--color--brand--default);
 }
 
 .karavan .rest-designer .rest-card-selected .title {
-    color: var(--pf-v5-global--primary-color--100);
+    color: var(--pf-t--global--color--brand--default);
 }
 
 .karavan .rest-designer .rest-card {
@@ -208,21 +202,19 @@
 .karavan .rest-designer .method-card .method {
     margin: auto 0 auto 0;
     border-radius: 3px;
-    color: #fff;
-    font-family: sans-serif;
     font-weight: 700;
     min-width: 80px;
     padding: 6px 0;
     text-align: center;
-    text-shadow: 0 1px 0 rgb(0 0 0 / 10%);
 }
 
 .karavan .rest-designer .method-card-unselected .method {
-    background: var(--pf-v5-global--Color--400);
+    background: var(--pf-t--global--background--color--primary--default);
 }
 
 .karavan .rest-designer .method-card-selected .method {
-    background: var(--pf-v5-global--primary-color--100);
+    background: var(--pf-t--global--color--brand--default);
+    color: var(--pf-t--global--background--color--primary--default);
 }
 
 .karavan .rest-designer .rest-card .title,
@@ -266,7 +258,7 @@
     padding: 0;
     margin: 0;
     background: transparent;
-    color: #909090;
+    /*color: #909090;*/
     visibility: hidden;
     z-index: 100;
 }
@@ -281,7 +273,7 @@
     font-size: 15px;
     border: 0;
     background: transparent;
-    color: var(--pf-v5-global--primary-color--100);
+    color: var(--pf-t--global--color--brand--default);
     z-index: 100;
 }
 

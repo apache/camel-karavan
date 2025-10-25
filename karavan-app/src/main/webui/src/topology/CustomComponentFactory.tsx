@@ -16,59 +16,72 @@
  */
 
 import {
-    ComponentFactory, ContextMenuItem,
-    GraphComponent, GraphElement,
-    ModelKind,withContextMenu,
+    DragObjectWithType,
+    Edge,
+    GraphComponent,
+    graphDropTargetSpec,
+    GraphElement,
+    groupDropTargetSpec,
+    Model,
+    ModelKind,
+    Node,
+    nodeDragSourceSpec,
+    nodeDropTargetSpec,
+    withContextMenu,
+    withDndDrop,
+    withDragNode,
     withPanZoom,
-    withSelection
+    withSelection,
+    withTargetDrag,
 } from '@patternfly/react-topology';
 import CustomNode from "./CustomNode";
 import CustomEdge from "./CustomEdge";
 import CustomGroup from "./CustomGroup";
-import * as React from "react";
-import {ReactElement} from "react";
+import {getCustomMenu} from "./GetCustomMenu";
 
-export const CustomComponentFactory: ComponentFactory = (kind: ModelKind, type: string) => {
+const CONNECTOR_TARGET_DROP = 'connector-target-drop';
 
-    function createContextMenu(element: GraphElement):ReactElement[] | Promise<ReactElement[]> {
-        const result: React.ReactElement<any, string | React.JSXElementConstructor<any>>[] | Promise<React.ReactElement<any, string | React.JSXElementConstructor<any>>[]> = []
-        const data = element.getData();
-        result.push(
-            <ContextMenuItem key={element.getId() + "-open"} onClick={() => data?.selectFile?.(data?.fileName)}>
-                Open
-            </ContextMenuItem>
-        );
-        if (data?.type === 'route') {
-            result.push(
-                <ContextMenuItem key={element.getId()}
-                                 onClick={() => data?.setDisabled?.(data?.fileName, data?.routeId, !(data?.autoStartup))}>
-                    {data?.autoStartup === false ? 'Enable' : 'Disable'}
-                </ContextMenuItem>
-            );
-        } else if (data?.type === 'step' && data?.outgoing) {
-            result.push(
-                <ContextMenuItem key={element.getId()}
-                                 onClick={() => data?.setDisabled?.(data?.fileName, data?.step.id, !(data?.disabled))}>
-                    {data?.disabled ? 'Enable' : 'Disable'}
-                </ContextMenuItem>
-            );
+export function getCustomComponentFactory(model: Model, withDragDrop: boolean) {
+    const groupNames: string[] = model.nodes?.filter(n => n.type === 'group').map(n => n.id) ?? [];
+    return function (kind: ModelKind, type: string) {
+        switch (type) {
+            case 'group':
+                return withDragDrop
+                    ? withDndDrop(groupDropTargetSpec)(withDragNode(nodeDragSourceSpec('group'))(withSelection()(CustomGroup)))
+                    : (withSelection()(CustomGroup));
+            default:
+                switch (kind) {
+                    case ModelKind.graph:
+                        return withDndDrop(graphDropTargetSpec())(withPanZoom()(GraphComponent));
+                    case ModelKind.node:
+                        return withDragDrop
+                            ? withDndDrop(nodeDropTargetSpec([CONNECTOR_TARGET_DROP]))(
+                                withDragNode(nodeDragSourceSpec('node', true, true))(withContextMenu(element => getCustomMenu(element, groupNames))(withSelection()(CustomNode)))
+                            )
+                            : withContextMenu(element => getCustomMenu(element, groupNames))(withSelection()(CustomNode));
+                    case ModelKind.edge:
+                        return withTargetDrag<DragObjectWithType, Node, { dragging?: boolean }, { element: GraphElement; }>({
+                            item: {type: CONNECTOR_TARGET_DROP},
+                            begin: (monitor, props) => {
+                                props.element.raise();
+                                return props.element;
+                            },
+                            drag: (event, monitor, props) => {
+                                (props.element as Edge).setEndPoint(event.x, event.y);
+                            },
+                            end: (dropResult: Node | undefined, monitor, props) => {
+                                if (monitor.didDrop() && dropResult !== undefined && props) {
+                                    (props.element as Edge).setTarget(dropResult);
+                                }
+                                (props.element as Edge).setEndPoint();
+                            },
+                            collect: (monitor) => ({
+                                dragging: monitor.isDragging()
+                            })
+                        })(withSelection()(CustomEdge));
+                    default:
+                        return undefined;
+                }
         }
-        return result;
-    }
-
-    switch (type) {
-        case 'group':
-            return withSelection()(CustomGroup);
-        default:
-            switch (kind) {
-                case ModelKind.graph:
-                    return withPanZoom()(GraphComponent);
-                case ModelKind.node:
-                    return withContextMenu(element => createContextMenu(element))(withSelection()(CustomNode));
-                case ModelKind.edge:
-                    return (withSelection()(CustomEdge));
-                default:
-                    return undefined;
-            }
-    }
+    };
 }

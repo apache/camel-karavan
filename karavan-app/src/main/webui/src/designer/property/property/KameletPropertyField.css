@@ -19,8 +19,8 @@
     padding-right: 12px;
 }
 
-.karavan .properties .route-variable .pf-v5-c-toggle-group__button:before,
-.karavan .properties .route-variable .pf-v5-c-toggle-group__button {
+.karavan .properties .route-variable .pf-v6-c-toggle-group__button:before,
+.karavan .properties .route-variable .pf-v6-c-toggle-group__button {
     border-start-end-radius: 0;
     border-end-end-radius: 0;
 }
@@ -29,9 +29,6 @@
     width: 1em;
     height: 1em;
     vertical-align: -0.125em;
-}
-.karavan .properties .open-config-buton {
-    padding: 0 7px 0 7px;
 }
 
 .karavan .properties .kamelet-property-form-group:hover .button-clear {

@@ -16,9 +16,7 @@
  */
 import '../karavan.css';
 import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
-import {
-    DataFormatDefinition, ExpressionDefinition, ToDefinition,
-} from "karavan-core/lib/model/CamelDefinition";
+import {DataFormatDefinition, ExpressionDefinition, ToDefinition,} from "karavan-core/lib/model/CamelDefinition";
 import {CamelElement} from "karavan-core/lib/model/IntegrationDefinition";
 import {CamelDefinitionApiExt} from "karavan-core/lib/api/CamelDefinitionApiExt";
 import {CamelDefinitionApi} from "karavan-core/lib/api/CamelDefinitionApi";
@@ -48,7 +46,7 @@ export function usePropertiesHook(designerType: 'routes' | 'rest' | 'beans' = 'r
     function onRoutePropertyUpdate(element: CamelElement, newRoute?: RouteToCreate) {
         if (newRoute) {
             let i = CamelDefinitionApiExt.updateIntegrationRouteElement(integration, element);
-            const r = CamelUi.createRouteFromComponent(newRoute.componentName, 'name', newRoute.name);
+            const r = CamelUi.createRouteFromComponent(newRoute.componentName, newRoute.propertyName, newRoute.propertyValue);
             i = CamelDefinitionApiExt.addStepToIntegration(i, r, '');
             const clone = CamelUtil.cloneIntegration(i);
             setIntegration(clone, false);
@@ -66,9 +64,9 @@ export function usePropertiesHook(designerType: 'routes' | 'rest' | 'beans' = 'r
             let i = CamelDefinitionApiExt.updateIntegrationRestElement(integration, element);
             const f = CamelDefinitionApi.createFromDefinition({
                 uri: newRoute.componentName,
-                parameters: {name: newRoute.name}
+                parameters: {[newRoute.propertyName]: newRoute.propertyValue}
             });
-            const r = CamelDefinitionApi.createRouteDefinition({from: f, id: newRoute.name})
+            const r = CamelDefinitionApi.createRouteDefinition({from: f, id: newRoute.propertyValue})
             i = CamelDefinitionApiExt.addStepToIntegration(i, r, '');
             const clone = CamelUtil.cloneIntegration(i);
             setIntegration(clone, false);
@@ -86,9 +84,9 @@ export function usePropertiesHook(designerType: 'routes' | 'rest' | 'beans' = 'r
             let i = CamelDefinitionApiExt.updateIntegrationBeanElement(integration, element);
             const f = CamelDefinitionApi.createFromDefinition({
                 uri: newRoute.componentName,
-                parameters: {name: newRoute.name}
+                parameters: {[newRoute.propertyName]: newRoute.propertyValue}
             });
-            const r = CamelDefinitionApi.createRouteDefinition({from: f, id: newRoute.name})
+            const r = CamelDefinitionApi.createRouteDefinition({from: f, id: newRoute.propertyValue})
             i = CamelDefinitionApiExt.addStepToIntegration(i, r, '');
             const clone = CamelUtil.cloneIntegration(i);
             setIntegration(clone, false);

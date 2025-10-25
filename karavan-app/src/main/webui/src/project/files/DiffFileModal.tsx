@@ -16,18 +16,16 @@
  */
 
 import React, {useEffect, useState} from 'react';
-import {
-    Button,
-    Modal, Spinner
-} from '@patternfly/react-core';
+import {Button, Modal, ModalBody, ModalFooter, ModalHeader, Spinner} from '@patternfly/react-core';
 import './DiffFileModal.css';
-import {useFileStore, useProjectStore} from "../../api/ProjectStore";
-import {DiffEditor} from "@monaco-editor/react";
-import {KaravanApi} from "../../api/KaravanApi";
-import {ProjectFile} from "../../api/ProjectModels";
+import {useFileStore, useProjectStore} from "@/api/ProjectStore";
+import '@/monaco-setup';
+import Editor, {DiffEditor} from "@monaco-editor/react";
+import {KaravanApi} from "@/api/KaravanApi";
+import {ProjectFile} from "@/api/ProjectModels";
 import {shallow} from "zustand/shallow";
-import {EventBus} from "../../designer/utils/EventBus";
-import {ProjectService} from "../../api/ProjectService";
+import {EventBus} from "@/designer/utils/EventBus";
+import {ProjectService} from "@/api/ProjectService";
 
 const languages = new Map<string, string>([
     ['sh', 'shell'],
@@ -66,9 +64,9 @@ export function DiffFileModal(prop: Props) {
         if (fileCommited) {
             KaravanApi.putProjectFile(fileCommited, result => {
                 if (result.status === 200) {
-                    EventBus.sendAlert( "Success", "File reverted", "success");
+                    EventBus.sendAlert("Success", "File reverted", "success");
                     ProjectService.refreshProjectData(project.projectId);
-                    useFileStore.setState({operation: "none"})
+                    useFileStore.setState({operation: "none", file: undefined})
                     setFileCommited(undefined)
                 }
             })
@@ -81,18 +79,18 @@ export function DiffFileModal(prop: Props) {
     return (
         <Modal
             className='karavan-diff-modal'
-            title="Diff"
             isOpen={isOpen}
             onClose={() => closeModal()}
-            actions={[
-                <div style={{display: "flex", flexDirection: 'row', justifyContent: 'space-between', width: "100%"}}>
-                    <Button key="confirm" variant="warning" onClick={e => undoChanges()}>Undo</Button>
-                    <Button key="confirm" variant="primary" onClick={e => closeModal()}>Close</Button>
-                </div>
-            ]}
             onEscapePress={e => closeModal()}>
-            {fileCommited === undefined && <Spinner size="lg" aria-label="spinner"/>}
-            {fileCommited !== undefined && <DiffEditor language={language} original={fileCommited.code} modified={file?.code}/>}
+            <ModalHeader title="Diff"/>
+            <ModalBody>
+                {fileCommited === undefined && <Spinner size="lg" aria-label="spinner"/>}
+                {fileCommited !== undefined && <DiffEditor language={language} original={fileCommited.code} modified={file?.code}/>}
+            </ModalBody>
+            <ModalFooter>
+                <Button key="undo" variant="warning" onClick={e => undoChanges()}>Undo</Button>
+                <Button key="close" variant="primary" onClick={e => closeModal()}>Close</Button>
+            </ModalFooter>
         </Modal>
     )
 }
