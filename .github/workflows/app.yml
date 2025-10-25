@@ -36,9 +36,6 @@ jobs:
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-maven-
 
-      - name: Generate Karavan UI model and API, Kamelets and Components
-        working-directory: ./karavan
-        run: mvn clean package -f karavan-generator && java -jar karavan-generator/target/karavan-generator-${{ env.TAG }}.jar
 
       - name: Set up Node
         uses: actions/setup-node@v4
@@ -55,7 +52,7 @@ jobs:
       - name: Build application
         working-directory: ./karavan/karavan-app
         run: |
-          mvn package -Dquarkus.profile=public -DskipTests \
+          mvn package -DskipTests \
           -Dquarkus.quinoa.package-manager-install=false \
           -Dquarkus.container-image.build=true \
           -Dquarkus.container-image.push=${{ github.event_name != 'pull_request' }} \
