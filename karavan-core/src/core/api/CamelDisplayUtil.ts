@@ -31,8 +31,9 @@ export class CamelDisplayUtil {
         if (k) {
             return k.title();
         } else if (element.dslName === 'RouteDefinition') {
-            const routeId = (element as RouteDefinition).id
-            return routeId ? routeId : CamelUtil.capitalizeName((element as any).stepName);
+            // const routeId = (element as RouteDefinition).id
+            // return routeId ? routeId : CamelUtil.capitalizeName((element as any).stepName);
+            return 'Route'
         } else if ((element as any).uri && (['ToDefinition', 'FromDefinition', 'PollDefinition', 'ToDynamicDefinition', 'WireTapDefinition'].includes(element.dslName))) {
             const uri = (element as any).uri
             return ComponentApi.getComponentTitleFromUri(uri) || '';

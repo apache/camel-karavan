@@ -21,6 +21,7 @@ import {
 import { CamelDefinitionYaml } from './CamelDefinitionYaml';
 import { FromDefinition} from '../model/CamelDefinition';
 import { CamelDefinitionApiExt } from './CamelDefinitionApiExt';
+import { KARAVAN_DOT_EXTENSION } from '../contants';
 
 const sendReceiveDSL: string[] =
     ['ToDefinition', 'FromDefinition', 'ToDynamicDefinition', 'PollEnrichDefinition',
@@ -35,7 +36,7 @@ export class VariableUtil {
     }
 
     static findVariables = (files: IntegrationFile[]): string[] => {
-        const integrations = files.filter(file => file.name?.endsWith(".camel.yaml"))
+        const integrations = files.filter(file => file.name?.endsWith(KARAVAN_DOT_EXTENSION.CAMEL_YAML))
             .map(file => CamelDefinitionYaml.yamlToIntegration(file.name, file.code));
         return VariableUtil.findVariablesInIntegrations(integrations);
     };

@@ -35,3 +35,10 @@ export class ApplicationPropertyGroup {
         Object.assign(this, init);
     }
 }
+
+export interface ApplicationPropertyChange {
+    source: string;
+    target: string;
+    replace?: { from: string; to: string }[];
+    removed?: { name: string }[];
+}

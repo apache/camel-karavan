@@ -206,7 +206,6 @@ import {
     LanguageExpression,
     MethodCallExpression,
     MvelExpression,
-    OgnlExpression,
     PythonExpression,
     RefExpression,
     SimpleExpression,
@@ -1039,11 +1038,39 @@ export class CamelDefinitionYamlStep {
     static readExpressionSubElementDefinition = (element: any): ExpressionSubElementDefinition => {
         
         let def = element ? new ExpressionSubElementDefinition({...element}) : new ExpressionSubElementDefinition();
+        if (element?.python !== undefined) { 
+            if (Array.isArray(element.python)) { 
+               def.python = CamelDefinitionYamlStep.readPythonExpression(element.python[0]); 
+            } else { 
+               def.python = CamelDefinitionYamlStep.readPythonExpression(element.python); 
+            } 
+        } 
         if (element?.constant !== undefined) { 
             if (Array.isArray(element.constant)) { 
                def.constant = CamelDefinitionYamlStep.readConstantExpression(element.constant[0]); 
             } else { 
                def.constant = CamelDefinitionYamlStep.readConstantExpression(element.constant); 
+            } 
+        } 
+        if (element?.mvel !== undefined) { 
+            if (Array.isArray(element.mvel)) { 
+               def.mvel = CamelDefinitionYamlStep.readMvelExpression(element.mvel[0]); 
+            } else { 
+               def.mvel = CamelDefinitionYamlStep.readMvelExpression(element.mvel); 
+            } 
+        } 
+        if (element?.method !== undefined) { 
+            if (Array.isArray(element.method)) { 
+               def.method = CamelDefinitionYamlStep.readMethodCallExpression(element.method[0]); 
+            } else { 
+               def.method = CamelDefinitionYamlStep.readMethodCallExpression(element.method); 
+            } 
+        } 
+        if (element?.xquery !== undefined) { 
+            if (Array.isArray(element.xquery)) { 
+               def.xquery = CamelDefinitionYamlStep.readXQueryExpression(element.xquery[0]); 
+            } else { 
+               def.xquery = CamelDefinitionYamlStep.readXQueryExpression(element.xquery); 
             } 
         } 
         if (element?.datasonnet !== undefined) { 
@@ -1081,11 +1108,25 @@ export class CamelDefinitionYamlStep {
                def.simple = CamelDefinitionYamlStep.readSimpleExpression(element.simple); 
             } 
         } 
+        if (element?.hl7terser !== undefined) { 
+            if (Array.isArray(element.hl7terser)) { 
+               def.hl7terser = CamelDefinitionYamlStep.readHl7TerserExpression(element.hl7terser[0]); 
+            } else { 
+               def.hl7terser = CamelDefinitionYamlStep.readHl7TerserExpression(element.hl7terser); 
+            } 
+        } 
         if (element?.tokenize !== undefined) { 
             if (Array.isArray(element.tokenize)) { 
                def.tokenize = CamelDefinitionYamlStep.readTokenizerExpression(element.tokenize[0]); 
             } else { 
                def.tokenize = CamelDefinitionYamlStep.readTokenizerExpression(element.tokenize); 
+            } 
+        } 
+        if (element?.spel !== undefined) { 
+            if (Array.isArray(element.spel)) { 
+               def.spel = CamelDefinitionYamlStep.readSpELExpression(element.spel[0]); 
+            } else { 
+               def.spel = CamelDefinitionYamlStep.readSpELExpression(element.spel); 
             } 
         } 
         if (element?.ref !== undefined) { 
@@ -1100,6 +1141,13 @@ export class CamelDefinitionYamlStep {
                def.xpath = CamelDefinitionYamlStep.readXPathExpression(element.xpath[0]); 
             } else { 
                def.xpath = CamelDefinitionYamlStep.readXPathExpression(element.xpath); 
+            } 
+        } 
+        if (element?.groovy !== undefined) { 
+            if (Array.isArray(element.groovy)) { 
+               def.groovy = CamelDefinitionYamlStep.readGroovyExpression(element.groovy[0]); 
+            } else { 
+               def.groovy = CamelDefinitionYamlStep.readGroovyExpression(element.groovy); 
             } 
         } 
         if (element?.java !== undefined) { 
@@ -1123,74 +1171,18 @@ export class CamelDefinitionYamlStep {
                def.csimple = CamelDefinitionYamlStep.readCSimpleExpression(element.csimple); 
             } 
         } 
-        if (element?.jsonpath !== undefined) { 
-            if (Array.isArray(element.jsonpath)) { 
-               def.jsonpath = CamelDefinitionYamlStep.readJsonPathExpression(element.jsonpath[0]); 
-            } else { 
-               def.jsonpath = CamelDefinitionYamlStep.readJsonPathExpression(element.jsonpath); 
-            } 
-        } 
-        if (element?.ognl !== undefined) { 
-            if (Array.isArray(element.ognl)) { 
-               def.ognl = CamelDefinitionYamlStep.readOgnlExpression(element.ognl[0]); 
-            } else { 
-               def.ognl = CamelDefinitionYamlStep.readOgnlExpression(element.ognl); 
-            } 
-        } 
-        if (element?.python !== undefined) { 
-            if (Array.isArray(element.python)) { 
-               def.python = CamelDefinitionYamlStep.readPythonExpression(element.python[0]); 
-            } else { 
-               def.python = CamelDefinitionYamlStep.readPythonExpression(element.python); 
-            } 
-        } 
-        if (element?.mvel !== undefined) { 
-            if (Array.isArray(element.mvel)) { 
-               def.mvel = CamelDefinitionYamlStep.readMvelExpression(element.mvel[0]); 
-            } else { 
-               def.mvel = CamelDefinitionYamlStep.readMvelExpression(element.mvel); 
-            } 
-        } 
-        if (element?.method !== undefined) { 
-            if (Array.isArray(element.method)) { 
-               def.method = CamelDefinitionYamlStep.readMethodCallExpression(element.method[0]); 
-            } else { 
-               def.method = CamelDefinitionYamlStep.readMethodCallExpression(element.method); 
-            } 
-        } 
-        if (element?.xquery !== undefined) { 
-            if (Array.isArray(element.xquery)) { 
-               def.xquery = CamelDefinitionYamlStep.readXQueryExpression(element.xquery[0]); 
-            } else { 
-               def.xquery = CamelDefinitionYamlStep.readXQueryExpression(element.xquery); 
-            } 
-        } 
-        if (element?.hl7terser !== undefined) { 
-            if (Array.isArray(element.hl7terser)) { 
-               def.hl7terser = CamelDefinitionYamlStep.readHl7TerserExpression(element.hl7terser[0]); 
-            } else { 
-               def.hl7terser = CamelDefinitionYamlStep.readHl7TerserExpression(element.hl7terser); 
-            } 
-        } 
-        if (element?.spel !== undefined) { 
-            if (Array.isArray(element.spel)) { 
-               def.spel = CamelDefinitionYamlStep.readSpELExpression(element.spel[0]); 
-            } else { 
-               def.spel = CamelDefinitionYamlStep.readSpELExpression(element.spel); 
-            } 
-        } 
-        if (element?.groovy !== undefined) { 
-            if (Array.isArray(element.groovy)) { 
-               def.groovy = CamelDefinitionYamlStep.readGroovyExpression(element.groovy[0]); 
-            } else { 
-               def.groovy = CamelDefinitionYamlStep.readGroovyExpression(element.groovy); 
-            } 
-        } 
         if (element?.exchangeProperty !== undefined) { 
             if (Array.isArray(element.exchangeProperty)) { 
                def.exchangeProperty = CamelDefinitionYamlStep.readExchangePropertyExpression(element.exchangeProperty[0]); 
             } else { 
                def.exchangeProperty = CamelDefinitionYamlStep.readExchangePropertyExpression(element.exchangeProperty); 
+            } 
+        } 
+        if (element?.jsonpath !== undefined) { 
+            if (Array.isArray(element.jsonpath)) { 
+               def.jsonpath = CamelDefinitionYamlStep.readJsonPathExpression(element.jsonpath[0]); 
+            } else { 
+               def.jsonpath = CamelDefinitionYamlStep.readJsonPathExpression(element.jsonpath); 
             } 
         } 
         if (element?.variable !== undefined) { 
@@ -3757,11 +3749,39 @@ export class CamelDefinitionYamlStep {
     static readExpressionDefinition = (element: any): ExpressionDefinition => {
         
         let def = element ? new ExpressionDefinition({...element}) : new ExpressionDefinition();
+        if (element?.python !== undefined) { 
+            if (Array.isArray(element.python)) { 
+               def.python = CamelDefinitionYamlStep.readPythonExpression(element.python[0]); 
+            } else { 
+               def.python = CamelDefinitionYamlStep.readPythonExpression(element.python); 
+            } 
+        } 
         if (element?.constant !== undefined) { 
             if (Array.isArray(element.constant)) { 
                def.constant = CamelDefinitionYamlStep.readConstantExpression(element.constant[0]); 
             } else { 
                def.constant = CamelDefinitionYamlStep.readConstantExpression(element.constant); 
+            } 
+        } 
+        if (element?.mvel !== undefined) { 
+            if (Array.isArray(element.mvel)) { 
+               def.mvel = CamelDefinitionYamlStep.readMvelExpression(element.mvel[0]); 
+            } else { 
+               def.mvel = CamelDefinitionYamlStep.readMvelExpression(element.mvel); 
+            } 
+        } 
+        if (element?.method !== undefined) { 
+            if (Array.isArray(element.method)) { 
+               def.method = CamelDefinitionYamlStep.readMethodCallExpression(element.method[0]); 
+            } else { 
+               def.method = CamelDefinitionYamlStep.readMethodCallExpression(element.method); 
+            } 
+        } 
+        if (element?.xquery !== undefined) { 
+            if (Array.isArray(element.xquery)) { 
+               def.xquery = CamelDefinitionYamlStep.readXQueryExpression(element.xquery[0]); 
+            } else { 
+               def.xquery = CamelDefinitionYamlStep.readXQueryExpression(element.xquery); 
             } 
         } 
         if (element?.datasonnet !== undefined) { 
@@ -3799,11 +3819,25 @@ export class CamelDefinitionYamlStep {
                def.simple = CamelDefinitionYamlStep.readSimpleExpression(element.simple); 
             } 
         } 
+        if (element?.hl7terser !== undefined) { 
+            if (Array.isArray(element.hl7terser)) { 
+               def.hl7terser = CamelDefinitionYamlStep.readHl7TerserExpression(element.hl7terser[0]); 
+            } else { 
+               def.hl7terser = CamelDefinitionYamlStep.readHl7TerserExpression(element.hl7terser); 
+            } 
+        } 
         if (element?.tokenize !== undefined) { 
             if (Array.isArray(element.tokenize)) { 
                def.tokenize = CamelDefinitionYamlStep.readTokenizerExpression(element.tokenize[0]); 
             } else { 
                def.tokenize = CamelDefinitionYamlStep.readTokenizerExpression(element.tokenize); 
+            } 
+        } 
+        if (element?.spel !== undefined) { 
+            if (Array.isArray(element.spel)) { 
+               def.spel = CamelDefinitionYamlStep.readSpELExpression(element.spel[0]); 
+            } else { 
+               def.spel = CamelDefinitionYamlStep.readSpELExpression(element.spel); 
             } 
         } 
         if (element?.ref !== undefined) { 
@@ -3818,6 +3852,13 @@ export class CamelDefinitionYamlStep {
                def.xpath = CamelDefinitionYamlStep.readXPathExpression(element.xpath[0]); 
             } else { 
                def.xpath = CamelDefinitionYamlStep.readXPathExpression(element.xpath); 
+            } 
+        } 
+        if (element?.groovy !== undefined) { 
+            if (Array.isArray(element.groovy)) { 
+               def.groovy = CamelDefinitionYamlStep.readGroovyExpression(element.groovy[0]); 
+            } else { 
+               def.groovy = CamelDefinitionYamlStep.readGroovyExpression(element.groovy); 
             } 
         } 
         if (element?.java !== undefined) { 
@@ -3841,74 +3882,18 @@ export class CamelDefinitionYamlStep {
                def.csimple = CamelDefinitionYamlStep.readCSimpleExpression(element.csimple); 
             } 
         } 
-        if (element?.jsonpath !== undefined) { 
-            if (Array.isArray(element.jsonpath)) { 
-               def.jsonpath = CamelDefinitionYamlStep.readJsonPathExpression(element.jsonpath[0]); 
-            } else { 
-               def.jsonpath = CamelDefinitionYamlStep.readJsonPathExpression(element.jsonpath); 
-            } 
-        } 
-        if (element?.ognl !== undefined) { 
-            if (Array.isArray(element.ognl)) { 
-               def.ognl = CamelDefinitionYamlStep.readOgnlExpression(element.ognl[0]); 
-            } else { 
-               def.ognl = CamelDefinitionYamlStep.readOgnlExpression(element.ognl); 
-            } 
-        } 
-        if (element?.python !== undefined) { 
-            if (Array.isArray(element.python)) { 
-               def.python = CamelDefinitionYamlStep.readPythonExpression(element.python[0]); 
-            } else { 
-               def.python = CamelDefinitionYamlStep.readPythonExpression(element.python); 
-            } 
-        } 
-        if (element?.mvel !== undefined) { 
-            if (Array.isArray(element.mvel)) { 
-               def.mvel = CamelDefinitionYamlStep.readMvelExpression(element.mvel[0]); 
-            } else { 
-               def.mvel = CamelDefinitionYamlStep.readMvelExpression(element.mvel); 
-            } 
-        } 
-        if (element?.method !== undefined) { 
-            if (Array.isArray(element.method)) { 
-               def.method = CamelDefinitionYamlStep.readMethodCallExpression(element.method[0]); 
-            } else { 
-               def.method = CamelDefinitionYamlStep.readMethodCallExpression(element.method); 
-            } 
-        } 
-        if (element?.xquery !== undefined) { 
-            if (Array.isArray(element.xquery)) { 
-               def.xquery = CamelDefinitionYamlStep.readXQueryExpression(element.xquery[0]); 
-            } else { 
-               def.xquery = CamelDefinitionYamlStep.readXQueryExpression(element.xquery); 
-            } 
-        } 
-        if (element?.hl7terser !== undefined) { 
-            if (Array.isArray(element.hl7terser)) { 
-               def.hl7terser = CamelDefinitionYamlStep.readHl7TerserExpression(element.hl7terser[0]); 
-            } else { 
-               def.hl7terser = CamelDefinitionYamlStep.readHl7TerserExpression(element.hl7terser); 
-            } 
-        } 
-        if (element?.spel !== undefined) { 
-            if (Array.isArray(element.spel)) { 
-               def.spel = CamelDefinitionYamlStep.readSpELExpression(element.spel[0]); 
-            } else { 
-               def.spel = CamelDefinitionYamlStep.readSpELExpression(element.spel); 
-            } 
-        } 
-        if (element?.groovy !== undefined) { 
-            if (Array.isArray(element.groovy)) { 
-               def.groovy = CamelDefinitionYamlStep.readGroovyExpression(element.groovy[0]); 
-            } else { 
-               def.groovy = CamelDefinitionYamlStep.readGroovyExpression(element.groovy); 
-            } 
-        } 
         if (element?.exchangeProperty !== undefined) { 
             if (Array.isArray(element.exchangeProperty)) { 
                def.exchangeProperty = CamelDefinitionYamlStep.readExchangePropertyExpression(element.exchangeProperty[0]); 
             } else { 
                def.exchangeProperty = CamelDefinitionYamlStep.readExchangePropertyExpression(element.exchangeProperty); 
+            } 
+        } 
+        if (element?.jsonpath !== undefined) { 
+            if (Array.isArray(element.jsonpath)) { 
+               def.jsonpath = CamelDefinitionYamlStep.readJsonPathExpression(element.jsonpath[0]); 
+            } else { 
+               def.jsonpath = CamelDefinitionYamlStep.readJsonPathExpression(element.jsonpath); 
             } 
         } 
         if (element?.variable !== undefined) { 
@@ -4002,13 +3987,6 @@ export class CamelDefinitionYamlStep {
     static readMvelExpression = (element: any): MvelExpression => {
         if (element && typeof element === 'string') element = {expression: element};
         let def = element ? new MvelExpression({...element}) : new MvelExpression();
-
-        return def;
-    }
-
-    static readOgnlExpression = (element: any): OgnlExpression => {
-        if (element && typeof element === 'string') element = {expression: element};
-        let def = element ? new OgnlExpression({...element}) : new OgnlExpression();
 
         return def;
     }

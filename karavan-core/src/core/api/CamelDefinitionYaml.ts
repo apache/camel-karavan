@@ -159,6 +159,7 @@ export class CamelDefinitionYaml {
         return yaml.dump(integration, {
             noRefs: false,
             noArrayIndent: false,
+            lineWidth: 170,
             // forceQuotes: true,
             quotingType: '"',
             sortKeys: function(a: any, b: any) {
@@ -319,6 +320,8 @@ export class CamelDefinitionYaml {
             .forEach((f: any) => result.push(CamelDefinitionYamlStep.readRestDefinition(f.rest)));
         flows.filter((e: any) => e.hasOwnProperty('routeTemplate'))
             .forEach((f: any) => result.push(CamelDefinitionYamlStep.readRouteTemplateDefinition(f.routeTemplate)));
+        flows.filter((e: any) => e.hasOwnProperty('templatedRoute'))
+            .forEach((f: any) => result.push(CamelDefinitionYamlStep.readTemplatedRouteDefinition(f.templatedRoute)));
         flows.filter((e: any) => e.hasOwnProperty('route'))
             .forEach((f: any) => result.push(CamelDefinitionYamlStep.readRouteDefinition(f.route)));
         flows.filter((e: any) => e.hasOwnProperty('from'))

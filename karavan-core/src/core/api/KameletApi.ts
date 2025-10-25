@@ -44,7 +44,7 @@ export class KameletApi {
     };
 
     static saveCustomKamelets = (kameletYamls: string[], clean: boolean = false): void => {
-        const kamelets: KameletModel[] = kameletYamls.map(text => KameletApi.yamlToKamelet(text));
+        const kamelets: KameletModel[] = kameletYamls?.filter(k => k?.trim().length > 0).map(text => KameletApi.yamlToKamelet(text)) || [];
         if (clean) CustomKamelets.length = 0;
         CustomKamelets.push(
             ...kamelets.sort((a, b) =>
@@ -54,7 +54,7 @@ export class KameletApi {
     };
 
     static saveProjectKamelets = (kameletYamls: string[], clean: boolean = false): void => {
-        const kamelets: KameletModel[] = kameletYamls.map(text => KameletApi.yamlToKamelet(text));
+        const kamelets: KameletModel[] = kameletYamls?.filter(k => k?.trim().length > 0).map(text => KameletApi.yamlToKamelet(text)) || [];
         if (clean) ProjectKamelets.length = 0;
         ProjectKamelets.push(
             ...kamelets.sort((a, b) =>

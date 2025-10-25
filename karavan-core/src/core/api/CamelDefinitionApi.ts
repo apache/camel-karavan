@@ -205,7 +205,6 @@ import {
     LanguageExpression,
     MethodCallExpression,
     MvelExpression,
-    OgnlExpression,
     PythonExpression,
     RefExpression,
     SimpleExpression,
@@ -699,9 +698,6 @@ export class CamelDefinitionApi {
         }
         if (element?.mvel !== undefined) { 
             def.mvel = CamelDefinitionApi.createMvelExpression(element.mvel); 
-        }
-        if (element?.ognl !== undefined) { 
-            def.ognl = CamelDefinitionApi.createOgnlExpression(element.ognl); 
         }
         if (element?.python !== undefined) { 
             def.python = CamelDefinitionApi.createPythonExpression(element.python); 
@@ -2366,9 +2362,6 @@ export class CamelDefinitionApi {
         if (element?.mvel !== undefined) { 
             def.mvel = CamelDefinitionApi.createMvelExpression(element.mvel); 
         }
-        if (element?.ognl !== undefined) { 
-            def.ognl = CamelDefinitionApi.createOgnlExpression(element.ognl); 
-        }
         if (element?.python !== undefined) { 
             def.python = CamelDefinitionApi.createPythonExpression(element.python); 
         }
@@ -2482,15 +2475,6 @@ export class CamelDefinitionApi {
             element = {expression: element};
         }
         const def = element ? new MvelExpression({...element}) : new MvelExpression();
-        def.uuid = element?.uuid ? element.uuid : def.uuid; 
-        return def;
-    }
-
-    static createOgnlExpression = (element: any): OgnlExpression => { 
-        if (element && typeof element === 'string') {
-            element = {expression: element};
-        }
-        const def = element ? new OgnlExpression({...element}) : new OgnlExpression();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
         return def;
     }
@@ -3268,7 +3252,6 @@ export class CamelDefinitionApi {
             case 'LanguageExpression': return CamelDefinitionApi.createLanguageExpression(newBody);
             case 'MethodCallExpression': return CamelDefinitionApi.createMethodCallExpression(newBody);
             case 'MvelExpression': return CamelDefinitionApi.createMvelExpression(newBody);
-            case 'OgnlExpression': return CamelDefinitionApi.createOgnlExpression(newBody);
             case 'PythonExpression': return CamelDefinitionApi.createPythonExpression(newBody);
             case 'RefExpression': return CamelDefinitionApi.createRefExpression(newBody);
             case 'SimpleExpression': return CamelDefinitionApi.createSimpleExpression(newBody);
@@ -3347,7 +3330,6 @@ export class CamelDefinitionApi {
             case 'LanguageExpression': return CamelDefinitionApi.createLanguageExpression(newBody);
             case 'MethodCallExpression': return CamelDefinitionApi.createMethodCallExpression(newBody);
             case 'MvelExpression': return CamelDefinitionApi.createMvelExpression(newBody);
-            case 'OgnlExpression': return CamelDefinitionApi.createOgnlExpression(newBody);
             case 'PythonExpression': return CamelDefinitionApi.createPythonExpression(newBody);
             case 'RefExpression': return CamelDefinitionApi.createRefExpression(newBody);
             case 'SimpleExpression': return CamelDefinitionApi.createSimpleExpression(newBody);

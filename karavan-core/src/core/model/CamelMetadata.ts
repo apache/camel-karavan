@@ -136,6 +136,7 @@ export const DataFormats: [string, string, string][] = [
     ['crypto','Crypto (Java Cryptographic Extension)',"Encrypt and decrypt messages using Java Cryptography Extension (JCE)."],
     ['csv','CSV',"Handle CSV (Comma Separated Values) payloads."],
     ['custom','Custom',"Delegate to a custom org.apache.camel.spi.DataFormat implementation via Camel registry."],
+    ['dfdl','DFDL',"Transforms fixed format data such as EDI message from/to XML using a Data Format Description Language (DFDL)."],
     ['fhirJson','FHIR JSon',"Marshall and unmarshall FHIR objects to/from JSON."],
     ['fhirXml','FHIR XML',"Marshall and unmarshall FHIR objects to/from XML."],
     ['flatpack','Flatpack',"Marshal and unmarshal Java lists and maps to/from flat files (such as CSV, delimited, or fixed length formats) using Flatpack library."],
@@ -349,6 +350,13 @@ export const CamelDataFormatMetadata: ElementMeta[] = [
         new PropertyMeta('yaml', 'yaml', "yaml", 'YAMLDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('zipDeflater', 'zipDeflater', "zipDeflater", 'ZipDeflaterDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('zipFile', 'zipFile', "zipFile", 'ZipFileDataFormat', '', '', false, false, false, true, '', ''),
+    ], [
+    ]),
+    new ElementMeta('dfdl', 'DfdlDataFormat', 'DFDL', "Transforms fixed format data such as EDI message from/to XML using a Data Format Description Language (DFDL).", 'dataformat,transformation', [
+        new PropertyMeta('id', 'Id', "The id of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('schemaUri', 'Schema Uri', "The path to the DFDL schema file.", 'string', '', '', true, false, false, false, '', ''),
+        new PropertyMeta('rootElement', 'Root Element', "The root element name of the schema to use. If not specified, the first root element in the schema will be used.", 'string', '', '', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('rootNamespace', 'Root Namespace', "The root namespace of the schema to use.", 'string', '', '', false, false, false, false, 'advanced', ''),
     ], [
     ]),
     new ElementMeta('fhirJson', 'FhirJsonDataFormat', 'FHIR JSon', "Marshall and unmarshall FHIR objects to/from JSON.", 'dataformat,transformation,health,json', [
@@ -896,13 +904,6 @@ export const CamelLanguageMetadata: ElementMeta[] = [
         new PropertyMeta('trim', 'Trim', "Whether to trim the value to remove leading and trailing whitespaces and line breaks", 'boolean', '', 'true', false, false, false, false, 'advanced', ''),
     ], [
     ]),
-    new ElementMeta('ognl', 'OgnlExpression', 'OGNL', "Evaluates an OGNL expression (Apache Commons OGNL).", 'language,java', [
-        new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('expression', 'Expression', "The expression value in your chosen language syntax", 'string', '', '', true, false, false, false, '', ''),
-        new PropertyMeta('resultType', 'Result Type', "Sets the class of the result type (type from output)", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('trim', 'Trim', "Whether to trim the value to remove leading and trailing whitespaces and line breaks", 'boolean', '', 'true', false, false, false, false, 'advanced', ''),
-    ], [
-    ]),
     new ElementMeta('python', 'PythonExpression', 'Python', "Evaluates a Python expression.", 'language,python', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('expression', 'Expression', "The expression value in your chosen language syntax", 'string', '', '', true, false, false, false, '', ''),
@@ -1206,7 +1207,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     ], [
         new ExchangePropertyMeta('CamelDuplicateMessage', 'Duplicate Message', 'producer', 'boolean', "Whether this exchange is a duplicate detected by the Idempotent Consumer EIP"),
     ]),
-    new ElementMeta('kamelet', 'KameletDefinition', 'Kamelet', "To call Kamelets in special situations", 'eip,routing', [
+    new ElementMeta('kamelet', 'KameletDefinition', 'Kamelet', "To call Kamelets in special situations. By default, calling kamelets should be done as endpoints with the kamelet component, such as to(kamelet:mykamelet). When a Kamelet is designed for a special use-case such as aggregating messages, and returning a response message only when a group of aggregated messages is completed. In other words, kamelet does not return a response message for every incoming message. In special situations like these, then you must use this Kamelet EIP instead of using the kamelet component.", 'eip,routing', [
         new PropertyMeta('name', 'Name', "Name of the Kamelet (templateId/routeId) to call. Options for the kamelet can be specified using uri syntax, eg mynamecount=4&type=gold.", 'string', '', '', true, false, false, false, '', ''),
         new PropertyMeta('parameters', 'parameters', "parameters", 'object', '', '', false, false, false, false, '', ''),
         new PropertyMeta('steps', 'steps', "steps", 'CamelElement', '', '', false, false, true, true, '', ''),
@@ -1895,8 +1896,8 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('autoStartup', 'Auto Startup', "Whether to auto start this route", 'boolean', '', 'true', false, false, false, false, '', ''),
         new PropertyMeta('startupOrder', 'Startup Order', "To configure the ordering of the routes being started", 'number', '', '', false, false, false, false, 'advanced', ''),
         new PropertyMeta('streamCache', 'Stream Cache', "Whether stream caching is enabled on this route.", 'boolean', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('trace', 'Trace', "Whether tracing is enabled on this route.", 'boolean', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('messageHistory', 'Message History', "Whether message history is enabled on this route.", 'boolean', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('trace', 'Trace', "Whether tracing is enabled on this route.", 'boolean', '', 'false', false, false, false, false, '', ''),
+        new PropertyMeta('messageHistory', 'Message History', "Whether message history is enabled on this route.", 'boolean', '', 'false', false, false, false, false, '', ''),
         new PropertyMeta('logMask', 'Log Mask', "Whether security mask for Logging is enabled on this route.", 'boolean', '', 'false', false, false, false, false, '', ''),
         new PropertyMeta('errorHandlerRef', 'Error Handler', "Sets the bean ref name of the error handler builder to use on this route", 'string', '', '', false, false, false, false, 'error', ''),
         new PropertyMeta('shutdownRoute', 'Shutdown Route', "To control how to shutdown the route.", 'string', 'Default, Defer', '', false, false, false, false, 'advanced', ''),
@@ -2379,7 +2380,6 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('language', 'language', "language", 'LanguageExpression', '', '', false, false, false, true, '', ''),
         new PropertyMeta('method', 'method', "method", 'MethodCallExpression', '', '', false, false, false, true, '', ''),
         new PropertyMeta('mvel', 'mvel', "mvel", 'MvelExpression', '', '', false, false, false, true, '', ''),
-        new PropertyMeta('ognl', 'ognl', "ognl", 'OgnlExpression', '', '', false, false, false, true, '', ''),
         new PropertyMeta('python', 'python', "python", 'PythonExpression', '', '', false, false, false, true, '', ''),
         new PropertyMeta('ref', 'ref', "ref", 'RefExpression', '', '', false, false, false, true, '', ''),
         new PropertyMeta('simple', 'simple', "simple", 'SimpleExpression', '', '', false, false, false, true, '', ''),

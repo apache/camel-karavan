@@ -452,6 +452,13 @@ export class TopologyUtils {
         }
     }
 
+    static getNodeIdByUniqueUri(tins: TopologyIncomingNode[], uniqueUri: string): TopologyIncomingNode [] {
+        const result: TopologyIncomingNode[] = [];
+        tins.filter(r => r.uniqueUri === uniqueUri)
+            ?.forEach(node => result.push(node));
+        return result;
+    }
+
     static getNodeIdByUri(tins: TopologyIncomingNode[], uri: string): string | undefined {
         const parts = uri.split(':');
         if (parts.length > 1) {

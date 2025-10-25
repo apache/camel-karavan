@@ -14,49 +14,36 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as fs from 'fs';
 import 'mocha';
-import {CamelDefinitionYaml} from "../src/core/api/CamelDefinitionYaml";
-import {CamelUtil} from "../src/core/api/CamelUtil";
-import {CamelDefinitionApiExt} from "../src/core/api/CamelDefinitionApiExt";
-import {
-    CatchDefinition,
-    ExpressionDefinition,
-    FromDefinition, LogDefinition,
-    PropertyExpressionDefinition
-} from "../src/core/model/CamelDefinition";
-import {expect} from "chai";
+import { CamelDefinitionYaml } from '../src/core/api/CamelDefinitionYaml';
 import {
     InterceptDefinition,
     RouteConfigurationDefinition,
-    RouteDefinition,
-    SagaDefinition,
-    ToDefinition,
-    TryDefinition
-} from "../src/core/model/CamelDefinition";
-import {Integration} from "../src/core/model/IntegrationDefinition";
+} from '../src/core/model/CamelDefinition';
+import { Integration } from '../src/core/model/IntegrationDefinition';
+import { LogDefinition } from '../lib/model/CamelDefinition';
 
 describe('Intercept', () => {
 
     it('Intercept YAML', () => {
         // const yaml = fs.readFileSync('test/demo.yaml',{encoding:'utf8', flag:'r'});
         // const i = CamelDefinitionYaml.yamlToIntegration("demo.yaml", yaml);
-        const i = Integration.createNew("intercept.camel", 'plain');
+        const i = Integration.createNew('intercept.camel', 'plain');
 
         const intercept1 = new InterceptDefinition({
-            steps: [new LogDefinition({logName: 'log1', message: "intercept1"})]
-        })
+            steps: [new LogDefinition({ logName: 'log1', message: 'intercept1' })],
+        });
         const intercept2 = new InterceptDefinition({
-            steps: [new LogDefinition({logName: 'log2', message: "intercept2"})]
-        })
+            steps: [new LogDefinition({ logName: 'log2', message: 'intercept2' })],
+        });
         const routeConfiguration = new RouteConfigurationDefinition({
-            intercept: [intercept1, intercept2]
+            intercept: [intercept1, intercept2],
         });
         i.spec.flows?.push(routeConfiguration);
 
         const yaml = CamelDefinitionYaml.integrationToYaml(i);
 
-        const i2 = CamelDefinitionYaml.yamlToIntegration("demo.yaml", yaml);
+        const i2 = CamelDefinitionYaml.yamlToIntegration('demo.yaml', yaml);
     });
 
 });

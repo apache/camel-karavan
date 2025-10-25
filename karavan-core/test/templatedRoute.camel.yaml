@@ -1,0 +1,16 @@
+- templatedRoute:
+    routeTemplateRef: barcodeReaderTemplate
+    routeId: barcodeReader1
+    parameters:
+      - name: driver
+        value: first
+      - name: period
+        value: 3000
+- templatedRoute:
+    routeTemplateRef: barcodeReaderTemplate
+    routeId: barcodeReader2
+    parameters:
+      - name: driver
+        value: second
+      - name: period
+        value: 3000
