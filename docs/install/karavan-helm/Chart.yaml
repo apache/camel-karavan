@@ -2,4 +2,4 @@ apiVersion: v2
 name: karavan
 version: 0.1.0
 description: Chart Helm for deploy Karavan
-appVersion: "4.10.2" 
+appVersion: "4.14.0" 

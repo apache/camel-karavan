@@ -18,14 +18,22 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import "@patternfly/patternfly/patternfly.css";
+import "@patternfly/patternfly/patternfly-charts.css";
 import './index.css';
 import {Main} from "./main/Main";
 import {BrowserRouter} from "react-router-dom";
+// import {ThemeProvider} from "@/main/ThemeContext";
+// import {AuthProvider} from "@/auth/AuthProvider";
+
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
     <React.StrictMode>
         <BrowserRouter>
-            <Main />
+            {/*<ThemeProvider>*/}
+            {/*    <AuthProvider>*/}
+                    <Main />
+                {/*</AuthProvider>*/}
+            {/*</ThemeProvider>*/}
         </BrowserRouter>
     </React.StrictMode>
 );

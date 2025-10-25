@@ -4,7 +4,7 @@ commonLabels:
   app: "karavan"
   app.kubernetes.io/part-of: "karavan"
   app.kubernetes.io/name: "karavan"
-  app.kubernetes.io/version: "4.10.2"
+  app.kubernetes.io/version: "4.14.0"
 namespace: "karavan"
 resources:
   - secret.yaml
