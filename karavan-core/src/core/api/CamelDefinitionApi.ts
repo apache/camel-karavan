@@ -1892,6 +1892,9 @@ export class CamelDefinitionApi {
         if (element?.custom !== undefined) { 
             def.custom = CamelDefinitionApi.createCustomDataFormat(element.custom); 
         }
+        if (element?.dfdl !== undefined) { 
+            def.dfdl = CamelDefinitionApi.createDfdlDataFormat(element.dfdl); 
+        }
         if (element?.fhirJson !== undefined) { 
             def.fhirJson = CamelDefinitionApi.createFhirJsonDataFormat(element.fhirJson); 
         }
@@ -2893,6 +2896,9 @@ export class CamelDefinitionApi {
         }
         if (element?.custom !== undefined) { 
             def.custom = CamelDefinitionApi.createCustomDataFormat(element.custom); 
+        }
+        if (element?.dfdl !== undefined) { 
+            def.dfdl = CamelDefinitionApi.createDfdlDataFormat(element.dfdl); 
         }
         if (element?.fhirJson !== undefined) { 
             def.fhirJson = CamelDefinitionApi.createFhirJsonDataFormat(element.fhirJson); 

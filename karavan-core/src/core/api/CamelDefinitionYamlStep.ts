@@ -3259,6 +3259,13 @@ export class CamelDefinitionYamlStep {
                def.beanio = CamelDefinitionYamlStep.readBeanioDataFormat(element.beanio); 
             } 
         } 
+        if (element?.dfdl !== undefined) { 
+            if (Array.isArray(element.dfdl)) { 
+               def.dfdl = CamelDefinitionYamlStep.readDfdlDataFormat(element.dfdl[0]); 
+            } else { 
+               def.dfdl = CamelDefinitionYamlStep.readDfdlDataFormat(element.dfdl); 
+            } 
+        } 
         if (element?.fhirJson !== undefined) { 
             if (Array.isArray(element.fhirJson)) { 
                def.fhirJson = CamelDefinitionYamlStep.readFhirJsonDataFormat(element.fhirJson[0]); 
@@ -4613,6 +4620,13 @@ export class CamelDefinitionYamlStep {
                def.beanio = CamelDefinitionYamlStep.readBeanioDataFormat(element.beanio[0]); 
             } else { 
                def.beanio = CamelDefinitionYamlStep.readBeanioDataFormat(element.beanio); 
+            } 
+        } 
+        if (element?.dfdl !== undefined) { 
+            if (Array.isArray(element.dfdl)) { 
+               def.dfdl = CamelDefinitionYamlStep.readDfdlDataFormat(element.dfdl[0]); 
+            } else { 
+               def.dfdl = CamelDefinitionYamlStep.readDfdlDataFormat(element.dfdl); 
             } 
         } 
         if (element?.fhirJson !== undefined) { 

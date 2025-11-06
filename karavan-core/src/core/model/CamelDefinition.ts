@@ -2071,6 +2071,7 @@ export class DataFormatsDefinition extends CamelElement {
     crypto?: CryptoDataFormat;
     csv?: CsvDataFormat | string;
     custom?: CustomDataFormat | string;
+    dfdl?: DfdlDataFormat | string;
     fhirJson?: FhirJsonDataFormat;
     fhirXml?: FhirXmlDataFormat;
     flatpack?: FlatpackDataFormat;
@@ -3815,6 +3816,7 @@ export class DataFormatTransformerDefinition extends CamelElement {
     crypto?: CryptoDataFormat;
     csv?: CsvDataFormat | string;
     custom?: CustomDataFormat | string;
+    dfdl?: DfdlDataFormat | string;
     fhirJson?: FhirJsonDataFormat;
     fhirXml?: FhirXmlDataFormat;
     flatpack?: FlatpackDataFormat;
