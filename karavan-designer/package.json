@@ -30,7 +30,7 @@
     "@patternfly/react-topology": "^5.4.1",
     "@types/js-yaml": "4.0.9",
     "@types/uuid": "10.0.0",
-    "axios": "1.13.2",
+    "axios": "1.12.0",
     "html-to-image": "1.11.13",
     "karavan-core": "file:../karavan-core",
     "react": "18.3.1",
