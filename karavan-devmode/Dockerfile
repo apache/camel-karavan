@@ -27,7 +27,7 @@ RUN apt-get update \
 
 ENV JBANG_VERSION=0.132.1
 ENV CAMEL_VERSION=4.14.2
-ENV JBANG_JAVA_OPTIONS="-Dcamel.jbang.version=${CAMEL_VERSION} -Dcamel.jbang.kameletsVersion=${CAMEL_VERSION}"
+ENV JBANG_JAVA_OPTIONS="-Dcamel.jbang.version=4.14.2 -Dcamel.jbang.kameletsVersion=4.14.2"
 ENV KARAVAN="/karavan"
 ENV JBANG_DIR="$KARAVAN/.jbang"
 ENV MAVEN_CONFIG="$KARAVAN/.m2"
@@ -55,4 +55,4 @@ RUN curl -Ls https://sh.jbang.dev | bash -s - app setup \
 
 EXPOSE 8080
 WORKDIR $CODE_DIR 
-CMD ["jbang", "-Dcamel.jbang.version=${CAMEL_VERSION}", "-Dcamel.jbang.kameletsVersion=${CAMEL_VERSION}", "camel@apache/camel", "run", "--source-dir=/karavan/code", "--console"]
+CMD ["jbang", "-Dcamel.jbang.version=4.14.2", "-Dcamel.jbang.kameletsVersion=4.14.2", "camel@apache/camel", "run", "--source-dir=/karavan/code", "--console"]
