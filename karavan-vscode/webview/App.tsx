@@ -23,7 +23,7 @@ import vscode from "./vscode";
 import { KameletApi } from "@/core/api/KameletApi";
 import { ComponentApi } from "@/core/api/ComponentApi";
 import { TemplateApi } from "./core/api/TemplateApi";
-import {BeanFactoryDefinition} from "@/core/model/CamelDefinition";
+import { BeanFactoryDefinition } from "@/core/model/CamelDefinition";
 import { IntegrationFile } from "@/core/model/IntegrationDefinition";
 import { KaravanDesigner } from "./integration-designer/KaravanDesigner";
 import { EventBus } from "./integration-designer/utils/EventBus";
@@ -164,8 +164,8 @@ class App extends React.Component<State> {
         EventBus.sendCommand("downloadImage");
         break;
       case 'blockList':
-          const blockList = message.blockList;
-        const blockListMap = new Map(Object.keys(blockList).map(key => [key, blockList[key]])).forEach((list,key) => {
+        const blockList = message.blockList;
+        const blockListMap = new Map(Object.keys(blockList).map(key => [key, blockList[key]])).forEach((list, key) => {
           if (key === 'components-blocklist.txt') {
             ComponentApi.saveBlockedComponentNames(list.split(/\r?\n/));
           }
@@ -173,11 +173,11 @@ class App extends React.Component<State> {
             KameletApi.saveBlockedKameletNames(list.split(/\r?\n/));
           }
         });
-          this.setState((prevState: State) => {
-            prevState.loadingMessages.push("block lists loaded");
-            return { loadingMessages: prevState.loadingMessages }
-          });
-          break;
+        this.setState((prevState: State) => {
+          prevState.loadingMessages.push("block lists loaded");
+          return { loadingMessages: prevState.loadingMessages }
+        });
+        break;
     }
   };
 
@@ -207,14 +207,14 @@ class App extends React.Component<State> {
 
   }
 
- onchangeBlockedList(type: string, name: string, checked: boolean) {
-  let fileContent = '';
-  if (type === "component") {
+  onchangeBlockedList(type: string, name: string, checked: boolean) {
+    let fileContent = '';
+    if (type === "component") {
       fileContent = ComponentApi.saveBlockedComponentName(name, checked).join('\n');
-  } else {
-      fileContent =KameletApi.saveBlockedKameletName(name, checked).join('\n');
-  }
-  vscode.postMessage({ command: 'saveBlockedList', key: type, value: fileContent });
+    } else {
+      fileContent = KameletApi.saveBlockedKameletName(name, checked).join('\n');
+    }
+    vscode.postMessage({ command: 'saveBlockedList', key: type, value: fileContent });
   }
 
   public render() {
@@ -249,24 +249,20 @@ class App extends React.Component<State> {
               vscode.postMessage({ command: 'internalConsumerClick', uri: uri, name: name, routeId: routeId });
             }}
             files={this.state.files.map(f => new IntegrationFile(f.name, f.code))}
-            onCreateNewFile={()=>{}}
-            onCreateNewRoute={()=>{}}
+            onCreateNewFile={() => { }}
+            onCreateNewRoute={() => { }}
           />
         }
-        {loaded && page === "knowledgebase" && 
-                <DocumentationPage />
+        {loaded && page === "knowledgebase" &&
+          <DocumentationPage />
         }
-        {/* {loaded && page === "topology" &&
-          <TopologyTab
+        {loaded && page === "topology" &&
+          <TopologyTab openApiJson={undefined}
+            asyncApiJson={undefined}
             hideToolbar={true}
-            files={this.state.files}
-            // onClickAddRoute={() => vscode.postMessage({ command: 'createIntegration' })}
-            onClickAddREST={() => vscode.postMessage({ command: 'createIntegration' })}
-            onClickAddBean={() => vscode.postMessage({ command: 'createIntegration' })}
-            onClickAddKamelet={() => vscode.postMessage({ command: 'createIntegration' })}
-            onSetFile={(fileName) => vscode.postMessage({ command: 'openFile', fileName: fileName })}
+            files={[]}
           />
-        } */}
+        }
       </div>
     )
   }
