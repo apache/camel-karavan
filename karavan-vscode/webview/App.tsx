@@ -16,6 +16,7 @@
  */
 import * as React from "react";
 import {
+  Bullseye,
   Content,
   Page, PageSection, Spinner
 } from "@patternfly/react-core";
@@ -207,7 +208,6 @@ class App extends React.Component<Props, State> {
   saveIntegrationFiles(files: any) {
     const f = Object.keys(files).map(key => new IntegrationFile(key, files[key]));
     this.setState({ files: f });
-
   }
 
   onchangeBlockedList(type: string, name: string, checked: boolean) {
@@ -226,9 +226,11 @@ class App extends React.Component<Props, State> {
       <div className="karavan">
         {!loaded &&
           <PageSection className="loading-page">
-            <Spinner className="progress-stepper" diameter="80px" aria-label="Loading..." />
-            {/* {loadingMessages.map(message => <Text component={TextVariants.h5}>{message}</Text>)} */}
-            <Content component={'h5'}>Loading...</Content>
+            <Bullseye>
+              <Spinner className="progress-stepper" diameter="80px" aria-label="Loading..." />
+              {/* {loadingMessages.map(message => <Text component={TextVariants.h5}>{message}</Text>)} */}
+              <Content component={'h5'}>Loading...</Content>
+            </Bullseye>
           </PageSection>
         }
         {loaded && page === "designer" &&
@@ -263,7 +265,7 @@ class App extends React.Component<Props, State> {
           <TopologyTab openApiJson={undefined}
             asyncApiJson={undefined}
             hideToolbar={true}
-            files={[]}
+            files={this.state.files}
           />
         }
       </div>

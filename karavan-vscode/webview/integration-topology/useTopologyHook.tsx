@@ -22,6 +22,7 @@ import {CamelDefinitionYaml} from "@/core/api/CamelDefinitionYaml";
 import {CamelDefinitionApiExt} from "@/core/api/CamelDefinitionApiExt";
 import {RouteDefinition} from "@/core/model/CamelDefinition";
 import {ModalConfirmationProps} from "@/components/ModalConfirmation";
+import vscode from "../vscode";
 
 export function useTopologyHook(setConfirmationProps?: React.Dispatch<React.SetStateAction<ModalConfirmationProps | undefined>>) {
 
@@ -30,11 +31,8 @@ export function useTopologyHook(setConfirmationProps?: React.Dispatch<React.SetS
     const [setTabIndex] = useProjectStore((s) => [s.setTabIndex], shallow);
 
     function selectFile(fileName: string) {
-        const file = files.filter(f => f.name === fileName)?.at(0);
-        if (file) {
-            setFile('select', file);
-            setTabIndex(0);
-        }
+        console.log(fileName)
+        vscode.postMessage({ command: 'openFile', fileName: fileName })
     }
 
     function setDisabled(fileName: string, elementId: string, enable: boolean) {

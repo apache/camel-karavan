@@ -45,7 +45,6 @@ import {TopologyLegend} from "./TopologyLegend";
 import {ModalConfirmation, ModalConfirmationProps} from "@/components/ModalConfirmation";
 import {EyeIcon, EyeSlashIcon} from '@patternfly/react-icons';
 import {ArrowDown, GroupObjects, JumpLink, UngroupObjects} from '@carbon/icons-react';
-import {useFilesStore} from "@/api/ProjectStore";
 import {NODE_POSITIONED_EVENT} from "@patternfly/react-topology/src/types";
 import {TopologyDagreLayout} from "@/integration-topology/graph/TopologyDagreLayout";
 import {ASYNCAPI_FILE_NAME_JSON, OPENAPI_FILE_NAME_JSON} from "@/core/contants";
@@ -59,13 +58,12 @@ interface Props {
 
 export function TopologyTab(props: Props) {
 
-    // const { files, hideToolbar, openApiJson, asyncApiJson } = props;
+    const { files, hideToolbar } = props;
     const [modelMap, setModelMap, setFileName, layout, showGroups, setShowGroups,
         showBeans, setShowBeans, showLegend, setShowLegend, straightEdges, setStraightEdges] = useTopologyStore((s) =>
         [s.modelMap, s.setModelMap, s.setFileName, s.layout, s.showGroups, s.setShowGroups,
             s.showBeans, s.setShowBeans, s.showLegend, s.setShowLegend, s.straightEdges, s.setStraightEdges]);
     const [setSelectedStep] = useDesignerStore((s) => [s.setSelectedStep], shallow)
-    const [files] = useFilesStore((s) => [s.files], shallow);
     const [confirmationProps, setConfirmationProps] = useState<ModalConfirmationProps>();
     const {selectFile, setDisabled, deleteRoute, setRouteGroup} = useTopologyHook(setConfirmationProps);
 

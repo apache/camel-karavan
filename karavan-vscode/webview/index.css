@@ -18,7 +18,8 @@
 html,
 body,
 #root,
-.App {
+.App,
+.karavan {
   height: 100%;
   overflow: hidden;
 }

@@ -62,6 +62,10 @@ const baseConfig = (webpackEnv) => {
                             test: /\.tsx?$/,
                             exclude: /node_modules\/(?!@patternfly\/react-topology).*/,
                             loader: require.resolve("ts-loader"),
+                            options: {
+                                allowTsInNodeModules: true,
+                                transpileOnly: true, 
+                            },
                         },
                         {
                             test: /\.css$/,
