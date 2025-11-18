@@ -2,7 +2,6 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 
 interface ThemeContextType {
     isDark: boolean;
-    toggleDarkMode: (checked: boolean) => void;
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
@@ -11,26 +10,15 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const [isDark, setIsDark] = useState(false);
 
     useEffect(() => {
-        const stored = localStorage.getItem('pf-theme');
-        if (stored === 'dark') {
-            setIsDark(true);
+        const dark = document.body.className.includes('vscode-dark');
+        setIsDark(dark);
+        if (dark) {
             document.documentElement.classList.add('pf-v6-theme-dark');
         }
     }, []);
 
-    const toggleDarkMode = (checked: boolean) => {
-        setIsDark(checked);
-        if (checked) {
-            document.documentElement.classList.add('pf-v6-theme-dark');
-            localStorage.setItem('pf-theme', 'dark');
-        } else {
-            document.documentElement.classList.remove('pf-v6-theme-dark');
-            localStorage.setItem('pf-theme', 'light');
-        }
-    };
-
     return (
-        <ThemeContext.Provider value={{ isDark, toggleDarkMode }}>
+        <ThemeContext.Provider value={{ isDark }}>
             {children}
         </ThemeContext.Provider>
     );

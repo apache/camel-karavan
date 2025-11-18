@@ -139,7 +139,7 @@ export const DocumentationPage = () => {
 
     return (
         <RightPanel
-            title={title()}
+            title={<></>}
             toolsStart={getNavigation()}
             tools={activeItemIsBuildIn() ? getTools() : <></>}
             mainPanel={

@@ -19,8 +19,12 @@ import {createRoot} from "react-dom/client";
 import App from "./App";
 import "./index.css";
 import "@patternfly/patternfly/patternfly.css";
+import { ThemeProvider } from "./main/ThemeContext";
 
-const dark = document.body.className.includes('vscode-dark');
 const container = document.getElementById('root');
 const root = createRoot(container!);
-root.render(<App dark={dark}/>);
+root.render(
+    <ThemeProvider>
+        <App/>
+    </ThemeProvider>
+);

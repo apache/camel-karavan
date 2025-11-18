@@ -28,10 +28,7 @@ import { IntegrationFile } from "@/core/model/IntegrationDefinition";
 import { KaravanDesigner } from "./integration-designer/KaravanDesigner";
 import { EventBus } from "./integration-designer/utils/EventBus";
 import { TopologyTab } from "./integration-topology/TopologyTab";
-
-interface Props {
-  dark: boolean
-}
+import { DocumentationPage } from "./documentation/DocumentationPage";
 
 interface State {
   filename: string
@@ -52,7 +49,7 @@ interface State {
   beans: BeanFactoryDefinition[]
 }
 
-class App extends React.Component<Props, State> {
+class App extends React.Component<State> {
 
   public state: State = {
     filename: '',
@@ -81,13 +78,6 @@ class App extends React.Component<Props, State> {
     window.addEventListener('message', this.onMessage, false);
     vscode.postMessage({ command: 'getData' });
     this.setState({ interval: setInterval(this.saveScheduledChanges, 2000) });
-    if (this.props.dark) {
-      const box = document.getElementsByTagName('html');
-      if (box != null && box.length > 0) {
-        box[0].classList.add('pf-v5-theme-dark');
-        // box.classList.remove('bg-yellow');
-      }
-    }
   }
 
   componentWillUnmount() {
@@ -229,9 +219,8 @@ class App extends React.Component<Props, State> {
 
   public render() {
     const { loadingMessages, filename, key, yaml, page, loaded, tab } = this.state;
-    const { dark } = this.props;
     return (
-      <Page className="karavan">
+      <div className="karavan">
         {!loaded &&
           <PageSection className="loading-page">
             <Spinner className="progress-stepper" diameter="80px" aria-label="Loading..." />
@@ -264,13 +253,10 @@ class App extends React.Component<Props, State> {
             onCreateNewRoute={()=>{}}
           />
         }
-        {/* {loaded && page === "knowledgebase" && 
-                <KnowledgebasePage 
-                          dark={dark} 
-                          showBlockCheckbox={true}
-                          changeBlockList={(type: string, name: string, checked: boolean) => this.onchangeBlockedList(type, name, checked)}/>
+        {loaded && page === "knowledgebase" && 
+                <DocumentationPage />
         }
-        {loaded && page === "topology" &&
+        {/* {loaded && page === "topology" &&
           <TopologyTab
             hideToolbar={true}
             files={this.state.files}
@@ -281,7 +267,7 @@ class App extends React.Component<Props, State> {
             onSetFile={(fileName) => vscode.postMessage({ command: 'openFile', fileName: fileName })}
           />
         } */}
-      </Page>
+      </div>
     )
   }
 }
