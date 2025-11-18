@@ -35,7 +35,7 @@ import {
 } from '@patternfly/react-core';
 import './KameletPropertyField.css';
 import {CogIcon, ExclamationCircleIcon, TimesIcon} from '@patternfly/react-icons';
-import {Property} from "core/model/KameletModels";
+import {Property} from "@/core/model/KameletModels";
 import {ConfigurationSelectorModal} from "./ConfigurationSelectorModal";
 import {usePropertiesHook} from "../usePropertiesHook";
 import {isSensitiveFieldValid} from "../../utils/ValidatorUtils";

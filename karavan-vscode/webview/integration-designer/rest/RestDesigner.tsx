@@ -28,19 +28,19 @@ import {
 
 import './rest.css';
 import '../karavan.css';
-import {CamelElement} from "core/model/IntegrationDefinition";
+import {CamelElement} from "@/core/model/IntegrationDefinition";
 import {RestCard} from "./RestCard";
 import PlusIcon from "@patternfly/react-icons/dist/esm/icons/plus-icon";
 import {
     RestConfigurationDefinition,
     RestContextRefDefinition,
     RestDefinition
-} from "core/model/CamelDefinition";
-import {CamelUtil} from "core/api/CamelUtil";
-import {CamelDefinitionApiExt} from "core/api/CamelDefinitionApiExt";
+} from "@/core/model/CamelDefinition";
+import {CamelUtil} from "@/core/api/CamelUtil";
+import {CamelDefinitionApiExt} from "@/core/api/CamelDefinitionApiExt";
 import {RestMethodSelector} from "./RestMethodSelector";
 import {DslMetaModel} from "../utils/DslMetaModel";
-import {CamelDefinitionApi} from "core/api/CamelDefinitionApi";
+import {CamelDefinitionApi} from "@/core/api/CamelDefinitionApi";
 import {RestConfigurationCard} from "./RestConfigurationCard";
 import {v4 as uuidv4} from "uuid";
 import {useDesignerStore, useIntegrationStore, useSelectorStore} from "../DesignerStore";

@@ -19,8 +19,8 @@ import {Button, Card, CardBody, CardTitle, Flex, FlexItem, FormGroup, FormSelect
 import './kamelet.css';
 import {useIntegrationStore} from "../DesignerStore";
 import {shallow} from "zustand/shallow";
-import {DefinitionProperty} from "core/model/IntegrationDefinition";
-import {CamelUtil} from "core/api/CamelUtil";
+import {DefinitionProperty} from "@/core/model/IntegrationDefinition";
+import {CamelUtil} from "@/core/api/CamelUtil";
 import {PlusCircleIcon} from '@patternfly/react-icons';
 import {KameletInput} from './KameletInput';
 import {ModalConfirmation} from "@/components/ModalConfirmation";

@@ -18,16 +18,16 @@ import React, {CSSProperties, ReactElement, useCallback, useMemo, useRef} from '
 import {Content, Tooltip,} from '@patternfly/react-core';
 import '../../karavan.css';
 import './DslElement.css';
-import {CamelElement} from "core/model/IntegrationDefinition";
+import {CamelElement} from "@/core/model/IntegrationDefinition";
 import {CamelUi} from "../../utils/CamelUi";
-import {CamelDefinitionApiExt, ChildElement} from "core/api/CamelDefinitionApiExt";
-import {CamelUtil} from "core/api/CamelUtil";
-import {CamelDisplayUtil} from "core/api/CamelDisplayUtil";
+import {CamelDefinitionApiExt, ChildElement} from "@/core/api/CamelDefinitionApiExt";
+import {CamelUtil} from "@/core/api/CamelUtil";
+import {CamelDisplayUtil} from "@/core/api/CamelDisplayUtil";
 import {useDesignerStore, useIntegrationStore} from "../../DesignerStore";
 import {shallow} from "zustand/shallow";
 import {useRouteDesignerHook} from "../useRouteDesignerHook";
 import {AddElementIcon, CopyElementIcon, DeleteElementIcon, DisableStepIcon, EnableStepIcon, InsertElementIcon} from "../../utils/ElementIcons";
-import {RouteConfigurationDefinition} from "core/model/CamelDefinition";
+import {RouteConfigurationDefinition} from "@/core/model/CamelDefinition";
 import {AutoStartupFalseIcon, ErrorHandlerIcon} from "../../icons/OtherIcons";
 import {usePropertiesHook} from "../../property/usePropertiesHook";
 

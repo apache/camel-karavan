@@ -18,8 +18,8 @@ import React from 'react';
 import {Button} from '@patternfly/react-core';
 import './rest.css';
 import '../karavan.css';
-import {CamelElement} from "core/model/IntegrationDefinition";
-import {RestConfigurationDefinition} from "core/model/CamelDefinition";
+import {CamelElement} from "@/core/model/IntegrationDefinition";
+import {RestConfigurationDefinition} from "@/core/model/CamelDefinition";
 import {DeleteElementIcon} from "../utils/ElementIcons";
 
 interface Props {

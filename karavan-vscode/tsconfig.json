@@ -23,10 +23,10 @@
     "allowSyntheticDefaultImports": true,
     "strict": true,
     "paths": {
+      "@/*": ["webview/*"],
       "@app/*": ["src/app/*"],
       "@assets/*": ["node_modules/@patternfly/react-core/dist/styles/assets/*"],
-      "core": ["webview/core"],
-      "@/*": ["src/webview/*"],  
+      "core": ["webview/core"]
     },
     "importHelpers": true,
     "skipLibCheck": true

@@ -19,19 +19,15 @@ import {Badge, capitalize, Content, Flex, FlexItem, Nav, NavItem, NavList, Switc
 import {KameletsTab} from "./kamelets/KameletsTab";
 import {EipTab} from "./eip/EipTab";
 import {ComponentsTab} from "./components/ComponentsTab";
-import {KameletApi} from "core/api/KameletApi";
-import {KameletModel} from "core/model/KameletModels";
-import {ComponentApi} from "core/api/ComponentApi";
-import {CamelModelMetadata, ElementMeta} from "core/model/CamelMetadata";
+import {KameletApi} from "@/core/api/KameletApi";
+import {KameletModel} from "@/core/model/KameletModels";
+import {ComponentApi} from "@/core/api/ComponentApi";
+import {CamelModelMetadata, ElementMeta} from "@/core/model/CamelMetadata";
 import {RightPanel} from "@/components/RightPanel";
 import './Documentation.css'
-import {ProjectService} from "@/api/ProjectService";
-import {ProjectType} from "@/api/ProjectModels";
 import {useFilesStore} from "@/api/ProjectStore";
 import {shallow} from "zustand/shallow";
 import {extractTitleFromMarkdown} from "@/util/StringUtils";
-import MarkdownPreview from "@uiw/react-markdown-preview";
-import {ErrorBoundaryWrapper} from "@/components/ErrorBoundaryWrapper";
 import {useTheme} from "@/main/ThemeContext";
 
 const BUILD_IN_DOCUMENTATION_PAGES = ['processors', 'components', 'kamelets']
@@ -51,10 +47,6 @@ export const DocumentationPage = () => {
         const item = result.itemId?.toString();
         setActiveItem(item);
     }
-
-    useEffect(() => {
-        ProjectService.refreshProjectFiles(ProjectType.documentation)
-    }, []);
 
     useEffect(() => {
         if (!activeItemIsBuildIn()) {
@@ -156,11 +148,6 @@ export const DocumentationPage = () => {
                         {activeItem === 'kamelets' && <KameletsTab kameletList={kameletList}/>}
                         {activeItem === 'processors' && <EipTab elements={elements}/>}
                         {activeItem === 'components' && <ComponentsTab components={components}/>}
-                        {!activeItemIsBuildIn() &&
-                            <ErrorBoundaryWrapper onError={error => console.error((error))}>
-                                <MarkdownPreview key={"DocumentationMarkdownPreview"} source={markdown} wrapperElement={{'data-color-mode': isDark ? 'dark' : 'light'}}/>
-                            </ErrorBoundaryWrapper>
-                        }
                     </div>
                 </div>
             }

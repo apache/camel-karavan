@@ -37,17 +37,17 @@ import {
     ValidatedOptions
 } from '@patternfly/react-core';
 import './ComponentPropertyField.css';
-import {ComponentProperty} from "core/model/ComponentModels";
+import {ComponentProperty} from "@/core/model/ComponentModels";
 import {CamelUi, RouteToCreate} from "../../utils/CamelUi";
-import {CamelElement} from "core/model/IntegrationDefinition";
-import {ToDefinition} from "core/model/CamelDefinition";
+import {CamelElement} from "@/core/model/IntegrationDefinition";
+import {ToDefinition} from "@/core/model/CamelDefinition";
 import {ConfigurationSelectorModal} from "./ConfigurationSelectorModal";
 import {InfrastructureAPI} from "../../utils/InfrastructureAPI";
 import {CogIcon, PlusIcon, TimesIcon} from '@patternfly/react-icons';
 import {usePropertiesHook} from "../usePropertiesHook";
 import {useDesignerStore, useIntegrationStore} from "../../DesignerStore";
 import {shallow} from "zustand/shallow";
-import {INTERNAL_COMPONENTS} from "core/api/ComponentApi";
+import {INTERNAL_COMPONENTS} from "@/core/api/ComponentApi";
 import {PropertyUtil} from "./PropertyUtil";
 import {isSensitiveFieldValid} from "../../utils/ValidatorUtils";
 import ExclamationCircleIcon from "@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon";
@@ -55,7 +55,7 @@ import {CamelDefaultStepProperty} from "../../utils/CamelDefaultStepProperty";
 import {FileReferenceDropdown} from "./FileReferenceDropdown";
 import {FieldSelectWithCreate} from "@/components/FieldSelectWithCreate";
 import {FieldSelectScrollable} from "@/components/FieldSelectScrollable";
-import {CamelMetadataApi} from "core/model/CamelMetadata";
+import {CamelMetadataApi} from "@/core/model/CamelMetadata";
 
 const prefix = "parameters";
 const beanPrefix = "#bean:";

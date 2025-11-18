@@ -41,10 +41,10 @@ import {CamelUi} from "../utils/CamelUi";
 import {useDesignerStore} from "../DesignerStore";
 import {shallow} from "zustand/shallow";
 import {usePropertiesHook} from "./usePropertiesHook";
-import {CamelDisplayUtil} from "core/api/CamelDisplayUtil";
+import {CamelDisplayUtil} from "@/core/api/CamelDisplayUtil";
 import {EllipsisVIcon} from '@patternfly/react-icons';
-import {ComponentApi} from "core/api/ComponentApi";
-import {CamelMetadataApi} from "core/model/CamelMetadata";
+import {ComponentApi} from "@/core/api/ComponentApi";
+import {CamelMetadataApi} from "@/core/model/CamelMetadata";
 import {useRouteDesignerHook} from "../route/useRouteDesignerHook";
 
 interface Props {

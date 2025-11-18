@@ -19,9 +19,9 @@ import {
     Button, Flex, FlexItem
 } from '@patternfly/react-core';
 import './bean.css';
-import {BeanFactoryDefinition} from "core/model/CamelDefinition";
+import {BeanFactoryDefinition} from "@/core/model/CamelDefinition";
 import {DeleteElementIcon} from "../utils/ElementIcons";
-import {CamelElement} from "core/model/IntegrationDefinition";
+import {CamelElement} from "@/core/model/IntegrationDefinition";
 
 interface Props {
     bean: BeanFactoryDefinition

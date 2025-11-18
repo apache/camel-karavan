@@ -19,7 +19,7 @@ import {
     CardHeader, Card, CardTitle, CardBody, CardFooter, Badge, Checkbox, Flex, Content
 } from '@patternfly/react-core';
 import {CamelUi} from "@/integration-designer/utils/CamelUi";
-import {Component} from "core/model/ComponentModels";
+import {Component} from "@/core/model/ComponentModels";
 import {useDocumentationStore} from "../DocumentationStore";
 import {shallow} from "zustand/shallow";
 

@@ -20,8 +20,8 @@ import {
 } from '@patternfly/react-core';
 import './rest.css';
 import '../karavan.css';
-import {CamelElement, Integration} from "core/model/IntegrationDefinition";
-import {GetDefinition, RestDefinition} from "core/model/CamelDefinition";
+import {CamelElement, Integration} from "@/core/model/IntegrationDefinition";
+import {GetDefinition, RestDefinition} from "@/core/model/CamelDefinition";
 import {RestMethodCard} from "./RestMethodCard";
 import {AddElementIcon, DeleteElementIcon} from "../utils/ElementIcons";
 

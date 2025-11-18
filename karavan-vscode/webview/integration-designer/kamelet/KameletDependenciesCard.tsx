@@ -21,7 +21,7 @@ import './kamelet.css';
 import {useIntegrationStore} from "../DesignerStore";
 import {shallow} from "zustand/shallow";
 import {PlusCircleIcon} from '@patternfly/react-icons';
-import {CamelUtil} from "core/api/CamelUtil";
+import {CamelUtil} from "@/core/api/CamelUtil";
 
 export function KameletDependenciesCard() {
 

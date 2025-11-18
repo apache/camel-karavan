@@ -16,11 +16,11 @@
  */
 import React, {useState} from 'react';
 import {ExpandableSection, FormGroup, FormGroupLabelHelp, Popover, SelectOptionProps} from '@patternfly/react-core';
-import {CamelMetadataApi, Languages, PropertyMeta} from "core/model/CamelMetadata";
-import {CamelDefinitionApiExt} from "core/api/CamelDefinitionApiExt";
-import {ExpressionDefinition} from "core/model/CamelDefinition";
-import {CamelElement} from "core/model/IntegrationDefinition";
-import {CamelDefinitionApi} from "core/api/CamelDefinitionApi";
+import {CamelMetadataApi, Languages, PropertyMeta} from "@/core/model/CamelMetadata";
+import {CamelDefinitionApiExt} from "@/core/api/CamelDefinitionApiExt";
+import {ExpressionDefinition} from "@/core/model/CamelDefinition";
+import {CamelElement} from "@/core/model/IntegrationDefinition";
+import {CamelDefinitionApi} from "@/core/api/CamelDefinitionApi";
 import {DslPropertyField} from "./DslPropertyField";
 import {CamelUi} from "../../utils/CamelUi";
 import {usePropertiesStore} from "../PropertyStore";

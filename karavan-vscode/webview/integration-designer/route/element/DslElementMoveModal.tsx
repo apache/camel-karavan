@@ -25,7 +25,7 @@ import {
 import {useDesignerStore, useIntegrationStore} from "../../DesignerStore";
 import {shallow} from "zustand/shallow";
 import {useRouteDesignerHook} from "../useRouteDesignerHook";
-import {CamelDefinitionApiExt} from "core/api/CamelDefinitionApiExt";
+import {CamelDefinitionApiExt} from "@/core/api/CamelDefinitionApiExt";
 
 export function DslElementMoveModal() {
 

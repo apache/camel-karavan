@@ -18,11 +18,11 @@ import React, {useState} from 'react';
 import {DslPropertyField} from "./DslPropertyField";
 import {
     ExpressionDefinition,
-} from "core/model/CamelDefinition";
-import {CamelElement} from "core/model/IntegrationDefinition";
-import {CamelDefinitionApiExt} from "core/api/CamelDefinitionApiExt";
-import {CamelUtil} from "core/api/CamelUtil";
-import { PropertyMeta} from "core/model/CamelMetadata";
+} from "@/core/model/CamelDefinition";
+import {CamelElement} from "@/core/model/IntegrationDefinition";
+import {CamelDefinitionApiExt} from "@/core/api/CamelDefinitionApiExt";
+import {CamelUtil} from "@/core/api/CamelUtil";
+import { PropertyMeta} from "@/core/model/CamelMetadata";
 import {RouteToCreate} from "../../utils/CamelUi";
 
 interface Props {

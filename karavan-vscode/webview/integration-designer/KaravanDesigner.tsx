@@ -17,9 +17,9 @@
 import React, {useEffect, useState} from 'react';
 import './KaravanDesigner.css';
 import {RouteDesigner} from "./route/RouteDesigner";
-import {CamelDefinitionYaml} from "core/api/CamelDefinitionYaml";
-import {Integration, IntegrationFile} from "core/model/IntegrationDefinition";
-import {CamelUtil} from "core/api/CamelUtil";
+import {CamelDefinitionYaml} from "@/core/api/CamelDefinitionYaml";
+import {Integration, IntegrationFile} from "@/core/model/IntegrationDefinition";
+import {CamelUtil} from "@/core/api/CamelUtil";
 import {CamelUi} from "./utils/CamelUi";
 import {useDesignerStore, useIntegrationStore} from "./DesignerStore";
 import {shallow} from "zustand/shallow";
@@ -28,11 +28,11 @@ import {EventBus, IntegrationUpdate} from "./utils/EventBus";
 import {RestDesigner} from "./rest/RestDesigner";
 import {BeansDesigner} from "./beans/BeansDesigner";
 import {KameletDesigner} from "./kamelet/KameletDesigner";
-import {BeanFactoryDefinition, RouteDefinition, RouteTemplateDefinition} from "core/model/CamelDefinition";
+import {BeanFactoryDefinition, RouteDefinition, RouteTemplateDefinition} from "@/core/model/CamelDefinition";
 import {ErrorBoundaryState, ErrorBoundaryWrapper} from "./ErrorBoundaryWrapper";
 import {Panel, PanelGroup, PanelResizeHandle} from 'react-resizable-panels';
 import {MainPropertiesPanel} from "./property/MainPropertiesPanel";
-import {CamelDefinitionApiExt} from "core/api/CamelDefinitionApiExt";
+import {CamelDefinitionApiExt} from "@/core/api/CamelDefinitionApiExt";
 import {KaravanDesignerViewSwitch} from "@/integration-designer/KaravanDesignerViewSwitch";
 
 interface Props {

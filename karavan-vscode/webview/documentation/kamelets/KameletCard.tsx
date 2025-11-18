@@ -18,9 +18,9 @@ import React from 'react';
 import {
     CardHeader, Card, CardTitle, CardBody, CardFooter, Badge, Checkbox, Flex
 } from '@patternfly/react-core';
-import {KameletModel} from "core/model/KameletModels";
+import {KameletModel} from "@/core/model/KameletModels";
 import {CamelUi} from "@/integration-designer/utils/CamelUi";
-import {KameletApi} from "core/api/KameletApi";
+import {KameletApi} from "@/core/api/KameletApi";
 import {useDocumentationStore} from "../DocumentationStore";
 import {shallow} from "zustand/shallow";
 

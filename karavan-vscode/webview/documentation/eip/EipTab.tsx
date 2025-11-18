@@ -22,7 +22,7 @@ import {EipCard} from "./EipCard";
 import {EipModal} from "./EipModal";
 import {useDocumentationStore} from "../DocumentationStore";
 import {shallow} from "zustand/shallow";
-import {ElementMeta} from "core/model/CamelMetadata";
+import {ElementMeta} from "@/core/model/CamelMetadata";
 
 interface Props {
     elements: ElementMeta[],

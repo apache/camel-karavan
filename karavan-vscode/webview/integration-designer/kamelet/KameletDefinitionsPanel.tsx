@@ -22,8 +22,8 @@ import {useIntegrationStore} from "../DesignerStore";
 import {shallow} from "zustand/shallow";
 import {PlusCircleIcon} from '@patternfly/react-icons';
 import {KameletDefinitionPropertyCard} from "./KameletDefinitionPropertyCard";
-import {CamelUtil} from "core/api/CamelUtil";
-import {DefinitionProperty} from "core/model/IntegrationDefinition";
+import {CamelUtil} from "@/core/api/CamelUtil";
+import {DefinitionProperty} from "@/core/model/IntegrationDefinition";
 import {KameletDependenciesCard} from "./KameletDependenciesCard";
 import {KameletInput} from './KameletInput';
 

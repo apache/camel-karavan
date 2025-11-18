@@ -49,7 +49,7 @@ import {DslCard} from "./DslCard";
 import {useDebounceValue} from 'usehooks-ts';
 import {v4 as uuidv4} from "uuid";
 import {toSpecialRouteId} from "@/integration-designer/utils/ValidatorUtils";
-import {FILE_WORDS_SEPARATOR, KARAVAN_DOT_EXTENSION} from "core/contants";
+import {FILE_WORDS_SEPARATOR, KARAVAN_DOT_EXTENSION} from "@/core/contants";
 import {useFilesStore} from "@/api/ProjectStore";
 import ExclamationCircleIcon from "@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon";
 

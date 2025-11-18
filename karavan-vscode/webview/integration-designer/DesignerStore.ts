@@ -15,11 +15,11 @@
  * limitations under the License.
  */
 
-import {CamelElement, Integration, IntegrationFile} from "core/model/IntegrationDefinition";
+import {CamelElement, Integration, IntegrationFile} from "@/core/model/IntegrationDefinition";
 import {DslPosition, EventBus} from "./utils/EventBus";
 import {createWithEqualityFn} from "zustand/traditional";
 import {shallow} from "zustand/shallow";
-import {BeanFactoryDefinition} from "core/model/CamelDefinition";
+import {BeanFactoryDefinition} from "@/core/model/CamelDefinition";
 import {DslMetaModel} from "@/integration-designer/utils/DslMetaModel";
 
 interface IntegrationState {

@@ -29,9 +29,9 @@ import {
     ValidatedOptions,
 } from '@patternfly/react-core';
 import './BeanProperties.css';
-import {BeanFactoryDefinition,} from "core/model/CamelDefinition";
-import {CamelUtil} from "core/api/CamelUtil";
-import {SensitiveKeys} from "core/model/CamelMetadata";
+import {BeanFactoryDefinition,} from "@/core/model/CamelDefinition";
+import {CamelUtil} from "@/core/api/CamelUtil";
+import {SensitiveKeys} from "@/core/model/CamelMetadata";
 import {v4 as uuidv4} from "uuid";
 import {CogIcon, DockerIcon, PlusCircleIcon, TimesIcon} from '@patternfly/react-icons';
 import {ConfigurationSelectorModal} from "./ConfigurationSelectorModal";

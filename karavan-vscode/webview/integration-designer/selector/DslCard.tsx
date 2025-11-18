@@ -20,12 +20,12 @@ import './DslSelector.css';
 import '../property/property/ComponentPropertyField.css';
 import {CamelUi} from "../utils/CamelUi";
 import {DslMetaModel} from "@/integration-designer/utils/DslMetaModel";
-import {KameletApi} from "core/api/KameletApi";
-import {ComponentApi} from "core/api/ComponentApi";
+import {KameletApi} from "@/core/api/KameletApi";
+import {ComponentApi} from "@/core/api/ComponentApi";
 import {useSelectorStore} from "@/integration-designer/DesignerStore";
 import {ComponentPropertyField} from "@/integration-designer/property/property/ComponentPropertyField";
 import {ExpressionEditor} from "@/integration-designer/property/expression/ExpressionEditor";
-import {ComponentProperty} from "core/model/ComponentModels";
+import {ComponentProperty} from "@/core/model/ComponentModels";
 
 interface Props {
     dsl: DslMetaModel,

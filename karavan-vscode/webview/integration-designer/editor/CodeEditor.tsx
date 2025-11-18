@@ -19,8 +19,8 @@ import '@/monaco-setup';
 import Editor from "@monaco-editor/react";
 import {shallow} from "zustand/shallow";
 import {useDesignerStore, useIntegrationStore} from "../DesignerStore";
-import {CamelDefinitionYaml} from "core/api/CamelDefinitionYaml";
-import {CamelUtil} from "core/api/CamelUtil";
+import {CamelDefinitionYaml} from "@/core/api/CamelDefinitionYaml";
+import {CamelUtil} from "@/core/api/CamelUtil";
 
 export function CodeEditor () {
 

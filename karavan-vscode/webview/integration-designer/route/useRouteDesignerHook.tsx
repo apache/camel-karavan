@@ -17,7 +17,7 @@
 import React from 'react';
 import '../karavan.css';
 import {DslMetaModel} from "../utils/DslMetaModel";
-import {CamelUtil} from "core/api/CamelUtil";
+import {CamelUtil} from "@/core/api/CamelUtil";
 import {
     ChoiceDefinition,
     FromDefinition,
@@ -29,12 +29,12 @@ import {
     RouteDefinition,
     SplitDefinition,
     UnmarshalDefinition
-} from "core/model/CamelDefinition";
-import {CamelElement, MetadataLabels} from "core/model/IntegrationDefinition";
-import {CamelDefinitionApiExt} from "core/api/CamelDefinitionApiExt";
-import {CamelDefinitionApi} from "core/api/CamelDefinitionApi";
+} from "@/core/model/CamelDefinition";
+import {CamelElement, MetadataLabels} from "@/core/model/IntegrationDefinition";
+import {CamelDefinitionApiExt} from "@/core/api/CamelDefinitionApiExt";
+import {CamelDefinitionApi} from "@/core/api/CamelDefinitionApi";
 import {EventBus} from "../utils/EventBus";
-import {CamelDisplayUtil} from "core/api/CamelDisplayUtil";
+import {CamelDisplayUtil} from "@/core/api/CamelDisplayUtil";
 import {useDesignerStore, useIntegrationStore, useSelectorStore} from "../DesignerStore";
 import {shallow} from "zustand/shallow";
 import {v4 as uuidv4} from 'uuid';

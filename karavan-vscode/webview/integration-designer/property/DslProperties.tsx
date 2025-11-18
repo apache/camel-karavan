@@ -32,20 +32,20 @@ import {
 import './DslProperties.css';
 import {DataFormatField} from "./property/DataFormatField";
 import {DslPropertyField} from "./property/DslPropertyField";
-import {CamelDefinitionApiExt} from "core/api/CamelDefinitionApiExt";
+import {CamelDefinitionApiExt} from "@/core/api/CamelDefinitionApiExt";
 import {CamelUi} from "../utils/CamelUi";
-import {CamelMetadataApi, DataFormats, PropertyMeta} from "core/model/CamelMetadata";
+import {CamelMetadataApi, DataFormats, PropertyMeta} from "@/core/model/CamelMetadata";
 import {IntegrationHeader} from "../utils/IntegrationHeader";
 import CloneIcon from "@patternfly/react-icons/dist/esm/icons/clone-icon";
 import {useDesignerStore, useIntegrationStore} from "../DesignerStore";
 import {shallow} from "zustand/shallow";
 import {usePropertiesHook} from "./usePropertiesHook";
-import {CamelDisplayUtil} from "core/api/CamelDisplayUtil";
+import {CamelDisplayUtil} from "@/core/api/CamelDisplayUtil";
 import {PropertiesHeader} from "./PropertiesHeader";
 import {PropertyUtil} from "./property/PropertyUtil";
 import {usePropertiesStore} from "./PropertyStore";
 import TimesIcon from "@patternfly/react-icons/dist/esm/icons/times-icon";
-import {RouteTemplateDefinition} from "core/model/CamelDefinition";
+import {RouteTemplateDefinition} from "@/core/model/CamelDefinition";
 
 interface Props {
     designerType: 'routes' | 'rest' | 'beans',

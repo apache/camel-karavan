@@ -25,7 +25,7 @@ import {
     ModalHeader,
     ModalBody, ModalFooter
 } from '@patternfly/react-core';
-import {Property} from "core/model/KameletModels";
+import {Property} from "@/core/model/KameletModels";
 import {Table, Tbody, Td, Th, Thead, Tr} from "@patternfly/react-table";
 import {CamelUi} from "@/integration-designer/utils/CamelUi";
 import {useDocumentationStore} from "../DocumentationStore";

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 import {Subject} from 'rxjs';
-import {CamelElement, Integration} from "core/model/IntegrationDefinition";
+import {CamelElement, Integration} from "@/core/model/IntegrationDefinition";
 import {v4 as uuidv4} from "uuid";
 
 export class DslPosition {

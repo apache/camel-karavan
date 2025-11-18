@@ -16,7 +16,7 @@
  */
 import React, {ReactElement, useState} from 'react';
 import {Button, MenuToggle, MenuToggleElement, Select, SelectList, SelectOption, SelectOptionProps, TextInputGroup, TextInputGroupUtilities, Tooltip} from '@patternfly/react-core';
-import {PropertyMeta} from "core/model/CamelMetadata";
+import {PropertyMeta} from "@/core/model/CamelMetadata";
 import {RouteToCreate} from "../../utils/CamelUi";
 import {PropertyUtil} from "./PropertyUtil";
 import TimesIcon from "@patternfly/react-icons/dist/esm/icons/times-icon";

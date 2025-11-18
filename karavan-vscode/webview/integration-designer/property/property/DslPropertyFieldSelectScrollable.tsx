@@ -27,7 +27,7 @@ import {
     TextInputGroupMain,
     TextInputGroupUtilities
 } from '@patternfly/react-core';
-import {PropertyMeta} from "core/model/CamelMetadata";
+import {PropertyMeta} from "@/core/model/CamelMetadata";
 import {RouteToCreate} from "../../utils/CamelUi";
 import {PropertyUtil} from "./PropertyUtil";
 import TimesIcon from "@patternfly/react-icons/dist/esm/icons/times-icon";

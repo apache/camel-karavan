@@ -14,15 +14,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {KameletApi} from "core/api/KameletApi";
-import {KameletModel} from "core/model/KameletModels";
+import {KameletApi} from "@/core/api/KameletApi";
+import {KameletModel} from "@/core/model/KameletModels";
 import {DslMetaModel} from "./DslMetaModel";
-import {ComponentApi} from "core/api/ComponentApi";
-import {CamelMetadataApi} from "core/model/CamelMetadata";
-import {CamelUtil} from "core/api/CamelUtil";
-import {CamelDefinitionApiExt} from "core/api/CamelDefinitionApiExt";
-import {BeanFactoryDefinition, FromDefinition, RouteConfigurationDefinition, RouteDefinition, RouteTemplateDefinition, ToDefinition} from "core/model/CamelDefinition";
-import {CamelElement, Integration, IntegrationFile} from "core/model/IntegrationDefinition";
+import {ComponentApi} from "@/core/api/ComponentApi";
+import {CamelMetadataApi} from "@/core/model/CamelMetadata";
+import {CamelUtil} from "@/core/api/CamelUtil";
+import {CamelDefinitionApiExt} from "@/core/api/CamelDefinitionApiExt";
+import {BeanFactoryDefinition, FromDefinition, RouteConfigurationDefinition, RouteDefinition, RouteTemplateDefinition, ToDefinition} from "@/core/model/CamelDefinition";
+import {CamelElement, Integration, IntegrationFile} from "@/core/model/IntegrationDefinition";
 import {
     ActivemqIcon,
     AmqpIcon,
@@ -101,16 +101,15 @@ import {
     ToIcon,
 } from "../icons/EipIcons";
 import React, {ReactElement} from "react";
-import {TopologyUtils} from "core/api/TopologyUtils";
+import {TopologyUtils} from "@/core/api/TopologyUtils";
 import {getIntegrations} from "@/integration-topology/TopologyApi";
 import {toKebabCase, toSpecialRouteId} from "./ValidatorUtils";
 import {ProjectFile} from "@/api/ProjectModels";
-import {CamelDefinitionYaml} from "core/api/CamelDefinitionYaml";
+import {CamelDefinitionYaml} from "@/core/api/CamelDefinitionYaml";
 import {EventBus} from "./EventBus";
-import {KaravanApi} from "@/api/KaravanApi";
-import {CamelDefinitionApi} from "core/api/CamelDefinitionApi";
+import {CamelDefinitionApi} from "@/core/api/CamelDefinitionApi";
 import {capitalize} from "@patternfly/react-core";
-import {FILE_WORDS_SEPARATOR} from "core/contants";
+import {FILE_WORDS_SEPARATOR} from "@/core/contants";
 
 const StepElements: string[] = [
     "AggregateDefinition",
@@ -281,13 +280,13 @@ export class CamelUi {
             const code = CamelDefinitionYaml.integrationToYaml(newIntegration);
             const fileName = name + '.camel.yaml';
             const file = new ProjectFile(fileName, projectId, code, Date.now());
-            KaravanApi.saveProjectFile(file, (result, newFile) => {
-                if (result) {
-                    after(newFile);
-                } else {
-                    EventBus.sendAlert('Error creating file', 'Error: ' +newFile?.toString());
-                }
-            });
+            // KaravanApi.saveProjectFile(file, (result, newFile) => {
+            //     if (result) {
+            //         after(newFile);
+            //     } else {
+            //         EventBus.sendAlert('Error creating file', 'Error: ' +newFile?.toString());
+            //     }
+            // });
         } catch (err: any){
             console.error(err)
         }
@@ -296,13 +295,13 @@ export class CamelUi {
     static createNewFile = (projectId:string, fileName: string, code: string = '', after:(file: ProjectFile) => void): void => {
         try {
             const file = new ProjectFile(fileName, projectId, code, Date.now());
-            KaravanApi.saveProjectFile(file, (result, newFile) => {
-                if (result) {
-                    after(newFile);
-                } else {
-                    EventBus.sendAlert('Error creating file', 'Error: ' +newFile?.toString());
-                }
-            });
+            // KaravanApi.saveProjectFile(file, (result, newFile) => {
+            //     if (result) {
+            //         after(newFile);
+            //     } else {
+            //         EventBus.sendAlert('Error creating file', 'Error: ' +newFile?.toString());
+            //     }
+            // });
         } catch (err: any){
             console.error(err)
         }

@@ -19,7 +19,7 @@ import * as path from "path";
 import * as shell from 'shelljs';
 import * as utils from "./utils";
 import * as exec from "./exec";
-import { CamelDefinitionYaml } from "core/api/CamelDefinitionYaml";
+import { CamelDefinitionYaml } from "@/core/api/CamelDefinitionYaml";
 
 export async function camelJbangGenerate(rootPath: string, openApiFullPath: string, fullPath: string, add: boolean, generateRoutes: boolean, generateRest: boolean) {
     let command = prepareCommand("generate rest -i '" + openApiFullPath + "' --type=yaml ");

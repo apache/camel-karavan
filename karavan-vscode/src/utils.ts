@@ -16,10 +16,10 @@
  */
 import * as path from "path";
 import { workspace, Uri, window, ExtensionContext, FileType } from "vscode";
-import { CamelDefinitionYaml } from "core/api/CamelDefinitionYaml";
-import { Integration, KameletTypes } from "core/model/IntegrationDefinition";
-import { BeanFactoryDefinition } from "core/model/CamelDefinition";
-import { TopologyUtils } from "core/api/TopologyUtils";
+import { CamelDefinitionYaml } from "@/core/api/CamelDefinitionYaml";
+import { Integration, KameletTypes } from "@/core/model/IntegrationDefinition";
+import { BeanFactoryDefinition } from "@/core/model/CamelDefinition";
+import { TopologyUtils } from "@/core/api/TopologyUtils";
 
 export function getRoot(): string | undefined {
     return (workspace.workspaceFolders && (workspace.workspaceFolders.length > 0))

@@ -19,7 +19,7 @@ import {
     CardHeader, Card, CardTitle, CardBody, CardFooter, Badge, Content
 } from '@patternfly/react-core';
 import {CamelUi} from "@/integration-designer/utils/CamelUi";
-import {ElementMeta} from "core/model/CamelMetadata";
+import {ElementMeta} from "@/core/model/CamelMetadata";
 import {useDocumentationStore} from "../DocumentationStore";
 import {shallow} from "zustand/shallow";
 

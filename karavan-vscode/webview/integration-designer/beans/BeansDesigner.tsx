@@ -17,11 +17,11 @@
 import React, {useEffect} from 'react';
 import {Button, Flex, FlexItem, Gallery, GalleryItem, Modal, ModalBody, ModalFooter, ModalHeader, PageSection} from '@patternfly/react-core';
 import './bean.css';
-import {BeanFactoryDefinition} from "core/model/CamelDefinition";
+import {BeanFactoryDefinition} from "@/core/model/CamelDefinition";
 import {CamelUi} from "../utils/CamelUi";
 import PlusIcon from "@patternfly/react-icons/dist/esm/icons/plus-icon";
-import {CamelDefinitionApiExt} from "core/api/CamelDefinitionApiExt";
-import {CamelUtil} from "core/api/CamelUtil";
+import {CamelDefinitionApiExt} from "@/core/api/CamelDefinitionApiExt";
+import {CamelUtil} from "@/core/api/CamelUtil";
 import {BeanCard} from "./BeanCard";
 import {useDesignerStore, useIntegrationStore} from "../DesignerStore";
 import {shallow} from "zustand/shallow";

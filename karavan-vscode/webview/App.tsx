@@ -19,11 +19,11 @@ import {
   Page, PageSection, Spinner, Text, TextVariants
 } from "@patternfly/react-core";
 import vscode from "./vscode";
-import { KameletApi } from "core/api/KameletApi";
-import { ComponentApi } from "core/api/ComponentApi";
+import { KameletApi } from "@/core/api/KameletApi";
+import { ComponentApi } from "@/core/api/ComponentApi";
 import { TemplateApi } from "./core/api/TemplateApi";
-import {BeanFactoryDefinition} from "core/model/CamelDefinition";
-import { IntegrationFile } from "core/model/IntegrationDefinition";
+import {BeanFactoryDefinition} from "@/core/model/CamelDefinition";
+import { IntegrationFile } from "@/core/model/IntegrationDefinition";
 import { KaravanDesigner } from "./integration-designer/KaravanDesigner";
 
 interface Props {

@@ -17,14 +17,14 @@
 import React from 'react';
 import '../../karavan.css';
 import './RouteTemplateElement.css';
-import {CamelElement} from "core/model/IntegrationDefinition";
-import {ChildElement, CamelDefinitionApiExt} from "core/api/CamelDefinitionApiExt";
+import {CamelElement} from "@/core/model/IntegrationDefinition";
+import {ChildElement, CamelDefinitionApiExt} from "@/core/api/CamelDefinitionApiExt";
 import {useDesignerStore} from "../../DesignerStore";
 import {shallow} from "zustand/shallow";
 import {useRouteDesignerHook} from "../useRouteDesignerHook";
 import {DslElementHeader} from "./DslElementHeader";
 import {DslElement} from "./DslElement";
-import {RouteDefinition, RouteTemplateDefinition} from "core/model/CamelDefinition";
+import {RouteDefinition, RouteTemplateDefinition} from "@/core/model/CamelDefinition";
 
 interface Props {
     step: CamelElement,

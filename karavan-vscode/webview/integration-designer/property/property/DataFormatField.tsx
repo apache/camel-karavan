@@ -18,13 +18,13 @@ import React, {useState} from 'react';
 import {
     ExpandableSection, SelectOptionProps
 } from '@patternfly/react-core';
-import {CamelMetadataApi, PropertyMeta} from "core/model/CamelMetadata";
-import {CamelDefinitionApiExt} from "core/api/CamelDefinitionApiExt";
-import {DataFormatDefinition} from "core/model/CamelDefinition";
-import {Integration, CamelElement} from "core/model/IntegrationDefinition";
-import {CamelDefinitionApi} from "core/api/CamelDefinitionApi";
+import {CamelMetadataApi, PropertyMeta} from "@/core/model/CamelMetadata";
+import {CamelDefinitionApiExt} from "@/core/api/CamelDefinitionApiExt";
+import {DataFormatDefinition} from "@/core/model/CamelDefinition";
+import {Integration, CamelElement} from "@/core/model/IntegrationDefinition";
+import {CamelDefinitionApi} from "@/core/api/CamelDefinitionApi";
 import {DslPropertyField} from "./DslPropertyField";
-import {DataFormats} from "core/model/CamelMetadata";
+import {DataFormats} from "@/core/model/CamelMetadata";
 import {usePropertiesStore} from "../PropertyStore";
 import {shallow} from "zustand/shallow";
 import {PropertyUtil} from "./PropertyUtil";

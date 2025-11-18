@@ -20,7 +20,7 @@ import {KameletCard} from "./KameletCard";
 import {KameletModal} from "./KameletModal";
 import {useDocumentationStore} from "../DocumentationStore";
 import {shallow} from "zustand/shallow";
-import {KameletModel} from "core/model/KameletModels";
+import {KameletModel} from "@/core/model/KameletModels";
 
 interface Props {
     kameletList: KameletModel[],

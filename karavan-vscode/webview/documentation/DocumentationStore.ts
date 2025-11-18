@@ -17,9 +17,9 @@
 
 import {createWithEqualityFn} from "zustand/traditional";
 import {shallow} from "zustand/shallow";
-import {Component} from "core/model/ComponentModels";
-import {ElementMeta} from "core/model/CamelMetadata";
-import {KameletModel} from "core/model/KameletModels";
+import {Component} from "@/core/model/ComponentModels";
+import {ElementMeta} from "@/core/model/CamelMetadata";
+import {KameletModel} from "@/core/model/KameletModels";
 
 interface DocumentationState {
     isModalOpen: boolean;

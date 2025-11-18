@@ -15,17 +15,17 @@
  * limitations under the License.
  */
 import '../karavan.css';
-import {CamelUtil} from "core/api/CamelUtil";
-import {DataFormatDefinition, ExpressionDefinition, ToDefinition,} from "core/model/CamelDefinition";
-import {CamelElement} from "core/model/IntegrationDefinition";
-import {CamelDefinitionApiExt} from "core/api/CamelDefinitionApiExt";
-import {CamelDefinitionApi} from "core/api/CamelDefinitionApi";
+import {CamelUtil} from "@/core/api/CamelUtil";
+import {DataFormatDefinition, ExpressionDefinition, ToDefinition,} from "@/core/model/CamelDefinition";
+import {CamelElement} from "@/core/model/IntegrationDefinition";
+import {CamelDefinitionApiExt} from "@/core/api/CamelDefinitionApiExt";
+import {CamelDefinitionApi} from "@/core/api/CamelDefinitionApi";
 import {CamelUi, RouteToCreate} from "../utils/CamelUi";
 import {useDesignerStore, useIntegrationStore} from "../DesignerStore";
 import {shallow} from "zustand/shallow";
-import {CamelMetadataApi} from "core/model/CamelMetadata";
+import {CamelMetadataApi} from "@/core/model/CamelMetadata";
 import {EventBus} from "../utils/EventBus";
-import {INTERNAL_COMPONENTS} from "core/api/ComponentApi";
+import {INTERNAL_COMPONENTS} from "@/core/api/ComponentApi";
 
 export function usePropertiesHook(designerType: 'routes' | 'rest' | 'beans' = 'routes') {
 

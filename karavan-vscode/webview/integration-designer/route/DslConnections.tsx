@@ -20,14 +20,14 @@ import {DslPosition, EventBus} from "../utils/EventBus";
 import {CamelUi} from "../utils/CamelUi";
 import {useConnectionsStore, useDesignerStore, useIntegrationStore} from "../DesignerStore";
 import {shallow} from "zustand/shallow";
-import {CamelDefinitionApiExt} from "core/api/CamelDefinitionApiExt";
-import {IncomingLink, TopologyUtils} from "core/api/TopologyUtils";
-import {CamelElement} from "core/model/IntegrationDefinition";
+import {CamelDefinitionApiExt} from "@/core/api/CamelDefinitionApiExt";
+import {IncomingLink, TopologyUtils} from "@/core/api/TopologyUtils";
+import {CamelElement} from "@/core/model/IntegrationDefinition";
 import {v4 as uuidv4} from "uuid";
 import {Button, Tooltip} from "@patternfly/react-core";
 import {InfrastructureAPI} from "../utils/InfrastructureAPI";
 import {getIntegrations} from "@/integration-topology/TopologyApi";
-import {ComponentApi, INTERNAL_COMPONENTS} from "core/api/ComponentApi";
+import {ComponentApi, INTERNAL_COMPONENTS} from "@/core/api/ComponentApi";
 
 const overlapGap: number = 40;
 const DIAMETER: number = 34;

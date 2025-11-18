@@ -32,7 +32,7 @@ import {
     ToggleGroupItem
 } from '@patternfly/react-core';
 import {TimesIcon} from '@patternfly/react-icons';
-import {GLOBAL, ROUTE} from "core/api/VariableUtil";
+import {GLOBAL, ROUTE} from "@/core/api/VariableUtil";
 
 interface VariablesDropdownProps {
     initialValue?: string;

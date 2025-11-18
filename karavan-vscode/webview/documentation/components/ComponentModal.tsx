@@ -20,8 +20,8 @@ import {Badge, Button, CardHeader, Content, Flex, Modal, ModalBody, ModalFooter,
 import '@/integration-designer/karavan.css';
 import {Table, Tbody, Td, Th, Thead, Tr} from "@patternfly/react-table";
 import {CamelUi} from "@/integration-designer/utils/CamelUi";
-import {ComponentApi} from "core/api/ComponentApi";
-import {ComponentHeader, ComponentProperty} from "core/model/ComponentModels";
+import {ComponentApi} from "@/core/api/ComponentApi";
+import {ComponentHeader, ComponentProperty} from "@/core/model/ComponentModels";
 import {useDocumentationStore} from "../DocumentationStore";
 import {shallow} from "zustand/shallow";
 
