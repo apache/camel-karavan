@@ -60,7 +60,7 @@ const baseConfig = (webpackEnv) => {
                         },
                         {
                             test: /\.tsx?$/,
-                            exclude: /node_modules/,
+                            exclude: /node_modules\/(?!@patternfly\/react-topology).*/,
                             loader: require.resolve("ts-loader"),
                         },
                         {

@@ -30,6 +30,9 @@ import { EventBus } from "./integration-designer/utils/EventBus";
 import { TopologyTab } from "./integration-topology/TopologyTab";
 import { DocumentationPage } from "./documentation/DocumentationPage";
 
+interface Props {
+}
+
 interface State {
   filename: string
   relativePath: string
@@ -49,7 +52,7 @@ interface State {
   beans: BeanFactoryDefinition[]
 }
 
-class App extends React.Component<State> {
+class App extends React.Component<Props, State> {
 
   public state: State = {
     filename: '',
