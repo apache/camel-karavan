@@ -18,6 +18,7 @@ package org.apache.camel.karavan.api;
 
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.dsl.LogWatch;
+import io.quarkus.security.Authenticated;
 import io.smallrye.context.api.ManagedExecutorConfig;
 import io.smallrye.context.api.NamedInstance;
 import io.smallrye.mutiny.tuples.Tuple2;
@@ -44,7 +45,7 @@ import java.io.InputStreamReader;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Path("/ui/logwatch")
-public class LogWatchResource {
+public class LogWatchResource extends AbstractApiResource {
 
     private static final Logger LOGGER = Logger.getLogger(LogWatchResource.class.getName());
     private static final String SERVICE_NAME = "LOGWATCH";
@@ -66,6 +67,7 @@ public class LogWatchResource {
 
     @GET
     @Produces(MediaType.SERVER_SENT_EVENTS)
+    @Authenticated
     @Path("/{type}/{name}/{username}")
     public void eventSourcing(@PathParam("type") String type,
                               @PathParam("name") String name,

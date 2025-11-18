@@ -1,8 +1,8 @@
 import React from "react";
 import {Bullseye, Content, ContentVariants, Flex, FlexItem, ProgressStep, ProgressStepper, Spinner, Tooltip, TooltipPosition} from "@patternfly/react-core";
-import PlatformLogo from "../custom/PlatformLogo";
 import {useAppConfigStore} from "@/api/ProjectStore";
 import {shallow} from "zustand/shallow";
+import {KaravanIcon} from "@/integration-designer/icons/KaravanIcons";
 
 export function LoaderPage() {
 
@@ -22,7 +22,7 @@ export function LoaderPage() {
             <Bullseye className="loading-page">
                 <Flex direction={{default:"column"}} justifyContent={{default: "justifyContentCenter"}}>
                     <FlexItem style={{textAlign: "center"}}>
-                        {PlatformLogo()}
+                        {KaravanIcon()}
                         <Content>
                             <Content component={ContentVariants.h2}>
                                 Waiting for services
@@ -56,7 +56,7 @@ export function LoaderPage() {
             <Bullseye className="loading-page">
                 <Spinner className="spinner" diameter="140px" aria-label="Loading..."/>
                 <Tooltip content="Connecting to server..." position={TooltipPosition.bottom}>
-                    <div className="logo-placeholder">{PlatformLogo()}</div>
+                    <div className="logo-placeholder">{KaravanIcon()}</div>
                 </Tooltip>
             </Bullseye>
         )

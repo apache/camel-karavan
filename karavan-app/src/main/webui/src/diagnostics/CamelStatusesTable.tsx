@@ -7,7 +7,7 @@ import {CamelStatusRow} from "./CamelStatusRow";
 
 export function CamelStatusesTable() {
 
-    const [camels] = useStatusesStore((state) => [state.camels], shallow);
+    const [camels] = useStatusesStore((state) => [state.camelContexts], shallow);
 
     useEffect(() => {
     }, []);

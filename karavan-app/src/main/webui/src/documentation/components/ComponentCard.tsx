@@ -18,7 +18,7 @@ import React from 'react';
 import {
     CardHeader, Card, CardTitle, CardBody, CardFooter, Badge, Checkbox, Flex, Content
 } from '@patternfly/react-core';
-import {CamelUi} from "@/designer/utils/CamelUi";
+import {CamelUi} from "@/integration-designer/utils/CamelUi";
 import {Component} from "karavan-core/lib/model/ComponentModels";
 import {useDocumentationStore} from "../DocumentationStore";
 import {shallow} from "zustand/shallow";

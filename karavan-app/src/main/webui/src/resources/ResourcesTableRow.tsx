@@ -17,13 +17,16 @@
 
 import React from 'react';
 import {Badge, Button, Tooltip,} from '@patternfly/react-core';
-import '../designer/karavan.css';
+import '@/integration-designer/karavan.css';
 import {Td, Tr} from "@patternfly/react-table";
 import {Project} from '@/api/ProjectModels';
 import {useLogStore} from "@/api/ProjectStore";
 import {shallow} from "zustand/shallow";
 import {useNavigate} from "react-router-dom";
-import {ROUTES} from "@/custom/Routes";
+import {ROUTES} from "@/main/Routes";
+import DownloadIcon from "@patternfly/react-icons/dist/esm/icons/download-icon";
+import {ProjectZipApi} from "@/integrations/ProjectZipApi";
+import FileSaver from "file-saver";
 
 interface Props {
     project: Project
@@ -36,8 +39,16 @@ export function ResourcesTableRow (props: Props) {
 
     const project = props.project;
     const commit = project.lastCommit ? project.lastCommit?.substr(0, 7) : undefined;
+
+
+    function downloadProject(projectId: string) {
+        ProjectZipApi.downloadZip(projectId, data => {
+            FileSaver.saveAs(data, projectId + ".zip");
+        });
+    }
+
     return (
-        <Tr key={project.projectId}>
+        <Tr key={project.projectId} style={{verticalAlign: "middle"}}>
             <Td>
                 <Button style={{padding: '6px'}} variant={"link"} onClick={e => {
                     // setProject(project, "select");
@@ -53,6 +64,14 @@ export function ResourcesTableRow (props: Props) {
                 {commit && <Tooltip content={project.lastCommit} position={"bottom"}>
                     <Badge className="badge">{commit}</Badge>
                 </Tooltip>}
+            </Td>
+            <Td>
+                <Tooltip content={"Export"} position={"bottom-end"}>
+                    <Button className="dev-action-button" variant={"plain"} icon={<DownloadIcon/>}
+                            onClick={e => {
+                                downloadProject(project.projectId);
+                            }}></Button>
+                </Tooltip>
             </Td>
         </Tr>
     )

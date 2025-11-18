@@ -23,9 +23,9 @@ import io.vertx.mutiny.core.eventbus.EventBus;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.apache.camel.karavan.KaravanConstants;
+import org.apache.camel.karavan.cache.PodContainerStatus;
 import org.apache.camel.karavan.docker.DockerService;
 import org.apache.camel.karavan.docker.DockerUtils;
-import org.apache.camel.karavan.model.PodContainerStatus;
 import org.apache.camel.karavan.service.ConfigService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
@@ -44,25 +44,43 @@ public class DockerStatusScheduler {
     DockerService dockerService;
 
     @Inject
+    ConfigService configService;
+
+    @Inject
     EventBus eventBus;
 
-    @Scheduled(every = "{karavan.container.statistics.interval:off}", concurrentExecution = Scheduled.ConcurrentExecution.SKIP)
+    @Scheduled(every = "{karavan.container.statistics.interval:off}", concurrentExecution = Scheduled.ConcurrentExecution.SKIP, skipExecutionIf = KaravanSkipPredicate.class)
     void collectContainersStatistics() {
         if (!ConfigService.inKubernetes()) {
-            List<PodContainerStatus> statusesInDocker = getContainersStatuses();
-            statusesInDocker.forEach(containerStatus -> {
-                eventBus.publish(CMD_COLLECT_CONTAINER_STATISTIC, JsonObject.mapFrom(containerStatus));
-            });
+            if (configService.inDockerSwarmMode()) {
+                List<PodContainerStatus> statusesInDocker = getServicesStatuses();
+                statusesInDocker.forEach(containerStatus -> {
+                    eventBus.publish(CMD_COLLECT_CONTAINER_STATISTIC, JsonObject.mapFrom(containerStatus));
+                });
+            } else {
+                List<PodContainerStatus> statusesInDocker = getContainersStatuses();
+                statusesInDocker.forEach(containerStatus -> {
+                    eventBus.publish(CMD_COLLECT_CONTAINER_STATISTIC, JsonObject.mapFrom(containerStatus));
+                });
+            }
+
         }
     }
 
-    @Scheduled(every = "{karavan.container.status.interval:off}", concurrentExecution = Scheduled.ConcurrentExecution.SKIP)
+    @Scheduled(every = "{karavan.container.status.interval:off}", concurrentExecution = Scheduled.ConcurrentExecution.SKIP, skipExecutionIf = KaravanSkipPredicate.class)
     void collectContainersStatuses() {
         if (!ConfigService.inKubernetes()) {
-            List<PodContainerStatus> statusesInDocker = getContainersStatuses();
-            statusesInDocker.forEach(containerStatus -> {
-                eventBus.publish(POD_CONTAINER_UPDATED, JsonObject.mapFrom(containerStatus));
-            });
+            if (configService.inDockerSwarmMode()) {
+                List<PodContainerStatus> statusesInDocker = getServicesStatuses();
+                statusesInDocker.forEach(containerStatus -> {
+                    eventBus.publish(POD_CONTAINER_UPDATED, JsonObject.mapFrom(containerStatus));
+                });
+            } else {
+                List<PodContainerStatus> statusesInDocker = getContainersStatuses();
+                statusesInDocker.forEach(containerStatus -> {
+                    eventBus.publish(POD_CONTAINER_UPDATED, JsonObject.mapFrom(containerStatus));
+                });
+            }
             eventBus.publish(CMD_CLEAN_STATUSES, "");
         }
     }
@@ -72,6 +90,20 @@ public class DockerStatusScheduler {
         dockerService.getAllContainers().forEach(container -> {
             PodContainerStatus podContainerStatus = DockerUtils.getContainerStatus(container, environment);
             result.add(podContainerStatus);
+        });
+        return result;
+    }
+
+    public List<PodContainerStatus> getServicesStatuses() {
+        List<PodContainerStatus> result = new ArrayList<>();
+        dockerService.getAllServices().forEach(service -> {
+            var containers = dockerService.findContainersByServiceId(service.getId());
+            if (containers != null) {
+                containers.forEach(container -> {
+                    PodContainerStatus podContainerStatus = DockerUtils.getServiceStatus(service, container, environment);
+                    result.add(podContainerStatus);
+                });
+            }
         });
         return result;
     }

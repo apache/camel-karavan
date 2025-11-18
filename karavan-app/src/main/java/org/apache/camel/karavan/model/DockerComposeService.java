@@ -34,12 +34,12 @@ public class DockerComposeService {
     private String mem_reservation;
     private String command;
     private List<String> ports = new ArrayList<>();
-    private List<DockerComposeVolume> volumes = new ArrayList<>();
+    private List<DockerVolumeDefinition> volumes = new ArrayList<>();
     private List<String> expose = new ArrayList<>();
     private List<String> depends_on = new ArrayList<>();
     private List<String> networks = new ArrayList<>();
     private Map<String,String> environment = new HashMap<>();
-    private DockerComposeHealthCheck healthcheck;
+    private DockerHealthCheckDefinition healthcheck;
     private Map<String,String> labels = new HashMap<>();
 
     public DockerComposeService() {
@@ -124,11 +124,11 @@ public class DockerComposeService {
         this.environment = environment;
     }
 
-    public DockerComposeHealthCheck getHealthcheck() {
+    public DockerHealthCheckDefinition getHealthcheck() {
         return healthcheck;
     }
 
-    public void setHealthcheck(DockerComposeHealthCheck healthcheck) {
+    public void setHealthcheck(DockerHealthCheckDefinition healthcheck) {
         this.healthcheck = healthcheck;
     }
 
@@ -172,11 +172,11 @@ public class DockerComposeService {
         this.mem_reservation = mem_reservation;
     }
 
-    public List<DockerComposeVolume> getVolumes() {
+    public List<DockerVolumeDefinition> getVolumes() {
         return volumes;
     }
 
-    public void setVolumes(List<DockerComposeVolume> volumes) {
+    public void setVolumes(List<DockerVolumeDefinition> volumes) {
         this.volumes = volumes;
     }
 

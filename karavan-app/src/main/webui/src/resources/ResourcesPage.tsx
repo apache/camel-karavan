@@ -17,7 +17,7 @@
 
 import React, {useState} from 'react';
 import {Bullseye, Button, Content, EmptyState, EmptyStateVariant, TextInputGroup, TextInputGroupMain, TextInputGroupUtilities,} from '@patternfly/react-core';
-import '../designer/karavan.css';
+import '@/integration-designer/karavan.css';
 import {Table, Tbody, Td, Th, Thead, Tr} from '@patternfly/react-table';
 import {SearchIcon} from '@patternfly/react-icons';
 import {ResourcesTableRow} from "./ResourcesTableRow";
@@ -86,6 +86,7 @@ export function ResourcesPage() {
                         <Th key='projectId'>Name</Th>
                         <Th key='name'>Description</Th>
                         <Th key='commit'>Commit</Th>
+                        <Th key='actions' screenReaderText='pass' modifier='fitContent'/>
                     </Tr>
                 </Thead>
                 <Tbody>

@@ -18,14 +18,19 @@ package org.apache.camel.karavan.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import io.smallrye.mutiny.tuples.Tuple2;
 import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import org.apache.camel.karavan.KaravanCache;
 import org.apache.camel.karavan.KaravanConstants;
+import org.apache.camel.karavan.cache.KaravanCache;
+import org.apache.camel.karavan.cache.ProjectFile;
+import org.apache.camel.karavan.cache.ProjectFolder;
 import org.apache.camel.karavan.docker.DockerComposeConverter;
-import org.apache.camel.karavan.model.*;
+import org.apache.camel.karavan.model.DockerComposeService;
+import org.apache.camel.karavan.model.GitRepo;
+import org.apache.camel.karavan.model.GitRepoFile;
 import org.apache.commons.text.StringSubstitutor;
 import org.apache.commons.text.lookup.StringLookup;
 import org.eclipse.microprofile.config.ConfigProvider;
@@ -52,23 +57,21 @@ public class CodeService {
 
     private static final Logger LOGGER = Logger.getLogger(CodeService.class.getName());
     public static final String APPLICATION_PROPERTIES_FILENAME = "application.properties";
-    public static final String PROPERTY_PROJECT_NAME = "camel.karavan.projectName";
-    public static final String PROPERTY_PROJECT_NAME_OLD = "camel.karavan.project-name";
     public static final String BEAN_TEMPLATE_SUFFIX_FILENAME = "-bean-template.camel.yaml";
     public static final String DEV_SERVICES_FILENAME = "docker-compose.yaml";
     public static final String PROJECT_COMPOSE_FILENAME = "docker-compose.yaml";
+    public static final String PROJECT_STACK_FILENAME = "docker-stack.yaml";
     public static final String MARKDOWN_EXTENSION = ".md";
     public static final String PROJECT_JKUBE_EXTENSION = ".jkube.yaml";
     public static final String PROJECT_DEPLOYMENT_JKUBE_FILENAME = "deployment" + PROJECT_JKUBE_EXTENSION;
-    private static final String TEMPLATES_PATH = "/templates";
-    private static final String CONFIGURATION_PATH = "/configuration";
-    private static final String SERVICES_PATH = "/services";
     private static final String DOCKER_FOLDER = "/docker/";
     private static final String KUBERNETES_FOLDER = "/kubernetes/";
     public static final int INTERNAL_PORT = 8080;
     private static final String BUILDER_POD_FRAGMENT_FILENAME = "builder.pod.jkube.yaml";
     private static final String BUILDER_COMPOSE_FILENAME = "builder.docker-compose.yaml";
+    private static final String BUILDER_STACK_FILENAME = "builder.docker-stack.yaml";
     public static final String BUILD_SCRIPT_FILENAME = "build.sh";
+    public static final String CACHE_EXTENSION = ".json";
 
     @ConfigProperty(name = "karavan.environment", defaultValue = KaravanConstants.DEV)
     String environment;
@@ -81,6 +84,9 @@ public class CodeService {
 
     @Inject
     KaravanCache karavanCache;
+
+    @Inject
+    GitService gitService;
 
     @Inject
     Vertx vertx;
@@ -117,7 +123,7 @@ public class CodeService {
                 .collect(Collectors.toMap(ProjectFile::getName, ProjectFile::getCode));
 
         if (withKamelets) {
-            karavanCache.getProjectFiles(Project.Type.kamelets.name())
+            karavanCache.getProjectFiles(ProjectFolder.Type.kamelets.name())
                     .forEach(file -> files.put(file.getName(), file.getCode()));
         }
         return files;
@@ -131,7 +137,7 @@ public class CodeService {
     }
 
     public String getBuilderPodFragment() {
-        ProjectFile projectFile = karavanCache.getProjectFile(Project.Type.configuration.name(), BUILDER_POD_FRAGMENT_FILENAME);
+        ProjectFile projectFile = karavanCache.getProjectFile(ProjectFolder.Type.configuration.name(), BUILDER_POD_FRAGMENT_FILENAME);
         return projectFile != null ? projectFile.getCode() : null;
     }
 
@@ -140,8 +146,27 @@ public class CodeService {
         return projectFile != null ? projectFile.getCode() : null;
     }
 
+    public Map<String, String> getSshFiles() {
+        Map<String, String> sshFiles = new HashMap<>(2);
+        Tuple2<String,String> sshFileNames = gitService.getSShFiles();
+        if (sshFileNames.getItem1() != null) {
+            sshFiles.put("id_rsa", getFileString(sshFileNames.getItem1()));
+        }
+        if (sshFileNames.getItem2() != null) {
+            sshFiles.put("known_hosts", getFileString(sshFileNames.getItem2()));
+        }
+        return sshFiles;
+    }
+
     public String getBuilderComposeFragment(String projectId, String tag) {
-        ProjectFile projectFile = karavanCache.getProjectFile(Project.Type.configuration.name(), BUILDER_COMPOSE_FILENAME);
+        ProjectFile projectFile = karavanCache.getProjectFile(ProjectFolder.Type.configuration.name(), BUILDER_COMPOSE_FILENAME);
+        var code = projectFile != null ? projectFile.getCode() : null;
+        var code2 = substituteVariables(code, Map.of( "projectId", projectId, "tag", tag));
+        return replaceEnvWithRuntimeProperties(code2);
+    }
+
+    public String getBuilderStackFragment(String projectId, String tag) {
+        ProjectFile projectFile = karavanCache.getProjectFile(ProjectFolder.Type.configuration.name(), BUILDER_STACK_FILENAME);
         var code = projectFile != null ? projectFile.getCode() : null;
         var code2 = substituteVariables(code, Map.of( "projectId", projectId, "tag", tag));
         return replaceEnvWithRuntimeProperties(code2);
@@ -152,14 +177,14 @@ public class CodeService {
         return sub.replace(template);
     }
 
-    public ProjectFile generateApplicationProperties(Project project) {
+    public ProjectFile generateApplicationProperties(ProjectFolder projectFolder) {
         String template = getTemplateText(APPLICATION_PROPERTIES_FILENAME);
         String code = substituteVariables(template, Map.of(
-                "projectId", project.getProjectId(),
-                "projectName", project.getName(),
-                "packageSuffix", project.getGavPackageSuffix()
+                "projectId", projectFolder.getProjectId(),
+                "projectName", projectFolder.getName(),
+                "packageSuffix", CodeService.getGavPackageSuffix(projectFolder.getProjectId())
         ));
-        return new ProjectFile(APPLICATION_PROPERTIES_FILENAME, code, project.getProjectId(), Instant.now().toEpochMilli());
+        return new ProjectFile(APPLICATION_PROPERTIES_FILENAME, code, projectFolder.getProjectId(), Instant.now().toEpochMilli());
     }
 
     public String saveProjectFilesInTemp(Map<String, String> files) {
@@ -184,7 +209,7 @@ public class CodeService {
 
     public String getConfigurationText(String fileName) {
         try {
-            List<ProjectFile> files = karavanCache.getProjectFiles(Project.Type.configuration.name());
+            List<ProjectFile> files = karavanCache.getProjectFiles(ProjectFolder.Type.configuration.name());
             // replaceAll("\r\n", "\n")) has been add to eliminate the impact of editing the template files from windows machine.
             return files.stream().filter(f -> f.getName().equalsIgnoreCase(fileName))
                     .map(file-> file.getCode().replaceAll("\r\n", "\n")).findFirst().orElse(null);
@@ -196,7 +221,7 @@ public class CodeService {
 
     public String getTemplateText(String fileName) {
         try {
-            List<ProjectFile> files = karavanCache.getProjectFiles(Project.Type.templates.name());
+            List<ProjectFile> files = karavanCache.getProjectFiles(ProjectFolder.Type.templates.name());
             // replaceAll("\r\n", "\n")) has been add to eliminate the impact of editing the template files from windows machine.
             return files.stream().filter(f -> f.getName().equalsIgnoreCase(fileName))
                     .map(file-> file.getCode().replaceAll("\r\n", "\n")).findFirst().orElse(null);
@@ -206,10 +231,10 @@ public class CodeService {
         return null;
     }
 
-    public Map<String, String> getTemplates() {
+    public Map<String, String> getBuildInProjectFiles(String projectId) {
         Map<String, String> result = new HashMap<>();
 
-        var path = TEMPLATES_PATH + (ConfigService.inKubernetes() ? KUBERNETES_FOLDER : DOCKER_FOLDER);
+        var path = "/" + projectId + (ConfigService.inKubernetes() ? KUBERNETES_FOLDER : DOCKER_FOLDER);
 
         listResources(path).forEach(filename -> {
             String templatePath = path + filename;
@@ -221,43 +246,8 @@ public class CodeService {
         return result;
     }
 
-    public Map<String, String> getConfigurationFiles() {
-        Map<String, String> result = new HashMap<>();
-
-        var path = CONFIGURATION_PATH + (ConfigService.inKubernetes() ? KUBERNETES_FOLDER : DOCKER_FOLDER);
-
-        listResources(path).forEach(filename -> {
-            String templatePath = path + filename;
-            String templateText = getResourceFile(templatePath);
-            if (templateText != null) {
-                result.put(filename, templateText);
-            }
-        });
-        return result;
-    }
-
-    public Map<String, String> getDevServicesFiles() {
-        Map<String, String> result = new HashMap<>();
-
-        var path = SERVICES_PATH + (ConfigService.inKubernetes() ? KUBERNETES_FOLDER : DOCKER_FOLDER);
-
-        listResources(path).forEach(filename -> {
-            String templatePath = path + filename;
-            String templateText = getResourceFile(templatePath);
-            if (templateText != null) {
-                result.put(filename, templateText);
-            }
-        });
-        return result;
-    }
-
-    public List<String> getTemplatesList() {
-        var path = TEMPLATES_PATH + (ConfigService.inKubernetes() ? KUBERNETES_FOLDER : DOCKER_FOLDER);
-        return listResources(path);
-    }
-
-    public List<String> getConfigurationList() {
-        var path = CONFIGURATION_PATH + (ConfigService.inKubernetes() ? KUBERNETES_FOLDER : DOCKER_FOLDER);
+    public List<String> getBuildInProjectFileList(String projectId) {
+        var path = "/" + projectId  + (ConfigService.inKubernetes() ? KUBERNETES_FOLDER : DOCKER_FOLDER);
         return listResources(path);
     }
 
@@ -272,6 +262,15 @@ public class CodeService {
 
     public String getPropertyValue(String propFileText, String key) {
         Optional<String> data = propFileText.lines().filter(p -> p.startsWith(key)).findFirst();
+        return data.map(s -> s.split("=")[1]).orElse(null);
+    }
+
+    public String getPropertyValueByKeyContains(String propFileText, String key) {
+        Optional<String> data = propFileText.lines().filter(p -> {
+            var split = p.split("=");
+            var first = split[0];
+            return first.contains(key);
+        }).findFirst();
         return data.map(s -> s.split("=")[1]).orElse(null);
     }
 
@@ -302,19 +301,32 @@ public class CodeService {
 
     public static String getProperty(String file, String property) {
         String prefix = property + "=";
-        return  Arrays.stream(file.split(System.lineSeparator())).filter(s -> s.startsWith(prefix))
-                .findFirst().orElseGet(() -> "")
-                .replace(prefix, "");
+        return Arrays.stream(file.split("\\r?\\n")) // handle both \n and \r\n line endings
+                .filter(s -> s.startsWith(prefix))
+                .findFirst()
+                .map(s -> s.substring(prefix.length()).trim()) // remove prefix and trailing whitespace/\r
+                .orElse("");
     }
+
 
     public static String getPropertyName(String line) {
         var parts = line.indexOf("=");
         return line.substring(0, parts).trim();
     }
 
+    public static String getGavPackageSuffix(String  projectId) {
+        return projectId.replaceAll("[^a-zA-Z0-9]", "").toLowerCase();
+    }
+
     public String getProjectName(String file) {
-        String name = getProperty(file, PROPERTY_PROJECT_NAME);
-        return name != null && !name.isBlank() ? name : getProperty(file, PROPERTY_PROJECT_NAME_OLD);
+        String name = getProperty(file, PROPERTY_CAMEL_MAIN_DESCRIPTION);
+        if (name.isBlank()) name = getProperty(file, PROPERTY_PROJECT_NAME);
+        return !name.isBlank() ? name : getProperty(file, PROPERTY_PROJECT_NAME_OLD);
+    }
+
+    public String getProjectId(String file) {
+        String name = getProperty(file, PROPERTY_CAMEL_MAIN_NAME);
+        return !name.isBlank() ? name : getProperty(file, PROPERTY_PROJECT_ID);
     }
 
     public static String replaceProperty(String file, String property, String value) {
@@ -332,19 +344,29 @@ public class CodeService {
                 .collect(Collectors.joining(System.lineSeparator()));
     }
 
-    public ProjectFile createInitialProjectCompose(Project project, int nextAvailablePort) {
+    public ProjectFile createInitialProjectCompose(ProjectFolder projectFolder, int nextAvailablePort) {
         String template = getTemplateText(PROJECT_COMPOSE_FILENAME);
         String code = substituteVariables(template, Map.of(
-                "projectId", project.getProjectId(),
+                "projectId", projectFolder.getProjectId(),
                 "projectPort", String.valueOf(nextAvailablePort),
-                "projectImage", project.getProjectId()
+                "projectImage", projectFolder.getProjectId()
         ));
-        return new ProjectFile(PROJECT_COMPOSE_FILENAME, code, project.getProjectId(), Instant.now().toEpochMilli());
+        return new ProjectFile(PROJECT_COMPOSE_FILENAME, code, projectFolder.getProjectId(), Instant.now().toEpochMilli());
     }
 
-    public ProjectFile createInitialDeployment(Project project) {
+    public ProjectFile createInitialProjectStack(ProjectFolder projectFolder, int nextAvailablePort) {
+        String template = getTemplateText(PROJECT_STACK_FILENAME);
+        String code = substituteVariables(template, Map.of(
+                "projectId", projectFolder.getProjectId(),
+                "projectPort", String.valueOf(nextAvailablePort),
+                "projectImage", projectFolder.getProjectId()
+        ));
+        return new ProjectFile(PROJECT_STACK_FILENAME, code, projectFolder.getProjectId(), Instant.now().toEpochMilli());
+    }
+
+    public ProjectFile createInitialDeployment(ProjectFolder projectFolder) {
         String template = getTemplateText(PROJECT_DEPLOYMENT_JKUBE_FILENAME);
-        return new ProjectFile(PROJECT_DEPLOYMENT_JKUBE_FILENAME, template, project.getProjectId(), Instant.now().toEpochMilli());
+        return new ProjectFile(PROJECT_DEPLOYMENT_JKUBE_FILENAME, template, projectFolder.getProjectId(), Instant.now().toEpochMilli());
     }
 
     public Integer getProjectPort(ProjectFile composeFile) {
@@ -374,6 +396,18 @@ public class CodeService {
         return null;
     }
 
+    public String getDockerStackFileForProject(String projectId) {
+        String stackFileName = PROJECT_STACK_FILENAME;
+        if (!Objects.equals(environment, DEV)) {
+            stackFileName = environment + "." + PROJECT_STACK_FILENAME;
+        }
+        ProjectFile stack = karavanCache.getProjectFile(projectId, stackFileName);
+        if (stack != null) {
+            return stack.getCode();
+        }
+        return null;
+    }
+
     public void updateDockerComposeImage(String projectId, String imageName) {
         ProjectFile compose = karavanCache.getProjectFile(projectId, PROJECT_COMPOSE_FILENAME);
         if (compose != null) {
@@ -381,17 +415,17 @@ public class CodeService {
             service.setImage(imageName);
             String code = DockerComposeConverter.toCode(service);
             compose.setCode(code);
-            karavanCache.saveProjectFile(compose, false, false);
+            karavanCache.saveProjectFile(compose, false);
         }
     }
 
-    public String replaceEnvWithRuntimeProperties(String composeCode) {
+    public String replaceEnvWithRuntimeProperties(String code) {
         Map<String, String> env = new HashMap<>();
-        findVariables(composeCode).forEach(envName -> {
+        findVariables(code).forEach(envName -> {
             String envValue = getConfigValue(envName);
             env.put(envName, envValue);
         });
-        return substituteVariables(composeCode, env);
+        return substituteVariables(code, env);
     }
 
     private String getConfigValue(String envName) {
@@ -472,4 +506,5 @@ public class CodeService {
     public String getGav() {
         return gav.orElse("org.camel.karavan.demo") + ":%s:1";
     }
+
 }

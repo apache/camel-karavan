@@ -16,14 +16,16 @@
  */
 package org.apache.camel.karavan.api;
 
+import io.quarkus.security.Authenticated;
 import io.vertx.core.json.JsonObject;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import org.apache.camel.karavan.KaravanCache;
-import org.apache.camel.karavan.model.Project;
-import org.apache.camel.karavan.model.ProjectFile;
+import org.apache.camel.karavan.cache.KaravanCache;
+import org.apache.camel.karavan.cache.ProjectFile;
+import org.apache.camel.karavan.cache.ProjectFileCommited;
+import org.apache.camel.karavan.cache.ProjectFolder;
 import org.apache.camel.karavan.service.CodeService;
 
 import java.net.URLDecoder;
@@ -39,6 +41,7 @@ public class ProjectFileResource {
     KaravanCache karavanCache;
 
     @GET
+    @Authenticated
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/{projectId}")
     public List<ProjectFile> get(@PathParam("projectId") String projectId) throws Exception {
@@ -48,19 +51,28 @@ public class ProjectFileResource {
     }
 
     @GET
+    @Authenticated
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<ProjectFile> getFileByName(@QueryParam("filename") String filename) {
+        return karavanCache.getProjectFilesByName(filename);
+    }
+
+    @GET
+    @Authenticated
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/commited/{projectId}/{filename}")
-    public ProjectFile getCommited(@PathParam("projectId") String projectId, @PathParam("filename") String filename) {
+    public ProjectFileCommited getCommited(@PathParam("projectId") String projectId, @PathParam("filename") String filename) {
         return karavanCache.getProjectFileCommited(projectId, filename);
     }
 
     @GET
+    @Authenticated
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/diff/{projectId}")
     public Map<String, String> getChanged(@PathParam("projectId") String projectId) {
         Map<String, String> result = new HashMap<>();
         List<ProjectFile> files = karavanCache.getProjectFiles(projectId);
-        List<ProjectFile> filesCommited = karavanCache.getProjectFilesCommited(projectId);
+        List<ProjectFileCommited> filesCommited = karavanCache.getProjectFilesCommited(projectId);
         files.forEach(pf -> {
             var pfc = filesCommited.stream().filter(f -> Objects.equals(f.getName(), pf.getName())).findFirst();
             if (pfc.isPresent()) {
@@ -81,50 +93,85 @@ public class ProjectFileResource {
     }
 
     @GET
+    @Authenticated
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/templates/beans")
     public List<ProjectFile> getBeanTemplates() throws Exception {
-        return  karavanCache.getProjectFiles(Project.Type.templates.name()).stream()
+        return  karavanCache.getProjectFiles(ProjectFolder.Type.templates.name()).stream()
                 .filter(file -> file.getName().endsWith(CodeService.BEAN_TEMPLATE_SUFFIX_FILENAME))
                 .toList();
     }
 
     @POST
+    @Authenticated
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public Response create(ProjectFile file) throws Exception {
         file.setLastUpdate(Instant.now().toEpochMilli());
         boolean projectFileExists = karavanCache.getProjectFile(file.getProjectId(), file.getName()) != null;
         if (projectFileExists) {
-            return Response.serverError().entity("File with given name already exists").build();
+            return Response.serverError().entity("File with given name already exists " + file.getName() + " in project " + file.getProjectId()).build();
         } else {
-            karavanCache.saveProjectFile(file, false, false);
+            karavanCache.saveProjectFile(file, false);
             return Response.ok(file).build();
         }
     }
 
     @PUT
+    @Authenticated
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public ProjectFile update(ProjectFile file) throws Exception {
         file.setLastUpdate(Instant.now().toEpochMilli());
-        karavanCache.saveProjectFile(file, false, false);
+        karavanCache.saveProjectFile(file, false);
         return file;
     }
 
+    @PATCH
+    @Authenticated
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Path("/{projectId}/{filename}")
+    public Response rename(@PathParam("projectId") String projectId,
+                           @PathParam("filename") String filename,
+                           JsonObject copy) throws Exception {
+        try {
+            var newName = copy.getString("newName");
+            var fromFile = karavanCache.getProjectFile(projectId, filename);
+            var toFile = karavanCache.getProjectFile(projectId, newName);
+            if (toFile != null) {
+                return Response.status(Response.Status.CONFLICT).entity("File Already Exists!").build();
+            } else {
+                var file = new ProjectFile();
+                file.setName(newName);
+                file.setProjectId(fromFile.getProjectId());
+                file.setCode(fromFile.getCode());
+                file.setLastUpdate(fromFile.getLastUpdate());
+                file.setProjectId(fromFile.getProjectId());
+                karavanCache.saveProjectFile(file, false);
+                karavanCache.deleteProjectFile(projectId, filename);
+                karavanCache.deleteProjectFileCommited(projectId, filename);
+                return Response.ok(file).build();
+            }
+        } catch (Exception e) {
+            return Response.serverError().entity(e.getMessage()).build();
+        }
+    }
+
     @DELETE
+    @Authenticated
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/{project}/{filename}")
     public void delete(@PathParam("project") String project,
                        @PathParam("filename") String filename) throws Exception {
         karavanCache.deleteProjectFile(
                 URLDecoder.decode(project, StandardCharsets.UTF_8),
-                URLDecoder.decode(filename, StandardCharsets.UTF_8),
-                false
+                URLDecoder.decode(filename, StandardCharsets.UTF_8)
         );
     }
 
     @POST
+    @Authenticated
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/copy")
     public Response copy(JsonObject copy) throws Exception {
@@ -139,7 +186,7 @@ public class ProjectFileResource {
             var copyFile = file.copy();
             copyFile.setProjectId(toProjectId);
             copyFile.setName(toFilename);
-            karavanCache.saveProjectFile(copyFile, false, false);
+            karavanCache.saveProjectFile(copyFile, false);
             return Response.ok().build();
         } else {
             return Response.notModified().build();

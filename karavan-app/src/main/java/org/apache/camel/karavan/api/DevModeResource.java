@@ -16,22 +16,23 @@
  */
 package org.apache.camel.karavan.api;
 
+import io.quarkus.security.Authenticated;
 import io.vertx.mutiny.core.eventbus.EventBus;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import org.apache.camel.karavan.KaravanCache;
 import org.apache.camel.karavan.KaravanConstants;
-import org.apache.camel.karavan.model.PodContainerStatus;
-import org.apache.camel.karavan.model.Project;
+import org.apache.camel.karavan.cache.KaravanCache;
+import org.apache.camel.karavan.cache.PodContainerStatus;
+import org.apache.camel.karavan.cache.ProjectFolder;
 import org.apache.camel.karavan.service.ProjectService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
 import java.util.Map;
 
-import static org.apache.camel.karavan.KaravanEvents.CMD_DELETE_CONTAINER;
+import static org.apache.camel.karavan.KaravanEvents.CMD_DELETE_INTEGRATION;
 import static org.apache.camel.karavan.KaravanEvents.CMD_RELOAD_PROJECT_CODE;
 
 @Path("/ui/devmode")
@@ -54,48 +55,54 @@ public class DevModeResource {
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
+    @Authenticated
     @Path("/{verbose}/{compile}")
-    public Response runProjectInDeveloperMode(Project project, @PathParam("verbose") boolean verbose, @PathParam("compile") boolean compile) {
+    public Response runProjectInDeveloperMode(ProjectFolder projectFolder, @PathParam("verbose") boolean verbose, @PathParam("compile") boolean compile) {
         try {
-            String containerName = projectService.runProjectInDeveloperMode(project.getProjectId(), verbose, compile, Map.of(), Map.of());
+            String containerName = projectService.runProjectInDeveloperMode(projectFolder.getProjectId(), verbose, compile, Map.of(), Map.of(), false);
             if (containerName != null) {
                 return Response.ok(containerName).build();
             } else {
                 return Response.notModified().build();
             }
         } catch (Exception e) {
-            LOGGER.error(e);
-            return Response.serverError().entity(e).build();
+            LOGGER.error(e.getMessage());
+            e.printStackTrace();
+            return Response.serverError().entity(e.getMessage()).build();
         }
     }
 
     @POST
+    @Authenticated
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response runProjectInDeveloperMode(Project project) throws Exception {
-        return runProjectInDeveloperMode(project, false, false);
+    public Response runProjectInDeveloperMode(ProjectFolder projectFolder) throws Exception {
+        return runProjectInDeveloperMode(projectFolder, false, false);
     }
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON)
     @Path("/reload/{projectId}")
+    @Authenticated
+    @Produces(MediaType.APPLICATION_JSON)
     public Response reload(@PathParam("projectId") String projectId) {
         eventBus.publish(CMD_RELOAD_PROJECT_CODE, projectId);
         return Response.ok().build();
     }
 
     @DELETE
+    @Path("/{projectId}/{deletePVC}")
+    @Authenticated
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    @Path("/{projectId}/{deletePVC}")
     public Response deleteDevMode(@PathParam("projectId") String projectId, @PathParam("deletePVC") boolean deletePVC) {
-        eventBus.publish(CMD_DELETE_CONTAINER, projectId);
+        eventBus.publish(CMD_DELETE_INTEGRATION, projectId);
         return Response.accepted().build();
     }
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON)
     @Path("/container/{projectId}")
+    @Authenticated
+    @Produces(MediaType.APPLICATION_JSON)
     public Response getPodStatus(@PathParam("projectId") String projectId) throws RuntimeException {
         PodContainerStatus cs = karavanCache.getDevModePodContainerStatus(projectId, environment);
         if (cs != null) {

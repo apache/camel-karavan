@@ -21,7 +21,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.apache.camel.karavan</groupId>
     <artifactId>karavan</artifactId>
-    <version>4.14.0</version>
+    <version>4.14.2</version>
 
     <properties>
         <compiler-plugin.version>3.14.0</compiler-plugin.version>
@@ -36,7 +36,7 @@
         <quarkus.platform.version>3.27.0</quarkus.platform.version>
         <surefire-plugin.version>3.1.0</surefire-plugin.version>
         <jgit.version>3.6.0</jgit.version>
-        <infinispan-embedded.version>1.2.0</infinispan-embedded.version>
+        <infinispan-embedded.version>1.2.1</infinispan-embedded.version>
         <quinoa.version>2.6.2</quinoa.version>
         <commons-text.version>1.14.0</commons-text.version>
         <resources-plugin.version>3.3.0</resources-plugin.version>
@@ -46,6 +46,13 @@
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>org.hibernate.search</groupId>
+                <artifactId>hibernate-search-bom</artifactId>
+                <version>7.1.2.Final</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
             <dependency>
                 <groupId>${quarkus.platform.group-id}</groupId>
                 <artifactId>${quarkus.platform.artifact-id}</artifactId>

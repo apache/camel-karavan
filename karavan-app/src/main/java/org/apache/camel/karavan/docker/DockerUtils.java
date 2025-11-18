@@ -18,10 +18,10 @@ package org.apache.camel.karavan.docker;
 
 import com.github.dockerjava.api.model.*;
 import io.smallrye.mutiny.tuples.Tuple2;
-import org.apache.camel.karavan.model.ContainerPort;
-import org.apache.camel.karavan.model.ContainerType;
-import org.apache.camel.karavan.model.DockerComposeHealthCheck;
-import org.apache.camel.karavan.model.PodContainerStatus;
+import org.apache.camel.karavan.cache.ContainerPort;
+import org.apache.camel.karavan.cache.ContainerType;
+import org.apache.camel.karavan.cache.PodContainerStatus;
+import org.apache.camel.karavan.model.DockerHealthCheckDefinition;
 
 import java.text.DecimalFormat;
 import java.time.Duration;
@@ -65,7 +65,7 @@ public class DockerUtils {
         return null;
     }
 
-    static HealthCheck getHealthCheck(DockerComposeHealthCheck config) {
+    static HealthCheck getHealthCheck(DockerHealthCheckDefinition config) {
         if (config != null) {
             HealthCheck healthCheck = new HealthCheck().withTest(config.getTest());
             if (config.getInterval() != null) {
@@ -114,13 +114,36 @@ public class DockerUtils {
 
     public static PodContainerStatus getContainerStatus(Container container, String environment) {
         String name = container.getNames()[0].replace("/", "");
-        List<ContainerPort> ports = Arrays.stream(container.getPorts())
+        List<ContainerPort> ports = container.getPorts() != null
+                ? Arrays.stream(container.getPorts())
                 .map(p -> new ContainerPort(p.getPrivatePort(), p.getPublicPort(), p.getType()))
-                .collect(Collectors.toList());
+                .collect(Collectors.toList())
+                : new ArrayList<>();
         List<PodContainerStatus.Command> commands = getContainerCommand(container.getState());
         ContainerType type = getContainerType(container.getLabels());
         String created = Instant.ofEpochSecond(container.getCreated()).toString();
-        String projectId = container.getLabels().getOrDefault(LABEL_PROJECT_ID, name);
+        String projectId = container.getLabels().containsKey(LABEL_INTEGRATION_NAME)
+                ? container.getLabels().get(LABEL_INTEGRATION_NAME)
+                : container.getLabels().getOrDefault(LABEL_PROJECT_ID, name);
+        String camelRuntime = container.getLabels().getOrDefault(LABEL_CAMEL_RUNTIME, "");
+        return PodContainerStatus.createWithId(projectId, name, environment, container.getId(), container.getImage(),
+                ports, type, commands, container.getState(), created, camelRuntime, container.getLabels());
+    }
+
+    public static PodContainerStatus getServiceStatus(Service service, Container container, String environment) {
+        String name = container.getNames()[0].replace("/", "");
+        var spec = service.getSpec();
+        var endpoint = spec != null ? spec.getEndpointSpec() : null;
+        List<PortConfig> specPorts = endpoint  != null ? endpoint.getPorts() : List.of();
+        List<ContainerPort> ports = specPorts != null
+                ? specPorts.stream().map(p -> new ContainerPort(p.getTargetPort(), p.getPublishedPort(), p.getPublishMode() !=null ? p.getPublishMode().name() : "")).collect(Collectors.toList())
+                : new ArrayList<>();
+        List<PodContainerStatus.Command> commands = getContainerCommand(container.getState());
+        ContainerType type = getContainerType(container.getLabels());
+        String created = Instant.ofEpochSecond(container.getCreated()).toString();
+        String projectId = container.getLabels().containsKey(LABEL_INTEGRATION_NAME)
+                ? container.getLabels().get(LABEL_INTEGRATION_NAME)
+                : container.getLabels().getOrDefault(LABEL_PROJECT_ID, service.getSpec().getName());
         String camelRuntime = container.getLabels().getOrDefault(LABEL_CAMEL_RUNTIME, "");
         return PodContainerStatus.createWithId(projectId, name, environment, container.getId(), container.getImage(),
                 ports, type, commands, container.getState(), created, camelRuntime, container.getLabels());

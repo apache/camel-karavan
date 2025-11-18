@@ -30,6 +30,7 @@ import {
     Integration,
 } from '../model/IntegrationDefinition';
 import {
+    TopologyAsyncApiNode, TopologyAsyncApiOperation,
     TopologyBeanNode,
     TopologyIncomingNode, TopologyOpenApiNode, TopologyOpenApiOperation,
     TopologyOutgoingNode,
@@ -40,6 +41,7 @@ import { ComponentApi, INTERNAL_COMPONENTS } from './ComponentApi';
 import { CamelDefinitionApiExt } from './CamelDefinitionApiExt';
 import { CamelDisplayUtil } from './CamelDisplayUtil';
 import { CamelUtil } from './CamelUtil';
+import { ASYNCAPI_FILE_NAME_JSON, OPENAPI_FILE_NAME_JSON } from '../contants';
 
 const outgoingDefinitions: string[] = ['ToDefinition', 'KameletDefinition', 'ToDynamicDefinition', 'PollEnrichDefinition', 'EnrichDefinition', 'WireTapDefinition', 'SagaDefinition', 'PollDefinition'];
 
@@ -212,7 +214,36 @@ export class TopologyUtils {
         } catch (err) {
             console.error(err);
         }
-        return new TopologyOpenApiNode('openapi.json', title, operations);
+        return new TopologyOpenApiNode(OPENAPI_FILE_NAME_JSON, title, operations);
+    };
+
+    static findTopologyAsyncApiNodes = (json: string): TopologyAsyncApiNode => {
+        const operations: TopologyAsyncApiOperation[] = [];
+        let title = 'AsyncAPI';
+
+        try {
+            const asyncapi = JSON.parse(json);
+            if (asyncapi.info && typeof asyncapi.info.title === "string") {
+                title = asyncapi.info.title;
+            }
+
+            if (asyncapi.operations) {
+                Object.keys(asyncapi.operations).forEach((operationId) => {
+                    const operation = asyncapi.operations[operationId];
+                    operations.push(
+                        new TopologyAsyncApiOperation(
+                            operation.operationId,
+                            operation.title,
+                            operation.action,
+                            operation.channel?.$ref
+                        )
+                    );
+                });
+            }
+        } catch (err) {
+            console.error(err);
+        }
+        return new TopologyAsyncApiNode(ASYNCAPI_FILE_NAME_JSON, title, operations);
     };
 
     static findTopologyIncomingNodes = (integration: Integration[]): TopologyIncomingNode[] => {

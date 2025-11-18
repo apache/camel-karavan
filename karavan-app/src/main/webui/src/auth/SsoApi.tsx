@@ -26,25 +26,27 @@ export class SsoApi {
     static auth(after: () => void) {
         AuthApi.getSsoConfig((config: any) => {
             SsoApi.keycloak = new Keycloak({url: config.url, realm: config.realm, clientId: config.clientId});
-            SsoApi.keycloak.init({onLoad: 'login-required', flow: 'hybrid', checkLoginIframe: false}).then(value => {
-                console.log('SsoApi', 'User is now authenticated.');
-                const k = SsoApi.keycloak;
-                if (k) {
-                    const userInfo = {
-                        username: k.tokenParsed?.preferred_username,
-                        // name: k.tokenParsed?.name,
-                        // email: k.tokenParsed?.email,
-                        roles: k.tokenParsed?.realm_access?.roles || [],
-                        // token: k.token,
-                        // refreshToken: k.refreshToken,
-                    };
-                    // store user info globally or in your app state
-                    setCurrentUser(userInfo as AccessUser);
+            SsoApi.keycloak.init({
+                flow: "hybrid",
+                onLoad: 'login-required',
+                silentCheckSsoRedirectUri: `${location.origin}/silent-check-sso.html`
+            }).then(authenticated => {
+                if (authenticated) {
+                    const k = SsoApi.keycloak;
+                    if (k) {
+                        const userInfo = {
+                            username: k.tokenParsed?.preferred_username,
+                            roles: k.tokenParsed?.realm_access?.roles || [],
+                        };
+                        console.log('SsoApi', 'User is now authenticated.', userInfo);
+                        setCurrentUser(userInfo as AccessUser);
+                    }
+                } else {
+                    console.log('User is not authenticated');
                 }
                 after();
             }).catch(reason => {
                 console.log('SsoApi', 'Error:', reason);
-                window.location.reload();
             });
         });
     }
@@ -54,10 +56,8 @@ export class SsoApi {
             SsoApi.keycloak.logout().then(value => {
                 console.log('SsoApi', 'User is now logout.');
                 setCurrentUser(null)
-                window.location.reload();
             }).catch(reason => {
                 console.log('SsoApi', 'Error:', reason);
-                window.location.reload();
             });
         }
     }

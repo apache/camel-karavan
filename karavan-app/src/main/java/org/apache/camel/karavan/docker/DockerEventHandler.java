@@ -25,7 +25,7 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.mutiny.core.eventbus.EventBus;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import org.apache.camel.karavan.model.ContainerType;
+import org.apache.camel.karavan.cache.ContainerType;
 import org.apache.camel.karavan.service.RegistryService;
 import org.jboss.logging.Logger;
 
@@ -34,6 +34,7 @@ import java.io.IOException;
 import java.util.Objects;
 
 import static org.apache.camel.karavan.KaravanConstants.*;
+import static org.apache.camel.karavan.KaravanEvents.CMD_COPY_CODE_TO_CONTAINER_IN_SWARM;
 import static org.apache.camel.karavan.KaravanEvents.CMD_PULL_IMAGES;
 
 @ApplicationScoped
@@ -58,8 +59,9 @@ public class DockerEventHandler implements ResultCallback<Event> {
     @Override
     public void onNext(Event event) {
         try {
+            var actorId = event.getActor().getId();
             if (Objects.equals(event.getType(), EventType.CONTAINER)) {
-                Container container = dockerService.getContainer(event.getId());
+                Container container = dockerService.getContainer(actorId);
                 if (container != null) {
                     onContainerEvent(event, container);
                 }
@@ -70,11 +72,29 @@ public class DockerEventHandler implements ResultCallback<Event> {
     }
 
     public void onContainerEvent(Event event, Container container) throws InterruptedException {
+        String projectId = container.getLabels().containsKey(LABEL_INTEGRATION_NAME) ? container.getLabels().get(LABEL_INTEGRATION_NAME) : container.getLabels().get(LABEL_PROJECT_ID);
         if ("exited".equalsIgnoreCase(container.getState())
                 && Objects.equals(container.getLabels().get(LABEL_TYPE), ContainerType.build.name())) {
             String tag = container.getLabels().get(LABEL_TAG);
-            String projectId = container.getLabels().get(LABEL_PROJECT_ID);
+            System.out.println(container);
             syncImage(projectId, tag);
+        } else if ("running".equalsIgnoreCase(container.getState())
+                && (
+                Objects.equals(container.getLabels().get(LABEL_TYPE), ContainerType.devmode.name())
+                || Objects.equals(container.getLabels().get(LABEL_TYPE), ContainerType.build.name())
+                )
+                && !event.getStatus().startsWith("exec_")
+                && !event.getStatus().startsWith("stop")
+                && !event.getStatus().startsWith("kill")
+                && !event.getStatus().startsWith("extract")
+                && event.getActor() != null
+                && event.getActor().getAttributes() != null
+        ) {
+            eventBus.publish(CMD_COPY_CODE_TO_CONTAINER_IN_SWARM, JsonObject.of(
+                    "projectId", projectId,
+                    "containerId", container.getId(),
+                    "type", container.getLabels().get(LABEL_TYPE)
+            ));
         }
     }
 

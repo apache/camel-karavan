@@ -2,7 +2,7 @@ import {KaravanApi} from "@/api/KaravanApi";
 import {ComponentApi} from "karavan-core/lib/api/ComponentApi";
 import {AppConfig, ContainerStatus, Project} from "@/api/ProjectModels";
 import {useAppConfigStore, useProjectsStore, useStatusesStore} from "@/api/ProjectStore";
-import {InfrastructureAPI} from "@/designer/utils/InfrastructureAPI";
+import {InfrastructureAPI} from "@/integration-designer/utils/InfrastructureAPI";
 import {shallow} from "zustand/shallow";
 import {ProjectService} from "@/api/ProjectService";
 import {SpiBeanApi} from "karavan-core/lib/api/SpiBeanApi";

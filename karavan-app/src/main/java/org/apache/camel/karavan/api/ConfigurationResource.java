@@ -16,6 +16,7 @@
  */
 package org.apache.camel.karavan.api;
 
+import io.quarkus.security.Authenticated;
 import io.vertx.core.json.JsonObject;
 import io.vertx.mutiny.core.eventbus.EventBus;
 import jakarta.inject.Inject;
@@ -60,6 +61,7 @@ public class ConfigurationResource {
 
     @POST
     @Path("/share/")
+    @Authenticated
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public Response share(HashMap<String, String> params)  {

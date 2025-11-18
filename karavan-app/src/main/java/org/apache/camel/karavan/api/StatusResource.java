@@ -16,17 +16,21 @@
  */
 package org.apache.camel.karavan.api;
 
+import io.quarkus.security.Authenticated;
+import io.vertx.mutiny.core.eventbus.EventBus;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import org.apache.camel.karavan.KaravanCache;
-import org.apache.camel.karavan.model.CamelStatus;
-import org.apache.camel.karavan.model.CamelStatusValue;
-import org.apache.camel.karavan.model.DeploymentStatus;
+import org.apache.camel.karavan.cache.CamelStatus;
+import org.apache.camel.karavan.cache.CamelStatusValue;
+import org.apache.camel.karavan.cache.DeploymentStatus;
+import org.apache.camel.karavan.cache.KaravanCache;
 import org.jboss.logging.Logger;
 
 import java.util.List;
+
+import static org.apache.camel.karavan.KaravanEvents.CMD_CLEAR_ALL_STATUSES;
 
 @Path("/ui/status")
 public class StatusResource {
@@ -36,8 +40,12 @@ public class StatusResource {
     @Inject
     KaravanCache karavanCache;
 
+    @Inject
+    EventBus eventBus;
+
     @GET
     @Produces(MediaType.APPLICATION_JSON)
+    @Authenticated
     @Path("/deployment/{name}/{env}")
     public Response getDeploymentStatus(@PathParam("name") String name, @PathParam("env") String env) {
         DeploymentStatus status = karavanCache.getDeploymentStatus(name, env);
@@ -50,15 +58,17 @@ public class StatusResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/camel")
+    @Authenticated
     public List<CamelStatus> getCamelAllStatuses() {
         return karavanCache.getCamelAllStatuses();
     }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/camel/{context}")
-    public List<CamelStatus> getCamelContextStatusesByName(@PathParam("context") String context) {
-        return karavanCache.getCamelStatusesByName(CamelStatusValue.Name.valueOf(context));
+    @Path("/camel/{statusName}")
+    @Authenticated
+    public List<CamelStatus> getCamelContextStatusesByName(@PathParam("statusName") String statusName) {
+        return karavanCache.getCamelStatusesByName(CamelStatusValue.Name.valueOf(statusName));
     }
 
     @DELETE
@@ -72,6 +82,7 @@ public class StatusResource {
     @DELETE
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/container")
+    @Authenticated
     public Response deleteContainerStatuses() {
         karavanCache.deleteAllPodContainersStatuses();
         return Response.ok().build();
@@ -80,16 +91,19 @@ public class StatusResource {
     @DELETE
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/camel")
+    @Authenticated
     public Response deleteCamelStatuses() {
         karavanCache.deleteAllCamelStatuses();
         return Response.ok().build();
     }
 
     @DELETE
+    @Authenticated
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/all")
     public Response deleteAllStatuses() {
         karavanCache.clearAllStatuses();
+        eventBus.publish(CMD_CLEAR_ALL_STATUSES, "");
         return Response.ok().build();
     }
 }

@@ -15,6 +15,8 @@
  * limitations under the License.
  */
 
+import {ASYNCAPI_FILE_NAME_JSON, ASYNCAPI_FILE_NAME_YAML} from "karavan-core/lib/contants";
+
 export type FileOperation =
     | "create"
     | "select"
@@ -30,14 +32,16 @@ export type ProjectOperation = "create" | "select" | "delete" | "none" | "copy"
 export type DesignerTab = "routes" | "rest" | "beans" | "kamelet";
 
 export const DOCKER_COMPOSE = "docker-compose.yaml";
+export const DOCKER_STACK = "docker-stack.yaml";
 export const KUBERNETES_YAML = "kubernetes.yaml";
 export const APPLICATION_PROPERTIES = 'application.properties';
-export const BUILD_IN_FILES = [APPLICATION_PROPERTIES, DOCKER_COMPOSE, KUBERNETES_YAML];
+export const BUILD_IN_FILES = [APPLICATION_PROPERTIES, DOCKER_COMPOSE, DOCKER_STACK, KUBERNETES_YAML, ASYNCAPI_FILE_NAME_JSON, ASYNCAPI_FILE_NAME_YAML];
 
 export class AppConfig {
     title: string = '';
     version: string = '';
     infrastructure: 'kubernetes' | 'docker' | 'local' = 'local';
+    swarmMode: boolean = false;
     environment: string = '';
     environments: string[] = [];
     status: any[] = [];
@@ -53,7 +57,7 @@ export enum ProjectType {
     configuration = 'configuration',
     documentation = 'documentation',
     services = 'services',
-    events = 'events',
+    shared = 'shared',
     cache = 'cache',
     integration = 'integration',
 }
@@ -63,9 +67,10 @@ export const BUILD_IN_PROJECTS: string[] = [
     ProjectType.templates.toString(),
     ProjectType.configuration.toString(),
     ProjectType.services.toString(),
-    ProjectType.events.toString(),
+    ProjectType.shared.toString(),
     ProjectType.documentation.toString()
 ];
+
 export const RESERVED_WORDS: string[] = [...BUILD_IN_PROJECTS, 'karavan'];
 
 export class Project {
@@ -167,6 +172,8 @@ export class CamelStatus {
     statuses: CamelStatusValue[] = [];
     env: string = '';
 }
+
+export type CamelStatusName = 'context' | 'route' | 'processor' | 'consumer';
 
 export class CamelStatusValue {
     name: string = '';

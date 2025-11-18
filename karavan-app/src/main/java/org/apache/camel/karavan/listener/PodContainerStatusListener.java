@@ -21,8 +21,9 @@ import io.quarkus.vertx.ConsumeEvent;
 import io.vertx.core.json.JsonObject;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import org.apache.camel.karavan.KaravanCache;
-import org.apache.camel.karavan.model.PodContainerStatus;
+import org.apache.camel.karavan.cache.KaravanCache;
+import org.apache.camel.karavan.cache.PodContainerStatus;
+import org.jboss.logging.Logger;
 
 import java.time.Instant;
 import java.util.Objects;
@@ -32,6 +33,7 @@ import static org.apache.camel.karavan.KaravanEvents.POD_CONTAINER_UPDATED;
 
 @ApplicationScoped
 public class PodContainerStatusListener {
+    private static final Logger LOGGER = Logger.getLogger(PodContainerStatusListener.class.getName());
 
     @Inject
     KaravanCache karavanCache;
@@ -45,17 +47,21 @@ public class PodContainerStatusListener {
 
     @ConsumeEvent(value = POD_CONTAINER_UPDATED, blocking = true, ordered = true)
     public void savePodContainerStatus(JsonObject data) {
-        PodContainerStatus newStatus = data.mapTo(PodContainerStatus.class);
-        PodContainerStatus oldStatus = karavanCache.getPodContainerStatus(newStatus.getProjectId(), newStatus.getEnv(), newStatus.getContainerName());
+        try {
+            PodContainerStatus newStatus = data.mapTo(PodContainerStatus.class);
+            PodContainerStatus oldStatus = karavanCache.getPodContainerStatus(newStatus.getProjectId(), newStatus.getEnv(), newStatus.getContainerName());
 
-        if (oldStatus == null) {
-            karavanCache.savePodContainerStatus(newStatus);
-        } else if (Objects.equals(oldStatus.getInTransit(), Boolean.FALSE)) {
-            savePodContainerStatus(newStatus, oldStatus);
-        } else if (Objects.equals(oldStatus.getInTransit(), Boolean.TRUE)) {
-            if (!Objects.equals(oldStatus.getState(), newStatus.getState()) || newStatus.getCpuInfo() == null || newStatus.getCpuInfo().isEmpty()) {
+            if (oldStatus == null) {
+                karavanCache.savePodContainerStatus(newStatus);
+            } else if (Objects.equals(oldStatus.getInTransit(), Boolean.FALSE)) {
                 savePodContainerStatus(newStatus, oldStatus);
+            } else if (Objects.equals(oldStatus.getInTransit(), Boolean.TRUE)) {
+                if (!Objects.equals(oldStatus.getState(), newStatus.getState()) || newStatus.getCpuInfo() == null || newStatus.getCpuInfo().isEmpty()) {
+                    savePodContainerStatus(newStatus, oldStatus);
+                }
             }
+        }  catch (Exception e) {
+            LOGGER.error(e.getMessage());
         }
     }
 

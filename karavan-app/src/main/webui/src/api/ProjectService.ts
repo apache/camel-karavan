@@ -16,16 +16,18 @@
  */
 
 import {KaravanApi} from './KaravanApi';
-import {CamelStatus, ContainerImage, ContainerStatus, DeploymentStatus, Project, ProjectFile, ServiceStatus} from './ProjectModels';
+import {CamelStatus, ContainerImage, ContainerStatus, DeploymentStatus, Project, ProjectFile, ProjectType, ServiceStatus} from './ProjectModels';
 import {TemplateApi} from 'karavan-core/lib/api/TemplateApi';
-import {InfrastructureAPI} from '@/designer/utils/InfrastructureAPI';
+import {InfrastructureAPI} from '@/integration-designer/utils/InfrastructureAPI';
 import {unstable_batchedUpdates} from 'react-dom'
 import {useDevModeStore, useFilesStore, useFileStore, useLogStore, useProjectsStore, useProjectStore, useStatusesStore} from './ProjectStore';
 import {ProjectEventBus} from './ProjectEventBus';
-import {EventBus} from "@/designer/utils/EventBus";
+import {EventBus} from "@/integration-designer/utils/EventBus";
 import {KameletApi} from "karavan-core/lib/api/KameletApi";
 import {ComponentApi} from 'karavan-core/lib/api/ComponentApi';
 import {getCurrentUser} from "@/auth/AuthApi";
+import {AxiosResponse} from "axios";
+import {ASYNCAPI_FILE_NAME_JSON, JSON_SCHEMA_EXTENSION} from "../../../../../../karavan-core/src/core/contants";
 
 export class ProjectService {
 
@@ -156,7 +158,7 @@ export class ProjectService {
         KaravanApi.getCustomKamelets(yaml => ProjectService.afterKameletsLoad(yaml, KameletApi.saveCustomKamelets));
     }
 
-    public static updateFile(file: ProjectFile, active: boolean, updateFilesStore: boolean = true) {
+    public static updateFile(file: ProjectFile, active: boolean, updateFilesStore: boolean = true, after?: (res: AxiosResponse<any>) => void) {
         KaravanApi.putProjectFile(file, res => {
             if (res.status === 200) {
                 const newFile = res.data;
@@ -166,8 +168,19 @@ export class ProjectService {
                 if (active) {
                     useFileStore.setState({file: newFile});
                 }
+                after?.(res)
             } else {
                 // console.log(res) //TODO show notification
+            }
+        })
+    }
+
+    public static renameFile(projectId: string, oldName: string, newName: string,  after: (res: boolean) => void) {
+        KaravanApi.renameProjectFile(projectId, oldName, newName, (result: boolean, err?: Error | undefined) => {
+            if (result) {
+                after(result);
+            } else {
+                EventBus.sendAlert("Error", err?.message ?? "Error copying file!", "warning");
             }
         })
     }
@@ -216,9 +229,26 @@ export class ProjectService {
         });
     }
 
-    public static refreshAllCamelStatuses() {
-        KaravanApi.getAllCamelContextStatuses((statuses: CamelStatus[]) => {
-            useStatusesStore.setState({camels: statuses});
+    public static refreshAllCamelContextStatuses() {
+        KaravanApi.getAllCamelStatuses("context",(statuses: CamelStatus[]) => {
+            useStatusesStore.setState({camelContexts: statuses});
+        });
+    }
+
+    public static refreshAllCamelRouteStatuses() {
+        KaravanApi.getAllCamelStatuses("route",(statuses: CamelStatus[]) => {
+            useStatusesStore.setState({routes: statuses});
+        });
+    }
+
+    public static refreshAllCamelProcessorStatuses() {
+        KaravanApi.getAllCamelStatuses("processor",(statuses: CamelStatus[]) => {
+            useStatusesStore.setState({processors: statuses});
+        });
+    }
+    public static refreshAllCamelConsumerStatuses() {
+        KaravanApi.getAllCamelStatuses("consumer",(statuses: CamelStatus[]) => {
+            useStatusesStore.setState({consumers: statuses});
         });
     }
 
@@ -284,7 +314,7 @@ export class ProjectService {
         ProjectService.refreshAllDeploymentStatuses();
         ProjectService.refreshAllContainerStatuses();
         ProjectService.refreshAllServicesStatuses();
-        ProjectService.refreshAllCamelStatuses();
+        ProjectService.refreshAllCamelContextStatuses();
     }
 
     public static refreshProjectFiles(projectId: string) {
@@ -330,5 +360,26 @@ export class ProjectService {
                 }
             });
         });
+    }
+
+    public static refreshSharedData(after?: (schemaFiles: ProjectFile[], projectFiles: ProjectFile[], sharedFile?: ProjectFile) => void) {
+        const filesByNamePromise = new Promise<ProjectFile[]>((resolve) => {
+            KaravanApi.getFilesByName(ASYNCAPI_FILE_NAME_JSON, files => {
+                resolve(files);
+            });
+        });
+
+        const sharedFilesPromise = new Promise<ProjectFile[]>((resolve) => {
+            KaravanApi.getFiles(ProjectType.shared, (files: ProjectFile[]) => {
+                resolve(files);
+            });
+        });
+
+        Promise.all([filesByNamePromise, sharedFilesPromise])
+            .then(([projectAsyncApiFiles, sharedFiles]) => {
+                const sharedAsyncApiFile = sharedFiles.find(f => f.name === ASYNCAPI_FILE_NAME_JSON);
+                const schemaFiles = sharedFiles.filter(f => f.name.endsWith(JSON_SCHEMA_EXTENSION));
+                after?.(schemaFiles, projectAsyncApiFiles, sharedAsyncApiFile);
+            });
     }
 }

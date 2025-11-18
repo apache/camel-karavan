@@ -2,14 +2,14 @@
   "compilerOptions": {
     "target": "ESNext",
     "lib": ["dom", "dom.iterable", "esnext"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
     "allowJs": false,
     "skipLibCheck": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "strict": true,
     "forceConsistentCasingInFileNames": true,
-    "module": "esnext",
-    "moduleResolution": "node",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
@@ -21,5 +21,5 @@
       "@/*": ["*"]
     }
   },
-  "include": ["src", "**.mjs", "*.ts"]
+  "include": ["src", "**/*.ts", "**/*.tsx", "**/*.mjs"]
 }

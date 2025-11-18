@@ -16,6 +16,7 @@
  */
 package org.apache.camel.karavan.api;
 
+import io.quarkus.security.Authenticated;
 import io.smallrye.mutiny.Multi;
 import io.vertx.core.json.JsonObject;
 import io.vertx.mutiny.core.eventbus.EventBus;
@@ -35,7 +36,7 @@ import org.jboss.resteasy.reactive.RestStreamElementType;
 import static org.apache.camel.karavan.listener.NotificationListener.*;
 
 @Path("/ui/notification")
-public class NotificationResource {
+public class NotificationResource extends AbstractApiResource {
 
     private static final String SERVICE_NAME_SYSTEM = "NOTIFICATION_SYSTEM";
     private static final String SERVICE_NAME_USER = "NOTIFICATION_USER";
@@ -47,6 +48,7 @@ public class NotificationResource {
     NotificationService notificationService;
 
     @GET
+    @Authenticated
     @Path("/system/{username}")
     @Produces(MediaType.SERVER_SENT_EVENTS)
     @RestStreamElementType(MediaType.TEXT_PLAIN)
@@ -65,6 +67,7 @@ public class NotificationResource {
     }
 
     @GET
+    @Authenticated
     @Path("/user/{username}")
     @Produces(MediaType.SERVER_SENT_EVENTS)
     @RestStreamElementType(MediaType.TEXT_PLAIN)

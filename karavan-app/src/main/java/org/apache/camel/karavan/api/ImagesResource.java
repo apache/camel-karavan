@@ -16,6 +16,7 @@
  */
 package org.apache.camel.karavan.api;
 
+import io.quarkus.security.Authenticated;
 import io.vertx.core.json.JsonObject;
 import io.vertx.mutiny.core.eventbus.EventBus;
 import jakarta.inject.Inject;
@@ -56,6 +57,7 @@ public class ImagesResource extends AbstractApiResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/project/{projectId}")
+    @Authenticated
     public List<ContainerImage> getImagesForProject(@PathParam("projectId") String projectId) {
         if (ConfigService.inKubernetes()) {
             return List.of();
@@ -73,11 +75,12 @@ public class ImagesResource extends AbstractApiResource {
     @Path("/project/{projectId}")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
+    @Authenticated
     public Response setProjectImage(JsonObject data, @PathParam("projectId") String projectId, @Context SecurityContext securityContext) throws Exception {
         try {
-            var identity = getIdentity(securityContext);
-            data.put("authorName", identity.get("name"));
-            data.put("authorEmail", identity.get("email"));
+            var identity = getIdentity();
+            data.put("authorName", identity.getString("username"));
+            data.put("authorEmail", identity.getString("email"));
             projectService.setProjectImage(projectId, data);
             return Response.ok().entity(data.getString("imageName")).build();
         } catch (Exception e) {
@@ -88,6 +91,7 @@ public class ImagesResource extends AbstractApiResource {
     @DELETE
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/project/{imageName}")
+    @Authenticated
     public Response deleteImage(@PathParam("imageName") String imageName) {
         imageName= new String(Base64.decode(imageName));
         if (ConfigService.inKubernetes()) {
@@ -102,6 +106,7 @@ public class ImagesResource extends AbstractApiResource {
     @Path("/pull/")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
+    @Authenticated
     public Response share(HashMap<String, String> params)  {
         try {
             eventBus.publish(CMD_PULL_IMAGES, JsonObject.mapFrom(params));

@@ -43,7 +43,7 @@ function isNoAuth(cfg: any) {
 
 // --- API surface (no tokens involved) ---
 export class AuthApi {
-    static authType?: "sessionId" | "oidc";
+    static authType?: "session" | "oidc";
     static getInstance() {
         return instance;
     }
@@ -73,10 +73,11 @@ export class AuthApi {
         instance
             .post("/ui/auth/login", { username, password }, { withCredentials: true })
             .then((res) => {
+                console.log(res);
                 if (res.status === 200) {
                     // server may return user; if not, fetch it
-                    if (res.data?.user) {
-                        setCurrentUser(res.data.user);
+                    if (res.data?.username) {
+                        setCurrentUser(res.data.username);
                         after(true, res);
                     } else {
                         AuthApi.getMe(() => after(true, res));
@@ -89,6 +90,7 @@ export class AuthApi {
             .catch((err) => {
                 setCurrentUser(null);
                 after(false, err);
+                console.error(err)
             });
     }
 
@@ -127,8 +129,7 @@ export class AuthApi {
 
     // Optional: keep if your UI still reads SSO config (even though auth is session-based)
     static async getSsoConfig(after: (config: {}) => void) {
-        axios
-            .get("/ui/auth/sso-config", { headers: { Accept: "application/json" } })
+        instance.get("/ui/auth/sso-config", { headers: { Accept: "application/json" } })
             .then((res) => {
                 if (res.status === 200) after(res.data);
             })
@@ -137,13 +138,13 @@ export class AuthApi {
             });
     }
 
-    static setAuthType(authType: "sessionId" | "oidc") {
+    static setAuthType(authType: "session" | "oidc") {
         this.authType = authType;
         switch (authType) {
             case "oidc":
                 AuthApi.setOidcAuthentication();
                 break;
-            case "sessionId":
+            case "session":
                 AuthApi.setSessionIdAuthentication();
                 break;
         }
@@ -154,7 +155,7 @@ export class AuthApi {
             .get("/ui/auth/type", { headers: { Accept: "text/plain" } })
             .then((res) => {
                 if (res.status === 200) {
-                    const authType = res.data as "sessionId" | "oidc";
+                    const authType = res.data as "session" | "oidc";
                     AuthApi.setAuthType(authType);
                     after(authType);
                 }

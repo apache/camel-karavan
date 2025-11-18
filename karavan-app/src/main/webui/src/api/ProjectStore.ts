@@ -305,18 +305,27 @@ interface StatusesState {
     deployments: DeploymentStatus[];
     services: ServiceStatus[];
     containers: ContainerStatus[];
-    camels: CamelStatus[];
+    camelContexts: CamelStatus[];
+    routes: CamelStatus[];
+    setRoutes: (routes: CamelStatus[]) => void;
+    consumers: CamelStatus[];
+    setConsumers: (consumers: CamelStatus[]) => void;
+    processors: CamelStatus[];
+    setProcessors: (processors: CamelStatus[]) => void;
     setDeployments: (d: DeploymentStatus[]) => void;
     setServices: (s: ServiceStatus[]) => void;
     setContainers: (c: ContainerStatus[]) => void;
-    setCamels: (c: CamelStatus[]) => void;
+    setCamelContexts: (camelContexts: CamelStatus[]) => void;
 }
 
 export const useStatusesStore = createWithEqualityFn<StatusesState>((set) => ({
     deployments: [],
     services: [],
     containers: [],
-    camels: [],
+    camelContexts: [],
+    routes: [],
+    consumers: [],
+    processors: [],
     setDeployments: (d: DeploymentStatus[]) => {
         set((state: StatusesState) => ({
             deployments: d,
@@ -332,10 +341,21 @@ export const useStatusesStore = createWithEqualityFn<StatusesState>((set) => ({
             containers: c,
         }));
     },
-    setCamels: (c: CamelStatus[]) => {
+    setCamelContexts: (c: CamelStatus[]) => {
         set((state: StatusesState) => ({
-            camels: c,
+            camelContexts: c,
         }));
+    },
+    setRoutes: (routes: CamelStatus[]) => {
+        set((state: StatusesState) => ({
+            routes: routes,
+        }));
+    },
+    setConsumers: (consumers: CamelStatus[]) => {
+        set({consumers})
+    },
+    setProcessors: (processors: CamelStatus[]) => {
+        set({processors})
     },
 }), shallow)
 

@@ -22,22 +22,19 @@ import io.vertx.mutiny.core.eventbus.EventBus;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Default;
 import jakarta.inject.Inject;
-import org.apache.camel.karavan.KaravanCache;
+import org.apache.camel.karavan.cache.*;
 import org.apache.camel.karavan.docker.DockerComposeConverter;
 import org.apache.camel.karavan.docker.DockerForKaravan;
+import org.apache.camel.karavan.docker.DockerStackConverter;
 import org.apache.camel.karavan.kubernetes.KubernetesService;
-import org.apache.camel.karavan.model.*;
-import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
-import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream;
-import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
+import org.apache.camel.karavan.model.DockerComposeService;
+import org.apache.camel.karavan.model.DockerStackService;
+import org.apache.camel.karavan.model.GitRepo;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -68,6 +65,9 @@ public class ProjectService {
     CodeService codeService;
 
     @Inject
+    ConfigService configService;
+
+    @Inject
     KubernetesService kubernetesService;
 
     @Inject
@@ -77,30 +77,31 @@ public class ProjectService {
     EventBus eventBus;
 
 
-    public Project commitAndPushProject(String projectId, String message, List<String> fileNames) throws Exception {
+    public Tuple2<ProjectFolder, List<String>> commitAndPushProject(String projectId, String message, List<String> fileNames) throws Exception {
         return commitAndPushProject(projectId, message, DEFAULT_AUTHOR_NAME, DEFAULT_AUTHOR_EMAIL, fileNames);
     }
 
-    public Project commitAndPushProject(String projectId, String message, String authorName, String authorEmail, List<String> fileNames) throws Exception {
+    public Tuple2<ProjectFolder, List<String>> commitAndPushProject(String projectId, String message, String authorName, String authorEmail, List<String> fileNames) throws Exception {
         if (Objects.equals(environment, DEV)) {
             LOGGER.info("Commit project: " + projectId);
-            Project p = karavanCache.getProject(projectId);
+            ProjectFolder p = karavanCache.getProject(projectId);
             List<ProjectFile> files = karavanCache.getProjectFiles(projectId);
-            RevCommit commit = gitService.commitAndPushProject(p, files, message, authorName, authorEmail, fileNames);
+            Tuple2<RevCommit, List<String>> result = gitService.commitAndPushProject(p, files, message, authorName, authorEmail, fileNames);
+            var commit = result.getItem1();
+            var messages = result.getItem2();
             karavanCache.syncFilesCommited(projectId, fileNames);
             String commitId = commit.getId().getName();
             Long lastUpdate = commit.getCommitTime() * 1000L;
             p.setLastCommit(commitId);
             p.setLastCommitTimestamp(lastUpdate);
-            karavanCache.saveProject(p, false);
-            return p;
+            karavanCache.saveProject(p);
+            return Tuple2.of(p, messages);
         } else {
             throw new RuntimeException("Unsupported environment: " + environment);
         }
     }
 
-    public String runProjectInDeveloperMode(String projectId, Boolean verbose, Boolean compile, Map<String, String> labels, Map<String, String> envVars) throws Exception {
-        String containerName = projectId;
+    public String runProjectInDeveloperMode(String projectId, Boolean verbose, Boolean compile, Map<String, String> labels, Map<String, String> envVars, Boolean appOnly) throws Exception {
         PodContainerStatus status = karavanCache.getDevModePodContainerStatus(projectId, environment);
         if (status == null) {
             status = PodContainerStatus.createDevMode(projectId, environment);
@@ -109,49 +110,46 @@ public class ProjectService {
             status.setInTransit(true);
             eventBus.publish(POD_CONTAINER_UPDATED, JsonObject.mapFrom(status));
 
-            Map<String, String> files = codeService.getProjectFilesForDevMode(projectId, true);
+            Map<String, String> files = codeService.getProjectFilesForDevMode(projectId, true)
+                    .entrySet().stream().filter(e -> !appOnly || APPLICATION_PROPERTIES_FILENAME.equals(e.getKey()))
+                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
             String projectDevmodeImage = codeService.getProjectDevModeImage(projectId);
             if (ConfigService.inKubernetes()) {
                 String deploymentFragment = codeService.getDeploymentFragment(projectId);
                 kubernetesService.runDevModeContainer(projectId, verbose, compile, files, projectDevmodeImage, deploymentFragment, labels, envVars);
+            } else if (configService.inDockerSwarmMode()) {
+                DockerStackService stack = getProjectDockerStackService(projectId);
+                dockerForKaravan.runProjectInDevMode(projectId, verbose, compile, stack, projectDevmodeImage, labels, envVars);
             } else {
                 DockerComposeService compose = getProjectDockerComposeService(projectId);
                 dockerForKaravan.runProjectInDevMode(projectId, verbose, compile, compose, files, projectDevmodeImage, labels, envVars);
             }
-            return containerName;
+            return projectId;
         } else {
             return null;
         }
     }
 
-    public void buildProject(Project project, String tag) throws Exception {
-        tag = tag != null && !tag.isEmpty() && !tag.isBlank()
+    public void buildProject(ProjectFolder projectFolder, String tag) throws Exception {
+        tag = tag != null && !tag.isBlank()
                 ? tag
                 : Instant.now().toString().substring(0, 19).replace(":", "-");
-
+        var name = projectFolder.getProjectId() + "-builder";
         if (ConfigService.inKubernetes()) {
             String podFragment = codeService.getBuilderPodFragment();
-            podFragment = codeService.substituteVariables(podFragment, Map.of( "projectId", project.getProjectId(), "tag", tag));
-            kubernetesService.runBuildProject(project.getProjectId(), podFragment);
+            podFragment = codeService.substituteVariables(podFragment, Map.of( "projectId", projectFolder.getProjectId(), "tag", tag));
+            kubernetesService.runBuildProject(projectFolder.getProjectId(), podFragment);
+        } else if (configService.inDockerSwarmMode()) {
+            String stackFragment = codeService.getBuilderStackFragment(projectFolder.getProjectId(), tag);
+            DockerStackService stack = DockerStackConverter.fromCode(stackFragment, name);
+            dockerForKaravan.runBuildProject(projectFolder, stack, tag);
         } else {
-            Map<String, String> sshFiles = getSshFiles();
-            String composeFragment =  codeService.getBuilderComposeFragment(project.getProjectId(), tag);
-            DockerComposeService compose = DockerComposeConverter.fromCode(composeFragment, project.getProjectId() + "-builder");
+            Map<String, String> sshFiles = codeService.getSshFiles();
             String script = codeService.getBuilderScript();
-            dockerForKaravan.runBuildProject(project, script, compose, sshFiles, tag);
+            String composeFragment =  codeService.getBuilderComposeFragment(projectFolder.getProjectId(), tag);
+            DockerComposeService compose = DockerComposeConverter.fromCode(composeFragment, name);
+            dockerForKaravan.runBuildProject(projectFolder, script, compose, sshFiles, tag);
         }
-    }
-
-    private Map<String, String> getSshFiles() {
-        Map<String, String> sshFiles = new HashMap<>(2);
-        Tuple2<String,String> sshFileNames = gitService.getSShFiles();
-        if (sshFileNames.getItem1() != null) {
-            sshFiles.put("id_rsa", codeService.getFileString(sshFileNames.getItem1()));
-        }
-        if (sshFileNames.getItem2() != null) {
-            sshFiles.put("known_hosts", codeService.getFileString(sshFileNames.getItem2()));
-        }
-        return sshFiles;
     }
 
     public void importProject(String projectId) throws Exception {
@@ -160,129 +158,40 @@ public class ProjectService {
         importProjectFromRepo(repo);
     }
 
-    public void importProjectFromArchiveFile(InputStream projectArchiveInputStream, boolean overwriteExistingFiles) throws Exception {
-        LOGGER.info("Import project(s) from archive file");
-        try {
-            ZipArchiveInputStream zipArchiveInputStream = new ZipArchiveInputStream(projectArchiveInputStream);
-            ZipArchiveEntry zipArchiveEntry = zipArchiveInputStream.getNextEntry();
-            Map<String, String> projects = new HashMap<>();
-            Map<String, List<ProjectFile>> files = new HashMap<>();
-            while (zipArchiveEntry != null) {
-                if (zipArchiveInputStream.canReadEntryData(zipArchiveEntry)) {
-                    String zipArchiveEntryName = zipArchiveEntry.getName().replace("\\", "/");
-                    if (!zipArchiveEntry.isDirectory() && StringUtils.countMatches(zipArchiveEntryName, "/") == 1) {
-                        String[] nameParts = zipArchiveEntryName.split("/");
-                        if (Arrays.stream(nameParts).allMatch(name -> !name.isBlank() && !name.equals(".") && !name.equals(".."))) {
-                            String parentFolderName = nameParts[nameParts.length - 2];
-                            String fileName = nameParts[nameParts.length - 1];
-                            if (parentFolderName.matches("[a-zA-Z0-9-]{5,}")) {
-                                boolean projectFileExists = karavanCache.getProjectFile(parentFolderName, fileName) != null;
-                                if (!projectFileExists || overwriteExistingFiles) {
-                                    LOGGER.debug("Importing file: " + zipArchiveEntryName);
-                                    ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-                                    byte[] buffer = new byte[4096];
-                                    int len;
-                                    while ((len = zipArchiveInputStream.read(buffer)) != -1) {
-                                        byteArrayOutputStream.write(buffer, 0, len);
-                                    }
-                                    String fileContent = byteArrayOutputStream.toString(zipArchiveInputStream.getCharset());
-                                    if (fileName.equals(APPLICATION_PROPERTIES_FILENAME)) {
-                                        String projectName = codeService.getProjectName(fileContent);
-                                        projects.put(parentFolderName, projectName);
-                                    } else if (!projects.containsKey(parentFolderName)) {
-                                        projects.put(parentFolderName, parentFolderName);
-                                    }
-                                    List<ProjectFile> projectFiles = new ArrayList<>();
-                                    if (files.containsKey(parentFolderName)) {
-                                        projectFiles.addAll(files.get(parentFolderName));
-                                    }
-                                    projectFiles.add(new ProjectFile(fileName, fileContent, parentFolderName, null));
-                                    files.put(parentFolderName, projectFiles);
-                                } else {
-                                    LOGGER.debug("Skipping file: " + zipArchiveEntryName);
-                                }
-                            }
-                        }
-                    }
-                    zipArchiveEntry = zipArchiveInputStream.getNextEntry();
-                }
-            }
-            zipArchiveInputStream.close();
-
-            for (Map.Entry<String, String> entry : projects.entrySet()) {
-                Project project = new Project(entry.getKey(), entry.getValue());
-                karavanCache.saveProject(project, false);
-            }
-
-            for (Map.Entry<String, List<ProjectFile>> entry : files.entrySet()) {
-                for (ProjectFile projectFile : entry.getValue()) {
-                    karavanCache.saveProjectFile(projectFile, false, false);
-                }
-            }
-
-        } catch (Exception e) {
-            LOGGER.error("Error during project import", e);
-            throw e;
-        }
-    }
-
     private void importProjectFromRepo(GitRepo repo) {
         LOGGER.info("Import project from GitRepo " + repo.getName());
         try {
-            Project project = getProjectFromRepo(repo);
-            karavanCache.saveProject(project, false);
+            ProjectFolder projectFolder = getProjectFromRepo(repo);
+            karavanCache.saveProject(projectFolder);
             repo.getFiles().forEach(repoFile -> {
                 ProjectFile file = new ProjectFile(repoFile.getName(), repoFile.getBody(), repo.getName(), repoFile.getLastCommitTimestamp());
-                karavanCache.saveProjectFile(file, true, false);
+                karavanCache.saveProjectFile(file, true);
             });
-            karavanCache.syncFilesCommited(project.getProjectId(), karavanCache.getProjectFiles(project.getProjectId()).stream().map(ProjectFile::getName).collect(Collectors.toList()));
+            karavanCache.syncFilesCommited(projectFolder.getProjectId(), karavanCache.getProjectFiles(projectFolder.getProjectId()).stream().map(ProjectFile::getName).collect(Collectors.toList()));
         } catch (Exception e) {
             LOGGER.error("Error during project import", e);
         }
     }
 
-    public byte[] downloadProjectArchiveFile(String projectId) throws Exception {
-        Project project = karavanCache.getProject(projectId);
-        if (project != null) {
-
-            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-            ZipArchiveOutputStream zipOutputStream = new ZipArchiveOutputStream(byteArrayOutputStream);
-            List<ProjectFile> projectFiles = karavanCache.getProjectFiles(projectId);
-
-            for (ProjectFile projectFile : projectFiles) {
-                ZipArchiveEntry entry = new ZipArchiveEntry(projectId + "/" + projectFile.getName());
-                byte[] data = projectFile.getCode().getBytes(StandardCharsets.UTF_8);
-                entry.setSize(data.length);
-                zipOutputStream.putArchiveEntry(entry);
-                zipOutputStream.write(data);
-                zipOutputStream.closeArchiveEntry();
-            }
-
-            zipOutputStream.finish();
-            return byteArrayOutputStream.toByteArray();
-        }
-        return null;
-    }
-
-    public Project getProjectFromRepo(GitRepo repo) {
+    public ProjectFolder getProjectFromRepo(GitRepo repo) {
         String folderName = repo.getName();
         String propertiesFile = codeService.getPropertiesFile(repo);
         if (propertiesFile != null) {
             String projectName = codeService.getProjectName(propertiesFile);
-            return new Project(folderName, projectName, repo.getCommitId(), repo.getLastCommitTimestamp());
+            return new ProjectFolder(folderName, projectName, repo.getCommitId(), repo.getLastCommitTimestamp());
         } else {
-            return new Project(folderName, folderName, repo.getCommitId(), repo.getLastCommitTimestamp());
+            return new ProjectFolder(folderName, folderName, repo.getCommitId(), repo.getLastCommitTimestamp());
         }
     }
 
     public String getDockerDevServiceCode() {
-        List<ProjectFile> files = karavanCache.getProjectFiles(Project.Type.services.name());
+        List<ProjectFile> files = karavanCache.getProjectFiles(ProjectFolder.Type.services.name());
         Optional<ProjectFile> file = files.stream().filter(f -> f.getName().equals(DEV_SERVICES_FILENAME)).findFirst();
         return file.orElse(new ProjectFile()).getCode();
     }
 
     public String getKubernetesDevServiceCode(String name) {
-        List<ProjectFile> files = karavanCache.getProjectFiles(Project.Type.services.name());
+        List<ProjectFile> files = karavanCache.getProjectFiles(ProjectFolder.Type.services.name());
         Optional<ProjectFile> file = files.stream().filter(f -> f.getName().equals(name + ".yaml")).findFirst();
         return file.orElse(new ProjectFile()).getCode();
     }
@@ -293,18 +202,24 @@ public class ProjectService {
         return DockerComposeConverter.fromCode(composeCode, projectId);
     }
 
-    private void modifyPropertyFileOnProjectCopy(ProjectFile propertyFile, Project sourceProject, Project project) {
+    public DockerStackService getProjectDockerStackService(String projectId) {
+        String stackTemplate = codeService.getDockerStackFileForProject(projectId);
+        String stackCode = codeService.replaceEnvWithRuntimeProperties(stackTemplate);
+        return DockerStackConverter.fromCode(stackCode, projectId);
+    }
+
+    private void modifyPropertyFileOnProjectCopy(ProjectFile propertyFile, ProjectFolder sourceProjectFolder, ProjectFolder projectFolder) {
         String fileContent = propertyFile.getCode();
 
-        String sourceProjectIdProperty = String.format(PROPERTY_FORMATTER_PROJECT_ID, sourceProject.getProjectId());
-        String sourceProjectNameProperty = String.format(PROPERTY_FORMATTER_PROJECT_NAME, sourceProject.getName());
+        String sourceProjectIdProperty = String.format(PROPERTY_FORMATTER_PROJECT_ID, sourceProjectFolder.getProjectId());
+        String sourceProjectNameProperty = String.format(PROPERTY_FORMATTER_PROJECT_NAME, sourceProjectFolder.getName());
         String sourceGavProperty = fileContent.lines().filter(line -> line.startsWith(PROPERTY_NAME_GAV)).findFirst().orElse("");
 
         String[] searchValues = {sourceProjectIdProperty, sourceProjectNameProperty, sourceGavProperty};
 
-        String updatedProjectIdProperty = String.format(PROPERTY_FORMATTER_PROJECT_ID, project.getProjectId());
-        String updatedProjectNameProperty = String.format(PROPERTY_FORMATTER_PROJECT_NAME, project.getName());
-        String updatedGavProperty = String.format(codeService.getGavFormatter(), project.getGavPackageSuffix());
+        String updatedProjectIdProperty = String.format(PROPERTY_FORMATTER_PROJECT_ID, projectFolder.getProjectId());
+        String updatedProjectNameProperty = String.format(PROPERTY_FORMATTER_PROJECT_NAME, projectFolder.getName());
+        String updatedGavProperty = String.format(codeService.getGavFormatter(), CodeService.getGavPackageSuffix(projectFolder.getProjectId()));
 
         String[] replacementValues = {updatedProjectIdProperty, updatedProjectNameProperty, updatedGavProperty};
 
@@ -324,71 +239,91 @@ public class ProjectService {
         }
     }
 
-    public List<Project> getAllProjects(String type) {
-        return karavanCache.getProjects().stream()
+    public List<ProjectFolder> getAllProjects(String type) {
+        return karavanCache.getFolders().stream()
                 .filter(p -> type == null || Objects.equals(p.getType().name(), type))
-                .sorted(Comparator.comparing(Project::getProjectId))
+                .sorted(Comparator.comparing(ProjectFolder::getProjectId))
                 .collect(Collectors.toList());
     }
 
-    public Project create(Project project) throws Exception {
-        boolean projectIdExists = karavanCache.getProject(project.getProjectId()) != null;
+    public ProjectFolder create(ProjectFolder projectFolder) throws Exception {
+        boolean projectIdExists = karavanCache.getProject(projectFolder.getProjectId()) != null;
 
         if (projectIdExists) {
-            throw new Exception("Project with id " + project.getProjectId() + " already exists");
+            throw new Exception("Project with id " + projectFolder.getProjectId() + " already exists");
         } else {
-            karavanCache.saveProject(project, false);
-            ProjectFile appProp = codeService.generateApplicationProperties(project);
-            karavanCache.saveProjectFile(appProp, false, false);
+            karavanCache.saveProject(projectFolder);
+            ProjectFile appProp = codeService.generateApplicationProperties(projectFolder);
+            karavanCache.saveProjectFile(appProp, false);
             if (!ConfigService.inKubernetes()) {
-                ProjectFile projectCompose = codeService.createInitialProjectCompose(project, getMaxPortMappedInProjects() + 1);
-                karavanCache.saveProjectFile(projectCompose, false, false);
+                var port = getMaxPortMappedInProjects() + 1;
+                ProjectFile projectCompose =
+                        configService.inDockerSwarmMode()
+                        ? codeService.createInitialProjectStack(projectFolder, port)
+                        : codeService.createInitialProjectCompose(projectFolder, port);
+                karavanCache.saveProjectFile(projectCompose, false);
             } else {
-                ProjectFile projectDeployment = codeService.createInitialDeployment(project);
-                karavanCache.saveProjectFile(projectDeployment, false, false);
+                ProjectFile projectDeployment = codeService.createInitialDeployment(projectFolder);
+                karavanCache.saveProjectFile(projectDeployment, false);
             }
         }
-        return project;
+        return projectFolder;
     }
 
-    public Project copy(String sourceProjectId, Project project) throws Exception {
-        boolean projectIdExists = karavanCache.getProject(project.getProjectId()) != null;
+    public ProjectFolder copy(String sourceProjectId, ProjectFolder projectFolder) throws Exception {
+        boolean projectIdExists = karavanCache.getProject(projectFolder.getProjectId()) != null;
 
         if (projectIdExists) {
-            throw new Exception("Project with id " + project.getProjectId() + " already exists");
+            throw new Exception("Project with id " + projectFolder.getProjectId() + " already exists");
         } else {
 
-            Project sourceProject = karavanCache.getProject(sourceProjectId);
+            ProjectFolder sourceProjectFolder = karavanCache.getProject(sourceProjectId);
 
             // Save project
-            karavanCache.saveProject(project, false);
+            karavanCache.saveProject(projectFolder);
 
             // Copy files from the source and make necessary modifications
-            Map<String, ProjectFile> filesMap = karavanCache.getProjectFilesMap(sourceProjectId).entrySet().stream()
-                    .filter(e -> !Objects.equals(e.getValue().getName(), PROJECT_COMPOSE_FILENAME))
-                    .filter(e -> !Objects.equals(e.getValue().getName(), PROJECT_DEPLOYMENT_JKUBE_FILENAME))
+            Map<String, ProjectFile> filesMap = karavanCache.getProjectFiles(sourceProjectId).stream()
+                    .filter(f -> !Objects.equals(f.getName(), PROJECT_COMPOSE_FILENAME))
+                    .filter(f -> !Objects.equals(f.getName(), PROJECT_STACK_FILENAME))
+                    .filter(f -> !Objects.equals(f.getName(), PROJECT_DEPLOYMENT_JKUBE_FILENAME))
                     .collect(Collectors.toMap(
-                            e -> GroupedKey.create(project.getProjectId(), DEV, e.getValue().getName()),
-                            e -> {
-                                ProjectFile file = e.getValue();
-                                file.setProjectId(project.getProjectId());
+                            f -> GroupedKey.create(projectFolder.getProjectId(), DEV, f.getName()),
+                            file -> {
+                                var newFile = file.copy();
+                                newFile.setProjectId(projectFolder.getProjectId());
                                 if (Objects.equals(file.getName(), APPLICATION_PROPERTIES_FILENAME)) {
-                                    modifyPropertyFileOnProjectCopy(file, sourceProject, project);
+                                    modifyPropertyFileOnProjectCopy(newFile, sourceProjectFolder, projectFolder);
                                 }
-                                return file;
+                                return newFile;
                             })
                     );
-            karavanCache.saveProjectFiles(filesMap, false);
+
+            karavanCache.saveProjectFiles(filesMap);
 
             if (!ConfigService.inKubernetes()) {
-                ProjectFile projectCompose = codeService.createInitialProjectCompose(project, getMaxPortMappedInProjects() + 1);
-                karavanCache.saveProjectFile(projectCompose, false, false);
+                ProjectFile projectCompose = null;
+                var sourceComposeFile = karavanCache.getProjectFile(sourceProjectId, PROJECT_COMPOSE_FILENAME);
+                if (sourceComposeFile != null) {
+                    String newPort = String.valueOf(getMaxPortMappedInProjects() + 1);
+                    var compose = DockerComposeConverter.fromCode(sourceComposeFile.getCode());
+                    var service = compose.getServices().get(sourceProjectId);
+                    service.setContainer_name(projectFolder.getProjectId());
+                    service.setImage(projectFolder.getProjectId());
+                    service.setPorts(service.getPorts().stream().map(s -> s.endsWith(":" + INTERNAL_PORT) ? newPort + ":" + INTERNAL_PORT : s).collect(Collectors.toList()));
+                    compose.getServices().put(projectFolder.getProjectId(), service);
+                    compose.getServices().remove(sourceProjectId);
+                    projectCompose = new ProjectFile(PROJECT_COMPOSE_FILENAME, DockerComposeConverter.toCode(compose), projectFolder.getProjectId(), Instant.now().toEpochMilli());
+                } else {
+                    projectCompose = codeService.createInitialProjectCompose(projectFolder, getMaxPortMappedInProjects() + 1);
+                }
+                karavanCache.saveProjectFile(projectCompose, false);
             } else {
-                ProjectFile projectCompose = codeService.createInitialDeployment(project);
-                karavanCache.saveProjectFile(projectCompose, false, false);
+                ProjectFile projectCompose = codeService.createInitialDeployment(projectFolder);
+                karavanCache.saveProjectFile(projectCompose, false);
             }
 
-            return project;
+            return projectFolder;
         }
     }
 
@@ -406,12 +341,12 @@ public class ProjectService {
         }
     }
 
-    private int getMaxPortMappedInProjects() {
+    public int getMaxPortMappedInProjects() {
         try {
             List<ProjectFile> files = karavanCache.getProjectFilesByName(PROJECT_COMPOSE_FILENAME).stream()
-                    .filter(f -> !Objects.equals(f.getProjectId(), Project.Type.templates.name()))
-                    .filter(f -> !Objects.equals(f.getProjectId(), Project.Type.kamelets.name()))
-                    .filter(f -> !Objects.equals(f.getProjectId(), Project.Type.configuration.name()))
+                    .filter(f -> !Objects.equals(f.getProjectId(), ProjectFolder.Type.templates.name()))
+                    .filter(f -> !Objects.equals(f.getProjectId(), ProjectFolder.Type.kamelets.name()))
+                    .filter(f -> !Objects.equals(f.getProjectId(), ProjectFolder.Type.configuration.name()))
                     .toList();
             if (!files.isEmpty()) {
                 return files.stream().map(this::getProjectPort)
@@ -423,6 +358,44 @@ public class ProjectService {
             }
         } catch (Exception e) {
             return INTERNAL_PORT;
+        }
+    }
+
+    public void importProjects(boolean onlyNew) {
+        LOGGER.info("Import " +(onlyNew ? "Only New" : "")+ " projects from git: " + gitService.getGitConfig().getUri());
+        try {
+            List<GitRepo> repos = onlyNew ? gitService.readAllProjectsFromRepository() : gitService.readProjectsToImport();
+            repos.forEach(repo -> {
+                ProjectFolder projectFolder;
+                String folderName = repo.getName();
+
+                boolean needImport = !onlyNew || karavanCache.getProject(folderName) == null;
+                LOGGER.info("Project " + folderName + " " + (needImport ? "is loading!" : "skipped!"));
+
+                if (needImport) {
+                    if (folderName.equals(ProjectFolder.Type.templates.name())) {
+                        projectFolder = new ProjectFolder(ProjectFolder.Type.templates.name(), "Templates", repo.getCommitId(), repo.getLastCommitTimestamp(), ProjectFolder.Type.templates);
+                    } else if (folderName.equals(ProjectFolder.Type.kamelets.name())) {
+                        projectFolder = new ProjectFolder(ProjectFolder.Type.kamelets.name(), "Custom Kamelets", repo.getCommitId(), repo.getLastCommitTimestamp(), ProjectFolder.Type.kamelets);
+                    } else if (folderName.equals(ProjectFolder.Type.configuration.name())) {
+                        projectFolder = new ProjectFolder(ProjectFolder.Type.configuration.name(), "Configuration", repo.getCommitId(), repo.getLastCommitTimestamp(), ProjectFolder.Type.configuration);
+                    } else if (folderName.equals(ProjectFolder.Type.services.name())) {
+                        projectFolder = new ProjectFolder(ProjectFolder.Type.services.name(), "Dev Services", repo.getCommitId(), repo.getLastCommitTimestamp(), ProjectFolder.Type.services);
+                    } else if (folderName.equals(ProjectFolder.Type.documentation.name())) {
+                        projectFolder = new ProjectFolder(ProjectFolder.Type.documentation.name(), "Documentation", repo.getCommitId(), repo.getLastCommitTimestamp(), ProjectFolder.Type.documentation);
+                    } else {
+                        projectFolder = getProjectFromRepo(repo);
+                    }
+                    karavanCache.saveProject(projectFolder);
+
+                    repo.getFiles().forEach(repoFile -> {
+                        ProjectFile file = new ProjectFile(repoFile.getName(), repoFile.getBody(), folderName, repoFile.getLastCommitTimestamp());
+                        karavanCache.saveProjectFile(file, true);
+                    });
+                }
+            });
+        } catch (Exception e) {
+            LOGGER.error("Error during project import", e);
         }
     }
 }

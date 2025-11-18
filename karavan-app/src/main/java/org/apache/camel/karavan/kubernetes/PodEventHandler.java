@@ -25,8 +25,8 @@ import io.fabric8.kubernetes.api.model.apps.Deployment;
 import io.fabric8.kubernetes.client.informers.ResourceEventHandler;
 import io.vertx.core.json.JsonObject;
 import io.vertx.mutiny.core.eventbus.EventBus;
-import org.apache.camel.karavan.model.ContainerType;
-import org.apache.camel.karavan.model.PodContainerStatus;
+import org.apache.camel.karavan.cache.ContainerType;
+import org.apache.camel.karavan.cache.PodContainerStatus;
 import org.jboss.logging.Logger;
 
 import java.util.List;
@@ -89,7 +89,9 @@ public class PodEventHandler implements ResourceEventHandler<Pod> {
         try {
             LOGGER.info("onDelete " + pod.getMetadata().getName());
             String deployment = pod.getMetadata().getLabels().get("app");
-            String projectId = deployment != null ? deployment : pod.getMetadata().getLabels().get(LABEL_PROJECT_ID);
+            String projectId = deployment != null
+                    ? deployment
+                    : (pod.getMetadata().getLabels().containsKey(LABEL_INTEGRATION_NAME) ? pod.getMetadata().getLabels().get(LABEL_INTEGRATION_NAME) : pod.getMetadata().getLabels().get(LABEL_PROJECT_ID));
 
             PodContainerStatus cs = new PodContainerStatus();
             cs.setProjectId(projectId);
@@ -105,7 +107,9 @@ public class PodEventHandler implements ResourceEventHandler<Pod> {
 
     public PodContainerStatus getPodStatus(Pod pod) {
         String appName = pod.getMetadata().getLabels().get("app");
-        String projectId = pod.getMetadata().getLabels().get(LABEL_PROJECT_ID);
+        String projectId = pod.getMetadata().getLabels().containsKey(LABEL_INTEGRATION_NAME)
+            ? pod.getMetadata().getLabels().get(LABEL_INTEGRATION_NAME)
+            : pod.getMetadata().getLabels().get(LABEL_PROJECT_ID);
         String camel = pod.getMetadata().getLabels().get(LABEL_KUBERNETES_RUNTIME);
         String runtime = pod.getMetadata().getLabels().get(LABEL_CAMEL_RUNTIME);
         String type = pod.getMetadata().getLabels().get(LABEL_TYPE);

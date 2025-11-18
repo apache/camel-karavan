@@ -21,10 +21,10 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.mutiny.core.eventbus.EventBus;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import org.apache.camel.karavan.KaravanCache;
 import org.apache.camel.karavan.KaravanConstants;
+import org.apache.camel.karavan.cache.ContainerType;
+import org.apache.camel.karavan.cache.KaravanCache;
 import org.apache.camel.karavan.model.CamelStatusRequest;
-import org.apache.camel.karavan.model.ContainerType;
 import org.apache.camel.karavan.service.ConfigService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
@@ -50,7 +50,7 @@ public class CamelStatusScheduler {
     @Inject
     EventBus eventBus;
 
-    @Scheduled(every = "{karavan.camel.status.interval}", concurrentExecution = Scheduled.ConcurrentExecution.SKIP)
+    @Scheduled(every = "{karavan.camel.status.interval}", concurrentExecution = Scheduled.ConcurrentExecution.SKIP, skipExecutionIf = KaravanSkipPredicate.class)
     public void collectCamelStatuses() {
         LOGGER.debug("Collect Camel Statuses");
          if (ConfigService.inKubernetes()) {
@@ -66,6 +66,7 @@ public class CamelStatusScheduler {
                      });
          } else {
              karavanCache.getPodContainerStatuses(environment).stream()
+                     .filter(Objects::nonNull)
                      .filter(cs -> Objects.equals(cs.getCamelRuntime(), KaravanConstants.CamelRuntime.CAMEL_MAIN.getValue()))
                      .filter(cs -> Objects.equals(cs.getType(), ContainerType.devmode) || Objects.equals(cs.getType(), ContainerType.packaged))
                      .forEach(cs -> {

@@ -16,18 +16,16 @@
  */
 package org.apache.camel.karavan.api;
 
+import io.quarkus.security.Authenticated;
 import io.vertx.core.eventbus.EventBus;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import org.apache.camel.karavan.KaravanCache;
 import org.apache.camel.karavan.KaravanConstants;
+import org.apache.camel.karavan.cache.*;
 import org.apache.camel.karavan.kubernetes.KubernetesService;
-import org.apache.camel.karavan.model.ContainerType;
-import org.apache.camel.karavan.model.DeploymentStatus;
-import org.apache.camel.karavan.model.ProjectFile;
-import org.apache.camel.karavan.model.ServiceStatus;
+import org.apache.camel.karavan.model.PodEvent;
 import org.apache.camel.karavan.service.ConfigService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
@@ -62,6 +60,7 @@ public class InfrastructureResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/deployment")
+    @Authenticated
     public List<DeploymentStatus> getAllDeploymentStatuses() throws Exception {
         return karavanCache.getDeploymentStatuses().stream()
                 .sorted(Comparator.comparing(DeploymentStatus::getProjectId))
@@ -71,6 +70,7 @@ public class InfrastructureResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/deployment/{env}")
+    @Authenticated
     public List<DeploymentStatus> getDeploymentStatusesByEnv(@PathParam("env") String env) throws Exception {
         return karavanCache.getDeploymentStatuses(env).stream()
                 .sorted(Comparator.comparing(DeploymentStatus::getProjectId))
@@ -78,6 +78,7 @@ public class InfrastructureResource {
     }
 
     @POST
+    @Authenticated
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/deployment/rollout/{env}/{projectId}")
     public Response rollout(@PathParam("env") String env, @PathParam("projectId") String projectId) throws Exception {
@@ -86,6 +87,7 @@ public class InfrastructureResource {
     }
 
     @POST
+    @Authenticated
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/deployment/start/{env}/{projectId}")
     public Response start(@PathParam("env") String env, @PathParam("projectId") String projectId) throws Exception {
@@ -99,12 +101,21 @@ public class InfrastructureResource {
     }
 
     @DELETE
+    @Authenticated
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/deployment/{env}/{name}")
     public Response deleteDeployment(@PathParam("env") String env, @PathParam("name") String name) throws Exception {
         kubernetesService.deleteDeployment(name);
         return Response.ok().build();
+    }
+
+    @GET
+    @Authenticated
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/pod-events/{containerName}")
+    public List<PodEvent> getPodEvents(@PathParam("containerName")  String containerName) {
+        return kubernetesService.getPodEvents(containerName);
     }
 
     @GET
@@ -117,6 +128,7 @@ public class InfrastructureResource {
     }
 
     @GET
+    @Authenticated
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/configmaps")
     public Response getConfigMaps() throws Exception {
@@ -128,6 +140,7 @@ public class InfrastructureResource {
     }
 
     @GET
+    @Authenticated
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/secrets")
     public Response getSecrets() throws Exception {
@@ -139,6 +152,7 @@ public class InfrastructureResource {
     }
 
     @GET
+    @Authenticated
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/services")
     public Response getServices() throws Exception {
@@ -154,6 +168,7 @@ public class InfrastructureResource {
     }
 
     @PUT
+    @Authenticated
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/informers")
     public Response restartInformers() {

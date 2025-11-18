@@ -19,10 +19,10 @@ import {APPLICATION_PROPERTIES, ProjectFile} from "@/api/ProjectModels";
 import {BeanFactoryDefinition} from "karavan-core/lib/model/CamelDefinition";
 import {Integration, IntegrationFile, KameletTypes, MetadataLabels} from "karavan-core/lib/model/IntegrationDefinition";
 import {CamelDefinitionYaml} from "karavan-core/lib/api/CamelDefinitionYaml";
-import {CamelUi} from "@/designer/utils/CamelUi";
+import {CamelUi} from "@/integration-designer/utils/CamelUi";
 import {KameletApi} from "karavan-core/lib/api/KameletApi";
 import {CamelUtil} from "karavan-core/lib/api/CamelUtil";
-import {EventBus} from "@/designer/utils/EventBus";
+import {EventBus} from "@/integration-designer/utils/EventBus";
 import {ApplicationProperty} from "karavan-core/lib/model/MainConfigurationModel";
 import {MainConfigurationApi} from "karavan-core/lib/api/MainConfigurationApi";
 

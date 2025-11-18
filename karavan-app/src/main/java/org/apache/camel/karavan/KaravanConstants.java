@@ -18,6 +18,10 @@ package org.apache.camel.karavan;
 
 public class KaravanConstants {
 
+    public static final String PLATFORM_ISSUER = "Platform";
+    public static final String PLATFORM_AUDIENCE = "Platform";
+    public static final String PLATFORM_EMAIL = "test@platform.demo";
+
     public static final String DEV = "dev";
     public static final String DEVMODE_IMAGE = "karavan.devmode.image";
     public static final String DEVMODE_IMAGE_PULL_POLICY = "karavan.devmode.withImagePullPolicy";
@@ -29,12 +33,16 @@ public class KaravanConstants {
     public static final String LABEL_PART_OF = "app.kubernetes.io/part-of";
     public static final String LABEL_TYPE = "org.apache.camel.karavan/type";
     public static final String LABEL_PROJECT_ID = "org.apache.camel.karavan/projectId";
+    public static final String LABEL_INTEGRATION_NAME = "org.apache.camel.karavan/integrationName";
     public static final String LABEL_CAMEL_RUNTIME = "org.apache.camel.karavan/runtime";
     public static final String LABEL_TAG = "org.apache.camel.karavan/tag";
+    public static final String LABEL_DOCKER_STACK_NAMESPACE = "com.docker.stack.namespace";
+    public static final String LABEL_SWARM_SERVICE_ID = "com.docker.swarm.service.id";
 
     public static final String BUILDER_SUFFIX = "-builder";
 
     public static final String CAMEL_PREFIX = "camel";
+    public static final String PLATFORM_PREFIX = "platform";
 
     public static final String BUILD_SCRIPT_VOLUME_NAME = "build-script";
     public static final String BUILD_SCRIPT_CONFIG_MAP = "build.sh";
@@ -46,12 +54,19 @@ public class KaravanConstants {
     public static final String LABEL_KUBERNETES_RUNTIME = "app.kubernetes.io/runtime";
     public static final String ANNOTATION_COMMIT = "jkube.eclipse.org/git-commit";
 
-    public static final String PROPERTY_NAME_PROJECT_ID = "camel.karavan.projectId";
-    public static final String PROPERTY_NAME_PROJECT_NAME = "camel.karavan.projectName";
-    public static final String PROPERTY_NAME_GAV = "camel.jbang.gav";
+    public static final String PROPERTY_CAMEL_MAIN_NAME = "camel.main.name";
+    public static final String PROPERTY_CAMEL_MAIN_DESCRIPTION = "camel.main.description";
 
-    public static final String PROPERTY_FORMATTER_PROJECT_ID = PROPERTY_NAME_PROJECT_ID + "=%s";
-    public static final String PROPERTY_FORMATTER_PROJECT_NAME = PROPERTY_NAME_PROJECT_NAME + "=%s";
+    public static final String PROPERTY_PROJECT_ID = "camel.karavan.projectId";
+    public static final String PROPERTY_PROJECT_NAME = "camel.karavan.projectName";
+    public static final String PROPERTY_PROJECT_NAME_OLD = "camel.karavan.project-name";
+    public static final String PROPERTY_PROJECT_LABELS = ".project.labels";
+
+    public static final String PROPERTY_NAME_GAV = "camel.jbang.gav";
+    public static final String PROPERTY_MAIN_NAME = "camel.main.name";
+
+    public static final String PROPERTY_FORMATTER_PROJECT_ID = PROPERTY_CAMEL_MAIN_NAME + "=%s";
+    public static final String PROPERTY_FORMATTER_PROJECT_NAME = PROPERTY_CAMEL_MAIN_DESCRIPTION + "=%s";
 
     public enum CamelRuntime {
         CAMEL_MAIN("camel-main"),

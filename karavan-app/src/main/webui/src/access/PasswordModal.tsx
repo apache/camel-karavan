@@ -19,7 +19,7 @@ import {SubmitHandler, useForm} from "react-hook-form";
 import {AxiosResponse} from "axios";
 import {useAccessStore} from "./AccessStore";
 import {useFormUtil} from "@/util/useFormUtil";
-import {EventBus} from "@/designer/utils/EventBus";
+import {EventBus} from "@/integration-designer/utils/EventBus";
 import {shallow} from "zustand/shallow";
 import {AccessPassword} from "@/access/AccessModels";
 import {AccessApi} from "@/access/AccessApi";

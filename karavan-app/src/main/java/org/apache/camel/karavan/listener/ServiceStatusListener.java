@@ -21,8 +21,8 @@ import io.quarkus.vertx.ConsumeEvent;
 import io.vertx.core.json.JsonObject;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import org.apache.camel.karavan.KaravanCache;
-import org.apache.camel.karavan.model.ServiceStatus;
+import org.apache.camel.karavan.cache.KaravanCache;
+import org.apache.camel.karavan.cache.ServiceStatus;
 
 import static org.apache.camel.karavan.KaravanEvents.SERVICE_DELETED;
 import static org.apache.camel.karavan.KaravanEvents.SERVICE_UPDATED;

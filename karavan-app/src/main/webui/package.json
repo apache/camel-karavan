@@ -48,7 +48,7 @@
     "file-saver": "2.0.5",
     "javascript-time-ago": "2.5.12",
     "karavan-core": "file:../../../../karavan-core",
-    "keycloak-js": "25.0.6",
+    "keycloak-js": "26.2.1",
     "react": "19.2.0",
     "react-dom": "19.2.0",
     "react-hook-form": "7.65.0",

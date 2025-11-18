@@ -2,7 +2,7 @@ import React, {ReactElement} from 'react';
 import './RightPanel.css'
 import {MainToolbar} from '@/components/MainToolbar';
 import {ErrorBoundaryWrapper} from "@/components/ErrorBoundaryWrapper";
-import {RuntimePanel} from "@/runtime/RuntimePanel";
+import {RuntimePanel} from "@/integration-runtime/RuntimePanel";
 
 interface Props {
     title: React.ReactNode;

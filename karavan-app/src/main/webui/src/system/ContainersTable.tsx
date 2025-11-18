@@ -17,7 +17,7 @@
 
 import React, {useEffect, useState} from 'react';
 import {Bullseye, EmptyState, EmptyStateVariant, Spinner,} from '@patternfly/react-core';
-import '../designer/karavan.css';
+import '@/integration-designer/karavan.css';
 import './ContainerPage.css';
 import {ContainerStatus} from "@/api/ProjectModels";
 import {InnerScrollContainer, OuterScrollContainer, Table, TableVariant, Tbody, Td, Th, Thead, Tr} from '@patternfly/react-table';
@@ -35,6 +35,7 @@ export function ContainersTable() {
     const [filter, setFilter] = useSystemStore((s) => [s.filter, s.setFilter], shallow);
     const [loading] = useState<boolean>(true);
     const isKubernetes = config.infrastructure === 'kubernetes'
+    const swarmMode = config.swarmMode
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -69,12 +70,14 @@ export function ContainersTable() {
                     <Thead>
                         <Tr>
                             <Th modifier="fitContent" textCenter={true} screenReaderText={'pass'}/>
-                            <Th modifier="fitContent" textCenter={true} key='env'>Env</Th>
                             <Th modifier="fitContent" textCenter={true} key='type'>Type</Th>
                             {isKubernetes &&
-                                <Th key='deployment' textCenter={true} modifier="fitContent">Deployment</Th>
+                                <Th key='deployment' modifier="fitContent">Deployment</Th>
                             }
-                            <Th key='container' textCenter={true}>Name</Th>
+                            {swarmMode &&
+                                <Th key='service' modifier="fitContent">Service</Th>
+                            }
+                            <Th key='container'>Container</Th>
                             <Th modifier="fitContent" textCenter={true} key='cpuInfo'>CPU</Th>
                             <Th modifier="fitContent" textCenter={true} key='memoryInfo'>Memory</Th>
                             <Th modifier="fitContent" textCenter={true} key='state'>State</Th>

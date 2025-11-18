@@ -27,7 +27,7 @@ import {
 } from '@patternfly/react-core';
 import {Property} from "karavan-core/lib/model/KameletModels";
 import {Table, Tbody, Td, Th, Thead, Tr} from "@patternfly/react-table";
-import {CamelUi} from "@/designer/utils/CamelUi";
+import {CamelUi} from "@/integration-designer/utils/CamelUi";
 import {useDocumentationStore} from "../DocumentationStore";
 import {shallow} from "zustand/shallow";
 

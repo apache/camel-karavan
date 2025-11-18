@@ -16,9 +16,9 @@
  */
 
 import axios, {AxiosResponse} from "axios";
-import {AppConfig, CamelStatus, ContainerStatus, DeploymentStatus, PodEvent, Project, ProjectFile, ProjectType, ServiceStatus} from "./ProjectModels";
+import {AppConfig, CamelStatus, CamelStatusName, ContainerStatus, DeploymentStatus, PodEvent, Project, ProjectFile, ProjectType, ServiceStatus} from "./ProjectModels";
 import {Buffer} from 'buffer';
-import {EventBus} from "@/designer/utils/EventBus";
+import {EventBus} from "@/integration-designer/utils/EventBus";
 import {ErrorEventBus} from "./ErrorEventBus";
 import {AuthApi, getCurrentUser} from "@/auth/AuthApi";
 
@@ -72,8 +72,8 @@ export class KaravanApi {
         });
     }
 
-    static async getAllCamelContextStatuses(after: (statuses: CamelStatus[]) => void) {
-        instance.get('/ui/status/camel/context')
+    static async getAllCamelStatuses(name: CamelStatusName, after: (statuses: CamelStatus[]) => void) {
+        instance.get(`/ui/status/camel/${name}`)
             .then(res => {
                 if (res.status === 200) {
                     after(res.data);
@@ -168,6 +168,17 @@ export class KaravanApi {
 
     static async getFiles(projectId: string, after: (files: ProjectFile[]) => void) {
         instance.get('/ui/file/' + projectId)
+            .then(res => {
+                if (res.status === 200) {
+                    after(res.data);
+                }
+            }).catch(err => {
+            ErrorEventBus.sendApiError(err);
+        });
+    }
+
+    static async getFilesByName(filename: string, after: (files: ProjectFile[]) => void) {
+        instance.get(`/ui/file?filename=${filename}`)
             .then(res => {
                 if (res.status === 200) {
                     after(res.data);

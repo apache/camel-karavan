@@ -21,7 +21,7 @@ import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.client.informers.ResourceEventHandler;
 import io.vertx.core.json.JsonObject;
 import io.vertx.mutiny.core.eventbus.EventBus;
-import org.apache.camel.karavan.model.ServiceStatus;
+import org.apache.camel.karavan.cache.ServiceStatus;
 import org.jboss.logging.Logger;
 
 import static org.apache.camel.karavan.KaravanEvents.SERVICE_DELETED;

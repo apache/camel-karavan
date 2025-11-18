@@ -16,16 +16,12 @@
  */
 package org.apache.camel.karavan.docker;
 
-import com.github.dockerjava.api.model.Container;
-import com.github.dockerjava.api.model.HealthCheck;
-import com.github.dockerjava.api.model.MountType;
-import com.github.dockerjava.api.model.RestartPolicy;
+import com.github.dockerjava.api.model.*;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import org.apache.camel.karavan.model.ContainerType;
-import org.apache.camel.karavan.model.DockerComposeService;
-import org.apache.camel.karavan.model.DockerComposeVolume;
-import org.apache.camel.karavan.model.Project;
+import org.apache.camel.karavan.cache.ContainerType;
+import org.apache.camel.karavan.cache.ProjectFolder;
+import org.apache.camel.karavan.model.*;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
@@ -47,6 +43,10 @@ public class DockerForKaravan {
 
     @Inject
     DockerService dockerService;
+
+    public void runProjectInDevMode(String projectId, Boolean verbose, Boolean compile, DockerStackService stack, String projectDevmodeImage, Map<String, String> labels, Map<String, String> envVars) throws Exception {
+        createDevmodeService(projectId, verbose, compile, stack, projectDevmodeImage, labels, envVars);
+    }
 
     public void runProjectInDevMode(String projectId, Boolean verbose, Boolean compile, DockerComposeService composeService,
                                     Map<String, String> files, String projectDevmodeImage, Map<String, String> labels, Map<String, String> envVars) throws Exception {
@@ -73,7 +73,7 @@ public class DockerForKaravan {
         }
 
         if (createM2.orElse(false)) {
-            compose.getVolumes().add(new DockerComposeVolume(MountType.VOLUME.name(), projectId+ "-m2-repository", "/karavan/.m2/repository"));
+            compose.getVolumes().add(new DockerVolumeDefinition(MountType.VOLUME.name(), projectId+ "-m2-repository", "/karavan/.m2/repository"));
         }
 
         var imageName = projectDevmodeImage != null ? projectDevmodeImage : devmodeImage;
@@ -84,6 +84,7 @@ public class DockerForKaravan {
         }
         containerLabels.put(LABEL_TYPE, ContainerType.devmode.name());
         containerLabels.put(LABEL_PROJECT_ID, projectId);
+        containerLabels.put(LABEL_INTEGRATION_NAME, projectId);
         containerLabels.put(LABEL_CAMEL_RUNTIME, CamelRuntime.CAMEL_MAIN.getValue());
 
         return dockerService.createContainer(projectId,
@@ -94,14 +95,56 @@ public class DockerForKaravan {
                 compose.getCpus(), compose.getCpu_percent(), compose.getMem_limit(), compose.getMem_reservation(), compose.getCommand());
     }
 
-    public void runBuildProject(Project project, String script, DockerComposeService compose, Map<String, String> sshFiles, String tag) throws Exception {
-        String containerName = project.getProjectId() + BUILDER_SUFFIX;
+    protected Service createDevmodeService(String projectId, Boolean verbose, Boolean compile, DockerStackService stack,
+                                           String projectDevmodeImage, Map<String, String> labels, Map<String, String> envVars) throws InterruptedException {
+        LOGGER.infof("DevMode starting for %s with verbose=%s", projectId, verbose);
+
+        var healthCheck = new DockerHealthCheckDefinition();
+        healthCheck.setInterval(String.valueOf(10000000000L));
+        healthCheck.setTimeout(String.valueOf(10000000000L));
+        healthCheck.setStart_period(String.valueOf(10000000000L));
+        healthCheck.setRetries(30);
+        healthCheck.setTest(List.of("CMD", "curl", "-f", "http://localhost:8080/q/dev/health"));
+        stack.setHealthcheck(healthCheck);
+
+        envVars.forEach(stack::addEnvironment);
+        if (verbose) {
+            stack.addEnvironment(ENV_VAR_VERBOSE_OPTION_NAME, ENV_VAR_VERBOSE_OPTION_VALUE);
+        }
+        if (compile) {
+            stack.addEnvironment(RUN_IN_COMPILE_MODE, "true");
+        }
+
+        if (createM2.orElse(false)) {
+            stack.getVolumes().add(new DockerVolumeDefinition(MountType.VOLUME.name(), projectId+ "-m2-repository", "/karavan/.m2/repository"));
+        }
+
+        var imageName = projectDevmodeImage != null ? projectDevmodeImage : devmodeImage;
+        stack.setImage(imageName);
+
+        var containerLabels = new HashMap<>(labels);
+        if (stack.getLabels() != null) {
+            containerLabels.putAll(stack.getLabels());
+        }
+        containerLabels.put(LABEL_TYPE, ContainerType.devmode.name());
+        containerLabels.put(LABEL_PROJECT_ID, projectId);
+        containerLabels.put(LABEL_INTEGRATION_NAME, projectId);
+        containerLabels.put(LABEL_CAMEL_RUNTIME, CamelRuntime.CAMEL_MAIN.getValue());
+        stack.setLabels(containerLabels);
+
+        var serviceSpec = StackToServiceSpecConverter.convertService(projectId, stack);
+        return dockerService.createService(projectId, serviceSpec);
+    }
+
+
+    public void runBuildProject(ProjectFolder projectFolder, String script, DockerComposeService compose, Map<String, String> sshFiles, String tag) throws Exception {
+        String containerName = projectFolder.getProjectId() + BUILDER_SUFFIX;
         dockerService.deleteContainer(containerName);
         if (createM2.orElse(false)) {
-            compose.getVolumes().add(new DockerComposeVolume(MountType.VOLUME.name(), project.getProjectId() + "-build-m2-repository", "/karavan/.m2/repository"));
+            compose.getVolumes().add(new DockerVolumeDefinition(MountType.VOLUME.name(), projectFolder.getProjectId() + "-build-m2-repository", "/karavan/.m2/repository"));
         }
         compose.addEnvironment(RUN_IN_BUILD_MODE, "true");
-        Container c = createBuildContainer(containerName, project, compose.getEnvironmentList(), compose.getVolumes(), tag);
+        Container c = createBuildContainer(containerName, projectFolder, compose.getEnvironmentList(), compose.getVolumes(), tag);
         dockerService.copyExecFile(c.getId(), "/karavan/builder", BUILD_SCRIPT_FILENAME, script);
         sshFiles.forEach((name, text) -> {
             dockerService.copyExecFile(c.getId(), "/karavan/.ssh", name, text);
@@ -109,18 +152,50 @@ public class DockerForKaravan {
         dockerService.runContainer(c);
     }
 
-    protected Container createBuildContainer(String containerName, Project project, List<String> env, List<DockerComposeVolume> volumes, String tag) throws InterruptedException {
+    public void runBuildProject(ProjectFolder projectFolder, DockerStackService stack, String tag) throws Exception {
+        String serviceName = projectFolder.getProjectId() + BUILDER_SUFFIX;
+        dockerService.deleteService(serviceName);
+        if (createM2.orElse(false)) {
+            stack.getVolumes().add(new DockerVolumeDefinition(MountType.VOLUME.name(), projectFolder.getProjectId() + "-build-m2-repository", "/karavan/.m2/repository"));
+        }
+        stack.setHostname(serviceName);
+        stack.addEnvironment(RUN_IN_BUILD_MODE, "true");
+        stack.addConfig(new DockerConfigDefinition(BUILD_SCRIPT_FILENAME, "/karavan/builder" + BUILD_SCRIPT_FILENAME));
+//        Map<String, String> sshFiles = codeService.getSshFiles();
+//         TODO: ssh_keys for Docker in Swarm Mode should be already in Secrets
+        stack.addConfig(new DockerConfigDefinition("ssh_id_rsa", "/karavan/.ssh/id_rsa"));
+        stack.addConfig(new DockerConfigDefinition("ssh_known_hosts", "/karavan/.ssh/known_hosts"));
+
+        stack.addLabel(LABEL_TYPE, ContainerType.build.name());
+        stack.addLabel(LABEL_PROJECT_ID, projectFolder.getProjectId());
+        stack.addLabel(LABEL_INTEGRATION_NAME, projectFolder.getProjectId());
+        stack.addLabel(LABEL_TAG, tag);
+        stack.setImage(devmodeImage);
+        stack.setCommand("/karavan/builder/build.sh");
+
+        createBuildService(serviceName, stack);
+    }
+
+    protected Container createBuildContainer(String containerName, ProjectFolder projectFolder, List<String> env, List<DockerVolumeDefinition> volumes, String tag) throws InterruptedException {
         LOGGER.infof("Starting Build Container ", containerName);
 
         return dockerService.createContainer(containerName, devmodeImage,
                 env, Map.of(), new HealthCheck(),
                 Map.of(
                         LABEL_TYPE, ContainerType.build.name(),
-                        LABEL_PROJECT_ID, project.getProjectId(),
+                        LABEL_PROJECT_ID, projectFolder.getProjectId(),
+                        LABEL_INTEGRATION_NAME, projectFolder.getProjectId(),
                         LABEL_TAG, tag
                 ),
-                volumes, null,RestartPolicy.noRestart(), DockerService.PULL_IMAGE.ifNotExists,
+                volumes, null, RestartPolicy.noRestart(), DockerService.PULL_IMAGE.ifNotExists,
                 null, null, null, null,
                 "/karavan/builder/build.sh");
+    }
+
+    protected void createBuildService(String serviceName, DockerStackService stack) {
+        LOGGER.infof("Starting Build Service ", serviceName);
+
+        var spec = StackToServiceSpecConverter.convertService(serviceName, stack);
+        dockerService.createService(serviceName, spec);
     }
 }

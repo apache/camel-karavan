@@ -22,16 +22,16 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.mutiny.core.eventbus.EventBus;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import org.apache.camel.karavan.KaravanCache;
 import org.apache.camel.karavan.KaravanConstants;
+import org.apache.camel.karavan.cache.ContainerType;
+import org.apache.camel.karavan.cache.KaravanCache;
+import org.apache.camel.karavan.cache.PodContainerStatus;
 import org.apache.camel.karavan.docker.DockerService;
 import org.apache.camel.karavan.kubernetes.KubernetesService;
-import org.apache.camel.karavan.model.ContainerType;
-import org.apache.camel.karavan.model.PodContainerStatus;
 import org.apache.camel.karavan.service.ConfigService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
-import static org.apache.camel.karavan.KaravanEvents.CMD_DELETE_CONTAINER;
+import static org.apache.camel.karavan.KaravanEvents.CMD_DELETE_INTEGRATION;
 import static org.apache.camel.karavan.KaravanEvents.POD_CONTAINER_UPDATED;
 
 @ApplicationScoped
@@ -52,11 +52,13 @@ public class PodContainerCommandListener {
     @Inject
     EventBus eventBus;
 
-    @ConsumeEvent(value = CMD_DELETE_CONTAINER, blocking = true)
+    @ConsumeEvent(value = CMD_DELETE_INTEGRATION, blocking = true)
     public void deletePodContainer(String projectId) {
         setContainerStatusTransit(projectId, ContainerType.devmode.name());
         if (ConfigService.inKubernetes()) {
             kubernetesService.deletePodAndService(projectId, false);
+        } else if (dockerService.isInSwarmMode()) {
+            dockerService.deleteService(projectId);
         } else {
             dockerService.deleteContainer(projectId);
         }

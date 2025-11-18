@@ -16,26 +16,21 @@
  */
 package org.apache.camel.karavan.api;
 
+import io.quarkus.security.Authenticated;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.SecurityContext;
-import org.apache.camel.karavan.KaravanCache;
+import org.apache.camel.karavan.cache.*;
 import org.apache.camel.karavan.docker.DockerService;
 import org.apache.camel.karavan.kubernetes.KubernetesService;
-import org.apache.camel.karavan.model.CamelStatus;
-import org.apache.camel.karavan.model.CamelStatusValue;
-import org.apache.camel.karavan.model.ContainerType;
-import org.apache.camel.karavan.model.Project;
 import org.apache.camel.karavan.service.ConfigService;
 import org.apache.camel.karavan.service.GitService;
 import org.apache.camel.karavan.service.ProjectService;
 import org.jboss.logging.Logger;
-import org.jboss.resteasy.reactive.PartType;
 
-import java.io.InputStream;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -70,30 +65,34 @@ public class ProjectResource extends AbstractApiResource {
     ProjectService projectService;
 
     @GET
+    @Authenticated
     @Produces(MediaType.APPLICATION_JSON)
-    public List<Project> getAll(@QueryParam("type") String type) {
+    public List<ProjectFolder> getAll(@QueryParam("type") String type, @Context SecurityContext ctx) {
         return projectService.getAllProjects(type);
     }
 
+
     @GET
+    @Authenticated
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/{project}")
-    public Project get(@PathParam("project") String project) throws Exception {
+    public ProjectFolder get(@PathParam("project") String project) throws Exception {
         return karavanCache.getProject(project);
     }
 
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response save(Project project) {
+    public Response create(ProjectFolder projectFolder) {
         try {
-            return Response.ok(projectService.create(project)).build();
+            return Response.ok(projectService.create(projectFolder)).build();
         } catch (Exception e) {
             return Response.status(Response.Status.CONFLICT).entity(e.getMessage()).build();
         }
     }
 
     @DELETE
+    @Authenticated
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/{project}")
     public void delete(@PathParam("project") String project, @QueryParam("deleteContainers") boolean deleteContainers, @Context SecurityContext securityContext) throws Exception {
@@ -106,24 +105,25 @@ public class ProjectResource extends AbstractApiResource {
             LOGGER.info("Deleting deployments");
             Response res4 = infrastructureResource.deleteDeployment(null, projectId);
         }
-        var identity = getIdentity(securityContext);
+        var identity = getIdentity();
         // delete from cache
-        karavanCache.getProjectFiles(projectId).forEach(file -> karavanCache.deleteProjectFile(projectId, file.getName(), false));
+        karavanCache.getProjectFiles(projectId).forEach(file -> karavanCache.deleteProjectFile(projectId, file.getName()));
         karavanCache.getProjectFilesCommited(projectId).forEach(file -> karavanCache.deleteProjectFileCommited(projectId, file.getName()));
-        karavanCache.deleteProject(projectId, false);
+        karavanCache.deleteProject(projectId);
         // delete from git
-        gitService.deleteProject(projectId, identity.get("name"), identity.get("email"));
+        gitService.deleteProject(projectId, identity.getString("username"), identity.getString("email"));
         LOGGER.info("Project deleted");
     }
 
     @POST
+    @Authenticated
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/build/{tag}")
-    public Response build(Project project, @PathParam("tag") String tag) throws Exception {
+    public Response build(ProjectFolder projectFolder, @PathParam("tag") String tag) throws Exception {
         try {
-            projectService.buildProject(project, tag);
-            return Response.ok().entity(project).build();
+            projectService.buildProject(projectFolder, tag);
+            return Response.ok().entity(projectFolder).build();
         } catch (Exception e) {
             LOGGER.error(e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
             e.printStackTrace();
@@ -132,6 +132,7 @@ public class ProjectResource extends AbstractApiResource {
     }
 
     @DELETE
+    @Authenticated
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/build/{env}/{buildName}")
     public Response deleteBuild(@PathParam("env") String env, @PathParam("buildName") String buildName) {
@@ -146,16 +147,16 @@ public class ProjectResource extends AbstractApiResource {
     }
 
     @GET
+    @Authenticated
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/status/camel/{projectId}/{env}")
     public Response getCamelStatusForProjectAndEnv(@PathParam("projectId") String projectId, @PathParam("env") String env) {
         List<CamelStatus> statuses = karavanCache.getCamelStatusesByProjectAndEnv(projectId, env)
-                .stream().map(camelStatus -> {
+                .stream().filter(Objects::nonNull).peek(camelStatus -> {
                     var stats = List.copyOf(camelStatus.getStatuses()).stream().filter(s -> !Objects.equals(s.getName(), CamelStatusValue.Name.trace)).toList();
                     camelStatus.setStatuses(stats);
-                    return camelStatus;
                 }).toList();
-        if (statuses != null && !statuses.isEmpty()) {
+        if (!statuses.isEmpty()) {
             return Response.ok(statuses).build();
         } else {
             return Response.noContent().build();
@@ -163,6 +164,7 @@ public class ProjectResource extends AbstractApiResource {
     }
 
     @GET
+    @Authenticated
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/traces/{projectId}/{env}")
     public Response getCamelTracesForProjectAndEnv(@PathParam("projectId") String projectId, @PathParam("env") String env) {
@@ -179,81 +181,15 @@ public class ProjectResource extends AbstractApiResource {
     }
 
     @POST
+    @Authenticated
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/copy/{sourceProject}")
-    public Response copy(@PathParam("sourceProject") String sourceProject, Project project) {
+    public Response copy(@PathParam("sourceProject") String sourceProject, ProjectFolder projectFolder) {
         try {
-            return Response.ok(projectService.copy(sourceProject, project)).build();
+            return Response.ok(projectService.copy(sourceProject, projectFolder)).build();
         } catch (Exception e) {
             return Response.serverError().entity(e.getMessage()).build();
-        }
-    }
-
-    @POST
-    @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.MULTIPART_FORM_DATA)
-    @Path("/upload")
-    public Response upload(ProjectArchiveUploadMultiPart projectArchiveUploadMultiPart) {
-        try {
-            projectService.importProjectFromArchiveFile(projectArchiveUploadMultiPart.getFile(), projectArchiveUploadMultiPart.isOverwriteExistingFiles());
-            return Response.ok().build();
-        } catch (Exception e) {
-            return Response.status(Response.Status.CONFLICT).entity(e.getMessage()).build();
-        }
-    }
-
-    @GET
-    @Produces(MediaType.APPLICATION_OCTET_STREAM)
-    @Path("/download/{projectId}")
-    public Response download(@PathParam("projectId") String projectId) {
-        try {
-            return Response.ok(projectService.downloadProjectArchiveFile(projectId)).header("Content-Disposition", "attachment;filename=" + projectId + ".zip").build();
-        } catch (Exception e) {
-            return Response.status(Response.Status.CONFLICT).entity(e.getMessage()).build();
-        }
-    }
-
-    public static class ProjectArchiveUploadMultiPart {
-
-        @FormParam("file")
-        @PartType(MediaType.APPLICATION_OCTET_STREAM)
-        public InputStream file;
-
-        @FormParam("overwriteExistingFiles")
-        @PartType(MediaType.TEXT_PLAIN)
-        Boolean overwriteExistingFiles;
-
-        public ProjectArchiveUploadMultiPart(InputStream file, Boolean overwriteExistingFiles) {
-            this.file = file;
-            this.overwriteExistingFiles = overwriteExistingFiles;
-        }
-
-        public ProjectArchiveUploadMultiPart() {
-        }
-
-        public InputStream getFile() {
-            return file;
-        }
-
-        public void setFile(InputStream file) {
-            this.file = file;
-        }
-
-        public Boolean isOverwriteExistingFiles() {
-            return overwriteExistingFiles;
-        }
-
-        public void setOverwriteExistingFiles(Boolean overwriteExistingFiles) {
-            this.overwriteExistingFiles = overwriteExistingFiles;
-        }
-
-        @Override
-        public String toString() {
-            return "ProjectArchiveFile{" +
-                    "file=" + file +
-                    ", overwriteExistingFiles=" + overwriteExistingFiles +
-                    '}';
         }
     }
 }

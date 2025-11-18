@@ -17,7 +17,7 @@
 
 import React, {useState} from 'react';
 import {Badge, Button, Content, Flex, FlexItem, Label, Modal, ModalBody, ModalFooter, ModalHeader, Spinner, Tooltip} from '@patternfly/react-core';
-import '../designer/karavan.css';
+import '@/integration-designer/karavan.css';
 import {ExpandableRowContent, Tbody, Td, Tr} from "@patternfly/react-table";
 import {PauseIcon, PlayIcon, StopIcon, TimesIcon} from '@patternfly/react-icons';
 import {ContainerStatus} from "@/api/ProjectModels";
@@ -46,6 +46,8 @@ export function ContainerTableRow(props: Props) {
     const inTransit = container.inTransit;
     const color = isRunning ? "green" : "grey";
     const isKubernetes = config.infrastructure === 'kubernetes'
+    const swarmMode = config.swarmMode
+    const commandType = swarmMode ? 'service' : 'container'
 
     function getConfirmation() {
         return (<Modal
@@ -57,7 +59,7 @@ export function ContainerTableRow(props: Props) {
                 <Content component={'h2'}>Confirmation</Content>
             </ModalHeader>
             <ModalBody>
-                <div>{"Confirm " + command + " container " + container.containerName + " ?"}</div>
+                <div>{`Confirm ${command} ${commandType} ${container.containerName}?`}</div>
             </ModalBody>
             <ModalFooter>
                 <Button key="confirm" variant={command !== 'run' ? "danger" : 'primary'} isDanger onClick={e => {
@@ -96,15 +98,17 @@ export function ContainerTableRow(props: Props) {
                         : undefined}
                     modifier={"fitContent"} className={'dev-action-button'}>
                 </Td>
-                <Td>
-                    {container.env}
-                </Td>
                 <Td style={{verticalAlign: "middle"}} modifier={"fitContent"}>
                     <Badge className="badge">{container.type}</Badge>
                 </Td>
                 {isKubernetes &&
                     <Td style={{verticalAlign: "middle"}} modifier={"fitContent"}>
                         {!isDevMode && !isBuild && <Label color={color}>{container.projectId}</Label>}
+                    </Td>
+                }
+                {swarmMode &&
+                    <Td style={{verticalAlign: "middle"}} modifier={"fitContent"}>
+                        {!isBuild && <Label color={color}>{container.projectId}</Label>}
                     </Td>
                 }
                 <Td>
@@ -134,26 +138,30 @@ export function ContainerTableRow(props: Props) {
                                             }}></Button>
                                 </Tooltip>
                             </FlexItem>
-                            <FlexItem>
-                                <Tooltip content={"Pause container"} position={"bottom"}>
-                                    <Button className="dev-action-button" variant={"plain"} icon={<PauseIcon/>}
-                                            isDisabled={!commands.includes('pause') || inTransit}
-                                            onClick={e => {
-                                                setCommand('pause');
-                                                setShowConfirmation(true);
-                                            }}></Button>
-                                </Tooltip>
-                            </FlexItem>
-                            <FlexItem>
-                                <Tooltip content={"Stop container"} position={"bottom"}>
-                                    <Button className="dev-action-button" variant={"plain"} icon={<StopIcon/>}
-                                            isDisabled={!commands.includes('stop') || inTransit}
-                                            onClick={e => {
-                                                setCommand('stop');
-                                                setShowConfirmation(true);
-                                            }}></Button>
-                                </Tooltip>
-                            </FlexItem>
+                            {!swarmMode &&
+                                <FlexItem>
+                                    <Tooltip content={"Pause container"} position={"bottom"}>
+                                        <Button className="dev-action-button" variant={"plain"} icon={<PauseIcon/>}
+                                                isDisabled={!commands.includes('pause') || inTransit}
+                                                onClick={e => {
+                                                    setCommand('pause');
+                                                    setShowConfirmation(true);
+                                                }}></Button>
+                                    </Tooltip>
+                                </FlexItem>
+                            }
+                            {!swarmMode &&
+                                <FlexItem>
+                                    <Tooltip content={"Stop container"} position={"bottom"}>
+                                        <Button className="dev-action-button" variant={"plain"} icon={<StopIcon/>}
+                                                isDisabled={!commands.includes('stop') || inTransit}
+                                                onClick={e => {
+                                                    setCommand('stop');
+                                                    setShowConfirmation(true);
+                                                }}></Button>
+                                    </Tooltip>
+                                </FlexItem>
+                            }
                             <FlexItem>
                                 <Tooltip content={"Delete container"} position={"bottom"}>
                                     <Button className="dev-action-button" variant={"plain"} icon={<TimesIcon/>}

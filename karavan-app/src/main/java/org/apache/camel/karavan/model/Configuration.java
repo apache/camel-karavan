@@ -23,7 +23,10 @@ public class Configuration {
     private String title;
     private String version;
     private String infrastructure;
+    private boolean swarmMode;
     private String environment;
+    private String platformSecretName;
+    private String platformConfigName;
     private List<String> environments;
     private List<String> configFilenames;
     private List<Object> status;
@@ -32,15 +35,25 @@ public class Configuration {
     public Configuration() {
     }
 
-    public Configuration(String title, String version, String infrastructure, String environment, List<String> environments, List<String> configFilenames,
-                         Map<String, String> advanced) {
+    public Configuration(String title, String version, String infrastructure, boolean swarmMode, String environment, String platformSecretName, String platformConfigName, List<String> environments, List<String> configFilenames, Map<String, String> advanced) {
         this.title = title;
         this.version = version;
         this.infrastructure = infrastructure;
+        this.swarmMode = swarmMode;
         this.environment = environment;
+        this.platformSecretName = platformSecretName;
+        this.platformConfigName = platformConfigName;
         this.environments = environments;
         this.configFilenames = configFilenames;
         this.advanced = advanced;
+    }
+
+    public boolean isSwarmMode() {
+        return swarmMode;
+    }
+
+    public void setSwarmMode(boolean swarmMode) {
+        this.swarmMode = swarmMode;
     }
 
     public String getTitle() {
@@ -105,5 +118,21 @@ public class Configuration {
 
     public void setAdvanced(Map<String, String> advanced) {
         this.advanced = advanced;
+    }
+
+    public String getPlatformSecretName() {
+        return platformSecretName;
+    }
+
+    public void setPlatformSecretName(String platformSecretName) {
+        this.platformSecretName = platformSecretName;
+    }
+
+    public String getPlatformConfigName() {
+        return platformConfigName;
+    }
+
+    public void setPlatformConfigName(String platformConfigName) {
+        this.platformConfigName = platformConfigName;
     }
 }

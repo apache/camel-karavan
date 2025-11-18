@@ -1,17 +1,13 @@
 import {Navigate, useLocation} from "react-router-dom";
-import {shallow} from "zustand/shallow";
 import {JSX, useContext} from "react";
 import {useAppConfigStore} from "@/api/ProjectStore";
 import {AuthContext} from "@/auth/AuthProvider";
-import {ROUTES} from "@/custom/Routes";
-import {LoaderPage} from "@/main/LoaderPage";
+import {ROUTES} from "@/main/Routes";
 
 export function ProtectedRoute({ children }: { children: JSX.Element }) {
-    const readiness = useAppConfigStore((s) => s.readiness, shallow);
+    const [readiness] = useAppConfigStore((s) => [s.readiness]);
     const { user, loading } = useContext(AuthContext);
     const location = useLocation();
-
-    if (loading) return <LoaderPage/>;
 
     if (readiness === undefined || readiness.status !== true) {
         if (location.pathname !== ROUTES.LOADER) {

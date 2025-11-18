@@ -17,12 +17,13 @@
 package org.apache.camel.karavan.listener;
 
 import io.quarkus.vertx.ConsumeEvent;
+import io.smallrye.mutiny.tuples.Tuple2;
 import io.vertx.core.json.JsonObject;
 import io.vertx.mutiny.core.eventbus.EventBus;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Default;
 import jakarta.inject.Inject;
-import org.apache.camel.karavan.model.Project;
+import org.apache.camel.karavan.cache.ProjectFolder;
 import org.apache.camel.karavan.service.ProjectService;
 import org.jboss.logging.Logger;
 
@@ -53,9 +54,14 @@ public class CommitListener {
         String authorEmail = event.getString("authorEmail");
         List<String> fileNames = event.containsKey("fileNames") ? List.of(event.getString("fileNames").split(",")) : List.of();
         try {
-            Project p = projectService.commitAndPushProject(projectId, message, authorName, authorEmail, fileNames);
+            Tuple2<ProjectFolder, List<String>> result = projectService.commitAndPushProject(projectId, message, authorName, authorEmail, fileNames);
             if (userId != null) {
-                eventBus.publish(COMMIT_HAPPENED, JsonObject.of("userId", userId, "eventId", eventId, "project", JsonObject.mapFrom(p)));
+                eventBus.publish(COMMIT_HAPPENED, JsonObject.of(
+                        "userId", userId,
+                        "eventId", eventId,
+                        "messages", result.getItem2(),
+                        "project", JsonObject.mapFrom(result.getItem1()))
+                );
             }
         } catch (Exception e) {
             var error = e.getCause() != null ? e.getCause() : e;
@@ -64,7 +70,7 @@ public class CommitListener {
                 eventBus.publish(NOTIFICATION_ERROR, JsonObject.of(
                         "userId", userId,
                         "eventId", eventId,
-                        "className", Project.class.getSimpleName(),
+                        "className", ProjectFolder.class.getSimpleName(),
                         "error", "Failed to commit event: " + e.getMessage())
                 );
             }

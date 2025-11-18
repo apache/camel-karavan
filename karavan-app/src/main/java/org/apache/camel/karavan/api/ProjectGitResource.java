@@ -16,6 +16,7 @@
  */
 package org.apache.camel.karavan.api;
 
+import io.quarkus.security.Authenticated;
 import io.vertx.core.json.JsonObject;
 import io.vertx.mutiny.core.eventbus.EventBus;
 import jakarta.inject.Inject;
@@ -42,23 +43,39 @@ public class ProjectGitResource extends AbstractApiResource {
     @Inject
     EventBus eventBus;
 
-
     @POST
+    @Authenticated
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public HashMap<String, String> push(HashMap<String, String> params, @Context SecurityContext securityContext) throws Exception {
-        var identity = getIdentity(securityContext);
+        var identity = getIdentity();
         var data = JsonObject.mapFrom(params);
-        data.put("authorName", identity.get("name"));
-        data.put("authorEmail", identity.get("email"));
+        data.put("authorName", identity.getString("username"));
+        data.put("authorEmail", identity.getString("email"));
         eventBus.publish(CMD_PUSH_PROJECT, data);
         return params;
+    }
+
+    @PUT
+    @Authenticated
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Path("/")
+    public Response pullAll() {
+        try {
+            projectService.importProjects(true);
+            return Response.ok().build();
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage());
+            return Response.serverError().entity(e.getMessage()).build();
+        }
     }
 
     @PUT
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/{projectId}")
+    @Authenticated
     public Response pull(@PathParam("projectId") String projectId) {
         try {
             projectService.importProject(projectId);

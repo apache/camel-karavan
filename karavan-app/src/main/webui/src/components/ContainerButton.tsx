@@ -23,7 +23,7 @@ import {useLogStore} from "@/api/ProjectStore";
 import {ContainerStatus, ContainerType} from '@/api/ProjectModels';
 import DevIcon from "@patternfly/react-icons/dist/esm/icons/dev-icon";
 import './ContainerButton.css'
-import {BuildIcon, PackageIcon, ServiceIcon, UnknownIcon, LockIcon} from '@patternfly/react-icons';
+import {BuildIcon, LockIcon, PackageIcon, ServiceIcon, UnknownIcon} from '@patternfly/react-icons';
 
 interface Props {
     container: ContainerStatus,

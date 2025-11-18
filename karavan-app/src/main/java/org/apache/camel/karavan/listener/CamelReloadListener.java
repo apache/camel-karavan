@@ -25,10 +25,9 @@ import io.vertx.mutiny.ext.web.client.HttpResponse;
 import io.vertx.mutiny.ext.web.client.WebClient;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import org.apache.camel.karavan.KaravanCache;
 import org.apache.camel.karavan.KaravanConstants;
-import org.apache.camel.karavan.kubernetes.KubernetesService;
-import org.apache.camel.karavan.model.PodContainerStatus;
+import org.apache.camel.karavan.cache.KaravanCache;
+import org.apache.camel.karavan.cache.PodContainerStatus;
 import org.apache.camel.karavan.service.CodeService;
 import org.apache.camel.karavan.service.ConfigService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -51,9 +50,6 @@ public class CamelReloadListener {
 
     @Inject
     CodeService codeService;
-
-    @Inject
-    KubernetesService kubernetesService;
 
     @ConfigProperty(name = "karavan.environment", defaultValue = KaravanConstants.DEV)
     String environment;
@@ -78,6 +74,7 @@ public class CamelReloadListener {
         LOGGER.debug("Reload project code " + projectId);
         try {
             PodContainerStatus podContainerStatus = karavanCache.getDevModePodContainerStatus(projectId, environment);
+            System.out.println(podContainerStatus);
             deleteRequest(podContainerStatus);
             Map<String, String> files = codeService.getProjectFilesForDevMode(projectId, true);
             files.forEach((name, code) -> putRequest(podContainerStatus, name, code, 1000));
@@ -157,7 +154,7 @@ public class CamelReloadListener {
             HttpResponse<Buffer> result = getWebClient().deleteAbs(url)
                     .timeout(timeout).send().subscribeAsCompletionStage().toCompletableFuture().get();
             JsonObject res = result.bodyAsJsonObject();
-            return res.encodePrettily();
+            return res != null ? res.encodePrettily() : null;
         } catch (Exception ex) {
             LOGGER.error("deleteResult " + (ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage()));
         }

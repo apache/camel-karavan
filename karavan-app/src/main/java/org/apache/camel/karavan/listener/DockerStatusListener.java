@@ -25,12 +25,13 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.mutiny.core.eventbus.EventBus;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import org.apache.camel.karavan.KaravanCache;
 import org.apache.camel.karavan.KaravanConstants;
+import org.apache.camel.karavan.cache.KaravanCache;
+import org.apache.camel.karavan.cache.PodContainerStatus;
 import org.apache.camel.karavan.docker.DockerService;
 import org.apache.camel.karavan.docker.DockerUtils;
-import org.apache.camel.karavan.model.PodContainerStatus;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.jboss.logging.Logger;
 
 import java.io.IOException;
 import java.time.Instant;
@@ -42,6 +43,7 @@ import static org.apache.camel.karavan.KaravanEvents.*;
 
 @ApplicationScoped
 public class DockerStatusListener {
+    private static final Logger LOGGER = Logger.getLogger(PodContainerStatusListener.class.getName());
 
     @ConfigProperty(name = "karavan.environment", defaultValue = KaravanConstants.DEV)
     String environment;
@@ -64,16 +66,22 @@ public class DockerStatusListener {
 
     @ConsumeEvent(value = CMD_CLEAN_STATUSES, blocking = true)
     void cleanContainersStatuses(String data) {
-        List<PodContainerStatus> statusesInDocker = getContainersStatuses();
-        List<String> namesInDocker = statusesInDocker.stream().map(PodContainerStatus::getContainerName).toList();
-        List<PodContainerStatus> statusesInCache = karavanCache.getPodContainerStatuses(environment);
-        // clean deleted
-        statusesInCache.stream()
-                .filter(cs -> !checkTransit(cs))
-                .filter(cs -> !namesInDocker.contains(cs.getContainerName()))
-                .forEach(containerStatus -> {
-                    eventBus.publish(POD_CONTAINER_DELETED, JsonObject.mapFrom(containerStatus));
-                });
+        try {
+            List<PodContainerStatus> statusesInDocker = dockerService.isInSwarmMode()
+                ? getServicesStatuses()
+                : getContainersStatuses();
+            List<String> namesInDocker = statusesInDocker.stream().map(PodContainerStatus::getContainerName).toList();
+            List<PodContainerStatus> statusesInCache = karavanCache.getPodContainerStatuses(environment);
+            // clean deleted
+            statusesInCache.stream()
+                    .filter(cs -> !checkTransit(cs))
+                    .filter(cs -> !namesInDocker.contains(cs.getContainerName()))
+                    .forEach(containerStatus -> {
+                        eventBus.publish(POD_CONTAINER_DELETED, JsonObject.mapFrom(containerStatus));
+                    });
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage());
+        }
     }
 
     private boolean checkTransit(PodContainerStatus cs) {
@@ -92,10 +100,26 @@ public class DockerStatusListener {
         return result;
     }
 
+    public List<PodContainerStatus> getServicesStatuses() {
+        List<PodContainerStatus> result = new ArrayList<>();
+        dockerService.getAllServices().forEach(service -> {
+            var containers = dockerService.findContainersByServiceId(service.getId());
+            if (containers != null) {
+                containers.forEach(container -> {
+                    PodContainerStatus podContainerStatus = DockerUtils.getServiceStatus(service, container, environment);
+                    result.add(podContainerStatus);
+                });
+            }
+        });
+        return result;
+    }
+
     public PodContainerStatus getContainerStatistics(PodContainerStatus podContainerStatus) {
-        Container container = dockerService.getContainerByName(podContainerStatus.getContainerName());
-        Statistics stats = getContainerStats(container.getId());
-        DockerUtils.updateStatistics(podContainerStatus, stats);
+        Container container = dockerService.getContainer(podContainerStatus.getContainerId());
+        if (container != null) {
+            Statistics stats = getContainerStats(container.getId());
+            DockerUtils.updateStatistics(podContainerStatus, stats);
+        }
         return podContainerStatus;
     }
 

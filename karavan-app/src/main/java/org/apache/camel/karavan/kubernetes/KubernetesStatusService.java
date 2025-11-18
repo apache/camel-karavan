@@ -118,12 +118,9 @@ public class KubernetesStatusService implements HealthCheck {
         if (ConfigService.inKubernetes()) {
             if (informers.size() == INFORMERS) {
                 return HealthCheckResponse.named("Kubernetes").up().build();
-            } else {
-                return HealthCheckResponse.named("Kubernetes").down().build();
             }
-        } else {
-            return HealthCheckResponse.named("Kubernetesless").up().build();
         }
+        return HealthCheckResponse.named("Kubernetes").down().build();
     }
 
     public void stopInformers() {

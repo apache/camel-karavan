@@ -18,11 +18,6 @@ package org.apache.camel.karavan;
 
 public class KaravanEvents {
 
-    public static final String PROJECT_SAVED = "PROJECT_SAVED";
-    public static final String PROJECT_DELETED = "PROJECT_DELETED";
-    public static final String PROJECT_FILE_SAVED = "PROJECT_FILE_SAVED";
-    public static final String PROJECT_FILE_DELETED = "PROJECT_FILE_DELETED";
-
     public static final String CMD_PUSH_PROJECT = "CMD_PUSH_PROJECT";
 
     public static final String NOTIFICATION_PROJECTS_STARTED = "NOTIFICATION_PROJECTS_STARTED";
@@ -40,9 +35,14 @@ public class KaravanEvents {
     public static final String CMD_PULL_IMAGES = "CMD_PULL_IMAGES";
 
     public static final String CMD_RELOAD_PROJECT_CODE = "CMD_RELOAD_PROJECT_CODE";
-    public static final String CMD_DELETE_CONTAINER = "CMD_DELETE_CONTAINER";
+    public static final String CMD_COPY_CODE_TO_CONTAINER_IN_SWARM = "CMD_COPY_CODE_TO_CONTAINER_IN_SWARM";
+    public static final String CMD_DELETE_INTEGRATION = "CMD_DELETE_INTEGRATION";
 
+    public static final String CMD_CLEAR_ALL_STATUSES = "CMD_CLEAR_ALL_STATUSES";
     public static final String CMD_RESTART_INFORMERS = "CMD_RESTART_INFORMERS";
+
+    public static final String CMD_DEPLOY_TRANSFORMER = "CMD_DEPLOY_TRANSFORMER";
+    public static final String CMD_DELETE_TRANSFORMER = "CMD_DELETE_TRANSFORMER";
 
     public static final String POD_CONTAINER_UPDATED = "POD_CONTAINER_UPDATED";
     public static final String POD_CONTAINER_DELETED = "POD_CONTAINER_DELETED";
@@ -52,5 +52,9 @@ public class KaravanEvents {
 
     public static final String SERVICE_UPDATED = "SERVICE_UPDATED";
     public static final String SERVICE_DELETED = "SERVICE_DELETED";
+
+    public static final String ON_USER_ACTIVITY = "ON_USER_ACTIVITY";
+    public static final String ON_PROJECT_ACTIVITY = "ON_PROJECT_ACTIVITY";
+    public static final String ON_CONTAINER_ACTIVITY = "ON_CONTAINER_ACTIVITY";
 
 }

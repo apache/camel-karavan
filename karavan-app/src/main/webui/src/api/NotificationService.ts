@@ -19,7 +19,7 @@ import {Subject} from "rxjs";
 import {unstable_batchedUpdates} from "react-dom";
 import {useProjectStore} from "./ProjectStore";
 import {ProjectService} from "./ProjectService";
-import {EventBus} from "@/designer/utils/EventBus";
+import {EventBus} from "@/integration-designer/utils/EventBus";
 
 export class KaravanEvent {
     id: string = '';

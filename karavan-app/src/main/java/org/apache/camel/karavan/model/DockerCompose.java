@@ -23,7 +23,7 @@ import java.util.Map;
 public class DockerCompose {
     private String version;
     private Map<String, DockerComposeService> services;
-    private Map<String, DockerComposeNetwork> networks;
+    private Map<String, DockerNetworkDefinition> networks;
 
     public DockerCompose() {
     }
@@ -54,11 +54,11 @@ public class DockerCompose {
         this.version = version;
     }
 
-    public Map<String, DockerComposeNetwork> getNetworks() {
+    public Map<String, DockerNetworkDefinition> getNetworks() {
         return networks;
     }
 
-    public void setNetworks(Map<String, DockerComposeNetwork> networks) {
+    public void setNetworks(Map<String, DockerNetworkDefinition> networks) {
         this.networks = networks;
     }
 }

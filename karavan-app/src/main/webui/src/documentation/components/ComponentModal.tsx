@@ -17,9 +17,9 @@
 import React, {useState} from 'react';
 import {Badge, Button, CardHeader, Content, Flex, Modal, ModalBody, ModalFooter, ModalHeader, Tab, Tabs, TabTitleText} from '@patternfly/react-core';
 
-import '../../designer/karavan.css';
+import '@/integration-designer/karavan.css';
 import {Table, Tbody, Td, Th, Thead, Tr} from "@patternfly/react-table";
-import {CamelUi} from "../../designer/utils/CamelUi";
+import {CamelUi} from "@/integration-designer/utils/CamelUi";
 import {ComponentApi} from "karavan-core/lib/api/ComponentApi";
 import {ComponentHeader, ComponentProperty} from "karavan-core/lib/model/ComponentModels";
 import {useDocumentationStore} from "../DocumentationStore";

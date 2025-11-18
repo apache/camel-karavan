@@ -21,8 +21,8 @@ import io.fabric8.kubernetes.api.model.apps.Deployment;
 import io.fabric8.kubernetes.client.informers.ResourceEventHandler;
 import io.vertx.core.json.JsonObject;
 import io.vertx.mutiny.core.eventbus.EventBus;
-import org.apache.camel.karavan.model.ContainerType;
-import org.apache.camel.karavan.model.DeploymentStatus;
+import org.apache.camel.karavan.cache.ContainerType;
+import org.apache.camel.karavan.cache.DeploymentStatus;
 import org.jboss.logging.Logger;
 
 import static org.apache.camel.karavan.KaravanConstants.LABEL_TYPE;

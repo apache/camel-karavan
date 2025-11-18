@@ -9,7 +9,7 @@ import {RightPanel} from "@/components/RightPanel";
 import SearchIcon from "@patternfly/react-icons/dist/esm/icons/search-icon";
 import TimesIcon from "@patternfly/react-icons/dist/esm/icons/times-icon";
 import {UsersTable} from "@/access/UsersTable";
-import {ErrorBoundaryWrapper} from "@/designer/ErrorBoundaryWrapper";
+import {ErrorBoundaryWrapper} from "@/integration-designer/ErrorBoundaryWrapper";
 import {RolesTable} from "@/access/RolesTable";
 import {UserModal} from "./UserModal";
 import {RoleModal} from "@/access/RoleModal";

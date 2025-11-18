@@ -14,7 +14,7 @@ import {
     TooltipPosition
 } from '@patternfly/react-core';
 import {KaravanApi} from "@/api/KaravanApi";
-import {EventBus} from "@/designer/utils/EventBus";
+import {EventBus} from "@/integration-designer/utils/EventBus";
 import RefreshIcon from "@patternfly/react-icons/dist/esm/icons/sync-alt-icon";
 import {CamelStatusesTable} from "./CamelStatusesTable";
 import {ProjectService} from "@/api/ProjectService";
@@ -36,7 +36,7 @@ export const DiagnosticsPage = () => {
     const isKubernetes = config.infrastructure === 'kubernetes'
     const [autoRefresh, setAutoRefresh] = useState<boolean>(false);
     const [tab, setTab] = useState<string | number>("camel");
-    const [setCamels] = useStatusesStore((state) => [state.setCamels], shallow);
+    const [setCamels] = useStatusesStore((state) => [state.setCamelContexts], shallow);
 
     function refresh() {
         ProjectService.refreshAllContainerStatuses();

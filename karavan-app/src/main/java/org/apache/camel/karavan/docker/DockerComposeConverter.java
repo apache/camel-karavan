@@ -21,7 +21,7 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import org.apache.camel.karavan.model.DockerCompose;
 import org.apache.camel.karavan.model.DockerComposeService;
-import org.apache.camel.karavan.model.DockerComposeVolume;
+import org.apache.camel.karavan.model.DockerVolumeDefinition;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.introspector.Property;
@@ -102,9 +102,9 @@ public class DockerComposeConverter {
                     if (parts.length == 2) {
                         var part0 = parts[0];
                         var type = (part0.startsWith("/") || part0.startsWith("~") || part0.startsWith("./")) ? BIND : VOLUME;
-                        volumes.add(JsonObject.mapFrom(new DockerComposeVolume(type.name().toLowerCase(), parts[0], parts[1])));
+                        volumes.add(JsonObject.mapFrom(new DockerVolumeDefinition(type.name().toLowerCase(), parts[0], parts[1])));
                     } else if (parts.length == 1) {
-                        volumes.add(JsonObject.mapFrom(new DockerComposeVolume(VOLUME.name().toLowerCase(), null, parts[0])));
+                        volumes.add(JsonObject.mapFrom(new DockerVolumeDefinition(VOLUME.name().toLowerCase(), null, parts[0])));
                     }
                 }
             });

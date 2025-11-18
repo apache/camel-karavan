@@ -16,6 +16,7 @@
  */
 package org.apache.camel.karavan.api;
 
+import jakarta.annotation.security.PermitAll;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
@@ -23,8 +24,9 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.apache.camel.karavan.KaravanStartupLoader;
+import org.apache.camel.karavan.docker.DockerService;
 import org.apache.camel.karavan.kubernetes.KubernetesStatusService;
-import org.eclipse.microprofile.config.ConfigProvider;
+import org.apache.camel.karavan.service.ConfigService;
 import org.eclipse.microprofile.health.HealthCheckResponse;
 
 import java.util.List;
@@ -40,32 +42,18 @@ public class PublicResource {
     @Inject
     KubernetesStatusService kubernetesStatusService;
 
-    @GET
-    @Path("/auth")
-    @Produces(MediaType.TEXT_PLAIN)
-    public Response authType() throws Exception {
-        String authType = ConfigProvider.getConfig().getValue("karavan.auth", String.class);
-        return Response.ok(authType).build();
-    }
-
-    @GET
-    @Path("/sso-config")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response ssoConfig() throws Exception {
-        Map<String, String> getSsoConfig = Map.of(
-                "url", ConfigProvider.getConfig().getValue("karavan.keycloak.url", String.class),
-                "realm", ConfigProvider.getConfig().getValue("karavan.keycloak.realm", String.class),
-                "clientId", ConfigProvider.getConfig().getValue("karavan.keycloak.frontend.clientId", String.class)
-        );
-        return Response.ok(getSsoConfig).build();
-    }
+    @Inject
+    DockerService dockerService;
 
     @GET
     @Path("/readiness")
+    @PermitAll
     @Produces(MediaType.APPLICATION_JSON)
     public Response getConfiguration() throws Exception {
+        var infraCheck = ConfigService.inKubernetes() ? kubernetesStatusService.call() : dockerService.call();
+
         List<HealthCheckResponse> list = List.of(
-                kubernetesStatusService.call(),
+                infraCheck,
                 karavanStartupLoader.call()
         );
         return Response.ok(Map.of(

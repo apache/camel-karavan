@@ -18,11 +18,12 @@ package org.apache.camel.karavan.listener;
 
 import io.quarkus.vertx.ConsumeEvent;
 import io.vertx.core.eventbus.DeliveryOptions;
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.mutiny.core.eventbus.EventBus;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import org.apache.camel.karavan.model.Project;
+import org.apache.camel.karavan.cache.ProjectFolder;
 
 import java.util.UUID;
 
@@ -79,14 +80,15 @@ public class NotificationListener {
 
     @ConsumeEvent(value = COMMIT_HAPPENED, blocking = true, ordered = true)
     public void onCommitHappened(JsonObject event) throws Exception {
-        JsonObject pj = event.getJsonObject("project");
-        Project p = pj.mapTo(Project.class);
+        JsonObject project = event.getJsonObject("project");
+        JsonArray messages = event.getJsonArray("messages");
+        project.put("messages", messages);
         String eventId = event.getString("eventId");
         String userId = event.getString("userId");
         if (userId != null) {
-            send(userId, eventId, EVENT_COMMIT, Project.class.getSimpleName(), JsonObject.mapFrom(p));
+            send(userId, eventId, EVENT_COMMIT, ProjectFolder.class.getSimpleName(), project);
         } else {
-            sendSystem(eventId, EVENT_COMMIT, Project.class.getSimpleName(), JsonObject.mapFrom(p));
+            sendSystem(eventId, EVENT_COMMIT, ProjectFolder.class.getSimpleName(), project);
         }
     }
 

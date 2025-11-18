@@ -2,7 +2,7 @@ import React, {useEffect} from 'react';
 import {Label, Tooltip,} from '@patternfly/react-core';
 import './PageNavigation.css';
 import {useAppConfigStore} from "@/api/ProjectStore";
-import {KubernetesIcon} from "@/designer/icons/ComponentIcons";
+import {KubernetesIcon} from "@/integration-designer/icons/ComponentIcons";
 import DockerIcon from "@patternfly/react-icons/dist/esm/icons/docker-icon";
 
 export function EnvironmentLabel() {

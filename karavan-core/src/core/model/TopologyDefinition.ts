@@ -62,6 +62,31 @@ export class TopologyOpenApiNode {
     }
 }
 
+export class TopologyAsyncApiOperation {
+    operationId: string;
+    title: string;
+    action: string;
+    channelRef: string;
+
+    constructor(operationId: string, title: string, action: string, channelRef: string) {
+        this.operationId = operationId;
+        this.title = title;
+        this.action = action;
+        this.channelRef = channelRef;
+    }
+}
+
+export class TopologyAsyncApiNode {
+    fileName: string;
+    title: string;
+    operations: TopologyAsyncApiOperation[];
+
+    constructor(fileName: string, title: string, operations: TopologyAsyncApiOperation[]) {
+        this.fileName = fileName;
+        this.title = title;
+        this.operations = operations;
+    }
+}
 
 export class TopologyIncomingNode {
     id: string;

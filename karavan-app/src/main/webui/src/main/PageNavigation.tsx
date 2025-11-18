@@ -11,10 +11,9 @@ import {BUILD_IN_PROJECTS} from "@/api/ProjectModels";
 import DarkModeToggle from "@/main/DarkModeToggle";
 import {EnvironmentLabel} from "@/main/EnvironmentLabel";
 import {AuthApi} from "@/auth/AuthApi";
-import {getNavigationMenu, MenuItem} from "@/custom/NavigationMenu";
-import {PlatformLogoBase64} from "@/custom/PlatformLogo";
+import {getNavigationMenu, MenuItem} from "@/main/NavigationMenu";
 import {AuthContext} from "@/auth/AuthProvider";
-
+import {KaravanIcon} from "@/integration-designer/icons/KaravanIcons";
 
 export function PageNavigation() {
 
@@ -78,15 +77,12 @@ export function PageNavigation() {
             : undefined;
     }
 
-    const logo = config?.advanced.logo
-        ? config?.advanced.logo
-        : PlatformLogoBase64();
     return (
         <div className="nav-buttons pf-v6-theme-dark">
             <div className='nav-button-part-wrapper'>
                 <Tooltip className="logo-tooltip" content={config.title + " " + config.version}
                          position={"right"}>
-                    <img src={logo} className="logo" alt='logo'/>
+                    {KaravanIcon()}
                 </Tooltip>
 
             </div>
@@ -135,7 +131,7 @@ export function PageNavigation() {
                             if (AuthApi.authType === 'oidc') {
                                 SsoApi.logout(() => {
                                 });
-                            } else if (AuthApi.authType === 'sessionId') {
+                            } else if (AuthApi.authType === 'session') {
                                 AuthApi.logout();
                                 reload();
                             }

@@ -45,12 +45,10 @@ export class NotificationApi {
     static async notification(controller: AbortController) {
         const fetchData = async () => {
             const headers: any = { Accept: "text/event-stream" };
-            let ready = false;
             if (AuthApi.authType === 'oidc' && SsoApi.keycloak?.token && SsoApi.keycloak?.token?.length > 0) {
                 headers.Authorization = "Bearer " + SsoApi.keycloak?.token;
-                ready = true;
             }
-            if (ready) {
+            if (getCurrentUser()) {
                 NotificationApi.fetch('/ui/notification/system/' + getCurrentUser()?.username, controller, headers,
                     ev => NotificationApi.onSystemMessage(ev));
                 NotificationApi.fetch('/ui/notification/user/' + getCurrentUser()?.username, controller, headers,

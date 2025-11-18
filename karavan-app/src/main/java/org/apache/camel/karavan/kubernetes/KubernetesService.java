@@ -29,9 +29,10 @@ import jakarta.enterprise.inject.Default;
 import jakarta.enterprise.inject.Produces;
 import jakarta.inject.Inject;
 import org.apache.camel.karavan.KaravanConstants;
-import org.apache.camel.karavan.model.ContainerType;
+import org.apache.camel.karavan.cache.ContainerType;
 import org.apache.camel.karavan.model.KubernetesConfigMap;
 import org.apache.camel.karavan.model.KubernetesSecret;
+import org.apache.camel.karavan.model.PodEvent;
 import org.apache.camel.karavan.service.CodeService;
 import org.apache.camel.karavan.service.ConfigService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -139,6 +140,7 @@ public class KubernetesService {
         labels.putAll(getPartOfLabels());
         labels.put("app.kubernetes.io/name", name);
         labels.put(LABEL_PROJECT_ID, projectId);
+        labels.put(LABEL_INTEGRATION_NAME, projectId);
         if (type != null) {
             labels.put(LABEL_TYPE, type.name());
         }
@@ -706,5 +708,27 @@ public class KubernetesService {
 
     public String getEnvironment() {
         return environment;
+    }
+
+    public List<PodEvent> getPodEvents(String containerName) {
+        List<PodEvent> list = new ArrayList<>();
+        try (KubernetesClient client = kubernetesClient()) {
+            client.events().v1().events().inNamespace(getNamespace())
+                    .withField("regarding.kind", "Pod")
+                    .withField("regarding.name", containerName)
+                    .list(new ListOptionsBuilder().withLimit(100L).build())
+                    .getItems().forEach(e -> {
+                        PodEvent pe = new PodEvent(
+                                e.getMetadata().getName(),
+                                e.getRegarding().getName(),
+                                e.getReason(),
+                                e.getNote(),
+                                e.getMetadata().getCreationTimestamp());
+                        list.add(pe);
+                    });
+        } catch (Exception e) {
+            LOGGER.error("Error getting Pod Events" + e.getMessage());
+        }
+        return list;
     }
 }
