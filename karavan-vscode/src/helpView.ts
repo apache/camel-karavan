@@ -119,18 +119,19 @@ export class HelpView implements vscode.TreeDataProvider<HelpItem> {
 
 export class HelpItem extends vscode.TreeItem {
 
-	constructor(
-		public readonly title: string,
-		public readonly tooltip: string,
-		public readonly page: string,
-		public readonly icon: string,
-		public readonly command?: vscode.Command
-	) {
-		super(title, vscode.TreeItemCollapsibleState.None);
-		this.tooltip = this.tooltip;
-	}
+    public iconPath: vscode.ThemeIcon;
+    public contextValue = 'help';
 
-	iconPath = new ThemeIcon(this.icon);
+    constructor(
+        public readonly title: string,
+        public readonly tooltip: string,
+        public readonly page: string,
+        public readonly icon: string,
+        public readonly command?: vscode.Command
+    ) {
+        super(title, vscode.TreeItemCollapsibleState.None);
 
-	contextValue = 'help';
+        this.tooltip = tooltip;
+        this.iconPath = new vscode.ThemeIcon(icon);
+    }
 }

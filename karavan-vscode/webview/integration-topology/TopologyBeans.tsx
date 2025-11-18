@@ -24,10 +24,10 @@ import {
     CardTitle,
     Label,
 } from "@patternfly/react-core";
-import {TopologyUtils} from "core/api/TopologyUtils";
+import {TopologyUtils} from "@/core/api/TopologyUtils";
 import {useFilesStore} from "@/api/ProjectStore";
 import {shallow} from "zustand/shallow";
-import {IntegrationFile} from "core/model/IntegrationDefinition";
+import {IntegrationFile} from "@/core/model/IntegrationDefinition";
 import {getIntegrations} from "./TopologyApi";
 import JavaIcon from "@patternfly/react-icons/dist/js/icons/java-icon";
 import {useTopologyHook} from "./useTopologyHook";

@@ -37,7 +37,7 @@ import {getCustomComponentFactory} from "./CustomComponentFactory";
 import {shallow} from "zustand/shallow";
 import {useTopologyStore} from "./TopologyStore";
 import {useDesignerStore} from "@/integration-designer/DesignerStore";
-import {IntegrationFile} from "core/model/IntegrationDefinition";
+import {IntegrationFile} from "@/core/model/IntegrationDefinition";
 import {TopologyBeans} from "./TopologyBeans";
 import {getModel} from "./TopologyApi";
 import {useTopologyHook} from "./useTopologyHook";
@@ -48,8 +48,7 @@ import {ArrowDown, GroupObjects, JumpLink, UngroupObjects} from '@carbon/icons-r
 import {useFilesStore, useProjectStore} from "@/api/ProjectStore";
 import {NODE_POSITIONED_EVENT} from "@patternfly/react-topology/src/types";
 import {TopologyDagreLayout} from "@/integration-topology/graph/TopologyDagreLayout";
-import {TopologyToolbar} from "@/accelerator/toolbar/TopologyToolbar";
-import {ASYNCAPI_FILE_NAME_JSON, OPENAPI_FILE_NAME_JSON} from "core/contants";
+import {ASYNCAPI_FILE_NAME_JSON, OPENAPI_FILE_NAME_JSON} from "@/core/contants";
 
 interface Props {
     files: IntegrationFile[],
@@ -187,7 +186,6 @@ export function TopologyTab(props: Props) {
 
     return (
         <>
-            <TopologyToolbar/>
             <TopologyView
                 className="topology-panel"
                 controlBar={

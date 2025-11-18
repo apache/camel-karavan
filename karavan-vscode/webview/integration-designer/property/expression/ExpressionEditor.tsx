@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 import React, {useEffect, useState} from 'react';
-import '@/monaco-setup';
+// import '@/monaco-setup';
 import Editor from "@monaco-editor/react";
 import {ExpressionBottomPanel} from "./ExpressionBottomPanel";
 import './ExpressionEditor.css'

@@ -392,7 +392,8 @@ export async function readFile(fullPath: string) {
 
 export async function write(fullPath: string, code: string) {
     const uriFile: Uri = Uri.file(fullPath);
-    workspace.fs.writeFile(uriFile, Buffer.from(code, 'utf8'))
+    const encoder = new TextEncoder();
+    workspace.fs.writeFile(uriFile, encoder.encode(code))
         .then(
             value => { },
             reason => window.showErrorMessage("Error: " + reason)

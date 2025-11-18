@@ -21,7 +21,7 @@ import {DefaultNode, observer, WithContextMenuProps} from '@patternfly/react-top
 import {AsyncApiIcon, BeanIcon, getDesignerIcon, OpenApiIcon} from "@/integration-designer/icons/KaravanIcons";
 import {CamelUi} from "@/integration-designer/utils/CamelUi";
 import './topology.css';
-import {RouteDefinition} from "core/model/CamelDefinition";
+import {RouteDefinition} from "@/core/model/CamelDefinition";
 import {AutoStartupFalseIcon, ErrorHandlerIcon} from "@/integration-designer/icons/OtherIcons";
 import {useTopologyHook} from "./useTopologyHook";
 

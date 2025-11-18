@@ -20,7 +20,7 @@ import {ComponentCard} from "./ComponentCard";
 import {ComponentModal} from "./ComponentModal";
 import {shallow} from "zustand/shallow";
 import {useDocumentationStore} from "../DocumentationStore";
-import {Component} from 'core/model/ComponentModels';
+import {Component} from '@/core/model/ComponentModels';
 
 interface Props {
     components: Component[],

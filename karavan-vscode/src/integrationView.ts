@@ -78,12 +78,12 @@ export class IntegrationItem extends TreeItem {
 	) {
 		super(title, integration ? TreeItemCollapsibleState.Collapsed : TreeItemCollapsibleState.None);
 		this.tooltip = this.fsPath;
+		
+		this.iconPath = this.integration ? {
+			light: path.join(__filename, '..', '..', 'icons', 'light', this.integration?.type === 'crd' ? 'crd.svg' : 'karavan.svg'),
+			dark: path.join(__filename, '..', '..', 'icons', 'dark', this.integration?.type === 'crd' ? 'crd.svg' : 'karavan.svg')
+		} : ThemeIcon.File;
+
+		this.contextValue = this.integration ? 'integration' : "route";
 	}
-
-	iconPath = this.integration ? {
-		light: path.join(__filename, '..', '..', 'icons', 'light', this.integration?.type === 'crd' ? 'crd.svg' : 'karavan.svg'),
-		dark: path.join(__filename, '..', '..', 'icons', 'dark', this.integration?.type === 'crd' ? 'crd.svg' : 'karavan.svg')
-	} : ThemeIcon.File;
-
-	contextValue = this.integration ? 'integration' : "route";
 }

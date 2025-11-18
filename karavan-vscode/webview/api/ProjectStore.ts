@@ -27,8 +27,6 @@ import {
     ProjectOperation,
     ServiceStatus
 } from "./ProjectModels";
-import {ProjectEventBus} from "./ProjectEventBus";
-import {unstable_batchedUpdates} from "react-dom";
 import {createWithEqualityFn} from "zustand/traditional";
 import {shallow} from "zustand/shallow";
 
@@ -405,18 +403,3 @@ export const useLogStore = createWithEqualityFn<LogState>((set) => ({
     },
 }), shallow)
 
-const sub = ProjectEventBus.onLog()?.subscribe((result: ["add" | "set", string]) => {
-    if (result[0] === 'add') {
-        unstable_batchedUpdates(() => {
-            useLogStore.setState((state: LogState) => {
-                const delimiter = state.data.endsWith('\n') ? '' : '\n';
-                const newData = state.data ? state.data.concat(delimiter, result[1]) : result[1]
-                return ({data: newData, currentLine: state.currentLine + 1});
-            })
-        })
-    } else if (result[0] === 'set') {
-        unstable_batchedUpdates(() => {
-            useLogStore.setState({data: result[1], currentLine: 0});
-        })
-    }
-});

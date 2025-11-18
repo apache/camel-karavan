@@ -16,9 +16,9 @@
  */
 
 import {EdgeAnimationSpeed, EdgeModel, EdgeStyle, Model, NodeModel, NodeShape, NodeStatus,} from '@patternfly/react-topology';
-import {Integration, IntegrationFile} from "core/model/IntegrationDefinition";
-import {CamelDefinitionYaml} from "core/api/CamelDefinitionYaml";
-import {TopologyUtils} from "core/api/TopologyUtils";
+import {Integration, IntegrationFile} from "@/core/model/IntegrationDefinition";
+import {CamelDefinitionYaml} from "@/core/api/CamelDefinitionYaml";
+import {TopologyUtils} from "@/core/api/TopologyUtils";
 import {
     TopologyAsyncApiNode,
     TopologyIncomingNode,
@@ -27,8 +27,8 @@ import {
     TopologyRestNode,
     TopologyRouteConfigurationNode,
     TopologyRouteNode
-} from "core/model/TopologyDefinition";
-import {INTERNAL_COMPONENTS} from "core/api/ComponentApi";
+} from "@/core/model/TopologyDefinition";
+import {INTERNAL_COMPONENTS} from "@/core/api/ComponentApi";
 import {EventBus} from "@/integration-designer/utils/EventBus";
 
 const NODE_DIAMETER_ROUTE = 60;
@@ -603,7 +603,7 @@ export function getModel(files: IntegrationFile[], showGroups: boolean,
         //     routeGroups.set(groupName, children);
         // })
 
-        routeGroups.keys().forEach(groupName => {
+        Array.from(routeGroups.keys()).forEach(groupName => {
             groups.push({
                 id: groupName,
                 children: routeGroups.get(groupName) ?? [],

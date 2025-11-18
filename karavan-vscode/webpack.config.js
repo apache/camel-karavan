@@ -27,11 +27,17 @@ const baseConfig = (webpackEnv) => {
                 buffer: require.resolve("buffer"),
                 path: require.resolve("path-browserify"),
                 url: require.resolve("url"),
+                process: require.resolve('process/browser'),
             },
             alias: {
-                core: path.resolve(__dirname, 'webview/core/'),
+                // ADDED: Fixes resolution for imports starting with '@/'.
+                // e.g., '@/core/contants' resolves to 'webview/core/contants'
+                "@": path.resolve(__dirname, 'webview'), 
+                
+                // Existing 'core' alias, adjusted for consistency with tsconfig
+                'core': path.resolve(__dirname, 'webview/core'), 
               },
-            extensions: ['', ".ts", ".tsx", ".js"],
+            extensions: ['.ts', ".tsx", ".js"], // Removed empty string, added .ts
         },
         module: {
             rules: [

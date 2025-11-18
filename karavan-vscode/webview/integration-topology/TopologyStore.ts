@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 
-import {KaravanApi} from "@/api/KaravanApi";
 import {ErrorEventBus} from "@/api/ErrorEventBus";
 import {ProjectFile} from "@/api/ProjectModels";
 import {useFilesStore, useProjectStore} from "@/api/ProjectStore";
@@ -86,19 +85,6 @@ export const useTopologyStore = createWithEqualityFn<TopologyState>((set, get) =
                 reject(new Error("Failed to save topology file."));
             };
 
-            if (file) {
-                file.code = code;
-                KaravanApi.putProjectFile(file, res => {
-                    if (res.status === 200) onSuccess(res.data);
-                    else onError(res?.data);
-                });
-            } else {
-                const newFile = new ProjectFile('topology.json', projectId, code, Date.now());
-                KaravanApi.saveProjectFile(newFile, (result, savedFile) => {
-                    if (result) onSuccess(savedFile);
-                    else onError(savedFile?.response?.data);
-                });
-            }
         });
     };
 
