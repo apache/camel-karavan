@@ -13,13 +13,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM eclipse-temurin:17-jdk
+FROM eclipse-temurin:21-jdk
 
 LABEL "org.opencontainers.image.title"="karavan"
 LABEL "org.opencontainers.image.description"="Apache Camel Karavan"
 LABEL "org.opencontainers.image.url"="https://camel.apache.org"
 LABEL "org.opencontainers.image.licenses"="Apache 2.0"
-LABEL "org.opencontainers.image.version"="4.8."
+LABEL "org.opencontainers.image.version"="4.14.2"
 LABEL "org.apache.camel.karavan/type"="internal"
 
 RUN mkdir /opt/app
