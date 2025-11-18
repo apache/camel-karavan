@@ -2,14 +2,14 @@ replicaCount: 1
 
 image:
   repository: ghcr.io/apache/camel-karavan
-  tag: "4.14.0"
+  tag: "4.14.2"
   pullPolicy: Always
 
 env:
   KARAVAN_CONTAINER_STATUS_INTERVAL: "disabled"
   KARAVAN_CONTAINER_STATISTICS_INTERVAL: "disabled"
   KARAVAN_CAMEL_STATUS_INTERVAL: "3s"
-  KARAVAN_DEVMODE_IMAGE: "ghcr.io/apache/camel-karavan-devmode:4.14.0"
+  KARAVAN_DEVMODE_IMAGE: "ghcr.io/apache/camel-karavan-devmode:4.14.2"
 
 service:
   type: ClusterIP

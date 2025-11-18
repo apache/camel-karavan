@@ -72,7 +72,7 @@ Build-in catalogues:
 
 * Run using CLI
     ```shell
-    jbang -Dcamel.jbang.version=4.14.0 camel@apache/camel run $INTEGRATION.yaml --max-messages=10 --logging-level=info
+    jbang -Dcamel.jbang.version=4.14.2 camel@apache/camel run $INTEGRATION.yaml --max-messages=10 --logging-level=info
     ```
 
 ## Export integration to Maven project
@@ -82,7 +82,7 @@ Build-in catalogues:
 
 * Export using CLI
     ```shell
-    jbang -Dcamel.jbang.version=4.14.0 camel@apache/camel export --directory=export
+    jbang -Dcamel.jbang.version=4.14.2 camel@apache/camel export --directory=export
     ```
 
 # Issues

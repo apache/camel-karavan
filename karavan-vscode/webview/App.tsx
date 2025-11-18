@@ -18,16 +18,13 @@ import * as React from "react";
 import {
   Page, PageSection, Spinner, Text, TextVariants
 } from "@patternfly/react-core";
-import { KaravanDesigner } from "./designer/KaravanDesigner";
 import vscode from "./vscode";
 import { KameletApi } from "core/api/KameletApi";
 import { ComponentApi } from "core/api/ComponentApi";
 import { TemplateApi } from "./core/api/TemplateApi";
-import { EventBus } from "./designer/utils/EventBus";
-import { KnowledgebasePage } from "./knowledgebase/KnowledgebasePage";
-import { TopologyTab } from "./topology/TopologyTab";
 import {BeanFactoryDefinition} from "core/model/CamelDefinition";
 import { IntegrationFile } from "core/model/IntegrationDefinition";
+import { KaravanDesigner } from "./integration-designer/KaravanDesigner";
 
 interface Props {
   dark: boolean

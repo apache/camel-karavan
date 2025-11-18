@@ -25,7 +25,8 @@
     "paths": {
       "@app/*": ["src/app/*"],
       "@assets/*": ["node_modules/@patternfly/react-core/dist/styles/assets/*"],
-      "core": ["webview/core"]
+      "core": ["webview/core"],
+      "@/*": ["src/webview/*"],  
     },
     "importHelpers": true,
     "skipLibCheck": true

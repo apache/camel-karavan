@@ -22,7 +22,7 @@ spec:
         - name: "KARAVAN_CAMEL_STATUS_INTERVAL"
           value: "3s"
         - name: "KARAVAN_DEVMODE_IMAGE"
-          value: "ghcr.io/apache/camel-karavan-devmode:4.14.0"
+          value: "ghcr.io/apache/camel-karavan-devmode:4.14.2"
         - name: "KARAVAN_GIT_REPOSITORY"
           valueFrom:
             secretKeyRef:
@@ -73,7 +73,7 @@ spec:
             fieldRef:
               apiVersion: ""
               fieldPath: "metadata.namespace"
-        image: "ghcr.io/apache/camel-karavan:4.14.0"
+        image: "ghcr.io/apache/camel-karavan:4.14.2"
         imagePullPolicy: "Always"
         name: "karavan"
         ports:
