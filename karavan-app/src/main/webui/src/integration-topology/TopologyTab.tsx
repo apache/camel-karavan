@@ -48,7 +48,7 @@ import {ArrowDown, GroupObjects, JumpLink, UngroupObjects} from '@carbon/icons-r
 import {useFilesStore, useProjectStore} from "@/api/ProjectStore";
 import {NODE_POSITIONED_EVENT} from "@patternfly/react-topology/src/types";
 import {TopologyDagreLayout} from "@/integration-topology/graph/TopologyDagreLayout";
-import {TopologyToolbar} from "@/integration-topology/TopologyToolbar";
+import {TopologyToolbar} from "@/accelerator/toolbar/TopologyToolbar";
 import {ASYNCAPI_FILE_NAME_JSON, OPENAPI_FILE_NAME_JSON} from "karavan-core/lib/contants";
 
 interface Props {

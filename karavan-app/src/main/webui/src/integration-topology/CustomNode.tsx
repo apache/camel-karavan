@@ -24,7 +24,6 @@ import './topology.css';
 import {RouteDefinition} from "karavan-core/lib/model/CamelDefinition";
 import {AutoStartupFalseIcon, ErrorHandlerIcon} from "@/integration-designer/icons/OtherIcons";
 import {useTopologyHook} from "./useTopologyHook";
-import {CustomNodeMetricAttachment} from "@/integration-topology/CustomNodeMetricAttachment";
 
 export const COLOR_ORANGE = '#ef9234';
 export const COLOR_BLUE = '#2b9af3';
@@ -81,10 +80,8 @@ function getAttachments(data: any) {
         const route: RouteDefinition = data?.step;
         const routeId = route?.id;
         const errorHandler =  route?.errorHandler !== undefined;
-        const metricGroup = (routeId ? <CustomNodeMetricAttachment routeId={routeId}/> : undefined);
         return (
             <g>
-                {metricGroup}
                 <g className="pf-topology__node__label__badge auto-start" transform="translate(-4, -4)">
                     {errorHandler && <g className="" transform="translate(13, -4)">{ErrorHandlerIcon()}</g>}
                     {isDisable(data) && <g className="" transform="translate(-4, -4)">{AutoStartupFalseIcon()}</g>}

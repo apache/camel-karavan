@@ -26,7 +26,6 @@ import EllipsisVIcon from "@patternfly/react-icons/dist/esm/icons/ellipsis-v-ico
 import {APPLICATION_PROPERTIES, DOCKER_COMPOSE, DOCKER_STACK} from "@/api/ProjectModels";
 import {ProjectTitle} from "@/integration/ProjectTitle";
 import {useProjectFunctions} from "@/integration/ProjectContext";
-import {ASYNCAPI_FILE_NAME_JSON, OPENAPI_FILE_NAME_JSON} from "karavan-core/lib/contants";
 
 export function TopologyToolbar() {
 
@@ -81,36 +80,6 @@ export function TopologyToolbar() {
                         onClick={(ev) => openSelector(undefined, undefined)}
                 >
                     Create Route
-                </Button>
-            </div>
-            <div>
-                <Button className="dev-action-button"
-                        isDisabled={!isDev}
-                        variant={isAsyncApiExists() || isOpenApiExists() ? "secondary" : "primary"}
-                        onClick={(ev) => {
-                            if (isAsyncApiExists()) {
-                                selectFile(ASYNCAPI_FILE_NAME_JSON)
-                            } else {
-                                createAsyncApiJsonFile()
-                            }
-                        }}
-                >
-                    {isAsyncApiExists() ? 'Open AsyncAPI' : 'Create AsyncAPI'}
-                </Button>
-            </div>
-            <div>
-                <Button className="dev-action-button"
-                        isDisabled={!isDev}
-                        variant={isAsyncApiExists() || isOpenApiExists() ? "secondary" : "primary"}
-                        onClick={(ev) => {
-                            if (isOpenApiExists()) {
-                                selectFile(OPENAPI_FILE_NAME_JSON)
-                            } else {
-                                createOpenApiJsonFile()
-                            }
-                        }}
-                >
-                    {isOpenApiExists() ? 'Open OpenAPI' : 'Create OpenAPI'}
                 </Button>
             </div>
             <div>
