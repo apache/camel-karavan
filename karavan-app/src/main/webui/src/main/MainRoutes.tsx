@@ -15,7 +15,7 @@ import {ProjectProvider} from "@/integration/ProjectContext";
 import {DeveloperManager} from "@/accelerator/developer/DeveloperManager";
 import {ProjectPage} from "@/integration/ProjectPage";
 import {ProjectsPage} from "@/integrations/ProjectsPage";
-import {ProjectToolbar} from "@/integration/ProjectToolbar";
+import {ProjectToolbar} from "@/accelerator/toolbar/ProjectToolbar";
 
 
 export function MainRoutes() {
