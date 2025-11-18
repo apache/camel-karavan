@@ -7,12 +7,8 @@ import {shallow} from "zustand/shallow";
 import {ProjectEventBus} from "@/api/ProjectEventBus";
 import {ProjectLogTab} from "./ProjectLogTab";
 import {LogWatchApi} from "@/api/LogWatchApi";
-import {PodEventsLogTab} from "./PodEventsLogTab";
-import {MainConfigLogTab} from "./MainConfigLogTab";
 import {InformationTab} from "./InformationTab";
 import {LogViewerSearch} from '@patternfly/react-log-viewer';
-import {ThreadsTab} from "@/integration-runtime/ThreadsTab";
-import {RoutesTab} from "@/integration-runtime/RoutesTab";
 
 const INITIAL_LOG_HEIGHT = "50%";
 
@@ -62,10 +58,6 @@ export function RuntimePanel() {
                 <NavList>
                     <NavItem preventDefault key={'info'} itemId={'info'} isActive={tab === 'info'} to={`#`}>Information</NavItem>
                     <NavItem preventDefault key={'log'} itemId={'log'} isActive={tab === 'log'} to={`#`}>Log</NavItem>
-                    <NavItem preventDefault key={'routes'} itemId={'routes'} isActive={tab === 'routes'} to={`#`}>Routes</NavItem>
-                    {showMain && <NavItem preventDefault key={'main-configuration'} itemId={'main-configuration'} isActive={tab === 'main-configuration'} to={`#`}>Main Configuration</NavItem>}
-                    {showMain && <NavItem preventDefault key={'threads'} itemId={'threads'} isActive={tab === 'threads'} to={`#`}>Threads</NavItem>}
-                    {isKubernetes && <NavItem preventDefault key={'events'} itemId={'events'} isActive={tab === 'events'} to={`#`}>Events</NavItem>}
                 </NavList>
             </Nav>
         );
@@ -113,10 +105,6 @@ export function RuntimePanel() {
         <div className="project-log" style={{height: height}}>
             {tab === 'info' && currentPodName && <InformationTab currentPodName={currentPodName} header={getButtons()}/>}
             {tab === 'log' && <ProjectLogTab autoScroll={autoScroll} isTextWrapped={isTextWrapped} header={getButtons()}/>}
-            {tab === 'events' && currentPodName && <PodEventsLogTab currentPodName={currentPodName} header={getButtons()}/>}
-            {tab === 'main-configuration' && currentPodName && <MainConfigLogTab currentPodName={currentPodName} header={getButtons()}/>}
-            {tab === 'threads' && currentPodName && <ThreadsTab currentPodName={currentPodName} header={getButtons()}/>}
-            {tab === 'routes' && currentPodName && <RoutesTab currentPodName={currentPodName} header={getButtons()}/>}
         </div>
         : <></>);
 }

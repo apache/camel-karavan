@@ -1,7 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {Button, Dropdown, DropdownItem, DropdownList, MenuToggle, MenuToggleElement, Spinner, Tooltip, TooltipPosition} from '@patternfly/react-core';
 import DevIcon from "@patternfly/react-icons/dist/esm/icons/dev-icon";
-import DebugIcon from "@patternfly/react-icons/dist/esm/icons/bug-icon";
 import ReloadIcon from "@patternfly/react-icons/dist/esm/icons/bolt-icon";
 import DeleteIcon from "@patternfly/react-icons/dist/esm/icons/trash-icon";
 import {useAppConfigStore, useFileStore, useLogStore, useProjectStore} from "@/api/ProjectStore";
