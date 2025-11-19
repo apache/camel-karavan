@@ -141,7 +141,7 @@ export class DesignerView {
                             this.sendData(panel, filename, relativePath, fullPath, message.reread === true, yaml, tab);
                             break;
                         case 'internalConsumerClick':
-                            this.internalConsumerClick(panel, fullPath, message.uri, message.name, message.routeId);
+                            this.internalConsumerClick(panel, fullPath, message.uri, message.name, message.routeId, message.fileName);
                             break;
                     }
                 },
@@ -252,9 +252,11 @@ export class DesignerView {
         }
     }
 
-    internalConsumerClick(panel: WebviewPanel, fullPath: string, uri?: string, name?: string, routeId?: string) {
-        console.log(uri, name, routeId)
-        if (uri && name) {
+    internalConsumerClick(panel: WebviewPanel, fullPath: string, uri?: string, name?: string, routeId?: string, fileName?: string) {
+        if (fileName) {
+            const filename = path.join(path.dirname(fullPath), fileName);
+            commands.executeCommand("karavan.open", { fsPath: filename })
+        } else if (uri && name) {
             utils.getFileWithIntegnalConsumer(fullPath, uri, name).then((filename) => {
                 if (filename !== undefined) {
                     commands.executeCommand("karavan.open", { fsPath: filename })

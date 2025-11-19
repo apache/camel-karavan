@@ -250,8 +250,8 @@ class App extends React.Component<Props, State> {
             propertyPlaceholders={this.state.propertyPlaceholders}
             onSavePropertyPlaceholder={(key, value) => this.savePropertyPlaceholder(key, value)}
             beans={this.state.beans}
-            onInternalConsumerClick={(uri, name, routeId) => {
-              vscode.postMessage({ command: 'internalConsumerClick', uri: uri, name: name, routeId: routeId });
+            onInternalConsumerClick={(uri, name, routeId, fileName) => {
+              vscode.postMessage({ command: 'internalConsumerClick', uri: uri, name: name, routeId: routeId, fileName: fileName });
             }}
             files={this.state.files.map(f => new IntegrationFile(f.name, f.code))}
             onCreateNewFile={() => { }}
