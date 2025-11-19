@@ -259,7 +259,7 @@ export function useRouteDesignerHook() {
                 } else {
                     const nodePrefixId = isKamelet() ? integration.metadata.name : 'route' + uuidv4().substring(0, 3);
                     const route = CamelDefinitionApi.createRouteDefinition({
-                        from: new FromDefinition({uri: dsl.uri}),
+                        from: new FromDefinition({uri: dsl.uri, parameters: dsl.properties}),
                         nodePrefixId: nodePrefixId
                     });
                     addStep(route, parentId, position)
