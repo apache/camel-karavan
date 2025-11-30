@@ -90,4 +90,11 @@ spec:
           httpGet:
             path: /q/health/ready
             port: 8080
+        volumeMounts:
+        - name: karavan-cache
+          mountPath: /cache-data
+      volumes:
+      - name: karavan-cache
+        persistentVolumeClaim:
+          claimName: karavan-cache-pvc    
       serviceAccount: "karavan"

@@ -19,6 +19,7 @@ services:
       - KARAVAN_DOCKER_NETWORK=karavan
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock"    
+      - "./karavan-cache-data:/cache-data"    
     labels:
       - "org.apache.camel.karavan/type=internal"    
     networks:
