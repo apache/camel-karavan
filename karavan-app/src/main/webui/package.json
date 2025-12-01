@@ -60,7 +60,7 @@
     "uuid": "13.0.0",
     "victory": "37.3.6",
     "yup": "1.7.1",
-    "zustand": "5.0.8"
+    "zustand": "5.0.9"
   },
   "devDependencies": {
     "@eslint/js": "9.33.0",
@@ -77,7 +77,7 @@
     "source-map-explorer": "^2.5.3",
     "typescript": "5.9.3",
     "typescript-eslint": "8.46.2",
-    "vite": "7.1.11",
+    "vite": "7.2.6",
     "vite-plugin-svgr": "4.5.0",
     "vite-tsconfig-paths": "5.1.4"
   }

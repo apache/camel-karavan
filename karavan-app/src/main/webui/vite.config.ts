@@ -58,14 +58,14 @@ export default defineConfig({
 
                     if (n.includes('/node_modules/')) {
                         // --- React family in one chunk ---
-                        if (
-                            pkg === 'react' ||
-                            pkg === 'react-dom' ||
-                            pkg === 'react-is' ||
-                            pkg === 'scheduler' ||
-                            pkg === 'history' ||
-                            pkg.startsWith('react-router')
-                        ) return 'vendor-react';
+                        // if (
+                        //     pkg === 'react' ||
+                        //     pkg === 'react-dom' ||
+                        //     pkg === 'react-is' ||
+                        //     pkg === 'scheduler' ||
+                        //     pkg === 'history' ||
+                        //     pkg.startsWith('react-router')
+                        // ) return 'vendor-react';
 
                         // --- Monaco bucket ---
                         if (pkg.includes('monaco-')) return 'vendor-monaco';
