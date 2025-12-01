@@ -488,9 +488,9 @@ public class CodeService {
             if (fileSystem != null) {
                 fileSystem.close();
             }
-        } catch (URISyntaxException | IOException e) {
+        } catch (Exception e) {
             var error = e.getCause() != null ? e.getCause() : e;
-            LOGGER.error("URISyntaxException | IOException", error);
+            LOGGER.error("Exception", error);
         }
         return result;
     }
