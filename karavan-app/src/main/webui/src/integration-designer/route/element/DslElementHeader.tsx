@@ -32,7 +32,7 @@ import {AutoStartupFalseIcon, ErrorHandlerIcon} from "../../icons/OtherIcons";
 import {usePropertiesHook} from "../../property/usePropertiesHook";
 
 interface Props {
-    headerRef: React.Ref<HTMLDivElement> | undefined
+    headerRef?: React.Ref<HTMLDivElement>;
     step: CamelElement,
     parent: CamelElement | undefined,
     nextStep: CamelElement | undefined,
@@ -67,7 +67,7 @@ export function DslElementHeader(props: Props) {
     const disabled = (step as any).disabled === true;
     const autoStartup = (step as any).autoStartup === undefined || (step as any).autoStartup === true;
 
-    const localHeaderRef = useRef<HTMLDivElement>(null);
+    const localHeaderRef = useRef<HTMLDivElement | null>(null);
 
     // Merge any incoming ref into our local ref
     const mergedRef = useCallback(
