@@ -32,7 +32,7 @@ const CustomEdge: React.FC<any> = observer(({ element, ...rest }) => {
             endTerminalSize={10}
             endTerminalStatus={data?.endTerminalStatus || NodeStatus.default}
             tagStatus={data?.endTerminalStatus || NodeStatus.default}
-            tag={data.label}
+            tag={data?.label}
             {...rest}
         />
     )

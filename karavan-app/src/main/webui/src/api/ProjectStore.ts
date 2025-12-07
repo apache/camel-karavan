@@ -256,7 +256,7 @@ interface FileState {
 export const useFileStore = createWithEqualityFn<FileState>((set) => ({
     file: undefined,
     operation: "none",
-    designerTab: undefined,
+    designerTab: "routes",
     addProperty: '',
     setFile: (operation: FileOperation, file?: ProjectFile, designerTab?: DesignerTab) => {
         set((state: FileState) => ({
