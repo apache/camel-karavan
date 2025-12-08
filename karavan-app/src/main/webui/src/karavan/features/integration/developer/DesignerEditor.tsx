@@ -130,7 +130,7 @@ export function DesignerEditor() {
                              onCreateNewRoute={onCreateNewRoute}
                              onCreateNewFile={onCreateNewFile}
                              files={files.map(f => new IntegrationFile(f.name, f.code))}
-                             mainRightPanel={<DslProperties designerType={"routes"} expressionEditor={ExpressionEditor}/>}
+                             mainRightPanel={<DslProperties expressionEditor={ExpressionEditor}/>}
             />
             : <></>
     )

@@ -83,3 +83,4 @@ docs/install/karavan-docker/data/*
 **/dependency-reduced-pom.xml
 
 .env
+stats.html

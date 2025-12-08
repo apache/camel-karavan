@@ -1,28 +1,19 @@
 import React, {JSX, useEffect, useState} from 'react';
 import {CodeEditor} from "./CodeEditor";
 import './DeveloperManager.css'
-import {useNavigate} from "react-router-dom";
-import {EditorType} from "@features/integration/developer/EditorConfig";
 import { useDesignerStore } from "../designer/DesignerStore";
 import {useDeveloperStore } from "@stores/DeveloperStore";
 import {shallow} from "zustand/shallow";
-import {useFilesStore, useFileStore} from "@stores/ProjectStore";
+import {useFileStore} from "@stores/ProjectStore";
 import {ProjectService} from "@services/ProjectService";
 import {EditorErrorBoundaryWrapper} from "@features/integration/developer/EditorErrorBoundaryWrapper";
 
-export interface DeveloperEditorProps {
-    editorType: EditorType;
-}
+function DeveloperEditor(): JSX.Element {
 
-function DeveloperEditor(props: DeveloperEditorProps): JSX.Element {
-
-    const {editorType} = props
     const [setDesignerSwitch] = useDesignerStore((s) => [s.setDesignerSwitch], shallow)
     const {setLoading} = useDeveloperStore()
-    const [file, setFile] = useFileStore((s) => [s.file, s.setFile], shallow)
-    const [files] = useFilesStore((s) => [s.files], shallow);
+    const [file] = useFileStore((s) => [s.file], shallow)
     const [code, setCode] = useState<string>("");
-    const navigate = useNavigate();
 
     useEffect(() => {
         setDesignerSwitch(false);

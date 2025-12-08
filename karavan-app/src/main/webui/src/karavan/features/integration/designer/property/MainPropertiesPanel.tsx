@@ -69,11 +69,11 @@ export function MainPropertiesPanel() {
 
     function getPropertiesPanel() {
         if (tab === "routes") {
-            return <DslProperties designerType={"routes"} expressionEditor={ExpressionEditor}/>
+            return <DslProperties expressionEditor={ExpressionEditor}/>
         } else if (tab === "rest") {
-            return <DslProperties designerType={"rest"} expressionEditor={ExpressionEditor}/>
+            return <DslProperties expressionEditor={ExpressionEditor}/>
         } else if (tab === "beans") {
-            return <DslProperties designerType={"beans"} expressionEditor={ExpressionEditor}/>
+            return <DslProperties expressionEditor={ExpressionEditor}/>
         } else {
             return <></>
         }

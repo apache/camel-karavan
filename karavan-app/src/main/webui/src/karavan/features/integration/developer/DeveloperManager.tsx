@@ -29,30 +29,14 @@ export function DeveloperManager() {
     }
 
     function getDeveloperUI() {
-        const isYaml = file !== undefined && (file.name.endsWith(".yaml") || file.name.endsWith(".yml"));
         const isCamelYaml = yamlIsCamel();
         const isKameletYaml = file !== undefined && file.name.endsWith(".kamelet.yaml");
         const isIntegration = isCamelYaml && file?.code && CamelDefinitionYaml.yamlIsIntegration(file.code);
         const showDesigner = designerSwitch && ((isCamelYaml && isIntegration) || isKameletYaml);
-        const isMarkdown = file !== undefined && file.name.endsWith(".md");
-        const isGroovy = file !== undefined && file.name.endsWith(".groovy");
-        const isXml = file !== undefined && file.name.endsWith(".xml");
         if (showDesigner) {
             return <DesignerEditor/>;
         } else {
-            let editorType: EditorType;
-            if (isGroovy) {
-                editorType = 'groovy';
-            } else if (isYaml || isCamelYaml || isKameletYaml) {
-                editorType = 'yaml';
-            } else if (isMarkdown) {
-                editorType = 'markdown';
-            } else if (isXml) {
-                editorType = 'xml';
-            } else {
-                editorType = 'json'; // default
-            }
-            return <DeveloperEditor editorType={editorType}/>
+            return <DeveloperEditor/>
         }
     }
 

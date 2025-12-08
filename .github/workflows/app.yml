@@ -40,11 +40,7 @@ jobs:
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-
-      - name: Karavan Core install
-        working-directory: ./karavan/karavan-core
-        run: npm ci
+          node-version: '22'
 
       - name: Create Multi Platfrom Builder
         run: docker buildx create --use --platform=linux/arm64,linux/amd64 --name multi-platform-builder
