@@ -47,13 +47,9 @@ import {ComponentApi} from "@karavan-core/api/ComponentApi";
 import {CamelMetadataApi} from "@karavan-core/model/CamelMetadata";
 import {useRouteDesignerHook} from "../route/useRouteDesignerHook";
 
-interface Props {
-    designerType: 'routes' | 'rest' | 'beans'
-}
+export function PropertiesHeader() {
 
-export function PropertiesHeader(props: Props) {
-
-    const {saveAsRoute, convertStep, onPropertyChange} = usePropertiesHook(props.designerType);
+    const {saveAsRoute, convertStep, onPropertyChange} = usePropertiesHook();
     const {openSelectorToReplaceFrom} = useRouteDesignerHook();
 
     const [selectedStep] = useDesignerStore((s) => [s.selectedStep], shallow)

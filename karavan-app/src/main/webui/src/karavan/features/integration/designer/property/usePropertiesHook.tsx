@@ -27,18 +27,18 @@ import {CamelMetadataApi} from "@karavan-core/model/CamelMetadata";
 import {EventBus} from "../utils/EventBus";
 import {INTERNAL_COMPONENTS} from "@karavan-core/api/ComponentApi";
 
-export function usePropertiesHook(designerType: 'routes' | 'rest' | 'beans' = 'routes') {
+export function usePropertiesHook() {
 
     const [integration, setIntegration] = useIntegrationStore((state) => [state.integration, state.setIntegration], shallow)
-    const [selectedStep, setSelectedStep, setSelectedUuids] = useDesignerStore((s) =>
-        [s.selectedStep, s.setSelectedStep, s.setSelectedUuids], shallow)
+    const [selectedStep, setSelectedStep, setSelectedUuids, tab] = useDesignerStore((s) =>
+        [s.selectedStep, s.setSelectedStep, s.setSelectedUuids, s.tab], shallow)
 
     function onPropertyUpdate(element: CamelElement, newRoute?: RouteToCreate) {
-        if (designerType === 'routes') {
+        if (tab === 'routes') {
             onRoutePropertyUpdate(element, newRoute);
-        } else if (designerType === 'rest') {
+        } else if (tab === 'rest') {
             onRestPropertyUpdate(element, newRoute);
-        } else if (designerType === 'beans') {
+        } else if (tab === 'beans') {
             onBeanPropertyUpdate(element, newRoute);
         }
     }

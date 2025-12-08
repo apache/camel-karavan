@@ -48,7 +48,6 @@ import TimesIcon from "@patternfly/react-icons/dist/esm/icons/times-icon";
 import {RouteTemplateDefinition} from "@karavan-core/model/CamelDefinition";
 
 interface Props {
-    designerType: 'routes' | 'rest' | 'beans',
     expressionEditor: React.ComponentType<any>;
 }
 
@@ -63,10 +62,10 @@ export function DslProperties(props: Props) {
         onParametersChange,
         onExpressionChange
     } =
-        usePropertiesHook(props.designerType);
+        usePropertiesHook();
 
-    const [selectedStep, setParameterPlaceholders]
-        = useDesignerStore((s) => [s.selectedStep, s.setParameterPlaceholders], shallow)
+    const [selectedStep, setParameterPlaceholders, tab]
+        = useDesignerStore((s) => [s.selectedStep, s.setParameterPlaceholders, s.tab], shallow)
 
     const [propertyFilter, changedOnly, requiredOnly, setChangedOnly, sensitiveOnly, setSensitiveOnly, setPropertyFilter, setRequiredOnly]
         = usePropertiesStore((s) => [s.propertyFilter, s.changedOnly, s.requiredOnly, s.setChangedOnly, s.sensitiveOnly, s.setSensitiveOnly, s.setPropertyFilter, s.setRequiredOnly], shallow)
@@ -110,7 +109,7 @@ export function DslProperties(props: Props) {
     }
 
     function getPropertiesHeader(): ReactElement {
-        if (props.designerType === 'routes') return <PropertiesHeader designerType={props.designerType}/>
+        if (tab === 'routes') return <PropertiesHeader/>
         else return getClonableElementHeader();
     }
 
