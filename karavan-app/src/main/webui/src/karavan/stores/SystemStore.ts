@@ -2,7 +2,6 @@ import {createWithEqualityFn} from "zustand/traditional";
 import {shallow} from "zustand/shallow";
 import {KubernetesConfigMap, KubernetesSecret} from "@models/SystemModels";
 
-
 export const SystemMenus = ['containers', 'deployments', 'secrets', 'configMaps', 'envVars', 'appProps', 'log'] as const;
 export type SystemMenu = typeof SystemMenus[number] ;
 
@@ -15,6 +14,10 @@ interface SystemState {
     setConfigMaps: (configmaps: KubernetesConfigMap[]) => void;
     tabIndex: SystemMenu;
     setTabIndex: (tabIndex: SystemMenu | number) => void;
+    envVars: string[];
+    setEnvVars: (envVars: string[]) => void;
+    appProps: string[];
+    setAppProps: (appProps: string[]) => void;
 }
 
 export const useSystemStore = createWithEqualityFn<SystemState>((set) => ({
@@ -35,6 +38,14 @@ export const useSystemStore = createWithEqualityFn<SystemState>((set) => ({
         const tab = typeof tabIndex === 'number' ? SystemMenus[tabIndex] : tabIndex;
         set({tabIndex: tab});
     },
+    envVars: [],
+    appProps: [],
+    setEnvVars: (envVars: string[]) => {
+        set({envVars: envVars});
+    },
+    setAppProps: (appProps: string[]) => {
+        set({appProps: appProps});
+    }
 }), shallow)
 
 

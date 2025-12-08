@@ -4,7 +4,7 @@ import {Button, TextInput} from '@patternfly/react-core';
 import {Td, Tr} from '@patternfly/react-table';
 import ShowIcon from "@patternfly/react-icons/dist/esm/icons/eye-icon";
 import HideIcon from "@patternfly/react-icons/dist/esm/icons/eye-slash-icon";
-import {DiagnosticsApi} from "@api/DiagnosticsApi";
+import {SystemApi} from "@api/SystemApi";
 
 const DEFAULT_VALUE = "**********************"
 
@@ -21,7 +21,7 @@ export function EnvVarRow(props: Props) {
         if (showValue) {
             setShowValue(false)
         } else {
-            DiagnosticsApi.getEnvVarValue(props.name, (val: string) => {
+            SystemApi.getEnvVarValue(props.name, (val: string) => {
                 setValue(Buffer.from(val, 'base64').toString('binary'));
                 setShowValue(true);
             });

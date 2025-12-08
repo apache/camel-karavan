@@ -3,11 +3,11 @@ import {Bullseye, EmptyState, Spinner} from '@patternfly/react-core';
 import {InnerScrollContainer, OuterScrollContainer, Table, Td, Th, Thead, Tr} from '@patternfly/react-table';
 import {shallow} from "zustand/shallow";
 import {EnvVarRow} from "./EnvVarRow";
-import {useDiagnosticsStore} from "@models/DiagnosticsStore";
+import {useSystemStore} from "@stores/SystemStore";
 
 export function EnvVarsTable() {
 
-    const [envVars, filter] = useDiagnosticsStore((s) => [s.envVars, s.filter], shallow);
+    const [envVars, filter] = useSystemStore((s) => [s.envVars, s.filter], shallow);
 
     function getTableBody() {
         return (

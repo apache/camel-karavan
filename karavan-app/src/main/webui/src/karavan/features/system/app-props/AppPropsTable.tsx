@@ -3,11 +3,11 @@ import {Bullseye, EmptyState, Spinner} from '@patternfly/react-core';
 import {InnerScrollContainer, OuterScrollContainer, Table, Td, Th, Thead, Tr} from '@patternfly/react-table';
 import {shallow} from "zustand/shallow";
 import {AppPropsRow} from "./AppPropsRow";
-import {useDiagnosticsStore} from "@models/DiagnosticsStore";
+import {useSystemStore} from "@stores/SystemStore";
 
 export function AppPropsTable() {
 
-    const [appProps, filter] = useDiagnosticsStore((s) => [s.appProps, s.filter], shallow);
+    const [appProps, filter] = useSystemStore((s) => [s.appProps, s.filter], shallow);
 
     function getTableBody() {
         return (

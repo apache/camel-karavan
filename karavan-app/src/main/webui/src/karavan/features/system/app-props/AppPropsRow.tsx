@@ -1,10 +1,10 @@
-import {Buffer} from "buffer";
 import React, {useState} from 'react';
 import {Button, TextInput} from '@patternfly/react-core';
 import {Td, Tr} from '@patternfly/react-table';
 import ShowIcon from "@patternfly/react-icons/dist/esm/icons/eye-icon";
 import HideIcon from "@patternfly/react-icons/dist/esm/icons/eye-slash-icon";
-import {DiagnosticsApi} from "@api/DiagnosticsApi";
+import {SystemApi} from "@api/SystemApi";
+import {Buffer} from 'buffer';
 
 export interface Props {
     name: string
@@ -19,7 +19,7 @@ export function AppPropsRow(props: Props) {
         if (showValue) {
             setShowValue(false)
         } else {
-            DiagnosticsApi.getAppPropValue(props.name, (val: string) => {
+            SystemApi.getAppPropValue(props.name, (val: string) => {
                 setValue(Buffer.from(val, 'base64').toString('binary'));
                 setShowValue(true);
             });
