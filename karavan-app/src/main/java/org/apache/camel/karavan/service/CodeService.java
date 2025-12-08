@@ -58,8 +58,8 @@ public class CodeService {
     private static final Logger LOGGER = Logger.getLogger(CodeService.class.getName());
     public static final String APPLICATION_PROPERTIES_FILENAME = "application.properties";
     public static final String BEAN_TEMPLATE_SUFFIX_FILENAME = "-bean-template.camel.yaml";
-    public static final String DEV_SERVICES_FILENAME = "docker-compose.yaml";
     public static final String PROJECT_COMPOSE_FILENAME = "docker-compose.yaml";
+    public static final String DEV_SERVICES_FILENAME = "docker-compose.yaml";
     public static final String PROJECT_STACK_FILENAME = "docker-stack.yaml";
     public static final String MARKDOWN_EXTENSION = ".md";
     public static final String PROJECT_JKUBE_EXTENSION = ".jkube.yaml";
@@ -71,7 +71,10 @@ public class CodeService {
     private static final String BUILDER_COMPOSE_FILENAME = "builder.docker-compose.yaml";
     private static final String BUILDER_STACK_FILENAME = "builder.docker-stack.yaml";
     public static final String BUILD_SCRIPT_FILENAME = "build.sh";
-    public static final String CACHE_EXTENSION = ".json";
+    public static final String JSON_EXTENSION = ".json";
+    public static final String YAML_EXTENSION = ".yaml";
+    public static final String CAMEL_YAML_EXTENSION = ".camel.yaml";
+    public static final String COMPOSE_FILENAME_PREFIX= "docker-compose.";
 
     @ConfigProperty(name = "karavan.environment", defaultValue = KaravanConstants.DEV)
     String environment;
@@ -488,9 +491,9 @@ public class CodeService {
             if (fileSystem != null) {
                 fileSystem.close();
             }
-        } catch (Exception e) {
+        } catch (URISyntaxException | IOException e) {
             var error = e.getCause() != null ? e.getCause() : e;
-            LOGGER.error("Exception", error);
+            LOGGER.error("URISyntaxException | IOException", error);
         }
         return result;
     }

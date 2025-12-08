@@ -50,7 +50,6 @@ public class PodContainerStatusListener {
         try {
             PodContainerStatus newStatus = data.mapTo(PodContainerStatus.class);
             PodContainerStatus oldStatus = karavanCache.getPodContainerStatus(newStatus.getProjectId(), newStatus.getEnv(), newStatus.getContainerName());
-
             if (oldStatus == null) {
                 karavanCache.savePodContainerStatus(newStatus);
             } else if (Objects.equals(oldStatus.getInTransit(), Boolean.FALSE)) {
@@ -71,7 +70,7 @@ public class PodContainerStatusListener {
                 newStatus.setFinished(Instant.now().toString());
                 newStatus.setMemoryInfo("0MiB/0MiB");
                 newStatus.setCpuInfo("0%");
-            } else if (Objects.nonNull(oldStatus.getFinished())) {
+            } else if (Objects.nonNull(oldStatus.getFinished()) && !oldStatus.getFinished().trim().isBlank()) {
                 return;
             }
         }

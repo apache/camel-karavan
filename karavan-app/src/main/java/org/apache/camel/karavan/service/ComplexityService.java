@@ -6,6 +6,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.apache.camel.karavan.cache.KaravanCache;
 import org.apache.camel.karavan.cache.ProjectFile;
+import org.apache.camel.karavan.cache.ProjectFolder;
 import org.apache.camel.karavan.complexity.*;
 import org.jboss.logging.Logger;
 import org.yaml.snakeyaml.Yaml;
@@ -13,6 +14,7 @@ import org.yaml.snakeyaml.Yaml;
 import java.util.*;
 
 import static org.apache.camel.karavan.service.CodeService.APPLICATION_PROPERTIES_FILENAME;
+import static org.apache.camel.karavan.service.CodeService.CAMEL_YAML_EXTENSION;
 
 @ApplicationScoped
 public class ComplexityService {
@@ -77,7 +79,9 @@ public class ComplexityService {
     }
 
     public List<ComplexityProject> getProjectComplexities() {
-        return karavanCache.getFolders().stream().map(project -> getProjectComplexity(project.getProjectId())).toList();
+        return karavanCache.getFolders().stream()
+                .filter(p -> Objects.equals(p.getType(), ProjectFolder.Type.integration))
+                .map(project -> getProjectComplexity(project.getProjectId())).toList();
     }
 
     public ComplexityProject getProjectComplexity(String projectId) {
@@ -93,7 +97,7 @@ public class ComplexityService {
                     complexityFile.setFileName(file.getName());
                     complexityFile.setChars(Long.valueOf(file.getCode().length()).intValue());
 
-                    if (file.getName().endsWith(".camel.yaml")) {
+                    if (file.getName().endsWith(CAMEL_YAML_EXTENSION)) {
                         complexityFile.setType(ComplexityFile.Type.camel);
                         complexityFile.setBeans(getFileBeandCount(file.getCode()));
                         complexityFile.setRests(getFileRestCount(file.getCode()));
@@ -126,7 +130,7 @@ public class ComplexityService {
             }
             complexityProject.setRoutes(routes);
         } catch (Exception e) {
-            LOGGER.error(e.getMessage());
+            LOGGER.error(e);
         }
         return calculateComplexity(complexityProject);
     }
@@ -364,7 +368,7 @@ public class ComplexityService {
                 return getStepsComplexity(complexity, steps);
             }
         } catch (Exception e) {
-            LOGGER.error(e.getMessage());
+            LOGGER.error(e);
         }
         return complexity;
     }
@@ -427,12 +431,15 @@ public class ComplexityService {
                     }
                     var otherwise = step.getJsonObject("otherwise");
                     if (otherwise != null) {
-                        complexity =  getStepsComplexity(complexity, otherwise.getJsonArray("steps"));
+                        var otherwiseSteps = otherwise.getJsonArray("steps");
+                        if (otherwiseSteps != null) {
+                            complexity =  getStepsComplexity(complexity, otherwiseSteps);
+                        }
                     }
                 }
             }
         } catch (Exception e) {
-            LOGGER.error(e.getMessage());
+            LOGGER.error(e);
         }
         return complexity;
     }

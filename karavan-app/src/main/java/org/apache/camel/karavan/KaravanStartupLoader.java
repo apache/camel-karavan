@@ -122,6 +122,7 @@ public class KaravanStartupLoader implements HealthCheck {
                 addKameletsProject();
                 addBuildInProject(ProjectFolder.Type.templates.name());
                 addBuildInProject(ProjectFolder.Type.configuration.name());
+                addBuildInProject(ProjectFolder.Type.services.name());
                 addBuildInProject(ProjectFolder.Type.shared.name());
                 addBuildInProject(ProjectFolder.Type.documentation.name());
             }

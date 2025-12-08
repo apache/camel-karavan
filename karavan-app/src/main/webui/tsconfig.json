@@ -16,9 +16,18 @@
     "noFallthroughCasesInSwitch": true,
     "jsx": "react-jsx",
     "types": ["vite/client", "vite-plugin-svgr/client"],
-    "baseUrl": "src",
+    "baseUrl": "./",
     "paths": {
-      "@/*": ["*"]
+      "@app/*": ["src/karavan/app/*"],
+      "@api/*": ["src/karavan/api/*"],
+      "@bus/*": ["src/karavan/bus/*"],
+      "@features/*": [ "src/karavan/features/*"],
+      "@models/*": ["src/karavan/models/*"],
+      "@services/*": ["src/karavan/services/*"],
+      "@shared/*": ["src/karavan/shared/*"],
+      "@stores/*": ["src/karavan/stores/*"],
+      "@util/*": ["src/karavan/util/*"],
+      "@karavan-core/*": ["src/karavan-core/*"]
     }
   },
   "include": ["src", "**/*.ts", "**/*.tsx", "**/*.mjs"]

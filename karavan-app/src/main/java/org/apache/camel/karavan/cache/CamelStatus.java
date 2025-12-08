@@ -17,7 +17,6 @@
 
 package org.apache.camel.karavan.cache;
 
-import org.infinispan.api.annotations.indexing.Embedded;
 import org.infinispan.api.annotations.indexing.Indexed;
 import org.infinispan.api.annotations.indexing.Keyword;
 import org.infinispan.protostream.annotations.ProtoFactory;
@@ -35,7 +34,6 @@ public class CamelStatus {
     @Keyword(projectable = true, sortable = true)
     @ProtoField(2)
     String containerName;
-    @Embedded
     @ProtoField(value = 3, collectionImplementation = ArrayList.class)
     List<CamelStatusValue> statuses;
     @Keyword(projectable = true, sortable = true)

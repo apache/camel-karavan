@@ -76,13 +76,13 @@ public class DockerEventHandler implements ResultCallback<Event> {
         if ("exited".equalsIgnoreCase(container.getState())
                 && Objects.equals(container.getLabels().get(LABEL_TYPE), ContainerType.build.name())) {
             String tag = container.getLabels().get(LABEL_TAG);
-            System.out.println(container);
             syncImage(projectId, tag);
         } else if ("running".equalsIgnoreCase(container.getState())
                 && (
                 Objects.equals(container.getLabels().get(LABEL_TYPE), ContainerType.devmode.name())
                 || Objects.equals(container.getLabels().get(LABEL_TYPE), ContainerType.build.name())
                 )
+                && event.getStatus() != null
                 && !event.getStatus().startsWith("exec_")
                 && !event.getStatus().startsWith("stop")
                 && !event.getStatus().startsWith("kill")

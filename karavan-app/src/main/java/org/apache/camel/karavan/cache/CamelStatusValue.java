@@ -17,13 +17,10 @@
 
 package org.apache.camel.karavan.cache;
 
-import org.infinispan.api.annotations.indexing.Indexed;
-import org.infinispan.api.annotations.indexing.Keyword;
 import org.infinispan.protostream.annotations.ProtoEnumValue;
 import org.infinispan.protostream.annotations.ProtoFactory;
 import org.infinispan.protostream.annotations.ProtoField;
 
-@Indexed
 public class CamelStatusValue {
 
     public enum Name {
@@ -53,10 +50,8 @@ public class CamelStatusValue {
         consumer
     }
 
-    @Keyword(projectable = true, sortable = true)
     @ProtoField(1)
     Name name;
-    @Keyword(projectable = true, sortable = true)
     @ProtoField(2)
     String status;
 

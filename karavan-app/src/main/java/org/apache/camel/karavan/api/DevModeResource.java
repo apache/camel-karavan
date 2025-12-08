@@ -25,7 +25,6 @@ import jakarta.ws.rs.core.Response;
 import org.apache.camel.karavan.KaravanConstants;
 import org.apache.camel.karavan.cache.KaravanCache;
 import org.apache.camel.karavan.cache.PodContainerStatus;
-import org.apache.camel.karavan.cache.ProjectFolder;
 import org.apache.camel.karavan.service.ProjectService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
@@ -52,14 +51,14 @@ public class DevModeResource {
     @Inject
     EventBus eventBus;
 
-    @POST
+    @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     @Authenticated
-    @Path("/{verbose}/{compile}")
-    public Response runProjectInDeveloperMode(ProjectFolder projectFolder, @PathParam("verbose") boolean verbose, @PathParam("compile") boolean compile) {
+    @Path("/run/{projectId}/{verbose}/{compile}")
+    public Response runProjectInDeveloperMode(@PathParam("projectId") String projectId, @PathParam("verbose") boolean verbose, @PathParam("compile") boolean compile) {
         try {
-            String containerName = projectService.runProjectInDeveloperMode(projectFolder.getProjectId(), verbose, compile, Map.of(), Map.of(), false);
+            String containerName = projectService.runProjectInDeveloperMode(projectId, verbose, compile, Map.of(), Map.of(), false);
             if (containerName != null) {
                 return Response.ok(containerName).build();
             } else {
@@ -72,12 +71,13 @@ public class DevModeResource {
         }
     }
 
-    @POST
+    @GET
     @Authenticated
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response runProjectInDeveloperMode(ProjectFolder projectFolder) throws Exception {
-        return runProjectInDeveloperMode(projectFolder, false, false);
+    @Path("/run/{projectId}")
+    public Response runProjectInDeveloperMode(@PathParam("projectId") String projectId) throws Exception {
+        return runProjectInDeveloperMode(projectId, false, false);
     }
 
     @GET

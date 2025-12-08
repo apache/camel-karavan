@@ -44,10 +44,20 @@ public class ProjectFileResource {
     @Authenticated
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/{projectId}")
-    public List<ProjectFile> get(@PathParam("projectId") String projectId) throws Exception {
-        return karavanCache.getProjectFiles(projectId).stream()
-                .sorted(Comparator.comparing(ProjectFile::getName))
-                .collect(Collectors.toList());
+    public List<ProjectFile> getProjectFilesByName(@PathParam("projectId") String projectId, @QueryParam("filename") String filename) throws Exception {
+        if (filename == null) {
+            return karavanCache.getProjectFiles(projectId).stream()
+                    .filter(Objects::nonNull)
+                    .sorted(Comparator.comparing(ProjectFile::getName))
+                    .collect(Collectors.toList());
+        } else {
+            var file = karavanCache.getProjectFile(projectId, filename);
+            if (file != null) {
+                return List.of(file);
+            } else {
+                return List.of();
+            }
+        }
     }
 
     @GET
