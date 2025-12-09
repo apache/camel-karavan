@@ -16,3 +16,6 @@
     docker compose up
     ```
 3. Open http://localhost:8080
+
+    Default username: `admin`, password: [**********](https://github.com/apache/camel-karavan/blob/3308dfb1df7a6559c027d236243de15e7481cd88/karavan-app/src/main/resources/application.properties#L109C19-L109C29)
+
