@@ -24,6 +24,8 @@ resources:
     memory: "1024Mi"
 
 secret:
+  # Set the following if you want to use an existing Secret. In this case everything set below will be ignored.
+  # existingSecret: karavan
   keycloak:
     url: "https://localhost"
     realm: "karavan"

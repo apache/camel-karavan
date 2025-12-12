@@ -31,47 +31,67 @@ spec:
           valueFrom:
             secretKeyRef:
               key: karavan.git.repository
-              name: {{ .Release.Name }}
+              name: {{ .Values.secret.existingSecret | default .Release.Name }}
         - name: KARAVAN_GIT_USERNAME
           valueFrom:
             secretKeyRef:
               key: karavan.git.username
-              name: {{ .Release.Name }}
+              name: {{ .Values.secret.existingSecret | default .Release.Name }}
         - name: KARAVAN_GIT_PASSWORD
           valueFrom:
             secretKeyRef:
               key: karavan.git.password
-              name: {{ .Release.Name }}
+              name: {{ .Values.secret.existingSecret | default .Release.Name }}
         - name: KARAVAN_GIT_BRANCH
           valueFrom:
             secretKeyRef:
               key: karavan.git.branch
-              name: {{ .Release.Name }}
+              name: {{ .Values.secret.existingSecret | default .Release.Name }}
         - name: KARAVAN_KEYCLOAK_URL
           valueFrom:
             secretKeyRef:
               key: karavan.keycloak.url
-              name: {{ .Release.Name }}
+              name: {{ .Values.secret.existingSecret | default .Release.Name }}
         - name: KARAVAN_KEYCLOAK_REALM
           valueFrom:
             secretKeyRef:
               key: karavan.keycloak.realm
-              name: {{ .Release.Name }}
+              name: {{ .Values.secret.existingSecret | default .Release.Name }}
         - name: KARAVAN_KEYCLOAK_FRONTEND_CLIENTID
           valueFrom:
             secretKeyRef:
               key: karavan.keycloak.frontend.clientId
-              name: {{ .Release.Name }}
+              name: {{ .Values.secret.existingSecret | default .Release.Name }}
         - name: KARAVAN_KEYCLOAK_BACKEND_CLIENTID
           valueFrom:
             secretKeyRef:
               key: karavan.keycloak.backend.clientId
-              name: {{ .Release.Name }}
+              name: {{ .Values.secret.existingSecret | default .Release.Name }}
         - name: KARAVAN_KEYCLOAK_BACKEND_SECRET
           valueFrom:
             secretKeyRef:
               key: karavan.keycloak.backend.secret
-              name: {{ .Release.Name }}
+              name: {{ .Values.secret.existingSecret | default .Release.Name }}
+        - name: KARAVAN_CONTAINER_IMAGE_REGISTRY
+          valueFrom:
+            secretKeyRef:
+              key: karavan.container-image.registry
+              name: {{ .Values.secret.existingSecret | default .Release.Name }}
+        - name: KARAVAN_CONTAINER_IMAGE_GROUP
+          valueFrom:
+            secretKeyRef:
+              key: karavan.container-image.group
+              name: {{ .Values.secret.existingSecret | default .Release.Name }}
+        - name: KARAVAN_CONTAINER_IMAGE_REGISTRY_USERNAME
+          valueFrom:
+            secretKeyRef:
+              key: karavan.container-image.registry-username
+              name: {{ .Values.secret.existingSecret | default .Release.Name }}
+        - name: KARAVAN_CONTAINER_IMAGE_REGISTRY_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: karavan.container-image.registry-password
+              name: {{ .Values.secret.existingSecret | default .Release.Name }}
         - name: KUBERNETES_NAMESPACE
           valueFrom:
             fieldRef:
