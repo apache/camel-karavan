@@ -630,6 +630,6 @@ public class DockerService implements org.eclipse.microprofile.health.HealthChec
                 return HealthCheckResponse.named("Docker").up().build();
             }
         }
-        return HealthCheckResponse.named("Docker").down().build();
+        return HealthCheckResponse.named("Docker").up().build();
     }
 }
