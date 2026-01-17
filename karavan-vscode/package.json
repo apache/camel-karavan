@@ -714,6 +714,13 @@
         "view": "integrations",
         "contents": "No integrations found.\n [Create Integration](command:karavan.create-yaml)"
       }
+    ],
+    "iconThemes": [
+      {
+        "id": "karavan",
+        "label": "Karavan",
+        "path": "icons/camel.json"
+      }
     ]
   },
   "scripts": {
