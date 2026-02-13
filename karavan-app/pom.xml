@@ -21,7 +21,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.apache.camel.karavan</groupId>
     <artifactId>karavan</artifactId>
-    <version>4.14.2</version>
+    <version>4.14.5</version>
 
     <properties>
         <compiler-plugin.version>3.14.0</compiler-plugin.version>

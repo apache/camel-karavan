@@ -9,7 +9,7 @@ on:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}-devmode
-  TAG: 4.14.2
+  TAG: 4.14.5
 
 jobs:
   docker:
