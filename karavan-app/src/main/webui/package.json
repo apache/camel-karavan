@@ -48,7 +48,7 @@
     "file-saver": "2.0.5",
     "javascript-time-ago": "2.5.12",
     "keycloak-js": "26.2.1",
-    "lodash": "^4.17.21",
+    "lodash": "^4.17.23",
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "react-hook-form": "7.65.0",
