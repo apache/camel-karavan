@@ -19,7 +19,7 @@ import React, {useState} from 'react';
 import {Button,} from '@patternfly/react-core';
 
 import '@features/integration/designer/karavan.css';
-import {useProjectStore, useStatusesStore} from "@stores/ProjectStore";
+import {useFilesStore, useProjectStore, useStatusesStore} from "@stores/ProjectStore";
 import {shallow} from "zustand/shallow";
 import RolloutIcon from "@patternfly/react-icons/dist/esm/icons/process-automation-icon";
 import DeployIcon from "@patternfly/react-icons/dist/esm/icons/upload-icon";
@@ -27,6 +27,7 @@ import DeleteIcon from "@patternfly/react-icons/dist/esm/icons/trash-icon";
 import {KaravanApi} from "@api/KaravanApi";
 import {EventBus} from "@features/integration/designer/utils/EventBus";
 import {ModalConfirmation} from "@shared/ui/ModalConfirmation";
+import {KUBERNETES_YAML} from "@models/ProjectModels";
 
 interface Props {
     env: string,
@@ -36,6 +37,7 @@ export function DeploymentButtons (props: Props) {
 
     const [project] = useProjectStore((s) => [s.project], shallow);
     const [deployments] = useStatusesStore((s) => [s.deployments], shallow);
+    const [files] = useFilesStore((s) => [s.files], shallow);
     const [showDeleteConfirmation, setShowDeleteConfirmation] = useState<boolean>(false);
     const [showDeployConfirmation, setShowDeployConfirmation] = useState<boolean>(false);
     const [showRolloutConfirmation, setShowRolloutConfirmation] = useState<boolean>(false);
@@ -112,7 +114,7 @@ export function DeploymentButtons (props: Props) {
     return (
         <div style={{flex: '2', display: 'flex', flexDirection: 'row', justifyContent: 'end', alignItems: 'center', gap: '6px'}}>
             {deploymentStatus !== undefined && <div>{rolloutButton()}</div>}
-            {deploymentStatus === undefined && <div>{deployButton()}</div>}
+            {deploymentStatus === undefined && files.some(f => f.name === KUBERNETES_YAML) && <div>{deployButton()}</div>}
             {deploymentStatus !== undefined && <div>{deleteButton()}</div>}
             {showDeleteConfirmation &&
                 <ModalConfirmation
