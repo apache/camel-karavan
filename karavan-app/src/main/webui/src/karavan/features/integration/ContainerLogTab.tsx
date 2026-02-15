@@ -52,13 +52,13 @@ export function ContainerLogTab() {
     }
 
     return (
-        <div className="project-log-tab">
+        <div className="project-log-tab" style={{display: 'flex', flexDirection: 'column', height: '100%'}}>
             <LogViewer
                     isTextWrapped={isTextWrapped}
                     innerRef={logViewerRef}
                     hasLineNumbers={false}
                     loadingContent={"Loading..."}
-                    height={"100vh"}
+                    height={'100%'}
                     data={showLogger && data.length > 0 ? data : "........."}
                     scrollToRow={autoScroll ? currentLine : undefined}
                     theme={'dark'}
