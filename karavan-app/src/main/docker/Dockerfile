@@ -22,11 +22,20 @@ LABEL "org.opencontainers.image.licenses"="Apache 2.0"
 LABEL "org.opencontainers.image.version"="4.14.5"
 LABEL "org.apache.camel.karavan/type"="internal"
 
-RUN mkdir /opt/app
+USER root
+ARG DOCKER_GROUP_ID=999
+RUN groupadd -g ${DOCKER_GROUP_ID} docker && usermod -aG docker default
+RUN mkdir -p /opt/app/data && chown -R default:0 /opt/app
+USER default
+
 COPY target/*-runner.jar /opt/app/karavan.jar
+ENV JAVA_TOOL_OPTIONS="-Dquarkus.http.host=0.0.0.0 \
+-Djava.util.logging.manager=org.jboss.logmanager.LogManager \
+-XX:+UseContainerSupport \
+-XX:InitialRAMPercentage=25 -XX:MaxRAMPercentage=70 \
+-XX:+ExitOnOutOfMemoryError \
+-XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp/heapdump.hprof"
+
 EXPOSE 8080
 
-CMD exec "java" \
-    ${JAVA_OPTS} \
-    "-jar" "/opt/app/karavan.jar"
-
+CMD ["java", "-jar", "/opt/app/karavan.jar"]
