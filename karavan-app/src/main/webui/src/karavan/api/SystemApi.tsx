@@ -150,7 +150,6 @@ export class SystemApi {
     static async getEnvVars(after: (envVars: string[]) => void) {
         instance.get('/ui/diagnostics/env-vars', {headers: {'Accept': 'application/json'}})
             .then(res => {
-                console.log(res)
                 if (res.status === 200) {
                     after(res.data);
                 }

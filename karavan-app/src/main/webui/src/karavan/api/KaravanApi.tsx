@@ -16,11 +16,25 @@
  */
 
 import axios, {AxiosResponse} from "axios";
-import {AppConfig, CamelStatus, CamelStatusName, ContainerStatus, DeploymentStatus, PodEvent, Project, ProjectFile, ProjectType, ServiceStatus} from "../models/ProjectModels";
+import {
+    AppConfig,
+    CamelStatus,
+    CamelStatusName,
+    ContainerStatus,
+    DeploymentStatus,
+    PodEvent,
+    Project,
+    ProjectCommited,
+    ProjectFile,
+    ProjectFileCommited,
+    ProjectType,
+    ServiceStatus
+} from "@models/ProjectModels";
 import {Buffer} from 'buffer';
-import {EventBus} from "@features/integration/designer/utils/EventBus";
+import {EventBus} from "@features/project/designer/utils/EventBus";
 import {ErrorEventBus} from "@bus/ErrorEventBus";
 import {AuthApi, getCurrentUser} from "@api/auth/AuthApi";
+import {ProjectFolderCommit} from "@stores/CommitsStore";
 
 const instance = AuthApi.getInstance();
 
@@ -72,8 +86,8 @@ export class KaravanApi {
         });
     }
 
-    static async getAllCamelStatuses(name: CamelStatusName, after: (statuses: CamelStatus[]) => void) {
-        instance.get(`/ui/status/camel/${name}`)
+    static async getAllCamelStatuses(name: CamelStatusName | null, after: (statuses: CamelStatus[]) => void) {
+        instance.get(`/ui/status/camel/${name || ''}`)
             .then(res => {
                 if (res.status === 200) {
                     after(res.data);
@@ -93,6 +107,16 @@ export class KaravanApi {
             ErrorEventBus.sendApiError(err);
         });
     }
+    static async getProjectsCommited(after: (projects: ProjectCommited[]) => void) {
+        instance.get('/ui/project/commited/all')
+            .then(res => {
+                if (res.status === 200) {
+                    after(res.data);
+                }
+            }).catch(err => {
+            ErrorEventBus.sendApiError(err);
+        });
+    }
 
     static async postProject(project: Project, after: (result: boolean, res: AxiosResponse<Project> | any) => void) {
         try {
@@ -104,10 +128,12 @@ export class KaravanApi {
                 }).catch(err => {
                 console.error(err);
                 after(false, err);
+                EventBus.sendAlert("Error", err?.message, "danger")
             });
         } catch (error: any) {
             console.error(error);
             after(false, error);
+            EventBus.sendAlert("Error", error?.message, "danger")
         }
     }
 
@@ -168,6 +194,49 @@ export class KaravanApi {
 
     static async getFiles(projectId: string, after: (files: ProjectFile[]) => void) {
         instance.get(`/ui/file/${projectId}`)
+            .then(res => {
+                if (res.status === 200) {
+                    after(res.data);
+                }
+            }).catch(err => {
+            ErrorEventBus.sendApiError(err);
+        });
+    }
+    static async getCommitedFiles(projectId: string, after: (files: ProjectFileCommited[]) => void) {
+        instance.get(`/ui/file/commited/${projectId}`)
+            .then(res => {
+                if (res.status === 200) {
+                    after(res.data);
+                }
+            }).catch(err => {
+            ErrorEventBus.sendApiError(err);
+        });
+    }
+
+    static async getProjectCommits(projectId: string, after: (commits: ProjectFolderCommit[]) => void) {
+        instance.get(`/ui/git/commits/${projectId}`)
+            .then(res => {
+                if (res.status === 200) {
+                    after(res.data);
+                }
+            }).catch(err => {
+            ErrorEventBus.sendApiError(err);
+        });
+    }
+
+    static async loadProjectCommits(projectId: string, after: (res: any) => void) {
+        instance.post(`/ui/git/commits/${projectId}`)
+            .then(res => {
+                if (res.status === 202) {
+                    after(res);
+                }
+            }).catch(err => {
+            ErrorEventBus.sendApiError(err);
+        });
+    }
+
+    static async getSystemCommits(after: (res: any) => void) {
+        instance.get(`/ui/git/system`)
             .then(res => {
                 if (res.status === 200) {
                     after(res.data);
@@ -304,48 +373,6 @@ export class KaravanApi {
         });
     }
 
-    static async getConfigurationFiles(after: (files: []) => void) {
-        instance.get('/ui/file/configuration')
-            .then(res => {
-                if (res.status === 200) {
-                    after(res.data);
-                }
-            }).catch(err => {
-            ErrorEventBus.sendApiError(err);
-        });
-    }
-
-
-    static async getTemplatesFiles(after: (files: []) => void) {
-        instance.get('/ui/file/templates')
-            .then(res => {
-                if (res.status === 200) {
-                    after(res.data);
-                }
-            }).catch(err => {
-            ErrorEventBus.sendApiError(err);
-        });
-    }
-
-    static async getBeanTemplatesFiles(after: (files: ProjectFile []) => void) {
-        instance.get('/ui/file/templates/beans')
-            .then(res => {
-                if (res.status === 200) {
-                    after(res.data);
-                }
-            }).catch(err => {
-            ErrorEventBus.sendApiError(err);
-        });
-    }
-
-    static async getDevModePodStatus(projectId: string, after: (res: AxiosResponse<ContainerStatus>) => void) {
-        instance.get('/ui/devmode/container/' + projectId)
-            .then(res => {
-                after(res);
-            }).catch(err => {
-            after(err);
-        });
-    }
 
     static async reloadDevModeCode(projectId: string, after: (res: AxiosResponse<any>) => void) {
         instance.get('/ui/devmode/reload/' + projectId)
@@ -511,7 +538,7 @@ export class KaravanApi {
     }
 
     static async manageContainer(projectId: string,
-                                 type: 'devmode' | 'devservice' | 'packaged' | 'internal' | 'build' | 'unknown',
+                                 type: 'devmode' | 'packaged' | 'internal' | 'build' | 'unknown',
                                  name: string,
                                  command: 'deploy' | 'run' | 'pause' | 'stop' | 'delete',
                                  pullImage: 'always' | 'ifNotExists' | 'never',
@@ -524,7 +551,7 @@ export class KaravanApi {
         });
     }
 
-    static async deleteContainer(projectId: string, type: 'devmode' | 'devservice' | 'packaged' | 'internal' | 'build' | 'unknown', name: string, after: (res: AxiosResponse<any>) => void) {
+    static async deleteContainer(projectId: string, type: 'devmode' | 'packaged' | 'internal' | 'build' | 'unknown', name: string, after: (res: AxiosResponse<any>) => void) {
         instance.delete('/ui/container/' + projectId + '/' + type + "/" + name)
             .then(res => {
                 after(res);
@@ -705,8 +732,22 @@ export class KaravanApi {
         });
     }
 
-    static async getProjectActivity(after: (activity?: any) => void) {
-        instance.get('/ui/activity')
+    static async getProjectsActivities(after: (activities?: any) => void) {
+        instance.get('/ui/activity/projects')
+            .then(res => {
+                if (res.status === 200) {
+                    after(res.data);
+                } else {
+                    after(undefined);
+                }
+            }).catch(err => {
+            ErrorEventBus.sendApiError(err);
+            after(undefined);
+        });
+    }
+
+    static async getUsersActivities(after: (activities?: any) => void) {
+        instance.get('/ui/activity/users')
             .then(res => {
                 if (res.status === 200) {
                     after(res.data);

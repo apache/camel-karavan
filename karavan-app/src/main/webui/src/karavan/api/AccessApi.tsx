@@ -97,6 +97,21 @@ export class AccessApi {
         }
     }
 
+    static async deleteRole(rolename: string, after: (result: boolean, res: AxiosResponse<any> | any) => void) {
+        try {
+            instance.delete('/ui/access/roles/' + rolename)
+                .then(res => {
+                    if (res.status === 202) {
+                        after(true, res);
+                    }
+                }).catch(err => {
+                after(false, err);
+            });
+        } catch (error: any) {
+            after(false, error);
+        }
+    }
+
     static setUserStatus(user: AccessUser, status: string, after: (result: AccessUser) => void) {
         try {
             instance.put(`/ui/access/users/${status}`, user)

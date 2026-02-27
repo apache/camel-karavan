@@ -31,13 +31,11 @@ export class NotificationApi {
     }
 
     static onSystemMessage (ev: EventSourceMessage) {
-        console.log(`onSystemMessage`, ev);
         const ke = NotificationApi.getKaravanEvent(ev, 'system');
         NotificationEventBus.sendEvent(ke);
     }
 
     static onUserMessage (ev: EventSourceMessage) {
-        console.log(`onUserMessage`, ev);
         const ke = NotificationApi.getKaravanEvent(ev, 'user');
         NotificationEventBus.sendEvent(ke);
     }

@@ -17,7 +17,7 @@
 
 import {SsoApi} from "@api/auth/SsoApi";
 import {fetchEventSource} from "@microsoft/fetch-event-source";
-import {ProjectEventBus} from "../bus/ProjectEventBus";
+import {ProjectEventBus} from "@bus/ProjectEventBus";
 import {AuthApi, getCurrentUser} from "@api/auth/AuthApi";
 
 export class LogWatchApi {

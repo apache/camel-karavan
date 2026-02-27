@@ -1,6 +1,6 @@
 import axios from "axios";
 import {ErrorEventBus} from "@bus/ErrorEventBus";
-import {SearchResult} from "../models/SearchModels";
+import {SearchResult} from "@models/SearchModels";
 import {AuthApi} from "@api/auth/AuthApi";
 
 axios.defaults.headers.common['Accept'] = 'application/json';
