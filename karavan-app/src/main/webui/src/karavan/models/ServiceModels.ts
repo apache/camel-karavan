@@ -68,14 +68,3 @@ export class ServicesYaml {
         return result;
     }
 }
-
-export class DevService {
-    name: string = '';
-    image: string = '';
-    environments: any = {};
-    ports: string [] = [];
-
-    public constructor(init?: Partial<DevService>) {
-        Object.assign(this, init);
-    }
-}

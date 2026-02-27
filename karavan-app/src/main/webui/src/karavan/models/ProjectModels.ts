@@ -15,9 +15,6 @@
  * limitations under the License.
  */
 
-
-import {ASYNCAPI_FILE_NAME_JSON, ASYNCAPI_FILE_NAME_YAML} from "@karavan-core/contants";
-
 export type FileOperation =
     | "create"
     | "select"
@@ -37,7 +34,17 @@ export const DOCKER_STACK = "docker-stack.yaml";
 export const KUBERNETES_YAML = "kubernetes.yaml";
 export const APPLICATION_PROPERTIES = 'application.properties';
 export const BUILD_SH = 'build.sh';
-export const BUILD_IN_FILES = [APPLICATION_PROPERTIES, DOCKER_COMPOSE, DOCKER_STACK, KUBERNETES_YAML, ASYNCAPI_FILE_NAME_JSON, ASYNCAPI_FILE_NAME_YAML, BUILD_SH];
+export const BUILD_DOCKER_COMPOSE = 'builder.' + DOCKER_COMPOSE;
+export const BUILD_DOCKER_STACK = 'builder.' + DOCKER_STACK;
+export const BUILD_IN_FILES = [
+    APPLICATION_PROPERTIES,
+    DOCKER_COMPOSE,
+    DOCKER_STACK,
+    KUBERNETES_YAML,
+    BUILD_SH,
+    BUILD_DOCKER_COMPOSE,
+    BUILD_DOCKER_STACK
+];
 
 export class AppConfig {
     title: string = '';
@@ -59,8 +66,6 @@ export enum ProjectType {
     configuration = 'configuration',
     documentation = 'documentation',
     services = 'services',
-    shared = 'shared',
-    cache = 'cache',
     integration = 'integration',
 }
 
@@ -69,17 +74,21 @@ export const BUILD_IN_PROJECTS: string[] = [
     ProjectType.templates.toString(),
     ProjectType.configuration.toString(),
     ProjectType.services.toString(),
-    ProjectType.shared.toString(),
     ProjectType.documentation.toString()
 ];
 
 export const RESERVED_WORDS: string[] = [...BUILD_IN_PROJECTS, 'karavan'];
 
+export interface ProjectCommited {
+    projectId: string;
+    lastCommit: string;
+    lastCommitTimestamp: number;
+}
+
 export class Project {
     projectId: string = '';
     name: string = '';
-    lastCommit: string = '';
-    lastCommitTimestamp: number = 0;
+    lastUpdate: number = 0;
     type: string = ProjectType.integration;
 
     public constructor(projectId: string, name: string, lastCommit: string, type: string);
@@ -91,9 +100,8 @@ export class Project {
         } else {
             this.projectId = args[0];
             this.name = args[1];
-            this.lastCommit = args[2];
-            this.lastCommitTimestamp = args[3];
-            this.type = args[4];
+            this.lastUpdate = args[2];
+            this.type = args[3];
             return;
         }
     }
@@ -108,7 +116,7 @@ export class DeploymentStatus {
     replicas: number = 0;
     readyReplicas: number = 0;
     unavailableReplicas: number = 0;
-    type: 'devmode' | 'devservice' | 'packaged' | 'internal' | 'build' | 'unknown' = 'unknown';
+    type: 'devmode' | 'packaged' | 'internal' | 'build' | 'unknown' = 'unknown';
 }
 
 export class ServiceStatus {
@@ -128,7 +136,7 @@ export class ContainerPort {
     type: string = '';
 }
 
-export type ContainerType = 'devmode' | 'devservice' | 'packaged' | 'internal' | 'build' | 'unknown';
+export type ContainerType = 'devmode' | 'packaged' | 'internal' | 'build' | 'unknown';
 
 export class ContainerStatus {
     containerName: string = '';
@@ -196,6 +204,15 @@ export class ProjectFile {
     }
 }
 
+export interface ProjectFileCommited {
+    name: string;
+    projectId: string;
+    code: string;
+    commitTime: number;
+    syncDate: number;
+}
+
+
 export class ProjectFileType {
     name: string = '';
     title: string = '';
@@ -224,8 +241,6 @@ export const ProjectFileTypes: ProjectFileType[] = [
     new ProjectFileType("PROPERTIES", "Properties", "properties"),
     new ProjectFileType("JSON", "JSON", "json"),
     new ProjectFileType("OPENAPI", "OpenAPI", "json"),
-    new ProjectFileType("ASYNCAPI", "AsyncAPI", "yaml"),
-    new ProjectFileType("ASYNCAPI", "AsyncAPI", "json"),
     new ProjectFileType("YAML", "YAML", "yaml"),
     new ProjectFileType("DOCKER", "Docker Compose", "yaml"),
     new ProjectFileType("SH", "Script", "sh"),
@@ -241,8 +256,6 @@ export function getProjectFileTypeByName(fileName: string): ProjectFileType[] {
     if (fileName.endsWith(".camel.yaml")) return ProjectFileTypes.filter(p => p.name === "INTEGRATION")
     if (fileName.endsWith(".kamelet.yaml")) return ProjectFileTypes.filter(p => p.name === "KAMELET")
     if (fileName === "openapi.json") return ProjectFileTypes.filter(p => p.name === "OPENAPI")
-    if (fileName === "asyncapi.json") return ProjectFileTypes.filter(p => p.name === "ASYNCAPI")
-    if (fileName === "asyncapi.yaml") return ProjectFileTypes.filter(p => p.name === "ASYNCAPI")
     if (fileName.endsWith(".json")) return ProjectFileTypes.filter(p => p.name === "JSON")
     if (fileName.endsWith(".yaml")) return ProjectFileTypes.filter(p => p.name === "YAML")
     if (fileName.endsWith(".yml")) return ProjectFileTypes.filter(p => p.name === "YAML")
