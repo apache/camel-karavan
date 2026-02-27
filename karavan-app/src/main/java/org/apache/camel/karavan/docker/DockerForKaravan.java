@@ -69,7 +69,7 @@ public class DockerForKaravan {
             env.add(ENV_VAR_VERBOSE_OPTION_NAME + "=" + ENV_VAR_VERBOSE_OPTION_VALUE);
         }
         if (compile) {
-            env.add(RUN_IN_COMPILE_MODE + "=true");
+            env.add(ENV_VAR_RUN_IN_COMPILE_MODE + "=true");
         }
 
         if (createM2.orElse(false)) {
@@ -84,7 +84,6 @@ public class DockerForKaravan {
         }
         containerLabels.put(LABEL_TYPE, ContainerType.devmode.name());
         containerLabels.put(LABEL_PROJECT_ID, projectId);
-        containerLabels.put(LABEL_INTEGRATION_NAME, projectId);
         containerLabels.put(LABEL_CAMEL_RUNTIME, CamelRuntime.CAMEL_MAIN.getValue());
 
         return dockerService.createContainer(projectId,
@@ -112,7 +111,7 @@ public class DockerForKaravan {
             stack.addEnvironment(ENV_VAR_VERBOSE_OPTION_NAME, ENV_VAR_VERBOSE_OPTION_VALUE);
         }
         if (compile) {
-            stack.addEnvironment(RUN_IN_COMPILE_MODE, "true");
+            stack.addEnvironment(ENV_VAR_RUN_IN_COMPILE_MODE, "true");
         }
 
         if (createM2.orElse(false)) {
@@ -128,7 +127,6 @@ public class DockerForKaravan {
         }
         containerLabels.put(LABEL_TYPE, ContainerType.devmode.name());
         containerLabels.put(LABEL_PROJECT_ID, projectId);
-        containerLabels.put(LABEL_INTEGRATION_NAME, projectId);
         containerLabels.put(LABEL_CAMEL_RUNTIME, CamelRuntime.CAMEL_MAIN.getValue());
         stack.setLabels(containerLabels);
 
@@ -143,7 +141,6 @@ public class DockerForKaravan {
         if (createM2.orElse(false)) {
             compose.getVolumes().add(new DockerVolumeDefinition(MountType.VOLUME.name(), projectFolder.getProjectId() + "-build-m2-repository", "/karavan/.m2/repository"));
         }
-        compose.addEnvironment(RUN_IN_BUILD_MODE, "true");
         Container c = createBuildContainer(containerName, projectFolder, compose.getEnvironmentList(), compose.getVolumes(), tag);
         dockerService.copyExecFile(c.getId(), "/karavan/builder", BUILD_SCRIPT_FILENAME, script);
         sshFiles.forEach((name, text) -> {
@@ -159,7 +156,6 @@ public class DockerForKaravan {
             stack.getVolumes().add(new DockerVolumeDefinition(MountType.VOLUME.name(), projectFolder.getProjectId() + "-build-m2-repository", "/karavan/.m2/repository"));
         }
         stack.setHostname(serviceName);
-        stack.addEnvironment(RUN_IN_BUILD_MODE, "true");
         stack.addConfig(new DockerConfigDefinition(BUILD_SCRIPT_FILENAME, "/karavan/builder" + BUILD_SCRIPT_FILENAME));
 //        Map<String, String> sshFiles = codeService.getSshFiles();
 //         TODO: ssh_keys for Docker in Swarm Mode should be already in Secrets
@@ -168,7 +164,6 @@ public class DockerForKaravan {
 
         stack.addLabel(LABEL_TYPE, ContainerType.build.name());
         stack.addLabel(LABEL_PROJECT_ID, projectFolder.getProjectId());
-        stack.addLabel(LABEL_INTEGRATION_NAME, projectFolder.getProjectId());
         stack.addLabel(LABEL_TAG, tag);
         stack.setImage(devmodeImage);
         stack.setCommand("/karavan/builder/build.sh");
@@ -184,7 +179,6 @@ public class DockerForKaravan {
                 Map.of(
                         LABEL_TYPE, ContainerType.build.name(),
                         LABEL_PROJECT_ID, projectFolder.getProjectId(),
-                        LABEL_INTEGRATION_NAME, projectFolder.getProjectId(),
                         LABEL_TAG, tag
                 ),
                 volumes, null, RestartPolicy.noRestart(), DockerService.PULL_IMAGE.ifNotExists,

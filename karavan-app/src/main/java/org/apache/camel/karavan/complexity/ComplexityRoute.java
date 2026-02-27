@@ -9,6 +9,8 @@ public class ComplexityRoute {
 
     private String routeId;
     private String nodePrefixId;
+    private String routeTemplateRef;
+    private Boolean isTemplated;
     private String fileName;
     private Complexity complexityProcessors = Complexity.easy;
     private Complexity complexityComponentsInt = Complexity.easy;
@@ -149,5 +151,21 @@ public class ComplexityRoute {
     }
     public void addConsumer(ComplexityComponent producer) {
         this.consumers.add(producer);
+    }
+
+    public String getRouteTemplateRef() {
+        return routeTemplateRef;
+    }
+
+    public void setRouteTemplateRef(String routeTemplateRef) {
+        this.routeTemplateRef = routeTemplateRef;
+    }
+
+    public Boolean getTemplated() {
+        return isTemplated;
+    }
+
+    public void setTemplated(Boolean templated) {
+        isTemplated = templated;
     }
 }

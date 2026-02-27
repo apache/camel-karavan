@@ -17,120 +17,51 @@
 
 package org.apache.camel.karavan.cache;
 
-import org.infinispan.api.annotations.indexing.Embedded;
-import org.infinispan.api.annotations.indexing.Indexed;
-import org.infinispan.api.annotations.indexing.Keyword;
-import org.infinispan.api.annotations.indexing.Text;
-import org.infinispan.protostream.annotations.ProtoEnumValue;
-import org.infinispan.protostream.annotations.ProtoFactory;
-import org.infinispan.protostream.annotations.ProtoField;
-
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Indexed
 public class PodContainerStatus {
 
-    @Indexed
     public enum State {
-        @Keyword(projectable = true, sortable = true)
-        @ProtoEnumValue(number = 0, name = "created")
         created,
-        @Keyword(projectable = true, sortable = true)
-        @ProtoEnumValue(number = 1, name = "running")
         running,
-        @Keyword(projectable = true, sortable = true)
-        @ProtoEnumValue(number = 2, name = "restarting")
         restarting,
-        @Keyword(projectable = true, sortable = true)
-        @ProtoEnumValue(number = 3, name = "paused")
         paused,
-        @Keyword(projectable = true, sortable = true)
-        @ProtoEnumValue(number = 4, name = "exited")
         exited,
-        @Keyword(projectable = true, sortable = true)
-        @ProtoEnumValue(number = 5, name = "dead")
         dead
     }
 
-    @Indexed
     public enum Command {
-        @Keyword(projectable = true, sortable = true)
-        @ProtoEnumValue(number = 0, name = "run")
         run,
-        @Keyword(projectable = true, sortable = true)
-        @ProtoEnumValue(number = 1, name = "pause")
         pause,
-        @Keyword(projectable = true, sortable = true)
-        @ProtoEnumValue(number = 2, name = "stop")
         stop,
-        @Keyword(projectable = true, sortable = true)
-        @ProtoEnumValue(number = 3, name = "delete")
         delete,
     }
 
-    @Keyword(projectable = true, sortable = true)
-    @ProtoField(1)
     String projectId;
-    @Keyword(projectable = true, sortable = true)
-    @ProtoField(2)
     String containerName;
-    @Keyword(projectable = true, sortable = true)
-    @ProtoField(3)
     String containerId;
-    @Keyword(projectable = true, sortable = true)
-    @ProtoField(4)
     String image;
-    @Embedded
-    @ProtoField(value = 5, collectionImplementation = ArrayList.class)
     List<ContainerPort> ports;
-    @Keyword(projectable = true, sortable = true)
-    @ProtoField(6)
     String env;
-    @Embedded
-    @ProtoField(7)
     ContainerType type;
-    @Text
-    @ProtoField(8)
     String memoryInfo;
-    @Text
-    @ProtoField(9)
     String cpuInfo;
-    @ProtoField(10)
     String created;
-    @ProtoField(11)
     String finished;
-    @Embedded
-    @ProtoField(value = 12, collectionImplementation =  ArrayList.class)
     List<Command> commands;
-    @Keyword(projectable = true, sortable = true)
-    @ProtoField(13)
     String state;
-    @Keyword(projectable = true, sortable = true)
-    @ProtoField(14)
     String phase;
-    @ProtoField(15)
     Boolean codeLoaded;
-    @ProtoField(16)
     Boolean inTransit = false;
-    @ProtoField(17)
     String initDate;
-    @Keyword(projectable = true, sortable = true)
-    @ProtoField(18)
     String podIP;
-    @Keyword(projectable = true, sortable = true)
-    @ProtoField(19)
     String camelRuntime;
-    @Keyword(projectable = true, sortable = true)
-    @ProtoField(20)
     String commit;
-    @ProtoField(value = 21, mapImplementation = HashMap.class)
     Map<String, String> labels;
 
-    @ProtoFactory
     public PodContainerStatus(String projectId, String containerName, String containerId, String image, List<ContainerPort> ports, String env, ContainerType type, String memoryInfo, String cpuInfo, String created, String finished, List<Command> commands, String state, String phase, Boolean codeLoaded, Boolean inTransit, String initDate, String podIP, String camelRuntime, String commit, Map<String, String> labels) {
         this.projectId = projectId;
         this.containerName = containerName;

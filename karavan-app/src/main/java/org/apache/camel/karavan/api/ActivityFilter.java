@@ -14,12 +14,14 @@ import jakarta.ws.rs.ext.Provider;
 import org.apache.camel.karavan.cache.ProjectFolder;
 import org.apache.camel.karavan.model.ActivityContainer;
 import org.apache.camel.karavan.model.ActivityProject;
+import org.apache.camel.karavan.model.ActivityUser;
 import org.jboss.logging.Logger;
 
 import java.io.IOException;
 import java.util.Objects;
 
 import static org.apache.camel.karavan.KaravanEvents.ON_PROJECT_ACTIVITY;
+import static org.apache.camel.karavan.KaravanEvents.ON_USER_ACTIVITY;
 
 @Provider
 @ApplicationScoped
@@ -68,7 +70,11 @@ public class ActivityFilter extends AbstractApiResource implements ContainerResp
         try {
             var user = getIdentity();
             var userName = user.getString("username");
-//            eventBus.publish(ON_USER_ACTIVITY, JsonObject.mapFrom(new ActivityUser(userName)));
+            if (method.equals("GET")) {
+                eventBus.publish(ON_USER_ACTIVITY, JsonObject.mapFrom(new ActivityUser(userName, ActivityUser.ActivityType.HEARTBEAT)));
+            } else {
+                eventBus.publish(ON_USER_ACTIVITY, JsonObject.mapFrom(new ActivityUser(userName, ActivityUser.ActivityType.WORKING)));
+            }
 
             if (info.getPathParameters().containsKey(projectIdKey)) {
                 var projectId = info.getPathParameters().get(projectIdKey).get(0);
@@ -76,7 +82,7 @@ public class ActivityFilter extends AbstractApiResource implements ContainerResp
             } else if (info.getQueryParameters().containsKey(projectIdKey)) {
                 var projectId = info.getQueryParameters().get(projectIdKey).get(0);
                 eventBus.publish(ON_PROJECT_ACTIVITY, JsonObject.mapFrom(ActivityProject.createAdd(userName, projectId)));
-            } else  if (path.startsWith("/ui/devmode") || !Objects.equals(method, "GET")) {
+            } else if (path.startsWith("/ui/devmode") || !Objects.equals(method, "GET")) {
                 if (responseContext.getEntity() instanceof ProjectFolder projectFolder) {
                     eventBus.publish(ON_PROJECT_ACTIVITY, JsonObject.mapFrom(ActivityProject.createAdd(userName, projectFolder.getProjectId())));
                 } else if (responseContext.getEntity() instanceof String string) {

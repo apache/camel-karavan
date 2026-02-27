@@ -17,54 +17,42 @@
 
 package org.apache.camel.karavan.cache;
 
-import org.infinispan.api.annotations.indexing.Basic;
-import org.infinispan.api.annotations.indexing.Indexed;
-import org.infinispan.api.annotations.indexing.Keyword;
-import org.infinispan.api.annotations.indexing.Text;
-import org.infinispan.protostream.annotations.ProtoFactory;
-import org.infinispan.protostream.annotations.ProtoField;
-
-@Indexed
 public class ProjectFileCommited {
 
-    @Keyword(projectable = true, sortable = true)
-    @ProtoField(1)
     String name;
-    @Text
-    @ProtoField(2)
     String code;
-    @Keyword(projectable = true, sortable = true)
-    @ProtoField(3)
     String projectId;
-    @Basic(projectable = true, sortable = true)
-    @ProtoField(4)
-    Long lastUpdate;
-    @Basic(projectable = true, sortable = true)
-    @ProtoField(5)
-    Long syncDate;
+    String commitId;
+    Long commitTime;
 
-    @ProtoFactory
-    public ProjectFileCommited(String name, String code, String projectId, Long lastUpdate, Long syncDate) {
+    public ProjectFileCommited(String name, String code, String projectId, String commitId, Long commitTime) {
         this.name = name;
         this.code = code;
         this.projectId = projectId;
-        this.lastUpdate = lastUpdate;
-        this.syncDate = syncDate;
+        this.commitId = commitId;
+        this.commitTime = commitTime;
     }
 
     public ProjectFileCommited() {
     }
 
-    public static ProjectFileCommited fromFile(ProjectFile file) {
+    public static ProjectFileCommited fromFile(ProjectFile file, String commitId) {
         var fileCommited = new ProjectFileCommited();
         fileCommited.name = file.getName();
         fileCommited.code = file.getCode();
         fileCommited.projectId = file.getProjectId();
-        fileCommited.lastUpdate = file.getLastUpdate();
+        fileCommited.commitTime = file.getLastUpdate();
+        fileCommited.commitId = commitId;
         return fileCommited;
     }
 
+    public String getCommitId() {
+        return commitId;
+    }
 
+    public void setCommitId(String commitId) {
+        this.commitId = commitId;
+    }
 
     public String getName() {
         return name;
@@ -90,24 +78,16 @@ public class ProjectFileCommited {
         this.projectId = projectId;
     }
 
-    public Long getLastUpdate() {
-        return lastUpdate;
+    public Long getCommitTime() {
+        return commitTime;
     }
 
-    public void setLastUpdate(Long lastUpdate) {
-        this.lastUpdate = lastUpdate;
-    }
-
-    public Long getSyncDate() {
-        return syncDate;
-    }
-
-    public void setSyncDate(Long syncDate) {
-        this.syncDate = syncDate;
+    public void setCommitTime(Long commitTime) {
+        this.commitTime = commitTime;
     }
 
     public ProjectFileCommited copy() {
-        return new ProjectFileCommited(name, code, projectId, lastUpdate, syncDate);
+        return new ProjectFileCommited(name, code, projectId, commitId, commitTime);
     }
 
     @Override
@@ -116,7 +96,7 @@ public class ProjectFileCommited {
                 "name='" + name + '\'' +
                 ", code='" + code + '\'' +
                 ", projectId='" + projectId + '\'' +
-                ", lastUpdate=" + lastUpdate +
+                ", lastUpdate=" + commitTime +
                 '}';
     }
 }

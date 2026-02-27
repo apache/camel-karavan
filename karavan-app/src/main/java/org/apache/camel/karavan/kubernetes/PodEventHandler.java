@@ -91,7 +91,7 @@ public class PodEventHandler implements ResourceEventHandler<Pod> {
             String deployment = pod.getMetadata().getLabels().get("app");
             String projectId = deployment != null
                     ? deployment
-                    : (pod.getMetadata().getLabels().containsKey(LABEL_INTEGRATION_NAME) ? pod.getMetadata().getLabels().get(LABEL_INTEGRATION_NAME) : pod.getMetadata().getLabels().get(LABEL_PROJECT_ID));
+                    : (pod.getMetadata().getLabels().get(LABEL_PROJECT_ID));
 
             PodContainerStatus cs = new PodContainerStatus();
             cs.setProjectId(projectId);
@@ -107,9 +107,7 @@ public class PodEventHandler implements ResourceEventHandler<Pod> {
 
     public PodContainerStatus getPodStatus(Pod pod) {
         String appName = pod.getMetadata().getLabels().get("app");
-        String projectId = pod.getMetadata().getLabels().containsKey(LABEL_INTEGRATION_NAME)
-            ? pod.getMetadata().getLabels().get(LABEL_INTEGRATION_NAME)
-            : pod.getMetadata().getLabels().get(LABEL_PROJECT_ID);
+        String projectId = pod.getMetadata().getLabels().get(LABEL_PROJECT_ID);
         String camel = pod.getMetadata().getLabels().get(LABEL_KUBERNETES_RUNTIME);
         String runtime = pod.getMetadata().getLabels().get(LABEL_CAMEL_RUNTIME);
         String type = pod.getMetadata().getLabels().get(LABEL_TYPE);

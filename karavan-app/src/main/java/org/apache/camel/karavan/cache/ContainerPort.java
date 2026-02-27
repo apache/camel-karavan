@@ -17,29 +17,15 @@
 
 package org.apache.camel.karavan.cache;
 
-import org.infinispan.api.annotations.indexing.Basic;
-import org.infinispan.api.annotations.indexing.Indexed;
-import org.infinispan.api.annotations.indexing.Keyword;
-import org.infinispan.protostream.annotations.ProtoFactory;
-import org.infinispan.protostream.annotations.ProtoField;
-
-@Indexed
 public class ContainerPort {
 
-    @Basic
-    @ProtoField(1)
     Integer privatePort;
-    @Basic
-    @ProtoField(2)
     Integer publicPort;
-    @Keyword(projectable = true, sortable = true)
-    @ProtoField(3)
     String type;
 
     public ContainerPort() {
     }
 
-    @ProtoFactory
     public ContainerPort(Integer privatePort, Integer publicPort, String type) {
         this.privatePort = privatePort;
         this.publicPort = publicPort;

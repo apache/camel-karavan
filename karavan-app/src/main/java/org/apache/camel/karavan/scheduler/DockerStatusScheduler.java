@@ -28,6 +28,7 @@ import org.apache.camel.karavan.docker.DockerService;
 import org.apache.camel.karavan.docker.DockerUtils;
 import org.apache.camel.karavan.service.ConfigService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.jboss.logging.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,6 +37,8 @@ import static org.apache.camel.karavan.KaravanEvents.*;
 
 @ApplicationScoped
 public class DockerStatusScheduler {
+
+    private static final Logger LOGGER = Logger.getLogger(DockerStatusScheduler.class.getName());
 
     @ConfigProperty(name = "karavan.environment", defaultValue = KaravanConstants.DEV)
     String environment;
@@ -49,7 +52,7 @@ public class DockerStatusScheduler {
     @Inject
     EventBus eventBus;
 
-    @Scheduled(every = "{karavan.container.statistics.interval:off}", concurrentExecution = Scheduled.ConcurrentExecution.SKIP, skipExecutionIf = KaravanSkipPredicate.class)
+    @Scheduled(every = "{karavan.container.statistics.interval:off}", concurrentExecution = Scheduled.ConcurrentExecution.SKIP)
     void collectContainersStatistics() {
         if (!ConfigService.inKubernetes()) {
             if (configService.inDockerSwarmMode()) {
@@ -67,20 +70,13 @@ public class DockerStatusScheduler {
         }
     }
 
-    @Scheduled(every = "{karavan.container.status.interval:off}", concurrentExecution = Scheduled.ConcurrentExecution.SKIP, skipExecutionIf = KaravanSkipPredicate.class)
+    @Scheduled(every = "{karavan.container.status.interval:off}", concurrentExecution = Scheduled.ConcurrentExecution.SKIP)
     void collectContainersStatuses() {
         if (!ConfigService.inKubernetes()) {
-            if (configService.inDockerSwarmMode()) {
-                List<PodContainerStatus> statusesInDocker = getServicesStatuses();
-                statusesInDocker.forEach(containerStatus -> {
-                    eventBus.publish(POD_CONTAINER_UPDATED, JsonObject.mapFrom(containerStatus));
-                });
-            } else {
-                List<PodContainerStatus> statusesInDocker = getContainersStatuses();
-                statusesInDocker.forEach(containerStatus -> {
-                    eventBus.publish(POD_CONTAINER_UPDATED, JsonObject.mapFrom(containerStatus));
-                });
-            }
+            List<PodContainerStatus> statusesInDocker = getContainersStatuses();
+            statusesInDocker.forEach(containerStatus -> {
+                eventBus.publish(POD_CONTAINER_UPDATED, JsonObject.mapFrom(containerStatus));
+            });
             eventBus.publish(CMD_CLEAN_STATUSES, "");
         }
     }

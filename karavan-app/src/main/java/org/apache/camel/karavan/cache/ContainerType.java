@@ -17,28 +17,10 @@
 
 package org.apache.camel.karavan.cache;
 
-import org.infinispan.api.annotations.indexing.Indexed;
-import org.infinispan.api.annotations.indexing.Keyword;
-import org.infinispan.protostream.annotations.ProtoEnumValue;
-
-@Indexed
 public enum ContainerType {
-    @Keyword(projectable = true, sortable = true)
-    @ProtoEnumValue(number = 0, name = "internal")
     internal,
-    @Keyword(projectable = true, sortable = true)
-    @ProtoEnumValue(number = 1, name = "devmode")
     devmode,
-    @Keyword(projectable = true, sortable = true)
-    @ProtoEnumValue(number = 2, name = "devservice")
-    devservice,
-    @Keyword(projectable = true, sortable = true)
-    @ProtoEnumValue(number = 3, name = "packaged")
     packaged,
-    @Keyword(projectable = true, sortable = true)
-    @ProtoEnumValue(number = 4, name = "build")
     build,
-    @Keyword(projectable = true, sortable = true)
-    @ProtoEnumValue(number = 5, name = "unknown")
     unknown,
 }

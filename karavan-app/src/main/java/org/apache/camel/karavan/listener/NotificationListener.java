@@ -82,7 +82,9 @@ public class NotificationListener {
     public void onCommitHappened(JsonObject event) throws Exception {
         JsonObject project = event.getJsonObject("project");
         JsonArray messages = event.getJsonArray("messages");
+        JsonArray statuses = event.getJsonArray("statuses");
         project.put("messages", messages);
+        project.put("statuses", statuses);
         String eventId = event.getString("eventId");
         String userId = event.getString("userId");
         if (userId != null) {

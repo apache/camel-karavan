@@ -18,22 +18,18 @@ package org.apache.camel.karavan;
 
 public class KaravanConstants {
 
-    public static final String PLATFORM_ISSUER = "Platform";
-    public static final String PLATFORM_AUDIENCE = "Platform";
-    public static final String PLATFORM_EMAIL = "test@platform.demo";
-
     public static final String DEV = "dev";
     public static final String DEVMODE_IMAGE = "karavan.devmode.image";
     public static final String DEVMODE_IMAGE_PULL_POLICY = "karavan.devmode.withImagePullPolicy";
     public static final String ENV_VAR_VERBOSE_OPTION_NAME = "VERBOSE_OPTION";
-    public static final String RUN_IN_COMPILE_MODE = "RUN_IN_COMPILE_MODE";
-    public static final String RUN_IN_BUILD_MODE = "RUN_IN_BUILD_MODE";
+    public static final String ENV_VAR_RUN_IN_COMPILE_MODE = "RUN_IN_COMPILE_MODE";
+    public static final String ENV_VAR_RUN_IN_BUILD_MODE = "RUN_IN_BUILD_MODE";
     public static final String ENV_VAR_VERBOSE_OPTION_VALUE = "--verbose";
+    public static final String ENV_VAR_BUILDER_SESSION_ID = "BUILDER_SESSION_ID";
 
     public static final String LABEL_PART_OF = "app.kubernetes.io/part-of";
     public static final String LABEL_TYPE = "org.apache.camel.karavan/type";
     public static final String LABEL_PROJECT_ID = "org.apache.camel.karavan/projectId";
-    public static final String LABEL_INTEGRATION_NAME = "org.apache.camel.karavan/integrationName";
     public static final String LABEL_CAMEL_RUNTIME = "org.apache.camel.karavan/runtime";
     public static final String LABEL_TAG = "org.apache.camel.karavan/tag";
     public static final String LABEL_DOCKER_STACK_NAMESPACE = "com.docker.stack.namespace";
@@ -42,7 +38,6 @@ public class KaravanConstants {
     public static final String BUILDER_SUFFIX = "-builder";
 
     public static final String CAMEL_PREFIX = "camel";
-    public static final String PLATFORM_PREFIX = "platform";
 
     public static final String BUILD_SCRIPT_VOLUME_NAME = "build-script";
     public static final String BUILD_SCRIPT_CONFIG_MAP = "build.sh";

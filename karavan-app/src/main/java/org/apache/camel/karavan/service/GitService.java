@@ -20,23 +20,20 @@ import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
 import io.smallrye.mutiny.tuples.Tuple2;
+import io.smallrye.mutiny.tuples.Tuple3;
 import io.vertx.core.Vertx;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.apache.camel.karavan.cache.ProjectFile;
-import org.apache.camel.karavan.cache.ProjectFileCommitDiff;
 import org.apache.camel.karavan.cache.ProjectFolder;
-import org.apache.camel.karavan.cache.ProjectFolderCommit;
 import org.apache.camel.karavan.model.GitConfig;
-import org.apache.camel.karavan.model.GitRepo;
-import org.apache.camel.karavan.model.GitRepoFile;
+import org.apache.camel.karavan.model.PathCommitDetails;
 import org.eclipse.jgit.api.*;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.InvalidRemoteException;
 import org.eclipse.jgit.api.errors.RefNotFoundException;
 import org.eclipse.jgit.api.errors.TransportException;
 import org.eclipse.jgit.diff.DiffEntry;
-import org.eclipse.jgit.diff.DiffFormatter;
 import org.eclipse.jgit.lib.*;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevTree;
@@ -44,15 +41,12 @@ import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.transport.*;
 import org.eclipse.jgit.transport.ssh.jsch.JschConfigSessionFactory;
 import org.eclipse.jgit.transport.ssh.jsch.OpenSshConfig;
-import org.eclipse.jgit.treewalk.AbstractTreeIterator;
-import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 import org.eclipse.jgit.treewalk.TreeWalk;
 import org.eclipse.jgit.treewalk.filter.TreeFilter;
 import org.eclipse.jgit.util.FS;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -62,7 +56,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.regex.Pattern;
-import java.util.stream.StreamSupport;
 
 @ApplicationScoped
 public class GitService {
@@ -130,7 +123,7 @@ public class GitService {
         return new GitConfig(repository, username.orElse(null), password.orElse(null), branch, privateKeyPath.orElse(null));
     }
 
-    public Tuple2<RevCommit, List<String>> commitAndPushProject(ProjectFolder projectFolder, List<ProjectFile> files, String message, String authorName, String authorEmail, List<String> fileNames) throws GitAPIException, IOException, URISyntaxException {
+    public Tuple3<RevCommit, List<RemoteRefUpdate.Status>, List<String>> commitAndPushProject(ProjectFolder projectFolder, List<ProjectFile> files, String message, String authorName, String authorEmail, List<String> fileNames) throws GitAPIException, IOException, URISyntaxException {
         LOGGER.info("Commit and push project " + projectFolder.getProjectId());
         GitConfig gitConfig = getGitConfig();
         String uuid = UUID.randomUUID().toString();
@@ -151,7 +144,7 @@ public class GitService {
         return commitAddedAndPush(git, gitConfig.getBranch(), message, authorName, authorEmail, fileNames, projectFolder.getProjectId());
     }
 
-    public List<GitRepo> readProjectsToImport() {
+    public List<PathCommitDetails> readProjectsToImport() {
         Git importGit = getGitForImport();
         if (importGit != null) {
             return readProjectsFromRepository(importGit, new String[0]);
@@ -159,36 +152,77 @@ public class GitService {
         return new ArrayList<>(0);
     }
 
-    public GitRepo readProjectFromRepository(String projectId) throws GitAPIException, IOException, URISyntaxException {
+    public List<PathCommitDetails> readProjectFromRepository(String projectId) throws GitAPIException, IOException, URISyntaxException {
         Git git = getGit(true, vertx.fileSystem().createTempDirectoryBlocking(UUID.randomUUID().toString()));
-        return readProjectsFromRepository(git, projectId).get(0);
+        return readProjectsFromRepository(git, projectId).stream().filter(d -> Objects.equals(d.projectId(), projectId)).toList();
     }
 
-    public List<GitRepo> readAllProjectsFromRepository() throws GitAPIException, IOException, URISyntaxException {
+    public List<PathCommitDetails> readAllProjectsFromRepository() throws GitAPIException, IOException, URISyntaxException {
         Git git = getGit(true, vertx.fileSystem().createTempDirectoryBlocking(UUID.randomUUID().toString()));
         return readProjectsFromRepository(git);
     }
 
-    private List<GitRepo> readProjectsFromRepository(Git git, String... filter) {
-        LOGGER.info("Read projects...");
-        List<GitRepo> result = new ArrayList<>();
-        try {
-            String folder = git.getRepository().getDirectory().getAbsolutePath().replace("/.git", "");
-            List<String> projects = readProjectsFromFolder(folder, filter);
-            for (String project : projects) {
-                Map<String, String> filesRead = readProjectFilesFromFolder(folder, project);
-                List<GitRepoFile> files = new ArrayList<>(filesRead.size());
-                for (Map.Entry<String, String> entry : filesRead.entrySet()) {
-                    String name = entry.getKey();
-                    String body = entry.getValue();
-                    Tuple2<String, Integer> fileCommit = lastCommit(git, project + File.separator + name);
-                    files.add(new GitRepoFile(name, fileCommit.getItem2().longValue() * 1000, body));
+    public List<PathCommitDetails> getLastCommitForEachFile(Git git) throws IOException, GitAPIException {
+        List<PathCommitDetails> pathCommitDetails = new ArrayList<>();
+        Repository repository = git.getRepository();
+
+        // 1. Resolve the HEAD commit (the current state of the branch)
+        ObjectId head = repository.resolve(Constants.HEAD);
+        if (head == null) {
+            throw new IllegalStateException("Repository has no HEAD. Is it an empty repository?");
+        }
+
+        try (RevWalk revWalk = new RevWalk(repository)) {
+            RevCommit headCommit = revWalk.parseCommit(head);
+            RevTree tree = headCommit.getTree();
+
+            // 2. Walk through the tree to find all files
+            try (TreeWalk treeWalk = new TreeWalk(repository)) {
+                treeWalk.addTree(tree);
+                treeWalk.setRecursive(false); // 1. Turn off automatic recursion so we don't skip folder nodes
+
+                // Iterate through every file found in the tree
+                while (treeWalk.next()) {
+                    String path = treeWalk.getPathString();
+                    // 2. Determine if the current item is a directory (Tree) or file (Blob)
+                    boolean isFolder = treeWalk.isSubtree();
+                    Iterable<RevCommit> commits = git.log().addPath(path).setMaxCount(1).call();
+
+                    if (isFolder) {
+                        for (RevCommit commit : commits) {
+                            String commitId = commit.getName();
+                            Long commitTime = Integer.valueOf(commit.getCommitTime()).longValue() * 1000;
+                            pathCommitDetails.add(new PathCommitDetails(path, null, commitId, commitTime, null, true));
+                        }
+                        treeWalk.enterSubtree();
+                    } else {
+                        ObjectId blobId = treeWalk.getObjectId(0);
+                        ObjectLoader loader = repository.open(blobId);
+                        String content = new String(loader.getBytes(), StandardCharsets.UTF_8);
+
+                        for (RevCommit commit : commits) {
+                            String commitId = commit.getName(); // The SHA-1 hash
+                            Long commitTime = Integer.valueOf(commit.getCommitTime()).longValue() * 1000;
+                            String[] parts = path.split(Pattern.quote(File.separator));
+                            if (parts.length == 2) {
+                                var projectId = parts[0];
+                                var fileName = parts[1];
+                                pathCommitDetails.add(new PathCommitDetails(projectId, fileName, commitId, commitTime, content, false));
+                            }
+                        }
+                    }
                 }
-                Tuple2<String, Integer> commit = lastCommit(git, project);
-                GitRepo repo = new GitRepo(project, commit.getItem1(), commit.getItem2().longValue() * 1000, files);
-                result.add(repo);
             }
-            return result;
+        }
+
+        return pathCommitDetails;
+    }
+
+    private List<PathCommitDetails> readProjectsFromRepository(Git git, String... filter) {
+        LOGGER.info("Read projects...");
+        List<PathCommitDetails> result = new ArrayList<>();
+        try {
+            return getLastCommitForEachFile(git);
         } catch (RefNotFoundException e) {
             LOGGER.error("New repository");
             return result;
@@ -294,7 +328,7 @@ public class GitService {
         });
     }
 
-    public Tuple2<RevCommit, List<String>> commitAddedAndPush(Git git, String branch, String message, String authorName, String authorEmail, List<String> fileNames, String projectId) throws GitAPIException {
+    public Tuple3<RevCommit, List<RemoteRefUpdate.Status>, List<String>> commitAddedAndPush(Git git, String branch, String message, String authorName, String authorEmail, List<String> fileNames, String projectId) throws GitAPIException {
         LOGGER.info("Commit and push changes to the branch " + branch);
         AddCommand add = git.add();
         for (String fileName : fileNames) {
@@ -303,20 +337,28 @@ public class GitService {
         LOGGER.info("Git add: " + add.call());
         RevCommit commit = git.commit().setMessage(message).setAuthor(new PersonIdent(authorName, authorEmail)).call();
         List<String> messages = new ArrayList<>();
+        List<RemoteRefUpdate.Status> statuses = new ArrayList<>();
         LOGGER.info("Git commit: " + commit);
         if (!ephemeral) {
             PushCommand pushCommand = git.push();
             pushCommand.add(branch).setRemote("origin");
             setCredentials(pushCommand);
-            Iterable<PushResult> result = pushCommand.call();
-            result.forEach(pushResult -> {
-                if (pushResult != null) {
-                     messages.add(pushResult.getMessages());
-                    LOGGER.info("Git push result: " + pushResult.getMessages());
+            Iterable<PushResult> results = pushCommand.call();
+            for (PushResult pr : results) {
+                if (pr != null) {
+                    LOGGER.info("Git push result: " + pr.getMessages());
+                    for (RemoteRefUpdate rru : pr.getRemoteUpdates()) {
+                        LOGGER.info("Git push: " + rru.getStatus() + ", " + rru.getMessage());
+                        if (RemoteRefUpdate.Status.OK != rru.getStatus()) {
+                            statuses.add(rru.getStatus());
+                            messages.add(rru.getMessage());
+                        }
+                    }
+                    messages.add(pr.getMessages());
                 }
-            });
+            }
         }
-        return Tuple2.of(commit, messages);
+        return Tuple3.of(commit, statuses, messages);
     }
 
     public Git init(String dir, String uri, String branch) throws GitAPIException, IOException, URISyntaxException {
@@ -500,83 +542,5 @@ public class GitService {
             };
         }
         return sshSessionFactory;
-    }
-
-    public List<ProjectFolderCommit> getProjectCommits(String projectId) {
-        List<ProjectFolderCommit> result = new ArrayList<>();
-        try {
-            Git pollGit = getGit(true, vertx.fileSystem().createTempDirectoryBlocking("commits"));
-            if (pollGit != null) {
-                StreamSupport.stream(pollGit.log().all().addPath(projectId).call().spliterator(), false)
-                        .sorted(Comparator.comparingInt(RevCommit::getCommitTime))
-                        .forEach(commit -> {
-                            var diffs = getProjectFileCommitDiffs(pollGit, commit);
-                            var projectCommit = new ProjectFolderCommit(commit.getId().getName(), projectId,
-                                    commit.getAuthorIdent().getName(), commit.getAuthorIdent().getEmailAddress(),
-                                    commit.getShortMessage(), diffs);
-                            result.add(projectCommit);
-                        });
-            }
-        } catch (Exception e) {
-            LOGGER.error("Error", e);
-        }
-        return result;
-    }
-
-    private List<ProjectFileCommitDiff> getProjectFileCommitDiffs(Git git, RevCommit commit) {
-        List<ProjectFileCommitDiff> result = new ArrayList<>();
-        var repository = git.getRepository();
-        try {
-            try (RevWalk revWalk = new RevWalk(repository)) {
-                if (commit.getParentCount() > 0) {
-                    RevCommit parentCommit = commit.getParent(0);
-                    revWalk.parseCommit(parentCommit);
-
-                    AbstractTreeIterator oldTreeIter = prepareTreeParser(repository, parentCommit);
-                    AbstractTreeIterator newTreeIter = prepareTreeParser(repository, commit);
-
-                    try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                         DiffFormatter diffFormatter = new DiffFormatter(baos)) {
-                        diffFormatter.setRepository(repository);
-                        List<DiffEntry> diffs = diffFormatter.scan(oldTreeIter, newTreeIter);
-
-                        for (DiffEntry diff : diffs) {
-                            diffFormatter.format(diff);
-                            var fileDiff = new ProjectFileCommitDiff(diff.getChangeType().name(), diff.getNewPath(), diff.getOldPath(), baos.toString(StandardCharsets.UTF_8));
-                            result.add(fileDiff);
-                            baos.reset();  // Clear the output stream for the next diff
-                        }
-                    }
-                } else {
-                    try (TreeWalk treeWalk = new TreeWalk(repository)) {
-                        treeWalk.addTree(commit.getTree());
-                        treeWalk.setRecursive(true);
-                        while (treeWalk.next()) {
-                            // Get the object ID for the file (blob)
-                            ObjectId objectId = treeWalk.getObjectId(0);
-                            // Load the file content
-                            ObjectLoader loader = repository.open(objectId);
-                            byte[] content = loader.getBytes();
-                            var fileDiff = new ProjectFileCommitDiff(DiffEntry.ChangeType.ADD.name(), treeWalk.getPathString(), DiffEntry.DEV_NULL, new String(content, StandardCharsets.UTF_8));
-                            result.add(fileDiff);
-                        }
-                    }
-                }
-            }
-        } catch (IOException e) {
-            LOGGER.error("Error", e);
-        }
-        return result;
-    }
-
-    private static AbstractTreeIterator prepareTreeParser(Repository repository, RevCommit commit) throws IOException {
-        try (RevWalk walk = new RevWalk(repository)) {
-            RevTree tree = walk.parseTree(commit.getTree().getId());
-            CanonicalTreeParser treeParser = new CanonicalTreeParser();
-            try (ObjectReader reader = repository.newObjectReader()) {
-                treeParser.reset(reader, tree.getId());
-            }
-            return treeParser;
-        }
     }
 }

@@ -25,8 +25,6 @@ import jakarta.ws.rs.core.Response;
 import org.apache.camel.karavan.cache.KaravanCache;
 import org.apache.camel.karavan.cache.ProjectFile;
 import org.apache.camel.karavan.cache.ProjectFileCommited;
-import org.apache.camel.karavan.cache.ProjectFolder;
-import org.apache.camel.karavan.service.CodeService;
 
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
@@ -70,8 +68,18 @@ public class ProjectFileResource {
     @GET
     @Authenticated
     @Produces(MediaType.APPLICATION_JSON)
+    @Path("/commited/{projectId}")
+    public List<ProjectFileCommited> getCommitedFiles(@PathParam("projectId") String projectId) {
+        return karavanCache.getProjectFilesCommited(projectId).stream()
+                .map(f -> new ProjectFileCommited(f.getName(), "", f.getProjectId(), f.getCommitId(), f.getCommitTime()))
+                .collect(Collectors.toList());
+    }
+
+    @GET
+    @Authenticated
+    @Produces(MediaType.APPLICATION_JSON)
     @Path("/commited/{projectId}/{filename}")
-    public ProjectFileCommited getCommited(@PathParam("projectId") String projectId, @PathParam("filename") String filename) {
+    public ProjectFileCommited getCommitedFile(@PathParam("projectId") String projectId, @PathParam("filename") String filename) {
         return karavanCache.getProjectFileCommited(projectId, filename);
     }
 
@@ -102,27 +110,17 @@ public class ProjectFileResource {
         return result;
     }
 
-    @GET
-    @Authenticated
-    @Produces(MediaType.APPLICATION_JSON)
-    @Path("/templates/beans")
-    public List<ProjectFile> getBeanTemplates() throws Exception {
-        return  karavanCache.getProjectFiles(ProjectFolder.Type.templates.name()).stream()
-                .filter(file -> file.getName().endsWith(CodeService.BEAN_TEMPLATE_SUFFIX_FILENAME))
-                .toList();
-    }
-
     @POST
     @Authenticated
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public Response create(ProjectFile file) throws Exception {
-        file.setLastUpdate(Instant.now().toEpochMilli());
+        file.setLastUpdate(Instant.now().getEpochSecond() * 1000L);
         boolean projectFileExists = karavanCache.getProjectFile(file.getProjectId(), file.getName()) != null;
         if (projectFileExists) {
             return Response.serverError().entity("File with given name already exists " + file.getName() + " in project " + file.getProjectId()).build();
         } else {
-            karavanCache.saveProjectFile(file, false);
+            karavanCache.saveProjectFile(file, null, true);
             return Response.ok(file).build();
         }
     }
@@ -132,8 +130,8 @@ public class ProjectFileResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public ProjectFile update(ProjectFile file) throws Exception {
-        file.setLastUpdate(Instant.now().toEpochMilli());
-        karavanCache.saveProjectFile(file, false);
+        file.setLastUpdate(Instant.now().getEpochSecond() * 1000L);
+        karavanCache.saveProjectFile(file, null, true);
         return file;
     }
 
@@ -158,7 +156,7 @@ public class ProjectFileResource {
                 file.setCode(fromFile.getCode());
                 file.setLastUpdate(fromFile.getLastUpdate());
                 file.setProjectId(fromFile.getProjectId());
-                karavanCache.saveProjectFile(file, false);
+                karavanCache.saveProjectFile(file, null, true);
                 karavanCache.deleteProjectFile(projectId, filename);
                 karavanCache.deleteProjectFileCommited(projectId, filename);
                 return Response.ok(file).build();
@@ -196,7 +194,7 @@ public class ProjectFileResource {
             var copyFile = file.copy();
             copyFile.setProjectId(toProjectId);
             copyFile.setName(toFilename);
-            karavanCache.saveProjectFile(copyFile, false);
+            karavanCache.saveProjectFile(copyFile, null, true);
             return Response.ok().build();
         } else {
             return Response.notModified().build();

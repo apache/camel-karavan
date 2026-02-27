@@ -29,7 +29,6 @@ import org.apache.camel.karavan.KaravanConstants;
 import org.apache.camel.karavan.cache.ContainerType;
 import org.apache.camel.karavan.cache.KaravanCache;
 import org.apache.camel.karavan.cache.PodContainerStatus;
-import org.apache.camel.karavan.docker.DockerComposeConverter;
 import org.apache.camel.karavan.docker.DockerService;
 import org.apache.camel.karavan.docker.StackToServiceSpecConverter;
 import org.apache.camel.karavan.kubernetes.KubernetesService;
@@ -127,25 +126,13 @@ public class ContainerResource {
     }
 
     public void deployContainer(String projectId, String type, JsonObject command) throws InterruptedException {
-        if (Objects.equals(type, ContainerType.devservice.name())) {
-            String code = projectService.getDockerDevServiceCode();
-            DockerComposeService dockerComposeService = DockerComposeConverter.fromCode(code, projectId);
-            if (dockerComposeService != null) {
-                Map<String, String> labels = new HashMap<>();
-                labels.put(LABEL_TYPE, ContainerType.devservice.name());
-                labels.put(LABEL_PROJECT_ID, projectId);
-                labels.put(LABEL_INTEGRATION_NAME, projectId);
-                dockerService.createContainerFromCompose(dockerComposeService, labels, needPull(command));
-                dockerService.runContainer(dockerComposeService.getContainer_name());
-            }
-        } else if (Objects.equals(type, ContainerType.packaged.name())) {
+        if (Objects.equals(type, ContainerType.packaged.name())) {
             DockerComposeService dockerComposeService = projectService.getProjectDockerComposeService(projectId);
             if (dockerComposeService != null) {
                 Map<String, String> labels = new HashMap<>();
                 labels.put(LABEL_TYPE, ContainerType.packaged.name());
                 labels.put(LABEL_CAMEL_RUNTIME, CamelRuntime.CAMEL_MAIN.getValue());
                 labels.put(LABEL_PROJECT_ID, projectId);
-                labels.put(LABEL_INTEGRATION_NAME, projectId);
                 dockerService.createContainerFromCompose(dockerComposeService, labels, needPull(command));
                 dockerService.runContainer(dockerComposeService.getContainer_name());
             }
@@ -157,25 +144,13 @@ public class ContainerResource {
     }
 
     public void deployService(String projectId, String type, JsonObject command) throws InterruptedException {
-        if (Objects.equals(type, ContainerType.devservice.name())) {
-//            String code = projectService.getDockerDevServiceCode();
-//            DockerComposeService dockerComposeService = DockerComposeConverter.fromCode(code, projectId);
-//            if (dockerComposeService != null) {
-//                Map<String, String> labels = new HashMap<>();
-//                labels.put(LABEL_TYPE, ContainerType.devservice.name());
-//                labels.put(LABEL_PROJECT_ID, projectId);
-//                labels.put(LABEL_INTEGRATION_NAME, projectId);
-//                dockerService.createContainerFromCompose(dockerComposeService, labels, needPull(command));
-//                dockerService.runContainer(dockerComposeService.getContainer_name());
-//            }
-        } else if (Objects.equals(type, ContainerType.packaged.name())) {
+        if (Objects.equals(type, ContainerType.packaged.name())) {
             DockerStackService stack = projectService.getProjectDockerStackService(projectId);
             if (stack != null) {
                 Map<String, String> labels = new HashMap<>();
                 labels.put(LABEL_TYPE, ContainerType.packaged.name());
                 labels.put(LABEL_CAMEL_RUNTIME, CamelRuntime.CAMEL_MAIN.getValue());
                 labels.put(LABEL_PROJECT_ID, projectId);
-                labels.put(LABEL_INTEGRATION_NAME, projectId);
                 stack.setLabels(labels);
                 var serviceSpec = StackToServiceSpecConverter.convertService(projectId, stack);
                 dockerService.createService(projectId, serviceSpec);

@@ -10,6 +10,7 @@ import org.apache.camel.karavan.cache.KaravanCache;
 import org.apache.camel.karavan.model.ActivityCommand;
 import org.apache.camel.karavan.model.ActivityContainer;
 import org.apache.camel.karavan.model.ActivityProject;
+import org.apache.camel.karavan.model.ActivityUser;
 import org.apache.camel.karavan.service.ConfigService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
@@ -37,12 +38,18 @@ public class ActivityListener {
 
     @ConsumeEvent(value = ON_USER_ACTIVITY, ordered = true)
     public void onUserActivity(JsonObject json) {
-//        LOGGER.info("onUserActivity " + json.encodePrettily());
+        var activityUser = json.mapTo(ActivityUser.class);
+        if (Objects.isNull(activityUser)) {
+        } else if (ActivityUser.ActivityType.WORKING.equals(activityUser.getType())) {
+            karavanCache.saveUserWorking(activityUser);
+        } else {
+            karavanCache.saveUserHeartBeat(activityUser);
+        }
+
     }
 
     @ConsumeEvent(value = ON_PROJECT_ACTIVITY, ordered = true)
     public void onProjectActivity(JsonObject json) {
-//        LOGGER.info("onProjectActivity " + json.encodePrettily());
         try {
             var ap = json.mapTo(ActivityProject.class);
             if (Objects.equals(ap.getCommand(), ActivityCommand.ADD)

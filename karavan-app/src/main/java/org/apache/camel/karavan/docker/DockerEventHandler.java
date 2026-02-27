@@ -58,6 +58,7 @@ public class DockerEventHandler implements ResultCallback<Event> {
 
     @Override
     public void onNext(Event event) {
+        LOGGER.debug("DockerEventListener onNext " + event.getAction());
         try {
             var actorId = event.getActor().getId();
             if (Objects.equals(event.getType(), EventType.CONTAINER)) {
@@ -72,7 +73,7 @@ public class DockerEventHandler implements ResultCallback<Event> {
     }
 
     public void onContainerEvent(Event event, Container container) throws InterruptedException {
-        String projectId = container.getLabels().containsKey(LABEL_INTEGRATION_NAME) ? container.getLabels().get(LABEL_INTEGRATION_NAME) : container.getLabels().get(LABEL_PROJECT_ID);
+        String projectId = container.getLabels().get(LABEL_PROJECT_ID);
         if ("exited".equalsIgnoreCase(container.getState())
                 && Objects.equals(container.getLabels().get(LABEL_TYPE), ContainerType.build.name())) {
             String tag = container.getLabels().get(LABEL_TAG);

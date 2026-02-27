@@ -16,173 +16,197 @@
  */
 package org.apache.camel.karavan.cache;
 
-import io.quarkiverse.infinispan.embedded.Embedded;
-import io.quarkus.runtime.ShutdownEvent;
-import io.vertx.core.json.JsonObject;
-import jakarta.enterprise.event.Observes;
+import io.vertx.core.eventbus.EventBus;
 import jakarta.enterprise.inject.Default;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
+import org.apache.camel.karavan.model.ActivityUser;
 import org.apache.camel.karavan.service.AuthService;
-import org.infinispan.Cache;
-import org.infinispan.manager.EmbeddedCacheManager;
 import org.jboss.logging.Logger;
 
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static org.apache.camel.karavan.KaravanConstants.DEV;
-import static org.apache.camel.karavan.KaravanConstants.PLATFORM_PREFIX;
+import static org.apache.camel.karavan.KaravanEvents.*;
+import static org.apache.camel.karavan.cache.CacheEvent.Operation.DELETE;
+import static org.apache.camel.karavan.cache.CacheEvent.Operation.SAVE;
+import static org.apache.camel.karavan.cache.CacheUtils.query;
+import static org.apache.camel.karavan.cache.CacheUtils.queryFirst;
 import static org.apache.camel.karavan.service.AuthService.USER_ADMIN;
 
 @Default
 @Singleton
 public class KaravanCache {
 
-    private static final Logger LOGGER = Logger.getLogger(KaravanCache.class.getName());
+    @Inject
+    EventBus eventBus;
 
-    @Embedded("ProjectFolder")
-    Cache<String, ProjectFolder> folders;
-    @Embedded("ProjectFile")
-    Cache<String, ProjectFile> files;
-    @Embedded("ProjectFileCommited")
-    Cache<String, ProjectFileCommited> filesCommited;
+    static final Logger LOGGER = Logger.getLogger(KaravanCache.class.getName());
 
-    @Embedded("DeploymentStatus")
-    Cache<String, DeploymentStatus> deploymentStatuses;
-    @Embedded("PodContainerStatus")
-    Cache<String, PodContainerStatus> podContainerStatuses;
-    @Embedded("ServiceStatus")
-    Cache<String, ServiceStatus> serviceStatuses;
-    @Embedded("CamelStatus")
-    Cache<String, CamelStatus> camelStatuses;
+    final Map<String, ProjectFolder> folders = new ConcurrentHashMap<>();
+    final Map<String, ProjectFolderCommited> foldersCommited = new ConcurrentHashMap<>();
+    final Map<String, ProjectFile> files = new ConcurrentHashMap<>();
+    final Map<String, ProjectFileCommited> filesCommited = new ConcurrentHashMap<>();
 
-    @Embedded("AccessUser")
-    Cache<String, AccessUser> users;
-    @Embedded("AccessPassword")
-    Cache<String, AccessPassword> passwords;
-    @Embedded("AccessRole")
-    Cache<String, AccessRole> roles;
-    @Embedded("AccessSession")
-    Cache<String, AccessSession> sessions;
+    final Map<String, DeploymentStatus> deploymentStatuses = new ConcurrentHashMap<>();
+    final Map<String, PodContainerStatus> podContainerStatuses = new ConcurrentHashMap<>();
+    final Map<String, ServiceStatus> serviceStatuses = new ConcurrentHashMap<>();
+    final Map<String, CamelStatus> camelStatuses = new ConcurrentHashMap<>();
+
+    final Map<String, AccessUser> users = new ConcurrentHashMap<>();
+    final Map<String, AccessPassword> passwords = new ConcurrentHashMap<>();
+    final Map<String, AccessRole> roles = new ConcurrentHashMap<>();
+    final Map<String, AccessSession> sessions = new ConcurrentHashMap<>();
 
     final Map<String, Map<String, Instant>> projectActivities = new ConcurrentHashMap<>();
+    final Map<String, ActivityUser> usersWorking = new ConcurrentHashMap<>();
+    final Map<String, ActivityUser> usersHeartBeat = new ConcurrentHashMap<>();
 
-    @Inject
-    EmbeddedCacheManager cacheManager;
+    final Map<String, List<ProjectFolderCommit>> lastFolderCommits = new ConcurrentHashMap<>();
+    final Map<String, SystemCommit> systemCommits = new ConcurrentHashMap<>();
 
-    void onShutdown(@Observes ShutdownEvent event) {
-        if (cacheManager.isDefaultRunning()) {
-            cacheManager.stop();
-        }
+    public List<ProjectFolderCommit> getProjectLastCommits(String projectId) {
+        return lastFolderCommits.get(projectId);
     }
 
-    public String getTemplate(String name, String className, String template) {
-        return getTemplate(name, className, template, 0, true);
+    public void saveProjectLastCommits(String projectId, List<ProjectFolderCommit> commits) {
+        lastFolderCommits.put(projectId, commits);
     }
 
-    public String getTemplate(String name, String className, String template, long lifespan, Boolean indexing) {
-        var json = new JsonObject(template);
-        var firstKey = json.fieldNames().iterator().next();
-        json.getJsonObject(firstKey).put("name", name);
-        if (indexing) {
-            json.getJsonObject(firstKey).getJsonObject("indexing").getJsonArray("indexed-entities").add(PLATFORM_PREFIX + "." + className);
-        } else {
-            json.getJsonObject(firstKey).remove("indexing");
-        }
-        if (lifespan > 0) {
-            var expiration = new JsonObject().put("lifespan", lifespan);
-            json.getJsonObject(firstKey).put("expiration", expiration);
-        }
-        return json.encodePrettily();
+    public void saveSystemCommit(SystemCommit commit) {
+        systemCommits.put(commit.getId(), commit);
+    }
+    public void saveSystemCommits(List<SystemCommit> commits) {
+        commits.forEach(this::saveSystemCommit);;
     }
 
-    public EmbeddedCacheManager getCacheManager() {
-        return cacheManager;
+    public List<SystemCommit> getSystemLastCommits() {
+        return systemCommits.values().stream().sorted(Comparator.comparing(SystemCommit::getCommitTime)).collect(Collectors.toList()).reversed();
     }
+
+    // --- Project Folders ---
 
     public List<ProjectFolder> getFolders() {
-        return new ArrayList<>(folders.values().stream().toList());
+        return query(folders, f -> true, ProjectFolder::copy);
     }
 
-    public void saveProject(ProjectFolder projectFolder) {
+    public void saveProject(ProjectFolder projectFolder, boolean persist) {
         var key = GroupedKey.create(projectFolder.getProjectId(), DEV, projectFolder.getProjectId());
+        if (projectFolder.lastUpdate == 0) {
+            projectFolder.setLastUpdate(Instant.now().getEpochSecond() * 1000L);
+        }
         folders.put(key, projectFolder);
+        if (persist) {
+            eventBus.publish(PERSIST_PROJECT, new CacheEvent(key, SAVE, projectFolder));
+        }
+    }
+
+    public void deleteProject(String projectId) {
+        var key = GroupedKey.create(projectId, DEV, projectId);
+        folders.remove(key);
+        eventBus.publish(PERSIST_PROJECT, new CacheEvent(key, DELETE, null));
+    }
+
+    public ProjectFolder getProject(String projectId) {
+        ProjectFolder f = folders.get(GroupedKey.create(projectId, DEV, projectId));
+        return f != null ? f.copy() : null;
+    }
+
+    // --- Project Folders Commited ---
+
+    public List<ProjectFolderCommited> getFoldersCommited() {
+        return query(foldersCommited, f -> true, ProjectFolderCommited::copy);
+    }
+
+    public void saveProjectCommited(ProjectFolderCommited projectFolder) {
+        var key = GroupedKey.create(projectFolder.getProjectId(), DEV, projectFolder.getProjectId());
+        foldersCommited.put(key, projectFolder);
+    }
+
+    public void deleteProjectCommited(String projectId) {
+        var key = GroupedKey.create(projectId, DEV, projectId);
+        foldersCommited.remove(key);
+    }
+
+    public ProjectFolderCommited getProjectCommited(String projectId) {
+        ProjectFolderCommited f = foldersCommited.get(GroupedKey.create(projectId, DEV, projectId));
+        return f != null ? f.copy() : null;
+    }
+
+    // --- Project Files ---
+
+    public Map<String, Long> getLatestUpdatePerProject() {
+        return files.values().stream().collect(Collectors.toMap(
+                ProjectFile::getProjectId,
+                ProjectFile::getLastUpdate,
+                Math::max
+        ));
     }
 
     public List<ProjectFile> getProjectFiles(String projectId) {
-        return files.<ProjectFile>query("FROM " + ProjectFile.class.getCanonicalName() + " WHERE projectId = :projectId")
-                .setParameter("projectId", projectId)
-                .execute().list();
+        return query(files, f -> Objects.equals(f.getProjectId(), projectId), ProjectFile::copy);
     }
 
     public Map<String, ProjectFile> getProjectFilesMap(String projectId) {
         return getProjectFiles(projectId).stream()
-                .collect(Collectors.toMap(ProjectFile::getName, ProjectFile::copy));
+                .collect(Collectors.toMap(ProjectFile::getName, f -> f)); // Already copies from getProjectFiles
     }
 
     public ProjectFile getProjectFile(String projectId, String filename) {
-        var list = files.<ProjectFile>query("FROM " + ProjectFile.class.getCanonicalName() + " WHERE projectId = :projectId AND name = :filename")
-                .setParameter("projectId", projectId)
-                .setParameter("filename", filename)
-                .execute().list();
-        return list.isEmpty() ? null : list.getFirst();
+        return queryFirst(files,
+                f -> Objects.equals(f.getProjectId(), projectId) && Objects.equals(f.getName(), filename),
+                ProjectFile::copy);
     }
 
     public List<ProjectFile> getProjectFilesByName(String filename) {
-        return files.<ProjectFile>query("FROM " + ProjectFile.class.getCanonicalName() + " WHERE name = :filename")
-                .setParameter("filename", filename)
-                .execute().list();
+        return query(files, f -> Objects.equals(f.getName(), filename), ProjectFile::copy);
     }
 
-    public void saveProjectFile(ProjectFile file, boolean commited) {
+    public void saveProjectFile(ProjectFile file, String commitId, boolean persist) {
         var key = GroupedKey.create(file.getProjectId(), DEV, file.getName());
         files.put(key, file);
-        if (commited) {
-            filesCommited.put(key, ProjectFileCommited.fromFile(file));
+        if (commitId != null) {
+            saveProjectFileCommited(ProjectFileCommited.fromFile(file, commitId));
+        }
+        if (persist) {
+            eventBus.publish(PERSIST_PROJECT, new CacheEvent(key, SAVE, file));
         }
     }
 
-    public void syncFilesCommited(String projectId, List<String> fileNames) {
-        List<String> currentFileNames = new ArrayList<>();
-        getProjectFilesCommited(projectId).stream().filter(file -> fileNames.contains(file.getName()))
-                .forEach(pf -> currentFileNames.add(pf.getName()));
-
-        currentFileNames.forEach(name -> deleteProjectFileCommited(projectId, name));
-        getProjectFiles(projectId).stream().filter(file -> fileNames.contains(file.getName()))
-                .forEach(f -> saveProjectFileCommited(ProjectFileCommited.fromFile(f)));
-    }
-
-    public void saveProjectFiles(Map<String, ProjectFile> filesToSave) {
-        long lastUpdate = Instant.now().toEpochMilli();
+    public void saveProjectFiles(Map<String, ProjectFile> filesToSave, boolean persist) {
+        long lastUpdate = Instant.now().getEpochSecond() * 1000L;
         filesToSave.forEach((groupedKey, projectFile) -> {
             projectFile.setLastUpdate(lastUpdate);
-            saveProjectFile(projectFile, false);
+            saveProjectFile(projectFile, null, persist);
         });
     }
 
     public void deleteProjectFile(String projectId, String filename) {
         var key = GroupedKey.create(projectId, DEV, filename);
         files.remove(key);
+        eventBus.publish(PERSIST_PROJECT, new CacheEvent(key, DELETE, null));
     }
 
+    // --- Committed Files ---
+
     public List<ProjectFileCommited> getProjectFilesCommited(String projectId) {
-        return filesCommited.<ProjectFileCommited>query("FROM " + ProjectFileCommited.class.getCanonicalName() + " WHERE projectId = :projectId")
-                .setParameter("projectId", projectId)
-                .execute().list();
+        return query(filesCommited, f -> Objects.equals(f.getProjectId(), projectId), ProjectFileCommited::copy);
     }
 
     public ProjectFileCommited getProjectFileCommited(String projectId, String filename) {
-        var list = filesCommited.<ProjectFileCommited>query("FROM " + ProjectFileCommited.class.getCanonicalName() + " WHERE projectId = :projectId AND name = :filename")
-                .setParameter("projectId", projectId)
-                .setParameter("filename", filename)
-                .execute().list();
-        return list.isEmpty() ? null : list.getFirst();
+        return queryFirst(filesCommited,
+                f -> Objects.equals(f.getProjectId(), projectId) && Objects.equals(f.getName(), filename),
+                ProjectFileCommited::copy);
     }
 
+    public void deleteProjectFileCommited(String projectId) {
+        getProjectFilesCommited(projectId).forEach(file -> {
+            filesCommited.remove(GroupedKey.create(projectId, DEV, file.name));
+        });
+    }
     public void deleteProjectFileCommited(String projectId, String filename) {
         filesCommited.remove(GroupedKey.create(projectId, DEV, filename));
     }
@@ -191,18 +215,7 @@ public class KaravanCache {
         filesCommited.put(GroupedKey.create(file.getProjectId(), DEV, file.getName()), file);
     }
 
-    public void deleteProject(String projectId) {
-        var key = GroupedKey.create(projectId, DEV, projectId);
-        folders.remove(key);
-    }
-
-    public ProjectFolder getProject(String projectId) {
-        return folders.get(GroupedKey.create(projectId, DEV, projectId));
-    }
-
-    public DeploymentStatus getDeploymentStatus(String projectId, String environment) {
-        return deploymentStatuses.get(GroupedKey.create(projectId, environment, projectId));
-    }
+    // --- Deployment Status ---
 
     public void saveDeploymentStatus(DeploymentStatus status) {
         deploymentStatuses.put(GroupedKey.create(status.getProjectId(), status.getEnv(), status.getProjectId()), status);
@@ -213,13 +226,16 @@ public class KaravanCache {
     }
 
     public List<DeploymentStatus> getDeploymentStatuses() {
-        return new ArrayList<>(deploymentStatuses.values().stream().toList());
+        return query(deploymentStatuses, s -> true, DeploymentStatus::copy);
     }
 
     public List<DeploymentStatus> getDeploymentStatuses(String env) {
-        return deploymentStatuses.<DeploymentStatus>query("FROM " + DeploymentStatus.class.getCanonicalName() + " WHERE env = :env")
-                .setParameter("env", env)
-                .execute().list();
+        return query(deploymentStatuses, s -> Objects.equals(s.getEnv(), env), DeploymentStatus::copy);
+    }
+
+    public DeploymentStatus getDeploymentStatus(String projectId, String environment) {
+        DeploymentStatus s = deploymentStatuses.get(GroupedKey.create(projectId, environment, projectId));
+        return s != null ? s.copy() : null;
     }
 
     public void deleteAllDeploymentsStatuses() {
@@ -238,15 +254,26 @@ public class KaravanCache {
         return new ArrayList<>(serviceStatuses.values().stream().toList());
     }
 
-    public List<PodContainerStatus> getPodContainerStatuses() {
-        return new ArrayList<>(podContainerStatuses.values().stream().toList());
-    }
+    // --- Pod / Container Status ---
 
     public List<PodContainerStatus> getPodContainerStatuses(String projectId, String env) {
-        return podContainerStatuses.<PodContainerStatus>query("FROM " + PodContainerStatus.class.getCanonicalName() + " WHERE projectId = :projectId AND env = :env")
-                .setParameter("projectId", projectId)
-                .setParameter("env", env)
-                .execute().list();
+        return query(podContainerStatuses,
+                s -> Objects.equals(s.getProjectId(), projectId) && Objects.equals(s.getEnv(), env),
+                PodContainerStatus::copy);
+    }
+
+    public PodContainerStatus getBuildPodContainerStatus(String projectId, String env) {
+        return queryFirst(podContainerStatuses,
+                s -> Objects.equals(s.getProjectId(), projectId) && Objects.equals(s.getEnv(), env) && s.getType() == ContainerType.build,
+                PodContainerStatus::copy);
+    }
+
+    public List<PodContainerStatus> getDevModeStatuses() {
+        return query(podContainerStatuses, s -> s.getType() == ContainerType.devmode, PodContainerStatus::copy);
+    }
+
+    public List<PodContainerStatus> getPodContainerStatuses() {
+        return new ArrayList<>(podContainerStatuses.values().stream().toList());
     }
 
     public PodContainerStatus getPodContainerStatus(String projectId, String env, String containerName) {
@@ -261,28 +288,19 @@ public class KaravanCache {
         return podContainerStatuses.get(key);
     }
 
-    public PodContainerStatus getBuildPodContainerStatus(String projectId, String env) {
-        var list = podContainerStatuses.<PodContainerStatus>query("FROM " + PodContainerStatus.class.getCanonicalName() + " WHERE projectId = :projectId AND env = :env AND type = :type")
-                .setParameter("projectId", projectId)
-                .setParameter("env", env)
-                .setParameter("type", ContainerType.build)
-                .execute().list();
-        return list.isEmpty() ? null : list.getFirst();
-    }
 
     public PodContainerStatus getDevModePodContainerStatus(String projectId, String env) {
-        var list = podContainerStatuses.<PodContainerStatus>query("FROM " + PodContainerStatus.class.getCanonicalName() + " WHERE projectId = :projectId AND env = :env AND type = :type")
-                .setParameter("projectId", projectId)
-                .setParameter("env", env)
-                .setParameter("type", ContainerType.devmode)
-                .execute().list();
-        return list.isEmpty() ? null : list.getFirst();
+        return queryFirst(podContainerStatuses,
+                status -> Objects.equals(status.getProjectId(), projectId)
+                        && Objects.equals(status.getEnv(), env)
+                        && status.getType() == ContainerType.devmode,
+                PodContainerStatus::copy);
     }
 
     public List<PodContainerStatus> getPodContainerStatuses(String env) {
-        return podContainerStatuses.<PodContainerStatus>query("FROM " + PodContainerStatus.class.getCanonicalName() + " WHERE env = :env")
-                .setParameter("env", env)
-                .execute().list();
+        return query(podContainerStatuses,
+                status -> Objects.equals(status.getEnv(), env),
+                PodContainerStatus::copy);
     }
 
     public List<PodContainerStatus> getAllContainerStatuses() {
@@ -301,38 +319,29 @@ public class KaravanCache {
         podContainerStatuses.clear();
     }
 
-//    public void deletePodContainerStatus(String projectId, String env, String containerName) {
-//        podContainerStatuses.remove(GroupedKey.create(projectId, env, containerName));
-//    }
-//
-//    public CamelStatus getCamelStatus(String projectId, String env, String containerName) {
-//        var key = GroupedKey.create(projectId, env, containerName);
-//        return camelStatuses.get(key);
-//    }
-//
-//    public CamelStatus getCamelStatus(String key) {
-//        return camelStatuses.get(key);
-//    }
+    // --- Camel Status ---
+
+    public List<CamelStatus> getCamelStatusesByProjectAndEnv(String projectId, String env) {
+        return query(camelStatuses,
+                s -> Objects.equals(s.getProjectId(), projectId) && Objects.equals(s.getEnv(), env),
+                CamelStatus::copy);
+    }
 
     public List<CamelStatus> getCamelStatusesByName(CamelStatusValue.Name name) {
-        var allStatuses = new ArrayList<>(camelStatuses.values().stream().toList());
-        return allStatuses.stream().map(cs -> {
-            var status = cs.copy();
-            var values = new ArrayList<>(status.getStatuses());
-            status.setStatuses(values.stream().filter(v -> Objects.equals(v.getName().toString(), name.name())).toList());
-            return status;
-        }).toList();
+        return camelStatuses.values().stream()
+                .map(cs -> {
+                    var copy = cs.copy();
+                    var filteredValues = copy.getStatuses().stream()
+                            .filter(v -> Objects.equals(v.getName(), name))
+                            .toList();
+                    copy.setStatuses(filteredValues);
+                    return copy;
+                }).toList();
     }
+
 
     public List<CamelStatus> getCamelAllStatuses() {
         return new ArrayList<>(camelStatuses.values().stream().toList());
-    }
-
-    public List<CamelStatus> getCamelStatusesByProjectAndEnv(String projectId, String env) {
-        return camelStatuses.<CamelStatus>query("FROM " + CamelStatus.class.getCanonicalName() + " WHERE projectId = :projectId AND env = :env")
-                .setParameter("projectId", projectId)
-                .setParameter("env", env)
-                .execute().list();
     }
 
     public void saveCamelStatus(CamelStatus status) {
@@ -346,51 +355,32 @@ public class KaravanCache {
     }
 
     public void deleteCamelStatuses(String projectId, String env) {
-        var list = camelStatuses.<CamelStatus>query("FROM " + CamelStatus.class.getCanonicalName() + " WHERE projectId = :projectId AND env = :env")
-                .setParameter("projectId", projectId)
-                .setParameter("env", env)
-                .execute().list();
-        if (!list.isEmpty()) {
-            list.forEach(s -> {
-                var key = GroupedKey.create(projectId, env, s.getContainerName());
-                camelStatuses.remove(key);
-            });
-        }
+        camelStatuses.entrySet().removeIf(entry -> {
+            CamelStatus status = entry.getValue();
+            return Objects.equals(status.getProjectId(), projectId)
+                    && Objects.equals(status.getEnv(), env);
+        });
     }
-
+    
     public void deleteAllCamelStatuses() {
         camelStatuses.clear();
     }
 
-    public List<PodContainerStatus> getLoadedDevModeStatuses() {
-        return podContainerStatuses.<PodContainerStatus>query("FROM " + PodContainerStatus.class.getCanonicalName() + " WHERE type = :type AND codeLoaded = true")
-                .setParameter("type", ContainerType.devmode)
-                .execute().list();
-    }
+    // --- Access & Sessions ---
 
-    public List<PodContainerStatus> getDevModeStatuses() {
-        return podContainerStatuses.<PodContainerStatus>query("FROM " + PodContainerStatus.class.getCanonicalName() + " WHERE type = :type")
-                .setParameter("type", ContainerType.devmode)
-                .execute().list();
-    }
-
-    public List<PodContainerStatus> getContainerStatusByEnv(String env) {
-        return podContainerStatuses.<PodContainerStatus>query("FROM " + PodContainerStatus.class.getCanonicalName() + " WHERE env = :env")
-                .setParameter("env", env)
-                .execute().list();
-    }
-
-    // Access
     public AccessPassword getPassword(String username) {
-        return passwords.get(username);
+        var key = GroupedKey.create(AccessPassword.class.getSimpleName(), DEV, username);
+        return passwords.get(key);
     }
 
     public AccessUser getUser(String username) {
-        return users.get(username);
+        var key = GroupedKey.create(AccessUser.class.getSimpleName(), DEV, username);
+        return users.get(key);
     }
 
     public AccessRole getRole(String name) {
-        return roles.get(name);
+        var key = GroupedKey.create(AccessRole.class.getSimpleName(), DEV, name);
+        return roles.get(key);
     }
 
     public List<AccessUser> getUsers() {
@@ -400,40 +390,70 @@ public class KaravanCache {
         return new ArrayList<>(roles.values().stream().toList());
     }
 
-    public void saveUser(AccessUser user) {
-        users.put(user.username, user);
+    public void saveUser(AccessUser user, boolean persist) {
+        var key = GroupedKey.create(user.getClass().getSimpleName(), DEV, user.username);
+        users.put(key, user);
+        if (persist) {
+            eventBus.send(PERSIST_ACCESS, new CacheEvent(key, SAVE, user));
+        }
     }
-    public void savePassword(AccessPassword pass) {
-        passwords.put(pass.username, pass);
+    public void savePassword(AccessPassword pass, boolean persist) {
+        var key = GroupedKey.create(pass.getClass().getSimpleName(), DEV, pass.username);
+        passwords.put(key, pass);
+        if (persist) {
+            eventBus.send(PERSIST_ACCESS, new CacheEvent(key, SAVE, pass));
+        }
     }
 
-    public void saveRole(AccessRole role) {
-        roles.put(role.name, role);
+    public void saveRole(AccessRole role, boolean persist) {
+        var key = GroupedKey.create(role.getClass().getSimpleName(), DEV, role.name);
+        roles.put(key, role);
+        if (persist) {
+            eventBus.send(PERSIST_ACCESS, new CacheEvent(key, SAVE, role));
+        }
     }
 
     public void deleteUser(String username) {
+        var key = GroupedKey.create(AccessUser.class.getSimpleName(), DEV, username);
         if (!USER_ADMIN.equals(username)) {
-            users.remove(username);
+            users.remove(key);
+            eventBus.send(PERSIST_ACCESS, new CacheEvent(key, DELETE, null));
         }
     }
 
     public void deleteRole(AccessRole role) {
+        var key = GroupedKey.create(role.getClass().getSimpleName(), DEV, role.name);
         if (!AuthService.getAllRoles().contains(role.name)) {
-            roles.remove(role.name, role);
+            roles.remove(key, role);
+            eventBus.send(PERSIST_ACCESS, new CacheEvent(key, DELETE, null));
         }
     }
 
     // Sessions
+
+    public List<AccessSession> getAccessSessions() {
+        return sessions.values().stream().map(AccessSession::copy).toList();
+    }
+
     public AccessSession getAccessSession(String sessionsId) {
         return sessions.get(sessionsId);
     }
 
-    public void saveAccessSession(AccessSession session) {
-        sessions.put(session.sessionId, session, 12 * 60, TimeUnit.MINUTES); // 12h absolute
+    public void saveAccessSession(AccessSession session, boolean persist) {
+        sessions.put(session.sessionId, session); // 12h absolute
+        if (persist) {
+            eventBus.send(PERSIST_SESSION, new CacheEvent(session.sessionId, SAVE, session));
+        }
     }
 
     public void deleteAccessSession(String sessionId) {
+        var session = sessions.get(sessionId);
+        if (session != null) {
+            deleteUserHeartBeat(session.username);
+            deleteUserWorking(session.username);
+        }
         sessions.remove(sessionId);
+        eventBus.send(PERSIST_SESSION, new CacheEvent(sessionId, DELETE, null));
     }
 
     public void clearAllStatuses() {
@@ -453,6 +473,29 @@ public class KaravanCache {
         return Map.copyOf(projectActivities);
     }
 
+    public void saveUserWorking(ActivityUser activityUser) {
+        usersWorking.put(activityUser.getUserName(), activityUser);
+    }
+
+    public Map<String, ActivityUser> getCopyUsersWorking() {
+        return Map.copyOf(usersWorking);
+    }
+    public void saveUserHeartBeat(ActivityUser activityUser) {
+        usersHeartBeat.put(activityUser.getUserName(), activityUser);
+    }
+
+    public Map<String, ActivityUser> getCopyUsersHeartBeat() {
+        return Map.copyOf(usersHeartBeat);
+    }
+
+    public void deleteUserHeartBeat(String userName) {
+        usersHeartBeat.remove(userName);
+    }
+
+    public void deleteUserWorking(String userName) {
+        usersWorking.remove(userName);
+    }
+
     public void clearExpiredActivity(Instant limit) {
         getCopyProjectActivities().forEach((projectId, activities) -> {
             Map<String, Instant> acts = new HashMap<>();
@@ -463,11 +506,5 @@ public class KaravanCache {
             });
             projectActivities.put(projectId, acts);
         });
-    }
-
-    public void stopCacheManager() {
-        if (cacheManager != null) {
-            cacheManager.stop();
-        }
     }
 }

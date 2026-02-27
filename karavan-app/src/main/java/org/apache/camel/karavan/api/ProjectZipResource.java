@@ -2,6 +2,7 @@ package org.apache.camel.karavan.api;
 
 import io.quarkus.security.Authenticated;
 import io.smallrye.mutiny.tuples.Tuple2;
+import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.json.JsonArray;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
@@ -27,6 +28,8 @@ import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import static org.apache.camel.karavan.KaravanEvents.NOTIFICATION_PROJECTS_IMPORTED;
+
 @Path("/ui/zip")
 public class ProjectZipResource {
 
@@ -41,6 +44,9 @@ public class ProjectZipResource {
     @Inject
     KaravanCache karavanCache;
 
+    @Inject
+    EventBus eventBus;
+
     @POST
     @Path("/project")
     @Authenticated
@@ -54,11 +60,12 @@ public class ProjectZipResource {
             var projectData = getProjectId(appPropertiesBytes);
             if (karavanCache.getProject(projectData.getItem1()) == null) {
                 var project = new ProjectFolder(projectData.getItem1(), projectData.getItem2());
-                karavanCache.saveProject(project);
+                karavanCache.saveProject(project, true);
                 zipEntries.entrySet().stream().filter(e -> !e.getKey().startsWith(".")).forEach(e -> {
-                    var pf = new ProjectFile(e.getKey(), new String(e.getValue()), project.getProjectId(), Instant.now().toEpochMilli());
-                    karavanCache.saveProjectFile(pf, false);
+                    var pf = new ProjectFile(e.getKey(), new String(e.getValue()), project.getProjectId(), Instant.now().getEpochSecond() * 1000L);
+                    karavanCache.saveProjectFile(pf, null, true);
                 });
+                eventBus.publish(NOTIFICATION_PROJECTS_IMPORTED, project.getProjectId());
                 return Response.ok().entity(JsonArray.of(zipEntries.keySet())).build();
             } else {
                 return Response.notModified().entity(name).build();

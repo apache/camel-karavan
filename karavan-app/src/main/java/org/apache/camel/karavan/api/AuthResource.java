@@ -6,23 +6,21 @@ import jakarta.annotation.security.PermitAll;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.*;
-import org.apache.camel.karavan.cache.AccessSession;
 import org.apache.camel.karavan.cache.AccessUser;
 import org.apache.camel.karavan.cache.KaravanCache;
 import org.apache.camel.karavan.service.AuthService;
 import org.eclipse.microprofile.config.ConfigProvider;
 import org.jboss.logging.Logger;
 
-import java.security.SecureRandom;
-import java.util.Base64;
 import java.util.Map;
+
+import static org.apache.camel.karavan.service.AuthService.SESSION_MAX_AGE;
 
 @Path("/ui/auth")
 @Produces(MediaType.APPLICATION_JSON)
 public class AuthResource extends AbstractApiResource {
 
     private static final Logger LOGGER = Logger.getLogger(AuthResource.class.getName());
-    static final SecureRandom RNG = new SecureRandom();
     private static final String SESSION_ID = "sessionId";
     private static final String CSRF = "csrf";
 
@@ -61,23 +59,14 @@ public class AuthResource extends AbstractApiResource {
     public Response login(JsonObject body) throws Exception {
         try {
             final AccessUser user = authService.login(body.getString("username"), body.getString("password"));
-            String sessionId = random(32);
-            String csrf = random(16);
-            var session = new AccessSession(sessionId, user.username, csrf, System.currentTimeMillis());
-            karavanCache.saveAccessSession(session);
-            NewCookie sidCookie = new NewCookie.Builder(SESSION_ID).value(sessionId).path("/").maxAge(12 * 60 * 60).secure(true).httpOnly(true).build();
-            NewCookie csrfCookie = new NewCookie.Builder(CSRF).value(csrf).path("/").maxAge(12 * 60 * 60).secure(false).httpOnly(true).build();
+            var session = authService.createAndSaveSession(user.username, true);
+            NewCookie sidCookie = new NewCookie.Builder(SESSION_ID).value(session.sessionId).path("/").maxAge(SESSION_MAX_AGE).secure(true).httpOnly(true).build();
+            NewCookie csrfCookie = new NewCookie.Builder(CSRF).value(session.csrfToken).path("/").maxAge(SESSION_MAX_AGE).secure(false).httpOnly(true).build();
             return Response.ok(JsonObject.of("username", user.getUsername(), "roles", user.getRoles()))
                     .cookie(sidCookie).cookie(csrfCookie).build();
         } catch (Exception e) {
             return Response.status(Response.Status.FORBIDDEN).entity(e.getMessage()).build();
         }
-    }
-
-    private static String random(int bytes) {
-        byte[] b = new byte[bytes];
-        RNG.nextBytes(b);
-        return Base64.getUrlEncoder().withoutPadding().encodeToString(b);
     }
 
     @POST

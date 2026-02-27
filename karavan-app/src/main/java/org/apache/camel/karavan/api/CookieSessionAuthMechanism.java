@@ -41,6 +41,7 @@ public class CookieSessionAuthMechanism implements HttpAuthenticationMechanism {
 
         var builder = QuarkusSecurityIdentity.builder();
         try {
+            builder.setPrincipal(() -> "anonymous");
             builder.setAnonymous(true);
             var cookie = ctx.request().getCookie("sessionId");
             if (cookie == null) {

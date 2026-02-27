@@ -21,6 +21,7 @@ public class KaravanEvents {
     public static final String CMD_PUSH_PROJECT = "CMD_PUSH_PROJECT";
 
     public static final String NOTIFICATION_PROJECTS_STARTED = "NOTIFICATION_PROJECTS_STARTED";
+    public static final String NOTIFICATION_PROJECTS_IMPORTED = "NOTIFICATION_PROJECTS_IMPORTED";
     public static final String COMMIT_HAPPENED = "COMMIT_HAPPENED";
     public static final String NOTIFICATION_IMAGES_LOADED = "NOTIFICATION_IMAGES_LOADED";
 
@@ -56,5 +57,9 @@ public class KaravanEvents {
     public static final String ON_USER_ACTIVITY = "ON_USER_ACTIVITY";
     public static final String ON_PROJECT_ACTIVITY = "ON_PROJECT_ACTIVITY";
     public static final String ON_CONTAINER_ACTIVITY = "ON_CONTAINER_ACTIVITY";
+
+    public static final String PERSIST_PROJECT = "PERSIST_PROJECT";
+    public static final String PERSIST_ACCESS = "PERSIST_ACCESS";
+    public static final String PERSIST_SESSION = "PERSIST_SESSION";
 
 }

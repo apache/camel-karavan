@@ -15,8 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import static org.apache.camel.karavan.service.AuthService.ROLE_ADMIN;
-import static org.apache.camel.karavan.service.AuthService.ROLE_USER;
+import static org.apache.camel.karavan.service.AuthService.*;
 
 @Path("/ui/access")
 public class AccessResource extends AbstractApiResource {
@@ -30,7 +29,7 @@ public class AccessResource extends AbstractApiResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/users")
-    @RolesAllowed({ROLE_ADMIN})
+    @RolesAllowed({ROLE_ADMIN, ROLE_DEVELOPER})
     public List<AccessUser> getAllUsers() {
         return karavanCache.getUsers();
     }
@@ -48,7 +47,7 @@ public class AccessResource extends AbstractApiResource {
     @RolesAllowed({ROLE_ADMIN})
     @Path("/users")
     public Response addUser(AccessUser user) {
-        karavanCache.saveUser(user);
+        karavanCache.saveUser(user, true);
         return Response.ok().entity(user).build();
     }
 
@@ -57,7 +56,7 @@ public class AccessResource extends AbstractApiResource {
     @RolesAllowed({ROLE_ADMIN})
     @Path("/roles")
     public Response addRole(AccessRole role) {
-        karavanCache.saveRole(role);
+        karavanCache.saveRole(role, true);
         return Response.ok().entity(role).build();
     }
 
@@ -70,7 +69,7 @@ public class AccessResource extends AbstractApiResource {
         if (Objects.equals(name, user.username)) {
             var currentUser = karavanCache.getUser(user.username);
             user.setRoles(currentUser.getRoles());
-            karavanCache.saveUser(user);
+            karavanCache.saveUser(user, true);
             return Response.ok().entity(user).build();
         } else  {
             return Response.status(Response.Status.FORBIDDEN).build();
@@ -93,7 +92,7 @@ public class AccessResource extends AbstractApiResource {
             roles.remove(role);
         }
         currentUser.setRoles(roles);
-        karavanCache.saveUser(currentUser);
+        karavanCache.saveUser(currentUser, true);
         return Response.ok().entity(currentUser).build();
     }
 
@@ -103,7 +102,7 @@ public class AccessResource extends AbstractApiResource {
     @Path("/users/{status}")
     public Response setUserStatus(AccessUser user, @PathParam("status") String status) {
         user.setStatus(AccessUser.UserStatus.valueOf(status));
-        karavanCache.saveUser(user);
+        karavanCache.saveUser(user, true);
         return Response.ok().entity(user).build();
     }
 
@@ -115,8 +114,27 @@ public class AccessResource extends AbstractApiResource {
         try {
             var user = karavanCache.getUser(username);
             user.setStatus(AccessUser.UserStatus.DELETED);
-            karavanCache.saveUser(user);
+            karavanCache.saveUser(user, true);
             return Response.accepted().build();
+        } catch (Exception e) {
+            return Response.notModified().build();
+        }
+    }
+
+    @DELETE
+    @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed({ROLE_ADMIN})
+    @Path("/roles/{name}")
+    public Response deleteRole(@PathParam("name") String name) {
+        try {
+            if (!Objects.equals(ROLE_ADMIN, name) && !Objects.equals(ROLE_USER, name) && !Objects.equals(ROLE_DEVELOPER, name)) {
+                var role = karavanCache.getRole(name);
+                if (role != null) {
+                    karavanCache.deleteRole(role);
+                    return Response.accepted().build();
+                }
+            }
+            return Response.notModified().build();
         } catch (Exception e) {
             return Response.notModified().build();
         }

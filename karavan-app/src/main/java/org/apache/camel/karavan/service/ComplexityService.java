@@ -80,13 +80,22 @@ public class ComplexityService {
 
     public List<ComplexityProject> getProjectComplexities() {
         return karavanCache.getFolders().stream()
-                .filter(p -> Objects.equals(p.getType(), ProjectFolder.Type.integration))
-                .map(project -> getProjectComplexity(project.getProjectId())).toList();
+                .filter(p -> Objects.equals(p.getType(), ProjectFolder.Type.integration)
+                        || Objects.equals(p.getType(), ProjectFolder.Type.templates)
+                        || Objects.equals(p.getType(), ProjectFolder.Type.contracts))
+                .map(this::getProjectComplexity).toList();
     }
 
     public ComplexityProject getProjectComplexity(String projectId) {
+        var project =  karavanCache.getProject(projectId);
+        return getProjectComplexity(project);
+    }
+
+    public ComplexityProject getProjectComplexity(ProjectFolder project) {
+        var projectId = project.getProjectId();
         ComplexityProject complexityProject = new ComplexityProject();
         complexityProject.setProjectId(projectId);
+        complexityProject.setType(project.getType().name());
         try {
             complexityProject.setLastUpdateDate(karavanCache.getProjectFiles(projectId).stream().mapToLong(ProjectFile::getLastUpdate).max().orElse(0));
             List<ProjectFile> files = karavanCache.getProjectFiles(projectId);
@@ -99,6 +108,7 @@ public class ComplexityService {
 
                     if (file.getName().endsWith(CAMEL_YAML_EXTENSION)) {
                         complexityFile.setType(ComplexityFile.Type.camel);
+                        complexityFile.setGenerated(file.getName().startsWith("_gen_"));
                         complexityFile.setBeans(getFileBeandCount(file.getCode()));
                         complexityFile.setRests(getFileRestCount(file.getCode()));
                         List<ComplexityRoute> routes1 = getRoutes(file.getCode(), file.getName());
@@ -119,6 +129,9 @@ public class ComplexityService {
                         complexityFile.setType(ComplexityFile.Type.kubernetes);
                     } else if (file.getName().endsWith(".java")) {
                         complexityFile.setType(ComplexityFile.Type.java);
+                    } else if (file.getName().equals("openapi.json")) {
+                        complexityFile.setType(ComplexityFile.Type.openapi);
+                        complexityProject.setExposesOpenApi(true);
                     } else {
                         complexityFile.setType(ComplexityFile.Type.other);
                     }
@@ -334,6 +347,9 @@ public class ComplexityService {
                         var rt = element.getJsonObject("routeTemplate");
                         var r = rt.getJsonObject("route");
                         result.add(getRouteComplexity(r, fileName));
+                    } else if (element.containsKey("templatedRoute")) {
+                        var tr = element.getJsonObject("templatedRoute");
+                        result.add(getTemplatedRouteComplexity(tr, fileName));
                     }
                 }
             }
@@ -367,6 +383,20 @@ public class ComplexityService {
             if (steps != null) {
                 return getStepsComplexity(complexity, steps);
             }
+        } catch (Exception e) {
+            LOGGER.error(e);
+        }
+        return complexity;
+    }
+
+    private ComplexityRoute getTemplatedRouteComplexity(JsonObject templatedRoute, String fileName) {
+        ComplexityRoute complexity = new ComplexityRoute();
+        complexity.setFileName(fileName);
+        try {
+            complexity.setRouteId(templatedRoute.getString("routeId"));
+            complexity.setRouteTemplateRef(templatedRoute.getString("routeTemplateRef"));
+            complexity.setTemplated(true);
+            complexity.setNodePrefixId(templatedRoute.getString("prefixId"));
         } catch (Exception e) {
             LOGGER.error(e);
         }

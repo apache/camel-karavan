@@ -17,13 +17,15 @@
 package org.apache.camel.karavan.listener;
 
 import io.quarkus.vertx.ConsumeEvent;
-import io.smallrye.mutiny.tuples.Tuple2;
 import io.vertx.core.json.JsonObject;
 import io.vertx.mutiny.core.eventbus.EventBus;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Default;
 import jakarta.inject.Inject;
+import org.apache.camel.karavan.cache.KaravanCache;
 import org.apache.camel.karavan.cache.ProjectFolder;
+import org.apache.camel.karavan.cache.SystemCommit;
+import org.apache.camel.karavan.model.CommitResult;
 import org.apache.camel.karavan.service.ProjectService;
 import org.jboss.logging.Logger;
 
@@ -41,6 +43,9 @@ public class CommitListener {
     ProjectService projectService;
 
     @Inject
+    KaravanCache karavanCache;
+
+    @Inject
     EventBus eventBus;
 
     @ConsumeEvent(value = CMD_PUSH_PROJECT, blocking = true, ordered = true)
@@ -54,15 +59,17 @@ public class CommitListener {
         String authorEmail = event.getString("authorEmail");
         List<String> fileNames = event.containsKey("fileNames") ? List.of(event.getString("fileNames").split(",")) : List.of();
         try {
-            Tuple2<ProjectFolder, List<String>> result = projectService.commitAndPushProject(projectId, message, authorName, authorEmail, fileNames);
+            CommitResult result = projectService.commitAndPushProject(projectId, message, authorName, authorEmail, fileNames);
             if (userId != null) {
                 eventBus.publish(COMMIT_HAPPENED, JsonObject.of(
                         "userId", userId,
                         "eventId", eventId,
-                        "messages", result.getItem2(),
-                        "project", JsonObject.mapFrom(result.getItem1()))
-                );
+                        "project", JsonObject.mapFrom(result.projectFolder()),
+                        "statuses", result.statuses(),
+                        "messages", result.messages()
+                ));
             }
+            afterCommitHappened(result.commitId(), authorName, authorEmail, result.commitTime(), message, List.of(projectId));
         } catch (Exception e) {
             var error = e.getCause() != null ? e.getCause() : e;
             LOGGER.error("Failed to commit event", error);
@@ -76,4 +83,9 @@ public class CommitListener {
             }
         }
     }
+
+    public void afterCommitHappened(String id, String authorName, String authorEmail, Long commitTime, String message, List<String> projects) throws Exception {
+        karavanCache.saveSystemCommit(new SystemCommit(id, authorName, authorEmail, commitTime, message, projects));
+    }
+
 }

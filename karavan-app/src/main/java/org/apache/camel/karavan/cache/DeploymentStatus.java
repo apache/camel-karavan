@@ -17,41 +17,16 @@
 
 package org.apache.camel.karavan.cache;
 
-import org.infinispan.api.annotations.indexing.Basic;
-import org.infinispan.api.annotations.indexing.Indexed;
-import org.infinispan.api.annotations.indexing.Keyword;
-import org.infinispan.protostream.annotations.ProtoFactory;
-import org.infinispan.protostream.annotations.ProtoField;
-
-@Indexed
 public class DeploymentStatus {
 
-    @Keyword(projectable = true, sortable = true)
-    @ProtoField(1)
     String projectId;
-    @Keyword(projectable = true, sortable = true)
-    @ProtoField(2)
     String namespace;
-    @Keyword(projectable = true, sortable = true)
-    @ProtoField(3)
     String env;
-    @Keyword(projectable = true, sortable = true)
-    @ProtoField(4)
     String cluster;
-    @Keyword(projectable = true, sortable = true)
-    @ProtoField(5)
     String image;
-    @Basic(projectable = true, sortable = true)
-    @ProtoField(6)
     Integer replicas;
-    @Basic(projectable = true, sortable = true)
-    @ProtoField(7)
     Integer readyReplicas;
-    @Basic(projectable = true, sortable = true)
-    @ProtoField(8)
     Integer unavailableReplicas;
-    @Keyword(projectable = true, sortable = true)
-    @ProtoField(9)
     ContainerType type;
 
     public DeploymentStatus() {
@@ -68,7 +43,6 @@ public class DeploymentStatus {
         this.unavailableReplicas = 0;
     }
 
-    @ProtoFactory
     public DeploymentStatus(String projectId, String namespace, String cluster, String env, String image, Integer replicas, Integer readyReplicas, Integer unavailableReplicas, ContainerType type) {
         this.projectId = projectId;
         this.namespace = namespace;

@@ -25,17 +25,19 @@ public class ProjectFolderCommit {
     private String projectId;
     private String authorName;
     private String authorEmail;
+    private Long commitTime;
     private String message;
     private List<ProjectFileCommitDiff> diffs = new ArrayList<>();
 
     public ProjectFolderCommit() {
     }
 
-    public ProjectFolderCommit(String id, String projectId, String authorName, String authorEmail, String message, List<ProjectFileCommitDiff> diffs) {
+    public ProjectFolderCommit(String id, String projectId, String authorName, String authorEmail, Long commitTime, String message, List<ProjectFileCommitDiff> diffs) {
         this.id = id;
         this.projectId = projectId;
         this.authorName = authorName;
         this.authorEmail = authorEmail;
+        this.commitTime = commitTime;
         this.message = message;
         this.diffs = diffs;
     }
@@ -86,5 +88,25 @@ public class ProjectFolderCommit {
 
     public void setDiffs(List<ProjectFileCommitDiff> diffs) {
         this.diffs = diffs;
+    }
+
+    public Long getCommitTime() {
+        return commitTime;
+    }
+
+    public void setCommitTime(Long commitTime) {
+        this.commitTime = commitTime;
+    }
+
+    @Override
+    public String toString() {
+        return "ProjectFolderCommit{" +
+                "id='" + id + '\'' +
+                ", projectId='" + projectId + '\'' +
+                ", authorName='" + authorName + '\'' +
+                ", authorEmail='" + authorEmail + '\'' +
+                ", message='" + message + '\'' +
+                ", diffs=" + diffs +
+                '}';
     }
 }

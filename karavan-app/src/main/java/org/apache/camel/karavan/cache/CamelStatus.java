@@ -17,33 +17,18 @@
 
 package org.apache.camel.karavan.cache;
 
-import org.infinispan.api.annotations.indexing.Indexed;
-import org.infinispan.api.annotations.indexing.Keyword;
-import org.infinispan.protostream.annotations.ProtoFactory;
-import org.infinispan.protostream.annotations.ProtoField;
-
-import java.util.ArrayList;
 import java.util.List;
 
-@Indexed
 public class CamelStatus {
 
-    @Keyword(projectable = true, sortable = true)
-    @ProtoField(1)
     String projectId;
-    @Keyword(projectable = true, sortable = true)
-    @ProtoField(2)
     String containerName;
-    @ProtoField(value = 3, collectionImplementation = ArrayList.class)
     List<CamelStatusValue> statuses;
-    @Keyword(projectable = true, sortable = true)
-    @ProtoField(4)
     String env;
 
     public CamelStatus() {
     }
 
-    @ProtoFactory
     public CamelStatus(String projectId, String containerName, List<CamelStatusValue> statuses, String env) {
         this.projectId = projectId;
         this.containerName = containerName;

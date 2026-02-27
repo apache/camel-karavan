@@ -17,45 +17,20 @@
 
 package org.apache.camel.karavan.cache;
 
-
-import org.infinispan.api.annotations.indexing.Basic;
-import org.infinispan.api.annotations.indexing.Indexed;
-import org.infinispan.api.annotations.indexing.Keyword;
-import org.infinispan.protostream.annotations.ProtoFactory;
-import org.infinispan.protostream.annotations.ProtoField;
-
-@Indexed
 public class ServiceStatus {
 
-    @Keyword(projectable = true, sortable = true)
-    @ProtoField(1)
     String projectId;
-    @Keyword(projectable = true, sortable = true)
-    @ProtoField(2)
     String namespace;
-    @Keyword(projectable = true, sortable = true)
-    @ProtoField(3)
     String env;
-    @Keyword(projectable = true, sortable = true)
-    @ProtoField(4)
     String cluster;
-    @Basic
-    @ProtoField(5)
     Integer port;
-    @Basic
-    @ProtoField(6)
     Integer targetPort;
-    @Basic
-    @ProtoField(7)
     String clusterIP;
-    @Basic
-    @ProtoField(8)
     String type;
 
     public ServiceStatus() {
     }
 
-    @ProtoFactory
     public ServiceStatus(String projectId, String namespace, String env, String cluster, Integer port, Integer targetPort, String clusterIP, String type) {
         this.projectId = projectId;
         this.namespace = namespace;

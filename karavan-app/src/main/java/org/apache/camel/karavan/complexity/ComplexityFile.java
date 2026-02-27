@@ -5,7 +5,7 @@ import java.util.Map;
 
 public class ComplexityFile {
 
-    public enum Type {camel, java, docker, kubernetes, properties, other}
+    public enum Type {camel, java, docker, kubernetes, properties, other, openapi}
 
     private String fileName;
     private String error;
@@ -14,6 +14,7 @@ public class ComplexityFile {
     private Integer routes = 0;
     private Integer beans = 0;
     private Integer rests = 0;
+    private boolean isGenerated = false;
     private Complexity complexity = Complexity.easy;
     private Complexity complexityLines = Complexity.easy;
     private Complexity complexityRoutes = Complexity.easy;
@@ -207,6 +208,13 @@ public class ComplexityFile {
         kamelets.put(component, kamelets.getOrDefault(component, 0) + count);
     }
 
+    public boolean isGenerated() {
+        return isGenerated;
+    }
+
+    public void setGenerated(boolean generated) {
+        isGenerated = generated;
+    }
     @Override
     public String toString() {
         return "ComplexityFile{" +

@@ -6,6 +6,7 @@ import java.util.List;
 public class ComplexityProject {
 
     private String projectId;
+    private String type;
     private Long lastUpdateDate = 0L;
     private Complexity complexityRoute = Complexity.easy;
     private Complexity complexityRest = Complexity.easy;
@@ -14,10 +15,19 @@ public class ComplexityProject {
     private List<ComplexityFile> files = new ArrayList<>();
     private List<ComplexityRoute> routes = new ArrayList<>();
     private Integer rests = 0;
+    private boolean exposesOpenApi = false;
     private List<String> dependencies = new ArrayList<>();
 
 
     public ComplexityProject() {
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 
     public String getProjectId() {
@@ -104,6 +114,14 @@ public class ComplexityProject {
         this.dependencies = dependencies;
     }
 
+    public boolean isExposesOpenApi() {
+        return exposesOpenApi;
+    }
+
+    public void setExposesOpenApi(boolean exposesOpenApi) {
+        this.exposesOpenApi = exposesOpenApi;
+    }
+
     @Override
     public String toString() {
         return "ComplexityProject{" +
@@ -119,4 +137,5 @@ public class ComplexityProject {
                 ", dependencies=" + dependencies +
                 '}';
     }
+
 }

@@ -29,8 +29,7 @@ import org.apache.camel.karavan.cache.ProjectFile;
 import org.apache.camel.karavan.cache.ProjectFolder;
 import org.apache.camel.karavan.docker.DockerComposeConverter;
 import org.apache.camel.karavan.model.DockerComposeService;
-import org.apache.camel.karavan.model.GitRepo;
-import org.apache.camel.karavan.model.GitRepoFile;
+import org.apache.camel.karavan.model.PathCommitDetails;
 import org.apache.commons.text.StringSubstitutor;
 import org.apache.commons.text.lookup.StringLookup;
 import org.eclipse.microprofile.config.ConfigProvider;
@@ -57,9 +56,7 @@ public class CodeService {
 
     private static final Logger LOGGER = Logger.getLogger(CodeService.class.getName());
     public static final String APPLICATION_PROPERTIES_FILENAME = "application.properties";
-    public static final String BEAN_TEMPLATE_SUFFIX_FILENAME = "-bean-template.camel.yaml";
     public static final String PROJECT_COMPOSE_FILENAME = "docker-compose.yaml";
-    public static final String DEV_SERVICES_FILENAME = "docker-compose.yaml";
     public static final String PROJECT_STACK_FILENAME = "docker-stack.yaml";
     public static final String MARKDOWN_EXTENSION = ".md";
     public static final String PROJECT_JKUBE_EXTENSION = ".jkube.yaml";
@@ -187,7 +184,7 @@ public class CodeService {
                 "projectName", projectFolder.getName(),
                 "packageSuffix", CodeService.getGavPackageSuffix(projectFolder.getProjectId())
         ));
-        return new ProjectFile(APPLICATION_PROPERTIES_FILENAME, code, projectFolder.getProjectId(), Instant.now().toEpochMilli());
+        return new ProjectFile(APPLICATION_PROPERTIES_FILENAME, code, projectFolder.getProjectId(), Instant.now().getEpochSecond() * 1000L);
     }
 
     public String saveProjectFilesInTemp(Map<String, String> files) {
@@ -240,10 +237,12 @@ public class CodeService {
         var path = "/" + projectId + (ConfigService.inKubernetes() ? KUBERNETES_FOLDER : DOCKER_FOLDER);
 
         listResources(path).forEach(filename -> {
-            String templatePath = path + filename;
-            String templateText = getResourceFile(templatePath);
-            if (templateText != null) {
-                result.put(filename, templateText);
+            if (!filename.startsWith(".")) {
+                String templatePath = path + filename;
+                String templateText = getResourceFile(templatePath);
+                if (templateText != null) {
+                    result.put(filename, templateText);
+                }
             }
         });
         return result;
@@ -289,11 +288,11 @@ public class CodeService {
         return mapper.convertValue(map, ObjectNode.class);
     }
 
-    public String getPropertiesFile(GitRepo repo) {
+    public String getPropertiesFile(List<PathCommitDetails> folderFiles) {
         try {
-            for (GitRepoFile e : repo.getFiles()){
-                if (e.getName().equalsIgnoreCase(APPLICATION_PROPERTIES_FILENAME)) {
-                    return e.getBody();
+            for (PathCommitDetails e : folderFiles){
+                if (e.fileName().equalsIgnoreCase(APPLICATION_PROPERTIES_FILENAME)) {
+                    return e.content();
                 }
             }
         } catch (Exception e) {
@@ -354,7 +353,7 @@ public class CodeService {
                 "projectPort", String.valueOf(nextAvailablePort),
                 "projectImage", projectFolder.getProjectId()
         ));
-        return new ProjectFile(PROJECT_COMPOSE_FILENAME, code, projectFolder.getProjectId(), Instant.now().toEpochMilli());
+        return new ProjectFile(PROJECT_COMPOSE_FILENAME, code, projectFolder.getProjectId(), Instant.now().getEpochSecond() * 1000L);
     }
 
     public ProjectFile createInitialProjectStack(ProjectFolder projectFolder, int nextAvailablePort) {
@@ -364,12 +363,12 @@ public class CodeService {
                 "projectPort", String.valueOf(nextAvailablePort),
                 "projectImage", projectFolder.getProjectId()
         ));
-        return new ProjectFile(PROJECT_STACK_FILENAME, code, projectFolder.getProjectId(), Instant.now().toEpochMilli());
+        return new ProjectFile(PROJECT_STACK_FILENAME, code, projectFolder.getProjectId(), Instant.now().getEpochSecond() * 1000L);
     }
 
     public ProjectFile createInitialDeployment(ProjectFolder projectFolder) {
         String template = getTemplateText(PROJECT_DEPLOYMENT_JKUBE_FILENAME);
-        return new ProjectFile(PROJECT_DEPLOYMENT_JKUBE_FILENAME, template, projectFolder.getProjectId(), Instant.now().toEpochMilli());
+        return new ProjectFile(PROJECT_DEPLOYMENT_JKUBE_FILENAME, template, projectFolder.getProjectId(), Instant.now().getEpochSecond() * 1000L);
     }
 
     public Integer getProjectPort(ProjectFile composeFile) {
@@ -418,7 +417,8 @@ public class CodeService {
             service.setImage(imageName);
             String code = DockerComposeConverter.toCode(service);
             compose.setCode(code);
-            karavanCache.saveProjectFile(compose, false);
+            compose.setLastUpdate(Instant.now().getEpochSecond() * 1000L);
+            karavanCache.saveProjectFile(compose, null, true);
         }
     }
 
@@ -469,27 +469,29 @@ public class CodeService {
     public List<String> listResources(String resourceFolder) {
         List<String> result = new ArrayList<>();
         try {
-            URI uri = Objects.requireNonNull(ConfigService.class.getResource(resourceFolder)).toURI();
-            Path myPath;
-            FileSystem fileSystem = null;
-            if (uri.getScheme().equals("jar")) {
-                fileSystem = FileSystems.newFileSystem(uri, Collections.emptyMap());
-                myPath = fileSystem.getPath(resourceFolder);
-            } else {
-                myPath = Paths.get(uri);
-            }
+            if (ConfigService.class.getResource(resourceFolder) != null) {
+                URI uri = ConfigService.class.getResource(resourceFolder).toURI();
+                Path myPath;
+                FileSystem fileSystem = null;
+                if (uri.getScheme().equals("jar")) {
+                    fileSystem = FileSystems.newFileSystem(uri, Collections.emptyMap());
+                    myPath = fileSystem.getPath(resourceFolder);
+                } else {
+                    myPath = Paths.get(uri);
+                }
 
-            try (var pathsStream = Files.walk(myPath, 10)) {
-                pathsStream
-                        .filter(Files::isRegularFile)
-                        .map(path -> path.getFileName().toString())
-                        .forEach(result::add);
-            } catch (IOException e) {
-                var error = e.getCause() != null ? e.getCause() : e;
-                LOGGER.error("IOException", error);
-            }
-            if (fileSystem != null) {
-                fileSystem.close();
+                try (var pathsStream = Files.walk(myPath, 10)) {
+                    pathsStream
+                            .filter(Files::isRegularFile)
+                            .map(path -> path.getFileName().toString())
+                            .forEach(result::add);
+                } catch (IOException e) {
+                    var error = e.getCause() != null ? e.getCause() : e;
+                    LOGGER.error("IOException", error);
+                }
+                if (fileSystem != null) {
+                    fileSystem.close();
+                }
             }
         } catch (URISyntaxException | IOException e) {
             var error = e.getCause() != null ? e.getCause() : e;

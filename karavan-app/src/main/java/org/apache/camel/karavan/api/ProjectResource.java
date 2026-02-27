@@ -71,13 +71,20 @@ public class ProjectResource extends AbstractApiResource {
         return projectService.getAllProjects(type);
     }
 
+    @GET
+    @Authenticated
+    @Path("/commited/all")
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<ProjectFolderCommited> getAllCommited() {
+        return karavanCache.getFoldersCommited();
+    }
 
     @GET
     @Authenticated
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/{project}")
-    public ProjectFolder get(@PathParam("project") String project) throws Exception {
-        return karavanCache.getProject(project);
+    @Path("/{projectId}")
+    public ProjectFolder get(@PathParam("projectId") String projectId) throws Exception {
+        return karavanCache.getProject(projectId);
     }
 
     @POST
@@ -110,6 +117,7 @@ public class ProjectResource extends AbstractApiResource {
         karavanCache.getProjectFiles(projectId).forEach(file -> karavanCache.deleteProjectFile(projectId, file.getName()));
         karavanCache.getProjectFilesCommited(projectId).forEach(file -> karavanCache.deleteProjectFileCommited(projectId, file.getName()));
         karavanCache.deleteProject(projectId);
+        karavanCache.deleteProjectCommited(projectId);
         // delete from git
         gitService.deleteProject(projectId, identity.getString("username"), identity.getString("email"));
         LOGGER.info("Project deleted");
@@ -126,7 +134,6 @@ public class ProjectResource extends AbstractApiResource {
             return Response.ok().entity(projectFolder).build();
         } catch (Exception e) {
             LOGGER.error(e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
-            e.printStackTrace();
             return Response.serverError().entity(e.getMessage()).build();
         }
     }

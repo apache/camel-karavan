@@ -115,7 +115,7 @@ public class KubernetesService {
         }
     }
 
-    public void runBuildProject(String projectId, String podFragment) {
+    public void runBuildProject(String projectId, String podFragment, Map<String, String> envVars) {
         try (KubernetesClient client = kubernetesClient()) {
             String containerName = projectId + BUILDER_SUFFIX;
             Map<String, String> labels = getLabels(containerName, projectId, ContainerType.build);
@@ -126,7 +126,7 @@ public class KubernetesService {
                 client.resource(old).delete();
             }
             boolean hasDockerConfigSecret = hasDockerConfigSecret();
-            Pod pod = getBuilderPod(containerName, labels, podFragment, hasDockerConfigSecret);
+            Pod pod = getBuilderPod(containerName, labels, podFragment, hasDockerConfigSecret, envVars);
             Pod result = client.resource(pod).create();
 
             LOGGER.info("Created pod " + result.getMetadata().getName());
@@ -140,7 +140,6 @@ public class KubernetesService {
         labels.putAll(getPartOfLabels());
         labels.put("app.kubernetes.io/name", name);
         labels.put(LABEL_PROJECT_ID, projectId);
-        labels.put(LABEL_INTEGRATION_NAME, projectId);
         if (type != null) {
             labels.put(LABEL_TYPE, type.name());
         }
@@ -164,7 +163,7 @@ public class KubernetesService {
     }
 
     // TODO: Move all possible stuff to pod fragment
-    private Pod getBuilderPod(String name, Map<String, String> labels, String configFragment, boolean hasDockerConfigSecret) {
+    private Pod getBuilderPod(String name, Map<String, String> labels, String configFragment, boolean hasDockerConfigSecret, Map<String, String> envVars) {
         ObjectMeta meta = new ObjectMetaBuilder()
                 .withName(name)
                 .withLabels(labels)
@@ -189,14 +188,15 @@ public class KubernetesService {
 
         Pod pod = Serialization.unmarshal(configFragment, Pod.class);
 
-        pod.getSpec().getContainers().get(0).getEnv().add(new EnvVarBuilder().withName(RUN_IN_BUILD_MODE).withValue("true").build());
+        pod.getSpec().getContainers().getFirst().getEnv().add(new EnvVarBuilder().withName(ENV_VAR_RUN_IN_BUILD_MODE).withValue("true").build());
+        envVars.forEach((key, value) -> pod.getSpec().getContainers().getFirst().getEnv().add(new EnvVarBuilder().withName(key).withValue(value).build()));
 
         Container container = new ContainerBuilder()
                 .withName(name)
                 .withImage(devmodeImage)
                 .withPorts(port)
                 .withImagePullPolicy(devmodeImagePullPolicy.orElse("IfNotPresent"))
-                .withEnv(pod.getSpec().getContainers().get(0).getEnv())
+                .withEnv(pod.getSpec().getContainers().getFirst().getEnv())
                 .withCommand("/bin/sh", "-c", "/karavan/builder/build.sh")
                 .withVolumeMounts(volumeMounts)
                 .build();
@@ -410,7 +410,7 @@ public class KubernetesService {
         }
         List<VolumeMount> volumeMounts = new ArrayList<>();
         try {
-            volumeMounts = podSpec.getContainers().get(0).getVolumeMounts();
+            volumeMounts = podSpec.getContainers().getFirst().getVolumeMounts();
         } catch (Exception ignored) {}
 
         Map<String, String> containerResources = CodeService.DEFAULT_CONTAINER_RESOURCES;
@@ -430,7 +430,7 @@ public class KubernetesService {
 
         List<EnvVar> environmentVariables = new ArrayList<>();
         try {
-            environmentVariables = new ArrayList<>(podSpec.getContainers().get(0).getEnv());
+            environmentVariables = new ArrayList<>(podSpec.getContainers().getFirst().getEnv());
         } catch (Exception ignored) {}
 
         for (Map.Entry<String, String> entry : envVars.entrySet()) {
@@ -442,7 +442,7 @@ public class KubernetesService {
             environmentVariables.add(new EnvVarBuilder().withName(ENV_VAR_VERBOSE_OPTION_NAME).withValue(ENV_VAR_VERBOSE_OPTION_VALUE).build());
         }
         if (compile) {
-            environmentVariables.add(new EnvVarBuilder().withName(RUN_IN_COMPILE_MODE).withValue("true").build());
+            environmentVariables.add(new EnvVarBuilder().withName(ENV_VAR_RUN_IN_COMPILE_MODE).withValue("true").build());
         }
 
         Container container = new ContainerBuilder()

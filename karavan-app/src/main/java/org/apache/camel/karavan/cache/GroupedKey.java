@@ -17,22 +17,15 @@
 
 package org.apache.camel.karavan.cache;
 
-import org.infinispan.protostream.annotations.ProtoFactory;
-import org.infinispan.protostream.annotations.ProtoField;
-
 public class GroupedKey {
 
-    @ProtoField(number = 1)
     String projectId;
-    @ProtoField(number = 2)
     String env;
-    @ProtoField(number = 3)
     String key;
 
     public GroupedKey() {
     }
 
-    @ProtoFactory
     public GroupedKey(String projectId, String env, String key) {
         this.projectId = projectId;
         this.env = env;

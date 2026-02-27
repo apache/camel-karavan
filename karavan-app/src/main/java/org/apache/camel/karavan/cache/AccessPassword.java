@@ -1,42 +1,26 @@
 package org.apache.camel.karavan.cache;
 
-import org.infinispan.api.annotations.indexing.Basic;
-import org.infinispan.api.annotations.indexing.Indexed;
-import org.infinispan.protostream.annotations.ProtoFactory;
-import org.infinispan.protostream.annotations.ProtoField;
-
-@Indexed
 public class AccessPassword {
 
-    @Basic
-    @ProtoField(1)
     public String username;
 
-    @ProtoField(2)
     public String pwdHash;
 
-    @ProtoField(3)
     public int costAtCreation;
 
-    @ProtoField(4)
     public long changedAt;
 
-    @ProtoField(5)
     public long lastAttempt;
 
-    @ProtoField(6)
     public long lastLogin;
 
-    @ProtoField(7)
     public int failedAttempts;
 
-    @ProtoField(8)
     public long lockedUntil; // epoch millis; 0 = not locked
 
     public AccessPassword() {
     }
 
-    @ProtoFactory
     public AccessPassword(String username, String pwdHash, int costAtCreation, long changedAt, long lastAttempt, long lastLogin, int failedAttempts, long lockedUntil) {
         this.username = username;
         this.pwdHash = pwdHash;

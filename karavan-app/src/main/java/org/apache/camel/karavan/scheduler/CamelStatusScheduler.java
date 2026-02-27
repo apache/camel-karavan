@@ -50,7 +50,7 @@ public class CamelStatusScheduler {
     @Inject
     EventBus eventBus;
 
-    @Scheduled(every = "{karavan.camel.status.interval}", concurrentExecution = Scheduled.ConcurrentExecution.SKIP, skipExecutionIf = KaravanSkipPredicate.class)
+    @Scheduled(every = "{karavan.camel.status.interval}", concurrentExecution = Scheduled.ConcurrentExecution.SKIP)
     public void collectCamelStatuses() {
         LOGGER.debug("Collect Camel Statuses");
          if (ConfigService.inKubernetes()) {

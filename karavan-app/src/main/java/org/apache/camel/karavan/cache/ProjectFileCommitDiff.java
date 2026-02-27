@@ -22,31 +22,77 @@ public class ProjectFileCommitDiff {
     private String newPath;
     private String oldPath;
     private String diff;
+    private String before;
+    private String after;
 
 
     public ProjectFileCommitDiff() {
     }
 
-    public ProjectFileCommitDiff(String changeType, String newPath, String oldPath, String diff) {
+    public ProjectFileCommitDiff(String changeType, String newPath, String oldPath, String diff, String before, String after) {
         this.changeType = changeType;
         this.newPath = newPath;
         this.oldPath = oldPath;
         this.diff = diff;
+        this.before = before;
+        this.after = after;
     }
 
     public String getChangeType() {
         return changeType;
     }
 
+    public void setChangeType(String changeType) {
+        this.changeType = changeType;
+    }
+
     public String getNewPath() {
         return newPath;
+    }
+
+    public void setNewPath(String newPath) {
+        this.newPath = newPath;
     }
 
     public String getOldPath() {
         return oldPath;
     }
 
+    public void setOldPath(String oldPath) {
+        this.oldPath = oldPath;
+    }
+
     public String getDiff() {
         return diff;
+    }
+
+    public void setDiff(String diff) {
+        this.diff = diff;
+    }
+
+    public String getBefore() {
+        return before;
+    }
+
+    public void setBefore(String before) {
+        this.before = before;
+    }
+
+    public String getAfter() {
+        return after;
+    }
+
+    public void setAfter(String after) {
+        this.after = after;
+    }
+
+    @Override
+    public String toString() {
+        return "ProjectFileCommitDiff{" +
+                "changeType='" + changeType + '\'' +
+                ", newPath='" + newPath + '\'' +
+                ", oldPath='" + oldPath + '\'' +
+                ", diff='" + diff + '\'' +
+                '}';
     }
 }

@@ -122,9 +122,7 @@ public class DockerUtils {
         List<PodContainerStatus.Command> commands = getContainerCommand(container.getState());
         ContainerType type = getContainerType(container.getLabels());
         String created = Instant.ofEpochSecond(container.getCreated()).toString();
-        String projectId = container.getLabels().containsKey(LABEL_INTEGRATION_NAME)
-                ? container.getLabels().get(LABEL_INTEGRATION_NAME)
-                : container.getLabels().getOrDefault(LABEL_PROJECT_ID, name);
+        String projectId = container.getLabels().getOrDefault(LABEL_PROJECT_ID, name);
         String camelRuntime = container.getLabels().getOrDefault(LABEL_CAMEL_RUNTIME, "");
         return PodContainerStatus.createWithId(projectId, name, environment, container.getId(), container.getImage(),
                 ports, type, commands, container.getState(), created, camelRuntime, container.getLabels());
@@ -141,9 +139,7 @@ public class DockerUtils {
         List<PodContainerStatus.Command> commands = getContainerCommand(container.getState());
         ContainerType type = getContainerType(container.getLabels());
         String created = Instant.ofEpochSecond(container.getCreated()).toString();
-        String projectId = container.getLabels().containsKey(LABEL_INTEGRATION_NAME)
-                ? container.getLabels().get(LABEL_INTEGRATION_NAME)
-                : container.getLabels().getOrDefault(LABEL_PROJECT_ID, service.getSpec().getName());
+        String projectId = container.getLabels().getOrDefault(LABEL_PROJECT_ID, service.getSpec().getName());
         String camelRuntime = container.getLabels().getOrDefault(LABEL_CAMEL_RUNTIME, "");
         return PodContainerStatus.createWithId(projectId, name, environment, container.getId(), container.getImage(),
                 ports, type, commands, container.getState(), created, camelRuntime, container.getLabels());
@@ -195,8 +191,6 @@ public class DockerUtils {
         String type = labels.get(LABEL_TYPE);
         if (Objects.equals(type, ContainerType.devmode.name())) {
             return ContainerType.devmode;
-        } else if (Objects.equals(type, ContainerType.devservice.name())) {
-            return ContainerType.devservice;
         } else if (Objects.equals(type, ContainerType.packaged.name())) {
             return ContainerType.packaged;
         } else if (Objects.equals(type, ContainerType.internal.name())) {

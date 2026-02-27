@@ -17,80 +17,51 @@
 
 package org.apache.camel.karavan.cache;
 
-import org.infinispan.api.annotations.indexing.Basic;
-import org.infinispan.api.annotations.indexing.Indexed;
-import org.infinispan.api.annotations.indexing.Keyword;
-import org.infinispan.protostream.annotations.ProtoEnumValue;
-import org.infinispan.protostream.annotations.ProtoFactory;
-import org.infinispan.protostream.annotations.ProtoField;
-
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 
-@Indexed
 public class ProjectFolder {
 
     public enum Type {
-
-        @ProtoEnumValue(number = 0, name = "templates")
         templates,
-        @ProtoEnumValue(number = 1, name = "kamelets")
         kamelets,
-        @ProtoEnumValue(number = 2, name = "configuration")
         configuration,
-        @ProtoEnumValue(number = 3, name = "documentation")
         documentation,
-        @ProtoEnumValue(number = 4, name = "shared")
-        shared,
-        @ProtoEnumValue(number = 5, name = "services")
+        contracts,
         services,
-        @ProtoEnumValue(number = 6, name = "integration")
         integration,
+        backlog,
     }
 
-    @Keyword(projectable = true, sortable = true)
-    @ProtoField(1)
     String projectId;
-    @Keyword(projectable = true, sortable = true)
-    @ProtoField(2)
     String name;
-    @Keyword(projectable = true, sortable = true)
-    @ProtoField(3)
-    String lastCommit;
-    @Basic(projectable = true, sortable = true)
-    @ProtoField(4)
-    Long lastCommitTimestamp;
-    @Keyword(projectable = true, sortable = true)
-    @ProtoField(5)
+    Long lastUpdate = 0L;
     Type type;
 
-    @ProtoFactory
-    public ProjectFolder(String projectId, String name, String lastCommit, Long lastCommitTimestamp, Type type) {
+    public ProjectFolder(String projectId, String name, Long lastUpdate, Type type) {
         this.projectId = projectId;
         this.name = name;
-        this.lastCommit = lastCommit;
-        this.lastCommitTimestamp = lastCommitTimestamp;
+        this.lastUpdate = lastUpdate;
         this.type = type;
     }
 
-    public ProjectFolder(String projectId, String name, String lastCommit, Long lastCommitTimestamp) {
+    public ProjectFolder(String projectId, String name, Long lastUpdate) {
         this.projectId = projectId;
         this.name = name;
-        this.lastCommit = lastCommit;
-        this.lastCommitTimestamp = lastCommitTimestamp;
+        this.lastUpdate = lastUpdate;
         this.type = Arrays.stream(Type.values()).anyMatch(t -> t.name().equals(projectId)) ? Type.valueOf(projectId) : Type.integration;
     }
 
     public ProjectFolder(String projectId, String name) {
         this.projectId = projectId;
         this.name = name;
-        this.lastCommitTimestamp = Instant.now().toEpochMilli();
+        this.lastUpdate = Instant.now().getEpochSecond() * 1000L;
         this.type = Arrays.stream(Type.values()).anyMatch(t -> t.name().equals(projectId)) ? Type.valueOf(projectId) : Type.integration;
     }
 
     public ProjectFolder copy() {
-        return new ProjectFolder(projectId, name, lastCommit, lastCommitTimestamp, type);
+        return new ProjectFolder(projectId, name, lastUpdate, type);
     }
 
     public ProjectFolder() {
@@ -113,20 +84,12 @@ public class ProjectFolder {
         this.name = name;
     }
 
-    public String getLastCommit() {
-        return lastCommit;
+    public Long getLastUpdate() {
+        return lastUpdate;
     }
 
-    public void setLastCommit(String lastCommit) {
-        this.lastCommit = lastCommit;
-    }
-
-    public Long getLastCommitTimestamp() {
-        return lastCommitTimestamp;
-    }
-
-    public void setLastCommitTimestamp(Long lastCommitTimestamp) {
-        this.lastCommitTimestamp = lastCommitTimestamp;
+    public void setLastUpdate(Long lastUpdate) {
+        this.lastUpdate = lastUpdate;
     }
 
     public Type getType() {
@@ -139,11 +102,12 @@ public class ProjectFolder {
 
     public static List<String> getBuildInNames(){
         return List.of(
-            Type.configuration.name(),
-            Type.kamelets.name(),
-            Type.templates.name(),
-            Type.shared.name(),
-            Type.documentation.name()
+                Type.configuration.name(),
+                Type.kamelets.name(),
+                Type.templates.name(),
+                Type.contracts.name(),
+                Type.documentation.name(),
+                Type.backlog.name()
         );
     }
 
@@ -152,8 +116,7 @@ public class ProjectFolder {
         return "Project{" +
                 "projectId='" + projectId + '\'' +
                 ", name='" + name + '\'' +
-                ", lastCommit='" + lastCommit + '\'' +
-                ", lastCommitTimestamp=" + lastCommitTimestamp +
+                ", lastUpdate=" + lastUpdate +
                 ", type=" + type +
                 '}';
     }
