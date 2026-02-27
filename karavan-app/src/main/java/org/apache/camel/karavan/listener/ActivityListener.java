@@ -39,13 +39,13 @@ public class ActivityListener {
     @ConsumeEvent(value = ON_USER_ACTIVITY, ordered = true)
     public void onUserActivity(JsonObject json) {
         var activityUser = json.mapTo(ActivityUser.class);
-        if (Objects.isNull(activityUser)) {
-        } else if (ActivityUser.ActivityType.WORKING.equals(activityUser.getType())) {
-            karavanCache.saveUserWorking(activityUser);
-        } else {
-            karavanCache.saveUserHeartBeat(activityUser);
+        if (activityUser != null && activityUser.getUserName() != null) {
+            if (ActivityUser.ActivityType.WORKING.equals(activityUser.getType())) {
+                karavanCache.saveUserWorking(activityUser);
+            } else {
+                karavanCache.saveUserHeartBeat(activityUser);
+            }
         }
-
     }
 
     @ConsumeEvent(value = ON_PROJECT_ACTIVITY, ordered = true)

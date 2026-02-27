@@ -480,6 +480,7 @@ public class KaravanCache {
     public Map<String, ActivityUser> getCopyUsersWorking() {
         return Map.copyOf(usersWorking);
     }
+
     public void saveUserHeartBeat(ActivityUser activityUser) {
         usersHeartBeat.put(activityUser.getUserName(), activityUser);
     }
