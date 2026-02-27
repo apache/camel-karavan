@@ -16,18 +16,19 @@
  */
 
 import {KaravanApi} from '@api/KaravanApi';
-import {CamelStatus, ContainerImage, ContainerStatus, DeploymentStatus, Project, ProjectFile, ProjectType, ServiceStatus} from '../models/ProjectModels';
+import {CamelStatus, ContainerImage, ContainerStatus, DeploymentStatus, Project, ProjectFile, ProjectType, ServiceStatus} from '@models/ProjectModels';
 import {TemplateApi} from '@karavan-core/api/TemplateApi';
-import {InfrastructureAPI} from '@features/integration/designer/utils/InfrastructureAPI';
+import {InfrastructureAPI} from '@features/project/designer/utils/InfrastructureAPI';
 import {unstable_batchedUpdates} from 'react-dom'
-import {useDevModeStore, useFilesStore, useFileStore, useLogStore, useProjectsStore, useProjectStore, useStatusesStore} from '../stores/ProjectStore';
+import {useDevModeStore, useFilesStore, useFileStore, useProjectsStore, useProjectStore, useStatusesStore} from '@stores/ProjectStore';
 import {ProjectEventBus} from '@bus/ProjectEventBus';
-import {EventBus} from "@features/integration/designer/utils/EventBus";
+import {EventBus} from "@features/project/designer/utils/EventBus";
 import {KameletApi} from "@karavan-core/api/KameletApi";
-import {ComponentApi} from '@karavan-core/api/ComponentApi';
 import {getCurrentUser} from "@api/auth/AuthApi";
 import {AxiosResponse} from "axios";
-import {ASYNCAPI_FILE_NAME_JSON, JSON_SCHEMA_EXTENSION, OPENAPI_FILE_NAME_JSON} from "@karavan-core/contants";
+import {KARAVAN_DOT_EXTENSION} from "@karavan-core/contants";
+import {useLogStore} from "@stores/LogStore";
+import {useContainerStatusesStore} from "@stores/ContainerStatusesStore";
 
 export class ProjectService {
 
@@ -201,14 +202,14 @@ export class ProjectService {
 
     public static refreshAllContainerStatuses() {
         KaravanApi.getAllContainerStatuses((statuses: ContainerStatus[]) => {
-            useStatusesStore.setState({containers: statuses});
+            useContainerStatusesStore.setState({containers: statuses});
         });
     }
 
     public static refreshContainerStatus(projectId: string, env: string) {
         KaravanApi.getContainerStatus(projectId, env, (res) => {
             if (res.status === 200) {
-                const oldContainers = [...useStatusesStore.getState().containers];
+                const oldContainers = [...useContainerStatusesStore.getState().containers];
                 const newContainers = res.data;
                 const newMap = new Map<string, ContainerStatus>(
                     newContainers.map(container => [container.containerName, container])
@@ -217,7 +218,7 @@ export class ProjectService {
                     .filter(container => newMap.has(container.containerName))  // Filter out old containers not in new
                     .map(container => newMap.get(container.containerName)!)     // Replace with new containers
                     .concat(newContainers.filter(container => !oldContainers.some(old => old.containerName === container.containerName)));
-                useStatusesStore.setState({containers: containers});
+                useContainerStatusesStore.setState({containers: containers});
             }
         })
     }
@@ -309,13 +310,6 @@ export class ProjectService {
         });
     }
 
-    public static getAllStatuses() {
-        ProjectService.refreshAllDeploymentStatuses();
-        ProjectService.refreshAllContainerStatuses();
-        ProjectService.refreshAllServicesStatuses();
-        ProjectService.refreshAllCamelContextStatuses();
-    }
-
     public static refreshProjectFiles(projectId: string) {
         KaravanApi.getFiles(projectId, (files: ProjectFile[]) => {
             const kameletsYamls = files.filter(f => f.name.endsWith('.kamelet.yaml') && f.code?.length > 0).map(f => f.code).join("\n---\n")
@@ -325,6 +319,8 @@ export class ProjectService {
             useFilesStore.setState({files: files});
         });
 
+        useFilesStore.getState().fetchCommitedFiles(projectId);
+
         KaravanApi.getFilesDiff(projectId, (diff: any) => {
             useFilesStore.setState({diff: diff});
         });
@@ -333,7 +329,7 @@ export class ProjectService {
     public static refreshProjectData(projectId: string) {
         KaravanApi.getProject(projectId, (project: Project) => {
             // ProjectEventBus.selectProject(project);
-            KaravanApi.getTemplatesFiles((files: ProjectFile[]) => {
+            KaravanApi.getFiles(ProjectType.templates, (files: ProjectFile[]) => {
                 files.filter(f => f.name.endsWith('java'))
                     .forEach(f => {
                         const name = f.name.replace(".java", '');
@@ -347,44 +343,6 @@ export class ProjectService {
         KaravanApi.getSecrets((any: []) => InfrastructureAPI.setSecrets(any));
         KaravanApi.getServices((any: []) => InfrastructureAPI.setServices(any));
         KaravanApi.getImages(projectId, (images: []) => useProjectStore.setState({images: images}));
-    }
-
-    public static reloadBlockedTemplates() {
-        KaravanApi.getTemplatesFiles((files: ProjectFile[]) => {
-            files.filter(f => f.name.endsWith('blocklist.txt')).forEach(file => {
-                if (file.name === 'components-blocklist.txt') {
-                    ComponentApi.saveBlockedComponentNames(file.code.split(/\r?\n/));
-                } else if (file.name === "kamelets-blocklist.txt") {
-                    KameletApi.saveBlockedKameletNames(file.code.split(/\r?\n/));
-                }
-            });
-        });
-    }
-
-    public static refreshSharedData(after?: (schemaFiles: ProjectFile[], projectAsyncFiles: ProjectFile[], projectOpenFiles: ProjectFile[], sharedFile?: ProjectFile) => void) {
-        const projectAsyncFilesPromise = new Promise<ProjectFile[]>((resolve) => {
-            KaravanApi.getFilesByName(ASYNCAPI_FILE_NAME_JSON, files => {
-                resolve(files);
-            });
-        });
-
-        const projectOpenFilesPromise = new Promise<ProjectFile[]>((resolve) => {
-            KaravanApi.getFilesByName(OPENAPI_FILE_NAME_JSON, files => {
-                resolve(files);
-            });
-        });
-
-        const sharedFilesPromise = new Promise<ProjectFile[]>((resolve) => {
-            KaravanApi.getFiles(ProjectType.shared, (files: ProjectFile[]) => {
-                resolve(files);
-            });
-        });
-
-        Promise.all([projectAsyncFilesPromise, projectOpenFilesPromise, sharedFilesPromise])
-            .then(([projectAsyncFiles, projectOpenFiles, sharedFiles]) => {
-                const sharedAsyncApiFile = sharedFiles.find(f => f.name === ASYNCAPI_FILE_NAME_JSON);
-                const schemaFiles = sharedFiles.filter(f => f.name.endsWith(JSON_SCHEMA_EXTENSION));
-                after?.(schemaFiles, projectAsyncFiles, projectOpenFiles, sharedAsyncApiFile);
-            });
+        useFilesStore.getState().fetchCommitedFiles(projectId);
     }
 }

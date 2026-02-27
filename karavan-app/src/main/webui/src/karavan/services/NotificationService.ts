@@ -19,7 +19,7 @@ import {Subject} from "rxjs";
 import {unstable_batchedUpdates} from "react-dom";
 import {useProjectStore} from "@stores/ProjectStore";
 import {ProjectService} from "@services/ProjectService";
-import {EventBus} from "@features/integration/designer/utils/EventBus";
+import {EventBus} from "@features/project/designer/utils/EventBus";
 
 export class KaravanEvent {
     id: string = '';
@@ -46,8 +46,11 @@ const sub = NotificationEventBus.onEvent()?.subscribe((event: KaravanEvent) => {
         EventBus.sendAlert('Success', 'Configuration shared for ' + filename);
     } else if (event.event === 'commit' && event.className === "ProjectFolder") {
         const projectId = event.data?.projectId;
+        const statuses = event.data?.statuses;
         const messages = event.data?.messages;
-        EventBus.sendAlert('Commited', messages);
+        const variant = statuses?.filter((s: any) => s !== "OK")?.length > 0 ? 'danger' : 'success';
+        const title = variant === 'success' ? 'Commited' : 'Error';
+        EventBus.sendAlert(title, messages, variant);
         if (useProjectStore.getState().project?.projectId === projectId) {
             unstable_batchedUpdates(() => {
                 useProjectStore.setState({isPushing: false});
