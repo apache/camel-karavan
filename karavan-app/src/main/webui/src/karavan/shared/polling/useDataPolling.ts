@@ -1,34 +1,40 @@
-// useDataPolling.ts
+import {useEffect, useMemo, useRef} from "react";
+import {startPolling, stopPolling} from "./PollingManager";
 
-import {useCallback, useEffect, useMemo} from 'react';
-import {startPolling, stopPolling} from './PollingManager'; // Assuming PollingManager has been implemented
-
-/**
- * Custom hook to manage periodic data fetching with a DYNAMIC interval.
- * @param pollingKey A unique string identifier (e.g., 'metrics').
- * @param fetchAction The function that performs the data fetch.
- * @param interval The current polling interval in milliseconds (can change).
- */
 export const useDataPolling = (
     pollingKey: string,
     fetchAction: () => void,
-    interval: number
+    interval: number,
+    dependencies: any[] = []
 ): void => {
-
-    // The polling ID remains constant, based only on the key.
     const pollingId = useMemo(() => pollingKey, [pollingKey]);
-    const stableFetchAction = useCallback(fetchAction, [fetchAction]);
 
+    // 1. Store the fetchAction in a mutable ref.
+    // This allows the timer to always call the latest version of the action
+    // without being listed as a dependency in the useEffect below.
+    const fetchRef = useRef(fetchAction);
+
+    // 2. Update the ref every time the component renders with a new fetchAction.
     useEffect(() => {
-        // Start polling (or restart if interval has changed)
-        startPolling(pollingId, stableFetchAction, interval);
+        fetchRef.current = fetchAction;
+    }, [fetchAction]);
 
-        // Cleanup: Runs when the component unmounts OR if dependencies change.
-        return () => {
-            // When dependencies (like interval) change, the OLD timer is stopped
-            // and the NEW one is started immediately in the next step.
-            stopPolling(pollingId);
+    // 3. Manage the PollingManager lifecycle.
+    useEffect(() => {
+        // We create a wrapper that points to the current ref value.
+        // This wrapper is what the PollingManager's setInterval will execute.
+        const timerRunner = () => {
+            fetchRef.current();
         };
 
-    }, [pollingId, stableFetchAction, interval]); // Interval is now a dependency
+        // Start (or increment reference count)
+        startPolling(pollingId, timerRunner, interval);
+
+        // Stop (or decrement reference count)
+        return () => {
+            stopPolling(pollingId);
+        };
+    }, [pollingId, interval, ...dependencies]);
+    // 🌟 NOTICE: fetchAction is NOT a dependency here.
+    // This prevents the "constant start/stop" cycle.
 };
