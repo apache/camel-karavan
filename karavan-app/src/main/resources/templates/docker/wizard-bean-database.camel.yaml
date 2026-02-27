@@ -1,0 +1,22 @@
+- beans:
+    - name: PostgresDatabase
+      properties:
+        username: 'username'
+        password: 'password'
+        url: 'jdbc:postgresql://serverName:serverPort/databaseName'
+        driverClassName: org.postgresql.Driver
+      type: '#class:org.apache.commons.dbcp2.BasicDataSource'
+    - name: MySqlDatabase
+      properties:
+        username: 'username'
+        password: 'password'
+        url: 'jdbc:mysql://serverName:serverPort/databaseName'
+        driverClassName: com.mysql.cj.jdbc.Driver
+      type: '#class:org.apache.commons.dbcp2.BasicDataSource'
+    - name: OracleDatabase
+      properties:
+        username: 'username'
+        password: 'password'
+        url: 'jdbc:oracle:thin:@serverName:serverPort/databaseName'
+        driverClassName: oracle.jdbc.driver.OracleDriver
+      type: '#class:org.apache.commons.dbcp2.BasicDataSource'
