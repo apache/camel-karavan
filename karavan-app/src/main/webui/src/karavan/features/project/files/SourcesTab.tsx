@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React from 'react';
 import {ProjectFile} from "@models/ProjectModels";
 import {FilesToolbar} from "@features/project/files/FilesToolbar";
 import {FilesSubTab} from "@features/project/files/FilesSubTab";
@@ -15,14 +15,9 @@ interface SourcesTabProps {
 
 export function SourcesTab(props: SourcesTabProps) {
 
-    const [selector, setSelector, showSideBar] = useFilesStore((s) => [s.selector, s.setSelector, s.showSideBar], shallow);
-
-    useEffect(() => {
-        return () => setSelector('files');
-    }, []);
+    const [showSideBar] = useFilesStore((s) => [s.showSideBar], shallow);
 
     return (
-
         <Drawer isExpanded={showSideBar !== null} position="end" onExpand={_ => {
         }}>
             <DrawerContent panelContent={<SourcesDrawerPanel/>}>
@@ -30,7 +25,7 @@ export function SourcesTab(props: SourcesTabProps) {
                     <ErrorBoundaryWrapper onError={error => console.error(error)}>
                         <div style={{display: 'flex', flexDirection: 'column', height: '100%'}}>
                             <FilesToolbar/>
-                            {selector === 'files' && <FilesSubTab sortFiles={props.sortFiles}/>}
+                            <FilesSubTab sortFiles={props.sortFiles}/>
                         </div>
                     </ErrorBoundaryWrapper>
                 </DrawerContentBody>

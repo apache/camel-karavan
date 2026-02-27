@@ -18,7 +18,6 @@ import React, {useEffect, useState} from 'react';
 import {
     Alert,
     Button,
-    capitalize,
     ClipboardCopy,
     Content,
     Form,
@@ -31,8 +30,6 @@ import {
     ModalHeader,
     ModalVariant,
     TextInput,
-    ToggleGroup,
-    ToggleGroupItem,
     Tooltip,
     TooltipPosition
 } from '@patternfly/react-core';
@@ -59,7 +56,7 @@ export function FilesToolbar() {
     const [commitMessage, setCommitMessage] = useState('');
     const isDev = config.environment === 'dev';
     const timeAgo = new TimeAgo('en-US');
-    const [diff, selectedFileNames, selector, setSelector] = useFilesStore((s) => [s.diff, s.selectedFileNames, s.selector, s.setSelector], shallow);
+    const [diff, selectedFileNames] = useFilesStore((s) => [s.diff, s.selectedFileNames], shallow);
 
     const projectCommited = projectsCommited?.find(p => project.projectId);
 
@@ -171,23 +168,6 @@ export function FilesToolbar() {
         )
     }
 
-    const toggle =
-        <ToggleGroup aria-label="Source Toggle">
-            {['files', 'commits'].map(value => {
-                return (
-                    <ToggleGroupItem
-                        text={capitalize(value)}
-                        key={value}
-                        buttonId={value}
-                        isSelected={selector === value}
-                        onChange={(_, selected) => {
-                            if (selected) setSelector(value as 'files' | 'commits');
-                        }}
-                    />
-                )
-            })}
-        </ToggleGroup>
-
 
     function onRefresh() {
             ProjectService.refreshProjectFiles(project.projectId);
@@ -199,7 +179,6 @@ export function FilesToolbar() {
     return (
         <div className="project-files-toolbar">
             <ProjectTitle/>
-            {toggle}
             <Button icon={<RefreshIcon/>}
                     variant={"link"}
                     onClick={() => onRefresh()}
