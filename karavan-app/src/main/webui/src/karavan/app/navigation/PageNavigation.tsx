@@ -1,8 +1,23 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import React, {useContext, useState} from 'react';
 import {Badge, Button,} from '@patternfly/react-core';
 import './PageNavigation.css';
-import LogoutIcon from "@patternfly/react-icons/dist/esm/icons/door-open-icon";
-import {useAppConfigStore, useDevModeStore, useFileStore, useProjectsStore, useStatusesStore} from "@stores/ProjectStore";
+import {useAppConfigStore, useDevModeStore, useFileStore} from "@stores/ProjectStore";
 import {shallow} from "zustand/shallow";
 import {useLocation, useNavigate} from "react-router-dom";
 import {SsoApi} from "@api/auth/SsoApi";
@@ -10,29 +25,26 @@ import {UserPopupOidc} from "../login/UserPopupOidc";
 import {BUILD_IN_PROJECTS} from "@models/ProjectModels";
 import DarkModeToggle from "@app/theme/DarkModeToggle";
 import {AuthApi} from "@api/auth/AuthApi";
-import {getNavigationMenu} from "@app/navigation/NavigationMenu";
+import {getNavigationFirstMenu, getNavigationSecondMenu, MenuItem} from "@app/navigation/NavigationMenu";
 import {AuthContext} from "@api/auth/AuthProvider";
-import {KaravanIcon} from "@features/integration/designer/icons/KaravanIcons";
+import {PlatformLogoBase64} from "@app/navigation/PlatformLogo";
+import {PlatformVersions} from "@shared/ui/PlatformLogos";
 
-
-export function PageNavigation() {
+function PageNavigation() {
 
     const [config] = useAppConfigStore((s) => [s.config], shallow)
-    const menu = getNavigationMenu(config.environment, config.infrastructure);
+    const firstMenu = getNavigationFirstMenu();
+    const secondMenu = getNavigationSecondMenu(config.environment, config.infrastructure);
     const [setFile] = useFileStore((state) => [state.setFile], shallow)
     const [setStatus, setPodName] = useDevModeStore((state) => [state.setStatus, state.setPodName], shallow)
-    const [projects] = useProjectsStore((s) => [s.projects], shallow)
-    const [deployments, containers] = useStatusesStore((state) => [state.deployments, state.containers], shallow)
-    const [pageId, setPageId] = useState<string>(menu?.at(0)?.pageId || 'integrations');
+    const [pageId, setPageId] = useState<string>();
     const navigate = useNavigate();
     const location = useLocation();
     const {reload} = useContext(AuthContext);
 
-    const projectCount = projects.filter(p => !BUILD_IN_PROJECTS.includes(p.projectId))?.length;
-
     React.useEffect(() => {
         var page = location.pathname?.split("/").filter(Boolean)[0];
-        if (page === 'integrations') {
+        if (page === 'projects') {
             var projectId = location.pathname?.split("/").filter(Boolean)[1];
             if (BUILD_IN_PROJECTS.includes(projectId)) {
                 setPageId('settings');
@@ -41,66 +53,79 @@ export function PageNavigation() {
             }
         } else if (page !== undefined) {
             setPageId(page);
+        } else if (config.environment === 'dev') {
+            setPageId('projects');
         } else {
-            setPageId('integrations');
+            setPageId('projects');
         }
     }, [location]);
 
+    function onClick(page: MenuItem) {
+        if (page.pageId === 'logout') {
+            if (AuthApi.authType === 'oidc') {
+                SsoApi.logout(() => {
+                });
+            } else if (AuthApi.authType === 'session') {
+                AuthApi.logout();
+                reload();
+            }
+        } else {
+            setFile('none', undefined);
+            setPodName(undefined);
+            setStatus("none");
+            setPageId(page.pageId);
+            navigate(page.pageId);
+        }
+    }
+
+    function getMenu(menu: MenuItem[]) {
+        return (
+            menu.map((page, index) => {
+                    let className = "nav-button";
+                    const isSelected = pageId === page.pageId;
+                    className = className.concat(isSelected ? " nav-button-selected" : "");
+                    return (
+                        <div key={page.pageId} className={isSelected ? "nav-button-selected nav-button-wrapper" : "nav-button-wrapper"}>
+                            <Button  id={page.pageId}
+                                     style={{width: '100%'}}
+                                     variant={"link"}
+                                     className={className}
+                                // countOptions={badge}
+                                     onClick={_ => onClick(page)}
+                            >
+                                <div style={{display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '8px'}}>
+                                    {page.icon}
+                                    {page.name}
+                                </div>
+                            </Button>
+                        </div>
+                    )
+                })
+        )
+    }
 
     return (
         <div className="nav-buttons pf-v6-theme-dark">
             <div className='nav-button-part-wrapper'>
-                {KaravanIcon()}
+                <img src={PlatformLogoBase64()} className="logo" alt='logo'/>
             </div>
             <div style={{alignSelf: 'center'}} className='environment-wrapper'>
+                <Badge isRead className='environment'>{config.environment}</Badge>
             </div>
-            {menu.map((page, index) => {
-                let className = "nav-button";
-                className = className.concat(pageId === page.pageId ? " nav-button-selected" : "");
-                className = className.concat((index === menu.length - 1) ? " nav-button-last" : "");
-                return (
-                    <div key={page.pageId} className={pageId === page.pageId ? "nav-button-selected nav-button-wrapper" : "nav-button-wrapper"}>
-                        <Button id={page.pageId}
-                                style={{width: '100%'}}
-                                icon={page.icon}
-                                variant={"link"}
-                                className={className}
-                                onClick={event => {
-                                    setFile('none', undefined);
-                                    setPodName(undefined);
-                                    setStatus("none");
-                                    setPageId(page.pageId);
-                                    navigate(page.pageId);
-                                }}
-                        >
-                            {page.name}
-                        </Button>
-                    </div>
-                )
-            })}
-            <div className='nav-button-part-wrapper' style={{flexGrow: '2'}}/>
+            {getMenu(firstMenu)}
+            <div style={{flex: 2}}/>
+            {getMenu(secondMenu)}
             {AuthApi.authType === 'oidc' &&
                 <div className='nav-button-part-wrapper'>
                     <UserPopupOidc/>
                 </div>
             }
-
-            <div className='nav-button-part-wrapper'>
+            <div className={"dark-mode-toggle"}>
                 <DarkModeToggle/>
             </div>
-            <div className='nav-button-part-wrapper'>
-                <Button icon={<LogoutIcon/>} className={"nav-button"} style={{width: '100%'}} variant={"link"}
-                        onClick={event => {
-                            if (AuthApi.authType === 'oidc') {
-                                SsoApi.logout(() => {
-                                });
-                            } else if (AuthApi.authType === 'session') {
-                                AuthApi.logout();
-                                reload();
-                            }
-                        }}
-                >Exit</Button>
-            </div>
+            <PlatformVersions/>
         </div>
     )
 }
+
+export default PageNavigation

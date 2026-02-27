@@ -1,8 +1,24 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import {KaravanApi} from "@api/KaravanApi";
 import {ComponentApi} from "@karavan-core/api/ComponentApi";
-import {AppConfig, ContainerStatus, Project} from "@models/ProjectModels";
-import {useAppConfigStore, useProjectsStore, useStatusesStore} from "@stores/ProjectStore";
-import {InfrastructureAPI} from "@features/integration/designer/utils/InfrastructureAPI";
+import {AppConfig, Project} from "@models/ProjectModels";
+import {useAppConfigStore, useProjectsStore} from "@stores/ProjectStore";
+import {InfrastructureAPI} from "@features/project/designer/utils/InfrastructureAPI";
 import {shallow} from "zustand/shallow";
 import {ProjectService} from "@services/ProjectService";
 import {SpiBeanApi} from "@karavan-core/api/SpiBeanApi";
@@ -11,21 +27,20 @@ import {useContext} from "react";
 import {AuthContext} from "@api/auth/AuthProvider";
 import {useReadinessStore} from "@stores/ReadinessStore";
 import {AuthApi} from "@api/auth/AuthApi";
+import {useContainerStatusesStore} from "@stores/ContainerStatusesStore";
 
 export function mainHook () {
 
     const {readiness} = useReadinessStore();
     const [setConfig, setDockerInfo] = useAppConfigStore((s) => [s.setConfig, s.setDockerInfo], shallow)
     const [setProjects] = useProjectsStore((s) => [s.setProjects], shallow)
-    const [setContainers] = useStatusesStore((state) => [state.setContainers], shallow);
+    const {fetchContainers} = useContainerStatusesStore();
     const [selectedEnv, selectEnvironment] = useAppConfigStore((state) => [state.selectedEnv, state.selectEnvironment], shallow)
     const { user } = useContext(AuthContext);
 
     const getStatuses = () =>  {
         if (user) {
-            KaravanApi.getAllContainerStatuses((statuses: ContainerStatus[]) => {
-                setContainers(statuses);
-            });
+            fetchContainers();
         }
     }
 
@@ -50,8 +65,6 @@ export function mainHook () {
             updateBeans();
             updateAllConfigurations();
             ProjectService.loadCamelAndCustomKamelets();
-            ProjectService.reloadBlockedTemplates();
-            // updateSupportedComponents(); // not implemented yet
         }
     }
 

@@ -1,38 +1,74 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 .karavan .nav-buttons {
     width: fit-content;
     display: flex;
     flex-direction: column;
     height: 100%;
     justify-content: space-between;
-    background-color: var(--pf-t--color--gray--95);
+    background: var(--pf-t--color--gray--95);
 }
-.karavan .nav-buttons .nav-button-part-wrapper {
+
+.karavan .nav-buttons .nav-button-part-wrapper,
+.karavan .nav-buttons .nav-button-part-darkmode {
     display: flex;
     flex-direction: column;
     align-items: center;
-    height: 64px;
     position: relative;
-    .logo {
-        margin-left: 3px;
-        width: 48px;
-        height: 48px;
-    }
 }
 
 .karavan .nav-buttons .environment-wrapper {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
-    margin-bottom: 6px;
-    margin-top: 6px;
+    margin-bottom: 16px;
+    gap: 3px;
+    color: var(--pf-t--color--blue--10);
+    /*margin-top: 6px;*/
+
     .version {
         color: var(--pf-t--color--gray--30);
     }
+
     .environment {
-        border-color: var(--pf-t--color--gray--60);
-        color: var(--pf-t--color--white);
-        background-color: var(--pf-t--color--gray--60);
+        padding: 0 4px 0 4px;
+        border-color: #4bb9ecff;
+        color: var(--pf-t--color--gray--95);
+        background-color: #4bb9ecff;
+        font-weight: normal;
+    }
+
+    .environment-line {
+        display: flex;
+        flex-direction: row;
+        gap: 3px;
+        align-items: center;
+    }
+
+    .login-logo {
+        width: 18px;
+        height: 18px;
+    }
+
+    .icon {
+        width: 16px;
+        height: 16px;
     }
 }
 
@@ -42,33 +78,21 @@
     width: 32px;
     height: 32px;
 }
-.karavan .nav-buttons .pf-v6-c-button {
-    padding: 0;
-    /*width: fit-content;*/
-    height: 64px;
-    /*color: var(--pf-t-global--color--light-100);*/
-}
 
 .karavan .nav-buttons .pf-v6-c-button svg {
-    width: 24px;
-    height: 24px;
-    /*fill: var(--pf-t--color--white);*/
+    width: 16px;
+    height: 16px;
+    fill: #4bb9ec;
 }
 
 /* Adapt navigation for screens less than 800px */
 @media screen and (max-height: 800px) {
+    .karavan .nav-buttons .nav-button {
+        /*padding: 16px 12px 16px 12px;*/
+    }
+
     .karavan .nav-buttons .pf-v6-c-button {
-        height: 50px;
-    }
-    .karavan .nav-buttons .pf-v6-c-button .pf-v6-c-button__icon {
-        /*display: none;*/
-    }
-    .karavan .nav-buttons .pf-v6-c-button .nav-button-badge {
-        top: 2px;
-        right: 2px;
-    }
-    .karavan .nav-buttons .pf-v6-c-button .nav-button-badge .pf-v6-c-badge {
-        font-size: 10px;
+        font-size: 12px;
     }
 }
 
@@ -81,26 +105,38 @@
     background-color: var(--pf-t--color--gray--60);
 }
 
-.karavan .nav-buttons .nav-button-wrapper {
-    .infra-icon-docker {
-        fill: #1074FF;
-    }
-}
 .karavan .nav-buttons .nav-button {
-    border-left-width: 3px;
-    border-left-style: solid;
-    border-left-color: transparent;
     border-top-width: 1px;
     border-top-style: solid;
     border-top-color: var(--pf-t--color--gray--80);
     border-radius: 0;
     display: flex;
-    flex-direction: column;
-    justify-content: center;
+    flex-direction: row;
+    justify-content: flex-start;
     align-items: center;
-    gap: 0;
-    padding: 0 9px 0 6px;
-    color: var(--pf-t--color--white);
+    gap: 4px;
+    padding: 10px 10px 10px 10px;
+    color: var(--pf-t--color--blue--10);
+    &:hover {
+        background: color-mix(in srgb, var(--pf-t--color--blue--60) 50%, transparent);
+    }
+
+    .pf-v6-c-button__text {
+
+    }
+    .nav-button-badge {
+        position: absolute;
+        top: 3px;
+        right: 3px;
+        margin: 0;
+        .pf-v6-c-badge {
+            padding: 0 6px;
+            min-width: fit-content;
+            background-color: var(--pf-t--color--orange--40);
+            color: var(--pf-t--color--gray--95);
+            font-weight: normal;
+        }
+    }
 }
 
 .karavan .nav-buttons .nav-button .pf-v6-c-button__icon.pf-m-start {
@@ -114,21 +150,41 @@
 }
 
 .karavan .nav-button-selected .pf-v6-c-button {
-    border-left-color: #ec7a08;
-    background-color: var(--pf-t--color--gray--60);
+    background: rgba(236, 122, 8, 0.25);
+    &:hover {
+        /*background: color-mix(in srgb, var(--pf-t--color--blue--60) 50%, transparent);*/
+    }
+
+    .nav-button-badge {
+        .pf-v6-c-badge {
+            padding: 0 6px;
+            min-width: fit-content;
+            color: var(--pf-t--color--orange--40);
+            background-color: var(--pf-t--color--gray--95);
+            font-weight: 500;
+        }
+    }
+
+    &::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        border-left: 2px solid rgba(236, 122, 8, 1);
+        pointer-events: none;
+    }
 }
 
-.karavan .nav-buttons .nav-button-badge {
-    position: absolute;
-    top: 5px;
-    right: 5px;
-    margin: 0;
-}
-
-.karavan .nav-buttons .nav-button-badge .pf-v6-c-badge {
-    padding: 0 6px;
-    min-width: fit-content;
-    background-color: var(--pf-t--color--orange--30);
-    color: var(--pf-t--color--gray--95);
-    font-weight: normal;
+.karavan .nav-buttons {
+    .dark-mode-toggle {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        width: 100%;
+        padding: 12px;
+        border-top-width: 1px;
+        border-top-style: solid;
+        border-top-color: var(--pf-t--color--gray--80);
+        border-radius: 0;
+    }
 }

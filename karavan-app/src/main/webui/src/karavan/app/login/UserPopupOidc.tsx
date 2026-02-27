@@ -1,6 +1,5 @@
 import React from 'react';
 import {Badge, Content, ContentVariants, DescriptionList, DescriptionListDescription, DescriptionListGroup, DescriptionListTerm, Flex, Popover,} from '@patternfly/react-core';
-import '../App.css';
 import UserIcon from "@patternfly/react-icons/dist/esm/icons/user-icon";
 import {shallow} from "zustand/shallow";
 import {useAccessStore} from "@stores/AccessStore";

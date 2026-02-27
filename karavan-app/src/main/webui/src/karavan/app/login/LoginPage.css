@@ -1,19 +1,355 @@
-.karavan .login-page {
-    width: 100%;
-    height: 100%;
+.karavan-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    align-items: center;
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+}
+
+/* --- LEFT PANEL: Branding --- */
+.karavan-brand-panel {
+    width: 35%;
+    height: 100vh;
     display: flex;
     flex-direction: column;
-    background-color: var(--pf-t--global--background--color--secondary--default);
-}
-.karavan .login-page .logo-panel {
-    background-color: var(--pf-t--color--gray--95);
-    height: 64px;
-}
-
-.karavan .login-page .login {
-    width: 470px;
+    justify-content: center;
+    align-items: center;
+    background: var(--pf-t--color--gray--95);
+    gap: 48px;
 }
 
-.karavan .login-page .logo {
-    /*height: 48px;*/
+.brand-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+
+    .brand-name {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 20px;
+
+        .brand-logo-container {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 12px;
+
+            .logo {
+                height: 40px;
+                width: 40px;
+            }
+            .platform-name-text {
+                font-size: 24px;
+                font-weight: 700;
+                letter-spacing: 1px;
+            }
+        }
+        .gradient-text-blue {
+            background: linear-gradient(to right, #4394e5, #92c5f9);
+
+            -webkit-background-clip: text; /* Safari / Chrome */
+            background-clip: text;
+            color: transparent;
+        }
+        .gradient-text-blue-gold {
+            background: linear-gradient(to right, #fda422, #ec7a08);
+
+            -webkit-background-clip: text; /* Safari / Chrome */
+            background-clip: text;
+            color: transparent;
+        }
+        .gradient-text-gold {
+            background: linear-gradient(to right, #ec7a08, #db5b04);
+
+            -webkit-background-clip: text; /* Safari / Chrome */
+            background-clip: text;
+            color: transparent;
+        }
+
+        .tagline1 {
+            font-weight: 800;
+            font-size: 56px;
+            line-height: 1.1;
+            text-align: center;
+        }
+
+        .tagline2 {
+            font-weight: 400;
+            line-height: 1.5;
+            color: #b9dafc; /* Tblue-200 for subtitle */
+            font-size: 20px;
+            letter-spacing: 0.5px;
+            margin-top: 16px;
+            text-align: center;
+        }
+    }
+}
+
+.solar-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 8px;
+    /* Container that holds both the center logo and the ring */
+    .solar-system {
+        position: relative;
+        width: 350px; /* Width of the whole system */
+        height: 350px;
+        margin: 0 auto;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+    }
+}
+
+.orbit-lines-svg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    transform: translate(-50%, -50%);
+    width: 350px; /* Must match SVG viewBox width */
+    height: 350px; /* Must match SVG viewBox height */
+    z-index: 1; /* Lowest level, behind icons */
+    pointer-events: none; /* Let clicks pass through to the logo */
+
+    /* OPTIONAL: Rotate the gradient slowly for extra "flash" */
+    animation: slowSpin 20s linear infinite;
+}
+
+/* Ensure your icons are on top */
+.orbit-ring {
+    z-index: 5;
+}
+
+/* 1. THE STATIC CENTER LOGO */
+.static-sun {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%); /* Perfectly centered */
+    width: 100px;
+    height: 100px;
+    z-index: 10; /* Ensures it sits ON TOP of the ring lines */
+
+    /* Optional: A nice glow behind the main logo */
+    background: radial-gradient(
+            circle,
+            rgba(236, 122, 8, 0.4) 0%,
+            rgba(236, 122, 8, 0) 60%
+    );
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.static-sun a {
+    pointer-events: auto;
+    width: 48px; /* Your actual logo size */
+    height: 48px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: transform 0.3s ease, filter 0.3s ease;
+    &:hover {
+        transform: scale(1.1);
+    }
+}
+
+.static-sun .logo {
+    width: 100%; /* Adjust to fit inside the glow */
+    height: auto;
+    filter: none;
+}
+
+/* 1. The Ring spins clockwise */
+.orbit-ring {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    animation: slowSpin 60s linear infinite;
+}
+
+/* 2. The Item is placed on the ring (Static Position) */
+.orbit-item {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 32px; /* Adjusted size */
+    height: 32px;
+    margin-top: -16px;
+    margin-left: -16px;
+
+    /* Logic: Rotate to angle -> Move out -> Rotate back to upright */
+    transform:
+            rotate(var(--angle))
+            translate(var(--radius))
+            rotate(calc(var(--angle) * -1));
+}
+
+/* 3. The Counter-Rotator spins Counter-Clockwise
+   This cancels out the ring's rotation so the icon always faces North */
+.counter-rotator {
+    width: 100%;
+    height: 100%;
+    animation: slowSpinReverse 60s linear infinite;
+}
+
+/* 4. The Image handles ONLY the look and hover scale */
+.counter-rotator img,
+.counter-rotator svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+
+    /* Look */
+    /*filter: grayscale(100%);*/
+    transition: transform 0.3s ease, filter 0.3s ease;
+}
+
+/* Hover Effect: Scale the image, NOT the rotating wrapper */
+.counter-rotator:hover img,
+.counter-rotator:hover svg {
+    filter: none;
+    transform: scale(1.2);
+}
+
+/* --- Keyframes --- */
+@keyframes slowSpin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+@keyframes slowSpinReverse {
+    /* Must match the ring's speed but in REVERSE */
+    from { transform: rotate(360deg); }
+    to { transform: rotate(0deg); }
+}
+
+.anchor-line {
+    width: 1px;
+    height: 50px; /* Length of line */
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0.1) 10%, rgba(236, 122, 8, 1) 50%, rgba(255, 255, 255, 0.1) 100%);
+    margin: 0 auto 8px auto; /* Center it and add space below */
+}
+
+.brand-footer {
+    opacity: 0.6;
+    font-size: 0.85rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    text-align: center;
+    color: var(--pf-t--color--blue--10);
+    padding-bottom: 60px;
+}
+
+/* --- RIGHT PANEL: Minimal Form --- */
+.karavan-form-panel {
+    width: 65%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.form-wrapper {
+    width: 100%;
+    max-width: 400px;
+    padding: 20px;
+
+    .login {
+        &::before {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            content: "";
+            border-color: var(--pf-t--color--blue--60);
+            border-style: var(--pf-v6-c-card--BorderStyle);
+            border-width: var(--pf-v6-c-card--BorderWidth);
+            border-radius: inherit;
+        }
+
+        .login-header {
+            color: var(--pf-t--global--text--color--subtle);
+        }
+
+        .environment-dev {
+            background-color: var(--pf-t--global--text--color--brand--default);
+        }
+        .environment-default {
+            background-color: var(--pf-t--global--icon--color--status--warning--default);
+        }
+        .environment-prod {
+            background-color: var(--pf-t--global--icon--color--status--danger--default);
+        }
+    }
+
+    .pf-v6-c-form-control, .pf-v6-c-text-input-group {
+        /*background-color: transparent;*/
+    }
+
+    .pf-v6-c-card__header, .pf-v6-c-card__title, .pf-v6-c-card__body {
+        padding-block-end: var(--pf-t--global--spacer--xl);
+    }
+
+    .pf-v6-c-card__footer {
+        padding-block-end: var(--pf-t--global--spacer--md);
+    }
+
+    .platform-version {
+        color: var(--pf-t--global--text--color--subtle);
+        font-size: var(--pf-t--global--font--size--xs);
+    }
+
+    .button {
+        width: 100%;
+    }
+
+    .button-disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+}
+
+.powered-by-logo {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+
+
+    .logo, .icon{
+        width: 32px;
+        height: 32px;
+    }
+    .openapi-logo {
+        height: 36px;
+    }
+    .asyncapi-logo {
+        height: 32px;
+    }
+    .json-schema-logo {
+        height: 28px;
+    }
+    .groovy-logo {
+        height: 32px;
+    }
+    .jib-logo {
+        height: 32px;
+    }
+    .infinispan-logo {
+        height: 30px;
+    }
+    .jkube-logo {
+        height: 32px;
+    }
+    .patternfly-logo {
+        height: 28px;
+    }
 }
