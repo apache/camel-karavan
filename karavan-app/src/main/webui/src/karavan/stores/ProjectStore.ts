@@ -18,19 +18,21 @@ import {
     AppConfig,
     CamelStatus,
     ContainerImage,
-    ContainerStatus,
     DeploymentStatus,
     DesignerTab,
     FileOperation,
     Project,
+    ProjectCommited,
     ProjectFile,
+    ProjectFileCommited,
     ProjectOperation,
     ServiceStatus
 } from "@models/ProjectModels";
-import {ProjectEventBus} from "@bus/ProjectEventBus";
-import {unstable_batchedUpdates} from "react-dom";
 import {createWithEqualityFn} from "zustand/traditional";
 import {shallow} from "zustand/shallow";
+import {KaravanApi} from "@api/KaravanApi";
+import {AxiosResponse} from "axios";
+import isEqual from "lodash/isEqual";
 
 interface AppConfigState {
     loading: boolean;
@@ -84,21 +86,42 @@ export const useAppConfigStore = createWithEqualityFn<AppConfigState>((set) => (
 
 interface ProjectsState {
     projects: Project[];
+    projectsCommited: ProjectCommited[];
     setProjects: (projects: Project[]) => void;
     upsertProject: (project: Project) => void;
+    fetchProjects: () => Promise<void>;
+    fetchProjectsCommited: () => Promise<void>;
     filter: string;
     setFilter: (filter: string) => void;
     labels: any;
     setLabels: (labels: any) => void;
 }
 
-export const useProjectsStore = createWithEqualityFn<ProjectsState>((set) => ({
+export const useProjectsStore = createWithEqualityFn<ProjectsState>((set, get) => ({
     projects: [],
+    projectsCommited: [],
     labels: {},
     setProjects: (ps: Project[]) => {
         set((state: ProjectsState) => ({
             projects: ps,
         }));
+    },
+    fetchProjects: async (): Promise<void> => {
+        await new Promise<Project[]>((resolve) => {
+            KaravanApi.getProjects(resolve);
+        }).then(projects => {
+            set({ projects: projects });
+        })
+    },
+    fetchProjectsCommited: async (): Promise<void> => {
+        const currentProjectsCommited = get().projectsCommited;
+        await new Promise<ProjectCommited[]>((resolve) => {
+            KaravanApi.getProjectsCommited(resolve);
+        }).then(projectsCommited => {
+            if (!isEqual(currentProjectsCommited, projectsCommited)) {
+                set({ projectsCommited: projectsCommited });
+            }
+        })
     },
     setLabels: (labels: any) => {
         set({labels: labels});
@@ -117,8 +140,8 @@ export const useProjectsStore = createWithEqualityFn<ProjectsState>((set) => ({
 }), shallow)
 
 
-export const ProjectMenus = ['topology', 'files', 'readme', 'build', 'containers'] as const;
-export const ProjectRuntimeMenus = ['JVM', 'camel', 'log'] as const;
+export const ProjectMenus = ['topology', 'source','readme', 'build', 'containers'] as const;
+export const ProjectRuntimeMenus = ['pod', 'JVM', 'camel', 'log', 'tryout'] as const;
 export type ProjectMenu = typeof ProjectMenus[number];
 export type ProjectRuntimeMenu = typeof ProjectRuntimeMenus[number];
 
@@ -135,6 +158,7 @@ interface ProjectState {
     setOperation: (o: ProjectOperation) => void;
     camelStatuses: CamelStatus[],
     setCamelStatuses: (camelStatuses: CamelStatus[]) => void;
+    fetchCamelStatuses: (projectId: string, env: string) => Promise<void>;
     camelTraces: CamelStatus[],
     setCamelTraces: (camelTraces: CamelStatus[]) => void;
     refreshTrace: boolean
@@ -182,6 +206,14 @@ export const useProjectStore = createWithEqualityFn<ProjectState>((set) => ({
             return {camelStatuses: camelStatuses};
         });
     },
+    fetchCamelStatuses: async (projectId: string, env: string): Promise<void> => {
+        await new Promise<AxiosResponse<CamelStatus[]>>((resolve) => {
+            KaravanApi.getProjectCamelStatuses(projectId, env, resolve);
+        }).then(response=> {
+            const statuses = response.status === 200 ? response.data : [];
+            set({camelStatuses: statuses});
+        })
+    },
     camelTraces: [],
     setCamelTraces: (camelTraces: CamelStatus[]) => {
         set((state: ProjectState) => {
@@ -194,25 +226,65 @@ export const useProjectStore = createWithEqualityFn<ProjectState>((set) => ({
     },
 }), shallow)
 
+
+export type FilesSideBarType = 'create' | 'upload' | 'library'
+
 interface FilesState {
     files: ProjectFile[];
+    commitedFiles: ProjectFileCommited[];
     diff: any;
     setFiles: (files: ProjectFile[]) => void;
+    fetchFiles: (projectId: string) => Promise<ProjectFile[]>;
+    fetchCommitedFiles: (projectId: string) => Promise<any>;
     upsertFile: (file: ProjectFile) => void;
     selectedFileNames: string[];
     setSelectedFileNames: (selectedFileNames: string[]) => void;
     selectFile: (filename: string) => void;
     unselectFile: (filename: string) => void;
+    selector: 'files' | 'commits';
+    setSelector: (selector: 'files' | 'commits') => void;
+    showSideBar: FilesSideBarType;
+    setShowSideBar: (showSideBar: FilesSideBarType) => void;
+    title: string;
+    setTitle: (title: string) => void;
 }
 
-export const useFilesStore = createWithEqualityFn<FilesState>((set) => ({
+export const useFilesStore = createWithEqualityFn<FilesState>((set, get) => ({
     files: [],
+    commitedFiles: [],
     diff: {},
     selectedFileNames: [],
+    selector: 'files',
+    showSideBar: null,
+    setShowSideBar: (showSideBar: FilesSideBarType) => {
+        set({showSideBar: showSideBar});
+    },
+    title: null,
+    setTitle: (title: string) => {
+        set({ title: title });
+    },
     setFiles: (files: ProjectFile[]) => {
         set((state: FilesState) => ({
             files: files
         }));
+    },
+    fetchFiles: async (projectId: string): Promise<any> => {
+        return await new Promise<ProjectFile[]>((resolve) => {
+            KaravanApi.getFiles(projectId, resolve);
+        }).then(files => {
+            set({ files: files });
+            return files;
+        })
+    },
+    fetchCommitedFiles: async (projectId: string): Promise<any> => {
+        const currentCommitedFiles = get().commitedFiles;
+        await new Promise<ProjectFileCommited[]>((resolve) => {
+            KaravanApi.getCommitedFiles(projectId, resolve);
+        }).then(files => {
+            if (!isEqual(currentCommitedFiles, files)) {
+                set({ commitedFiles: files });
+            }
+        })
     },
     upsertFile: (file: ProjectFile) => {
         set((state: FilesState) => ({
@@ -240,6 +312,9 @@ export const useFilesStore = createWithEqualityFn<FilesState>((set) => ({
             const names = [...state.selectedFileNames.filter(f => f !== filename)];
             return ({selectedFileNames: names})
         });
+    },
+    setSelector: (selector: 'files' | 'commits') => {
+        set({selector: selector});
     }
 }), shallow)
 
@@ -301,7 +376,6 @@ export const useDevModeStore = createWithEqualityFn<DevModeState>((set) => ({
 interface StatusesState {
     deployments: DeploymentStatus[];
     services: ServiceStatus[];
-    containers: ContainerStatus[];
     camelContexts: CamelStatus[];
     routes: CamelStatus[];
     setRoutes: (routes: CamelStatus[]) => void;
@@ -311,14 +385,14 @@ interface StatusesState {
     setProcessors: (processors: CamelStatus[]) => void;
     setDeployments: (d: DeploymentStatus[]) => void;
     setServices: (s: ServiceStatus[]) => void;
-    setContainers: (c: ContainerStatus[]) => void;
     setCamelContexts: (camelContexts: CamelStatus[]) => void;
+    camels: CamelStatus[];
+    setCamels: (c: CamelStatus[]) => void;
 }
 
-export const useStatusesStore = createWithEqualityFn<StatusesState>((set) => ({
+export const useStatusesStore = createWithEqualityFn<StatusesState>((set, get) => ({
     deployments: [],
     services: [],
-    containers: [],
     camelContexts: [],
     routes: [],
     consumers: [],
@@ -331,11 +405,6 @@ export const useStatusesStore = createWithEqualityFn<StatusesState>((set) => ({
     setServices: (s: ServiceStatus[]) => {
         set((state: StatusesState) => ({
             services: s,
-        }));
-    },
-    setContainers: (c: ContainerStatus[]) => {
-        set((state: StatusesState) => ({
-            containers: c,
         }));
     },
     setCamelContexts: (c: CamelStatus[]) => {
@@ -354,41 +423,14 @@ export const useStatusesStore = createWithEqualityFn<StatusesState>((set) => ({
     setProcessors: (processors: CamelStatus[]) => {
         set({processors})
     },
-}), shallow)
-
-interface LogState {
-    podName?: string,
-    data: string;
-    setData: (data: string) => void;
-    addData: (data: string) => void;
-    addDataAsync: (data: string) => void;
-    currentLine: number;
-    setCurrentLine: (currentLine: number) => void;
-}
-
-export const useLogStore = createWithEqualityFn<LogState>((set) => ({
-    podName: undefined,
-    data: '',
-    setData: (data: string) => {
-        set({data: data})
-    },
-    addData: (data: string) => {
-        set((state: LogState) => {
-            const delimiter = state.data.endsWith('\n') ? '' : '\n';
-            return ({data: state.data.concat(delimiter, data)})
-        })
-    },
-    addDataAsync: async (data: string) => {
-        set((state: LogState) => {
-            const delimiter = state.data.endsWith('\n') ? '' : '\n';
-            return ({data: state.data.concat(delimiter, data)})
-        })
-    },
-    currentLine: 0,
-    setCurrentLine: (currentLine: number) => {
-        set((state: LogState) => ({currentLine: currentLine}))
+    camels: [],
+    setCamels: (c: CamelStatus[]) => {
+        set((state: StatusesState) => ({
+            camels: c,
+        }));
     },
 }), shallow)
+
 
 interface SelectedContainerState {
     selectedContainerName?: string;
@@ -400,20 +442,3 @@ export const useSelectedContainerStore = createWithEqualityFn<SelectedContainerS
         set({selectedContainerName: selectedContainerName })
     },
 }), shallow)
-
-
-const sub = ProjectEventBus.onLog()?.subscribe((result: ["add" | "set", string]) => {
-    if (result[0] === 'add') {
-        unstable_batchedUpdates(() => {
-            useLogStore.setState((state: LogState) => {
-                const delimiter = state.data.endsWith('\n') ? '' : '\n';
-                const newData = state.data ? state.data.concat(delimiter, result[1]) : result[1]
-                return ({data: newData, currentLine: state.currentLine + 1});
-            })
-        })
-    } else if (result[0] === 'set') {
-        unstable_batchedUpdates(() => {
-            useLogStore.setState({data: result[1], currentLine: 0});
-        })
-    }
-});
