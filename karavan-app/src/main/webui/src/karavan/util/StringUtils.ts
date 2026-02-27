@@ -277,3 +277,65 @@ export function extractTitleFromMarkdown(markdown: string): string | null {
     // If no title found
     return null;
 }
+
+export function convertAnyToString(value: any): string {
+    if (value === null) return "null";
+    if (value === undefined) return "undefined";
+
+    // If it's already a string, check if it might be JSON
+    if (typeof value === "string") {
+        const trimmed = value.trim();
+
+        // Try parsing directly (normal JSON string)
+        try {
+            const parsed = JSON.parse(trimmed);
+            return JSON.stringify(parsed, null, 2);
+        } catch {
+            // Try parsing escaped JSON string
+            try {
+                const unescaped = trimmed.replace(/\\"/g, '"');
+                const parsed = JSON.parse(unescaped);
+                return JSON.stringify(parsed, null, 2);
+            } catch {
+                // Not JSON, return as-is
+                return value;
+            }
+        }
+    }
+
+    // Handle objects and arrays
+    if (typeof value === "object") {
+        try {
+            return JSON.stringify(value, null, 2);
+        } catch {
+            // Circular reference or unserializable object
+            return Object.prototype.toString.call(value);
+        }
+    }
+
+    // Fallback for primitives (number, boolean, symbol, bigint, function)
+    try {
+        return String(value);
+    } catch {
+        return "[Unstringifiable value]";
+    }
+}
+
+const placeholderRegexp = /\{\{\s*([^}:]+?)\s*\}\}/g;
+export function replacePlaceholders(code: string, placeholders: Record<string, string>){
+    return code.replace(placeholderRegexp, (match, rawKey) => {
+        const key = rawKey.trim();
+        return key in placeholders ? placeholders[key] : match;
+    });
+}
+
+export function findPlaceholders(code: string): string[] {
+    const regex = placeholderRegexp;
+    const results: string[] = [];
+    let match: RegExpExecArray | null;
+
+    while ((match = regex.exec(code)) !== null) {
+        results.push(match[1].trim());
+    }
+    return [...new Set(results)];
+}
