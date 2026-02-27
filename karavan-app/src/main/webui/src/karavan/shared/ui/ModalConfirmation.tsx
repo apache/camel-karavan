@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import React from 'react';
+import React, {useEffect, useRef} from 'react';
 import {Button, Modal, ModalBody, ModalFooter, ModalHeader} from '@patternfly/react-core';
 
 export interface ModalConfirmationProps {
@@ -34,9 +34,23 @@ export interface ModalConfirmationProps {
 export function ModalConfirmation(props: ModalConfirmationProps) {
 
     const {title, isOpen, message, onConfirm, onCancel, btnConfirm, btnCancel, btnConfirmVariant, btnCancelVariant, variant} = props;
+
+    // 1. Create a ref for the button
+    const confirmBtnRef = useRef<HTMLButtonElement>(null);
+
+    // 2. Focus the button when the modal opens
+    useEffect(() => {
+        if (isOpen) {
+            // A small timeout ensures the modal DOM is ready before focusing
+            const timer = setTimeout(() => {
+                confirmBtnRef.current?.focus();
+            }, 100);
+            return () => clearTimeout(timer);
+        }
+    }, [isOpen]);
+
     return (
         <Modal
-            // className="modal-confirm"
             variant={variant ?? "small"}
             isOpen={isOpen}
             onClose={() => onCancel()}
@@ -46,7 +60,12 @@ export function ModalConfirmation(props: ModalConfirmationProps) {
                 {message}
             </ModalBody>
             <ModalFooter>
-                <Button key="confirm" variant={btnConfirmVariant || 'primary'} onClick={event => onConfirm()}>
+                <Button
+                    ref={confirmBtnRef} // 3. Attach the ref here
+                    key="confirm"
+                    variant={btnConfirmVariant || 'primary'}
+                    onClick={event => onConfirm()}
+                >
                     {btnConfirm || 'Confirm'}
                 </Button>
                 <Button key="cancel" variant={btnCancelVariant || 'secondary'} onClick={e => onCancel()}>

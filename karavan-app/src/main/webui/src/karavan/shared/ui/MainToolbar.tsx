@@ -16,27 +16,32 @@
  */
 
 import React from 'react';
-import './MainToolbar.css';
+import '@shared/ui/MainToolbar.css';
+import {useAppConfigStore} from "@stores/ProjectStore";
+import {shallow} from "zustand/shallow";
+import {PlatformVersionWithName} from "@shared/ui/PlatformLogos";
 
 interface Props {
     title: React.ReactNode;
     toolsStart?: React.ReactNode;
-    tools: React.ReactNode;
+    tools?: React.ReactNode;
 }
 
 export function MainToolbar(props: Props) {
 
     const { title, toolsStart, tools } = props;
+    const [config] = useAppConfigStore((s) => [s.config], shallow)
+    const titleSvg = config?.advanced.titleSvg ? config?.advanced.titleSvg : undefined;
 
     return (
         <div className="main-toolbar dark-toolbar">
-            {title}
+            {/*{title}*/}
             {toolsStart &&
                 <div style={{flex: 2}}>
                     {toolsStart}
                 </div>
             }
-            {tools}
+            {tools || PlatformVersionWithName(titleSvg)}
         </div>
     )
 }

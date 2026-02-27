@@ -23,6 +23,31 @@
     flex-direction: row;
     justify-content: flex-start;
     align-items: center;
+
+    .logo {
+        width: 32px;
+        height: 32px;
+    }
+
+    .pf-v6-c-nav {
+        .pf-v6-c-nav__item {
+            .pf-m-current {
+                position: relative;
+                background: rgba(236, 122, 8, 0.25);
+                &::before {
+                    content: "";
+                    position: absolute;
+                    inset: 0;
+                    border-radius: inherit;
+                    border: 1px solid rgba(236, 122, 8, 0.66);
+                    pointer-events: none;
+                }
+            }
+        }
+        .pf-v6-c-nav__link:hover {
+            background: color-mix(in srgb, var(--pf-t--color--blue--60) 50%, transparent);
+        }
+    }
 }
 
 .karavan .main-toolbar h2 {

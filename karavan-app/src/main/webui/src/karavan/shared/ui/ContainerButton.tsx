@@ -23,7 +23,7 @@ import {useSelectedContainerStore} from "@stores/ProjectStore";
 import {ContainerStatus, ContainerType} from '@models/ProjectModels';
 import DevIcon from "@patternfly/react-icons/dist/esm/icons/dev-icon";
 import './ContainerButton.css'
-import {BuildIcon, LockIcon, PackageIcon, ServiceIcon, UnknownIcon} from '@patternfly/react-icons';
+import {BuildIcon, LockIcon, PackageIcon, UnknownIcon} from '@patternfly/react-icons';
 
 interface Props {
     container: ContainerStatus,
@@ -41,7 +41,6 @@ export function ContainerButton(props: Props) {
     const typeIconColor = isRunning ? 'var(--pf-t--global--color--status--success--100)' : 'var(--pf-v6-c-button--m-control--Color)';
     const iconMap: Record<ContainerType, ReactElement> = {
         devmode: <DevIcon color={typeIconColor}/>,
-        devservice: <ServiceIcon color={typeIconColor}/>,
         packaged: <PackageIcon color={typeIconColor}/>,
         internal: <LockIcon color={typeIconColor}/>,
         build: <BuildIcon color={typeIconColor}/>,
@@ -49,7 +48,6 @@ export function ContainerButton(props: Props) {
     };
     const typeMap: Record<ContainerType, string> = {
         devmode: 'container',
-        devservice: 'devservice',
         packaged: 'container',
         internal: 'internal',
         build: 'build',

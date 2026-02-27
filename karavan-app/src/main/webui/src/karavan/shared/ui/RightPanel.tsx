@@ -6,7 +6,7 @@ import {ErrorBoundaryWrapper} from "@shared/ui/ErrorBoundaryWrapper";
 interface Props {
     title: React.ReactNode;
     toolsStart?: React.ReactNode;
-    tools: React.ReactNode;
+    tools?: React.ReactNode;
     mainPanel: React.ReactNode;
 }
 

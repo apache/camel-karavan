@@ -1,18 +1,23 @@
-// Core API only (no full bundle)
-import 'monaco-editor/esm/vs/editor/editor.api';
+import {loader} from '@monaco-editor/react';
+import * as monaco from 'monaco-editor';
+import {type IRange, Position, Range} from 'monaco-editor';
+import editorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker';
+import jsonWorker from 'monaco-editor/esm/vs/language/json/json.worker?worker';
+import YamlWorker from 'monaco-yaml/yaml.worker.js?worker';
 
-// Language services
-import 'monaco-editor/esm/vs/language/json/monaco.contribution';
+self.MonacoEnvironment = {
+    getWorker(_, label) {
+        if (label === 'json') {
+            return new jsonWorker();
+        }
+        if (label === 'yaml' ) {
+            return new YamlWorker()
+        }
+        return new editorWorker();
+    },
+};
 
-// Basic languages you need
-import 'monaco-editor/esm/vs/basic-languages/yaml/yaml.contribution';
-import 'monaco-editor/esm/vs/basic-languages/java/java.contribution';
-import 'monaco-editor/esm/vs/basic-languages/sql/sql.contribution';
-import 'monaco-editor/esm/vs/basic-languages/ini/ini.contribution';
-import 'monaco-editor/esm/vs/basic-languages/markdown/markdown.contribution';
-import 'monaco-editor/esm/vs/basic-languages/xml/xml.contribution';
+loader.config({ monaco });
 
-import {IRange, Position, Range} from "monaco-editor/esm/vs/editor/editor.api";
-// (Optional) If you want YAML schema validation instead of just syntax:
-export {Range, Position};
+export { Range, Position };
 export type { IRange };

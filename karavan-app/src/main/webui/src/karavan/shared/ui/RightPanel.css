@@ -5,7 +5,7 @@
     flex-direction: column;
     justify-content: stretch;
     overflow: hidden;
-    background-color: var(--pf-t--color--gray--95);
+    background: var(--pf-t--color--gray--95);
 }
 .karavan .right-panel .right-panel-top {
     height: 64px; /* or whatever fixed height you want */
@@ -19,6 +19,10 @@
     flex-grow: 2;
     background: var(--pf-t--global--background--color--primary--default);
     border-top-left-radius: var(--pf-t--global--border--radius--300);
+}
+
+.pf-v6-theme-dark .karavan .right-panel .right-panel-wrapper {
+    background: var(--pf-t--color--gray--90);
 }
 
 .karavan .right-panel .right-panel-wrapper .right-panel-card {
