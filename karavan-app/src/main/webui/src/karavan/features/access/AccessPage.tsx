@@ -1,6 +1,22 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import React, {useEffect, useState} from 'react';
 import {Button, capitalize, Content, Nav, NavItem, NavList, TextInputGroup, TextInputGroupMain, TextInputGroupUtilities,} from '@patternfly/react-core';
-import {useAccessStore} from "../../stores/AccessStore";
+import {useAccessStore} from "@stores/AccessStore";
 import {shallow} from "zustand/shallow";
 import {AccessService} from "@services/AccessService";
 import PlusIcon from "@patternfly/react-icons/dist/esm/icons/plus-icon";
@@ -9,7 +25,7 @@ import {RightPanel} from "@shared/ui/RightPanel";
 import SearchIcon from "@patternfly/react-icons/dist/esm/icons/search-icon";
 import TimesIcon from "@patternfly/react-icons/dist/esm/icons/times-icon";
 import {UsersTable} from "@features/access/users/UsersTable";
-import {ErrorBoundaryWrapper} from "@features/integration/designer/ErrorBoundaryWrapper";
+import {ErrorBoundaryWrapper} from "@features/project/designer/ErrorBoundaryWrapper";
 import {RolesTable} from "@features/access/roles/RolesTable";
 import {UserModal} from "./users/UserModal";
 import {RoleModal} from "@features/access/roles/RoleModal";
@@ -33,14 +49,14 @@ export const AccessPage = () => {
 
     function searchInput() {
         return (
-            <TextInputGroup className="search">
+            <TextInputGroup className="search" style={{width:'300px'}}>
                 <TextInputGroupMain
                     value={filter}
                     placeholder='Search'
                     type="text"
                     autoComplete={"off"}
                     autoFocus={true}
-                    icon={<SearchIcon />}
+                    icon={<SearchIcon/>}
                     onChange={(_event, value) => {
                         setFilter(value);
                     }}
@@ -58,24 +74,24 @@ export const AccessPage = () => {
     }
 
     function tools() {
-        return (<div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
-                    <Button icon={<RefreshIcon/>}
-                            variant={"link"}
-                            onClick={e => AccessService.refreshAccess()}
-                    />
-                    {searchInput()}
-                    <Button className="dev-action-button"
-                            icon={<PlusIcon/>}
-                            onClick={e => {
-                                setCurrentUser(undefined)
-                                if (activeItem === "users") {
-                                    setShowUserModal(true)
-                                } else {
-                                    setShowRoleModal(true)
-                                }
-                            }}
-                    >Add</Button>
-            </div>);
+        return (<div className="project-files-toolbar" style={{justifyContent: "flex-end"}}>
+            <Button icon={<RefreshIcon/>}
+                    variant={"link"}
+                    onClick={e => AccessService.refreshAccess()}
+            />
+            {searchInput()}
+            <Button className="dev-action-button"
+                    icon={<PlusIcon/>}
+                    onClick={e => {
+                        setCurrentUser(undefined)
+                        if (activeItem === "users") {
+                            setShowUserModal(true)
+                        } else {
+                            setShowRoleModal(true)
+                        }
+                    }}
+            >Add</Button>
+        </div>);
     }
 
     function title() {
@@ -90,10 +106,10 @@ export const AccessPage = () => {
                 <NavList>
                     {(getCurrentUser()?.roles?.includes(PLATFORM_ADMIN) ? adminMenus : userMenus)
                         .filter(m => []).map((item, i) =>
-                        <NavItem key={item} preventDefault itemId={item} isActive={activeItem === item} to="#">
-                            {capitalize(item?.toString())}
-                        </NavItem>
-                    )}
+                            <NavItem key={item} preventDefault itemId={item} isActive={activeItem === item} to="#">
+                                {capitalize(item?.toString())}
+                            </NavItem>
+                        )}
                 </NavList>
             </Nav>
         )
@@ -103,16 +119,19 @@ export const AccessPage = () => {
         <RightPanel
             title={title()}
             toolsStart={getNavigation()}
-            tools={tools()}
+            tools={undefined}
             mainPanel={
                 <div className="right-panel-card">
                     <ErrorBoundaryWrapper key='info' onError={error => console.error(error)}>
-                        {activeItem === 'users' && <UsersTable/>}
-                        {activeItem === 'roles' && <RolesTable/>}
-                        {activeItem === 'profile' && <UserProfileTab/>}
-                        {showUserModal && <UserModal/>}
-                        {showRoleModal && <RoleModal/>}
-                        {showPasswordModal && <PasswordModal/>}
+                        <div style={{display: 'flex', flexDirection: 'column', height: '100%'}}>
+                            {activeItem !== 'profile' && tools()}
+                            {activeItem === 'users' && <UsersTable/>}
+                            {activeItem === 'roles' && <RolesTable/>}
+                            {activeItem === 'profile' && <UserProfileTab/>}
+                            {showUserModal && <UserModal/>}
+                            {showRoleModal && <RoleModal/>}
+                            {showPasswordModal && <PasswordModal/>}
+                        </div>
                     </ErrorBoundaryWrapper>
                 </div>
             }
