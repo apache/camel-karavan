@@ -21,18 +21,13 @@ import {SystemPage} from "@features/system/SystemPage";
 import {AccessPage} from "@features/access/AccessPage";
 import {DocumentationPage} from "@features/documentation/DocumentationPage";
 import {ROUTES} from "./Routes";
-import {AsyncPage} from "@features/landscape/AsyncPage";
 import {ProtectedRoute} from "@app/navigation/ProtectedRoute";
 import {ProjectFunctionHook} from "@app/navigation/ProjectFunctionHook";
 import {ProjectProvider} from "@features/project/ProjectContext";
 import {DeveloperManager} from "@features/project/developer/DeveloperManager";
 import ProjectPage from "@features/project/ProjectPage";
 import {ProjectsPage} from "@features/projects/ProjectsPage";
-import {SharedSchemasPage} from "@features/schemas/SharedSchemasPage";
-import {DashboardPage} from "@features/dashboard/DashboardPage";
-import {OpenApiPage} from "@features/apis/OpenApiPage";
 import {LoginPage} from "@app/login/LoginPage";
-import {useReadinessStore} from "@stores/ReadinessStore";
 import {SettingsPage} from "@features/settings/SettingsPage";
 
 export function MainRoutes() {
@@ -84,7 +79,7 @@ export function MainRoutes() {
             <Route path={ROUTES.ACL} element={<ProtectedRoute><AccessPage/></ProtectedRoute>}/>
             <Route path={ROUTES.FORBIDDEN} element={<NotAuthorizedPage/>}/>
             {/*{readiness?.environment === 'dev' && <Route path="*" element={<Navigate to={ROUTES.PROJECTS} replace/>}/>}*/}
-            <Route path="*" element={<Navigate to={ROUTES.DASHBOARD} replace/>}/>
+            <Route path="*" element={<Navigate to={ROUTES.PROJECTS} replace/>}/>
         </Routes>
     )
 }

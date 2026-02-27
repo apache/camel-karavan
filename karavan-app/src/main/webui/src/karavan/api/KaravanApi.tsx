@@ -34,7 +34,6 @@ import {Buffer} from 'buffer';
 import {EventBus} from "@features/project/designer/utils/EventBus";
 import {ErrorEventBus} from "@bus/ErrorEventBus";
 import {AuthApi, getCurrentUser} from "@api/auth/AuthApi";
-import {ProjectFolderCommit} from "@stores/CommitsStore";
 
 const instance = AuthApi.getInstance();
 
@@ -204,17 +203,6 @@ export class KaravanApi {
     }
     static async getCommitedFiles(projectId: string, after: (files: ProjectFileCommited[]) => void) {
         instance.get(`/ui/file/commited/${projectId}`)
-            .then(res => {
-                if (res.status === 200) {
-                    after(res.data);
-                }
-            }).catch(err => {
-            ErrorEventBus.sendApiError(err);
-        });
-    }
-
-    static async getProjectCommits(projectId: string, after: (commits: ProjectFolderCommit[]) => void) {
-        instance.get(`/ui/git/commits/${projectId}`)
             .then(res => {
                 if (res.status === 200) {
                     after(res.data);

@@ -1,20 +1,39 @@
-import {EventBus} from "@features/integration/designer/utils/EventBus";
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import {EventBus} from "@features/project/designer/utils/EventBus";
 import {ProjectFile} from "@models/ProjectModels";
-import {DslMetaModel} from "@features/integration/designer/utils/DslMetaModel";
+import {DslMetaModel} from "@features/project/designer/utils/DslMetaModel";
 import {v4 as uuidv4} from "uuid";
-import {CamelUi} from "@features/integration/designer/utils/CamelUi";
+import {CamelUi} from "@features/project/designer/utils/CamelUi";
 import {KaravanApi} from "@api/KaravanApi";
 import {Integration} from "@karavan-core/model/IntegrationDefinition";
-import {ASYNCAPI_FILE_NAME_JSON, FILE_WORDS_SEPARATOR, KARAVAN_DOT_EXTENSION, KARAVAN_FILENAME, OPENAPI_FILE_NAME_JSON} from "@karavan-core/contants";
-import {FromDefinition, RouteConfigurationDefinition} from "@karavan-core/model/CamelDefinition";
+import {FILE_WORDS_SEPARATOR, KARAVAN_DOT_EXTENSION, KARAVAN_FILENAME, OPENAPI_FILE_NAME_JSON} from "@karavan-core/contants";
+import {RouteConfigurationDefinition} from "@karavan-core/model/CamelDefinition";
 import {CamelDefinitionApiExt} from "@karavan-core/api/CamelDefinitionApiExt";
 import {CamelDefinitionYaml} from "@karavan-core/api/CamelDefinitionYaml";
 import {CamelDefinitionApi} from "@karavan-core/api/CamelDefinitionApi";
-import {useDesignerStore, useSelectorStore} from "@features/integration/designer/DesignerStore";
+import {useDesignerStore, useSelectorStore} from "@features/project/designer/DesignerStore";
 import {shallow} from "zustand/shallow";
 import {useAppConfigStore, useFilesStore, useFileStore, useProjectStore, useWizardStore} from "@stores/ProjectStore";
-import {toSpecialRouteId} from "@features/integration/designer/utils/ValidatorUtils";
+import {toSpecialRouteId} from "@features/project/designer/utils/ValidatorUtils";
 import {ProjectService} from "@services/ProjectService";
+import {useTemplatesStore} from "@stores/SettingsStore";
+import {useContainerStatusesStore} from "@stores/ContainerStatusesStore";
 
 export function ProjectFunctionHook() {
 
@@ -24,8 +43,10 @@ export function ProjectFunctionHook() {
     const [setFile] = useFileStore((s) => [s.setFile], shallow);
     const [setShowWizard] = useWizardStore((s) => [s.setShowWizard], shallow)
     const [setDesignerSwitch] = useDesignerStore((s) => [s.setDesignerSwitch], shallow)
-    const [project, tabIndex, setTabIndex, refreshTrace] =
-        useProjectStore((s) => [s.project, s.tabIndex, s.setTabIndex, s.refreshTrace], shallow);
+    const [project, tabIndex, setTabIndex, refreshTrace, fetchCamelStatuses] =
+        useProjectStore((s) => [s.project, s.tabIndex, s.setTabIndex, s.refreshTrace, s.fetchCamelStatuses], shallow);
+    const {fetchTemplateFiles} = useTemplatesStore();
+    const { fetchContainers } = useContainerStatusesStore();
 
     function createRouteConfiguration() {
         const integration = Integration.createNew(KARAVAN_FILENAME.ROUTE_CONFIGURATION);
@@ -60,11 +81,14 @@ export function ProjectFunctionHook() {
                 const integration = Integration.createNew(fName);
                 let i;
                 if (isRouteTemplate) {
-                    const route = CamelDefinitionApi.createRouteDefinition({
-                        from: new FromDefinition({uri: dsl.uri}),
-                        nodePrefixId: `route${FILE_WORDS_SEPARATOR}${fullUri}`
-                    });
-                    const routeTemplate = CamelDefinitionApi.createRouteTemplateDefinition({route: route});
+                    const keys = dsl.properties ? Object.keys(dsl.properties) : [];
+                    const key = keys.at(0);
+                    const routeId = dsl.properties?.[key] + "Route";
+                    const templateId = dsl.properties?.[key] + "RouteTemplate";
+                    const route = CamelUi.createRouteFromComponent(dsl.uri, dsl.properties, '');
+                    route.id = routeId
+                    route.nodePrefixId = routeId
+                    const routeTemplate = CamelDefinitionApi.createRouteTemplateDefinition({id: templateId, route: route});
                     i = CamelDefinitionApiExt.addRouteTemplateToIntegration(integration, routeTemplate);
                 } else {
                     i = CamelDefinitionApiExt.addStepToIntegration(integration, route, '');
@@ -168,19 +192,71 @@ export function ProjectFunctionHook() {
         })
     }
 
-    function isOpenApiExists(): boolean {
-        const openApiFile = files.filter(f => f.name === OPENAPI_FILE_NAME_JSON)?.at(0);
-        return openApiFile !== undefined
+    async function saveFiles(projectId: string, filesToSave: ProjectFile[], afterSuccess?: () => void) {
+
+        // 1. Fetch all existing files for the project once
+        KaravanApi.getFiles(projectId, async (existingFiles: ProjectFile[]) => {
+            const existingNames = new Set(existingFiles.map(f => f.name));
+
+            // 2. Map each file to a Promise (Update if exists, Create if not)
+            const savePromises = filesToSave.map(file => {
+                return new Promise<boolean>((resolve) => {
+                    const alreadyExists = existingNames.has(file.name);
+
+                    if (alreadyExists) {
+                        KaravanApi.putProjectFile(file, (result) => resolve(!!result));
+                    } else {
+                        KaravanApi.saveProjectFile(file, (result) => resolve(!!result));
+                    }
+                });
+            });
+
+            try {
+                // 3. Wait for all individual save/put operations to finish
+                const results = await Promise.all(savePromises);
+                const allSuccessful = results.every(res => res === true);
+
+                // 4. Final actions after all operations complete
+                if (allSuccessful) {
+                    afterSuccess?.();
+                    EventBus.sendAlert("Success", `All ${filesToSave.length} files processed`, "success");
+                } else {
+                    const failCount = results.filter(r => !r).length;
+                    EventBus.sendAlert("Warning", `${failCount} files failed to save`, "danger");
+                }
+            } catch (error) {
+                EventBus.sendAlert("Error", "A critical error occurred during the batch save", "danger");
+            }
+        });
     }
 
-    function isAsyncApiExists(): boolean {
-        const asyncApiFile = files.filter(f => f.name === ASYNCAPI_FILE_NAME_JSON)?.at(0);
-        return asyncApiFile !== undefined
+    function saveFile(file: ProjectFile, afterSuccess?: () => void) {
+        KaravanApi.getProjectFilesByName(file.projectId, file.name, found => {
+            if (found) {
+                KaravanApi.putProjectFile(file, (result) => {
+                    if (result) {
+                        afterSuccess?.();
+                        EventBus.sendAlert("Success", `File ${file.name} successfully updated`, "success");
+                    } else {
+                        EventBus.sendAlert("Error updating file", file.name, "danger");
+                    }
+                })
+            } else {
+                KaravanApi.saveProjectFile(file, (result, fileRes) => {
+                    if (result) {
+                        afterSuccess?.();
+                        EventBus.sendAlert("Success", `File ${file.name} successfully created`, "success");
+                    } else {
+                        EventBus.sendAlert("Error creating file", fileRes?.response?.data, "danger");
+                    }
+                })
+            }
+        })
     }
 
     function refreshData() {
-        ProjectService.refreshAllContainerStatuses();
-        ProjectService.refreshCamelStatus(project.projectId, config.environment);
+        fetchCamelStatuses(project.projectId, config.environment);
+        fetchContainers();
         if (tabIndex === "build") {
             ProjectService.refreshAllDeploymentStatuses();
             ProjectService.refreshImages(project.projectId);
@@ -191,9 +267,9 @@ export function ProjectFunctionHook() {
     }
 
     function refreshSharedData() {
-
+        fetchTemplateFiles();
     }
 
     return {createNewRouteFile, createOpenApiRestFile, createNewBean, createNewKamelet, createRouteConfiguration, refreshSharedData,
-        createAsyncApi, isOpenApiExists, createNewRestFile, refreshData, isAsyncApiExists, createOpenApi, project}
+         project, createNewRestFile, refreshData, createAsyncApi, createOpenApi}
 }
