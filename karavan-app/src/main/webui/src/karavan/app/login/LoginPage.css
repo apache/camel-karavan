@@ -330,28 +330,4 @@
         width: 32px;
         height: 32px;
     }
-    .openapi-logo {
-        height: 36px;
-    }
-    .asyncapi-logo {
-        height: 32px;
-    }
-    .json-schema-logo {
-        height: 28px;
-    }
-    .groovy-logo {
-        height: 32px;
-    }
-    .jib-logo {
-        height: 32px;
-    }
-    .infinispan-logo {
-        height: 30px;
-    }
-    .jkube-logo {
-        height: 32px;
-    }
-    .patternfly-logo {
-        height: 28px;
-    }
 }
