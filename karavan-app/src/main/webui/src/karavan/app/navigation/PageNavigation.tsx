@@ -108,9 +108,9 @@ function PageNavigation() {
         <div className="nav-buttons pf-v6-theme-dark">
             <div className='nav-button-part-wrapper'>
                 <img src={PlatformLogoBase64()} className="logo" alt='logo'/>
-            </div>
-            <div style={{alignSelf: 'center'}} className='environment-wrapper'>
-                <Badge isRead className='environment'>{config.environment}</Badge>
+                <div style={{alignSelf: 'center'}} className='environment-wrapper'>
+                    <Badge isRead className='environment'>{config.environment}</Badge>
+                </div>
             </div>
             {getMenu(firstMenu)}
             <div style={{flex: 2}}/>

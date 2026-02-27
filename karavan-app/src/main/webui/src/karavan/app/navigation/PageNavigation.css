@@ -37,7 +37,7 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    margin-bottom: 16px;
+    margin-bottom: 8px;
     gap: 3px;
     color: var(--pf-t--color--blue--10);
     /*margin-top: 6px;*/
@@ -73,10 +73,11 @@
 }
 
 .karavan .nav-buttons .logo {
-    margin-top: 16px;
-    margin-bottom: 16px;
-    width: 32px;
-    height: 32px;
+    margin-top: 6px;
+    padding-left: 3px;
+    /*margin-bottom: 6px;*/
+    width: 64px;
+    height: 64px;
 }
 
 .karavan .nav-buttons .pf-v6-c-button svg {

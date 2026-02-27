@@ -22,7 +22,7 @@ export function PlatformLogoBase64() {
 }
 
 export function PlatformLogo(classNames?: string) {
-    return KaravanIcon()
+    return KaravanIcon(classNames)
 }
 
 export default PlatformLogo;
