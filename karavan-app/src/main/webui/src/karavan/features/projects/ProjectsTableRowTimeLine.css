@@ -1,0 +1,43 @@
+.projects-table-row {
+    vertical-align: middle;
+}
+
+.projects-table-header-progress-stepper {
+    .pf-v6-c-progress-stepper__step-main {
+        margin: 0;
+    }
+    .pf-v6-c-progress-stepper__step-connector {
+        visibility: hidden;
+        height: 0;
+    }
+    .pf-v6-c-progress-stepper__step-title {
+        font-size: var(--pf-v6-c-table--cell--FontSize);
+        font-weight: var(--pf-v6-c-table--cell--FontWeight);
+        line-height: var(--pf-v6-c-table--cell--LineHeight);
+        color: var(--pf-v6-c-table--cell--Color);
+        text-overflow: var(--pf-v6-c-table--cell--TextOverflow);
+    }
+}
+
+.projects-table-progress-stepper-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    .commit-label {
+        .pf-v6-c-label__text {
+            font-size: var(--pf-t--global--font--size--xs);
+        }
+    }
+}
+
+.projects-table-progress-stepper {
+    min-width: 200px;
+    .pf-v6-c-progress-stepper__step-main {
+        margin: 0;
+    }
+    .pf-v6-c-progress-stepper__step-title {
+        font-size: var(--pf-t--global--font--size--xs);
+        font-weight: var(--pf-v6-c-progress-stepper__step-title--FontWeight);
+        color: var(--pf-v6-c-progress-stepper__step-title--Color);
+    }
+}

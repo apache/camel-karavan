@@ -1,0 +1,42 @@
+.karavan .complexity .top-icon {
+    width: 1em;
+    height: 1em;
+    vertical-align: middle;
+}
+.karavan .complexity svg {
+    vertical-align: middle;
+}
+
+.karavan .complexity .complexity-label {
+    .pf-v6-c-label__icon {
+        margin-right: 2px;
+    }
+}
+
+.karavan .files-table {
+    .icon {
+        height: 16px;
+        width: 16px;
+    }
+
+    .icon-docker {
+        fill: #0db7ed;
+    }
+}
+
+.validation-icon {
+    height: 16px;
+    width: 16px;
+}
+.validation-icon-danger {
+    color: var(--pf-t--global--icon--color--status--danger--default);
+    fill: var(--pf-t--global--icon--color--status--danger--default);
+}
+.validation-icon-pending {
+    fill: var(--pf-t--global--color--brand--default);
+    color: var(--pf-t--global--color--brand--default);
+}
+
+.rotated-run-forward {
+    animation: rotate-icon-forward 3s linear infinite
+}
