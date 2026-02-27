@@ -33,8 +33,9 @@ import {extractTitleFromMarkdown} from "@util/StringUtils";
 import MarkdownPreview from "@uiw/react-markdown-preview";
 import {ErrorBoundaryWrapper} from "@shared/ui/ErrorBoundaryWrapper";
 import {useTheme} from "@app/theme/ThemeContext";
+import {SourcesTab} from "@features/project/files/SourcesTab";
 
-const BUILD_IN_DOCUMENTATION_PAGES = ['processors', 'components', 'kamelets']
+const BUILD_IN_DOCUMENTATION_PAGES = ['processors', 'components', 'kamelets', 'source']
 
 export const DocumentationPage = () => {
 
@@ -95,8 +96,8 @@ export const DocumentationPage = () => {
     }
     function getNavigation() {
         const lengths: any = {
-            'processors': components.length,
-            'components': elements.length,
+            'processors': elements.length,
+            'components': components.length,
             'kamelets': kameletList.length,
         }
         return (
@@ -149,13 +150,14 @@ export const DocumentationPage = () => {
         <RightPanel
             title={title()}
             toolsStart={getNavigation()}
-            tools={activeItemIsBuildIn() ? getTools() : <></>}
+            tools={activeItemIsBuildIn() ? getTools() : undefined}
             mainPanel={
                 <div className="right-panel-card">
                     <div className="documentation-section">
                         {activeItem === 'kamelets' && <KameletsTab kameletList={kameletList}/>}
                         {activeItem === 'processors' && <EipTab elements={elements}/>}
                         {activeItem === 'components' && <ComponentsTab components={components}/>}
+                        {activeItem === 'source' && <SourcesTab />}
                         {!activeItemIsBuildIn() &&
                             <ErrorBoundaryWrapper onError={error => console.error((error))}>
                                 <MarkdownPreview key={"DocumentationMarkdownPreview"} source={markdown} wrapperElement={{'data-color-mode': isDark ? 'dark' : 'light'}}/>
