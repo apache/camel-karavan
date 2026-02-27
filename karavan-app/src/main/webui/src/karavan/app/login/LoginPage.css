@@ -18,6 +18,9 @@
     align-items: center;
     background: var(--pf-t--color--gray--95);
     gap: 48px;
+    h1 {
+        color: var(--pf-t--color--blue--30);
+    }
 }
 
 .brand-content {
@@ -81,8 +84,7 @@
         .tagline2 {
             font-weight: 400;
             line-height: 1.5;
-            color: #b9dafc; /* Tblue-200 for subtitle */
-            font-size: 20px;
+            font-size: 22px;
             letter-spacing: 0.5px;
             margin-top: 16px;
             text-align: center;

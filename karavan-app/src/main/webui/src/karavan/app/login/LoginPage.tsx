@@ -6,7 +6,6 @@ import {
     CardBody,
     CardFooter,
     CardHeader,
-    Checkbox,
     Content,
     Form,
     FormAlert,
@@ -21,10 +20,8 @@ import EyeIcon from '@patternfly/react-icons/dist/esm/icons/eye-icon';
 import EyeSlashIcon from '@patternfly/react-icons/dist/esm/icons/eye-slash-icon';
 import {AuthContext} from "@api/auth/AuthProvider";
 import {AuthApi} from "@api/auth/AuthApi";
-import {CamelIcon, KaravanIcon, OpenApiIcon} from "@features/project/designer/icons/KaravanIcons";
-import {SvgIcon} from "@shared/icons/SvgIcon";
-import jibLogo from '@shared/icons/jib.png';
-import {PlatformNameForToolbar, PlatformVersion} from "@shared/ui/PlatformLogos";
+import {CamelIcon} from "@features/project/designer/icons/KaravanIcons";
+import {PlatformVersion} from "@shared/ui/PlatformLogos";
 import PlatformLogo from "@app/navigation/PlatformLogo";
 import OrbitLines from "@app/login/OrbitLines";
 import {useReadinessStore} from "@stores/ReadinessStore";
@@ -38,8 +35,6 @@ export const LoginPage: React.FunctionComponent = () => {
     const [error, setError] = React.useState('');
     const {reload} = useContext(AuthContext);
     const { readiness } = useReadinessStore();
-
-    const [titleSvg, setTitleSvg] = React.useState<string>();
 
     useEffect(() => {
     }, []);
@@ -72,49 +67,26 @@ export const LoginPage: React.FunctionComponent = () => {
         }
     }
 
+    function getCamel() {
+        return (
+            <div className="powered-by-logo counter-rotator">
+                <a href="https://camel.apache.org/" target="_blank">{CamelIcon()}</a>
+            </div>
+        )
+    }
 
     function getLogos() {
         return [
-            <div className="powered-by-logo counter-rotator">
-                <a href="https://github.com/apache/camel-karavan" target="_blank">{KaravanIcon("logo")}</a>
-            </div>,
-            <div className="powered-by-logo counter-rotator">
-                <a href="https://www.openapis.org/" target="_blank"><OpenApiIcon className={"logo"}/></a>
-            </div>,
-            <div className="powered-by-logo counter-rotator">
-                <a href="https://www.asyncapi.com/" target="_blank">{SvgIcon({icon: 'asyncapi', className: 'asyncapi-logo'})}</a>
-            </div>,
-            <div className="powered-by-logo counter-rotator">
-                <a href="https://json-schema.org/" target="_blank">
-                    {SvgIcon({icon: 'json-schema-dark', className: 'json-schema-logo'})}
-                </a>
-            </div>,
-            // <div className="powered-by-logo counter-rotator">
-            //     <a href="https://groovy-lang.org/" target="_blank">{SvgIcon({icon: 'groovy', className: 'groovy-logo'})}</a>
-            // </div>,
-            <div className="powered-by-logo counter-rotator">
-                <a href="https://github.com/GoogleContainerTools/jib" target="_blank">
-                    <img src={jibLogo} alt="Logo" className="jib-logo"/>
-                </a>
-            </div>,
-            <div className="powered-by-logo counter-rotator">
-                <a href="https://camel.apache.org/" target="_blank">{CamelIcon()}</a>
-            </div>,
-            <div className="powered-by-logo counter-rotator">
-                <a href="https://www.patternfly.org/" target={'_blank'}>
-                    {SvgIcon({icon: 'patternfly', className: 'patternfly-logo'})}
-                </a>
-            </div>,
-            <div className="powered-by-logo counter-rotator">
-                <a href="https://eclipse.dev/jkube/" target="_blank">
-                    {SvgIcon({icon: 'jkube', className: 'jkube-logo'})}
-                </a>
-            </div>,
-            <div className="powered-by-logo counter-rotator">
-                <a href="https://www.keycloak.org/" target="_blank">
-                    {SvgIcon({icon: 'keycloak', className: 'patternfly-logo'})}
-                </a>
-            </div>
+            getCamel(),
+            getCamel(),
+            getCamel(),
+            getCamel(),
+            getCamel(),
+            getCamel(),
+            getCamel(),
+            getCamel(),
+            getCamel(),
+            getCamel()
         ];
     }
 
@@ -198,16 +170,12 @@ export const LoginPage: React.FunctionComponent = () => {
             <div className="karavan-brand-panel">
                 <div className="brand-content">
                     <div className="brand-name">
-                        <div className="brand-logo-container">
-                            {PlatformLogo("logo")}
-                            <span className="platform-name-text">{PlatformNameForToolbar()}</span>
-                        </div>
                         <div>
-                            <div className="tagline1 gradient-text-blue">Accelerate</div>
-                            <div className="tagline1 gradient-text-blue-gold">Integration</div>
-                            <div className="tagline1 gradient-text-gold">Development</div>
+                            <div className="tagline1 gradient-text-blue">Apache</div>
+                            <div className="tagline1 gradient-text-blue">Camel</div>
+                            <div className="tagline1 gradient-text-blue">Karavan</div>
                         </div>
-                        <Content component='p' className="tagline2">Unified Design and Runtime for <br/> APIs • Events • Data Pipelines</Content>
+                        <Content component='p' className="tagline2 gradient-text-blue-gold">Low-Code Data Integration Platform</Content>
                     </div>
                 </div>
                 <div className="solar-content">
@@ -222,7 +190,6 @@ export const LoginPage: React.FunctionComponent = () => {
                             {LOGOS.map((logo, index) => {
                                 const total = LOGOS.length;
                                 const angle = (360 / total) * index;
-                                // Increased radius slightly to make room for the center logo
                                 const radius = 150;
                                 const style = {'--angle': `${angle}deg`, '--radius': `${radius}px`,} as React.CSSProperties;
                                 return (
@@ -232,8 +199,6 @@ export const LoginPage: React.FunctionComponent = () => {
                                 );
                             })}
                         </div>
-                        <div className="anchor-line"></div>
-                        <p className="brand-footer">Powered by</p>
                     </div>
                 </div>
             </div>
