@@ -1,0 +1,39 @@
+.karavan .data-editor {
+    height: 100%;
+}
+
+.karavan .data-editor:before {
+    border: solid;
+    border-bottom-color: var(--pf-t--global--border--color--default);
+    bottom: 0;
+    content: "";
+    left: 0;
+    position: absolute;
+    right: 0;
+}
+
+.karavan .data-editor  .main-tabs .top-menu-item {
+    display: flex;
+    flex-direction: row;
+}
+
+.karavan .data-editor  .main-tabs .top-menu-item .count {
+    color: white;
+    height: fit-content;
+    margin-top: auto;
+    margin-bottom: auto;
+    min-width: 0;
+}
+
+.karavan .data-editor  .main-tabs .pf-v6-c-tabs__link .pf-v6-c-tabs__item-icon {
+    height: 24px;
+    margin-right: 0;
+}
+
+.karavan .data-editor .main-tabs .pf-v6-c-tabs__item-text {
+    font-weight: bold;
+    margin-top: auto;
+    margin-bottom: auto;
+    margin-right: 6px;
+}
+
