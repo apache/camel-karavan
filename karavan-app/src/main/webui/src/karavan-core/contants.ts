@@ -21,6 +21,6 @@ export const KARAVAN_DOT_EXTENSION = {
 export const FILE_WORDS_SEPARATOR = '-'
 export const OPENAPI_FILE_NAME_JSON = 'openapi.json';
 export const OPENAPI_FILE_NAME_YAML = 'openapi.yaml';
-export const ASYNCAPI_FILE_NAME_JSON = 'asyncapi.json';
-export const ASYNCAPI_FILE_NAME_YAML = 'asyncapi.yaml';
 export const JSON_SCHEMA_EXTENSION = ".schema.json";
+
+export const WIZARD_BEAN_TEMPLATE_FILENAME_PREFIX = "wizard-bean-";

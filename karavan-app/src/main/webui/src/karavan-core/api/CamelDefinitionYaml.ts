@@ -15,14 +15,10 @@
  * limitations under the License.
  */
 import * as yaml from 'js-yaml';
-import { Beans, CamelElement, Integration } from '../model/IntegrationDefinition';
-import {
-    BeanFactoryDefinition,
-    RouteConfigurationDefinition,
-    RouteDefinition,
-} from '../model/CamelDefinition';
-import { CamelUtil } from './CamelUtil';
-import { CamelDefinitionYamlStep } from './CamelDefinitionYamlStep';
+import {Beans, CamelElement, Integration} from '../model/IntegrationDefinition';
+import {BeanFactoryDefinition, RouteConfigurationDefinition, RouteDefinition,} from '../model/CamelDefinition';
+import {CamelUtil} from './CamelUtil';
+import {CamelDefinitionYamlStep} from './CamelDefinitionYamlStep';
 
 export class CamelDefinitionYaml {
     private constructor() {
