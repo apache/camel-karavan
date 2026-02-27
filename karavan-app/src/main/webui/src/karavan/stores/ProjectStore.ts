@@ -140,8 +140,8 @@ export const useProjectsStore = createWithEqualityFn<ProjectsState>((set, get) =
 }), shallow)
 
 
-export const ProjectMenus = ['topology', 'source','readme', 'build', 'containers'] as const;
-export const ProjectRuntimeMenus = ['pod', 'JVM', 'camel', 'log', 'tryout'] as const;
+export const ProjectMenus = ['topology', 'source', 'readme', 'build', 'containers'] as const;
+export const ProjectRuntimeMenus = ['pod', 'log'] as const;
 export type ProjectMenu = typeof ProjectMenus[number];
 export type ProjectRuntimeMenu = typeof ProjectRuntimeMenus[number];
 
@@ -241,8 +241,6 @@ interface FilesState {
     setSelectedFileNames: (selectedFileNames: string[]) => void;
     selectFile: (filename: string) => void;
     unselectFile: (filename: string) => void;
-    selector: 'files' | 'commits';
-    setSelector: (selector: 'files' | 'commits') => void;
     showSideBar: FilesSideBarType;
     setShowSideBar: (showSideBar: FilesSideBarType) => void;
     title: string;
@@ -254,7 +252,6 @@ export const useFilesStore = createWithEqualityFn<FilesState>((set, get) => ({
     commitedFiles: [],
     diff: {},
     selectedFileNames: [],
-    selector: 'files',
     showSideBar: null,
     setShowSideBar: (showSideBar: FilesSideBarType) => {
         set({showSideBar: showSideBar});
@@ -312,9 +309,6 @@ export const useFilesStore = createWithEqualityFn<FilesState>((set, get) => ({
             const names = [...state.selectedFileNames.filter(f => f !== filename)];
             return ({selectedFileNames: names})
         });
-    },
-    setSelector: (selector: 'files' | 'commits') => {
-        set({selector: selector});
     }
 }), shallow)
 

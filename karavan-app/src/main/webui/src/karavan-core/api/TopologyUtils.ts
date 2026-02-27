@@ -45,8 +45,7 @@ import {ComponentApi, INTERNAL_COMPONENTS} from './ComponentApi';
 import {CamelDefinitionApiExt} from './CamelDefinitionApiExt';
 import {CamelDisplayUtil} from './CamelDisplayUtil';
 import {CamelUtil} from './CamelUtil';
-import {LANDSCAPE_FILE_NAME_JSON, OPENAPI_FILE_NAME_JSON} from '../contants';
-import {X_APPLICATION_ID} from "@models/CatalogModels";
+import {LANDSCAPE_FILE_NAME_JSON, OPENAPI_FILE_NAME_JSON, X_APPLICATION_ID} from '../contants';
 
 const outgoingDefinitions: string[] = ['ToDefinition', 'KameletDefinition', 'ToDynamicDefinition', 'PollEnrichDefinition', 'EnrichDefinition', 'WireTapDefinition', 'SagaDefinition', 'PollDefinition'];
 

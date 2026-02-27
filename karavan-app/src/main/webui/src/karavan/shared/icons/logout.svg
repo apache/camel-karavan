@@ -5,30 +5,8 @@
    height="32"
    viewBox="0 0 32 32"
    version="1.1"
-   sodipodi:docname="logout.svg"
-   inkscape:version="1.4.3 (0d15f75, 2025-12-25)"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns="http://www.w3.org/2000/svg"
    xmlns:svg="http://www.w3.org/2000/svg">
-  <sodipodi:namedview
-     id="namedview1"
-     pagecolor="#ffffff"
-     bordercolor="#000000"
-     borderopacity="0.25"
-     inkscape:showpageshadow="2"
-     inkscape:pageopacity="0.0"
-     inkscape:pagecheckerboard="0"
-     inkscape:deskcolor="#d1d1d1"
-     inkscape:zoom="9.1923881"
-     inkscape:cx="39.21723"
-     inkscape:cy="20.070954"
-     inkscape:window-width="2560"
-     inkscape:window-height="1382"
-     inkscape:window-x="0"
-     inkscape:window-y="30"
-     inkscape:window-maximized="0"
-     inkscape:current-layer="icon" />
   <defs
      id="defs1">
     <style
@@ -46,7 +24,6 @@
      style="fill:#f69923;fill-opacity:1" />
   <rect
      id="_Transparent_Rectangle_"
-     data-name="&lt;Transparent Rectangle&gt;"
      class="cls-1"
      width="32"
      height="32" />

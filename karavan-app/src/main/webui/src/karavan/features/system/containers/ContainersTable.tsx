@@ -17,21 +17,22 @@
 
 import React, {useEffect, useState} from 'react';
 import {Bullseye, EmptyState, EmptyStateVariant, Spinner,} from '@patternfly/react-core';
-import '@features/integration/designer/karavan.css';
+import '@features/project/designer/karavan.css';
 import './ContainerPage.css';
 import {ContainerStatus} from "@models/ProjectModels";
 import {InnerScrollContainer, OuterScrollContainer, Table, TableVariant, Tbody, Td, Th, Thead, Tr} from '@patternfly/react-table';
 import SearchIcon from "@patternfly/react-icons/dist/esm/icons/search-icon";
-import {useAppConfigStore, useStatusesStore} from "@stores/ProjectStore";
+import {useAppConfigStore} from "@stores/ProjectStore";
 import {shallow} from "zustand/shallow";
 import {ContainerTableRow} from "./ContainerTableRow";
 import {ProjectService} from "@services/ProjectService";
 import {useSystemStore} from "@stores/SystemStore";
+import {useContainerStatusesStore} from "@stores/ContainerStatusesStore";
 
 export function ContainersTable() {
 
     const [config] = useAppConfigStore((state) => [state.config], shallow);
-    const [containers] = useStatusesStore((state) => [state.containers], shallow);
+    const {containers} = useContainerStatusesStore();
     const [filter, setFilter] = useSystemStore((s) => [s.filter, s.setFilter], shallow);
     const [loading] = useState<boolean>(true);
     const isKubernetes = config.infrastructure === 'kubernetes'
@@ -78,7 +79,7 @@ export function ContainersTable() {
                                 <Th key='service' modifier="fitContent">Service</Th>
                             }
                             <Th key='container'>Container</Th>
-                            <Th modifier="fitContent" textCenter={true} key='image'>Image</Th>
+                            <Th textCenter={true} key='image'>Image</Th>
                             <Th modifier="fitContent" textCenter={true} key='ports'>Ports</Th>
                             <Th modifier="fitContent" textCenter={true} key='cpuInfo'>CPU</Th>
                             <Th modifier="fitContent" textCenter={true} key='memoryInfo'>Memory</Th>

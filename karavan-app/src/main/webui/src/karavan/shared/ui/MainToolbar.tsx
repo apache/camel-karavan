@@ -17,8 +17,6 @@
 
 import React from 'react';
 import '@shared/ui/MainToolbar.css';
-import {useAppConfigStore} from "@stores/ProjectStore";
-import {shallow} from "zustand/shallow";
 import {PlatformVersionWithName} from "@shared/ui/PlatformLogos";
 
 interface Props {
@@ -30,8 +28,6 @@ interface Props {
 export function MainToolbar(props: Props) {
 
     const { title, toolsStart, tools } = props;
-    const [config] = useAppConfigStore((s) => [s.config], shallow)
-    const titleSvg = config?.advanced.titleSvg ? config?.advanced.titleSvg : undefined;
 
     return (
         <div className="main-toolbar dark-toolbar">
@@ -41,7 +37,7 @@ export function MainToolbar(props: Props) {
                     {toolsStart}
                 </div>
             }
-            {tools || PlatformVersionWithName(titleSvg)}
+            {tools || PlatformVersionWithName()}
         </div>
     )
 }

@@ -17,7 +17,7 @@
 
 import React, {useState} from 'react';
 import {Badge, Button, CodeBlock, CodeBlockCode, Content, Flex, FlexItem, Label, Modal, ModalBody, ModalFooter, ModalHeader, Spinner, Tooltip} from '@patternfly/react-core';
-import '@features/integration/designer/karavan.css';
+import '@features/project/designer/karavan.css';
 import {Tbody, Td, Tr} from "@patternfly/react-table";
 import {PauseIcon, PlayIcon, StopIcon, TimesIcon} from '@patternfly/react-icons';
 import {ContainerStatus} from "@models/ProjectModels";
@@ -113,10 +113,8 @@ export function ContainerTableRow(props: Props) {
                 <Td>
                     <ContainerButton container={container}/>
                 </Td>
-                <Td>
-                    <div style={{textWrap: "nowrap"}}>
-                        {container.image}
-                    </div>
+                <Td modifier={'breakWord'}>
+                    {container.image}
                 </Td>
                 <Td>
                     <div style={{display: "flex", flexDirection: "column"}}>

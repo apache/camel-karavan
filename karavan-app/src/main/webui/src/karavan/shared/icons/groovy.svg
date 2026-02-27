@@ -7,35 +7,9 @@
    viewBox="0 0 28 13.844476"
    version="1.1"
    id="svg5"
-   sodipodi:docname="groovy.svg"
-   inkscape:version="1.4.2 (ebf0e940, 2025-05-08)"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns="http://www.w3.org/2000/svg"
-   xmlns:svg="http://www.w3.org/2000/svg"
-   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-   xmlns:cc="http://creativecommons.org/ns#"
-   xmlns:dc="http://purl.org/dc/elements/1.1/">
+   xmlns="http://www.w3.org/2000/svg">
   <defs
      id="defs5" />
-  <sodipodi:namedview
-     id="namedview5"
-     pagecolor="#ffffff"
-     bordercolor="#000000"
-     borderopacity="0.25"
-     inkscape:showpageshadow="2"
-     inkscape:pageopacity="0.0"
-     inkscape:pagecheckerboard="0"
-     inkscape:deskcolor="#d1d1d1"
-     inkscape:zoom="0.52"
-     inkscape:cx="657.69231"
-     inkscape:cy="451.92308"
-     inkscape:window-width="1656"
-     inkscape:window-height="1051"
-     inkscape:window-x="2632"
-     inkscape:window-y="1478"
-     inkscape:window-maximized="1"
-     inkscape:current-layer="svg5" />
   <title
      id="title1">file_type_groovy</title>
   <path
@@ -60,11 +34,5 @@
      id="path5" />
   <metadata
      id="metadata5">
-    <rdf:RDF>
-      <cc:Work
-         rdf:about="">
-        <dc:title>file_type_groovy</dc:title>
-      </cc:Work>
-    </rdf:RDF>
   </metadata>
 </svg>
