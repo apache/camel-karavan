@@ -14,17 +14,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as React from "react";
-import {createRoot} from "react-dom/client";
-import App from "./App";
-import "./index.css";
-import "@patternfly/patternfly/patternfly.css";
-import { ThemeProvider } from "@app/theme/ThemeContext";
 
-const container = document.getElementById('root');
-const root = createRoot(container!);
-root.render(
-    <ThemeProvider>
-        <App/>
-    </ThemeProvider>
-);
+.pf-v6-c-modal-box .text-field-with-prefix {
+    gap: 0;
+}
+
+.pf-v6-c-modal-box .text-field-with-prefix .text-field-prefix {
+    margin-top: auto;
+    margin-bottom: auto;
+}
+
+.pf-v6-c-modal-box .text-field-with-prefix .pf-v6-c-text-input-group__text-input {
+    padding-left: 0;
+}
+
+.pf-v6-c-modal-box .text-field-with-suffix .text-field-suffix {
+    margin-top: auto;
+    margin-bottom: auto;
+    padding-left: 3px;
+    padding-right: 3px;
+}
+
+.form-util-text-field {
+    width: 100%;
+}
+.form-util-text-field-suffix,
+.form-util-text-field-suffix input {
+    width: 150px
+}

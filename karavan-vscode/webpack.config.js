@@ -7,6 +7,7 @@ const path = require("path");
 const webpack = require("webpack");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const CopyPlugin = require("copy-webpack-plugin");
+const TsconfigPathsPlugin = require("tsconfig-paths-webpack-plugin");
 
 const imageInlineSizeLimit = parseInt(
     process.env.IMAGE_INLINE_SIZE_LIMIT || "10000"
@@ -23,20 +24,13 @@ const baseConfig = (webpackEnv) => {
             ? "source-map"
             : isEnvDevelopment && "eval-cheap-module-source-map",
         resolve: {
+            plugins: [new TsconfigPathsPlugin({ configFile: "./tsconfig.json" })],
             fallback: {
                 buffer: require.resolve("buffer"),
                 path: require.resolve("path-browserify"),
                 url: require.resolve("url"),
                 process: require.resolve('process/browser'),
             },
-            alias: {
-                // ADDED: Fixes resolution for imports starting with '@/'.
-                // e.g., '@/core/contants' resolves to 'webview/core/contants'
-                "@": path.resolve(__dirname, 'webview'), 
-                
-                // Existing 'core' alias, adjusted for consistency with tsconfig
-                'core': path.resolve(__dirname, 'webview/core'), 
-              },
             extensions: ['.ts', ".tsx", ".js"], // Removed empty string, added .ts
         },
         module: {

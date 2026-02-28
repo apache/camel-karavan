@@ -14,17 +14,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as React from "react";
-import {createRoot} from "react-dom/client";
-import App from "./App";
-import "./index.css";
-import "@patternfly/patternfly/patternfly.css";
-import { ThemeProvider } from "@app/theme/ThemeContext";
 
-const container = document.getElementById('root');
-const root = createRoot(container!);
-root.render(
-    <ThemeProvider>
-        <App/>
-    </ThemeProvider>
-);
+export class SearchResult {
+    projectId: string = '';
+    files: string[] = [];
+}

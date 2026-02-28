@@ -17,10 +17,10 @@
 import { Uri, window, commands, WebviewPanel, ExtensionContext, ViewColumn, WebviewPanelOnDidChangeViewStateEvent } from "vscode";
 import * as path from "path";
 import * as utils from "./utils";
-import { CamelDefinitionYaml } from "@/core/api/CamelDefinitionYaml";
-import { Integration, KameletTypes, Metadata, MetadataLabels } from "@/core/model/IntegrationDefinition";
+import { CamelDefinitionYaml } from "@karavan-core/api/CamelDefinitionYaml";
+import { Integration, KameletTypes, Metadata, MetadataLabels } from "@karavan-core/model/IntegrationDefinition";
 import { getWebviewContent } from "./webviewContent";
-import { BeanFactoryDefinition } from "@/core/model/CamelDefinition";
+import { BeanFactoryDefinition } from "@karavan-core/model/CamelDefinition";
 
 const KARAVAN_LOADED = "karavan:loaded";
 const KARAVAN_PANELS: Map<string, WebviewPanel> = new Map<string, WebviewPanel>();

@@ -21,15 +21,15 @@ import {
   Page, PageSection, Spinner
 } from "@patternfly/react-core";
 import vscode from "./vscode";
-import { KameletApi } from "@/core/api/KameletApi";
-import { ComponentApi } from "@/core/api/ComponentApi";
-import { TemplateApi } from "./core/api/TemplateApi";
-import { BeanFactoryDefinition } from "@/core/model/CamelDefinition";
-import { IntegrationFile } from "@/core/model/IntegrationDefinition";
-import { KaravanDesigner } from "./integration-designer/KaravanDesigner";
-import { EventBus } from "./integration-designer/utils/EventBus";
-import { TopologyTab } from "./integration-topology/TopologyTab";
-import { DocumentationPage } from "./documentation/DocumentationPage";
+import { KameletApi } from "@karavan-core/api/KameletApi";
+import { ComponentApi } from "@karavan-core/api/ComponentApi";
+import { TemplateApi } from "@karavan-core/api/TemplateApi";
+import { BeanFactoryDefinition } from "@karavan-core/model/CamelDefinition";
+import { IntegrationFile } from "@karavan-core/model/IntegrationDefinition";
+import { TopologyTab } from "@features/project/project-topology/TopologyTab";
+import { DocumentationPage } from "@features/documentation/DocumentationPage";
+import { KaravanDesigner } from "@features/project/designer/KaravanDesigner";
+import { EventBus } from "@features/project/designer/utils/EventBus";
 
 interface Props {
 }
@@ -262,10 +262,8 @@ class App extends React.Component<Props, State> {
           <DocumentationPage />
         }
         {loaded && page === "topology" &&
-          <TopologyTab openApiJson={undefined}
+          <TopologyTab 
             asyncApiJson={undefined}
-            hideToolbar={true}
-            files={this.state.files}
           />
         }
       </div>

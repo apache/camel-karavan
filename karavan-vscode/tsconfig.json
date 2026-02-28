@@ -24,9 +24,14 @@
     "strict": true,
     "paths": {
       "@/*": ["webview/*"],
-      "@app/*": ["src/app/*"],
       "@assets/*": ["node_modules/@patternfly/react-core/dist/styles/assets/*"],
-      "core": ["webview/core"]
+      "@app/*": [ "webview/karavan/app/*"],
+      "@features/*": [ "webview/karavan/features/*"],
+      "@models/*": ["webview/karavan/models/*"],
+      "@shared/*": ["webview/karavan/shared/*"],
+      "@stores/*": ["webview/karavan/stores/*"],
+      "@util/*": ["webview/karavan/util/*"],
+      "@karavan-core/*": ["webview/karavan-core/*"]
     },
     "importHelpers": true,
     "skipLibCheck": true
