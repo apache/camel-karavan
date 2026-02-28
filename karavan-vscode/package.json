@@ -790,7 +790,7 @@
     "typescript": "5.9.3",
     "url-loader": "4.1.1",
     "vscode-test": "1.6.1",
-    "webpack": "5.103.0",
+    "webpack": "5.105.3",
     "webpack-cli": "5.0.2"
   },
   "overrides": {
