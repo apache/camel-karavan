@@ -5,7 +5,7 @@
 2. Docker Engine 24+
 
 ### How to run Karavan on Docker
-1. Download [docker-compose.yaml](install/karavan-docker/docker-compose.yaml)
+1. Download [docker-compose.yaml](/apache/camel-karavan/refs/heads/main/docs/install/karavan-docker/docker-compose.yaml)
 2. Set Environment Variables for Git Repository and Container Image Registry connections in docker-compose.yaml
 2. Create network
     ```
