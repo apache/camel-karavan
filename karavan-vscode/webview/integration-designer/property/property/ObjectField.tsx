@@ -18,11 +18,11 @@ import React, {useState} from 'react';
 import {DslPropertyField} from "./DslPropertyField";
 import {
     ExpressionDefinition,
-} from "@/core/model/CamelDefinition";
-import {CamelElement} from "@/core/model/IntegrationDefinition";
-import {CamelDefinitionApiExt} from "@/core/api/CamelDefinitionApiExt";
-import {CamelUtil} from "@/core/api/CamelUtil";
-import { PropertyMeta} from "@/core/model/CamelMetadata";
+} from "@karavan-core/model/CamelDefinition";
+import {CamelElement} from "@karavan-core/model/IntegrationDefinition";
+import {CamelDefinitionApiExt} from "@karavan-core/api/CamelDefinitionApiExt";
+import {CamelUtil} from "@karavan-core/api/CamelUtil";
+import { PropertyMeta} from "@karavan-core/model/CamelMetadata";
 import {RouteToCreate} from "../../utils/CamelUi";
 
 interface Props {

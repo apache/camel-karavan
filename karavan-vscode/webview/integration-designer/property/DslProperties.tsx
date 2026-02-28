@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import React, {useEffect, useState, ReactElement} from 'react';
+import React, {ReactElement, useEffect, useState} from 'react';
 import {
     Button,
     Content,
@@ -32,23 +32,22 @@ import {
 import './DslProperties.css';
 import {DataFormatField} from "./property/DataFormatField";
 import {DslPropertyField} from "./property/DslPropertyField";
-import {CamelDefinitionApiExt} from "@/core/api/CamelDefinitionApiExt";
+import {CamelDefinitionApiExt} from "@karavan-core/api/CamelDefinitionApiExt";
 import {CamelUi} from "../utils/CamelUi";
-import {CamelMetadataApi, DataFormats, PropertyMeta} from "@/core/model/CamelMetadata";
+import {CamelMetadataApi, DataFormats, PropertyMeta} from "@karavan-core/model/CamelMetadata";
 import {IntegrationHeader} from "../utils/IntegrationHeader";
 import CloneIcon from "@patternfly/react-icons/dist/esm/icons/clone-icon";
 import {useDesignerStore, useIntegrationStore} from "../DesignerStore";
 import {shallow} from "zustand/shallow";
 import {usePropertiesHook} from "./usePropertiesHook";
-import {CamelDisplayUtil} from "@/core/api/CamelDisplayUtil";
+import {CamelDisplayUtil} from "@karavan-core/api/CamelDisplayUtil";
 import {PropertiesHeader} from "./PropertiesHeader";
 import {PropertyUtil} from "./property/PropertyUtil";
 import {usePropertiesStore} from "./PropertyStore";
 import TimesIcon from "@patternfly/react-icons/dist/esm/icons/times-icon";
-import {RouteTemplateDefinition} from "@/core/model/CamelDefinition";
+import {RouteTemplateDefinition} from "@karavan-core/model/CamelDefinition";
 
 interface Props {
-    designerType: 'routes' | 'rest' | 'beans',
     expressionEditor: React.ComponentType<any>;
 }
 
@@ -63,10 +62,10 @@ export function DslProperties(props: Props) {
         onParametersChange,
         onExpressionChange
     } =
-        usePropertiesHook(props.designerType);
+        usePropertiesHook();
 
-    const [selectedStep, setParameterPlaceholders]
-        = useDesignerStore((s) => [s.selectedStep, s.setParameterPlaceholders], shallow)
+    const [selectedStep, setParameterPlaceholders, tab]
+        = useDesignerStore((s) => [s.selectedStep, s.setParameterPlaceholders, s.tab], shallow)
 
     const [propertyFilter, changedOnly, requiredOnly, setChangedOnly, sensitiveOnly, setSensitiveOnly, setPropertyFilter, setRequiredOnly]
         = usePropertiesStore((s) => [s.propertyFilter, s.changedOnly, s.requiredOnly, s.setChangedOnly, s.sensitiveOnly, s.setSensitiveOnly, s.setPropertyFilter, s.setRequiredOnly], shallow)
@@ -74,9 +73,9 @@ export function DslProperties(props: Props) {
     const [showAdvanced, setShowAdvanced] = useState<boolean>(false);
 
     useEffect(() => {
-        setRequiredOnly(false);
-        setChangedOnly(false);
-        setSensitiveOnly(false);
+        // setRequiredOnly(false);
+        // setChangedOnly(false);
+        // setSensitiveOnly(false);
         setPropertyFilter('');
         getRouteTemplateParameters()
     }, [selectedStep?.uuid])
@@ -110,7 +109,7 @@ export function DslProperties(props: Props) {
     }
 
     function getPropertiesHeader(): ReactElement {
-        if (props.designerType === 'routes') return <PropertiesHeader designerType={props.designerType}/>
+        if (tab === 'routes') return <PropertiesHeader/>
         else return getClonableElementHeader();
     }
 
@@ -223,7 +222,7 @@ export function DslProperties(props: Props) {
                     aria-label="filter by name"
                 />
                 <TextInputGroupUtilities>
-                    <Button icon={<TimesIcon aria-hidden={true}/>} variant="plain" onClick={_ => setPropertyFilter('')}/>
+                    <Button icon={<TimesIcon aria-hidden={true}/>}  isInline variant="link" onClick={_ => setPropertyFilter('')}/>
                 </TextInputGroupUtilities>
             </TextInputGroup>
         )

@@ -14,38 +14,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-import React, {useEffect, useState} from 'react';
-import {Tab, Tabs, TabTitleIcon, TabTitleText,} from '@patternfly/react-core';
-import './DslProperties.css';
-import {DslProperties} from "./DslProperties";
-import {getDesignerIcon} from "../icons/KaravanIcons";
-import {useDesignerStore} from "../DesignerStore";
-import {shallow} from "zustand/shallow";
-import { ExpressionEditor } from './expression/ExpressionEditor';
+import React from 'react';
+import {Tab, Tabs, TabTitleText,} from '@patternfly/react-core';
+import '@features/project/designer/property/DslProperties.css';
 
 export function MainPropertiesPanel() {
 
-    const [tab] = useDesignerStore((s) =>  [s.tab], shallow)
-
-    const [lastStatus, setLastStatus] = useState<boolean>(false);
     const [activeTabKey, setActiveTabKey] = React.useState<string | number>();
     const handleTabClick = (event: React.MouseEvent<any> | React.KeyboardEvent | MouseEvent, tabIndex: string | number) => {
         setActiveTabKey(tabIndex);
     };
 
-    useEffect(() => {
-        if (!lastStatus) {
-            setActiveTabKey('properties');
-            setLastStatus(true);
-        }
-    }, [])
 
     function getTab(title: string, icon: string, error: boolean = false) {
         const color = error ? "red" : "initial";
         return (
             <div className="top-menu-item" style={{color: color}}>
-                <TabTitleIcon>{getDesignerIcon(icon)}</TabTitleIcon>
                 <TabTitleText>{title}</TabTitleText>
             </div>
         )
@@ -53,9 +37,8 @@ export function MainPropertiesPanel() {
 
     function getPropertiesPanelTabs() {
         return (
-            <div className={"main-tabs-wrapper"}>
-                <Tabs className="main-tabs"
-                      activeKey={activeTabKey}
+            <div>
+                <Tabs activeKey={activeTabKey}
                       onSelect={handleTabClick}
                       isFilled
                       aria-label="PropertyTypes"
@@ -67,22 +50,11 @@ export function MainPropertiesPanel() {
         )
     }
 
-    function getPropertiesPanel() {
-        if (tab === "routes") {
-            return <DslProperties designerType={"routes"} expressionEditor={ExpressionEditor}/>
-        } else if (tab === "rest") {
-            return <DslProperties designerType={"rest"} expressionEditor={ExpressionEditor}/>
-        } else if (tab === "beans") {
-            return <DslProperties designerType={"beans"} expressionEditor={ExpressionEditor}/>
-        } else {
-            return <></>
-        }
-    }
 
     return (
         <div className='main-properties'>
             {getPropertiesPanelTabs()}
-            {activeTabKey === 'properties' && getPropertiesPanel() }
         </div>
     )
+
 }

@@ -17,13 +17,8 @@
 
 import * as React from 'react';
 import './TopologyLegend.css';
-import {
-    Card,
-    CardBody,
-    CardTitle,
-    Label,
-} from "@patternfly/react-core";
-import {getDesignerIcon, OpenApiIcon} from "@/integration-designer/icons/KaravanIcons";
+import {Card, CardBody, CardTitle, Label,} from "@patternfly/react-core";
+import {getDesignerIcon, OpenApiIcon} from "@features/project/designer/icons/KaravanIcons";
 
 export function TopologyLegend () {
 
@@ -32,7 +27,7 @@ export function TopologyLegend () {
             <CardTitle>Legend</CardTitle>
             <CardBody className='card-body'>
                 <Label className='orange' icon={<div style={{display: 'flex'}}>{getDesignerIcon('route')}</div>}>Route</Label>
-                <Label className='orange' icon={<div style={{display: 'flex', gap: '6px'}}>{OpenApiIcon()}</div>}>OpenAPI</Label>
+                <Label className='orange' icon={<div style={{display: 'flex', gap: '6px'}}><OpenApiIcon/></div>}>OpenAPI</Label>
                 <Label className='orange' icon={<div style={{display: 'flex'}}>{getDesignerIcon('rest')}</div>}>REST</Label>
                 <Label className='orange route-template'>Route Template</Label>
                 <Label className='blue'>Component</Label>

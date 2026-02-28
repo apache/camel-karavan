@@ -14,31 +14,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import '../karavan.css';
-import {CamelUtil} from "@/core/api/CamelUtil";
-import {DataFormatDefinition, ExpressionDefinition, ToDefinition,} from "@/core/model/CamelDefinition";
-import {CamelElement} from "@/core/model/IntegrationDefinition";
-import {CamelDefinitionApiExt} from "@/core/api/CamelDefinitionApiExt";
-import {CamelDefinitionApi} from "@/core/api/CamelDefinitionApi";
+import '@features/project/designer/karavan.css';
+import {CamelUtil} from "@karavan-core/api/CamelUtil";
+import {DataFormatDefinition, ExpressionDefinition, ToDefinition,} from "@karavan-core/model/CamelDefinition";
+import {CamelElement} from "@karavan-core/model/IntegrationDefinition";
+import {CamelDefinitionApiExt} from "@karavan-core/api/CamelDefinitionApiExt";
+import {CamelDefinitionApi} from "@karavan-core/api/CamelDefinitionApi";
 import {CamelUi, RouteToCreate} from "../utils/CamelUi";
 import {useDesignerStore, useIntegrationStore} from "../DesignerStore";
 import {shallow} from "zustand/shallow";
-import {CamelMetadataApi} from "@/core/model/CamelMetadata";
+import {CamelMetadataApi} from "@karavan-core/model/CamelMetadata";
 import {EventBus} from "../utils/EventBus";
-import {INTERNAL_COMPONENTS} from "@/core/api/ComponentApi";
+import {INTERNAL_COMPONENTS} from "@karavan-core/api/ComponentApi";
 
-export function usePropertiesHook(designerType: 'routes' | 'rest' | 'beans' = 'routes') {
+export function usePropertiesHook() {
 
     const [integration, setIntegration] = useIntegrationStore((state) => [state.integration, state.setIntegration], shallow)
-    const [selectedStep, setSelectedStep, setSelectedUuids] = useDesignerStore((s) =>
-        [s.selectedStep, s.setSelectedStep, s.setSelectedUuids], shallow)
+    const [selectedStep, setSelectedStep, setSelectedUuids, tab] = useDesignerStore((s) =>
+        [s.selectedStep, s.setSelectedStep, s.setSelectedUuids, s.tab], shallow)
 
     function onPropertyUpdate(element: CamelElement, newRoute?: RouteToCreate) {
-        if (designerType === 'routes') {
+        if (tab === 'routes') {
             onRoutePropertyUpdate(element, newRoute);
-        } else if (designerType === 'rest') {
+        } else if (tab === 'rest') {
             onRestPropertyUpdate(element, newRoute);
-        } else if (designerType === 'beans') {
+        } else if (tab === 'beans') {
             onBeanPropertyUpdate(element, newRoute);
         }
     }

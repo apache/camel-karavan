@@ -16,23 +16,26 @@
  */
 import React from "react";
 import {shallow} from "zustand/shallow";
-import {useFilesStore, useFileStore, useProjectStore} from "@/api/ProjectStore";
-import {EventBus} from "@/integration-designer/utils/EventBus";
-import {CamelDefinitionYaml} from "@/core/api/CamelDefinitionYaml";
-import {CamelDefinitionApiExt} from "@/core/api/CamelDefinitionApiExt";
-import {RouteDefinition} from "@/core/model/CamelDefinition";
-import {ModalConfirmationProps} from "@/components/ModalConfirmation";
-import vscode from "../vscode";
+import {useFilesStore, useFileStore, useProjectStore} from "@stores/ProjectStore";
+import {EventBus} from "@features/project/designer/utils/EventBus";
+import {CamelDefinitionYaml} from "@karavan-core/api/CamelDefinitionYaml";
+import {CamelDefinitionApiExt} from "@karavan-core/api/CamelDefinitionApiExt";
+import {RouteDefinition} from "@karavan-core/model/CamelDefinition";
+import {ProjectService} from "@services/ProjectService";
+import {ModalConfirmationProps} from "@shared/ui/ModalConfirmation";
 
 export function useTopologyHook(setConfirmationProps?: React.Dispatch<React.SetStateAction<ModalConfirmationProps | undefined>>) {
 
     const [setFile] = useFileStore((s) => [s.setFile], shallow);
     const [files] = useFilesStore((s) => [s.files], shallow);
-    const [setTabIndex] = useProjectStore((s) => [s.setTabIndex], shallow);
+    const [setTabIndex, project] = useProjectStore((s) => [s.setTabIndex, s.project], shallow);
 
     function selectFile(fileName: string) {
-        console.log(fileName)
-        vscode.postMessage({ command: 'openFile', fileName: fileName })
+        const file = files.filter(f => f.name === fileName)?.at(0);
+        if (file) {
+            setFile('select', file);
+            setTabIndex(0);
+        }
     }
 
     function setDisabled(fileName: string, elementId: string, enable: boolean) {
@@ -49,6 +52,7 @@ export function useTopologyHook(setConfirmationProps?: React.Dispatch<React.SetS
                     }
                     const newIntegration = CamelDefinitionApiExt.updateIntegrationRouteElement(integration, element);
                     file.code = CamelDefinitionYaml.integrationToYaml(newIntegration);
+                    ProjectService.updateFile(file, true);
                 }
 
             }
@@ -65,8 +69,12 @@ export function useTopologyHook(setConfirmationProps?: React.Dispatch<React.SetS
                 const newIntegration = CamelDefinitionApiExt.deleteRouteFromIntegration(integration, routeId);
                 const isEmpty = newIntegration?.spec.flows?.length === 0 && newIntegration?.spec.template === undefined;
                 const propsClose: ModalConfirmationProps = {
-                    isOpen: false, title: '', message: '', onConfirm: () => {
-                    }, onCancel: () => {
+                    isOpen: false,
+                    title: '',
+                    message: '',
+                        onConfirm: () => {
+                    },
+                        onCancel: () => {
                     }
                 };
                 const props: ModalConfirmationProps = {
@@ -75,7 +83,13 @@ export function useTopologyHook(setConfirmationProps?: React.Dispatch<React.SetS
                     btnConfirmVariant: 'danger',
                     message: `Delete route ${isEmpty ? ' and file ' + fileName : ''}`,
                     onConfirm: () => {
-                        
+                        if (isEmpty) {
+                            ProjectService.deleteFile(file);
+                        } else {
+                            file.code = CamelDefinitionYaml.integrationToYaml(newIntegration);
+                            ProjectService.updateFile(file, true);
+                        }
+                        setConfirmationProps?.(propsClose)
                     },
                     onCancel: () => setConfirmationProps?.(propsClose)
                 };
@@ -99,6 +113,7 @@ export function useTopologyHook(setConfirmationProps?: React.Dispatch<React.SetS
                     }
                     const newIntegration = CamelDefinitionApiExt.updateIntegrationRouteElement(integration, element);
                     file.code = CamelDefinitionYaml.integrationToYaml(newIntegration);
+                    ProjectService.updateFile(file, true);
                 }
 
             }
@@ -108,6 +123,6 @@ export function useTopologyHook(setConfirmationProps?: React.Dispatch<React.SetS
     }
 
     return {
-        selectFile, setDisabled, deleteRoute, setRouteGroup
+        selectFile, setDisabled, deleteRoute, setRouteGroup, project
     }
 }

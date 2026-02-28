@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 import {Subject} from 'rxjs';
-import {CamelElement, Integration} from "@/core/model/IntegrationDefinition";
+import {CamelElement, Integration} from "@karavan-core/model/IntegrationDefinition";
 import {v4 as uuidv4} from "uuid";
 
 export class DslPosition {
@@ -115,7 +115,12 @@ export const EventBus = {
     sendCommand: (command: string, data?: any) => commands.next(new Command(command, data)),
     onCommand: () => commands.asObservable(),
 
-    sendAlert: (title: string, text: string, variant: 'success' | 'danger' | 'warning' | 'info' | 'custom' = 'success') =>
-        alerts.next(new ToastMessage(title, text, variant)),
+    sendAlert: (title: string, text: string | string[], variant: 'success' | 'danger' | 'warning' | 'info' | 'custom' = 'success') => {
+        if (Array.isArray(text)) {
+            text.forEach(line => alerts.next(new ToastMessage(title, line, variant)))
+        } else {
+            alerts.next(new ToastMessage(title, text, variant))
+        }
+    },
     onAlert: () => alerts.asObservable(),
 }

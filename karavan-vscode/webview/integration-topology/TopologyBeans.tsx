@@ -17,21 +17,15 @@
 
 import * as React from 'react';
 import './TopologyBeans.css';
-import {
-    Button,
-    Card,
-    CardBody,
-    CardTitle,
-    Label,
-} from "@patternfly/react-core";
-import {TopologyUtils} from "@/core/api/TopologyUtils";
-import {useFilesStore} from "@/api/ProjectStore";
+import {Button, Card, CardBody, CardTitle, Label,} from "@patternfly/react-core";
+import {TopologyUtils} from "@karavan-core/api/TopologyUtils";
+import {useFilesStore} from "@stores/ProjectStore";
 import {shallow} from "zustand/shallow";
-import {IntegrationFile} from "@/core/model/IntegrationDefinition";
+import {IntegrationFile} from "@karavan-core/model/IntegrationDefinition";
 import {getIntegrations} from "./TopologyApi";
 import JavaIcon from "@patternfly/react-icons/dist/js/icons/java-icon";
 import {useTopologyHook} from "./useTopologyHook";
-import {camelIcon, CamelUi} from "@/integration-designer/utils/CamelUi";
+import {camelIcon, CamelUi} from "@features/project/designer/utils/CamelUi";
 
 export function TopologyBeans() {
 

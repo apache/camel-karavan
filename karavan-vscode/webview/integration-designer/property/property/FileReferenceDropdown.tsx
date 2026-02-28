@@ -230,7 +230,7 @@ export const FileReferenceDropdown: React.FC<FileReferenceDropdownProps> = ({
                     aria-controls="file-reference-dropdown-listbox"
                 />
                 <TextInputGroupUtilities {...(!inputValue ? { style: { display: 'none' } } : {})}>
-                    <Button icon={<TimesIcon aria-hidden />} variant="plain" onClick={onClearButtonClick} aria-label="Clear input value" />
+                    <Button icon={<TimesIcon aria-hidden />}  isInline variant="link" onClick={onClearButtonClick} aria-label="Clear input value" />
                 </TextInputGroupUtilities>
             </TextInputGroup>
         </MenuToggle>

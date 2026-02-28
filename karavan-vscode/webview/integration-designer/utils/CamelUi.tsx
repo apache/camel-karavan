@@ -14,15 +14,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {KameletApi} from "@/core/api/KameletApi";
-import {KameletModel} from "@/core/model/KameletModels";
+import {KameletApi} from "@karavan-core/api/KameletApi";
+import {KameletModel} from "@karavan-core/model/KameletModels";
 import {DslMetaModel} from "./DslMetaModel";
-import {ComponentApi} from "@/core/api/ComponentApi";
-import {CamelMetadataApi} from "@/core/model/CamelMetadata";
-import {CamelUtil} from "@/core/api/CamelUtil";
-import {CamelDefinitionApiExt} from "@/core/api/CamelDefinitionApiExt";
-import {BeanFactoryDefinition, FromDefinition, RouteConfigurationDefinition, RouteDefinition, RouteTemplateDefinition, ToDefinition} from "@/core/model/CamelDefinition";
-import {CamelElement, Integration, IntegrationFile} from "@/core/model/IntegrationDefinition";
+import {ComponentApi} from "@karavan-core/api/ComponentApi";
+import {CamelMetadataApi} from "@karavan-core/model/CamelMetadata";
+import {CamelUtil} from "@karavan-core/api/CamelUtil";
+import {CamelDefinitionApiExt} from "@karavan-core/api/CamelDefinitionApiExt";
+import {BeanFactoryDefinition, FromDefinition, RouteConfigurationDefinition, RouteDefinition, RouteTemplateDefinition, ToDefinition} from "@karavan-core/model/CamelDefinition";
+import {CamelElement, Integration, IntegrationFile} from "@karavan-core/model/IntegrationDefinition";
 import {
     ActivemqIcon,
     AmqpIcon,
@@ -101,15 +101,16 @@ import {
     ToIcon,
 } from "../icons/EipIcons";
 import React, {ReactElement} from "react";
-import {TopologyUtils} from "@/core/api/TopologyUtils";
-import {getIntegrations} from "@/integration-topology/TopologyApi";
+import {TopologyUtils} from "@karavan-core/api/TopologyUtils";
+import {getIntegrations} from "@features/project/project-topology/TopologyApi";
 import {toKebabCase, toSpecialRouteId} from "./ValidatorUtils";
-import {ProjectFile} from "@/api/ProjectModels";
-import {CamelDefinitionYaml} from "@/core/api/CamelDefinitionYaml";
+import {ProjectFile} from "@models/ProjectModels";
+import {CamelDefinitionYaml} from "@karavan-core/api/CamelDefinitionYaml";
 import {EventBus} from "./EventBus";
-import {CamelDefinitionApi} from "@/core/api/CamelDefinitionApi";
+import {KaravanApi} from "@api/KaravanApi";
+import {CamelDefinitionApi} from "@karavan-core/api/CamelDefinitionApi";
 import {capitalize} from "@patternfly/react-core";
-import {FILE_WORDS_SEPARATOR} from "@/core/contants";
+import {FILE_WORDS_SEPARATOR} from "@karavan-core/contants";
 
 const StepElements: string[] = [
     "AggregateDefinition",
@@ -273,20 +274,19 @@ export class CamelUi {
     static createNewRoute = (projectId:string, componentName: string, parameters: any = {}, expression: string, after:(file: ProjectFile) => void): void => {
         try {
             const stringWithParams = CamelUi.createFullStringWithParameters(componentName, parameters);
-            const name = `from-${stringWithParams}`;
             const newRoute = CamelUi.createRouteFromComponent(componentName, parameters, expression);
             const newIntegration = Integration.createNew(stringWithParams, 'plain');
             newIntegration.spec.flows = [newRoute];
             const code = CamelDefinitionYaml.integrationToYaml(newIntegration);
-            const fileName = name + '.camel.yaml';
+            const fileName = stringWithParams + '.camel.yaml';
             const file = new ProjectFile(fileName, projectId, code, Date.now());
-            // KaravanApi.saveProjectFile(file, (result, newFile) => {
-            //     if (result) {
-            //         after(newFile);
-            //     } else {
-            //         EventBus.sendAlert('Error creating file', 'Error: ' +newFile?.toString());
-            //     }
-            // });
+            KaravanApi.saveProjectFile(file, (result, newFile) => {
+                if (result) {
+                    after(newFile);
+                } else {
+                    EventBus.sendAlert('Error creating file', 'Error: ' +newFile?.toString());
+                }
+            });
         } catch (err: any){
             console.error(err)
         }
@@ -295,13 +295,13 @@ export class CamelUi {
     static createNewFile = (projectId:string, fileName: string, code: string = '', after:(file: ProjectFile) => void): void => {
         try {
             const file = new ProjectFile(fileName, projectId, code, Date.now());
-            // KaravanApi.saveProjectFile(file, (result, newFile) => {
-            //     if (result) {
-            //         after(newFile);
-            //     } else {
-            //         EventBus.sendAlert('Error creating file', 'Error: ' +newFile?.toString());
-            //     }
-            // });
+            KaravanApi.saveProjectFile(file, (result, newFile) => {
+                if (result) {
+                    after(newFile);
+                } else {
+                    EventBus.sendAlert('Error creating file', 'Error: ' +newFile?.toString());
+                }
+            });
         } catch (err: any){
             console.error(err)
         }

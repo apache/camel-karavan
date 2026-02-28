@@ -16,10 +16,10 @@
  */
 import React, {CSSProperties, useState} from 'react';
 import './DslElement.css';
-import {CamelElement} from "@/core/model/IntegrationDefinition";
+import {CamelElement} from "@karavan-core/model/IntegrationDefinition";
 import {EventBus} from "../../utils/EventBus";
-import {CamelDefinitionApiExt, ChildElement} from "@/core/api/CamelDefinitionApiExt";
-import {CamelDisplayUtil} from "@/core/api/CamelDisplayUtil";
+import {CamelDefinitionApiExt, ChildElement} from "@karavan-core/api/CamelDefinitionApiExt";
+import {CamelDisplayUtil} from "@karavan-core/api/CamelDisplayUtil";
 import {useDesignerStore, useIntegrationStore} from "../../DesignerStore";
 import {shallow} from "zustand/shallow";
 import {useRouteDesignerHook} from "../useRouteDesignerHook";

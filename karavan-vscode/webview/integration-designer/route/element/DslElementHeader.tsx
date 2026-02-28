@@ -16,23 +16,23 @@
  */
 import React, {CSSProperties, ReactElement, useCallback, useMemo, useRef} from 'react';
 import {Content, Tooltip,} from '@patternfly/react-core';
-import '../../karavan.css';
+import '@features/project/designer/karavan.css';
 import './DslElement.css';
-import {CamelElement} from "@/core/model/IntegrationDefinition";
+import {CamelElement} from "@karavan-core/model/IntegrationDefinition";
 import {CamelUi} from "../../utils/CamelUi";
-import {CamelDefinitionApiExt, ChildElement} from "@/core/api/CamelDefinitionApiExt";
-import {CamelUtil} from "@/core/api/CamelUtil";
-import {CamelDisplayUtil} from "@/core/api/CamelDisplayUtil";
+import {CamelDefinitionApiExt, ChildElement} from "@karavan-core/api/CamelDefinitionApiExt";
+import {CamelUtil} from "@karavan-core/api/CamelUtil";
+import {CamelDisplayUtil} from "@karavan-core/api/CamelDisplayUtil";
 import {useDesignerStore, useIntegrationStore} from "../../DesignerStore";
 import {shallow} from "zustand/shallow";
 import {useRouteDesignerHook} from "../useRouteDesignerHook";
 import {AddElementIcon, CopyElementIcon, DeleteElementIcon, DisableStepIcon, EnableStepIcon, InsertElementIcon} from "../../utils/ElementIcons";
-import {RouteConfigurationDefinition} from "@/core/model/CamelDefinition";
+import {RouteConfigurationDefinition} from "@karavan-core/model/CamelDefinition";
 import {AutoStartupFalseIcon, ErrorHandlerIcon} from "../../icons/OtherIcons";
 import {usePropertiesHook} from "../../property/usePropertiesHook";
 
 interface Props {
-    headerRef: React.Ref<HTMLDivElement> | undefined
+    headerRef?: React.Ref<HTMLDivElement>;
     step: CamelElement,
     parent: CamelElement | undefined,
     nextStep: CamelElement | undefined,
@@ -67,7 +67,7 @@ export function DslElementHeader(props: Props) {
     const disabled = (step as any).disabled === true;
     const autoStartup = (step as any).autoStartup === undefined || (step as any).autoStartup === true;
 
-    const localHeaderRef = useRef<HTMLDivElement>(null);
+    const localHeaderRef = useRef<HTMLDivElement | null>(null);
 
     // Merge any incoming ref into our local ref
     const mergedRef = useCallback(
@@ -245,8 +245,8 @@ export function DslElementHeader(props: Props) {
         const showDisableButton = Object.getOwnPropertyNames(step).includes('disabled')
         const showAutoStartupButton =  Object.getOwnPropertyNames(step).includes('autoStartup')
         const headerClasses = getHeaderClasses();
-        const childrenInfo = getChildrenInfo(step) || [];
-        const hasWideChildrenElement = getHasWideChildrenElement(childrenInfo)
+        const childrenInfo = getChildrenInfo(step);
+        const hasWideChildrenElement = childrenInfo ? getHasWideChildrenElement(childrenInfo) : false;
         return (
             <div className={"dsl-element " + headerClasses} style={getHeaderStyle()} ref={mergedRef}>
                 {!['RouteConfigurationDefinition', 'RouteTemplateDefinition', 'RouteDefinition'].includes(step.dslName) &&

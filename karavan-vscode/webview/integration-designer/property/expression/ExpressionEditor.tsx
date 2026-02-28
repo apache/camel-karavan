@@ -15,18 +15,19 @@
  * limitations under the License.
  */
 import React, {useEffect, useState} from 'react';
-// import '@/monaco-setup';
+import '@shared/monaco-setup';
 import Editor from "@monaco-editor/react";
-import {ExpressionBottomPanel} from "./ExpressionBottomPanel";
 import './ExpressionEditor.css'
 import {ExpressionFunctions, ExpressionVariables} from "./ExpressionContextModel";
-import {useTheme} from "@/main/ThemeContext";
+import {useTheme} from "@app/theme/ThemeContext";
 
 interface Props {
     customCode: any,
     onChange: (value: string |undefined) => void,
     title: string,
     dslLanguage?: [string, string, string],
+    dark?: boolean,
+    name?: string
 }
 
 export function ExpressionEditor(props: Props) {

@@ -42,38 +42,38 @@ import {
 } from '@patternfly/react-core';
 import './DslPropertyField.css';
 import {CogIcon, ExclamationCircleIcon, PlusCircleIcon, PlusIcon, TimesCircleIcon, TimesIcon} from '@patternfly/react-icons';
-import {CamelUtil} from "@/core/api/CamelUtil";
-import {CamelMetadataApi, PropertyMeta} from "@/core/model/CamelMetadata";
-import {CamelDefinitionApiExt} from "@/core/api/CamelDefinitionApiExt";
+import {CamelUtil} from "@karavan-core/api/CamelUtil";
+import {CamelMetadataApi, PropertyMeta} from "@karavan-core/model/CamelMetadata";
+import {CamelDefinitionApiExt} from "@karavan-core/api/CamelDefinitionApiExt";
 import {ExpressionField} from "./ExpressionField";
 import {CamelUi, RouteToCreate} from "../../utils/CamelUi";
 import {ComponentPropertyField} from "./ComponentPropertyField";
-import {CamelElement} from "@/core/model/IntegrationDefinition";
+import {CamelElement} from "@karavan-core/model/IntegrationDefinition";
 import {KameletPropertyField} from "./KameletPropertyField";
 import {ObjectField} from "./ObjectField";
-import {CamelDefinitionApi} from "@/core/api/CamelDefinitionApi";
-import {ComponentProperty} from "@/core/model/ComponentModels";
+import {CamelDefinitionApi} from "@karavan-core/api/CamelDefinitionApi";
+import {ComponentProperty} from "@karavan-core/model/ComponentModels";
 import {ConfigurationSelectorModal} from "./ConfigurationSelectorModal";
 import {InfrastructureAPI} from "../../utils/InfrastructureAPI";
 import {shallow} from "zustand/shallow";
-import {BeanFactoryDefinition, DataFormatDefinition, ExpressionDefinition} from "@/core/model/CamelDefinition";
-import {TemplateApi} from "@/core/api/TemplateApi";
+import {BeanFactoryDefinition, DataFormatDefinition, ExpressionDefinition} from "@karavan-core/model/CamelDefinition";
+import {TemplateApi} from "@karavan-core/api/TemplateApi";
 import {BeanProperties} from "./BeanProperties";
 import {PropertyPlaceholderDropdown} from "./PropertyPlaceholderDropdown";
 import {VariablesDropdown} from "./VariablesDropdown";
-import {SpiBeanApi} from "@/core/api/SpiBeanApi";
+import {SpiBeanApi} from "@karavan-core/api/SpiBeanApi";
 import {PropertyUtil} from "./PropertyUtil";
-import {usePropertiesStore} from "../PropertyStore";
-import {Property} from "@/core/model/KameletModels";
+import {NO_INFRA_BUTTON_PROPERTIES, usePropertiesStore} from "../PropertyStore";
+import {Property} from "@karavan-core/model/KameletModels";
 import {isSensitiveFieldValid} from "../../utils/ValidatorUtils";
 import {EventBus} from "../../utils/EventBus";
 import {CamelDefaultStepProperty} from "../../utils/CamelDefaultStepProperty";
-import {useDesignerStore, useIntegrationStore} from "@/integration-designer/DesignerStore";
-import {DslPropertyFieldSelect} from "@/integration-designer/property/property/DslPropertyFieldSelect";
-import {MEDIA_TYPES} from "@/integration-designer/utils/MediaTypes";
-import {DslPropertyFieldSelectScrollable} from "@/integration-designer/property/property/DslPropertyFieldSelectScrollable";
-import {FieldSelectWithCreate} from "@/components/FieldSelectWithCreate";
-import {FileReferenceDropdown} from "@/integration-designer/property/property/FileReferenceDropdown";
+import {useDesignerStore, useIntegrationStore} from "@features/project/designer/DesignerStore";
+import {DslPropertyFieldSelect} from "@features/project/designer/property/property/DslPropertyFieldSelect";
+import {MEDIA_TYPES} from "@features/project/designer/utils/MediaTypes";
+import {DslPropertyFieldSelectScrollable} from "@features/project/designer/property/property/DslPropertyFieldSelectScrollable";
+import {FieldSelectWithCreate} from "@shared/ui/FieldSelectWithCreate";
+import {FileReferenceDropdown} from "@features/project/designer/property/property/FileReferenceDropdown";
 
 const beanPrefix = "#bean:";
 const classPrefix = "#class:";
@@ -342,7 +342,7 @@ export function DslPropertyField(props: Props) {
     }
 
     function getStringInput(property: PropertyMeta) {
-        const noInfraSelectorButton = ["uri", "id", "description", "group"].includes(property.name);
+        const noInfraSelectorButton = NO_INFRA_BUTTON_PROPERTIES.includes(property.name);
         const isNumber = ['integer', 'number', 'duration'].includes(property.type);
         const uriReadOnly = isUriReadOnly(property);
         return (
@@ -374,7 +374,7 @@ export function DslPropertyField(props: Props) {
                         }}
                     />
                     <TextInputGroupUtilities>
-                        <Button icon={<TimesIcon aria-hidden={true}/>} variant="plain" className='button-clear' onClick={_ => {
+                        <Button icon={<TimesIcon aria-hidden={true}/>} isInline variant="link" className='button-clear' onClick={_ => {
                             propertyChanged(property.name, '');
                             setTextValue('');
                             setCheckChanges(true);
@@ -423,7 +423,7 @@ export function DslPropertyField(props: Props) {
             placeholder='Select bean'
             onPropertyChange={(_, val) => propertyChanged(property.name, val)}
             utilities={[
-                <Tooltip position="bottom-end" content={"Open Java Class"}>
+                <Tooltip key={property?.name} position="bottom-end" content={"Open Java Class"}>
                     <Button icon={<PlusIcon/>} isDisabled={value === undefined || value?.length === 0} variant="plain"
                             onClick={e => showCode(value, property.javaType)}>
                     </Button>
@@ -566,7 +566,7 @@ export function DslPropertyField(props: Props) {
                         }}
                     />
                     <TextInputGroupUtilities>
-                        <Button icon={<TimesIcon aria-hidden={true}/>} variant="plain" className='button-clear' onClick={_ => {
+                        <Button icon={<TimesIcon aria-hidden={true}/>}  isInline variant="link" className='button-clear' onClick={_ => {
                             propertyChanged(property.name, '');
                             setTextValue('');
                             setCheckChanges(true);

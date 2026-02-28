@@ -15,20 +15,17 @@
  * limitations under the License.
  */
 import React, {useState} from 'react';
-import {
-    ExpandableSection, SelectOptionProps
-} from '@patternfly/react-core';
-import {CamelMetadataApi, PropertyMeta} from "@/core/model/CamelMetadata";
-import {CamelDefinitionApiExt} from "@/core/api/CamelDefinitionApiExt";
-import {DataFormatDefinition} from "@/core/model/CamelDefinition";
-import {Integration, CamelElement} from "@/core/model/IntegrationDefinition";
-import {CamelDefinitionApi} from "@/core/api/CamelDefinitionApi";
+import {ExpandableSection, SelectOptionProps} from '@patternfly/react-core';
+import {CamelMetadataApi, DataFormats, PropertyMeta} from "@karavan-core/model/CamelMetadata";
+import {CamelDefinitionApiExt} from "@karavan-core/api/CamelDefinitionApiExt";
+import {DataFormatDefinition} from "@karavan-core/model/CamelDefinition";
+import {CamelElement, Integration} from "@karavan-core/model/IntegrationDefinition";
+import {CamelDefinitionApi} from "@karavan-core/api/CamelDefinitionApi";
 import {DslPropertyField} from "./DslPropertyField";
-import {DataFormats} from "@/core/model/CamelMetadata";
 import {usePropertiesStore} from "../PropertyStore";
 import {shallow} from "zustand/shallow";
 import {PropertyUtil} from "./PropertyUtil";
-import {FieldSelectScrollable} from "@/components/FieldSelectScrollable";
+import {FieldSelectScrollable} from "@shared/ui/FieldSelectScrollable";
 
 interface Props {
     dslName: string,

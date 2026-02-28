@@ -32,7 +32,7 @@ import {
     ToggleGroupItem
 } from '@patternfly/react-core';
 import {TimesIcon} from '@patternfly/react-icons';
-import {GLOBAL, ROUTE} from "@/core/api/VariableUtil";
+import {GLOBAL, ROUTE} from "@karavan-core/api/VariableUtil";
 
 interface VariablesDropdownProps {
     initialValue?: string;
@@ -230,7 +230,7 @@ export const VariablesDropdown: React.FC<VariablesDropdownProps> = ({
                     aria-controls="variables-dropdown-listbox"
                 />
                 <TextInputGroupUtilities {...(!inputValue ? {style: {display: 'none'}} : {})}>
-                    <Button icon={<TimesIcon aria-hidden/>} variant="plain" onClick={onClearButtonClick} aria-label="Clear input value"/>
+                    <Button icon={<TimesIcon aria-hidden/>}  isInline variant="link" onClick={onClearButtonClick} aria-label="Clear input value"/>
                 </TextInputGroupUtilities>
             </TextInputGroup>
         </MenuToggle>

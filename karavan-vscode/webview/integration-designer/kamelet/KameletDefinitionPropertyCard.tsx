@@ -19,11 +19,11 @@ import {Button, Card, CardBody, CardTitle, Flex, FlexItem, FormGroup, FormSelect
 import './kamelet.css';
 import {useIntegrationStore} from "../DesignerStore";
 import {shallow} from "zustand/shallow";
-import {DefinitionProperty} from "@/core/model/IntegrationDefinition";
-import {CamelUtil} from "@/core/api/CamelUtil";
+import {DefinitionProperty} from "@karavan-core/model/IntegrationDefinition";
+import {CamelUtil} from "@karavan-core/api/CamelUtil";
 import {PlusCircleIcon} from '@patternfly/react-icons';
 import {KameletInput} from './KameletInput';
-import {ModalConfirmation} from "@/components/ModalConfirmation";
+import {ModalConfirmation} from "@shared/ui/ModalConfirmation";
 
 interface Props {
     index: number

@@ -35,11 +35,11 @@ import {
 } from '@patternfly/react-core';
 import './KameletPropertyField.css';
 import {CogIcon, ExclamationCircleIcon, TimesIcon} from '@patternfly/react-icons';
-import {Property} from "@/core/model/KameletModels";
+import {Property} from "@karavan-core/model/KameletModels";
 import {ConfigurationSelectorModal} from "./ConfigurationSelectorModal";
 import {usePropertiesHook} from "../usePropertiesHook";
 import {isSensitiveFieldValid} from "../../utils/ValidatorUtils";
-import {FieldSelectScrollable} from "@/components/FieldSelectScrollable";
+import {FieldSelectScrollable} from "@shared/ui/FieldSelectScrollable";
 
 interface Props {
     property: Property,
@@ -206,7 +206,7 @@ export function KameletPropertyField(props: Props) {
                         }}
                     />
                     <TextInputGroupUtilities>
-                        <Button icon={<TimesIcon aria-hidden={true}/>} variant="plain" className='button-clear' onClick={_ => {
+                        <Button icon={<TimesIcon aria-hidden={true}/>}  isInline variant="link" className='button-clear' onClick={_ => {
                             parametersChanged(property.id, '');
                             setTextValue('');
                             setCheckChanges(true);

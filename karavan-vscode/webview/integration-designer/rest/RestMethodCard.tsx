@@ -16,8 +16,8 @@
  */
 import React from 'react';
 import {Button} from '@patternfly/react-core';
-import '../karavan.css';
-import {CamelElement} from "@/core/model/IntegrationDefinition";
+import '@features/project/designer/karavan.css';
+import {CamelElement} from "@karavan-core/model/IntegrationDefinition";
 import {useDesignerStore} from "../DesignerStore";
 import {shallow} from "zustand/shallow";
 import {DeleteElementIcon} from "../utils/ElementIcons";

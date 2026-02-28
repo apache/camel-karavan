@@ -189,7 +189,7 @@
 
 .karavan .properties .input-group .pf-v6-c-text-input-group__utilities {
     align-items: flex-end;
-    margin-top: auto;
+    margin: auto;
 }
 
 .karavan .properties .chip .pf-v6-c-button {

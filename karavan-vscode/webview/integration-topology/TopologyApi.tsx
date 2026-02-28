@@ -1,24 +1,7 @@
-/*
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 import {EdgeAnimationSpeed, EdgeModel, EdgeStyle, Model, NodeModel, NodeShape, NodeStatus,} from '@patternfly/react-topology';
-import {Integration, IntegrationFile} from "@/core/model/IntegrationDefinition";
-import {CamelDefinitionYaml} from "@/core/api/CamelDefinitionYaml";
-import {TopologyUtils} from "@/core/api/TopologyUtils";
+import {Integration, IntegrationFile} from "@karavan-core/model/IntegrationDefinition";
+import {CamelDefinitionYaml} from "@karavan-core/api/CamelDefinitionYaml";
+import {TopologyUtils} from "@karavan-core/api/TopologyUtils";
 import {
     TopologyAsyncApiNode,
     TopologyIncomingNode,
@@ -27,9 +10,9 @@ import {
     TopologyRestNode,
     TopologyRouteConfigurationNode,
     TopologyRouteNode
-} from "@/core/model/TopologyDefinition";
-import {INTERNAL_COMPONENTS} from "@/core/api/ComponentApi";
-import {EventBus} from "@/integration-designer/utils/EventBus";
+} from "@karavan-core/model/TopologyDefinition";
+import {INTERNAL_COMPONENTS} from "@karavan-core/api/ComponentApi";
+import {EventBus} from "@features/project/designer/utils/EventBus";
 
 const NODE_DIAMETER_ROUTE = 60;
 const NODE_DIAMETER_INOUT = NODE_DIAMETER_ROUTE / 1.5;
@@ -53,10 +36,10 @@ export function getIncomingNodes(tins: TopologyIncomingNode[]): NodeModel[] {
         return {
             id: tin.id,
             type: 'node',
-            label: tin.title,
+            label: getUriLabel(tin.uniqueUri),
             width: NODE_DIAMETER_INOUT,
             height: NODE_DIAMETER_INOUT,
-            shape: NodeShape.ellipse,
+            shape: NodeShape.circle,
             status: NodeStatus.default,
             data: {
                 isAlternate: false,
@@ -70,8 +53,9 @@ export function getIncomingNodes(tins: TopologyIncomingNode[]): NodeModel[] {
     });
 }
 
-export function getRoutes(tins: TopologyRouteNode[]): NodeModel[] {
+export function getRoutes(tins: TopologyRouteNode[], tasyncapis: TopologyAsyncApiNode, showStats?: boolean): NodeModel[] {
     return tins.map(tin => {
+        const oper = tasyncapis?.operations?.find(o => o.operationId === tin.routeId)
         const node: NodeModel = {
             id: tin.id,
             type: 'node',
@@ -82,7 +66,7 @@ export function getRoutes(tins: TopologyRouteNode[]): NodeModel[] {
             status: NodeStatus.default,
             data: {
                 isAlternate: false,
-                badge: tin.templateId !== undefined ? 'RT' : 'R',
+                badge: (tin.templateId !== undefined ? 'RT' : 'R'),
                 type: 'route',
                 icon: 'route',
                 step: tin.route,
@@ -91,7 +75,9 @@ export function getRoutes(tins: TopologyRouteNode[]): NodeModel[] {
                 fileName: tin.fileName,
                 templateId: tin.templateId,
                 templateTitle: tin.templateTitle,
-                autoStartup: tin.route.autoStartup !== false
+                generatedFromAsyncApi: oper?.operationId === tin.routeId,
+                autoStartup: tin.route.autoStartup !== false,
+                showStats: showStats,
             }
         }
         return node;
@@ -104,9 +90,9 @@ export function getRouteConfigurations(trcs: TopologyRouteConfigurationNode[]): 
             id: tin.id,
             type: 'node',
             label: tin.title,
-            width: NODE_DIAMETER_ROUTE,
-            height: NODE_DIAMETER_ROUTE,
-            shape: NodeShape.rect,
+            width: NODE_DIAMETER_INOUT,
+            height: NODE_DIAMETER_INOUT,
+            shape: NodeShape.octagon,
             status: NodeStatus.default,
             data: {
                 isAlternate: false,
@@ -126,10 +112,10 @@ export function getOutgoingNodes(tons: TopologyOutgoingNode[]): NodeModel[] {
         const node: NodeModel = {
             id: tin.id,
             type: 'node',
-            label: tin.title,
+            label: getUriLabel(tin.uniqueUri),
             width: NODE_DIAMETER_INOUT,
             height: NODE_DIAMETER_INOUT,
-            shape: NodeShape.ellipse,
+            shape: NodeShape.circle,
             status: NodeStatus.default,
             data: {
                 isAlternate: false,
@@ -205,6 +191,12 @@ export function getExternalEdges(tons: TopologyOutgoingNode[], tins: TopologyInc
     return result;
 }
 
+function getUriLabel(uniqueUri: string) {
+    const parts = uniqueUri.split('=');
+    const name = parts[1];
+    return `${name}`
+}
+
 export function getUniqueUriNodes(tons: TopologyOutgoingNode[], tins: TopologyIncomingNode[], troutes: TopologyRouteNode[]): NodeModel[] {
     const result: Map<string, NodeModel> = new Map();
 
@@ -214,7 +206,7 @@ export function getUniqueUriNodes(tons: TopologyOutgoingNode[], tins: TopologyIn
             const node: NodeModel = result.get(uniqueUri) ?? {
                 id: uniqueUri,
                 type: 'node',
-                label: '',
+                label: getUriLabel(uniqueUri),
                 width: NODE_DIAMETER_INOUT,
                 height: NODE_DIAMETER_INOUT,
                 shape: NodeShape.circle,
@@ -226,6 +218,7 @@ export function getUniqueUriNodes(tons: TopologyOutgoingNode[], tins: TopologyIn
                     badge: ton.connectorType,
                     step: ton.step,
                     fileName: ton.fileName,
+                    uniqueUri: uniqueUri,
                     outgoing: true,
                     incomingIds: [],
                     outgoingIds: [],
@@ -251,12 +244,13 @@ export function getUniqueUriNodes(tons: TopologyOutgoingNode[], tins: TopologyIn
             const node: NodeModel = result.get(uniqueUri) ?? {
                 id: uniqueUri,
                 type: 'node',
-                label: '',
+                label: getUriLabel(uniqueUri),
                 width: NODE_DIAMETER_INOUT,
                 height: NODE_DIAMETER_INOUT,
                 shape: NodeShape.circle,
                 status: NodeStatus.default,
                 data: {
+                    uniqueUri: uniqueUri,
                     isAlternate: false,
                     icon: 'element',
                     type: 'step',
@@ -343,7 +337,7 @@ export function getRestNodes(tins: TopologyRestNode[]): NodeModel[] {
     });
 }
 
-export function getOpenApiNodes(topenapis: TopologyOpenApiNode[]): NodeModel[] {
+export function getOpenApiNodes(topenapis: TopologyOpenApiNode[], showStats?: boolean): NodeModel[] {
     return topenapis.map(topenapi => {
         return {
             id: topenapi.fileName,
@@ -361,40 +355,33 @@ export function getOpenApiNodes(topenapis: TopologyOpenApiNode[]): NodeModel[] {
                 // step: tin.rest,
                 fileName: topenapi.fileName,
                 secondaryLabel: topenapi.title,
-            }
-        }
-    });
-}
-export function getAsyncApiNodes(tasyncapis: TopologyAsyncApiNode[]): NodeModel[] {
-    return tasyncapis.map(tasyncapi => {
-        return {
-            id: tasyncapi.fileName,
-            type: 'node',
-            label: tasyncapi.title,
-            width: NODE_DIAMETER_ROUTE,
-            height: NODE_DIAMETER_ROUTE,
-            shape: NodeShape.hexagon,
-            status: NodeStatus.default,
-            data: {
-                isAlternate: false,
-                badge: 'AsyncAPI',
-                icon: 'asyncapi',
-                type: 'asyncapi',
-                // step: tin.rest,
-                fileName: tasyncapi.fileName,
-                secondaryLabel: tasyncapi.title,
+                showStats: showStats,
             }
         }
     });
 }
 
-export function getOpenApiEdges(topenapis: TopologyOpenApiNode[], tins: TopologyIncomingNode[]): EdgeModel[] {
+
+export function getOpenApiEdges(topenapis: TopologyOpenApiNode[], tins: TopologyIncomingNode[], trcs: TopologyRestNode[]): EdgeModel[] {
     const result: EdgeModel[] = [];
     topenapis.forEach(topenapi => {
+
+        trcs.filter(t => t.rest?.openApi !== undefined).forEach(trc => {
+            const edgeRest: EdgeModel = {
+                id: 'rest-openapi-' + topenapi.fileName + '-' + trc.id,
+                type: 'edge',
+                source: trc.id,
+                target: topenapi.fileName,
+                edgeStyle: EdgeStyle.solid,
+                animationSpeed: EdgeAnimationSpeed.none
+            }
+            result.push(edgeRest);
+        })
+
         topenapi.operations.filter(o => o.operationId?.length > 0)
             .forEach((operation, index, array) => {
                 const target = TopologyUtils.getRouteIdByUri(tins, 'direct:' + operation.operationId);
-                const node: EdgeModel = {
+                const edge: EdgeModel = {
                     id: 'incoming-' + operation.path + '-' + operation.method + '-' + index,
                     type: 'edge',
                     source: topenapi.fileName,
@@ -405,9 +392,10 @@ export function getOpenApiEdges(topenapis: TopologyOpenApiNode[], tins: Topology
                         label: `${operation.method} ${operation.path} `
                     }
                 }
-                if (target) result.push(node);
+                if (target) result.push(edge);
             })
     });
+
     return result;
 }
 
@@ -454,11 +442,10 @@ export function getInternalEdges(tons: TopologyOutgoingNode[], tins: TopologyInc
             }
             if (target) result.push(node);
         } else {
-            const uri: string = (ton.step as any).uri;
+            const uri: string = step.uri;
             const component = uri?.split(":")?.[0];
+            const name = step.parameters.name || step.parameters.address;
             if (INTERNAL_COMPONENTS.includes(component)) {
-                const step = (ton.step as any);
-                const name = step.parameters.name || step.parameters.address;
                 const target = TopologyUtils.getRouteIdByUriAndName(tins, uri, name);
                 const node: EdgeModel = {
                     id: 'internal-' + ton.id + '-' + index,
@@ -478,26 +465,18 @@ export function getInternalEdges(tons: TopologyOutgoingNode[], tins: TopologyInc
     return result;
 }
 
-export function getSimpleModel(files: IntegrationFile[], showGroups: boolean, openApiJson?: string, asyncApiJson?: string): Model {
-    return getModel(files, showGroups, (fileName: string) => {
-    }, (fileName, elementId, disabled) => {
-    }, (fileName, routeId) => {
-    }, (fileName, routeId, groupName) => {
-    }, openApiJson, asyncApiJson)
-}
-
-export function getModel(files: IntegrationFile[], showGroups: boolean,
+export function getModel(projectId: string, files: IntegrationFile[], showGroups: boolean,
                          selectFile: (fileName: string) => void,
                          setDisabled: (fileName: string, elementId: string, disabled: boolean) => void,
                          deleteRoute: (fileName: string, routeId: string) => void,
                          setRouteGroup: (fileName: string, routeId: string, groupName: string) => void,
-                         openApiJson?: string, asyncApiJson?: string): Model {
+                         openApiJson?: string, asyncApiJson?: string, showStats?: boolean): Model {
+    const tasyncapis = asyncApiJson ? [TopologyUtils.findTopologyAsyncApiNodes(asyncApiJson, projectId)] : [];
     const integrations = getIntegrations(files);
-    const tins = TopologyUtils.findTopologyIncomingNodes(integrations);
     const troutes = TopologyUtils.findTopologyRouteNodes(integrations);
-    const tons = TopologyUtils.findTopologyRouteOutgoingNodes(integrations);
+    const tins: any[] = TopologyUtils.findTopologyRoutesIncomingNodes(troutes);
+    const tons: any[]= TopologyUtils.findTopologyRoutesOutgoingNodes(troutes);
     const topenapis = openApiJson ? [TopologyUtils.findTopologyOpenApiNodes(openApiJson)] : [];
-    const tasyncapis = asyncApiJson ? [TopologyUtils.findTopologyAsyncApiNodes(asyncApiJson)] : [];
 
     const trestns = TopologyUtils.findTopologyRestNodes(integrations) || [];
 
@@ -507,9 +486,9 @@ export function getModel(files: IntegrationFile[], showGroups: boolean,
     const nodes: NodeModel[] = [];
 
     nodes.push(...getRestNodes(trestns))
-    nodes.push(...getOpenApiNodes(topenapis))
-    nodes.push(...getAsyncApiNodes(tasyncapis))
-    nodes.push(...getRoutes(troutes))
+    nodes.push(...getOpenApiNodes(topenapis, showStats))
+    // nodes.push(...getAsyncApiNodes(tasyncapis))
+    nodes.push(...getRoutes(troutes, tasyncapis?.at(0), showStats))
     nodes.push(...getRouteConfigurations(trcs))
     const uriNodes = getUniqueUriNodes(tons, tins, troutes);
     if (showGroups) {
@@ -529,7 +508,8 @@ export function getModel(files: IntegrationFile[], showGroups: boolean,
         edges.push(...uriEdges);
     }
     edges.push(...getRestEdges(trestns, tins));
-    edges.push(...getOpenApiEdges(topenapis, tins));
+    edges.push(...getOpenApiEdges(topenapis, tins, trestns));
+    // edges.push(...getAsyncApiEdges(tasyncapis));
     edges.push(...getInternalEdges(tons, tins));
     edges.push(...getInternalEdges(trcons, tins));
 
@@ -555,7 +535,20 @@ export function getModel(files: IntegrationFile[], showGroups: boolean,
             })
         }
 
+        const asyncReceive: string[] = [];
+        const asyncSend: string[] = [];
+        // tasyncapis.forEach((asyn, i) => {
+        //     asyn.operations.forEach((operation) => {
+        //         if (operation.action === "send") {
+        //             asyncSend.push(`asyncapi-operation-${operation.operationId}`);
+        //         } else {
+        //             asyncReceive.push(`asyncapi-operation-${operation.operationId}`);
+        //         }
+        //     })
+        // });
+
         const children1 = [
+            ...asyncReceive,
             ...tins.filter(i => i.type === 'external').map(i => i.id),
             ...(!hasOpenApi ? trestns.map(i => i.id) : []),
         ];
@@ -570,7 +563,10 @@ export function getModel(files: IntegrationFile[], showGroups: boolean,
             }
         })
 
-        const children2 = [...tons.filter(i => i.type === 'external').map(i => i.id)];
+        const children2 = [
+            ...asyncSend,
+            ...tons.filter(i => i.type === 'external').map(i => i.id)
+        ];
         groups.push({
             id: 'karavan-producer-group',
             children: children2,
@@ -581,6 +577,7 @@ export function getModel(files: IntegrationFile[], showGroups: boolean,
                 padding: 20,
             },
         })
+
     } else {
         // edges.push(...externalEdges);
     }
@@ -603,7 +600,7 @@ export function getModel(files: IntegrationFile[], showGroups: boolean,
         //     routeGroups.set(groupName, children);
         // })
 
-        Array.from(routeGroups.keys()).forEach(groupName => {
+        routeGroups.keys().forEach(groupName => {
             groups.push({
                 id: groupName,
                 children: routeGroups.get(groupName) ?? [],
@@ -633,7 +630,7 @@ export function getModel(files: IntegrationFile[], showGroups: boolean,
         //         children: externalGroups.get(groupName) ?? [],
         //         type: 'group',
         //         group: true,
-        //         label: '',
+        //         
         //         style: {
         //             padding: 20,
         //         },

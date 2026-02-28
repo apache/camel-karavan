@@ -16,7 +16,7 @@
  */
 import React, {ReactElement, useState} from 'react';
 import {Button, MenuToggle, MenuToggleElement, Select, SelectList, SelectOption, SelectOptionProps, TextInputGroup, TextInputGroupUtilities, Tooltip} from '@patternfly/react-core';
-import {PropertyMeta} from "@/core/model/CamelMetadata";
+import {PropertyMeta} from "@karavan-core/model/CamelMetadata";
 import {RouteToCreate} from "../../utils/CamelUi";
 import {PropertyUtil} from "./PropertyUtil";
 import TimesIcon from "@patternfly/react-icons/dist/esm/icons/times-icon";
@@ -68,8 +68,8 @@ export function DslPropertyFieldSelect(props: Props) {
                 </SelectList>
             </Select>
             <TextInputGroupUtilities>
-                <Tooltip key={0} position="bottom" content={"Clear"}>
-                    <Button icon={<TimesIcon/>} variant="plain"
+                <Tooltip key={property?.name} position="bottom" content={"Clear"}>
+                    <Button icon={<TimesIcon/>} isInline variant="link"
                             onClick={e => onPropertyChange?.(property.name, undefined)}
                             aria-label="Delete"
                     />

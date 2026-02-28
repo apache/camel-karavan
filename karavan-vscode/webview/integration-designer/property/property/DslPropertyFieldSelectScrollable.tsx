@@ -27,7 +27,7 @@ import {
     TextInputGroupMain,
     TextInputGroupUtilities
 } from '@patternfly/react-core';
-import {PropertyMeta} from "@/core/model/CamelMetadata";
+import {PropertyMeta} from "@karavan-core/model/CamelMetadata";
 import {RouteToCreate} from "../../utils/CamelUi";
 import {PropertyUtil} from "./PropertyUtil";
 import TimesIcon from "@patternfly/react-icons/dist/esm/icons/times-icon";
@@ -114,7 +114,7 @@ export function DslPropertyFieldSelectScrollable(props: Props) {
                 </DropdownList>
             </Dropdown>
             <TextInputGroupUtilities>
-                <Button icon={<TimesIcon/>} variant="plain"
+                <Button icon={<TimesIcon/>}  isInline variant="link"
                         onClick={e => {
                             onPropertyChange?.(property.name, undefined)
                             setInputValue(undefined)

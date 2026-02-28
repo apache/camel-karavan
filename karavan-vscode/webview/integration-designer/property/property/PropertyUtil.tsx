@@ -14,9 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {PropertyMeta} from "@/core/model/CamelMetadata";
-import {ComponentProperty} from "@/core/model/ComponentModels";
-import {Property} from "@/core/model/KameletModels";
+import {PropertyMeta} from "@karavan-core/model/CamelMetadata";
+import {ComponentProperty} from "@karavan-core/model/ComponentModels";
+import {Property} from "@karavan-core/model/KameletModels";
 
 export class PropertyUtil {
 

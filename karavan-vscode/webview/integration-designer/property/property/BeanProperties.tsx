@@ -29,9 +29,9 @@ import {
     ValidatedOptions,
 } from '@patternfly/react-core';
 import './BeanProperties.css';
-import {BeanFactoryDefinition,} from "@/core/model/CamelDefinition";
-import {CamelUtil} from "@/core/api/CamelUtil";
-import {SensitiveKeys} from "@/core/model/CamelMetadata";
+import {BeanFactoryDefinition,} from "@karavan-core/model/CamelDefinition";
+import {CamelUtil} from "@karavan-core/api/CamelUtil";
+import {SensitiveKeys} from "@karavan-core/model/CamelMetadata";
 import {v4 as uuidv4} from "uuid";
 import {CogIcon, DockerIcon, PlusCircleIcon, TimesIcon} from '@patternfly/react-icons';
 import {ConfigurationSelectorModal} from "./ConfigurationSelectorModal";
@@ -246,13 +246,13 @@ export function BeanProperties (props: Props) {
                                         }}/>
                                 </InputGroupItem>
                             </InputGroup>
-                            <Button icon={<TimesIcon/>} variant="link" className="delete-button" onClick={e => constructorDeleted(i)}>
+                            <Button icon={<TimesIcon/>}  isInline variant="link" className="delete-button" onClick={e => constructorDeleted(i)}>
                                 
                             </Button>
                         </div>
                     )
                 })}
-                <Button icon={<PlusCircleIcon/>} variant="link" className="add-button" onClick={e => constructorChanged(uuidv4(), constructors.size, '')}>
+                <Button icon={<PlusCircleIcon/>}  isInline variant="link" className="add-button" onClick={e => constructorChanged(uuidv4(), constructors.size, '')}>
                     Add argument</Button>
             </>
         )
@@ -292,7 +292,7 @@ export function BeanProperties (props: Props) {
                                         }}
                                     />
                                     <TextInputGroupUtilities>
-                                        <Button icon={<TimesIcon aria-hidden={true}/>} variant="plain" className='button-clear' onClick={_ => {
+                                        <Button icon={<TimesIcon aria-hidden={true}/>}  isInline variant="link" className='button-clear' onClick={_ => {
                                             propertyChanged(i, key,'');
                                         }} />
                                     </TextInputGroupUtilities>
@@ -324,11 +324,11 @@ export function BeanProperties (props: Props) {
                             {/*            }}/>*/}
                             {/*    </InputGroupItem>*/}
                             {/*</InputGroup>*/}
-                            <Button icon={<TimesIcon/>} variant="link" className="delete-button" onClick={e => propertyDeleted(i)}></Button>
+                            <Button icon={<TimesIcon/>}  isInline variant="link" className="delete-button" onClick={e => propertyDeleted(i)}></Button>
                         </div>
                     )
                 })}
-                <Button icon={<PlusCircleIcon/>} variant="link" className="add-button" onClick={e => propertyChanged(uuidv4(), '', '')}>
+                <Button icon={<PlusCircleIcon/>}  isInline variant="link" className="add-button" onClick={e => propertyChanged(uuidv4(), '', '')}>
                     Add property</Button>
             </>
         )

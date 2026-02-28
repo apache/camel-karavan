@@ -15,9 +15,9 @@
  * limitations under the License.
  */
 import React from 'react';
-import '../karavan.css';
+import '@features/project/designer/karavan.css';
 import {DslMetaModel} from "../utils/DslMetaModel";
-import {CamelUtil} from "@/core/api/CamelUtil";
+import {CamelUtil} from "@karavan-core/api/CamelUtil";
 import {
     ChoiceDefinition,
     FromDefinition,
@@ -27,17 +27,19 @@ import {
     MarshalDefinition,
     RouteConfigurationDefinition,
     RouteDefinition,
+    RouteTemplateDefinition,
     SplitDefinition,
     UnmarshalDefinition
-} from "@/core/model/CamelDefinition";
-import {CamelElement, MetadataLabels} from "@/core/model/IntegrationDefinition";
-import {CamelDefinitionApiExt} from "@/core/api/CamelDefinitionApiExt";
-import {CamelDefinitionApi} from "@/core/api/CamelDefinitionApi";
+} from "@karavan-core/model/CamelDefinition";
+import {CamelElement, MetadataLabels} from "@karavan-core/model/IntegrationDefinition";
+import {CamelDefinitionApiExt} from "@karavan-core/api/CamelDefinitionApiExt";
+import {CamelDefinitionApi} from "@karavan-core/api/CamelDefinitionApi";
 import {EventBus} from "../utils/EventBus";
-import {CamelDisplayUtil} from "@/core/api/CamelDisplayUtil";
+import {CamelDisplayUtil} from "@karavan-core/api/CamelDisplayUtil";
 import {useDesignerStore, useIntegrationStore, useSelectorStore} from "../DesignerStore";
 import {shallow} from "zustand/shallow";
 import {v4 as uuidv4} from 'uuid';
+import {CamelUi} from "@features/project/designer/utils/CamelUi";
 
 export function useRouteDesignerHook() {
 
@@ -331,11 +333,14 @@ export function useRouteDesignerHook() {
 
     const createRouteTemplate = (dsl: DslMetaModel) => {
         const clone = CamelUtil.cloneIntegration(integration);
-        const route = CamelDefinitionApi.createRouteDefinition({
-            from: new FromDefinition({uri: dsl.uri}),
-            nodePrefixId: 'route-' + uuidv4().substring(0, 3)
-        });
-        const routeTemplate = CamelDefinitionApi.createRouteTemplateDefinition({route: route});
+        const keys = dsl.properties ? Object.keys(dsl.properties) : [];
+        const key = keys.at(0);
+        const routeId = dsl.properties?.[key] + "Route";
+        const templateId = dsl.properties?.[key] + "RouteTemplate";
+        const route = CamelUi.createRouteFromComponent(dsl.uri, dsl.properties, '');
+        route.id = routeId
+        route.nodePrefixId = routeId
+        const routeTemplate = CamelDefinitionApi.createRouteTemplateDefinition({id: templateId, route: route});
         const i = CamelDefinitionApiExt.addRouteTemplateToIntegration(clone, routeTemplate);
         setIntegration(i, false);
         setSelectedStep(routeTemplate);

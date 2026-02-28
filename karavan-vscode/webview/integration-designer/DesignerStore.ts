@@ -15,12 +15,12 @@
  * limitations under the License.
  */
 
-import {CamelElement, Integration, IntegrationFile} from "@/core/model/IntegrationDefinition";
+import {CamelElement, Integration, IntegrationFile} from "@karavan-core/model/IntegrationDefinition";
 import {DslPosition, EventBus} from "./utils/EventBus";
 import {createWithEqualityFn} from "zustand/traditional";
 import {shallow} from "zustand/shallow";
-import {BeanFactoryDefinition} from "@/core/model/CamelDefinition";
-import {DslMetaModel} from "@/integration-designer/utils/DslMetaModel";
+import {BeanFactoryDefinition} from "@karavan-core/model/CamelDefinition";
+import {DslMetaModel} from "@features/project/designer/utils/DslMetaModel";
 
 interface IntegrationState {
     integration: Integration;
@@ -197,6 +197,10 @@ export const useConnectionsStore = createWithEqualityFn<ConnectionsState>((set) 
     }
 }), shallow)
 
+
+export const DesignerViewSwitchOptions = ["routes", "rest", "beans", "kamelet"] as const;
+export type DesignerViewSwitchOption = typeof DesignerViewSwitchOptions[number];
+
 type DesignerState = {
     designerSwitch: boolean
     isDebugging: boolean
@@ -222,7 +226,7 @@ type DesignerState = {
     propertyPlaceholders:  [string, string][]
     parameterPlaceholders: [string, string][], // route template parameters
     beans: BeanFactoryDefinition[],
-    tab?: "routes" | "rest" | "beans" | "kamelet",
+    tab?: DesignerViewSwitchOption,
     stepDoubleClicked: boolean,
 }
 
@@ -274,7 +278,7 @@ type DesignerAction = {
     setPropertyPlaceholders: (propertyPlaceholders:  [string, string][]) => void;
     setParameterPlaceholders: (parameterPlaceholders: [string, string][]) => void;
     setBeans: (beans: BeanFactoryDefinition[]) => void;
-    setTab: (tab?: "routes" | "rest" | "beans" | "kamelet") => void;
+    setTab: (tab?: DesignerViewSwitchOption) => void;
     setDesignerSwitch: (designerSwitch: boolean) => void;
     setStepDoubleClicked: (stepDoubleClicked: boolean) => void;
 }
@@ -370,7 +374,7 @@ export const useDesignerStore = createWithEqualityFn<DesignerState & DesignerAct
             return {beans: [...beans]};
         })
     },
-    setTab: (tab?: "routes" | "rest" | "beans" | "kamelet")  => {
+    setTab: (tab?: DesignerViewSwitchOption)  => {
         set({tab: tab})
     },
     setDesignerSwitch: (designerSwitch: boolean) => {

@@ -41,19 +41,15 @@ import {CamelUi} from "../utils/CamelUi";
 import {useDesignerStore} from "../DesignerStore";
 import {shallow} from "zustand/shallow";
 import {usePropertiesHook} from "./usePropertiesHook";
-import {CamelDisplayUtil} from "@/core/api/CamelDisplayUtil";
+import {CamelDisplayUtil} from "@karavan-core/api/CamelDisplayUtil";
 import {EllipsisVIcon} from '@patternfly/react-icons';
-import {ComponentApi} from "@/core/api/ComponentApi";
-import {CamelMetadataApi} from "@/core/model/CamelMetadata";
+import {ComponentApi} from "@karavan-core/api/ComponentApi";
+import {CamelMetadataApi} from "@karavan-core/model/CamelMetadata";
 import {useRouteDesignerHook} from "../route/useRouteDesignerHook";
 
-interface Props {
-    designerType: 'routes' | 'rest' | 'beans'
-}
+export function PropertiesHeader() {
 
-export function PropertiesHeader(props: Props) {
-
-    const {saveAsRoute, convertStep, onPropertyChange} = usePropertiesHook(props.designerType);
+    const {saveAsRoute, convertStep, onPropertyChange} = usePropertiesHook();
     const {openSelectorToReplaceFrom} = useRouteDesignerHook();
 
     const [selectedStep] = useDesignerStore((s) => [s.selectedStep], shallow)

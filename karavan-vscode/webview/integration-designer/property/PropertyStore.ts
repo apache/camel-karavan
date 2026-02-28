@@ -17,6 +17,8 @@
 import {createWithEqualityFn} from "zustand/traditional";
 import {shallow} from "zustand/shallow";
 
+export const NO_INFRA_BUTTON_PROPERTIES = ["uri", "id", "description", "group", "note"]
+
 interface PropertiesState {
     propertyFilter: string;
     setPropertyFilter: (propertyFilter: string) => void
@@ -29,8 +31,8 @@ interface PropertiesState {
 }
 
 export const usePropertiesStore = createWithEqualityFn<PropertiesState>((set, get) => ({
-    requiredOnly: false,
-    changedOnly: false,
+    requiredOnly: true,
+    changedOnly: true,
     sensitiveOnly: false,
     propertyFilter: '',
     setPropertyFilter: (propertyFilter: string) => {

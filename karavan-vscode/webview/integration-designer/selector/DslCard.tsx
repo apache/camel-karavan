@@ -19,13 +19,13 @@ import {Badge, capitalize, Card, CardBody, CardFooter, CardHeader, Content, Form
 import './DslSelector.css';
 import '../property/property/ComponentPropertyField.css';
 import {CamelUi} from "../utils/CamelUi";
-import {DslMetaModel} from "@/integration-designer/utils/DslMetaModel";
-import {KameletApi} from "@/core/api/KameletApi";
-import {ComponentApi} from "@/core/api/ComponentApi";
-import {useSelectorStore} from "@/integration-designer/DesignerStore";
-import {ComponentPropertyField} from "@/integration-designer/property/property/ComponentPropertyField";
-import {ExpressionEditor} from "@/integration-designer/property/expression/ExpressionEditor";
-import {ComponentProperty} from "@/core/model/ComponentModels";
+import {DslMetaModel} from "@features/project/designer/utils/DslMetaModel";
+import {KameletApi} from "@karavan-core/api/KameletApi";
+import {ComponentApi} from "@karavan-core/api/ComponentApi";
+import {useSelectorStore} from "@features/project/designer/DesignerStore";
+import {ComponentPropertyField} from "@features/project/designer/property/property/ComponentPropertyField";
+import {ExpressionEditor} from "@features/project/designer/property/expression/ExpressionEditor";
+import {ComponentProperty} from "@karavan-core/model/ComponentModels";
 
 interface Props {
     dsl: DslMetaModel,

@@ -26,16 +26,8 @@
 
 .karavan .karavan-designer-view-switcher {
     position: absolute;
-    right: 0;
-    top: 0;
-    padding-right: 8px;
+    width: 125px;
+    right: 1px;
+    top: 1px;
     z-index: 100;
-}
-
-.karavan-designer-view-switcher-dropdown button {
-    padding: 0 12px 0 8px;
-}
-
-.karavan-designer-view-switcher-dropdown .pf-v6-c-menu__item-icon {
-    transform: scale(0.5);
 }

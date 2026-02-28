@@ -34,10 +34,10 @@ import {
     withSelection,
     withTargetDrag,
 } from '@patternfly/react-topology';
-import CustomNode from "./CustomNode";
-import CustomEdge from "./CustomEdge";
-import CustomGroup from "./CustomGroup";
-import {getCustomMenu} from "./GetCustomMenu";
+import CustomGroup from "@features/project/project-topology/CustomGroup";
+import {getCustomMenu} from "@features/project/project-topology/GetCustomMenu";
+import CustomNode from "@features/project/project-topology/CustomNode";
+import CustomEdge from "@features/project/project-topology/CustomEdge";
 
 const CONNECTOR_TARGET_DROP = 'connector-target-drop';
 

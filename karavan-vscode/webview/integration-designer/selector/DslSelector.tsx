@@ -40,17 +40,17 @@ import {CamelUi} from "../utils/CamelUi";
 import {DslMetaModel} from "../utils/DslMetaModel";
 import {useSelectorStore} from "../DesignerStore";
 import {shallow} from "zustand/shallow";
-import {ComponentApi} from '@/core/api/ComponentApi';
-import {KameletApi} from '@/core/api/KameletApi';
+import {ComponentApi} from '@karavan-core/api/ComponentApi';
+import {KameletApi} from '@karavan-core/api/KameletApi';
 import TimesIcon from "@patternfly/react-icons/dist/esm/icons/times-icon";
 import {addPreferredElement, deletePreferredElement, getPreferredElements} from "./DslPreferences";
 import {DslFastCard} from "./DslFastCard";
 import {DslCard} from "./DslCard";
 import {useDebounceValue} from 'usehooks-ts';
 import {v4 as uuidv4} from "uuid";
-import {toSpecialRouteId} from "@/integration-designer/utils/ValidatorUtils";
-import {FILE_WORDS_SEPARATOR, KARAVAN_DOT_EXTENSION} from "@/core/contants";
-import {useFilesStore} from "@/api/ProjectStore";
+import {toSpecialRouteId} from "@features/project/designer/utils/ValidatorUtils";
+import {FILE_WORDS_SEPARATOR, KARAVAN_DOT_EXTENSION} from "@karavan-core/contants";
+import {useFilesStore} from "@stores/ProjectStore";
 import ExclamationCircleIcon from "@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon";
 
 interface Props {
@@ -62,10 +62,10 @@ interface Props {
 export function DslSelector(props: Props) {
 
     const [showSelector, showSteps, parentId, parentDsl, setShowSelector, showProperties, selectedDsl,
-        selectedPosition, selectedToggles, addSelectedToggle, deleteSelectedToggle, setShowProperties, setSelectedDsl] =
+        selectedPosition, selectedToggles, addSelectedToggle, deleteSelectedToggle, setShowProperties, setSelectedDsl, isRouteTemplate] =
         useSelectorStore((s) =>
             [s.showSelector, s.showSteps, s.parentId, s.parentDsl, s.setShowSelector, s.showProperties, s.selectedDsl,
-                s.selectedPosition, s.selectedToggles, s.addSelectedToggle, s.deleteSelectedToggle, s.setShowProperties, s.setSelectedDsl], shallow)
+                s.selectedPosition, s.selectedToggles, s.addSelectedToggle, s.deleteSelectedToggle, s.setShowProperties, s.setSelectedDsl, s.isRouteTemplate], shallow)
     const files = useFilesStore((s) => s.files);
 
     const [fileName, setFileName] = useState<string>();
@@ -105,8 +105,12 @@ export function DslSelector(props: Props) {
 
     function generateRouteFileName(dsl: DslMetaModel): string {
         const paramsUri = generateParamUri(dsl);
-        const fullUri = `${FILE_WORDS_SEPARATOR}${paramsUri}`
-        return toSpecialRouteId(`from${FILE_WORDS_SEPARATOR}${fullUri}`);
+        const fullUri = `${FILE_WORDS_SEPARATOR}${paramsUri}`;
+        if (isRouteTemplate) {
+            return toSpecialRouteId(`${FILE_WORDS_SEPARATOR}${fullUri}-route-template`);
+        } else {
+            return toSpecialRouteId(`${FILE_WORDS_SEPARATOR}${fullUri}`);
+        }
     }
 
     useEffect(() => {

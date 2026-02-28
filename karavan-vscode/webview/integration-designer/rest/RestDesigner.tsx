@@ -15,37 +15,24 @@
  * limitations under the License.
  */
 import React, {useEffect} from 'react';
-import {
-    Button,
-    Flex,
-    FlexItem,
-    Gallery,
-    GalleryItem, Modal,
-    ModalBody,
-    ModalHeader,
-    PageSection
-} from '@patternfly/react-core';
+import {Button, Flex, FlexItem, Gallery, GalleryItem, Modal, ModalBody, ModalHeader, PageSection} from '@patternfly/react-core';
 
 import './rest.css';
-import '../karavan.css';
-import {CamelElement} from "@/core/model/IntegrationDefinition";
+import '@features/project/designer/karavan.css';
+import {CamelElement} from "@karavan-core/model/IntegrationDefinition";
 import {RestCard} from "./RestCard";
 import PlusIcon from "@patternfly/react-icons/dist/esm/icons/plus-icon";
-import {
-    RestConfigurationDefinition,
-    RestContextRefDefinition,
-    RestDefinition
-} from "@/core/model/CamelDefinition";
-import {CamelUtil} from "@/core/api/CamelUtil";
-import {CamelDefinitionApiExt} from "@/core/api/CamelDefinitionApiExt";
+import {RestConfigurationDefinition, RestContextRefDefinition, RestDefinition} from "@karavan-core/model/CamelDefinition";
+import {CamelUtil} from "@karavan-core/api/CamelUtil";
+import {CamelDefinitionApiExt} from "@karavan-core/api/CamelDefinitionApiExt";
 import {RestMethodSelector} from "./RestMethodSelector";
 import {DslMetaModel} from "../utils/DslMetaModel";
-import {CamelDefinitionApi} from "@/core/api/CamelDefinitionApi";
+import {CamelDefinitionApi} from "@karavan-core/api/CamelDefinitionApi";
 import {RestConfigurationCard} from "./RestConfigurationCard";
 import {v4 as uuidv4} from "uuid";
 import {useDesignerStore, useIntegrationStore, useSelectorStore} from "../DesignerStore";
 import {shallow} from "zustand/shallow";
-import {ModalConfirmation} from "@/components/ModalConfirmation";
+import {ModalConfirmation} from "@shared/ui/ModalConfirmation";
 
 export function RestDesigner() {
 

@@ -16,17 +16,17 @@
  */
 import React, {useState} from 'react';
 import {ExpandableSection, FormGroup, FormGroupLabelHelp, Popover, SelectOptionProps} from '@patternfly/react-core';
-import {CamelMetadataApi, Languages, PropertyMeta} from "@/core/model/CamelMetadata";
-import {CamelDefinitionApiExt} from "@/core/api/CamelDefinitionApiExt";
-import {ExpressionDefinition} from "@/core/model/CamelDefinition";
-import {CamelElement} from "@/core/model/IntegrationDefinition";
-import {CamelDefinitionApi} from "@/core/api/CamelDefinitionApi";
+import {CamelMetadataApi, Languages, PropertyMeta} from "@karavan-core/model/CamelMetadata";
+import {CamelDefinitionApiExt} from "@karavan-core/api/CamelDefinitionApiExt";
+import {ExpressionDefinition} from "@karavan-core/model/CamelDefinition";
+import {CamelElement} from "@karavan-core/model/IntegrationDefinition";
+import {CamelDefinitionApi} from "@karavan-core/api/CamelDefinitionApi";
 import {DslPropertyField} from "./DslPropertyField";
 import {CamelUi} from "../../utils/CamelUi";
 import {usePropertiesStore} from "../PropertyStore";
 import {shallow} from "zustand/shallow";
 import {PropertyUtil} from "./PropertyUtil";
-import {DslPropertyFieldSelectScrollable} from "@/integration-designer/property/property/DslPropertyFieldSelectScrollable";
+import {DslPropertyFieldSelectScrollable} from "@features/project/designer/property/property/DslPropertyFieldSelectScrollable";
 
 interface Props {
     property: PropertyMeta,

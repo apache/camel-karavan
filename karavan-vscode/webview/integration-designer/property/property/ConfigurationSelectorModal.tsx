@@ -22,7 +22,7 @@ import {useDesignerStore} from "../../DesignerStore";
 import {shallow} from "zustand/shallow";
 import {ExpressionEditor} from "../expression/ExpressionEditor";
 import './ConfigurationSelectorModal.css'
-import {useCodeStore} from "@/integration-designer/CodeStore";
+import {useCodeStore} from "@features/project/designer/CodeStore";
 
 const SYNTAX_EXAMPLES = [
     {key: 'property:', value: 'group.property', description: 'Application property'},
@@ -337,7 +337,7 @@ export function ConfigurationSelectorModal(props: Props) {
                         <Content component={'h3'}>{'Set from'}</Content>
                     </div>
                     <div style={{width: '300px'}}>
-                    {tabIndex !== 'editor' && searchInput()}
+                        {tabIndex !== 'editor' && searchInput()}
                     </div>
                     <ToggleGroup>
                         {tabs.map(tab =>

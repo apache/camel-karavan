@@ -28,7 +28,7 @@ import {
     capitalize,
     TextArea
 } from "@patternfly/react-core";
-import '../karavan.css';
+import '@features/project/designer/karavan.css';
 import './kamelet.css';
 
 interface Props {

@@ -16,12 +16,12 @@
  */
 import React from 'react';
 import {Button, Card, CardBody, CardTitle, FormGroup, FormHelperText, HelperText, HelperTextItem, Label, LabelGroup,} from '@patternfly/react-core';
-import '../karavan.css';
+import '@features/project/designer/karavan.css';
 import './kamelet.css';
 import {useIntegrationStore} from "../DesignerStore";
 import {shallow} from "zustand/shallow";
 import {PlusCircleIcon} from '@patternfly/react-icons';
-import {CamelUtil} from "@/core/api/CamelUtil";
+import {CamelUtil} from "@karavan-core/api/CamelUtil";
 
 export function KameletDependenciesCard() {
 

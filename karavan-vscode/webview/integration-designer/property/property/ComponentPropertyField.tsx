@@ -37,25 +37,26 @@ import {
     ValidatedOptions
 } from '@patternfly/react-core';
 import './ComponentPropertyField.css';
-import {ComponentProperty} from "@/core/model/ComponentModels";
+import {ComponentProperty} from "@karavan-core/model/ComponentModels";
 import {CamelUi, RouteToCreate} from "../../utils/CamelUi";
-import {CamelElement} from "@/core/model/IntegrationDefinition";
-import {ToDefinition} from "@/core/model/CamelDefinition";
+import {CamelElement} from "@karavan-core/model/IntegrationDefinition";
+import {ToDefinition} from "@karavan-core/model/CamelDefinition";
 import {ConfigurationSelectorModal} from "./ConfigurationSelectorModal";
 import {InfrastructureAPI} from "../../utils/InfrastructureAPI";
 import {CogIcon, PlusIcon, TimesIcon} from '@patternfly/react-icons';
 import {usePropertiesHook} from "../usePropertiesHook";
 import {useDesignerStore, useIntegrationStore} from "../../DesignerStore";
 import {shallow} from "zustand/shallow";
-import {INTERNAL_COMPONENTS} from "@/core/api/ComponentApi";
+import {INTERNAL_COMPONENTS} from "@karavan-core/api/ComponentApi";
 import {PropertyUtil} from "./PropertyUtil";
 import {isSensitiveFieldValid} from "../../utils/ValidatorUtils";
 import ExclamationCircleIcon from "@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon";
 import {CamelDefaultStepProperty} from "../../utils/CamelDefaultStepProperty";
 import {FileReferenceDropdown} from "./FileReferenceDropdown";
-import {FieldSelectWithCreate} from "@/components/FieldSelectWithCreate";
-import {FieldSelectScrollable} from "@/components/FieldSelectScrollable";
-import {CamelMetadataApi} from "@/core/model/CamelMetadata";
+import {FieldSelectWithCreate} from "@shared/ui/FieldSelectWithCreate";
+import {FieldSelectScrollable} from "@shared/ui/FieldSelectScrollable";
+import {CamelMetadataApi} from "@karavan-core/model/CamelMetadata";
+import {NO_INFRA_BUTTON_PROPERTIES} from "@features/project/designer/property/PropertyStore";
 
 const prefix = "parameters";
 const beanPrefix = "#bean:";
@@ -329,7 +330,7 @@ export function ComponentPropertyField(props: Props) {
     }
 
     function getStringInput(property: ComponentProperty) {
-        const noInfraSelectorButton = ["uri", "id", "description", "group"].includes(property.name);
+        const noInfraSelectorButton = NO_INFRA_BUTTON_PROPERTIES.includes(property.name);
         return <InputGroup className={valueChangedClassName}>
             <TextInputGroup>
                 <TextInputGroupMain
@@ -346,7 +347,7 @@ export function ComponentPropertyField(props: Props) {
                     }}
                 />
                 <TextInputGroupUtilities>
-                    <Button icon={<TimesIcon aria-hidden={true}/>} variant="plain" className='button-clear' onClick={_ => {
+                    <Button icon={<TimesIcon aria-hidden={true}/>}  isInline variant="link" className='button-clear' onClick={_ => {
                         parametersChanged(property.name, '');
                         setTextValue('');
                         setCheckChanges(true);
@@ -377,7 +378,7 @@ export function ComponentPropertyField(props: Props) {
                         />
                         <TextInputGroupUtilities>
                             <Content component={ContentVariants.p}>{property.type}</Content>
-                            <Button icon={<TimesIcon aria-hidden={true}/>} variant="plain" className='button-clear' onClick={_ => {
+                            <Button icon={<TimesIcon aria-hidden={true}/>}  isInline variant="link" className='button-clear' onClick={_ => {
                                 parametersChanged(property.name, '');
                                 setTextValue('');
                                 setCheckChanges(true);

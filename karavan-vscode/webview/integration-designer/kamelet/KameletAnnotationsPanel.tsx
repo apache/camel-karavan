@@ -22,7 +22,7 @@ import {
     CardTitle,
     Form, Grid,
 } from '@patternfly/react-core';
-import '../karavan.css';
+import '@features/project/designer/karavan.css';
 import './kamelet.css';
 import {useIntegrationStore} from "../DesignerStore";
 import {shallow} from "zustand/shallow";

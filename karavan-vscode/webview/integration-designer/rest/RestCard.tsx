@@ -19,9 +19,9 @@ import {
     Button, Tooltip
 } from '@patternfly/react-core';
 import './rest.css';
-import '../karavan.css';
-import {CamelElement, Integration} from "@/core/model/IntegrationDefinition";
-import {GetDefinition, RestDefinition} from "@/core/model/CamelDefinition";
+import '@features/project/designer/karavan.css';
+import {CamelElement, Integration} from "@karavan-core/model/IntegrationDefinition";
+import {GetDefinition, RestDefinition} from "@karavan-core/model/CamelDefinition";
 import {RestMethodCard} from "./RestMethodCard";
 import {AddElementIcon, DeleteElementIcon} from "../utils/ElementIcons";
 

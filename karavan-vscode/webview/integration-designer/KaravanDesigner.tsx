@@ -17,9 +17,9 @@
 import React, {useEffect, useState} from 'react';
 import './KaravanDesigner.css';
 import {RouteDesigner} from "./route/RouteDesigner";
-import {CamelDefinitionYaml} from "@/core/api/CamelDefinitionYaml";
-import {Integration, IntegrationFile} from "@/core/model/IntegrationDefinition";
-import {CamelUtil} from "@/core/api/CamelUtil";
+import {CamelDefinitionYaml} from "@karavan-core/api/CamelDefinitionYaml";
+import {Integration, IntegrationFile} from "@karavan-core/model/IntegrationDefinition";
+import {CamelUtil} from "@karavan-core/api/CamelUtil";
 import {CamelUi} from "./utils/CamelUi";
 import {useDesignerStore, useIntegrationStore} from "./DesignerStore";
 import {shallow} from "zustand/shallow";
@@ -28,12 +28,12 @@ import {EventBus, IntegrationUpdate} from "./utils/EventBus";
 import {RestDesigner} from "./rest/RestDesigner";
 import {BeansDesigner} from "./beans/BeansDesigner";
 import {KameletDesigner} from "./kamelet/KameletDesigner";
-import {BeanFactoryDefinition, RouteDefinition, RouteTemplateDefinition} from "@/core/model/CamelDefinition";
+import {BeanFactoryDefinition, RouteDefinition, RouteTemplateDefinition} from "@karavan-core/model/CamelDefinition";
 import {ErrorBoundaryState, ErrorBoundaryWrapper} from "./ErrorBoundaryWrapper";
-import {Panel, PanelGroup, PanelResizeHandle} from 'react-resizable-panels';
-import {MainPropertiesPanel} from "./property/MainPropertiesPanel";
-import {CamelDefinitionApiExt} from "@/core/api/CamelDefinitionApiExt";
-import {KaravanDesignerViewSwitch} from "@/integration-designer/KaravanDesignerViewSwitch";
+import {Group, Panel, Separator} from 'react-resizable-panels';
+import {CamelDefinitionApiExt} from "@karavan-core/api/CamelDefinitionApiExt";
+import {KaravanDesignerViewSwitch} from "@features/project/designer/KaravanDesignerViewSwitch";
+import {MainPropertiesPanel} from "@features/project/designer/property/MainPropertiesPanel";
 
 interface Props {
     onSave: (filename: string, yaml: string, propertyOnly: boolean) => void
@@ -50,7 +50,6 @@ interface Props {
     propertyPlaceholders: [string, string][]
     beans: BeanFactoryDefinition[]
     files: IntegrationFile[]
-    mainRightPanel?: React.ReactNode
 }
 
 export function KaravanDesigner(props: Props) {
@@ -192,17 +191,17 @@ export function KaravanDesigner(props: Props) {
 
     return (
         (tab !== 'kamelet')
-            ? <PanelGroup direction="horizontal">
+            ? <Group orientation="horizontal">
                 <Panel minSize={10} defaultSize={70}>
                     {getMainPart()}
                 </Panel>
-                <PanelResizeHandle className='resize-handler'/>
+                <Separator className='resize-handler'/>
                 <Panel minSize={10} defaultSize={30}>
-                    {props.mainRightPanel || <MainPropertiesPanel/>}
+                     <MainPropertiesPanel/>
                 </Panel>
-            </PanelGroup>
-            : <PanelGroup direction="horizontal">
+            </Group>
+            : <Group orientation="horizontal">
                 {getMainPart()}
-            </PanelGroup>
+            </Group>
     )
 }

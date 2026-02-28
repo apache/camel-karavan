@@ -32,14 +32,14 @@ import {
     TextInput
 } from '@patternfly/react-core';
 import './PropertyPlaceholderDropdown.css';
-import {ComponentProperty} from "@/core/model/ComponentModels";
+import {ComponentProperty} from "@karavan-core/model/ComponentModels";
 import {useDesignerStore} from "../../DesignerStore";
 import {shallow} from "zustand/shallow";
 import {EllipsisVIcon, PlusIcon} from '@patternfly/react-icons';
 import {InfrastructureAPI} from "../../utils/InfrastructureAPI";
-import {PropertyMeta} from "@/core/model/CamelMetadata";
+import {PropertyMeta} from "@karavan-core/model/CamelMetadata";
 import {RouteToCreate} from "../../utils/CamelUi";
-import {Property} from "@/core/model/KameletModels";
+import {Property} from "@karavan-core/model/KameletModels";
 
 const SYNTAX_EXAMPLES = [
     {key: 'property:', value: 'group.property', description: 'Application property'},

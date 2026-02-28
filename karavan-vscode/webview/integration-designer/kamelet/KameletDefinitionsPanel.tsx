@@ -16,14 +16,14 @@
  */
 import React from 'react';
 import {Button, Card, CardBody, CardTitle, Flex, FlexItem, Form, Grid,} from '@patternfly/react-core';
-import '../karavan.css';
+import '@features/project/designer/karavan.css';
 import './kamelet.css';
 import {useIntegrationStore} from "../DesignerStore";
 import {shallow} from "zustand/shallow";
 import {PlusCircleIcon} from '@patternfly/react-icons';
 import {KameletDefinitionPropertyCard} from "./KameletDefinitionPropertyCard";
-import {CamelUtil} from "@/core/api/CamelUtil";
-import {DefinitionProperty} from "@/core/model/IntegrationDefinition";
+import {CamelUtil} from "@karavan-core/api/CamelUtil";
+import {DefinitionProperty} from "@karavan-core/model/IntegrationDefinition";
 import {KameletDependenciesCard} from "./KameletDependenciesCard";
 import {KameletInput} from './KameletInput';
 

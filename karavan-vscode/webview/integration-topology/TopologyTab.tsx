@@ -33,37 +33,38 @@ import {
     VisualizationProvider,
     VisualizationSurface,
 } from '@patternfly/react-topology';
-import {getCustomComponentFactory} from "./CustomComponentFactory";
+import {getCustomComponentFactory} from "@features/project/project-topology/CustomComponentFactory";
 import {shallow} from "zustand/shallow";
-import {useTopologyStore} from "./TopologyStore";
-import {useDesignerStore} from "@/integration-designer/DesignerStore";
-import {IntegrationFile} from "@/core/model/IntegrationDefinition";
-import {TopologyBeans} from "./TopologyBeans";
-import {getModel} from "./TopologyApi";
-import {useTopologyHook} from "./useTopologyHook";
-import {TopologyLegend} from "./TopologyLegend";
-import {ModalConfirmation, ModalConfirmationProps} from "@/components/ModalConfirmation";
+import {useTopologyStore} from "@stores/TopologyStore";
+import {useDesignerStore} from "@features/project/designer/DesignerStore";
+import {IntegrationFile} from "@karavan-core/model/IntegrationDefinition";
+import {TopologyBeans} from "@features/project/project-topology/TopologyBeans";
+import {getModel} from "@features/project/project-topology/TopologyApi";
+import {useTopologyHook} from "@features/project/project-topology/useTopologyHook";
+import {TopologyLegend} from "@features/project/project-topology/TopologyLegend";
+import {ModalConfirmation, ModalConfirmationProps} from "@shared/ui/ModalConfirmation";
 import {EyeIcon, EyeSlashIcon} from '@patternfly/react-icons';
-import {ArrowDown, GroupObjects, JumpLink, UngroupObjects} from '@carbon/icons-react';
+import {ArrayNumbers, GroupObjects, UngroupObjects} from '@carbon/icons-react';
+import {useFilesStore, useProjectStore} from "@stores/ProjectStore";
 import {NODE_POSITIONED_EVENT} from "@patternfly/react-topology/src/types";
-import {TopologyDagreLayout} from "@/integration-topology/graph/TopologyDagreLayout";
-import {ASYNCAPI_FILE_NAME_JSON, OPENAPI_FILE_NAME_JSON} from "@/core/contants";
+import {OPENAPI_FILE_NAME_JSON} from "@karavan-core/contants";
+import {runInAction} from "mobx";
+import {TopologyToolbar} from "@features/project/project-topology/TopologyToolbar";
+import {TopologyElkLayout} from "@features/project/project-topology/TopologyElkLayout";
 
 interface Props {
-    files: IntegrationFile[],
-    openApiJson?: string
     asyncApiJson?: string
-    hideToolbar: boolean,
 }
 
 export function TopologyTab(props: Props) {
 
-    const { files, hideToolbar } = props;
-    const [modelMap, setModelMap, setFileName, layout, showGroups, setShowGroups,
-        showBeans, setShowBeans, showLegend, setShowLegend, straightEdges, setStraightEdges] = useTopologyStore((s) =>
-        [s.modelMap, s.setModelMap, s.setFileName, s.layout, s.showGroups, s.setShowGroups,
-            s.showBeans, s.setShowBeans, s.showLegend, s.setShowLegend, s.straightEdges, s.setStraightEdges]);
+    const {asyncApiJson } = props;
+    const [setFileName, showGroups, setShowGroups, showBeans, setShowBeans, showLegend, setShowLegend]
+        = useTopologyStore((s) => [s.setFileName, s.showGroups, s.setShowGroups, s.showBeans, s.setShowBeans, s.showLegend, s.setShowLegend]);
+    const [showStats, setShowStats] = useTopologyStore((s) => [s.showStats, s.setShowStats]);
     const [setSelectedStep] = useDesignerStore((s) => [s.setSelectedStep], shallow)
+    const [files] = useFilesStore((s) => [s.files], shallow);
+    const [project] = useProjectStore((s) => [s.project], shallow);
     const [confirmationProps, setConfirmationProps] = useState<ModalConfirmationProps>();
     const {selectFile, setDisabled, deleteRoute, setRouteGroup} = useTopologyHook(setConfirmationProps);
 
@@ -71,11 +72,8 @@ export function TopologyTab(props: Props) {
         .filter(f => f.name.endsWith('.camel.yaml'))
         // .filter(f => search === '' || filedFound.includes(f.name))
         .map(f => new IntegrationFile(f.name, f.code));
-    const codes = files.map(f => f.code).join("");
     const openApiFile = files.filter(f => f.name === OPENAPI_FILE_NAME_JSON)?.at(0);
     const openApiJson = openApiFile?.code;
-    const asyncApiFile = files.filter(f => f.name === ASYNCAPI_FILE_NAME_JSON)?.at(0);
-    const asyncApiJson = asyncApiFile?.code;
 
     function setTopologySelected(model: Model, ids: string []) {
         if (ids.length > 0) {
@@ -94,11 +92,12 @@ export function TopologyTab(props: Props) {
     }
 
     const customLayoutFactory: LayoutFactory = (type: string, graph: Graph): Layout => {
-        return new TopologyDagreLayout(graph, {}, straightEdges);
+        // return new TopologyDagreLayout(graph, {}, straightEdges);
+        return new TopologyElkLayout(graph, {});
     };
 
     const controller = React.useMemo(() => {
-        const model = getModel(camelFiles, showGroups, selectFile, setDisabled, deleteRoute, setRouteGroup, openApiJson, asyncApiJson);
+        const model = getModel(project.projectId, camelFiles, showGroups, selectFile, setDisabled, deleteRoute, setRouteGroup, openApiJson, asyncApiJson, showStats);
         const controller = new Visualization();
 
         controller.registerLayoutFactory((type, graph) => customLayoutFactory(type, graph));
@@ -106,21 +105,15 @@ export function TopologyTab(props: Props) {
 
         controller.addEventListener(SELECTION_EVENT, args => setTopologySelected(model, args));
         controller.addEventListener(GRAPH_LAYOUT_END_EVENT, () => {
-            controller.getGraph().fit(80);
+            runInAction(() => {
+                controller.getGraph().fit(90);
+            });
         });
         controller.addEventListener(NODE_POSITIONED_EVENT, (args: any) => {
         });
         controller.fromModel(model, false);
         return controller;
-    }, [files, showGroups, straightEdges, layout]);
-
-    function saveModelMap(graph: Graph) {
-        const newModelMap: Map<string, { x: number, y: number }> = new Map();
-        graph.getNodes().forEach((node: any) => {
-            newModelMap.set(node.getId(), {x: node.position?.x, y: node.position?.y})
-        });
-        setModelMap(newModelMap);
-    }
+    }, [files, showGroups, asyncApiJson, showStats]);
 
     function getButtonTitle(title: string, icon: React.ReactNode) {
         return (
@@ -154,35 +147,30 @@ export function TopologyTab(props: Props) {
             }),
             customButtons: [
                 {
-                    id: 'straightEdges',
-                    icon: straightEdges ? getButtonTitle('Edges', <ArrowDown className='carbon'/> ) : getButtonTitle('Edges', <JumpLink className='carbon'/>),
-                    tooltip: 'Switch Straight/Right-Angle Edges',
-                    callback: id => setStraightEdges(!straightEdges)
-                },
-                {
                     id: 'showGroups',
                     icon: showGroups ? getButtonTitle('Grouped', <GroupObjects className='carbon'/> ) : getButtonTitle('Ungrouped', <UngroupObjects className='carbon'/>) ,
                     tooltip: 'Switch Ungrouped/Grouped',
                     callback: id => setShowGroups(!showGroups)
                 },
-                // {
-                //     id: 'layout',
-                //     icon: layout === 'manual' ? getButtonTitle('Manual', <HandPointUpIcon/>) : getButtonTitle('Auto', <RobotIcon/>),
-                //     tooltip: 'Switch Auto/Manual Layout',
-                //     callback: id => setLayout(layout === 'auto' ? 'manual' : 'auto')
-                // },
                 {
                     id: 'showBeans',
                     icon: showBeans ? getButtonTitle('Beans', <EyeIcon/>) : getButtonTitle('Beans', <EyeSlashIcon/>),
                     tooltip: 'Show/Hide Beans',
                     callback: id => setShowBeans(!showBeans)
+                },
+                {
+                    id: "stats",
+                    icon: <ArrayNumbers className='carbon'/>,
+                    tooltip: showStats ? "Hide stats" : "Show stats",
+                    callback: (id: any) => setShowStats(!showStats),
                 }
             ],
         });
-    }, [controller, showLegend, showBeans, straightEdges, showGroups, layout]);
+    }, [controller, showLegend, showBeans, showGroups]);
 
     return (
         <>
+            <TopologyToolbar/>
             <TopologyView
                 className="topology-panel"
                 controlBar={
