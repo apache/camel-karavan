@@ -15,13 +15,7 @@
  * limitations under the License.
  */
 import React from 'react';
-import {
-    Button,
-    Card,
-    CardBody,
-    CardHeader,
-    Content,
-} from '@patternfly/react-core';
+import {Button, Content,} from '@patternfly/react-core';
 import './DslSelector.css';
 import {CamelUi} from "../utils/CamelUi";
 import {DslMetaModel} from "../utils/DslMetaModel";

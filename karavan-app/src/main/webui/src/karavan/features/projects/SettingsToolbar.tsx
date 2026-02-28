@@ -1,10 +1,9 @@
 import React, {useState} from 'react';
-import {Button, Flex, FlexItem, Modal, ModalBody, ModalFooter, ModalHeader,} from '@patternfly/react-core';
+import {Button, Flex, Modal, ModalBody, ModalFooter, ModalHeader,} from '@patternfly/react-core';
 import {useAppConfigStore, useFileStore, useProjectStore} from "@stores/ProjectStore";
 import {shallow} from "zustand/shallow";
 import {ProjectType} from "@models/ProjectModels";
 import {KaravanApi} from "@api/KaravanApi";
-import {CatalogIcon} from '@patternfly/react-icons';
 import {EditorToolbar} from "@features/project/developer/EditorToolbar";
 
 export function SettingsToolbar() {

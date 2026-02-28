@@ -61,19 +61,6 @@ export function PlatformVersionWithName() {
     </div>)
 }
 
-export function PlatformNameForToolbar() {
-    return (<div style={{
-        height: '100%',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        alignItems: 'center',
-        gap: '3px',
-    }}>
-        {PlatformName()}
-    </div>)
-}
-
 export const PlatformName = (height: number | string = 20, width: number | string = 292.797) => (
     <Content component={'h1'}>KARAVAN</Content>
 )

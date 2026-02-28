@@ -4,13 +4,10 @@ import {MarkdownEditor} from "@features/project/developer/MarkdownEditor";
 import './DeveloperManager.css'
 import {EditorErrorBoundaryWrapper} from "@features/project/developer/EditorErrorBoundaryWrapper";
 import {EditorType} from "@features/project/developer/EditorConfig";
-import {useFilesStore, useFileStore} from "@stores/ProjectStore";
+import {useFileStore} from "@stores/ProjectStore";
 import {shallow} from "zustand/shallow";
 import {useDesignerStore} from "@features/project/designer/DesignerStore";
 import {ProjectService} from "@services/ProjectService";
-import type * as monaco from "monaco-editor";
-import {useNavigate} from "react-router-dom";
-import {ROUTES} from "@app/navigation/Routes";
 
 export interface DeveloperEditorProps {
     editorType: EditorType;
@@ -21,9 +18,7 @@ export function DeveloperEditor(props: DeveloperEditorProps): JSX.Element {
     const {editorType} = props
     const [setDesignerSwitch] = useDesignerStore((s) => [s.setDesignerSwitch], shallow)
     const [file, setFile] = useFileStore((s) => [s.file, s.setFile], shallow)
-    const [files] = useFilesStore((s) => [s.files], shallow);
     const [code, setCode] = useState<string>("");
-    const navigate = useNavigate();
 
     useEffect(() => {
         setDesignerSwitch(false);

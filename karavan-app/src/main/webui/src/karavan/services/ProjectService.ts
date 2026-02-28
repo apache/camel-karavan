@@ -26,7 +26,6 @@ import {EventBus} from "@features/project/designer/utils/EventBus";
 import {KameletApi} from "@karavan-core/api/KameletApi";
 import {getCurrentUser} from "@api/auth/AuthApi";
 import {AxiosResponse} from "axios";
-import {KARAVAN_DOT_EXTENSION} from "@karavan-core/contants";
 import {useLogStore} from "@stores/LogStore";
 import {useContainerStatusesStore} from "@stores/ContainerStatusesStore";
 

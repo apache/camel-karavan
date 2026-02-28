@@ -18,8 +18,6 @@ import React from 'react';
 import {Badge, Card, CardBody, CardFooter, CardHeader, Content, Gallery} from '@patternfly/react-core';
 import {CamelUi} from "../utils/CamelUi";
 import {DslMetaModel} from "../utils/DslMetaModel";
-import {useDesignerStore} from "../DesignerStore";
-import {shallow} from "zustand/shallow";
 
 interface Props {
     onMethodSelect: (method: DslMetaModel) => void
