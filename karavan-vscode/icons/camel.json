@@ -1,0 +1,11 @@
+{
+  "iconDefinitions": {
+    "_camel-yaml": {
+      "iconPath": "./camel-yaml.svg"
+    }
+  },
+  "fileNames": {
+    "*.camel.yaml": "_camel-yaml",
+    "*.camel.yml": "_camel-yaml"
+  }
+}
