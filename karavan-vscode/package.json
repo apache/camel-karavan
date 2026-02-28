@@ -63,7 +63,7 @@
       "properties": {
         "camel.version": {
           "type": "string",
-          "default": "4.14.5",
+          "default": "4.18.0",
           "description": "Camel version",
           "scope": "machine",
           "order": 10
@@ -281,7 +281,7 @@
             "camel.karavan.project-name=$NAME",
             "camel.karavan.target=$TARGET",
             "camel.jbang.gav=$GAV",
-            "camel.jbang.version=4.14.5",
+            "camel.jbang.version=4.18.0",
             "camel.jbang.runtime=camel-main",
             "camel.jbang.dependencies=camel-console,camel-platform-http-main",
             "camel.jbang.exportDir=.export",

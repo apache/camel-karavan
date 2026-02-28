@@ -13,21 +13,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM maven:3.9.9-eclipse-temurin-21
+FROM maven:3.9.12-eclipse-temurin-21
 
 LABEL "org.opencontainers.image.title"="karavan-devmode"
 LABEL "org.opencontainers.image.description"="Apache Camel Karavan DevMode"
 LABEL "org.opencontainers.image.url"="https://camel.apache.org"
 LABEL "org.opencontainers.image.licenses"="Apache 2.0"
-LABEL "org.opencontainers.image.version"="4.14.5"
+LABEL "org.opencontainers.image.version"="4.18.0"
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends git \
     && rm -rf /var/lib/apt/lists/*
 
-ENV JBANG_VERSION=0.132.1
-ENV CAMEL_VERSION=4.14.5
-ENV JBANG_JAVA_OPTIONS="-Dcamel.jbang.version=4.14.5 -Dcamel.jbang.kameletsVersion=4.14.5"
+ENV JBANG_VERSION=0.137.0
+ENV CAMEL_VERSION=4.18.0
+ENV JBANG_JAVA_OPTIONS="-Dcamel.jbang.version=4.18.0 -Dcamel.jbang.kameletsVersion=4.18.0"
 ENV KARAVAN="/karavan"
 ENV JBANG_DIR="$KARAVAN/.jbang"
 ENV MAVEN_CONFIG="$KARAVAN/.m2"
@@ -55,4 +55,4 @@ RUN curl -Ls https://sh.jbang.dev | bash -s - app setup \
 
 EXPOSE 8080
 WORKDIR $CODE_DIR 
-CMD ["jbang", "-Dcamel.jbang.version=4.14.5", "-Dcamel.jbang.kameletsVersion=4.14.5", "camel@apache/camel", "run", "--source-dir=/karavan/code", "--console"]
+CMD ["jbang", "-Dcamel.jbang.version=4.18.0", "-Dcamel.jbang.kameletsVersion=4.18.0", "camel@apache/camel", "run", "--source-dir=/karavan/code", "--console"]
