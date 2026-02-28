@@ -16,12 +16,11 @@
  */
 import React, {useState} from 'react';
 import {Bullseye, EmptyState, EmptyStateVariant, Spinner} from '@patternfly/react-core';
-import '../AccessPage.css';
 import {InnerScrollContainer, OuterScrollContainer, Table, TableVariant, Tbody, Td, Th, Thead, Tr} from '@patternfly/react-table';
 import SearchIcon from "@patternfly/react-icons/dist/esm/icons/search-icon";
 import {shallow} from "zustand/shallow";
-import {useAccessStore} from "../../../stores/AccessStore";
-import {AccessRole} from "../../../models/AccessModels";
+import {useAccessStore} from "@stores/AccessStore";
+import {AccessRole} from "@models/AccessModels";
 import {RolesTableRow} from "@features/access/roles/RolesTableRow";
 
 export function RolesTable() {
