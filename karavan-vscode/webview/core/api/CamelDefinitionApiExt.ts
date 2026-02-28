@@ -14,17 +14,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { CamelMetadataApi, ElementMeta, Languages, PropertyMeta } from '../model/CamelMetadata';
-import { CamelUtil } from './CamelUtil';
+import {CamelMetadataApi, ElementMeta, Languages, PropertyMeta} from '../model/CamelMetadata';
+import {CamelUtil} from './CamelUtil';
 import {
     BeanFactoryDefinition,
     ExpressionDefinition,
-    RouteDefinition,
+    FromDefinition,
     RestDefinition,
-    RouteConfigurationDefinition, FromDefinition, RouteTemplateDefinition,
+    RouteConfigurationDefinition,
+    RouteDefinition,
+    RouteTemplateDefinition,
+    TemplatedRouteDefinition,
 } from '../model/CamelDefinition';
-import { Beans, CamelElement, CamelElementMeta, Integration } from '../model/IntegrationDefinition';
-import { CamelDefinitionApi } from './CamelDefinitionApi';
+import {Beans, CamelElement, CamelElementMeta, Integration} from '../model/IntegrationDefinition';
+import {CamelDefinitionApi} from './CamelDefinitionApi';
 
 const coreRoutishElements = ['RouteConfigurationDefinition', 'RouteTemplateDefinition', 'RouteDefinition']
 
@@ -427,6 +430,22 @@ export class CamelDefinitionApiExt {
         routeTemplate: RouteTemplateDefinition,
     ): Integration => {
         integration.spec.flows?.push(routeTemplate);
+        return integration;
+    };
+
+    static addTemplatedRouteToIntegration = (
+        integration: Integration,
+        templatedRoute: TemplatedRouteDefinition,
+    ): Integration => {
+        integration.spec.flows?.push(templatedRoute);
+        return integration;
+    };
+
+    static addTemplatedRoutesToIntegration = (
+        integration: Integration,
+        templatedRoutes: TemplatedRouteDefinition[],
+    ): Integration => {
+        integration.spec.flows?.push(...templatedRoutes);
         return integration;
     };
 

@@ -80,6 +80,7 @@ export class ProcessorDefinition extends CamelElement {
     toD?: string;
     tokenizer?: TokenizerDefinition;
     transacted?: TransactedDefinition;
+    transformDataType?: TransformDataTypeDefinition;
     transform?: TransformDefinition;
     doTry?: TryDefinition;
     unmarshal?: UnmarshalDefinition;
@@ -138,6 +139,7 @@ export class OutputAwareFromDefinition extends CamelElement {
 export class AggregateDefinition extends CamelElement {
     stepName?: string = 'aggregate';
     id?: string = 'aggregate' + uuidv4().substring(0,4);
+    note?: string;
     description?: string;
     disabled?: boolean;
     correlationExpression?: ExpressionSubElementDefinition;
@@ -177,6 +179,7 @@ export class AggregateDefinition extends CamelElement {
 export class BeanDefinition extends CamelElement {
     stepName?: string = 'bean';
     id?: string = 'bean' + uuidv4().substring(0,4);
+    note?: string;
     description?: string;
     disabled?: boolean;
     ref?: string;
@@ -213,6 +216,7 @@ export class BeanFactoryDefinition extends CamelElement {
 export class CatchDefinition extends CamelElement {
     stepName?: string = 'doCatch';
     id?: string = 'doCatch' + uuidv4().substring(0,4);
+    note?: string;
     description?: string;
     disabled?: boolean;
     exception?: string[] = [];
@@ -227,6 +231,7 @@ export class CatchDefinition extends CamelElement {
 export class ChoiceDefinition extends CamelElement {
     stepName?: string = 'choice';
     id?: string = 'choice' + uuidv4().substring(0,4);
+    note?: string;
     description?: string;
     disabled?: boolean;
     when?: WhenDefinition[] = [];
@@ -241,6 +246,7 @@ export class ChoiceDefinition extends CamelElement {
 export class CircuitBreakerDefinition extends CamelElement {
     stepName?: string = 'circuitBreaker';
     id?: string = 'circuitBreaker' + uuidv4().substring(0,4);
+    note?: string;
     description?: string;
     disabled?: boolean;
     configuration?: string;
@@ -257,6 +263,7 @@ export class CircuitBreakerDefinition extends CamelElement {
 export class ClaimCheckDefinition extends CamelElement {
     stepName?: string = 'claimCheck';
     id?: string = 'claimCheck' + uuidv4().substring(0,4);
+    note?: string;
     description?: string;
     disabled?: boolean;
     operation?: string;
@@ -284,6 +291,7 @@ export class ContextScanDefinition extends CamelElement {
 export class ConvertBodyDefinition extends CamelElement {
     stepName?: string = 'convertBodyTo';
     id?: string = 'convertBodyTo' + uuidv4().substring(0,4);
+    note?: string;
     description?: string;
     disabled?: boolean;
     type: string = '';
@@ -298,6 +306,7 @@ export class ConvertBodyDefinition extends CamelElement {
 export class ConvertHeaderDefinition extends CamelElement {
     stepName?: string = 'convertHeaderTo';
     id?: string = 'convertHeaderTo' + uuidv4().substring(0,4);
+    note?: string;
     description?: string;
     disabled?: boolean;
     name: string = '';
@@ -314,6 +323,7 @@ export class ConvertHeaderDefinition extends CamelElement {
 export class ConvertVariableDefinition extends CamelElement {
     stepName?: string = 'convertVariableTo';
     id?: string = 'convertVariableTo' + uuidv4().substring(0,4);
+    note?: string;
     description?: string;
     disabled?: boolean;
     name: string = '';
@@ -339,6 +349,7 @@ export class DataFormatDefinition extends CamelElement {
 export class DelayDefinition extends CamelElement {
     stepName?: string = 'delay';
     id?: string = 'delay' + uuidv4().substring(0,4);
+    note?: string;
     description?: string;
     disabled?: boolean;
     expression?: ExpressionDefinition;
@@ -354,6 +365,7 @@ export class DelayDefinition extends CamelElement {
 export class DynamicRouterDefinition extends CamelElement {
     stepName?: string = 'dynamicRouter';
     id?: string = 'dynamicRouter' + uuidv4().substring(0,4);
+    note?: string;
     description?: string;
     disabled?: boolean;
     expression?: ExpressionDefinition;
@@ -369,6 +381,7 @@ export class DynamicRouterDefinition extends CamelElement {
 export class EnrichDefinition extends CamelElement {
     stepName?: string = 'enrich';
     id?: string = 'enrich' + uuidv4().substring(0,4);
+    note?: string;
     description?: string;
     disabled?: boolean;
     expression?: ExpressionDefinition;
@@ -460,6 +473,7 @@ export class FaultToleranceConfigurationDefinition extends CamelElement {
 export class FilterDefinition extends CamelElement {
     stepName?: string = 'filter';
     id?: string = 'filter' + uuidv4().substring(0,4);
+    note?: string;
     description?: string;
     disabled?: boolean;
     expression?: ExpressionDefinition;
@@ -474,6 +488,7 @@ export class FilterDefinition extends CamelElement {
 export class FinallyDefinition extends CamelElement {
     stepName?: string = 'doFinally';
     id?: string = 'doFinally' + uuidv4().substring(0,4);
+    note?: string;
     description?: string;
     disabled?: boolean;
     steps?: CamelElement[] = [];
@@ -486,6 +501,7 @@ export class FinallyDefinition extends CamelElement {
 export class FromDefinition extends CamelElement {
     stepName?: string = 'from';
     id?: string = 'from' + uuidv4().substring(0,4);
+    note?: string;
     description?: string;
     uri: string = '';
     variableReceive?: string;
@@ -519,6 +535,7 @@ export class GlobalOptionsDefinition extends CamelElement {
 export class IdempotentConsumerDefinition extends CamelElement {
     stepName?: string = 'idempotentConsumer';
     id?: string = 'idempotentConsumer' + uuidv4().substring(0,4);
+    note?: string;
     description?: string;
     disabled?: boolean;
     expression?: ExpressionDefinition;
@@ -537,6 +554,7 @@ export class IdempotentConsumerDefinition extends CamelElement {
 export class InputTypeDefinition extends CamelElement {
     stepName?: string = 'inputType';
     id?: string = 'inputType' + uuidv4().substring(0,4);
+    note?: string;
     description?: string;
     urn: string = '';
     validate?: boolean;
@@ -549,6 +567,7 @@ export class InputTypeDefinition extends CamelElement {
 export class InterceptDefinition extends CamelElement {
     stepName?: string = 'intercept';
     id?: string = 'intercept' + uuidv4().substring(0,4);
+    note?: string;
     description?: string;
     disabled?: boolean;
     onWhen?: OnWhenDefinition;
@@ -562,6 +581,7 @@ export class InterceptDefinition extends CamelElement {
 export class InterceptFromDefinition extends CamelElement {
     stepName?: string = 'interceptFrom';
     id?: string = 'interceptFrom' + uuidv4().substring(0,4);
+    note?: string;
     description?: string;
     disabled?: boolean;
     uri?: string;
@@ -576,6 +596,7 @@ export class InterceptFromDefinition extends CamelElement {
 export class InterceptSendToEndpointDefinition extends CamelElement {
     stepName?: string = 'interceptSendToEndpoint';
     id?: string = 'interceptSendToEndpoint' + uuidv4().substring(0,4);
+    note?: string;
     description?: string;
     disabled?: boolean;
     uri: string = '';
@@ -602,6 +623,7 @@ export class KameletDefinition extends CamelElement {
 export class LoadBalanceDefinition extends CamelElement {
     stepName?: string = 'loadBalance';
     id?: string = 'loadBalance' + uuidv4().substring(0,4);
+    note?: string;
     description?: string;
     disabled?: boolean;
     customLoadBalancer?: CustomLoadBalancerDefinition | string;
@@ -621,6 +643,7 @@ export class LoadBalanceDefinition extends CamelElement {
 export class LogDefinition extends CamelElement {
     stepName?: string = 'log';
     id?: string = 'log' + uuidv4().substring(0,4);
+    note?: string;
     description?: string;
     disabled?: boolean;
     message: string = '';
@@ -638,6 +661,7 @@ export class LogDefinition extends CamelElement {
 export class LoopDefinition extends CamelElement {
     stepName?: string = 'loop';
     id?: string = 'loop' + uuidv4().substring(0,4);
+    note?: string;
     description?: string;
     disabled?: boolean;
     expression?: ExpressionDefinition;
@@ -655,6 +679,7 @@ export class LoopDefinition extends CamelElement {
 export class MarshalDefinition extends CamelElement {
     stepName?: string = 'marshal';
     id?: string = 'marshal' + uuidv4().substring(0,4);
+    note?: string;
     description?: string;
     disabled?: boolean;
     variableSend?: string;
@@ -675,6 +700,7 @@ export class MarshalDefinition extends CamelElement {
     flatpack?: FlatpackDataFormat;
     fory?: ForyDataFormat;
     grok?: GrokDataFormat;
+    groovyXml?: GroovyXmlDataFormat;
     gzipDeflater?: GzipDeflaterDataFormat;
     hl7?: HL7DataFormat;
     ical?: IcalDataFormat;
@@ -685,8 +711,10 @@ export class MarshalDefinition extends CamelElement {
     jsonApi?: JsonApiDataFormat;
     lzf?: LZFDataFormat;
     mimeMultipart?: MimeMultipartDataFormat;
+    ocsf?: OcsfDataFormat;
     parquetAvro?: ParquetAvroDataFormat | string;
     pgp?: PGPDataFormat;
+    pqc?: PQCDataFormat;
     protobuf?: ProtobufDataFormat | string;
     rss?: RssDataFormat;
     smooks?: SmooksDataFormat;
@@ -696,7 +724,6 @@ export class MarshalDefinition extends CamelElement {
     syslog?: SyslogDataFormat;
     tarFile?: TarFileDataFormat;
     thrift?: ThriftDataFormat | string;
-    tidyMarkup?: TidyMarkupDataFormat;
     univocityCsv?: UniVocityCsvDataFormat;
     univocityFixed?: UniVocityFixedDataFormat;
     univocityTsv?: UniVocityTsvDataFormat;
@@ -713,6 +740,7 @@ export class MarshalDefinition extends CamelElement {
 export class MulticastDefinition extends CamelElement {
     stepName?: string = 'multicast';
     id?: string = 'multicast' + uuidv4().substring(0,4);
+    note?: string;
     description?: string;
     disabled?: boolean;
     aggregationStrategy?: string;
@@ -737,6 +765,7 @@ export class MulticastDefinition extends CamelElement {
 export class OnCompletionDefinition extends CamelElement {
     stepName?: string = 'onCompletion';
     id?: string = 'onCompletion' + uuidv4().substring(0,4);
+    note?: string;
     description?: string;
     disabled?: boolean;
     mode?: string;
@@ -756,6 +785,7 @@ export class OnCompletionDefinition extends CamelElement {
 export class OnExceptionDefinition extends CamelElement {
     stepName?: string = 'onException';
     id?: string = 'onException' + uuidv4().substring(0,4);
+    note?: string;
     description?: string;
     disabled?: boolean;
     exception?: string[] = [];
@@ -779,6 +809,7 @@ export class OnExceptionDefinition extends CamelElement {
 export class OnFallbackDefinition extends CamelElement {
     stepName?: string = 'onFallback';
     id?: string = 'onFallback' + uuidv4().substring(0,4);
+    note?: string;
     description?: string;
     fallbackViaNetwork?: boolean;
     steps?: CamelElement[] = [];
@@ -791,6 +822,7 @@ export class OnFallbackDefinition extends CamelElement {
 export class OnWhenDefinition extends CamelElement {
     stepName?: string = 'onWhen';
     id?: string = 'onWhen' + uuidv4().substring(0,4);
+    note?: string;
     description?: string;
     expression?: ExpressionDefinition;
     public constructor(init?: Partial<OnWhenDefinition>) {
@@ -815,6 +847,7 @@ export class OptimisticLockRetryPolicyDefinition extends CamelElement {
 export class OtherwiseDefinition extends CamelElement {
     stepName?: string = 'otherwise';
     id?: string = 'otherwise' + uuidv4().substring(0,4);
+    note?: string;
     description?: string;
     disabled?: boolean;
     steps?: CamelElement[] = [];
@@ -829,6 +862,7 @@ export class OutputDefinition extends CamelElement {
     description?: string;
     disabled?: boolean;
     id?: string = 'output' + uuidv4().substring(0,4);
+    note?: string;
     steps?: CamelElement[] = [];
     public constructor(init?: Partial<OutputDefinition>) {
         super('OutputDefinition');
@@ -839,6 +873,7 @@ export class OutputDefinition extends CamelElement {
 export class OutputTypeDefinition extends CamelElement {
     stepName?: string = 'outputType';
     id?: string = 'outputType' + uuidv4().substring(0,4);
+    note?: string;
     description?: string;
     urn: string = '';
     validate?: boolean;
@@ -862,6 +897,7 @@ export class PackageScanDefinition extends CamelElement {
 export class PausableDefinition extends CamelElement {
     stepName?: string = 'pausable';
     id?: string = 'pausable' + uuidv4().substring(0,4);
+    note?: string;
     description?: string;
     disabled?: boolean;
     consumerListener: string = '';
@@ -875,6 +911,7 @@ export class PausableDefinition extends CamelElement {
 export class PipelineDefinition extends CamelElement {
     stepName?: string = 'pipeline';
     id?: string = 'pipeline' + uuidv4().substring(0,4);
+    note?: string;
     description?: string;
     disabled?: boolean;
     steps?: CamelElement[] = [];
@@ -887,6 +924,7 @@ export class PipelineDefinition extends CamelElement {
 export class PolicyDefinition extends CamelElement {
     stepName?: string = 'policy';
     id?: string = 'policy' + uuidv4().substring(0,4);
+    note?: string;
     description?: string;
     disabled?: boolean;
     ref: string = '';
@@ -900,6 +938,7 @@ export class PolicyDefinition extends CamelElement {
 export class PollDefinition extends CamelElement {
     stepName?: string = 'poll';
     id?: string = 'poll' + uuidv4().substring(0,4);
+    note?: string;
     description?: string;
     disabled?: boolean;
     variableReceive?: string;
@@ -915,6 +954,7 @@ export class PollDefinition extends CamelElement {
 export class PollEnrichDefinition extends CamelElement {
     stepName?: string = 'pollEnrich';
     id?: string = 'pollEnrich' + uuidv4().substring(0,4);
+    note?: string;
     description?: string;
     disabled?: boolean;
     expression?: ExpressionDefinition;
@@ -937,6 +977,7 @@ export class PollEnrichDefinition extends CamelElement {
 export class ProcessDefinition extends CamelElement {
     stepName?: string = 'process';
     id?: string = 'process' + uuidv4().substring(0,4);
+    note?: string;
     description?: string;
     disabled?: boolean;
     ref: string = '';
@@ -969,6 +1010,7 @@ export class PropertyExpressionDefinition extends CamelElement {
 export class RecipientListDefinition extends CamelElement {
     stepName?: string = 'recipientList';
     id?: string = 'recipientList' + uuidv4().substring(0,4);
+    note?: string;
     description?: string;
     disabled?: boolean;
     expression?: ExpressionDefinition;
@@ -1029,6 +1071,7 @@ export class RedeliveryPolicyDefinition extends CamelElement {
 export class RemoveHeaderDefinition extends CamelElement {
     stepName?: string = 'removeHeader';
     id?: string = 'removeHeader' + uuidv4().substring(0,4);
+    note?: string;
     description?: string;
     disabled?: boolean;
     name: string = '';
@@ -1041,6 +1084,7 @@ export class RemoveHeaderDefinition extends CamelElement {
 export class RemoveHeadersDefinition extends CamelElement {
     stepName?: string = 'removeHeaders';
     id?: string = 'removeHeaders' + uuidv4().substring(0,4);
+    note?: string;
     description?: string;
     disabled?: boolean;
     pattern: string = '';
@@ -1054,6 +1098,7 @@ export class RemoveHeadersDefinition extends CamelElement {
 export class RemovePropertiesDefinition extends CamelElement {
     stepName?: string = 'removeProperties';
     id?: string = 'removeProperties' + uuidv4().substring(0,4);
+    note?: string;
     description?: string;
     disabled?: boolean;
     pattern: string = '';
@@ -1067,6 +1112,7 @@ export class RemovePropertiesDefinition extends CamelElement {
 export class RemovePropertyDefinition extends CamelElement {
     stepName?: string = 'removeProperty';
     id?: string = 'removeProperty' + uuidv4().substring(0,4);
+    note?: string;
     description?: string;
     disabled?: boolean;
     name: string = '';
@@ -1079,6 +1125,7 @@ export class RemovePropertyDefinition extends CamelElement {
 export class RemoveVariableDefinition extends CamelElement {
     stepName?: string = 'removeVariable';
     id?: string = 'removeVariable' + uuidv4().substring(0,4);
+    note?: string;
     description?: string;
     disabled?: boolean;
     name: string = '';
@@ -1091,6 +1138,7 @@ export class RemoveVariableDefinition extends CamelElement {
 export class ResequenceDefinition extends CamelElement {
     stepName?: string = 'resequence';
     id?: string = 'resequence' + uuidv4().substring(0,4);
+    note?: string;
     description?: string;
     disabled?: boolean;
     expression?: ExpressionDefinition;
@@ -1126,6 +1174,7 @@ export class Resilience4jConfigurationDefinition extends CamelElement {
     timeoutExecutorService?: string;
     timeoutDuration?: number;
     timeoutCancelRunningFuture?: boolean;
+    micrometerEnabled?: boolean;
     recordException?: string[] = [];
     ignoreException?: string[] = [];
     public constructor(init?: Partial<Resilience4jConfigurationDefinition>) {
@@ -1146,6 +1195,7 @@ export class RestContextRefDefinition extends CamelElement {
 export class ResumableDefinition extends CamelElement {
     stepName?: string = 'resumable';
     id?: string = 'resumable' + uuidv4().substring(0,4);
+    note?: string;
     description?: string;
     disabled?: boolean;
     resumeStrategy: string = '';
@@ -1160,6 +1210,7 @@ export class ResumableDefinition extends CamelElement {
 export class RollbackDefinition extends CamelElement {
     stepName?: string = 'rollback';
     id?: string = 'rollback' + uuidv4().substring(0,4);
+    note?: string;
     description?: string;
     disabled?: boolean;
     message?: string;
@@ -1219,6 +1270,7 @@ export class RouteContextRefDefinition extends CamelElement {
 export class RouteDefinition extends CamelElement {
     stepName?: string = 'route';
     id?: string = 'route' + uuidv4().substring(0,4);
+    note?: string;
     description?: string;
     group?: string;
     nodePrefixId?: string;
@@ -1246,6 +1298,7 @@ export class RouteDefinition extends CamelElement {
 export class RouteTemplateDefinition extends CamelElement {
     stepName?: string = 'routeTemplate';
     id: string = 'routeTemplate' + uuidv4().substring(0,4);
+    note?: string;
     description?: string;
     route?: RouteDefinition;
     beans?: BeanFactoryDefinition[] = [];
@@ -1272,6 +1325,7 @@ export class RouteTemplateParameterDefinition extends CamelElement {
 export class RoutingSlipDefinition extends CamelElement {
     stepName?: string = 'routingSlip';
     id?: string = 'routingSlip' + uuidv4().substring(0,4);
+    note?: string;
     description?: string;
     disabled?: boolean;
     expression?: ExpressionDefinition;
@@ -1289,6 +1343,7 @@ export class SagaActionUriDefinition extends CamelElement {
     description?: string;
     disabled?: boolean;
     id?: string = 'sagaActionUri' + uuidv4().substring(0,4);
+    note?: string;
     parameters?: any = {};
     uri: string = '';
     public constructor(init?: Partial<SagaActionUriDefinition>) {
@@ -1300,6 +1355,7 @@ export class SagaActionUriDefinition extends CamelElement {
 export class SagaDefinition extends CamelElement {
     stepName?: string = 'saga';
     id?: string = 'saga' + uuidv4().substring(0,4);
+    note?: string;
     description?: string;
     disabled?: boolean;
     sagaService?: string;
@@ -1319,6 +1375,7 @@ export class SagaDefinition extends CamelElement {
 export class SamplingDefinition extends CamelElement {
     stepName?: string = 'sample';
     id?: string = 'sample' + uuidv4().substring(0,4);
+    note?: string;
     description?: string;
     disabled?: boolean;
     samplePeriod?: string;
@@ -1332,6 +1389,7 @@ export class SamplingDefinition extends CamelElement {
 export class ScriptDefinition extends CamelElement {
     stepName?: string = 'script';
     id?: string = 'script' + uuidv4().substring(0,4);
+    note?: string;
     description?: string;
     disabled?: boolean;
     expression?: ExpressionDefinition;
@@ -1344,6 +1402,7 @@ export class ScriptDefinition extends CamelElement {
 export class SetBodyDefinition extends CamelElement {
     stepName?: string = 'setBody';
     id?: string = 'setBody' + uuidv4().substring(0,4);
+    note?: string;
     description?: string;
     disabled?: boolean;
     expression?: ExpressionDefinition;
@@ -1356,6 +1415,7 @@ export class SetBodyDefinition extends CamelElement {
 export class SetExchangePatternDefinition extends CamelElement {
     stepName?: string = 'setExchangePattern';
     id?: string = 'setExchangePattern' + uuidv4().substring(0,4);
+    note?: string;
     description?: string;
     disabled?: boolean;
     pattern?: string;
@@ -1368,6 +1428,7 @@ export class SetExchangePatternDefinition extends CamelElement {
 export class SetHeaderDefinition extends CamelElement {
     stepName?: string = 'setHeader';
     id?: string = 'setHeader' + uuidv4().substring(0,4);
+    note?: string;
     description?: string;
     disabled?: boolean;
     name: string = '';
@@ -1381,6 +1442,7 @@ export class SetHeaderDefinition extends CamelElement {
 export class SetHeadersDefinition extends CamelElement {
     stepName?: string = 'setHeaders';
     id?: string = 'setHeaders' + uuidv4().substring(0,4);
+    note?: string;
     description?: string;
     disabled?: boolean;
     headers?: SetHeaderDefinition[] = [];
@@ -1393,6 +1455,7 @@ export class SetHeadersDefinition extends CamelElement {
 export class SetPropertyDefinition extends CamelElement {
     stepName?: string = 'setProperty';
     id?: string = 'setProperty' + uuidv4().substring(0,4);
+    note?: string;
     description?: string;
     disabled?: boolean;
     name: string = '';
@@ -1406,6 +1469,7 @@ export class SetPropertyDefinition extends CamelElement {
 export class SetVariableDefinition extends CamelElement {
     stepName?: string = 'setVariable';
     id?: string = 'setVariable' + uuidv4().substring(0,4);
+    note?: string;
     description?: string;
     disabled?: boolean;
     name: string = '';
@@ -1419,6 +1483,7 @@ export class SetVariableDefinition extends CamelElement {
 export class SetVariablesDefinition extends CamelElement {
     stepName?: string = 'setVariables';
     id?: string = 'setVariables' + uuidv4().substring(0,4);
+    note?: string;
     description?: string;
     disabled?: boolean;
     variables?: SetVariableDefinition[] = [];
@@ -1431,6 +1496,7 @@ export class SetVariablesDefinition extends CamelElement {
 export class SortDefinition extends CamelElement {
     stepName?: string = 'sort';
     id?: string = 'sort' + uuidv4().substring(0,4);
+    note?: string;
     description?: string;
     disabled?: boolean;
     expression?: ExpressionDefinition;
@@ -1444,6 +1510,7 @@ export class SortDefinition extends CamelElement {
 export class SplitDefinition extends CamelElement {
     stepName?: string = 'split';
     id?: string = 'split' + uuidv4().substring(0,4);
+    note?: string;
     description?: string;
     disabled?: boolean;
     expression?: ExpressionDefinition;
@@ -1470,6 +1537,7 @@ export class SplitDefinition extends CamelElement {
 export class StepDefinition extends CamelElement {
     stepName?: string = 'step';
     id?: string = 'step' + uuidv4().substring(0,4);
+    note?: string;
     description?: string;
     disabled?: boolean;
     steps?: CamelElement[] = [];
@@ -1482,6 +1550,7 @@ export class StepDefinition extends CamelElement {
 export class StopDefinition extends CamelElement {
     stepName?: string = 'stop';
     id?: string = 'stop' + uuidv4().substring(0,4);
+    note?: string;
     description?: string;
     disabled?: boolean;
     public constructor(init?: Partial<StopDefinition>) {
@@ -1516,6 +1585,7 @@ export class TemplatedRouteParameterDefinition extends CamelElement {
 export class ThreadPoolProfileDefinition extends CamelElement {
     stepName?: string = 'threadPoolProfile';
     id?: string = 'threadPoolProfile' + uuidv4().substring(0,4);
+    note?: string;
     description?: string;
     defaultProfile?: boolean;
     poolSize?: number;
@@ -1534,6 +1604,7 @@ export class ThreadPoolProfileDefinition extends CamelElement {
 export class ThreadsDefinition extends CamelElement {
     stepName?: string = 'threads';
     id?: string = 'threads' + uuidv4().substring(0,4);
+    note?: string;
     description?: string;
     disabled?: boolean;
     executorService?: string;
@@ -1545,7 +1616,7 @@ export class ThreadsDefinition extends CamelElement {
     allowCoreThreadTimeOut?: boolean;
     threadName?: string;
     rejectedPolicy?: string;
-    callerRunsWhenRejected?: string;
+    callerRunsWhenRejected?: boolean;
     public constructor(init?: Partial<ThreadsDefinition>) {
         super('ThreadsDefinition');
         Object.assign(this, init);
@@ -1555,6 +1626,7 @@ export class ThreadsDefinition extends CamelElement {
 export class ThrottleDefinition extends CamelElement {
     stepName?: string = 'throttle';
     id?: string = 'throttle' + uuidv4().substring(0,4);
+    note?: string;
     description?: string;
     disabled?: boolean;
     expression?: ExpressionDefinition;
@@ -1574,6 +1646,7 @@ export class ThrottleDefinition extends CamelElement {
 export class ThrowExceptionDefinition extends CamelElement {
     stepName?: string = 'throwException';
     id?: string = 'throwException' + uuidv4().substring(0,4);
+    note?: string;
     description?: string;
     disabled?: boolean;
     message?: string;
@@ -1588,6 +1661,7 @@ export class ThrowExceptionDefinition extends CamelElement {
 export class ToDefinition extends CamelElement {
     stepName?: string = 'to';
     id?: string = 'to' + uuidv4().substring(0,4);
+    note?: string;
     description?: string;
     disabled?: boolean;
     variableSend?: string;
@@ -1604,6 +1678,7 @@ export class ToDefinition extends CamelElement {
 export class ToDynamicDefinition extends CamelElement {
     stepName?: string = 'toD';
     id?: string = 'toD' + uuidv4().substring(0,4);
+    note?: string;
     description?: string;
     disabled?: boolean;
     uri: string = '';
@@ -1624,6 +1699,7 @@ export class ToDynamicDefinition extends CamelElement {
 export class TokenizerDefinition extends CamelElement {
     stepName?: string = 'tokenizer';
     id?: string = 'tokenizer' + uuidv4().substring(0,4);
+    note?: string;
     description?: string;
     disabled?: boolean;
     langChain4jCharacterTokenizer?: LangChain4jCharacterTokenizerDefinition;
@@ -1649,6 +1725,7 @@ export class TokenizerImplementationDefinition extends CamelElement {
 export class TransactedDefinition extends CamelElement {
     stepName?: string = 'transacted';
     id?: string = 'transacted' + uuidv4().substring(0,4);
+    note?: string;
     description?: string;
     disabled?: boolean;
     ref?: string;
@@ -1659,14 +1736,27 @@ export class TransactedDefinition extends CamelElement {
     }
 }
 
+export class TransformDataTypeDefinition extends CamelElement {
+    stepName?: string = 'transformDataType';
+    id?: string = 'transformDataType' + uuidv4().substring(0,4);
+    note?: string;
+    description?: string;
+    disabled?: boolean;
+    fromType?: string;
+    toType: string = '';
+    public constructor(init?: Partial<TransformDataTypeDefinition>) {
+        super('TransformDataTypeDefinition');
+        Object.assign(this, init);
+    }
+}
+
 export class TransformDefinition extends CamelElement {
     stepName?: string = 'transform';
     id?: string = 'transform' + uuidv4().substring(0,4);
+    note?: string;
     description?: string;
     disabled?: boolean;
     expression?: ExpressionDefinition;
-    fromType?: string;
-    toType?: string;
     public constructor(init?: Partial<TransformDefinition>) {
         super('TransformDefinition');
         Object.assign(this, init);
@@ -1676,6 +1766,7 @@ export class TransformDefinition extends CamelElement {
 export class TryDefinition extends CamelElement {
     stepName?: string = 'doTry';
     id?: string = 'doTry' + uuidv4().substring(0,4);
+    note?: string;
     description?: string;
     disabled?: boolean;
     doCatch?: CatchDefinition[] = [];
@@ -1690,6 +1781,7 @@ export class TryDefinition extends CamelElement {
 export class UnmarshalDefinition extends CamelElement {
     stepName?: string = 'unmarshal';
     id?: string = 'unmarshal' + uuidv4().substring(0,4);
+    note?: string;
     description?: string;
     disabled?: boolean;
     variableSend?: string;
@@ -1711,6 +1803,7 @@ export class UnmarshalDefinition extends CamelElement {
     flatpack?: FlatpackDataFormat;
     fory?: ForyDataFormat;
     grok?: GrokDataFormat;
+    groovyXml?: GroovyXmlDataFormat;
     gzipDeflater?: GzipDeflaterDataFormat;
     hl7?: HL7DataFormat;
     ical?: IcalDataFormat;
@@ -1721,8 +1814,10 @@ export class UnmarshalDefinition extends CamelElement {
     jsonApi?: JsonApiDataFormat;
     lzf?: LZFDataFormat;
     mimeMultipart?: MimeMultipartDataFormat;
+    ocsf?: OcsfDataFormat;
     parquetAvro?: ParquetAvroDataFormat | string;
     pgp?: PGPDataFormat;
+    pqc?: PQCDataFormat;
     protobuf?: ProtobufDataFormat | string;
     rss?: RssDataFormat;
     smooks?: SmooksDataFormat;
@@ -1732,7 +1827,6 @@ export class UnmarshalDefinition extends CamelElement {
     syslog?: SyslogDataFormat;
     tarFile?: TarFileDataFormat;
     thrift?: ThriftDataFormat | string;
-    tidyMarkup?: TidyMarkupDataFormat;
     univocityCsv?: UniVocityCsvDataFormat;
     univocityFixed?: UniVocityFixedDataFormat;
     univocityTsv?: UniVocityTsvDataFormat;
@@ -1749,6 +1843,7 @@ export class UnmarshalDefinition extends CamelElement {
 export class ValidateDefinition extends CamelElement {
     stepName?: string = 'validate';
     id?: string = 'validate' + uuidv4().substring(0,4);
+    note?: string;
     description?: string;
     disabled?: boolean;
     expression?: ExpressionDefinition;
@@ -1771,6 +1866,7 @@ export class ValueDefinition extends CamelElement {
 export class WhenDefinition extends CamelElement {
     stepName?: string = 'when';
     id?: string = 'when' + uuidv4().substring(0,4);
+    note?: string;
     description?: string;
     disabled?: boolean;
     expression?: ExpressionDefinition;
@@ -1784,6 +1880,7 @@ export class WhenDefinition extends CamelElement {
 export class WireTapDefinition extends CamelElement {
     stepName?: string = 'wireTap';
     id?: string = 'wireTap' + uuidv4().substring(0,4);
+    note?: string;
     description?: string;
     disabled?: boolean;
     copy?: boolean;
@@ -1965,6 +2062,7 @@ export class BindyDataFormat extends CamelElement {
     id?: string = 'bindy' + uuidv4().substring(0,4);
     type?: string;
     classType?: string;
+    defaultValueStringAsNull?: boolean;
     allowEmptyStream?: boolean;
     unwrapSingleInstance?: boolean;
     locale?: string;
@@ -1997,10 +2095,10 @@ export class CryptoDataFormat extends CamelElement {
     dataFormatName?: string = 'crypto';
     id?: string = 'crypto' + uuidv4().substring(0,4);
     algorithm?: string;
-    keyRef?: string;
+    key?: string;
     cryptoProvider?: string;
-    initVectorRef?: string;
-    algorithmParameterRef?: string;
+    initVector?: string;
+    algorithmParameterSpec?: string;
     bufferSize?: number;
     macAlgorithm?: string;
     shouldAppendHMAC?: boolean;
@@ -2014,15 +2112,14 @@ export class CryptoDataFormat extends CamelElement {
 export class CsvDataFormat extends CamelElement {
     dataFormatName?: string = 'csv';
     id?: string = 'csv' + uuidv4().substring(0,4);
-    formatRef?: string;
-    formatName?: string;
+    format?: string;
     commentMarkerDisabled?: boolean;
     commentMarker?: string;
     delimiter?: string;
     escapeDisabled?: boolean;
     escape?: string;
     headerDisabled?: boolean;
-    header?: string[] = [];
+    header?: string;
     allowMissingColumnNames?: boolean;
     ignoreEmptyLines?: boolean;
     ignoreSurroundingSpaces?: boolean;
@@ -2077,6 +2174,7 @@ export class DataFormatsDefinition extends CamelElement {
     flatpack?: FlatpackDataFormat;
     fory?: ForyDataFormat;
     grok?: GrokDataFormat;
+    groovyXml?: GroovyXmlDataFormat;
     gzipDeflater?: GzipDeflaterDataFormat;
     hl7?: HL7DataFormat;
     ical?: IcalDataFormat;
@@ -2098,7 +2196,6 @@ export class DataFormatsDefinition extends CamelElement {
     syslog?: SyslogDataFormat;
     tarFile?: TarFileDataFormat;
     thrift?: ThriftDataFormat | string;
-    tidyMarkup?: TidyMarkupDataFormat;
     univocityCsv?: UniVocityCsvDataFormat;
     univocityFixed?: UniVocityFixedDataFormat;
     univocityTsv?: UniVocityTsvDataFormat;
@@ -2188,7 +2285,7 @@ export class FlatpackDataFormat extends CamelElement {
     allowShortLines?: boolean;
     ignoreExtraColumns?: boolean;
     textQualifier?: string;
-    parserFactoryRef?: string;
+    parserFactory?: string;
     public constructor(init?: Partial<FlatpackDataFormat>) {
         super('FlatpackDataFormat');
         Object.assign(this, init);
@@ -2221,6 +2318,16 @@ export class GrokDataFormat extends CamelElement {
     }
 }
 
+export class GroovyXmlDataFormat extends CamelElement {
+    dataFormatName?: string = 'groovyXml';
+    id?: string = 'groovyXml' + uuidv4().substring(0,4);
+    attributeMapping?: boolean;
+    public constructor(init?: Partial<GroovyXmlDataFormat>) {
+        super('GroovyXmlDataFormat');
+        Object.assign(this, init);
+    }
+}
+
 export class GzipDeflaterDataFormat extends CamelElement {
     dataFormatName?: string = 'gzipDeflater';
     id?: string = 'gzipDeflater' + uuidv4().substring(0,4);
@@ -2233,6 +2340,7 @@ export class GzipDeflaterDataFormat extends CamelElement {
 export class HL7DataFormat extends CamelElement {
     dataFormatName?: string = 'hl7';
     id?: string = 'hl7' + uuidv4().substring(0,4);
+    parser?: string;
     validate?: boolean;
     public constructor(init?: Partial<HL7DataFormat>) {
         super('HL7DataFormat');
@@ -2304,7 +2412,7 @@ export class JaxbDataFormat extends CamelElement {
     fragment?: boolean;
     partClass?: string;
     partNamespace?: string;
-    namespacePrefixRef?: string;
+    namespacePrefix?: string;
     xmlStreamWriterWrapper?: string;
     schemaLocation?: string;
     noNamespaceSchemaLocation?: string;
@@ -2385,6 +2493,22 @@ export class MimeMultipartDataFormat extends CamelElement {
     }
 }
 
+export class OcsfDataFormat extends CamelElement {
+    dataFormatName?: string = 'null';
+    allowUnmarshallType?: boolean;
+    collectionType?: string;
+    id?: string;
+    objectMapper?: string;
+    prettyPrint?: boolean;
+    unmarshalType?: string;
+    useDefaultObjectMapper?: boolean;
+    useList?: boolean;
+    public constructor(init?: Partial<OcsfDataFormat>) {
+        super('OcsfDataFormat');
+        Object.assign(this, init);
+    }
+}
+
 export class PGPDataFormat extends CamelElement {
     dataFormatName?: string = 'pgp';
     id?: string = 'pgp' + uuidv4().substring(0,4);
@@ -2404,6 +2528,22 @@ export class PGPDataFormat extends CamelElement {
     signatureVerificationOption?: string;
     public constructor(init?: Partial<PGPDataFormat>) {
         super('PGPDataFormat');
+        Object.assign(this, init);
+    }
+}
+
+export class PQCDataFormat extends CamelElement {
+    dataFormatName?: string = 'null';
+    bufferSize?: number;
+    id?: string;
+    keyEncapsulationAlgorithm?: string;
+    keyGenerator?: string;
+    keyPair?: string;
+    provider?: string;
+    symmetricKeyAlgorithm?: string;
+    symmetricKeyLength?: number;
+    public constructor(init?: Partial<PQCDataFormat>) {
+        super('PQCDataFormat');
         Object.assign(this, init);
     }
 }
@@ -2474,10 +2614,11 @@ export class SoapDataFormat extends CamelElement {
     id?: string = 'soap' + uuidv4().substring(0,4);
     contextPath: string = '';
     encoding?: string;
-    elementNameStrategyRef?: string;
+    elementNameStrategy?: string;
     version?: string;
-    namespacePrefixRef?: string;
+    namespacePrefix?: string;
     schema?: string;
+    ignoreUnmarshalledHeaders?: boolean;
     public constructor(init?: Partial<SoapDataFormat>) {
         super('SoapDataFormat');
         Object.assign(this, init);
@@ -2497,10 +2638,10 @@ export class SwiftMtDataFormat extends CamelElement {
 export class SwiftMxDataFormat extends CamelElement {
     dataFormatName?: string = 'swiftMx';
     id?: string = 'swiftMx' + uuidv4().substring(0,4);
-    writeConfigRef?: string;
     writeInJson?: boolean;
     readMessageId?: string;
-    readConfigRef?: string;
+    readConfig?: string;
+    writeConfig?: string;
     public constructor(init?: Partial<SwiftMxDataFormat>) {
         super('SwiftMxDataFormat');
         Object.assign(this, init);
@@ -2537,17 +2678,6 @@ export class ThriftDataFormat extends CamelElement {
     contentTypeHeader?: boolean;
     public constructor(init?: Partial<ThriftDataFormat>) {
         super('ThriftDataFormat');
-        Object.assign(this, init);
-    }
-}
-
-export class TidyMarkupDataFormat extends CamelElement {
-    dataFormatName?: string = 'tidyMarkup';
-    id?: string = 'tidyMarkup' + uuidv4().substring(0,4);
-    dataObjectType?: string;
-    omitXmlDeclaration?: boolean;
-    public constructor(init?: Partial<TidyMarkupDataFormat>) {
-        super('TidyMarkupDataFormat');
         Object.assign(this, init);
     }
 }
@@ -2648,11 +2778,12 @@ export class XMLSecurityDataFormat extends CamelElement {
     secureTagContents?: boolean;
     keyCipherAlgorithm?: string;
     recipientKeyAlias?: string;
-    keyOrTrustStoreParametersRef?: string;
+    keyOrTrustStoreParameters?: string;
     keyPassword?: string;
     digestAlgorithm?: string;
     mgfAlgorithm?: string;
     addKeyValueForEncryptedKey?: boolean;
+    namespace?: string;
     public constructor(init?: Partial<XMLSecurityDataFormat>) {
         super('XMLSecurityDataFormat');
         Object.assign(this, init);
@@ -2671,21 +2802,11 @@ export class YAMLDataFormat extends CamelElement {
     useApplicationContextClassLoader?: boolean;
     prettyFlow?: boolean;
     allowAnyType?: boolean;
-    typeFilter?: YAMLTypeFilterDefinition[] = [];
+    typeFilter?: string;
     maxAliasesForCollections?: number;
     allowRecursiveKeys?: boolean;
     public constructor(init?: Partial<YAMLDataFormat>) {
         super('YAMLDataFormat');
-        Object.assign(this, init);
-    }
-}
-
-export class YAMLTypeFilterDefinition extends CamelElement {
-    stepName?: string = 'yAMLTypeFilter';
-    type?: string;
-    value?: string;
-    public constructor(init?: Partial<YAMLTypeFilterDefinition>) {
-        super('YAMLTypeFilterDefinition');
         Object.assign(this, init);
     }
 }
@@ -2826,6 +2947,8 @@ export class CSimpleExpression extends CamelElement {
     expressionName?: string = 'csimple';
     id?: string = 'csimple' + uuidv4().substring(0,4);
     expression: string = '';
+    trimResult?: boolean;
+    pretty?: boolean;
     resultType?: string;
     trim?: boolean;
     public constructor(init?: Partial<CSimpleExpression>) {
@@ -3066,6 +3189,9 @@ export class SimpleExpression extends CamelElement {
     expressionName?: string = 'simple';
     id?: string = 'simple' + uuidv4().substring(0,4);
     expression: string = '';
+    trimResult?: boolean;
+    pretty?: boolean;
+    nested?: boolean;
     resultType?: string;
     trim?: boolean;
     public constructor(init?: Partial<SimpleExpression>) {
@@ -3294,6 +3420,7 @@ export class BearerTokenDefinition extends CamelElement {
 export class DeleteDefinition extends CamelElement {
     stepName?: string = 'delete';
     id?: string = 'delete' + uuidv4().substring(0,4);
+    note?: string;
     description?: string;
     disabled?: boolean;
     path?: string;
@@ -3324,6 +3451,7 @@ export class DeleteDefinition extends CamelElement {
 export class GetDefinition extends CamelElement {
     stepName?: string = 'get';
     id?: string = 'get' + uuidv4().substring(0,4);
+    note?: string;
     description?: string;
     disabled?: boolean;
     path?: string;
@@ -3354,6 +3482,7 @@ export class GetDefinition extends CamelElement {
 export class HeadDefinition extends CamelElement {
     stepName?: string = 'head';
     id?: string = 'head' + uuidv4().substring(0,4);
+    note?: string;
     description?: string;
     disabled?: boolean;
     path?: string;
@@ -3409,6 +3538,7 @@ export class OAuth2Definition extends CamelElement {
 export class OpenApiDefinition extends CamelElement {
     stepName?: string = 'openApi';
     id?: string = 'openApi' + uuidv4().substring(0,4);
+    note?: string;
     description?: string;
     disabled?: boolean;
     specification: string = '';
@@ -3455,6 +3585,7 @@ export class ParamDefinition extends CamelElement {
 export class PatchDefinition extends CamelElement {
     stepName?: string = 'patch';
     id?: string = 'patch' + uuidv4().substring(0,4);
+    note?: string;
     description?: string;
     disabled?: boolean;
     path?: string;
@@ -3485,6 +3616,7 @@ export class PatchDefinition extends CamelElement {
 export class PostDefinition extends CamelElement {
     stepName?: string = 'post';
     id?: string = 'post' + uuidv4().substring(0,4);
+    note?: string;
     description?: string;
     disabled?: boolean;
     path?: string;
@@ -3515,6 +3647,7 @@ export class PostDefinition extends CamelElement {
 export class PutDefinition extends CamelElement {
     stepName?: string = 'put';
     id?: string = 'put' + uuidv4().substring(0,4);
+    note?: string;
     description?: string;
     disabled?: boolean;
     path?: string;
@@ -3575,6 +3708,7 @@ export class ResponseMessageDefinition extends CamelElement {
 export class RestBindingDefinition extends CamelElement {
     stepName?: string = 'restBinding';
     id?: string = 'restBinding' + uuidv4().substring(0,4);
+    note?: string;
     description?: string;
     consumes?: string;
     produces?: string;
@@ -3635,6 +3769,7 @@ export class RestConfigurationDefinition extends CamelElement {
 export class RestDefinition extends CamelElement {
     stepName?: string = 'rest';
     id?: string = 'rest' + uuidv4().substring(0,4);
+    note?: string;
     description?: string;
     disabled?: boolean;
     path?: string;
@@ -3690,6 +3825,7 @@ export class RestSecuritiesDefinition extends CamelElement {
 export class RestsDefinition extends CamelElement {
     stepName?: string = 'rests';
     id?: string = 'rests' + uuidv4().substring(0,4);
+    note?: string;
     description?: string;
     rest?: RestDefinition[] = [];
     public constructor(init?: Partial<RestsDefinition>) {
@@ -3822,6 +3958,7 @@ export class DataFormatTransformerDefinition extends CamelElement {
     flatpack?: FlatpackDataFormat;
     fory?: ForyDataFormat;
     grok?: GrokDataFormat;
+    groovyXml?: GroovyXmlDataFormat;
     gzipDeflater?: GzipDeflaterDataFormat;
     hl7?: HL7DataFormat;
     ical?: IcalDataFormat;
@@ -3843,7 +3980,6 @@ export class DataFormatTransformerDefinition extends CamelElement {
     syslog?: SyslogDataFormat;
     tarFile?: TarFileDataFormat;
     thrift?: ThriftDataFormat | string;
-    tidyMarkup?: TidyMarkupDataFormat;
     univocityCsv?: UniVocityCsvDataFormat;
     univocityFixed?: UniVocityFixedDataFormat;
     univocityTsv?: UniVocityTsvDataFormat;

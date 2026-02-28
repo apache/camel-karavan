@@ -14,22 +14,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Integration, CamelElement, Beans, MetadataLabels, KameletTypes } from '../model/IntegrationDefinition';
-import { CamelDefinitionApi } from './CamelDefinitionApi';
+import {Beans, CamelElement, Integration, KameletTypes, MetadataLabels} from '../model/IntegrationDefinition';
+import {CamelDefinitionApi} from './CamelDefinitionApi';
 import {
-    KameletDefinition,
     BeanFactoryDefinition,
+    KameletDefinition,
     RouteConfigurationDefinition,
-    ToDefinition, RouteTemplateDefinition, SetVariableDefinition, SetHeaderDefinition,
+    RouteTemplateDefinition,
+    SetHeaderDefinition,
+    SetVariableDefinition,
+    ToDefinition,
 } from '../model/CamelDefinition';
-import { KameletApi } from './KameletApi';
-import { KameletModel, Property } from '../model/KameletModels';
-import { ComponentProperty } from '../model/ComponentModels';
-import { ComponentApi } from './ComponentApi';
-import { CamelMetadataApi, SensitiveKeys } from '../model/CamelMetadata';
-import { CamelDefinitionApiExt } from './CamelDefinitionApiExt';
-import { v4 as uuidv4 } from 'uuid';
-import { CamelDefinitionYaml } from './CamelDefinitionYaml';
+import {KameletApi} from './KameletApi';
+import {KameletModel, Property} from '../model/KameletModels';
+import {ComponentProperty} from '../model/ComponentModels';
+import {ComponentApi} from './ComponentApi';
+import {CamelMetadataApi, SensitiveKeys} from '../model/CamelMetadata';
+import {CamelDefinitionApiExt} from './CamelDefinitionApiExt';
+import {v4 as uuidv4} from 'uuid';
+import {CamelDefinitionYaml} from './CamelDefinitionYaml';
+import {ProjectFile} from "@models/ProjectModels";
+import {KARAVAN_DOT_EXTENSION} from "@karavan-core/contants";
 
 export class CamelUtil {
     private constructor() {
@@ -386,5 +391,19 @@ export class CamelUtil {
             }
         }
         return CamelDefinitionYaml.integrationToYaml(integration);
+    };
+
+    static hasRouteTemplateDefinitions = (file: ProjectFile): boolean => {
+        try {
+            if (file.name.endsWith(KARAVAN_DOT_EXTENSION.CAMEL_YAML)) {
+                const integration = CamelDefinitionYaml.yamlToIntegration("", file.code);
+                const templates = integration.spec.flows?.filter(flow => flow.dslName === 'RouteTemplateDefinition');
+                return templates?.length !== undefined && templates?.length > 0;
+            } else {
+                return false;
+            }
+        } catch (e) {
+            return false;
+        }
     };
 }

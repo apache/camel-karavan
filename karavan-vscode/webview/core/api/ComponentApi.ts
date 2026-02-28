@@ -23,6 +23,8 @@ let SupportedOnly: boolean = false;
 const BlockedComponents: string[] = [];
 
 export const INTERNAL_COMPONENTS = ['direct', 'seda', 'vertx']
+export const INTERNAL_COMPONENTS_CONSUMER_ONLY = ['timer', 'cron', 'scheduler']
+export const INTERNAL_COMPONENTS_PRODUCER_ONLY = ['controlbus', 'cron', 'scheduler']
 
 export class ComponentApi {
     private constructor() {}

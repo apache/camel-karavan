@@ -23,25 +23,29 @@ import {
     PatchDefinition,
     PostDefinition,
     PutDefinition,
-    RestDefinition, RouteConfigurationDefinition, RouteDefinition, SagaDefinition,
+    RestDefinition,
+    RouteConfigurationDefinition,
+    RouteDefinition,
+    SagaDefinition,
 } from '../model/CamelDefinition';
+import {CamelElement, Integration,} from '../model/IntegrationDefinition';
 import {
-    CamelElement,
-    Integration,
-} from '../model/IntegrationDefinition';
-import {
-    TopologyAsyncApiNode, TopologyAsyncApiOperation,
+    TopologyAsyncApiNode,
+    TopologyAsyncApiOperation,
     TopologyBeanNode,
-    TopologyIncomingNode, TopologyOpenApiNode, TopologyOpenApiOperation,
+    TopologyIncomingNode,
+    TopologyOpenApiNode,
+    TopologyOpenApiOperation,
     TopologyOutgoingNode,
-    TopologyRestNode, TopologyRouteConfigurationNode,
+    TopologyRestNode,
+    TopologyRouteConfigurationNode,
     TopologyRouteNode,
 } from '../model/TopologyDefinition';
-import { ComponentApi, INTERNAL_COMPONENTS } from './ComponentApi';
-import { CamelDefinitionApiExt } from './CamelDefinitionApiExt';
-import { CamelDisplayUtil } from './CamelDisplayUtil';
-import { CamelUtil } from './CamelUtil';
-import { ASYNCAPI_FILE_NAME_JSON, OPENAPI_FILE_NAME_JSON } from '../contants';
+import {ComponentApi, INTERNAL_COMPONENTS} from './ComponentApi';
+import {CamelDefinitionApiExt} from './CamelDefinitionApiExt';
+import {CamelDisplayUtil} from './CamelDisplayUtil';
+import {CamelUtil} from './CamelUtil';
+import {LANDSCAPE_FILE_NAME_JSON, OPENAPI_FILE_NAME_JSON, X_APPLICATION_ID} from '../contants';
 
 const outgoingDefinitions: string[] = ['ToDefinition', 'KameletDefinition', 'ToDynamicDefinition', 'PollEnrichDefinition', 'EnrichDefinition', 'WireTapDefinition', 'SagaDefinition', 'PollDefinition'];
 
@@ -217,7 +221,7 @@ export class TopologyUtils {
         return new TopologyOpenApiNode(OPENAPI_FILE_NAME_JSON, title, operations);
     };
 
-    static findTopologyAsyncApiNodes = (json: string): TopologyAsyncApiNode => {
+    static findTopologyAsyncApiNodes = (json: string, applicationName?: string): TopologyAsyncApiNode => {
         const operations: TopologyAsyncApiOperation[] = [];
         let title = 'AsyncAPI';
 
@@ -230,20 +234,23 @@ export class TopologyUtils {
             if (asyncapi.operations) {
                 Object.keys(asyncapi.operations).forEach((operationId) => {
                     const operation = asyncapi.operations[operationId];
-                    operations.push(
-                        new TopologyAsyncApiOperation(
-                            operation.operationId,
-                            operation.title,
-                            operation.action,
-                            operation.channel?.$ref
-                        )
-                    );
+                    const xApplication: string = operation?.[X_APPLICATION_ID]
+                    if (applicationName === undefined || applicationName === xApplication) {
+                        operations.push(
+                            new TopologyAsyncApiOperation(
+                                operationId,
+                                operation.summary,
+                                operation.action,
+                                operation.channel?.$ref
+                            )
+                        );
+                    }
                 });
             }
         } catch (err) {
             console.error(err);
         }
-        return new TopologyAsyncApiNode(ASYNCAPI_FILE_NAME_JSON, title, operations);
+        return new TopologyAsyncApiNode(LANDSCAPE_FILE_NAME_JSON, title, operations);
     };
 
     static findTopologyIncomingNodes = (integration: Integration[]): TopologyIncomingNode[] => {
@@ -271,11 +278,26 @@ export class TopologyUtils {
                     const uniqueUri = TopologyUtils.getUniqueUri(r.from);
                     return new TopologyIncomingNode(id, type, connectorType, r.id, title, filename, r.from, uniqueUri);
                 }) || [];
-                result.push(...templateElements);
+                // result.push(...templateElements);
             } catch (e) {
                 console.error(e);
             }
         });
+        return result;
+    };
+
+    static findTopologyRoutesIncomingNodes = (routes: TopologyRouteNode[]): TopologyIncomingNode[] => {
+        const result: TopologyIncomingNode[] = [];
+        const routeElements = routes?.map(r => {
+            const id = 'incoming-' + r.id;
+            const title = CamelDisplayUtil.getStepDescription(r.from);
+            const type = TopologyUtils.isElementInternalComponent(r.from) ? 'internal' : 'external';
+            const connectorType = TopologyUtils.getConnectorType(r.from);
+            let from = CamelUtil.cloneStep(r.from) as FromDefinition;
+            let uniqueUri = TopologyUtils.getUniqueUri(r.from);
+            return new TopologyIncomingNode(id, type, connectorType, r.routeId, title, r.fileName, from, uniqueUri);
+        }) || [];
+        result.push(...routeElements);
         return result;
     };
 
@@ -350,6 +372,35 @@ export class TopologyUtils {
                     });
                     result.push(...TopologyUtils.findDeadLetterChannelNodes(route, filename));
                 });
+            } catch (e) {
+                console.error(e);
+            }
+        });
+        return result;
+    };
+
+    static findTopologyRoutesOutgoingNodes = (routes: TopologyRouteNode[]): TopologyOutgoingNode[] => {
+        const result: TopologyOutgoingNode[] = [];
+        routes.forEach(route => {
+            try {
+                const filename = route.fileName;
+                const from: FromDefinition = route.from;
+                const elements = TopologyUtils.findOutgoingInStep(from, []);
+                elements.forEach((e: any) => {
+                    const step: any = CamelUtil.cloneStep(e)
+                    const id = 'outgoing-' + route.id + '-' + step.id;
+                    const title = CamelDisplayUtil.getStepDescription(step);
+                    const type = TopologyUtils.isElementInternalComponent(step) ? 'internal' : 'external';
+                    const connectorType = TopologyUtils.getConnectorType(step);
+                    let uniqueUri = TopologyUtils.getUniqueUri(step);
+                    if (
+                        connectorType !== 'kamelet' ||
+                        CamelUtil.getKamelet(e)?.metadata.labels['camel.apache.org/kamelet.type'] !== 'action'
+                    ) {
+                        result.push(new TopologyOutgoingNode(id, type, connectorType, route.routeId, title, filename, step, uniqueUri));
+                    }
+                });
+                result.push(...TopologyUtils.findDeadLetterChannelNodes(route.route, filename));
             } catch (e) {
                 console.error(e);
             }

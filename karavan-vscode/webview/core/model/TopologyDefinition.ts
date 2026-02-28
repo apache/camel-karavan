@@ -15,8 +15,8 @@
  * limitations under the License.
  */
 
-import { CamelElement } from './IntegrationDefinition';
-import { FromDefinition, RestDefinition, RouteConfigurationDefinition, RouteDefinition } from './CamelDefinition';
+import {CamelElement} from './IntegrationDefinition';
+import {FromDefinition, RestDefinition, RouteConfigurationDefinition, RouteDefinition} from './CamelDefinition';
 
 export class TopologyRestNode {
     path: string;

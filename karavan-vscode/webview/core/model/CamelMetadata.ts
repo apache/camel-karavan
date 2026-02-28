@@ -143,6 +143,7 @@ export const DataFormats: [string, string, string][] = [
     ['flatpack','Flatpack',"Marshal and unmarshal Java lists and maps to/from flat files (such as CSV, delimited, or fixed length formats) using Flatpack library."],
     ['fory','Fory',"Serialize and deserialize messages using Apache Fory"],
     ['grok','Grok',"Unmarshal unstructured data to objects using Logstash based Grok patterns."],
+    ['groovyXml','Groovy XML',"Transform between XML and Groovy Node (Map structure) objects."],
     ['gzipDeflater','GZip Deflater',"Compress and decompress messages using java.util.zip.GZIPStream."],
     ['hl7','HL7',"Marshal and unmarshal HL7 (Health Care) model objects using the HL7 MLLP codec."],
     ['ical','iCal',"Marshal and unmarshal iCal (.ics) documents to/from model objects."],
@@ -164,7 +165,6 @@ export const DataFormats: [string, string, string][] = [
     ['syslog','Syslog',"Marshall SyslogMessages to RFC3164 and RFC5424 messages and back."],
     ['tarFile','Tar File',"Archive files into tarballs or extract files from tarballs."],
     ['thrift','Thrift',"Serialize and deserialize messages using Apache Thrift binary data format."],
-    ['tidyMarkup','TidyMarkup',"Parse (potentially invalid) HTML into valid HTML or DOM."],
     ['univocityCsv','uniVocity CSV',"Marshal and unmarshal Java objects from and to CSV (Comma Separated Values) using UniVocity Parsers."],
     ['univocityFixed','uniVocity Fixed Length',"Marshal and unmarshal Java objects from and to fixed length records using UniVocity Parsers."],
     ['univocityTsv','uniVocity TSV',"Marshal and unmarshal Java objects from and to TSV (Tab-Separated Values) records using UniVocity Parsers."],
@@ -207,10 +207,10 @@ export const CamelDataFormatMetadata: ElementMeta[] = [
     ]),
     new ElementMeta('barcode', 'BarcodeDataFormat', 'Barcode', "Transform strings to various 1D/2D barcode bitmap formats and back.", 'dataformat,transformation', [
         new PropertyMeta('id', 'Id', "The id of this node", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('barcodeFormat', 'Barcode Format', "Barcode format such as QR-Code", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('imageType', 'Image Type', "Image type of the barcode such as png", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('width', 'Width', "Width of the barcode", 'number', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('height', 'Height', "Height of the barcode", 'number', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('barcodeFormat', 'Barcode Format', "Barcode format such as QR-Code", 'string', 'AZTEC, CODABAR, CODE_39, CODE_93, CODE_128, DATA_MATRIX, EAN_8, EAN_13, ITF, MAXICODE, PDF_417, QR_CODE, RSS_14, RSS_EXPANDED, UPC_A, UPC_E, UPC_EAN_EXTENSION', 'QR_CODE', false, false, false, false, '', ''),
+        new PropertyMeta('imageType', 'Image Type', "Image type of the barcode such as png", 'string', 'JPG, GIF, PNG', 'PNG', false, false, false, false, '', ''),
+        new PropertyMeta('width', 'Width', "Width of the barcode", 'number', '', '100', false, false, false, false, '', ''),
+        new PropertyMeta('height', 'Height', "Height of the barcode", 'number', '', '100', false, false, false, false, '', ''),
     ], [
     ]),
     new ElementMeta('base64', 'Base64DataFormat', 'Base64', "Encode and decode data using Base64.", 'dataformat,transformation', [
@@ -236,6 +236,7 @@ export const CamelDataFormatMetadata: ElementMeta[] = [
         new PropertyMeta('id', 'Id', "The id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('type', 'Type', "Whether to use Csv, Fixed, or KeyValue.", 'string', 'Csv, Fixed, KeyValue', '', true, false, false, false, '', ''),
         new PropertyMeta('classType', 'Class Type', "Name of model class to use.", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('defaultValueStringAsNull', 'Default Value String As Null', "To change the default value for string types to be null instead of an empty string.", 'boolean', '', 'false', false, false, false, false, '', ''),
         new PropertyMeta('allowEmptyStream', 'Allow Empty Stream', "Whether to allow empty streams in the unmarshal process. If true, no exception will be thrown when a body without records is provided.", 'boolean', '', 'false', false, false, false, false, '', ''),
         new PropertyMeta('unwrapSingleInstance', 'Unwrap Single Instance', "When unmarshalling should a single instance be unwrapped and returned instead of wrapped in a java.util.List.", 'boolean', '', 'true', false, false, false, false, 'advanced', ''),
         new PropertyMeta('locale', 'Locale', "To configure a default locale to use, such as us for united states. To use the JVM platform default locale then use the name default", 'string', '', '', false, false, false, false, 'advanced', ''),
@@ -258,10 +259,10 @@ export const CamelDataFormatMetadata: ElementMeta[] = [
     new ElementMeta('crypto', 'CryptoDataFormat', 'Crypto (Java Cryptographic Extension)', "Encrypt and decrypt messages using Java Cryptography Extension (JCE).", 'dataformat,transformation,security', [
         new PropertyMeta('id', 'Id', "The id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('algorithm', 'Algorithm', "The JCE algorithm name indicating the cryptographic algorithm that will be used.", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('keyRef', 'Key Ref', "Refers to the secret key to lookup from the register to use.", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('key', 'Key', "Refers to the secret key to lookup from the register to use.", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('cryptoProvider', 'Crypto Provider', "The name of the JCE Security Provider that should be used.", 'string', '', '', false, false, false, false, 'advanced', ''),
-        new PropertyMeta('initVectorRef', 'Init Vector Ref', "Refers to a byte array containing the Initialization Vector that will be used to initialize the Cipher.", 'string', '', '', false, false, false, false, 'advanced', ''),
-        new PropertyMeta('algorithmParameterRef', 'Algorithm Parameter Ref', "A JCE AlgorithmParameterSpec used to initialize the Cipher. Will lookup the type using the given name as a java.security.spec.AlgorithmParameterSpec type.", 'string', '', '', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('initVector', 'Init Vector', "Refers to a byte array containing the Initialization Vector that will be used to initialize the Cipher.", 'string', '', '', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('algorithmParameterSpec', 'Algorithm Parameter Spec', "A JCE AlgorithmParameterSpec used to initialize the Cipher. Will lookup the type using the given name as a java.security.spec.AlgorithmParameterSpec type.", 'string', '', '', false, false, false, false, 'advanced', ''),
         new PropertyMeta('bufferSize', 'Buffer Size', "The size of the buffer used in the signature process.", 'number', '', '4096', false, false, false, false, '', ''),
         new PropertyMeta('macAlgorithm', 'Mac Algorithm', "The JCE algorithm name indicating the Message Authentication algorithm.", 'string', '', 'HmacSHA1', false, false, false, false, '', ''),
         new PropertyMeta('shouldAppendHMAC', 'Should Append HMAC', "Flag indicating that a Message Authentication Code should be calculated and appended to the encrypted data.", 'boolean', '', 'true', false, false, false, false, '', ''),
@@ -270,15 +271,14 @@ export const CamelDataFormatMetadata: ElementMeta[] = [
     ]),
     new ElementMeta('csv', 'CsvDataFormat', 'CSV', "Handle CSV (Comma Separated Values) payloads.", 'dataformat,transformation,csv', [
         new PropertyMeta('id', 'Id', "The id of this node", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('formatRef', 'Format Ref', "The reference format to use, it will be updated with the other format options, the default value is CSVFormat.DEFAULT", 'string', '', '', false, false, false, false, 'advanced', ''),
-        new PropertyMeta('formatName', 'Format Name', "The name of the format to use, the default value is CSVFormat.DEFAULT", 'string', 'DEFAULT, EXCEL, INFORMIX_UNLOAD, INFORMIX_UNLOAD_CSV, MYSQL, RFC4180', 'DEFAULT', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('format', 'Format', "The format to use.", 'string', 'DEFAULT, EXCEL, INFORMIX_UNLOAD, INFORMIX_UNLOAD_CSV, MONGODB_CSV, MONGODB_TSV, MYSQL, ORACLE, POSTGRESQL_CSV, POSTGRESQL_TEXT, RFC4180', 'DEFAULT', false, false, false, false, '', ''),
         new PropertyMeta('commentMarkerDisabled', 'Comment Marker Disabled', "Disables the comment marker of the reference format.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('commentMarker', 'Comment Marker', "Sets the comment marker of the reference format.", 'string', '', '', false, false, false, false, 'advanced', ''),
         new PropertyMeta('delimiter', 'Delimiter', "Sets the delimiter to use. The default value is , (comma)", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('escapeDisabled', 'Escape Disabled', "Use for disabling using escape character", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('escape', 'Escape', "Sets the escape character to use", 'string', '', '', false, false, false, false, 'advanced', ''),
         new PropertyMeta('headerDisabled', 'Header Disabled', "Use for disabling headers", 'boolean', '', 'false', false, false, false, false, '', ''),
-        new PropertyMeta('header', 'Header', "To configure the CSV headers", 'string', '', '', false, false, true, true, '', ''),
+        new PropertyMeta('header', 'Header', "To configure the CSV headers. Multiple headers can be separated by comma.", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('allowMissingColumnNames', 'Allow Missing Column Names', "Whether to allow missing column names.", 'boolean', '', 'false', false, false, false, false, '', ''),
         new PropertyMeta('ignoreEmptyLines', 'Ignore Empty Lines', "Whether to ignore empty lines.", 'boolean', '', 'false', false, false, false, false, '', ''),
         new PropertyMeta('ignoreSurroundingSpaces', 'Ignore Surrounding Spaces', "Whether to ignore surrounding spaces", 'boolean', '', 'false', false, false, false, false, '', ''),
@@ -323,6 +323,7 @@ export const CamelDataFormatMetadata: ElementMeta[] = [
         new PropertyMeta('flatpack', 'flatpack', "flatpack", 'FlatpackDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('fory', 'fory', "fory", 'ForyDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('grok', 'grok', "grok", 'GrokDataFormat', '', '', false, false, false, true, '', ''),
+        new PropertyMeta('groovyXml', 'groovyXml', "groovyXml", 'GroovyXmlDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('gzipDeflater', 'gzipDeflater', "gzipDeflater", 'GzipDeflaterDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('hl7', 'hl7', "hl7", 'HL7DataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('ical', 'ical', "ical", 'IcalDataFormat', '', '', false, false, false, true, '', ''),
@@ -344,7 +345,6 @@ export const CamelDataFormatMetadata: ElementMeta[] = [
         new PropertyMeta('syslog', 'syslog', "syslog", 'SyslogDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('tarFile', 'tarFile', "tarFile", 'TarFileDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('thrift', 'thrift', "thrift", 'ThriftDataFormat', '', '', false, false, false, true, '', ''),
-        new PropertyMeta('tidyMarkup', 'tidyMarkup', "tidyMarkup", 'TidyMarkupDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('univocityCsv', 'univocityCsv', "univocityCsv", 'UniVocityCsvDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('univocityFixed', 'univocityFixed', "univocityFixed", 'UniVocityFixedDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('univocityTsv', 'univocityTsv', "univocityTsv", 'UniVocityTsvDataFormat', '', '', false, false, false, true, '', ''),
@@ -414,7 +414,7 @@ export const CamelDataFormatMetadata: ElementMeta[] = [
         new PropertyMeta('allowShortLines', 'Allow Short Lines', "Allows for lines to be shorter than expected and ignores the extra characters", 'boolean', '', 'false', false, false, false, false, '', ''),
         new PropertyMeta('ignoreExtraColumns', 'Ignore Extra Columns', "Allows for lines to be longer than expected and ignores the extra characters.", 'boolean', '', 'false', false, false, false, false, '', ''),
         new PropertyMeta('textQualifier', 'Text Qualifier', "If the text is qualified with a character. Uses quote character by default.", 'string', '', '', false, false, false, false, 'advanced', ''),
-        new PropertyMeta('parserFactoryRef', 'Parser Factory Ref', "References to a custom parser factory to lookup in the registry", 'string', '', '', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('parserFactory', 'Parser Factory', "References to a custom parser factory to lookup in the registry", 'string', '', '', false, false, false, false, 'advanced', ''),
     ], [
     ]),
     new ElementMeta('fory', 'ForyDataFormat', 'Fory', "Serialize and deserialize messages using Apache Fory", 'dataformat,transformation', [
@@ -433,12 +433,18 @@ export const CamelDataFormatMetadata: ElementMeta[] = [
         new PropertyMeta('namedOnly', 'Named Only', "Whether to capture named expressions only or not (i.e. %{IP:ip} but not ${IP})", 'boolean', '', 'false', false, false, false, false, '', ''),
     ], [
     ]),
+    new ElementMeta('groovyXml', 'GroovyXmlDataFormat', 'Groovy XML', "Transform between XML and Groovy Node (Map structure) objects.", 'dataformat,transformation,xml', [
+        new PropertyMeta('id', 'Id', "The id of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('attributeMapping', 'Attribute Mapping', "To turn on or off attribute mapping. When enabled then keys that start with _ or character will be mapped to an XML attribute, and vise versa. This rule is what Jackson and other XML or JSon libraries uses.", 'boolean', '', 'true', false, false, false, false, '', ''),
+    ], [
+    ]),
     new ElementMeta('gzipDeflater', 'GzipDeflaterDataFormat', 'GZip Deflater', "Compress and decompress messages using java.util.zip.GZIPStream.", 'dataformat,transformation', [
         new PropertyMeta('id', 'Id', "The id of this node", 'string', '', '', false, false, false, false, '', ''),
     ], [
     ]),
     new ElementMeta('hl7', 'HL7DataFormat', 'HL7', "Marshal and unmarshal HL7 (Health Care) model objects using the HL7 MLLP codec.", 'dataformat,transformation,health', [
         new PropertyMeta('id', 'Id', "The id of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('parser', 'Parser', "To use a custom HL7 parser", 'string', '', '', false, false, false, false, 'advanced', ''),
         new PropertyMeta('validate', 'Validate', "Whether to validate the HL7 message Is by default true.", 'boolean', '', 'true', false, false, false, false, '', ''),
     ], [
     ]),
@@ -490,13 +496,13 @@ export const CamelDataFormatMetadata: ElementMeta[] = [
         new PropertyMeta('fragment', 'Fragment', "To turn on marshalling XML fragment trees. By default JAXB looks for XmlRootElement annotation on given class to operate on whole XML tree. This is useful but not always - sometimes generated code does not have XmlRootElement annotation, sometimes you need unmarshall only part of tree. In that case you can use partial unmarshalling. To enable this behaviours you need set property partClass. Camel will pass this class to JAXB's unmarshaler.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('partClass', 'Part Class', "Name of class used for fragment parsing. See more details at the fragment option.", 'string', '', '', false, false, false, false, 'advanced', ''),
         new PropertyMeta('partNamespace', 'Part Namespace', "XML namespace to use for fragment parsing. See more details at the fragment option.", 'string', '', '', false, false, false, false, 'advanced', ''),
-        new PropertyMeta('namespacePrefixRef', 'Namespace Prefix Ref', "When marshalling using JAXB or SOAP then the JAXB implementation will automatic assign namespace prefixes, such as ns2, ns3, ns4 etc. To control this mapping, Camel allows you to refer to a map which contains the desired mapping.", 'string', '', '', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('namespacePrefix', 'Namespace Prefix', "When marshalling using JAXB or SOAP then the JAXB implementation will automatically assign namespace prefixes, such as ns2, ns3, ns4 etc. To control this mapping, Camel allows you to refer to a map which contains the desired mapping.", 'string', '', '', false, false, false, false, 'advanced', ''),
         new PropertyMeta('xmlStreamWriterWrapper', 'Xml Stream Writer Wrapper', "To use a custom xml stream writer.", 'string', '', '', false, false, false, false, 'advanced', ''),
         new PropertyMeta('schemaLocation', 'Schema Location', "To define the location of the schema", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('noNamespaceSchemaLocation', 'No Namespace Schema Location', "To define the location of the namespaceless schema", 'string', '', '', false, false, false, false, 'advanced', ''),
         new PropertyMeta('jaxbProviderProperties', 'Jaxb Provider Properties', "Refers to a custom java.util.Map to lookup in the registry containing custom JAXB provider properties to be used with the JAXB marshaller.", 'string', '', '', false, false, false, false, 'advanced', ''),
         new PropertyMeta('contentTypeHeader', 'Content Type Header', "Whether the data format should set the Content-Type header with the type from the data format. For example application/xml for data formats marshalling to XML, or application/json for data formats marshalling to JSON", 'boolean', '', 'true', false, false, false, false, '', ''),
-        new PropertyMeta('accessExternalSchemaProtocols', 'Access External Schema Protocols', "Only in use if schema validation has been enabled. Restrict access to the protocols specified for external reference set by the schemaLocation attribute, Import and Include element. Examples of protocols are file, http, jar:file. false or none to deny all access to external references; a specific protocol, such as file, to give permission to only the protocol; the keyword all to grant permission to all protocols.", 'string', '', 'false', false, false, false, false, 'security', ''),
+        new PropertyMeta('accessExternalSchemaProtocols', 'Access External Schema Protocols', "Only in use if schema validation has been enabled. Restrict access to the protocols specified for external reference set by the schemaLocation attribute, Import and Include element. Examples of protocols are file, http, jar:file. empty, false or none to deny all access to external references; a specific protocol, such as file, to give permission to only the protocol; the keyword all to grant permission to all protocols.", 'string', '', '', false, false, false, false, 'security', ''),
     ], [
     ]),
     new ElementMeta('jsonApi', 'JsonApiDataFormat', 'JSonApi', "Marshal and unmarshal JSON:API resources using JSONAPI-Converter library.", 'dataformat,transformation', [
@@ -610,23 +616,24 @@ export const CamelDataFormatMetadata: ElementMeta[] = [
         new PropertyMeta('id', 'Id', "The id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('contextPath', 'Context Path', "Package name where your JAXB classes are located.", 'string', '', '', true, false, false, false, '', ''),
         new PropertyMeta('encoding', 'Encoding', "To overrule and use a specific encoding", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('elementNameStrategyRef', 'Element Name Strategy Ref', "Refers to an element strategy to lookup from the registry. An element name strategy is used for two purposes. The first is to find a xml element name for a given object and soap action when marshaling the object into a SOAP message. The second is to find an Exception class for a given soap fault name. The following three element strategy class name is provided out of the box. QNameStrategy - Uses a fixed qName that is configured on instantiation. Exception lookup is not supported TypeNameStrategy - Uses the name and namespace from the XMLType annotation of the given type. If no namespace is set then package-info is used. Exception lookup is not supported ServiceInterfaceStrategy - Uses information from a webservice interface to determine the type name and to find the exception class for a SOAP fault All three classes is located in the package name org.apache.camel.dataformat.soap.name If you have generated the web service stub code with cxf-codegen or a similar tool then you probably will want to use the ServiceInterfaceStrategy. In the case you have no annotated service interface you should use QNameStrategy or TypeNameStrategy.", 'string', '', '', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('elementNameStrategy', 'Element Name Strategy', "Refers to an element strategy to lookup from the registry. An element name strategy is used for two purposes. The first is to find a xml element name for a given object and soap action when marshaling the object into a SOAP message. The second is to find an Exception class for a given soap fault name. The following three element strategy class name is provided out of the box. QNameStrategy - Uses a fixed qName that is configured on instantiation. Exception lookup is not supported TypeNameStrategy - Uses the name and namespace from the XMLType annotation of the given type. If no namespace is set then package-info is used. Exception lookup is not supported ServiceInterfaceStrategy - Uses information from a webservice interface to determine the type name and to find the exception class for a SOAP fault All three classes is located in the package name org.apache.camel.dataformat.soap.name If you have generated the web service stub code with cxf-codegen or a similar tool then you probably will want to use the ServiceInterfaceStrategy. In the case you have no annotated service interface you should use QNameStrategy or TypeNameStrategy.", 'string', '', '', false, false, false, false, 'advanced', ''),
         new PropertyMeta('version', 'Version', "SOAP version should either be 1.1 or 1.2. Is by default 1.1", 'string', '1.1, 1.2', '1.1', false, false, false, false, '', ''),
-        new PropertyMeta('namespacePrefixRef', 'Namespace Prefix Ref', "When marshalling using JAXB or SOAP then the JAXB implementation will automatic assign namespace prefixes, such as ns2, ns3, ns4 etc. To control this mapping, Camel allows you to refer to a map which contains the desired mapping.", 'string', '', '', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('namespacePrefix', 'Namespace Prefix', "When marshalling using JAXB or SOAP then the JAXB implementation will automatic assign namespace prefixes, such as ns2, ns3, ns4 etc. To control this mapping, Camel allows you to refer to a map which contains the desired mapping.", 'string', '', '', false, false, false, false, 'advanced', ''),
         new PropertyMeta('schema', 'Schema', "To validate against an existing schema. Your can use the prefix classpath:, file: or http: to specify how the resource should be resolved. You can separate multiple schema files by using the ',' character.", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('ignoreUnmarshalledHeaders', 'Ignore Unmarshalled Headers', "Whether to ignore headers that was not unmarshalled. By default, headers which could not be unmarshalled is recorded in the org.apache.camel.dataformat.soap.UNMARSHALLED_HEADER_LIST header which allows to inspect any problematic header.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
     ], [
     ]),
     new ElementMeta('swiftMt', 'SwiftMtDataFormat', 'SWIFT MT', "Encode and decode SWIFT MT messages.", 'dataformat,transformation,finance', [
         new PropertyMeta('id', 'Id', "The id of this node", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('writeInJson', 'Write In Json', "The flag indicating that messages must be marshalled in a JSON format.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('writeInJson', 'Write In Json', "The flag indicating that messages must be marshalled in a JSON format.", 'boolean', '', 'false', false, false, false, false, '', ''),
     ], [
     ]),
     new ElementMeta('swiftMx', 'SwiftMxDataFormat', 'SWIFT MX', "Encode and decode SWIFT MX messages.", 'dataformat,transformation,finance', [
         new PropertyMeta('id', 'Id', "The id of this node", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('writeConfigRef', 'Write Config Ref', "Refers to a specific configuration to use when marshalling a message to lookup from the registry.", 'string', '', '', false, false, false, false, 'advanced', ''),
-        new PropertyMeta('writeInJson', 'Write In Json', "The flag indicating that messages must be marshalled in a JSON format.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('writeInJson', 'Write In Json', "The flag indicating that messages must be marshalled in a JSON format.", 'boolean', '', 'false', false, false, false, false, '', ''),
         new PropertyMeta('readMessageId', 'Read Message Id', "The type of MX message to produce when unmarshalling an input stream. If not set, it will be automatically detected from the namespace used.", 'string', '', '', false, false, false, false, 'advanced', ''),
-        new PropertyMeta('readConfigRef', 'Read Config Ref', "Refers to a specific configuration to use when unmarshalling an input stream to lookup from the registry.", 'string', '', '', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('readConfig', 'Read Config', "Refers to a specific configuration to use when unmarshalling an input stream to lookup from the registry.", 'string', '', '', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('writeConfig', 'Write Config', "Refers to a specific configuration to use when marshalling a message to lookup from the registry.", 'string', '', '', false, false, false, false, 'advanced', ''),
     ], [
     ]),
     new ElementMeta('syslog', 'SyslogDataFormat', 'Syslog', "Marshall SyslogMessages to RFC3164 and RFC5424 messages and back.", 'dataformat,transformation,monitoring', [
@@ -646,12 +653,6 @@ export const CamelDataFormatMetadata: ElementMeta[] = [
         new PropertyMeta('instanceClass', 'Instance Class', "Name of class to use when unmarshalling", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('contentTypeFormat', 'Content Type Format', "Defines a content type format in which thrift message will be serialized/deserialized from(to) the Java been. The format can either be native or json for either native binary thrift, json or simple json fields representation. The default value is binary.", 'string', 'binary, json, sjson', 'binary', false, false, false, false, '', ''),
         new PropertyMeta('contentTypeHeader', 'Content Type Header', "Whether the data format should set the Content-Type header with the type from the data format. For example application/xml for data formats marshalling to XML, or application/json for data formats marshalling to JSON", 'boolean', '', 'true', false, false, false, false, '', ''),
-    ], [
-    ]),
-    new ElementMeta('tidyMarkup', 'TidyMarkupDataFormat', 'TidyMarkup', "Parse (potentially invalid) HTML into valid HTML or DOM.", 'dataformat,transformation', [
-        new PropertyMeta('id', 'Id', "The id of this node", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('dataObjectType', 'Data Object Type', "What data type to unmarshal as, can either be org.w3c.dom.Node or java.lang.String. Is by default org.w3c.dom.Node", 'string', 'org.w3c.dom.Node, java.lang.String', 'org.w3c.dom.Node', false, false, false, false, '', ''),
-        new PropertyMeta('omitXmlDeclaration', 'Omit Xml Declaration', "When returning a String, do we omit the XML declaration in the top.", 'boolean', '', 'false', false, false, false, false, '', ''),
     ], [
     ]),
     new ElementMeta('univocityCsv', 'UniVocityCsvDataFormat', 'uniVocity CSV', "Marshal and unmarshal Java objects from and to CSV (Comma Separated Values) using UniVocity Parsers.", 'dataformat,transformation,csv', [
@@ -725,11 +726,12 @@ export const CamelDataFormatMetadata: ElementMeta[] = [
         new PropertyMeta('secureTagContents', 'Secure Tag Contents', "A boolean value to specify whether the XML Element is to be encrypted or the contents of the XML Element. false = Element Level. true = Element Content Level.", 'boolean', '', 'false', false, false, false, false, '', ''),
         new PropertyMeta('keyCipherAlgorithm', 'Key Cipher Algorithm', "The cipher algorithm to be used for encryption/decryption of the asymmetric key. The available choices are: XMLCipher.RSA_v1dot5 XMLCipher.RSA_OAEP XMLCipher.RSA_OAEP_11 The default value is XMLCipher.RSA_OAEP", 'string', 'RSA_v1dot5, RSA_OAEP, RSA_OAEP_11', 'RSA_OAEP', false, false, false, false, '', ''),
         new PropertyMeta('recipientKeyAlias', 'Recipient Key Alias', "The key alias to be used when retrieving the recipient's public or private key from a KeyStore when performing asymmetric key encryption or decryption.", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('keyOrTrustStoreParametersRef', 'Key Or Trust Store Parameters Ref', "Refers to a KeyStore instance to lookup in the registry, which is used for configuration options for creating and loading a KeyStore instance that represents the sender's trustStore or recipient's keyStore.", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('keyOrTrustStoreParameters', 'Key Or Trust Store Parameters', "Refers to a KeyStore instance to lookup in the registry, which is used for configuration options for creating and loading a KeyStore instance that represents the sender's trustStore or recipient's keyStore.", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('keyPassword', 'Key Password', "The password to be used for retrieving the private key from the KeyStore. This key is used for asymmetric decryption.", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('digestAlgorithm', 'Digest Algorithm', "The digest algorithm to use with the RSA OAEP algorithm. The available choices are: XMLCipher.SHA1 XMLCipher.SHA256 XMLCipher.SHA512 The default value is XMLCipher.SHA1", 'string', 'SHA1, SHA256, SHA512', 'SHA1', false, false, false, false, '', ''),
         new PropertyMeta('mgfAlgorithm', 'Mgf Algorithm', "The MGF Algorithm to use with the RSA OAEP algorithm. The available choices are: EncryptionConstants.MGF1_SHA1 EncryptionConstants.MGF1_SHA256 EncryptionConstants.MGF1_SHA512 The default value is EncryptionConstants.MGF1_SHA1", 'string', 'MGF1_SHA1, MGF1_SHA256, MGF1_SHA512', 'MGF1_SHA1', false, false, false, false, '', ''),
         new PropertyMeta('addKeyValueForEncryptedKey', 'Add Key Value For Encrypted Key', "Whether to add the public key used to encrypt the session key as a KeyValue in the EncryptedKey structure or not.", 'boolean', '', 'true', false, false, false, false, '', ''),
+        new PropertyMeta('namespace', 'Namespace', "Refers to a Map XML Namespaces of prefix - uri mappings", 'string', '', '', false, false, false, false, '', ''),
     ], [
     ]),
     new ElementMeta('yaml', 'YAMLDataFormat', 'YAML', "Marshal and unmarshal Java objects to and from YAML.", 'dataformat,transformation,yaml', [
@@ -743,7 +745,7 @@ export const CamelDataFormatMetadata: ElementMeta[] = [
         new PropertyMeta('useApplicationContextClassLoader', 'Use Application Context Class Loader', "Use ApplicationContextClassLoader as custom ClassLoader", 'boolean', '', 'true', false, false, false, false, '', ''),
         new PropertyMeta('prettyFlow', 'Pretty Flow', "Force the emitter to produce a pretty YAML document when using the flow style.", 'boolean', '', 'false', false, false, false, false, '', ''),
         new PropertyMeta('allowAnyType', 'Allow Any Type', "Allow any class to be un-marshaled", 'boolean', '', 'false', false, false, false, false, '', ''),
-        new PropertyMeta('typeFilter', 'Type Filter', "Set the types SnakeYAML is allowed to un-marshall", 'YAMLTypeFilterDefinition', '', '', false, false, true, true, '', ''),
+        new PropertyMeta('typeFilter', 'Type Filter', "Set the types SnakeYAML is allowed to un-marshall. Multiple types can be separated by comma.", 'string', '', '', false, false, false, false, 'advanced', ''),
         new PropertyMeta('maxAliasesForCollections', 'Max Aliases For Collections', "Set the maximum amount of aliases allowed for collections.", 'number', '', '50', false, false, false, false, 'advanced', ''),
         new PropertyMeta('allowRecursiveKeys', 'Allow Recursive Keys', "Set whether recursive keys are allowed.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
     ], [
@@ -795,15 +797,17 @@ export const CamelLanguageMetadata: ElementMeta[] = [
     new ElementMeta('csimple', 'CSimpleExpression', 'CSimple', "Evaluate a compiled simple expression.", 'language,java', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('expression', 'Expression', "The expression value in your chosen language syntax", 'string', '', '', true, false, false, false, '', ''),
+        new PropertyMeta('trimResult', 'Trim Result', "Whether to trim the returned values when this language are in use. For example the output result may contain unwanted line breaks at the beginning and end such as when using Java DSL with multi-line blocks. Is default false to be backwards compatible with existing behavior.", 'boolean', '', 'false', false, false, false, false, '', ''),
+        new PropertyMeta('pretty', 'Pretty', "To pretty format the output (only JSon or XML supported)", 'boolean', '', 'false', false, false, false, false, '', ''),
         new PropertyMeta('resultType', 'Result Type', "Sets the class of the result type (type from output)", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('trim', 'Trim', "Whether to trim the value to remove leading and trailing whitespaces and line breaks", 'boolean', '', 'true', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('trim', 'Trim', "Whether to trim the source code to remove leading and trailing whitespaces and line breaks. For example when using DSLs where the source will span across multiple lines and there may be additional line breaks at both the beginning and end.", 'boolean', '', 'true', false, false, false, false, 'advanced', ''),
     ], [
     ]),
     new ElementMeta('constant', 'ConstantExpression', 'Constant', "A fixed value set only once during the route startup.", 'language,core', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('expression', 'Expression', "The expression value in your chosen language syntax", 'string', '', '', true, false, false, false, '', ''),
         new PropertyMeta('resultType', 'Result Type', "Sets the class of the result type (type from output)", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('trim', 'Trim', "Whether to trim the value to remove leading and trailing whitespaces and line breaks", 'boolean', '', 'true', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('trim', 'Trim', "Whether to trim the source code to remove leading and trailing whitespaces and line breaks. For example when using DSLs where the source will span across multiple lines and there may be additional line breaks at both the beginning and end.", 'boolean', '', 'true', false, false, false, false, 'advanced', ''),
     ], [
     ]),
     new ElementMeta('datasonnet', 'DatasonnetExpression', 'DataSonnet', "To use DataSonnet scripts for message transformations.", 'language,transformation', [
@@ -813,26 +817,26 @@ export const CamelLanguageMetadata: ElementMeta[] = [
         new PropertyMeta('outputMediaType', 'Output Media Type', "The String representation of the MediaType to output", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('source', 'Source', "Source to use, instead of message body. You can prefix with variable:, header:, or property: to specify kind of source. Otherwise, the source is assumed to be a variable. Use empty or null to use default source, which is the message body.", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('resultType', 'Result Type', "Sets the class of the result type (type from output)", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('trim', 'Trim', "Whether to trim the value to remove leading and trailing whitespaces and line breaks", 'boolean', '', 'true', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('trim', 'Trim', "Whether to trim the source code to remove leading and trailing whitespaces and line breaks. For example when using DSLs where the source will span across multiple lines and there may be additional line breaks at both the beginning and end.", 'boolean', '', 'true', false, false, false, false, 'advanced', ''),
     ], [
     ]),
     new ElementMeta('exchangeProperty', 'ExchangePropertyExpression', 'ExchangeProperty', "Gets a property from the Exchange.", 'language,core', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('expression', 'Expression', "The expression value in your chosen language syntax", 'string', '', '', true, false, false, false, '', ''),
-        new PropertyMeta('trim', 'Trim', "Whether to trim the value to remove leading and trailing whitespaces and line breaks", 'boolean', '', 'true', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('trim', 'Trim', "Whether to trim the source code to remove leading and trailing whitespaces and line breaks. For example when using DSLs where the source will span across multiple lines and there may be additional line breaks at both the beginning and end.", 'boolean', '', 'true', false, false, false, false, 'advanced', ''),
     ], [
     ]),
     new ElementMeta('groovy', 'GroovyExpression', 'Groovy', "Evaluates a Groovy script.", 'language,script', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('expression', 'Expression', "The expression value in your chosen language syntax", 'string', '', '', true, false, false, false, '', ''),
         new PropertyMeta('resultType', 'Result Type', "Sets the class of the result type (type from output)", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('trim', 'Trim', "Whether to trim the value to remove leading and trailing whitespaces and line breaks", 'boolean', '', 'true', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('trim', 'Trim', "Whether to trim the source code to remove leading and trailing whitespaces and line breaks. For example when using DSLs where the source will span across multiple lines and there may be additional line breaks at both the beginning and end.", 'boolean', '', 'true', false, false, false, false, 'advanced', ''),
     ], [
     ]),
     new ElementMeta('header', 'HeaderExpression', 'Header', "Gets a header from the Exchange.", 'language,core', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('expression', 'Expression', "The expression value in your chosen language syntax", 'string', '', '', true, false, false, false, '', ''),
-        new PropertyMeta('trim', 'Trim', "Whether to trim the value to remove leading and trailing whitespaces and line breaks", 'boolean', '', 'true', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('trim', 'Trim', "Whether to trim the source code to remove leading and trailing whitespaces and line breaks. For example when using DSLs where the source will span across multiple lines and there may be additional line breaks at both the beginning and end.", 'boolean', '', 'true', false, false, false, false, 'advanced', ''),
     ], [
     ]),
     new ElementMeta('hl7terser', 'Hl7TerserExpression', 'HL7 Terser', "Get the value of a HL7 message field specified by terse location specification syntax.", 'language,hl7', [
@@ -840,7 +844,7 @@ export const CamelLanguageMetadata: ElementMeta[] = [
         new PropertyMeta('expression', 'Expression', "The expression value in your chosen language syntax", 'string', '', '', true, false, false, false, '', ''),
         new PropertyMeta('source', 'Source', "Source to use, instead of message body. You can prefix with variable:, header:, or property: to specify kind of source. Otherwise, the source is assumed to be a variable. Use empty or null to use default source, which is the message body.", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('resultType', 'Result Type', "Sets the class of the result type (type from output)", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('trim', 'Trim', "Whether to trim the value to remove leading and trailing whitespaces and line breaks", 'boolean', '', 'true', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('trim', 'Trim', "Whether to trim the source code to remove leading and trailing whitespaces and line breaks. For example when using DSLs where the source will span across multiple lines and there may be additional line breaks at both the beginning and end.", 'boolean', '', 'true', false, false, false, false, 'advanced', ''),
     ], [
     ]),
     new ElementMeta('java', 'JavaExpression', 'Java', "Evaluates a Java (Java compiled once at runtime) expression.", 'language', [
@@ -849,14 +853,14 @@ export const CamelLanguageMetadata: ElementMeta[] = [
         new PropertyMeta('preCompile', 'Pre Compile', "Whether the expression should be pre compiled once during initialization phase. If this is turned off, then the expression is reloaded and compiled on each evaluation.", 'boolean', '', 'true', false, false, false, false, 'advanced', ''),
         new PropertyMeta('singleQuotes', 'Single Quotes', "Whether single quotes can be used as replacement for double quotes. This is convenient when you need to work with strings inside strings.", 'boolean', '', 'true', false, false, false, false, 'advanced', ''),
         new PropertyMeta('resultType', 'Result Type', "Sets the class of the result type (type from output)", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('trim', 'Trim', "Whether to trim the value to remove leading and trailing whitespaces and line breaks", 'boolean', '', 'true', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('trim', 'Trim', "Whether to trim the source code to remove leading and trailing whitespaces and line breaks. For example when using DSLs where the source will span across multiple lines and there may be additional line breaks at both the beginning and end.", 'boolean', '', 'true', false, false, false, false, 'advanced', ''),
     ], [
     ]),
     new ElementMeta('js', 'JavaScriptExpression', 'JavaScript', "Evaluates a JavaScript expression.", 'language,javascript', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('expression', 'Expression', "The expression value in your chosen language syntax", 'string', '', '', true, false, false, false, '', ''),
         new PropertyMeta('resultType', 'Result Type', "Sets the class of the result type (type from output)", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('trim', 'Trim', "Whether to trim the value to remove leading and trailing whitespaces and line breaks", 'boolean', '', 'true', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('trim', 'Trim', "Whether to trim the source code to remove leading and trailing whitespaces and line breaks. For example when using DSLs where the source will span across multiple lines and there may be additional line breaks at both the beginning and end.", 'boolean', '', 'true', false, false, false, false, 'advanced', ''),
     ], [
     ]),
     new ElementMeta('jq', 'JqExpression', 'JQ', "Evaluates a JQ expression against a JSON message body.", 'language,json', [
@@ -864,7 +868,7 @@ export const CamelLanguageMetadata: ElementMeta[] = [
         new PropertyMeta('expression', 'Expression', "The expression value in your chosen language syntax", 'string', '', '', true, false, false, false, '', ''),
         new PropertyMeta('source', 'Source', "Source to use, instead of message body. You can prefix with variable:, header:, or property: to specify kind of source. Otherwise, the source is assumed to be a variable. Use empty or null to use default source, which is the message body.", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('resultType', 'Result Type', "Sets the class of the result type (type from output)", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('trim', 'Trim', "Whether to trim the value to remove leading and trailing whitespaces and line breaks", 'boolean', '', 'true', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('trim', 'Trim', "Whether to trim the source code to remove leading and trailing whitespaces and line breaks. For example when using DSLs where the source will span across multiple lines and there may be additional line breaks at both the beginning and end.", 'boolean', '', 'true', false, false, false, false, 'advanced', ''),
     ], [
     ]),
     new ElementMeta('jsonpath', 'JsonPathExpression', 'JSONPath', "Evaluates a JSONPath expression against a JSON message body.", 'language,json', [
@@ -878,14 +882,14 @@ export const CamelLanguageMetadata: ElementMeta[] = [
         new PropertyMeta('option', 'Option', "To configure additional options on JSONPath. Multiple values can be separated by comma.", 'string', 'DEFAULT_PATH_LEAF_TO_NULL, ALWAYS_RETURN_LIST, AS_PATH_LIST, SUPPRESS_EXCEPTIONS, REQUIRE_PROPERTIES', '', false, false, false, false, 'advanced', ''),
         new PropertyMeta('source', 'Source', "Source to use, instead of message body. You can prefix with variable:, header:, or property: to specify kind of source. Otherwise, the source is assumed to be a variable. Use empty or null to use default source, which is the message body.", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('resultType', 'Result Type', "Sets the class of the result type (type from output)", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('trim', 'Trim', "Whether to trim the value to remove leading and trailing whitespaces and line breaks", 'boolean', '', 'true', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('trim', 'Trim', "Whether to trim the source code to remove leading and trailing whitespaces and line breaks. For example when using DSLs where the source will span across multiple lines and there may be additional line breaks at both the beginning and end.", 'boolean', '', 'true', false, false, false, false, 'advanced', ''),
     ], [
     ]),
     new ElementMeta('language', 'LanguageExpression', 'Language', "Evaluates a custom language.", 'language,core', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('language', 'Language', "The name of the language to use", 'string', '', '', true, false, false, false, '', ''),
         new PropertyMeta('expression', 'Expression', "The expression value in your chosen language syntax", 'string', '', '', true, false, false, false, '', ''),
-        new PropertyMeta('trim', 'Trim', "Whether to trim the value to remove leading and trailing whitespaces and line breaks", 'boolean', '', 'true', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('trim', 'Trim', "Whether to trim the source code to remove leading and trailing whitespaces and line breaks. For example when using DSLs where the source will span across multiple lines and there may be additional line breaks at both the beginning and end.", 'boolean', '', 'true', false, false, false, false, 'advanced', ''),
     ], [
     ]),
     new ElementMeta('method', 'MethodCallExpression', 'Bean Method', "Calls a Java bean method.", 'language,core,java', [
@@ -896,42 +900,45 @@ export const CamelLanguageMetadata: ElementMeta[] = [
         new PropertyMeta('scope', 'Scope', "Scope of bean. When using singleton scope (default) the bean is created or looked up only once and reused for the lifetime of the endpoint. The bean should be thread-safe in case concurrent threads is calling the bean at the same time. When using request scope the bean is created or looked up once per request (exchange). This can be used if you want to store state on a bean while processing a request and you want to call the same bean instance multiple times while processing the request. The bean does not have to be thread-safe as the instance is only called from the same request. When using prototype scope, then the bean will be looked up or created per call. However in case of lookup then this is delegated to the bean registry such as Spring or CDI (if in use), which depends on their configuration can act as either singleton or prototype scope. So when using prototype scope then this depends on the bean registry implementation.", 'string', 'Singleton, Request, Prototype', 'Singleton', false, false, false, false, 'advanced', ''),
         new PropertyMeta('validate', 'Validate', "Whether to validate the bean has the configured method.", 'boolean', '', 'true', false, false, false, false, 'advanced', ''),
         new PropertyMeta('resultType', 'Result Type', "Sets the class of the result type (type from output)", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('trim', 'Trim', "Whether to trim the value to remove leading and trailing whitespaces and line breaks", 'boolean', '', 'true', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('trim', 'Trim', "Whether to trim the source code to remove leading and trailing whitespaces and line breaks. For example when using DSLs where the source will span across multiple lines and there may be additional line breaks at both the beginning and end.", 'boolean', '', 'true', false, false, false, false, 'advanced', ''),
     ], [
     ]),
     new ElementMeta('mvel', 'MvelExpression', 'MVEL', "Evaluates a MVEL template.", 'language,java', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('expression', 'Expression', "The expression value in your chosen language syntax", 'string', '', '', true, false, false, false, '', ''),
         new PropertyMeta('resultType', 'Result Type', "Sets the class of the result type (type from output)", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('trim', 'Trim', "Whether to trim the value to remove leading and trailing whitespaces and line breaks", 'boolean', '', 'true', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('trim', 'Trim', "Whether to trim the source code to remove leading and trailing whitespaces and line breaks. For example when using DSLs where the source will span across multiple lines and there may be additional line breaks at both the beginning and end.", 'boolean', '', 'true', false, false, false, false, 'advanced', ''),
     ], [
     ]),
     new ElementMeta('python', 'PythonExpression', 'Python', "Evaluates a Python expression.", 'language,python', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('expression', 'Expression', "The expression value in your chosen language syntax", 'string', '', '', true, false, false, false, '', ''),
         new PropertyMeta('resultType', 'Result Type', "Sets the class of the result type (type from output)", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('trim', 'Trim', "Whether to trim the value to remove leading and trailing whitespaces and line breaks", 'boolean', '', 'true', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('trim', 'Trim', "Whether to trim the source code to remove leading and trailing whitespaces and line breaks. For example when using DSLs where the source will span across multiple lines and there may be additional line breaks at both the beginning and end.", 'boolean', '', 'true', false, false, false, false, 'advanced', ''),
     ], [
     ]),
     new ElementMeta('ref', 'RefExpression', 'Ref', "Uses an existing expression from the registry.", 'language,core', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('expression', 'Expression', "The expression value in your chosen language syntax", 'string', '', '', true, false, false, false, '', ''),
         new PropertyMeta('resultType', 'Result Type', "Sets the class of the result type (type from output)", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('trim', 'Trim', "Whether to trim the value to remove leading and trailing whitespaces and line breaks", 'boolean', '', 'true', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('trim', 'Trim', "Whether to trim the source code to remove leading and trailing whitespaces and line breaks. For example when using DSLs where the source will span across multiple lines and there may be additional line breaks at both the beginning and end.", 'boolean', '', 'true', false, false, false, false, 'advanced', ''),
     ], [
     ]),
     new ElementMeta('simple', 'SimpleExpression', 'Simple', "Evaluates a Camel simple expression.", 'language,core,java', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('expression', 'Expression', "The expression value in your chosen language syntax", 'string', '', '', true, false, false, false, '', ''),
+        new PropertyMeta('trimResult', 'Trim Result', "Whether to trim the returned values when this language are in use. For example the output result may contain unwanted line breaks at the beginning and end such as when using Java DSL with multi-line blocks. Is default false to be backwards compatible with existing behavior.", 'boolean', '', 'false', false, false, false, false, '', ''),
+        new PropertyMeta('pretty', 'Pretty', "To pretty format the output (only JSon or XML supported)", 'boolean', '', 'false', false, false, false, false, '', ''),
+        new PropertyMeta('nested', 'Nested', "If the result is a nested simple expression should this expression be evaluated as well", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('resultType', 'Result Type', "Sets the class of the result type (type from output)", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('trim', 'Trim', "Whether to trim the value to remove leading and trailing whitespaces and line breaks", 'boolean', '', 'true', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('trim', 'Trim', "Whether to trim the source code to remove leading and trailing whitespaces and line breaks. For example when using DSLs where the source will span across multiple lines and there may be additional line breaks at both the beginning and end.", 'boolean', '', 'true', false, false, false, false, 'advanced', ''),
     ], [
     ]),
     new ElementMeta('spel', 'SpELExpression', 'SpEL', "Evaluates a Spring expression (SpEL).", 'language,spring', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('expression', 'Expression', "The expression value in your chosen language syntax", 'string', '', '', true, false, false, false, '', ''),
         new PropertyMeta('resultType', 'Result Type', "Sets the class of the result type (type from output)", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('trim', 'Trim', "Whether to trim the value to remove leading and trailing whitespaces and line breaks", 'boolean', '', 'true', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('trim', 'Trim', "Whether to trim the source code to remove leading and trailing whitespaces and line breaks. For example when using DSLs where the source will span across multiple lines and there may be additional line breaks at both the beginning and end.", 'boolean', '', 'true', false, false, false, false, 'advanced', ''),
     ], [
     ]),
     new ElementMeta('tokenize', 'TokenizerExpression', 'Tokenize', "Tokenize text payloads using delimiter patterns.", 'language,core', [
@@ -947,13 +954,13 @@ export const CamelLanguageMetadata: ElementMeta[] = [
         new PropertyMeta('skipFirst', 'Skip First', "To skip the very first element", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('source', 'Source', "Source to use, instead of message body. You can prefix with variable:, header:, or property: to specify kind of source. Otherwise, the source is assumed to be a variable. Use empty or null to use default source, which is the message body.", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('resultType', 'Result Type', "Sets the class of the result type (type from output)", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('trim', 'Trim', "Whether to trim the value to remove leading and trailing whitespaces and line breaks", 'boolean', '', 'true', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('trim', 'Trim', "Whether to trim the source code to remove leading and trailing whitespaces and line breaks. For example when using DSLs where the source will span across multiple lines and there may be additional line breaks at both the beginning and end.", 'boolean', '', 'true', false, false, false, false, 'advanced', ''),
     ], [
     ]),
     new ElementMeta('variable', 'VariableExpression', 'Variable', "Gets a variable", 'language,core', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('expression', 'Expression', "The expression value in your chosen language syntax", 'string', '', '', true, false, false, false, '', ''),
-        new PropertyMeta('trim', 'Trim', "Whether to trim the value to remove leading and trailing whitespaces and line breaks", 'boolean', '', 'true', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('trim', 'Trim', "Whether to trim the source code to remove leading and trailing whitespaces and line breaks. For example when using DSLs where the source will span across multiple lines and there may be additional line breaks at both the beginning and end.", 'boolean', '', 'true', false, false, false, false, 'advanced', ''),
     ], [
     ]),
     new ElementMeta('wasm', 'WasmExpression', 'Wasm', "Call a wasm (web assembly) function.", 'language', [
@@ -961,7 +968,7 @@ export const CamelLanguageMetadata: ElementMeta[] = [
         new PropertyMeta('expression', 'Expression', "The expression value in your chosen language syntax", 'string', '', '', true, false, false, false, '', ''),
         new PropertyMeta('module', 'Module', "Set the module (the distributable, loadable, and executable unit of code in WebAssembly) resource that provides the expression function.", 'string', '', '', true, false, false, false, '', ''),
         new PropertyMeta('resultType', 'Result Type', "Sets the class of the result type (type from output)", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('trim', 'Trim', "Whether to trim the value to remove leading and trailing whitespaces and line breaks", 'boolean', '', 'true', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('trim', 'Trim', "Whether to trim the source code to remove leading and trailing whitespaces and line breaks. For example when using DSLs where the source will span across multiple lines and there may be additional line breaks at both the beginning and end.", 'boolean', '', 'true', false, false, false, false, 'advanced', ''),
     ], [
     ]),
     new ElementMeta('xtokenize', 'XMLTokenizerExpression', 'XML Tokenize', "Tokenize XML payloads.", 'language,core,xml', [
@@ -972,7 +979,7 @@ export const CamelLanguageMetadata: ElementMeta[] = [
         new PropertyMeta('namespace', 'Namespace', "Injects the XML Namespaces of prefix - uri mappings", 'PropertyDefinition', '', '', false, false, true, true, 'common', ''),
         new PropertyMeta('source', 'Source', "Source to use, instead of message body. You can prefix with variable:, header:, or property: to specify kind of source. Otherwise, the source is assumed to be a variable. Use empty or null to use default source, which is the message body.", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('resultType', 'Result Type', "Sets the class of the result type (type from output)", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('trim', 'Trim', "Whether to trim the value to remove leading and trailing whitespaces and line breaks", 'boolean', '', 'true', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('trim', 'Trim', "Whether to trim the source code to remove leading and trailing whitespaces and line breaks. For example when using DSLs where the source will span across multiple lines and there may be additional line breaks at both the beginning and end.", 'boolean', '', 'true', false, false, false, false, 'advanced', ''),
     ], [
     ]),
     new ElementMeta('xpath', 'XPathExpression', 'XPath', "Evaluates an XPath expression against an XML payload.", 'language,core,xml', [
@@ -989,7 +996,7 @@ export const CamelLanguageMetadata: ElementMeta[] = [
         new PropertyMeta('namespace', 'Namespace', "Injects the XML Namespaces of prefix - uri mappings", 'PropertyDefinition', '', '', false, false, true, true, 'common', ''),
         new PropertyMeta('source', 'Source', "Source to use, instead of message body. You can prefix with variable:, header:, or property: to specify kind of source. Otherwise, the source is assumed to be a variable. Use empty or null to use default source, which is the message body.", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('resultType', 'Result Type', "Sets the class of the result type (type from output)", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('trim', 'Trim', "Whether to trim the value to remove leading and trailing whitespaces and line breaks", 'boolean', '', 'true', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('trim', 'Trim', "Whether to trim the source code to remove leading and trailing whitespaces and line breaks. For example when using DSLs where the source will span across multiple lines and there may be additional line breaks at both the beginning and end.", 'boolean', '', 'true', false, false, false, false, 'advanced', ''),
     ], [
     ]),
     new ElementMeta('xquery', 'XQueryExpression', 'XQuery', "Evaluates an XQuery expressions against an XML payload.", 'language,xml', [
@@ -999,7 +1006,7 @@ export const CamelLanguageMetadata: ElementMeta[] = [
         new PropertyMeta('namespace', 'Namespace', "Injects the XML Namespaces of prefix - uri mappings", 'PropertyDefinition', '', '', false, false, true, true, 'common', ''),
         new PropertyMeta('source', 'Source', "Source to use, instead of message body. You can prefix with variable:, header:, or property: to specify kind of source. Otherwise, the source is assumed to be a variable. Use empty or null to use default source, which is the message body.", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('resultType', 'Result Type', "Sets the class of the result type (type from output)", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('trim', 'Trim', "Whether to trim the value to remove leading and trailing whitespaces and line breaks", 'boolean', '', 'true', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('trim', 'Trim', "Whether to trim the source code to remove leading and trailing whitespaces and line breaks. For example when using DSLs where the source will span across multiple lines and there may be additional line breaks at both the beginning and end.", 'boolean', '', 'true', false, false, false, false, 'advanced', ''),
     ], [
     ]),
 ]
@@ -1007,6 +1014,7 @@ export const CamelLanguageMetadata: ElementMeta[] = [
 export const CamelModelMetadata: ElementMeta[] = [
     new ElementMeta('aggregate', 'AggregateDefinition', 'Aggregate', "Aggregates many messages into a single message", 'eip,routing', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('note', 'Note', "Sets the note of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('correlationExpression', 'Correlation Expression', "The expression used to calculate the correlation key to use for aggregation. The Exchange which has the same correlation key is aggregated together. If the correlation key could not be evaluated an Exception is thrown. You can disable this by using the ignoreBadCorrelationKeys option.", 'ExpressionSubElementDefinition', '', '', true, false, false, true, '', ''),
@@ -1027,7 +1035,7 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('completionInterval', 'Completion Interval', "A repeating period in millis by which the aggregator will complete all current aggregated exchanges. Camel has a background task which is triggered every period. You cannot use this option together with completionTimeout, only one of them can be used.", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('completionTimeout', 'Completion Timeout', "Time in millis that an aggregated exchange should be inactive before its complete (timeout). This option can be set as either a fixed value or using an Expression which allows you to evaluate a timeout dynamically - will use Long as result. If both are set Camel will fallback to use the fixed value if the Expression result was null or 0. You cannot use this option together with completionInterval, only one of the two can be used. By default the timeout checker runs every second, you can use the completionTimeoutCheckerInterval option to configure how frequently to run the checker. The timeout is an approximation and there is no guarantee that the a timeout is triggered exactly after the timeout value. It is not recommended to use very low timeout values or checker intervals.", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('completionTimeoutCheckerInterval', 'Completion Timeout Checker Interval', "Interval in millis that is used by the background task that checks for timeouts ( org.apache.camel.TimeoutMap ). By default the timeout checker runs every second. The timeout is an approximation and there is no guarantee that the a timeout is triggered exactly after the timeout value. It is not recommended to use very low timeout values or checker intervals.", 'string', '', '1000', false, false, false, false, 'advanced', ''),
-        new PropertyMeta('completionFromBatchConsumer', 'Completion From Batch Consumer', "Enables the batch completion mode where we aggregate from a org.apache.camel.BatchConsumer and aggregate the total number of exchanges the org.apache.camel.BatchConsumer has reported as total by checking the exchange property org.apache.camel.Exchange#BATCH_COMPLETE when its complete. This option cannot be used together with discardOnAggregationFailure.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('completionFromBatchConsumer', 'Completion From Batch Consumer', "Enables the batch completion mode where we aggregate from a org.apache.camel.BatchConsumer and aggregate the total number of exchanges the org.apache.camel.BatchConsumer has reported as total by checking the exchange property org.apache.camel.Exchange#BATCH_COMPLETE when its complete. This option cannot be used together with discardOnAggregationFailure. Important: When using this option, you should also enable eagerCheckCompletion() to ensure the aggregator checks for batch completion on each incoming exchange. Without eager checking, the batch completion signal may not be properly detected.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('completionOnNewCorrelationGroup', 'Completion On New Correlation Group', "Enables completion on all previous groups when a new incoming correlation group. This can for example be used to complete groups with same correlation keys when they are in consecutive order. Notice when this is enabled then only 1 correlation group can be in progress as when a new correlation group starts, then the previous groups is forced completed.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('eagerCheckCompletion', 'Eager Check Completion', "Use eager completion checking which means that the completionPredicate will use the incoming Exchange. As opposed to without eager completion checking the completionPredicate will use the aggregated Exchange.", 'boolean', '', 'false', false, false, false, false, '', ''),
         new PropertyMeta('ignoreInvalidCorrelationKeys', 'Ignore Invalid Correlation Keys', "If a correlation key cannot be successfully evaluated it will be ignored by logging a DEBUG and then just ignore the incoming Exchange.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
@@ -1048,6 +1056,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     ]),
     new ElementMeta('bean', 'BeanDefinition', 'Bean', "Calls a Java bean", 'eip,endpoint', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('note', 'Note', "Sets the note of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('ref', 'Ref', "Sets a reference to an existing bean to use, which is looked up from the registry", 'string', '', '', false, false, false, false, '', ''),
@@ -1058,6 +1067,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     ]),
     new ElementMeta('doCatch', 'CatchDefinition', 'Do Catch', "Catches exceptions as part of a try, catch, finally block", 'error', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('note', 'Note', "Sets the note of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('exception', 'Exception', "The exception(s) to catch.", 'string', '', '', false, false, true, true, '', ''),
@@ -1070,6 +1080,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     ]),
     new ElementMeta('choice', 'ChoiceDefinition', 'Choice', "Route messages based on a series of predicates", 'eip,routing', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('note', 'Note', "Sets the note of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('when', 'When', "Sets the when nodes", 'WhenDefinition', '', '', false, false, true, true, '', ''),
@@ -1079,6 +1090,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     ]),
     new ElementMeta('circuitBreaker', 'CircuitBreakerDefinition', 'Circuit Breaker', "Route messages in a fault tolerance way using Circuit Breaker", 'eip,routing,error', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('note', 'Note', "Sets the note of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('configuration', 'Configuration', "Refers to a circuit breaker configuration (such as resillience4j, or microprofile-fault-tolerance) to use for configuring the circuit breaker EIP.", 'string', '', '', false, false, false, false, '', ''),
@@ -1097,6 +1109,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     ]),
     new ElementMeta('claimCheck', 'ClaimCheckDefinition', 'Claim Check', "The Claim Check EIP allows you to replace message content with a claim check (a unique key), which can be used to retrieve the message content at a later time.", 'eip,routing', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('note', 'Note', "Sets the note of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('operation', 'Operation', "The claim check operation to use. The following operations are supported: Get - Gets (does not remove) the claim check by the given key. GetAndRemove - Gets and removes the claim check by the given key. Set - Sets a new (will override if key already exists) claim check with the given key. Push - Sets a new claim check on the stack (does not use key). Pop - Gets the latest claim check from the stack (does not use key).", 'string', 'Get, GetAndRemove, Set, Push, Pop', '', false, false, false, false, '', ''),
@@ -1108,6 +1121,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     ]),
     new ElementMeta('convertBodyTo', 'ConvertBodyDefinition', 'Convert Body To', "Converts the message body to another type", 'eip,transformation', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('note', 'Note', "Sets the note of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('type', 'Type', "The java type to convert to", 'string', '', '', true, false, false, false, '', ''),
@@ -1117,6 +1131,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     ]),
     new ElementMeta('convertHeaderTo', 'ConvertHeaderDefinition', 'Convert Header To', "Converts the message header to another type", 'eip,transformation', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('note', 'Note', "Sets the note of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('name', 'Name', "Name of message header to convert its value The simple language can be used to define a dynamic evaluated header name to be used. Otherwise a constant name will be used.", 'string', '', '', true, false, false, false, '', ''),
@@ -1128,6 +1143,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     ]),
     new ElementMeta('convertVariableTo', 'ConvertVariableDefinition', 'Convert Variable To', "Converts the variable to another type", 'eip,transformation', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('note', 'Note', "Sets the note of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('name', 'Name', "Name of variable to convert its value The simple language can be used to define a dynamic evaluated header name to be used. Otherwise a constant name will be used.", 'string', '', '', true, false, false, false, '', ''),
@@ -1139,6 +1155,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     ]),
     new ElementMeta('delay', 'DelayDefinition', 'Delay', "Delays processing for a specified length of time", 'eip,routing', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('note', 'Note', "Sets the note of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('expression', 'Expression', "Expression to define how long time to wait (in millis)", 'ExpressionDefinition', '', '', true, false, false, true, '', ''),
@@ -1149,6 +1166,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     ]),
     new ElementMeta('dynamicRouter', 'DynamicRouterDefinition', 'Dynamic Router', "Route messages based on dynamic rules", 'eip,routing', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('note', 'Note', "Sets the note of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('expression', 'Expression', "Expression to call that returns the endpoint(s) to route to in the dynamic routing. Important: The expression will be called in a while loop fashion, until the expression returns null which means the dynamic router is finished.", 'ExpressionDefinition', '', '', true, false, false, true, '', ''),
@@ -1159,6 +1177,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     ]),
     new ElementMeta('enrich', 'EnrichDefinition', 'Enrich', "Enriches a message with data from a secondary resource", 'eip,transformation', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('note', 'Note', "Sets the note of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('expression', 'Expression', "Expression that computes the endpoint uri to use as the resource endpoint to enrich from", 'ExpressionDefinition', '', '', true, false, false, true, '', ''),
@@ -1178,6 +1197,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     ]),
     new ElementMeta('filter', 'FilterDefinition', 'Filter', "Filter out messages based using a predicate", 'eip,routing', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('note', 'Note', "Sets the note of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('expression', 'Expression', "Expression to determine if the message should be filtered or not. If the expression returns an empty value or false then the message is filtered (dropped), otherwise the message is continued being routed.", 'ExpressionDefinition', '', '', true, false, false, true, '', ''),
@@ -1187,6 +1207,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     ]),
     new ElementMeta('doFinally', 'FinallyDefinition', 'Do Finally', "Path traversed when a try, catch, finally block exits", 'error', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('note', 'Note', "Sets the note of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('steps', 'steps', "steps", 'CamelElement', '', '', false, false, true, true, '', ''),
@@ -1197,6 +1218,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     ]),
     new ElementMeta('idempotentConsumer', 'IdempotentConsumerDefinition', 'Idempotent Consumer', "Filters out duplicate messages", 'eip,routing', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('note', 'Note', "Sets the note of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('expression', 'Expression', "Expression used to calculate the correlation key to use for duplicate check. The Exchange which has the same correlation key is regarded as a duplicate and will be rejected.", 'ExpressionDefinition', '', '', true, false, false, true, '', ''),
@@ -1217,6 +1239,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     ]),
     new ElementMeta('loadBalance', 'LoadBalanceDefinition', 'Load Balance', "Balances message processing among a number of nodes", 'eip,routing', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('note', 'Note', "Sets the note of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('customLoadBalancer', 'customLoadBalancer', "customLoadBalancer", 'CustomLoadBalancerDefinition', '', '', false, false, false, true, '', ''),
@@ -1231,6 +1254,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     ]),
     new ElementMeta('log', 'LogDefinition', 'Logger', "Used for printing custom messages to the logger.", 'eip,routing', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('note', 'Note', "Sets the note of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('message', 'Message', "Sets the log message (uses simple language)", 'string', '', '', true, false, false, false, '', ''),
@@ -1243,6 +1267,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     ]),
     new ElementMeta('loop', 'LoopDefinition', 'Loop', "Processes a message multiple times", 'eip,routing', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('note', 'Note', "Sets the note of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('expression', 'Expression', "Expression to define how many times we should loop. Notice the expression is only evaluated once, and should return a number as how many times to loop. A value of zero or negative means no looping. The loop is like a for-loop fashion, if you want a while loop, then the dynamic router may be a better choice.", 'ExpressionDefinition', '', '', true, false, false, true, '', ''),
@@ -1257,6 +1282,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     ]),
     new ElementMeta('marshal', 'MarshalDefinition', 'Marshal', "Marshals data into a specified format for transmission over a transport or component", 'eip,dataformat,transformation', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('note', 'Note', "Sets the note of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('variableSend', 'Variable Send', "To use a variable as the source for the message body to send. This makes it handy to use variables for user data and to easily control what data to use for sending and receiving. Important: When using send variable then the message body is taken from this variable instead of the current message, however the headers from the message will still be used as well. In other words, the variable is used instead of the message body, but everything else is as usual.", 'string', '', '', false, false, false, false, '', ''),
@@ -1277,6 +1303,7 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('flatpack', 'flatpack', "flatpack", 'FlatpackDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('fory', 'fory', "fory", 'ForyDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('grok', 'grok', "grok", 'GrokDataFormat', '', '', false, false, false, true, '', ''),
+        new PropertyMeta('groovyXml', 'groovyXml', "groovyXml", 'GroovyXmlDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('gzipDeflater', 'gzipDeflater', "gzipDeflater", 'GzipDeflaterDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('hl7', 'hl7', "hl7", 'HL7DataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('ical', 'ical', "ical", 'IcalDataFormat', '', '', false, false, false, true, '', ''),
@@ -1287,8 +1314,10 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('jsonApi', 'jsonApi', "jsonApi", 'JsonApiDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('lzf', 'lzf', "lzf", 'LZFDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('mimeMultipart', 'mimeMultipart', "mimeMultipart", 'MimeMultipartDataFormat', '', '', false, false, false, true, '', ''),
+        new PropertyMeta('ocsf', 'ocsf', "ocsf", 'OcsfDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('parquetAvro', 'parquetAvro', "parquetAvro", 'ParquetAvroDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('pgp', 'pgp', "pgp", 'PGPDataFormat', '', '', false, false, false, true, '', ''),
+        new PropertyMeta('pqc', 'pqc', "pqc", 'PQCDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('protobuf', 'protobuf', "protobuf", 'ProtobufDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('rss', 'rss', "rss", 'RssDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('smooks', 'smooks', "smooks", 'SmooksDataFormat', '', '', false, false, false, true, '', ''),
@@ -1298,7 +1327,6 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('syslog', 'syslog', "syslog", 'SyslogDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('tarFile', 'tarFile', "tarFile", 'TarFileDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('thrift', 'thrift', "thrift", 'ThriftDataFormat', '', '', false, false, false, true, '', ''),
-        new PropertyMeta('tidyMarkup', 'tidyMarkup', "tidyMarkup", 'TidyMarkupDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('univocityCsv', 'univocityCsv', "univocityCsv", 'UniVocityCsvDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('univocityFixed', 'univocityFixed', "univocityFixed", 'UniVocityFixedDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('univocityTsv', 'univocityTsv', "univocityTsv", 'UniVocityTsvDataFormat', '', '', false, false, false, true, '', ''),
@@ -1310,6 +1338,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     ]),
     new ElementMeta('multicast', 'MulticastDefinition', 'Multicast', "Routes the same message to multiple paths either sequentially or in parallel.", 'eip,routing', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('note', 'Note', "Sets the note of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('aggregationStrategy', 'Aggregation Strategy', "Refers to an AggregationStrategy to be used to assemble the replies from the multicasts, into a single outgoing message from the Multicast. By default Camel will use the last reply as the outgoing message. You can also use a POJO as the AggregationStrategy", 'string', '', '', false, false, false, false, '', 'org.apache.camel.AggregationStrategy'),
@@ -1320,7 +1349,7 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('synchronous', 'Synchronous', "Sets whether synchronous processing should be strictly used. When enabled then the same thread is used to continue routing after the multicast is complete, even if parallel processing is enabled.", 'boolean', '', 'false', false, false, false, false, '', ''),
         new PropertyMeta('streaming', 'Streaming', "If enabled then Camel will process replies out-of-order, eg in the order they come back. If disabled, Camel will process replies in the same order as defined by the multicast.", 'boolean', '', 'false', false, false, false, false, '', ''),
         new PropertyMeta('stopOnException', 'Stop On Exception', "Will now stop further processing if an exception or failure occurred during processing of an org.apache.camel.Exchange and the caused exception will be thrown. Will also stop if processing the exchange failed (has a fault message) or an exception was thrown and handled by the error handler (such as using onException). In all situations the multicast will stop further processing. This is the same behavior as in pipeline, which is used by the routing engine. The default behavior is to not stop but continue processing till the end", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
-        new PropertyMeta('timeout', 'Timeout', "Sets a total timeout specified in millis, when using parallel processing. If the Multicast hasn't been able to send and process all replies within the given timeframe, then the timeout triggers and the Multicast breaks out and continues. Notice if you provide a TimeoutAwareAggregationStrategy then the timeout method is invoked before breaking out. If the timeout is reached with running tasks still remaining, certain tasks for which it is difficult for Camel to shut down in a graceful manner may continue to run. So use this option with a bit of care.", 'string', '', '0', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('timeout', 'Timeout', "Sets a total timeout specified in millis, when using parallel processing. If the Multicast hasn't been able to send and process all replies within the given timeframe, then the timeout triggers and the Multicast breaks out and continues. The timeout method is invoked before breaking out. If the timeout is reached with running tasks still remaining, certain tasks for which it is difficult for Camel to shut down in a graceful manner may continue to run. So use this option with a bit of care.", 'string', '', '0', false, false, false, false, 'advanced', ''),
         new PropertyMeta('executorService', 'Executor Service', "Refers to a custom Thread Pool to be used for parallel processing. Notice if you set this option, then parallel processing is automatic implied, and you do not have to enable that option as well.", 'string', '', '', false, false, false, false, 'advanced', ''),
         new PropertyMeta('onPrepare', 'On Prepare', "Uses the Processor when preparing the org.apache.camel.Exchange to be send. This can be used to deep-clone messages that should be send, or any custom logic needed before the exchange is send.", 'string', '', '', false, false, false, false, 'advanced', 'org.apache.camel.Processor'),
         new PropertyMeta('shareUnitOfWork', 'Share Unit Of Work', "Shares the org.apache.camel.spi.UnitOfWork with the parent and each of the sub messages. Multicast will by default not share unit of work between the parent exchange and each multicasted exchange. This means each sub exchange has its own individual unit of work.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
@@ -1332,6 +1361,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     ]),
     new ElementMeta('pausable', 'PausableDefinition', 'Pausable', "Pausable EIP to support resuming processing from last known offset.", 'eip,routing', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('note', 'Note', "Sets the note of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('consumerListener', 'Consumer Listener', "Sets the consumer listener to use", 'string', '', '', true, false, false, false, '', ''),
@@ -1340,6 +1370,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     ]),
     new ElementMeta('pipeline', 'PipelineDefinition', 'Pipeline', "Routes the message to a sequence of processors.", 'eip,routing', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('note', 'Note', "Sets the note of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('steps', 'steps', "steps", 'CamelElement', '', '', false, false, true, true, '', ''),
@@ -1347,6 +1378,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     ]),
     new ElementMeta('policy', 'PolicyDefinition', 'Policy', "Defines a policy the route will use", 'configuration', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('note', 'Note', "Sets the note of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('ref', 'Ref', "Sets a reference to use for lookup the policy in the registry.", 'string', '', '', true, false, false, false, '', ''),
@@ -1355,6 +1387,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     ]),
     new ElementMeta('poll', 'PollDefinition', 'Poll', "Polls a message from a static endpoint", 'eip,routing', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('note', 'Note', "Sets the note of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('variableReceive', 'Variable Receive', "To use a variable to store the received message body (only body, not headers). This makes it handy to use variables for user data and to easily control what data to use for sending and receiving. Important: When using receive variable then the received body is stored only in this variable and not on the current message.", 'string', '', '', false, false, false, false, '', ''),
@@ -1365,6 +1398,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     ]),
     new ElementMeta('pollEnrich', 'PollEnrichDefinition', 'Poll Enrich', "Enriches messages with data polled from a secondary resource", 'eip,transformation', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('note', 'Note', "Sets the note of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('expression', 'Expression', "Expression that computes the endpoint uri to use as the resource endpoint to enrich from", 'ExpressionDefinition', '', '', true, false, false, true, '', ''),
@@ -1383,6 +1417,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     ]),
     new ElementMeta('process', 'ProcessDefinition', 'Process', "Calls a Camel processor", 'eip,endpoint', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('note', 'Note', "Sets the note of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('ref', 'Ref', "Reference to the Processor to lookup in the registry to use. A Processor is a class of type org.apache.camel.Processor, which can are to be called by this EIP. In this processor you have custom Java code, that can work with the message, such as to do custom business logic, special message manipulations and so on. By default, the ref, will lookup the bean in the Camel registry. The ref can use prefix that controls how the processor is obtained. You can use #bean:myBean where myBean is the id of the Camel processor (lookup). Can also be used for creating new beans by their class name by prefixing with #class, eg #class:com.foo.MyClassType. And it is also possible to refer to singleton beans by their type in the registry by prefixing with #type: syntax, eg #type:com.foo.MyClassType", 'string', '', '', true, false, false, false, '', 'org.apache.camel.Processor'),
@@ -1390,6 +1425,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     ]),
     new ElementMeta('recipientList', 'RecipientListDefinition', 'Recipient List', "Route messages to a number of dynamically specified recipients", 'eip,routing', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('note', 'Note', "Sets the note of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('expression', 'Expression', "Expression that returns which endpoints (url) to send the message to (the recipients). If the expression return an empty value then the message is not sent to any recipients.", 'ExpressionDefinition', '', '', true, false, false, true, '', ''),
@@ -1400,7 +1436,7 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('parallelAggregate', 'Parallel Aggregate', "If enabled then the aggregate method on AggregationStrategy can be called concurrently. Notice that this would require the implementation of AggregationStrategy to be implemented as thread-safe. By default this is false meaning that Camel synchronizes the call to the aggregate method. Though in some use-cases this can be used to archive higher performance when the AggregationStrategy is implemented as thread-safe.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('parallelProcessing', 'Parallel Processing', "If enabled then sending messages to the recipients occurs concurrently. Note the caller thread will still wait until all messages has been fully processed, before it continues. Its only the sending and processing the replies from the recipients which happens concurrently. When parallel processing is enabled, then the Camel routing engin will continue processing using last used thread from the parallel thread pool. However, if you want to use the original thread that called the recipient list, then make sure to enable the synchronous option as well. In parallel processing mode, you may want to also synchronous = true to force this EIP to process the sub-tasks using the upper bounds of the thread-pool. If using synchronous = false then Camel will allow its reactive routing engine to use as many threads as possible, which may be available due to sub-tasks using other thread-pools such as CompletableFuture.runAsync or others.", 'boolean', '', 'false', false, false, false, false, '', ''),
         new PropertyMeta('synchronous', 'Synchronous', "Sets whether synchronous processing should be strictly used. When enabled then the same thread is used to continue routing after the recipient list is complete, even if parallel processing is enabled.", 'boolean', '', 'false', false, false, false, false, '', ''),
-        new PropertyMeta('timeout', 'Timeout', "Sets a total timeout specified in millis, when using parallel processing. If the Recipient List hasn't been able to send and process all replies within the given timeframe, then the timeout triggers and the Recipient List breaks out and continues. Notice if you provide a TimeoutAwareAggregationStrategy then the timeout method is invoked before breaking out. If the timeout is reached with running tasks still remaining, certain tasks for which it is difficult for Camel to shut down in a graceful manner may continue to run. So use this option with a bit of care.", 'string', '', '0', false, false, false, false, '', ''),
+        new PropertyMeta('timeout', 'Timeout', "Sets a total timeout specified in millis, when using parallel processing. If the Recipient List hasn't been able to send and process all replies within the given timeframe, then the timeout triggers and the Recipient List breaks out and continues. The timeout method is invoked before breaking out. If the timeout is reached with running tasks still remaining, certain tasks for which it is difficult for Camel to shut down in a graceful manner may continue to run. So use this option with a bit of care.", 'string', '', '0', false, false, false, false, '', ''),
         new PropertyMeta('executorService', 'Executor Service', "To use a custom Thread Pool to be used for parallel processing. Notice if you set this option, then parallel processing is automatic implied, and you do not have to enable that option as well.", 'string', '', '', false, false, false, false, 'advanced', ''),
         new PropertyMeta('stopOnException', 'Stop On Exception', "Will now stop further processing if an exception or failure occurred during processing of an org.apache.camel.Exchange and the caused exception will be thrown. Will also stop if processing the exchange failed (has a fault message) or an exception was thrown and handled by the error handler (such as using onException). In all situations the recipient list will stop further processing. This is the same behavior as in pipeline, which is used by the routing engine. The default behavior is to not stop but continue processing till the end", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('ignoreInvalidEndpoints', 'Ignore Invalid Endpoints', "Ignore the invalidate endpoint exception when try to create a producer with that endpoint", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
@@ -1414,6 +1450,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     ]),
     new ElementMeta('removeHeader', 'RemoveHeaderDefinition', 'Remove Header', "Removes a named header from the message", 'eip,transformation', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('note', 'Note', "Sets the note of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('name', 'Name', "Name of header to remove", 'string', '', '', true, false, false, false, '', ''),
@@ -1421,6 +1458,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     ]),
     new ElementMeta('removeHeaders', 'RemoveHeadersDefinition', 'Remove Headers', "Removes message headers whose name matches a specified pattern", 'eip,transformation', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('note', 'Note', "Sets the note of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('pattern', 'Pattern', "Name or pattern of headers to remove. The pattern is matched in the following order: 1 = exact match 2 = wildcard (pattern ends with a and the name starts with the pattern) 3 = regular expression (all of above is case in-sensitive).", 'string', '', '', true, false, false, false, '', ''),
@@ -1429,6 +1467,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     ]),
     new ElementMeta('removeProperties', 'RemovePropertiesDefinition', 'Remove Properties', "Removes message exchange properties whose name matches a specified pattern", 'eip,transformation', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('note', 'Note', "Sets the note of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('pattern', 'Pattern', "Name or pattern of properties to remove. The pattern is matched in the following order: 1 = exact match 2 = wildcard (pattern ends with a and the name starts with the pattern) 3 = regular expression (all of above is case in-sensitive).", 'string', '', '', true, false, false, false, '', ''),
@@ -1437,6 +1476,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     ]),
     new ElementMeta('removeProperty', 'RemovePropertyDefinition', 'Remove Property', "Removes a named property from the message exchange", 'eip,transformation', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('note', 'Note', "Sets the note of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('name', 'Name', "Name of property to remove.", 'string', '', '', true, false, false, false, '', ''),
@@ -1444,6 +1484,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     ]),
     new ElementMeta('removeVariable', 'RemoveVariableDefinition', 'Remove Variable', "Removes a named variable", 'eip,transformation', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('note', 'Note', "Sets the note of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('name', 'Name', "Name of variable to remove.", 'string', '', '', true, false, false, false, '', ''),
@@ -1451,6 +1492,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     ]),
     new ElementMeta('resequence', 'ResequenceDefinition', 'Resequence', "Resequences (re-order) messages based on an expression", 'eip,routing', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('note', 'Note', "Sets the note of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('expression', 'Expression', "Expression to use for re-ordering the messages, such as a header with a sequence number", 'ExpressionDefinition', '', '', true, false, false, true, '', ''),
@@ -1461,6 +1503,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     ]),
     new ElementMeta('resumable', 'ResumableDefinition', 'Resumable', "Resume EIP to support resuming processing from last known offset.", 'eip,routing', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('note', 'Note', "Sets the note of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('resumeStrategy', 'Resume Strategy', "Sets the resume strategy to use", 'string', '', '', true, false, false, false, '', ''),
@@ -1470,6 +1513,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     ]),
     new ElementMeta('rollback', 'RollbackDefinition', 'Rollback', "Forces a rollback by stopping routing the message", 'eip,routing', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('note', 'Note', "Sets the note of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('message', 'Message', "Message to use in rollback exception", 'string', '', '', false, false, false, false, '', ''),
@@ -1479,6 +1523,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     ]),
     new ElementMeta('routingSlip', 'RoutingSlipDefinition', 'Routing Slip', "Routes a message through a series of steps that are pre-determined (the slip)", 'eip,routing', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('note', 'Note', "Sets the note of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('expression', 'Expression', "Expression to define the routing slip, which defines which endpoints to route the message in a pipeline style. Notice the expression is evaluated once, if you want a more dynamic style, then the dynamic router eip is a better choice.", 'ExpressionDefinition', '', '', true, false, false, true, '', ''),
@@ -1491,6 +1536,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     ]),
     new ElementMeta('saga', 'SagaDefinition', 'Saga', "Enables Sagas on the route", 'eip,routing', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('note', 'Note', "Sets the note of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('sagaService', 'Saga Service', "Refers to the id to lookup in the registry for the specific CamelSagaService to use.", 'string', '', '', false, false, false, false, 'advanced', ''),
@@ -1505,6 +1551,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     ]),
     new ElementMeta('sample', 'SamplingDefinition', 'Sample', "Extract a sample of the messages passing through a route", 'eip,routing', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('note', 'Note', "Sets the note of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('samplePeriod', 'Sample Period', "Sets the sample period during which only a single Exchange will pass through.", 'string', '', '1000', false, false, false, false, '', ''),
@@ -1513,6 +1560,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     ]),
     new ElementMeta('script', 'ScriptDefinition', 'Script', "Executes a script from a language which does not change the message body.", 'eip,transformation', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('note', 'Note', "Sets the note of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('expression', 'Expression', "Script to be executed.", 'ExpressionDefinition', '', '', true, false, false, true, '', ''),
@@ -1520,6 +1568,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     ]),
     new ElementMeta('setBody', 'SetBodyDefinition', 'Set Body', "Sets the contents of the message body", 'eip,transformation', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('note', 'Note', "Sets the note of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('expression', 'Expression', "Expression that returns the new body to use", 'ExpressionDefinition', '', '', true, false, false, true, '', ''),
@@ -1527,6 +1576,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     ]),
     new ElementMeta('setExchangePattern', 'SetExchangePatternDefinition', 'Set Exchange Pattern', "Sets the exchange pattern on the message exchange", 'configuration', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('note', 'Note', "Sets the note of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('pattern', 'Pattern', "Sets the new exchange pattern of the Exchange to be used from this point forward", 'string', 'InOnly, InOut', '', true, false, false, false, '', ''),
@@ -1534,6 +1584,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     ]),
     new ElementMeta('setHeader', 'SetHeaderDefinition', 'Set Header', "Sets the value of a message header", 'eip,transformation', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('note', 'Note', "Sets the note of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('name', 'Name', "Name of message header to set a new value The simple language can be used to define a dynamic evaluated header name to be used. Otherwise a constant name will be used.", 'string', '', '', true, false, false, false, '', ''),
@@ -1542,6 +1593,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     ]),
     new ElementMeta('setHeaders', 'SetHeadersDefinition', 'Set Headers', "Allows setting multiple headers on the message at the same time.", 'eip,transformation', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('note', 'Note', "Sets the note of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('headers', 'Headers', "Contains the headers to be set", 'SetHeaderDefinition', '', '', true, false, true, true, '', ''),
@@ -1549,6 +1601,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     ]),
     new ElementMeta('setProperty', 'SetPropertyDefinition', 'Set Property', "Sets a named property on the message exchange", 'eip,transformation', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('note', 'Note', "Sets the note of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('name', 'Name', "Name of exchange property to set a new value. The simple language can be used to define a dynamic evaluated exchange property name to be used. Otherwise a constant name will be used.", 'string', '', '', true, false, false, false, '', ''),
@@ -1557,6 +1610,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     ]),
     new ElementMeta('setVariable', 'SetVariableDefinition', 'Set Variable', "Sets the value of a variable", 'eip,transformation', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('note', 'Note', "Sets the note of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('name', 'Name', "Name of variable to set a new value The simple language can be used to define a dynamic evaluated variable name to be used. Otherwise a constant name will be used.", 'string', '', '', true, false, false, false, '', ''),
@@ -1565,6 +1619,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     ]),
     new ElementMeta('setVariables', 'SetVariablesDefinition', 'Set Variables', "Allows setting multiple variables at the same time.", 'eip,transformation', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('note', 'Note', "Sets the note of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('variables', 'Variables', "Contains the variables to be set", 'SetVariableDefinition', '', '', true, false, true, true, '', ''),
@@ -1572,6 +1627,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     ]),
     new ElementMeta('sort', 'SortDefinition', 'Sort', "Sorts the contents of the message", 'eip,transformation', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('note', 'Note', "Sets the note of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('expression', 'Expression', "Optional expression to sort by something else than the message body", 'ExpressionDefinition', '', '', true, false, false, true, '', ''),
@@ -1580,6 +1636,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     ]),
     new ElementMeta('split', 'SplitDefinition', 'Split', "Splits a single message into many sub-messages.", 'eip,routing', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('note', 'Note', "Sets the note of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('expression', 'Expression', "Expression of how to split the message body, such as as-is, using a tokenizer, or using a xpath.", 'ExpressionDefinition', '', '', true, false, false, true, '', ''),
@@ -1592,7 +1649,7 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('synchronous', 'Synchronous', "Sets whether synchronous processing should be strictly used. When enabled then the same thread is used to continue routing after the split is complete, even if parallel processing is enabled.", 'boolean', '', 'false', false, false, false, false, '', ''),
         new PropertyMeta('streaming', 'Streaming', "When in streaming mode, then the splitter splits the original message on-demand, and each split message is processed one by one. This reduces memory usage as the splitter do not split all the messages first, but then we do not know the total size, and therefore the org.apache.camel.Exchange#SPLIT_SIZE is empty. In non-streaming mode (default) the splitter will split each message first, to know the total size, and then process each message one by one. This requires to keep all the split messages in memory and therefore requires more memory. The total size is provided in the org.apache.camel.Exchange#SPLIT_SIZE header. The streaming mode also affects the aggregation behavior. If enabled then Camel will process replies out-of-order, e.g. in the order they come back. If disabled, Camel will process replies in the same order as the messages was split.", 'boolean', '', 'false', false, false, false, false, '', ''),
         new PropertyMeta('stopOnException', 'Stop On Exception', "Will now stop further processing if an exception or failure occurred during processing of an org.apache.camel.Exchange and the caused exception will be thrown. Will also stop if processing the exchange failed (has a fault message) or an exception was thrown and handled by the error handler (such as using onException). In all situations the splitter will stop further processing. This is the same behavior as in pipeline, which is used by the routing engine. The default behavior is to not stop but continue processing till the end", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
-        new PropertyMeta('timeout', 'Timeout', "Sets a total timeout specified in millis, when using parallel processing. If the Splitter hasn't been able to split and process all the sub messages within the given timeframe, then the timeout triggers and the Splitter breaks out and continues. Notice if you provide a TimeoutAwareAggregationStrategy then the timeout method is invoked before breaking out. If the timeout is reached with running tasks still remaining, certain tasks for which it is difficult for Camel to shut down in a graceful manner may continue to run. So use this option with a bit of care.", 'string', '', '0', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('timeout', 'Timeout', "Sets a total timeout specified in millis, when using parallel processing. If the Splitter hasn't been able to send and process all replies within the given timeframe, then the timeout triggers and the Splitter breaks out and continues. The timeout method is invoked before breaking out. If the timeout is reached with running tasks still remaining, certain tasks for which it is difficult for Camel to shut down in a graceful manner may continue to run. So use this option with a bit of care.", 'string', '', '0', false, false, false, false, 'advanced', ''),
         new PropertyMeta('executorService', 'Executor Service', "To use a custom Thread Pool to be used for parallel processing. Notice if you set this option, then parallel processing is automatically implied, and you do not have to enable that option as well.", 'string', '', '', false, false, false, false, 'advanced', ''),
         new PropertyMeta('onPrepare', 'On Prepare', "Uses the Processor when preparing the org.apache.camel.Exchange to be sent. This can be used to deep-clone messages that should be sent, or any custom logic needed before the exchange is sent.", 'string', '', '', false, false, false, false, 'advanced', 'org.apache.camel.Processor'),
         new PropertyMeta('shareUnitOfWork', 'Share Unit Of Work', "Shares the org.apache.camel.spi.UnitOfWork with the parent and each of the sub messages. Splitter will by default not share unit of work between the parent exchange and each split exchange. This means each split exchange has its own individual unit of work.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
@@ -1604,6 +1661,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     ]),
     new ElementMeta('step', 'StepDefinition', 'Step', "Routes the message to a sequence of processors which is grouped together as one logical name", 'eip,routing', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('note', 'Note', "Sets the note of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('steps', 'steps', "steps", 'CamelElement', '', '', false, false, true, true, '', ''),
@@ -1612,12 +1670,14 @@ export const CamelModelMetadata: ElementMeta[] = [
     ]),
     new ElementMeta('stop', 'StopDefinition', 'Stop', "Stops the processing of the current message", 'eip,routing', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('note', 'Note', "Sets the note of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
     ], [
     ]),
     new ElementMeta('threads', 'ThreadsDefinition', 'Threads', "Specifies that all steps after this node are processed asynchronously", 'eip,routing', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('note', 'Note', "Sets the note of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('executorService', 'Executor Service', "To use a custom thread pool", 'string', '', '', false, false, false, false, 'advanced', ''),
@@ -1629,11 +1689,12 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('allowCoreThreadTimeOut', 'Allow Core Thread Time Out', "Whether idle core threads are allowed to timeout and therefore can shrink the pool size below the core pool size Is by default false", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('threadName', 'Thread Name', "Sets the thread name to use.", 'string', '', 'Threads', false, false, false, false, '', ''),
         new PropertyMeta('rejectedPolicy', 'Rejected Policy', "Sets the handler for tasks which cannot be executed by the thread pool.", 'string', 'Abort, CallerRuns', '', false, false, false, false, 'advanced', ''),
-        new PropertyMeta('callerRunsWhenRejected', 'Caller Runs When Rejected', "Whether or not to use as caller runs as fallback when a task is rejected being added to the thread pool (when its full). This is only used as fallback if no rejectedPolicy has been configured, or the thread pool has no configured rejection handler. Is by default true", 'string', '', 'true', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('callerRunsWhenRejected', 'Caller Runs When Rejected', "Whether or not to use as caller runs as fallback when a task is rejected being added to the thread pool (when its full). This is only used as fallback if no rejectedPolicy has been configured, or the thread pool has no configured rejection handler. Is by default true", 'boolean', '', 'true', false, false, false, false, 'advanced', ''),
     ], [
     ]),
     new ElementMeta('throttle', 'ThrottleDefinition', 'Throttle', "Controls the rate at which messages are passed to the next node in the route", 'eip,routing', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('note', 'Note', "Sets the note of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('expression', 'Expression', "Expression to configure the maximum number of messages to throttle per request", 'ExpressionDefinition', '', '', true, false, false, true, '', ''),
@@ -1648,6 +1709,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     ]),
     new ElementMeta('throwException', 'ThrowExceptionDefinition', 'Throw Exception', "Throws an exception", 'error', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('note', 'Note', "Sets the note of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('message', 'Message', "To create a new exception instance and use the given message as caused message (supports simple language)", 'string', '', '', false, false, false, false, '', ''),
@@ -1657,6 +1719,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     ]),
     new ElementMeta('to', 'ToDefinition', 'To', "Sends the message to a static endpoint", 'eip,routing', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('note', 'Note', "Sets the note of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('variableSend', 'Variable Send', "To use a variable as the source for the message body to send. This makes it handy to use variables for user data and to easily control what data to use for sending and receiving. Important: When using send variable then the message body is taken from this variable instead of the current message, however the headers from the message will still be used as well. In other words, the variable is used instead of the message body, but everything else is as usual.", 'string', '', '', false, false, false, false, '', ''),
@@ -1669,6 +1732,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     ]),
     new ElementMeta('toD', 'ToDynamicDefinition', 'To D', "Sends the message to a dynamic endpoint", 'eip,routing', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('note', 'Note', "Sets the note of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('uri', 'Uri', "The uri of the endpoint to send to. The uri can be dynamic computed using the org.apache.camel.language.simple.SimpleLanguage expression.", 'string', '', '', true, false, false, false, '', ''),
@@ -1685,6 +1749,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     ]),
     new ElementMeta('tokenizer', 'TokenizerDefinition', 'Specialized tokenizer for AI applications', "Represents a Camel tokenizer for AI.", 'eip,transformation,ai', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('note', 'Note', "Sets the note of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('langChain4jCharacterTokenizer', 'langChain4jCharacterTokenizer', "langChain4jCharacterTokenizer", 'LangChain4jCharacterTokenizerDefinition', '', '', false, false, false, true, '', ''),
@@ -1696,23 +1761,33 @@ export const CamelModelMetadata: ElementMeta[] = [
     ]),
     new ElementMeta('transacted', 'TransactedDefinition', 'Transacted', "Enables transaction on the route", 'configuration', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('note', 'Note', "Sets the note of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('ref', 'Ref', "Sets a reference to use for lookup the policy in the registry.", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('steps', 'steps', "steps", 'CamelElement', '', '', false, false, true, true, '', ''),
     ], [
     ]),
+    new ElementMeta('transformDataType', 'TransformDataTypeDefinition', 'Transform Data Type', "Transforms the message body based on known data type transformers.", 'eip,transformation', [
+        new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('note', 'Note', "Sets the note of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('fromType', 'From Type', "From type used in data type transformation.", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('toType', 'To Type', "To type used as a target data type in the transformation.", 'string', '', '', true, false, false, false, '', ''),
+    ], [
+    ]),
     new ElementMeta('transform', 'TransformDefinition', 'Transform', "Transforms the message body based on an expression", 'eip,transformation', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('note', 'Note', "Sets the note of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('expression', 'Expression', "Expression to return the transformed message body (the new message body to use)", 'ExpressionDefinition', '', '', true, false, false, true, '', ''),
-        new PropertyMeta('fromType', 'From Type', "From type used in data type transformation.", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('toType', 'To Type', "To type used as a target data type in the transformation.", 'string', '', '', false, false, false, false, '', ''),
     ], [
     ]),
     new ElementMeta('doTry', 'TryDefinition', 'Do Try', "Marks the beginning of a try, catch, finally block", 'eip,routing,error', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('note', 'Note', "Sets the note of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('doCatch', 'Do Catch', "Catches exceptions as part of a try, catch, finally block", 'CatchDefinition', '', '', false, false, true, true, '', ''),
@@ -1722,6 +1797,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     ]),
     new ElementMeta('unmarshal', 'UnmarshalDefinition', 'Unmarshal', "Converts the message data received from the wire into a format that Apache Camel processors can consume", 'eip,dataformat,transformation', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('note', 'Note', "Sets the note of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('variableSend', 'Variable Send', "To use a variable as the source for the message body to send. This makes it handy to use variables for user data and to easily control what data to use for sending and receiving. Important: When using send variable then the message body is taken from this variable instead of the current message, however the headers from the message will still be used as well. In other words, the variable is used instead of the message body, but everything else is as usual.", 'string', '', '', false, false, false, false, '', ''),
@@ -1743,6 +1819,7 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('flatpack', 'flatpack', "flatpack", 'FlatpackDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('fory', 'fory', "fory", 'ForyDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('grok', 'grok', "grok", 'GrokDataFormat', '', '', false, false, false, true, '', ''),
+        new PropertyMeta('groovyXml', 'groovyXml', "groovyXml", 'GroovyXmlDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('gzipDeflater', 'gzipDeflater', "gzipDeflater", 'GzipDeflaterDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('hl7', 'hl7', "hl7", 'HL7DataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('ical', 'ical', "ical", 'IcalDataFormat', '', '', false, false, false, true, '', ''),
@@ -1753,8 +1830,10 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('jsonApi', 'jsonApi', "jsonApi", 'JsonApiDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('lzf', 'lzf', "lzf", 'LZFDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('mimeMultipart', 'mimeMultipart', "mimeMultipart", 'MimeMultipartDataFormat', '', '', false, false, false, true, '', ''),
+        new PropertyMeta('ocsf', 'ocsf', "ocsf", 'OcsfDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('parquetAvro', 'parquetAvro', "parquetAvro", 'ParquetAvroDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('pgp', 'pgp', "pgp", 'PGPDataFormat', '', '', false, false, false, true, '', ''),
+        new PropertyMeta('pqc', 'pqc', "pqc", 'PQCDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('protobuf', 'protobuf', "protobuf", 'ProtobufDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('rss', 'rss', "rss", 'RssDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('smooks', 'smooks', "smooks", 'SmooksDataFormat', '', '', false, false, false, true, '', ''),
@@ -1764,7 +1843,6 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('syslog', 'syslog', "syslog", 'SyslogDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('tarFile', 'tarFile', "tarFile", 'TarFileDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('thrift', 'thrift', "thrift", 'ThriftDataFormat', '', '', false, false, false, true, '', ''),
-        new PropertyMeta('tidyMarkup', 'tidyMarkup', "tidyMarkup", 'TidyMarkupDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('univocityCsv', 'univocityCsv', "univocityCsv", 'UniVocityCsvDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('univocityFixed', 'univocityFixed', "univocityFixed", 'UniVocityFixedDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('univocityTsv', 'univocityTsv', "univocityTsv", 'UniVocityTsvDataFormat', '', '', false, false, false, true, '', ''),
@@ -1776,6 +1854,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     ]),
     new ElementMeta('validate', 'ValidateDefinition', 'Validate', "Validates a message based on an expression", 'eip,transformation', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('note', 'Note', "Sets the note of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('expression', 'Expression', "Expression to use for validation as a predicate. The expression should return either true or false. If returning false the message is invalid and an exception is thrown.", 'ExpressionDefinition', '', '', true, false, false, true, '', ''),
@@ -1784,6 +1863,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     ]),
     new ElementMeta('wireTap', 'WireTapDefinition', 'Wire Tap', "Routes a copy of a message (or creates a new message) to a secondary destination while continue routing the original message.", 'eip,routing', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('note', 'Note', "Sets the note of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('copy', 'Copy', "Uses a copy of the original exchange", 'boolean', '', 'true', false, false, false, false, 'advanced', ''),
@@ -1804,6 +1884,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     ]),
     new ElementMeta('intercept', 'InterceptDefinition', 'Intercept', "Intercepts a message at each step in the route", 'configuration', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('note', 'Note', "Sets the note of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('onWhen', 'On When', "To use an expression to only trigger intercepting in specific situations", 'OnWhenDefinition', '', '', false, false, false, true, '', ''),
@@ -1815,6 +1896,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     ]),
     new ElementMeta('interceptFrom', 'InterceptFromDefinition', 'Intercept From', "Intercepts incoming messages", 'configuration', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('note', 'Note', "Sets the note of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('uri', 'Uri', "Intercept incoming messages from the uri or uri pattern. If this option is not configured, then all incoming messages is intercepted.", 'string', '', '', false, false, false, false, '', ''),
@@ -1828,6 +1910,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     ]),
     new ElementMeta('interceptSendToEndpoint', 'InterceptSendToEndpointDefinition', 'Intercept Send To Endpoint', "Intercepts messages being sent to an endpoint", 'configuration', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('note', 'Note', "Sets the note of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('uri', 'Uri', "Intercept sending to the uri or uri pattern.", 'string', '', '', true, false, false, false, '', ''),
@@ -1843,6 +1926,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     ]),
     new ElementMeta('onCompletion', 'OnCompletionDefinition', 'On Completion', "Route to be executed when normal route processing completes", 'configuration', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('note', 'Note', "Sets the note of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('mode', 'Mode', "Sets the on completion mode. The default value is AfterConsumer", 'string', 'AfterConsumer, BeforeConsumer', 'AfterConsumer', false, false, false, false, 'advanced', ''),
@@ -1858,6 +1942,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     ]),
     new ElementMeta('onException', 'OnExceptionDefinition', 'On Exception', "Route to be executed when an exception is thrown", 'error', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('note', 'Note', "Sets the note of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('exception', 'Exception', "A set of exceptions to react upon.", 'string', '', '', true, false, true, true, '', ''),
@@ -1891,13 +1976,14 @@ export const CamelModelMetadata: ElementMeta[] = [
     ]),
     new ElementMeta('route', 'RouteDefinition', 'Route', "A Camel route", 'configuration', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('note', 'Note', "Sets the note of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('group', 'Group', "The group name for this route. Multiple routes can belong to the same group.", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('nodePrefixId', 'Node Prefix Id', "Sets a prefix to use for all node ids (not route id).", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('routeConfigurationId', 'Route Configuration Id', "The route configuration id or pattern this route should use for configuration. Multiple id/pattern can be separated by comma.", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('autoStartup', 'Auto Startup', "Whether to auto start this route", 'boolean', '', 'true', false, false, false, false, '', ''),
         new PropertyMeta('startupOrder', 'Startup Order', "To configure the ordering of the routes being started", 'number', '', '', false, false, false, false, 'advanced', ''),
-        new PropertyMeta('streamCache', 'Stream Cache', "Whether stream caching is enabled on this route.", 'boolean', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('streamCache', 'Stream Cache', "Whether stream caching is enabled on this route.", 'boolean', '', 'false', false, false, false, false, '', ''),
         new PropertyMeta('trace', 'Trace', "Whether tracing is enabled on this route.", 'boolean', '', 'false', false, false, false, false, '', ''),
         new PropertyMeta('messageHistory', 'Message History', "Whether message history is enabled on this route.", 'boolean', '', 'false', false, false, false, false, '', ''),
         new PropertyMeta('logMask', 'Log Mask', "Whether security mask for Logging is enabled on this route.", 'boolean', '', 'false', false, false, false, false, '', ''),
@@ -1914,6 +2000,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     ]),
     new ElementMeta('routeTemplate', 'RouteTemplateDefinition', 'Route Template', "Defines a route template (parameterized routes)", 'configuration', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('note', 'Note', "Sets the note of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('route', 'Route', "To define the route in the template", 'RouteDefinition', '', '', true, false, false, true, '', ''),
         new PropertyMeta('beans', 'beans', "beans", 'BeanFactoryDefinition', '', '', false, false, true, true, '', ''),
@@ -1952,8 +2039,8 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('enableCORS', 'Enable CORS', "Whether to enable CORS headers in the HTTP response. The default value is false.", 'boolean', '', 'false', false, false, false, false, 'consumer,advanced', ''),
         new PropertyMeta('enableNoContentResponse', 'Enable No Content Response', "Whether to return HTTP 204 with an empty body when a response contains an empty JSON object or XML root object. The default value is false.", 'boolean', '', 'false', false, false, false, false, 'consumer,advanced', ''),
         new PropertyMeta('inlineRoutes', 'Inline Routes', "Inline routes in rest-dsl which are linked using direct endpoints. Each service in Rest DSL is an individual route, meaning that you would have at least two routes per service (rest-dsl, and the route linked from rest-dsl). By inlining (default) allows Camel to optimize and inline this as a single route, however this requires to use direct endpoints, which must be unique per service. If a route is not using direct endpoint then the rest-dsl is not inlined, and will become an individual route. This option is default true.", 'boolean', '', 'true', false, false, false, false, 'consumer', ''),
-        new PropertyMeta('jsonDataFormat', 'Json Data Format', "Name of specific json data format to use. By default jackson will be used. Important: This option is only for setting a custom name of the data format, not to refer to an existing data format instance.", 'string', '', '', false, false, false, false, 'advanced', ''),
-        new PropertyMeta('xmlDataFormat', 'Xml Data Format', "Name of specific XML data format to use. By default jaxb will be used. Important: This option is only for setting a custom name of the data format, not to refer to an existing data format instance.", 'string', '', '', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('jsonDataFormat', 'Json Data Format', "Name of specific json data format to use. By default, jackson will be used. Important: This option is only for setting a custom name of the data format, not to refer to an existing data format instance.", 'string', 'jackson, jsonb, fastjson, gson', 'jackson', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('xmlDataFormat', 'Xml Data Format', "Name of specific XML data format to use. By default jaxb will be used, but jacksonXml is also supported. Important: This option is only for setting a custom name of the data format, not to refer to an existing data format instance.", 'string', 'jaxb, jacksonXml', 'jaxb', false, false, false, false, 'advanced', ''),
         new PropertyMeta('componentProperty', 'Component Property', "Allows to configure as many additional properties for the rest component in use.", 'RestPropertyDefinition', '', '', false, false, true, true, 'advanced', ''),
         new PropertyMeta('endpointProperty', 'Endpoint Property', "Allows to configure as many additional properties for the rest endpoint in use.", 'RestPropertyDefinition', '', '', false, false, true, true, 'advanced', ''),
         new PropertyMeta('consumerProperty', 'Consumer Property', "Allows to configure as many additional properties for the rest consumer in use.", 'RestPropertyDefinition', '', '', false, false, true, true, 'consumer,advanced', ''),
@@ -1965,6 +2052,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     ]),
     new ElementMeta('rest', 'RestDefinition', 'Rest', "Defines a rest service using the rest-dsl", 'rest', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('note', 'Note', "Sets the note of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('disabled', 'Disabled', "Whether to disable this REST service from the route during build time. Once an REST service has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('path', 'Path', "Path of the rest service, such as /foo", 'string', '', '', false, false, false, false, '', ''),
@@ -1987,22 +2075,6 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('patch', 'patch', "patch", 'PatchDefinition', '', '', false, false, true, true, '', ''),
         new PropertyMeta('post', 'post', "post", 'PostDefinition', '', '', false, false, true, true, '', ''),
         new PropertyMeta('put', 'put', "put", 'PutDefinition', '', '', false, false, true, true, '', ''),
-    ], [
-    ]),
-    new ElementMeta('beanFactory', 'BeanFactoryDefinition', 'Bean', "Define custom beans that can be used in your Camel routes and in general.", 'configuration', [
-        new PropertyMeta('name', 'Name', "The name of the bean (bean id)", 'string', '', '', true, false, false, false, '', ''),
-        new PropertyMeta('type', 'Type', "The class name (fully qualified) of the bean", 'string', '', '', true, false, false, false, '', ''),
-        new PropertyMeta('initMethod', 'Init Method', "The name of the custom initialization method to invoke after setting bean properties. The method must have no arguments, but may throw any exception.", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('destroyMethod', 'Destroy Method', "The name of the custom destroy method to invoke on bean shutdown, such as when Camel is shutting down. The method must have no arguments, but may throw any exception.", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('factoryMethod', 'Factory Method', "Name of method to invoke when creating the bean via a factory bean.", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('factoryBean', 'Factory Bean', "Name of factory bean (bean id) to use for creating the bean.", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('builderClass', 'Builder Class', "Fully qualified class name of builder class to use for creating and configuring the bean. The builder will use the properties values to configure the bean.", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('builderMethod', 'Builder Method', "Name of method when using builder class. This method is invoked after configuring to create the actual bean. This method is often named build (used by default).", 'string', '', 'build', false, false, false, false, '', ''),
-        new PropertyMeta('scriptLanguage', 'Script Language', "The script language to use when using inlined script for creating the bean, such as groovy, java, javascript etc.", 'string', '', '', false, false, false, false, 'advanced', ''),
-        new PropertyMeta('constructors', 'Constructors', "Optional constructor arguments for creating the bean. Arguments correspond to specific index of the constructor argument list, starting from zero.", 'object', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('properties', 'Properties', "Optional properties to set on the created bean.", 'object', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('script', 'Script', "The script to execute that creates the bean when using scripting languages. If the script use the prefix resource: such as resource:classpath:com/foo/myscript.groovy, resource:file:/var/myscript.groovy, then its loaded from the external resource.", 'string', '', '', false, false, false, false, 'advanced', ''),
-        new PropertyMeta('scriptPropertyPlaceholders', 'scriptPropertyPlaceholders', "scriptPropertyPlaceholders", 'boolean', '', '', false, false, false, false, '', ''),
     ], [
     ]),
     new ElementMeta('contextScan', 'ContextScanDefinition', 'Context Scan', "Scans for Java org.apache.camel.builder.RouteBuilder instances in the context org.apache.camel.spi.Registry .", 'configuration', [
@@ -2042,6 +2114,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     ]),
     new ElementMeta('from', 'FromDefinition', 'From', "Act as a message source as input to a route", 'eip,routing', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('note', 'Note', "Sets the note of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('uri', 'Uri', "Sets the URI of the endpoint to use", 'string', '', '', true, false, false, false, '', ''),
         new PropertyMeta('variableReceive', 'Variable Receive', "To use a variable to store a copy of the received message body (only body, not headers). This is handy for easy access to the received message body via variables.", 'string', '', '', false, false, false, false, '', ''),
@@ -2060,6 +2133,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     ]),
     new ElementMeta('inputType', 'InputTypeDefinition', 'Input Type', "Set the expected data type of the input message. If the actual message type is different at runtime, camel look for a required Transformer and apply if exists. If validate attribute is true then camel applies Validator as well. Type name consists of two parts, 'scheme' and 'name' connected with ':'. For Java type 'name' is a fully qualified class name. For example {code java:java.lang.String} , {code json:ABCOrder} . It's also possible to specify only scheme part, so that it works like a wildcard. If only 'xml' is specified, all the XML message matches. It's handy to add only one transformer/validator for all the transformation from/to XML.", 'configuration', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('note', 'Note', "Sets the note of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('urn', 'Urn', "The input type URN.", 'string', '', '', true, false, false, false, '', ''),
         new PropertyMeta('validate', 'Validate', "Whether if validation is required for this input type.", 'boolean', '', 'false', false, false, false, false, '', ''),
@@ -2067,6 +2141,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     ]),
     new ElementMeta('onFallback', 'OnFallbackDefinition', 'On Fallback', "Route to be executed when Circuit Breaker EIP executes fallback", 'eip,routing,error', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('note', 'Note', "Sets the note of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('fallbackViaNetwork', 'Fallback Via Network', "Whether the fallback goes over the network. If the fallback will go over the network it is another possible point of failure. It is important to execute the fallback command on a separate thread-pool, otherwise if the main command were to become latent and fill the thread-pool this would prevent the fallback from running if the two commands share the same pool.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('steps', 'steps', "steps", 'CamelElement', '', '', false, false, true, true, '', ''),
@@ -2074,8 +2149,9 @@ export const CamelModelMetadata: ElementMeta[] = [
     ]),
     new ElementMeta('onWhen', 'OnWhenDefinition', 'On When', "To use a predicate to determine when to trigger this.", 'configuration', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('note', 'Note', "Sets the note of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
-        new PropertyMeta('expression', 'Expression', "expression", 'ExpressionDefinition', '', '', true, false, false, true, '', ''),
+        new PropertyMeta('expression', 'Expression', "The predicate to use", 'ExpressionDefinition', '', '', true, false, false, true, '', ''),
     ], [
     ]),
     new ElementMeta('optimisticLockRetryPolicy', 'OptimisticLockRetryPolicyDefinition', 'Optimistic Lock Retry Policy', "To configure optimistic locking", 'configuration', [
@@ -2088,6 +2164,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     ]),
     new ElementMeta('otherwise', 'OtherwiseDefinition', 'Otherwise', "Route to be executed when all other choices evaluate to false", 'eip,routing', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('note', 'Note', "Sets the note of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('steps', 'steps', "steps", 'CamelElement', '', '', false, false, true, true, '', ''),
@@ -2095,6 +2172,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     ]),
     new ElementMeta('outputType', 'OutputTypeDefinition', 'Output Type', "Set the expected data type of the output message. If the actual message type is different at runtime, camel look for a required Transformer and apply if exists. If validate attribute is true then camel applies Validator as well. Type name consists of two parts, 'scheme' and 'name' connected with ':'. For Java type 'name' is a fully qualified class name. For example {code java:java.lang.String} , {code json:ABCOrder} . It's also possible to specify only scheme part, so that it works like a wildcard. If only 'xml' is specified, all the XML message matches. It's handy to add only one transformer/validator for all the XML-Java transformation.", 'configuration', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('note', 'Note', "Sets the note of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('urn', 'Urn', "Set output type URN.", 'string', '', '', true, false, false, false, '', ''),
         new PropertyMeta('validate', 'Validate', "Whether if validation is required for this output type.", 'boolean', '', 'false', false, false, false, false, '', ''),
@@ -2166,6 +2244,7 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('timeoutExecutorService', 'Timeout Executor Service', "References to a custom thread pool to use when timeout is enabled (uses ForkJoinPool#commonPool() by default)", 'string', '', '', false, false, false, false, 'advanced', ''),
         new PropertyMeta('timeoutDuration', 'Timeout Duration', "Configures the thread execution timeout. Default value is 1 second.", 'number', '', '1000', false, false, false, false, '', ''),
         new PropertyMeta('timeoutCancelRunningFuture', 'Timeout Cancel Running Future', "Configures whether cancel is called on the running future. Defaults to true.", 'boolean', '', 'true', false, false, false, false, 'advanced', ''),
+        new PropertyMeta('micrometerEnabled', 'Micrometer Enabled', "Whether to enable collecting statistics using Micrometer. This requires adding camel-resilience4j-micrometer JAR to the classpath.", 'boolean', '', 'false', false, false, false, false, '', ''),
         new PropertyMeta('recordException', 'Record Exception', "Configure a list of exceptions that are recorded as a failure and thus increase the failure rate. Any exception matching or inheriting from one of the list counts as a failure, unless explicitly ignored via ignoreExceptions.", 'string', '', '', false, false, true, true, 'advanced', ''),
         new PropertyMeta('ignoreException', 'Ignore Exception', "Configure a list of exceptions that are ignored and neither count as a failure nor success. Any exception matching or inheriting from one of the list will not count as a failure nor success, even if the exceptions is part of recordExceptions.", 'string', '', '', false, false, true, true, 'advanced', ''),
     ], [
@@ -2201,6 +2280,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     ]),
     new ElementMeta('threadPoolProfile', 'ThreadPoolProfileDefinition', 'Thread Pool Profile', "To configure thread pools", 'configuration', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('note', 'Note', "Sets the note of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('defaultProfile', 'Default Profile', "Whether this profile is the default thread pool profile", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('poolSize', 'Pool Size', "Sets the core pool size", 'number', '', '', false, false, false, false, '', ''),
@@ -2218,6 +2298,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     ]),
     new ElementMeta('when', 'WhenDefinition', 'When', "Triggers a route when the expression evaluates to true", 'eip,routing', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('note', 'Note', "Sets the note of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('disabled', 'Disabled', "Disables this EIP from the route.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('expression', 'Expression', "Expression used as the predicate to evaluate whether this when should trigger and route the message or not.", 'ExpressionDefinition', '', '', true, false, false, true, '', ''),
@@ -2258,6 +2339,7 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('flatpack', 'flatpack', "flatpack", 'FlatpackDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('fory', 'fory', "fory", 'ForyDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('grok', 'grok', "grok", 'GrokDataFormat', '', '', false, false, false, true, '', ''),
+        new PropertyMeta('groovyXml', 'groovyXml', "groovyXml", 'GroovyXmlDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('gzipDeflater', 'gzipDeflater', "gzipDeflater", 'GzipDeflaterDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('hl7', 'hl7', "hl7", 'HL7DataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('ical', 'ical', "ical", 'IcalDataFormat', '', '', false, false, false, true, '', ''),
@@ -2279,7 +2361,6 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('syslog', 'syslog', "syslog", 'SyslogDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('tarFile', 'tarFile', "tarFile", 'TarFileDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('thrift', 'thrift', "thrift", 'ThriftDataFormat', '', '', false, false, false, true, '', ''),
-        new PropertyMeta('tidyMarkup', 'tidyMarkup', "tidyMarkup", 'TidyMarkupDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('univocityCsv', 'univocityCsv', "univocityCsv", 'UniVocityCsvDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('univocityFixed', 'univocityFixed', "univocityFixed", 'UniVocityFixedDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('univocityTsv', 'univocityTsv', "univocityTsv", 'UniVocityTsvDataFormat', '', '', false, false, false, true, '', ''),
@@ -2454,6 +2535,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     ]),
     new ElementMeta('delete', 'DeleteDefinition', 'Delete', "Rest DELETE command", 'rest', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('note', 'Note', "Sets the note of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('disabled', 'Disabled', "Whether to disable this REST service from the route during build time. Once an REST service has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('path', 'Path', "The path mapping URIs of this REST operation such as /{id}.", 'string', '', '', false, false, false, false, '', ''),
@@ -2479,6 +2561,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     ]),
     new ElementMeta('get', 'GetDefinition', 'Get', "Rest GET command", 'rest', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('note', 'Note', "Sets the note of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('disabled', 'Disabled', "Whether to disable this REST service from the route during build time. Once an REST service has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('path', 'Path', "The path mapping URIs of this REST operation such as /{id}.", 'string', '', '', false, false, false, false, '', ''),
@@ -2504,6 +2587,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     ]),
     new ElementMeta('head', 'HeadDefinition', 'Head', "Rest HEAD command", 'rest', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('note', 'Note', "Sets the note of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('disabled', 'Disabled', "Whether to disable this REST service from the route during build time. Once an REST service has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('path', 'Path', "The path mapping URIs of this REST operation such as /{id}.", 'string', '', '', false, false, false, false, '', ''),
@@ -2534,6 +2618,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     ]),
     new ElementMeta('openApi', 'OpenApiDefinition', 'Open Api', "To use OpenApi as contract-first with Camel Rest DSL.", 'rest', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('note', 'Note', "Sets the note of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('disabled', 'Disabled', "Whether to disable all the REST services from the OpenAPI contract from the route during build time. Once an REST service has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('specification', 'Specification', "Path to the OpenApi specification file.", 'string', '', '', true, false, false, false, '', ''),
@@ -2565,6 +2650,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     ]),
     new ElementMeta('patch', 'PatchDefinition', 'Patch', "Rest PATCH command", 'rest', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('note', 'Note', "Sets the note of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('disabled', 'Disabled', "Whether to disable this REST service from the route during build time. Once an REST service has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('path', 'Path', "The path mapping URIs of this REST operation such as /{id}.", 'string', '', '', false, false, false, false, '', ''),
@@ -2590,6 +2676,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     ]),
     new ElementMeta('post', 'PostDefinition', 'Post', "Rest POST command", 'rest', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('note', 'Note', "Sets the note of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('disabled', 'Disabled', "Whether to disable this REST service from the route during build time. Once an REST service has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('path', 'Path', "The path mapping URIs of this REST operation such as /{id}.", 'string', '', '', false, false, false, false, '', ''),
@@ -2615,6 +2702,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     ]),
     new ElementMeta('put', 'PutDefinition', 'Put', "Rest PUT command", 'rest', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('note', 'Note', "Sets the note of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('disabled', 'Disabled', "Whether to disable this REST service from the route during build time. Once an REST service has been disabled then it cannot be enabled later at runtime.", 'boolean', '', 'false', false, false, false, false, 'advanced', ''),
         new PropertyMeta('path', 'Path', "The path mapping URIs of this REST operation such as /{id}.", 'string', '', '', false, false, false, false, '', ''),
@@ -2660,6 +2748,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     ]),
     new ElementMeta('restBinding', 'RestBindingDefinition', 'Rest Binding', "To configure rest binding", 'rest', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('note', 'Note', "Sets the note of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('consumes', 'Consumes', "To define the content type what the REST service consumes (accept as input), such as application/xml or application/json", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('produces', 'Produces', "To define the content type what the REST service produces (uses for output), such as application/xml or application/json", 'string', '', '', false, false, false, false, '', ''),
@@ -2690,6 +2779,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     ]),
     new ElementMeta('rests', 'RestsDefinition', 'Rests', "A series of rest services defined using the rest-dsl", 'rest', [
         new PropertyMeta('id', 'Id', "Sets the id of this node", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('note', 'Note', "Sets the note of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('description', 'Description', "Sets the description of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('rest', 'rest', "rest", 'RestDefinition', '', '', false, false, true, true, '', ''),
     ], [
@@ -2769,6 +2859,7 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('flatpack', 'flatpack', "flatpack", 'FlatpackDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('fory', 'fory', "fory", 'ForyDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('grok', 'grok', "grok", 'GrokDataFormat', '', '', false, false, false, true, '', ''),
+        new PropertyMeta('groovyXml', 'groovyXml', "groovyXml", 'GroovyXmlDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('gzipDeflater', 'gzipDeflater', "gzipDeflater", 'GzipDeflaterDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('hl7', 'hl7', "hl7", 'HL7DataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('ical', 'ical', "ical", 'IcalDataFormat', '', '', false, false, false, true, '', ''),
@@ -2790,7 +2881,6 @@ export const CamelModelMetadata: ElementMeta[] = [
         new PropertyMeta('syslog', 'syslog', "syslog", 'SyslogDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('tarFile', 'tarFile', "tarFile", 'TarFileDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('thrift', 'thrift', "thrift", 'ThriftDataFormat', '', '', false, false, false, true, '', ''),
-        new PropertyMeta('tidyMarkup', 'tidyMarkup', "tidyMarkup", 'TidyMarkupDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('univocityCsv', 'univocityCsv', "univocityCsv", 'UniVocityCsvDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('univocityFixed', 'univocityFixed', "univocityFixed", 'UniVocityFixedDataFormat', '', '', false, false, false, true, '', ''),
         new PropertyMeta('univocityTsv', 'univocityTsv', "univocityTsv", 'UniVocityTsvDataFormat', '', '', false, false, false, true, '', ''),
@@ -2838,7 +2928,7 @@ export const CamelModelMetadata: ElementMeta[] = [
     ], [
     ]),
     new ElementMeta('predicateValidator', 'PredicateValidatorDefinition', 'Predicate Validator', "To use a predicate to perform validation on the route level.", 'validation', [
-        new PropertyMeta('expression', 'Expression', "expression", 'ExpressionDefinition', '', '', true, false, false, true, '', ''),
+        new PropertyMeta('expression', 'Expression', "The predicate to use for validation.", 'ExpressionDefinition', '', '', true, false, false, true, '', ''),
         new PropertyMeta('type', 'Type', "Set the data type name. If you specify 'xml:XYZ', the validator will be picked up if message type is 'xml:XYZ'. If you specify just 'xml', the validator matches with all of 'xml' message type like 'xml:ABC' or 'xml:DEF'.", 'string', '', '', false, false, false, false, '', ''),
     ], [
     ]),
@@ -2851,79 +2941,88 @@ export const CamelModelMetadata: ElementMeta[] = [
 ]
 
 export const SensitiveKeys: string[] = [
-    "oauthtokenurl",
-    "clientid",
-    "sassignature",
-    "connectionstring",
-    "sslpassword",
-    "accesstoken",
-    "accountkey",
-    "proxyauthusername",
-    "sslkeypassword",
-    "userpassword",
-    "acltoken",
-    "password",
     "accesskey",
-    "consumersecret",
-    "proxyuser",
-    "oauthclientsecret",
-    "truststorepassword",
+    "accesstoken",
     "accesstokensecret",
-    "securerandom",
-    "refreshtoken",
-    "sessiontoken",
-    "publishkey",
+    "accountkey",
     "accountsid",
-    "emailaddress",
-    "blobaccesskey",
-    "publickeyid",
-    "p12filename",
-    "ssltruststorepassword",
-    "passphrase",
-    "privatekeyfile",
-    "zookeeperpassword",
-    "apiuser",
-    "personalaccesstoken",
-    "authkey",
-    "privatekeyname",
-    "systemid",
-    "secretkey",
-    "webhookverifytoken",
-    "privatekeypassword",
-    "secret",
-    "login",
-    "sourceblobaccesskey",
-    "apipassword",
-    "privatekey",
-    "sslkeystorepassword",
-    "oauthtoken",
-    "sascredential",
-    "verificationcode",
-    "subscribekey",
-    "certresourcepassword",
-    "clientsecretcredential",
-    "keystorepassword",
-    "oauthclientid",
-    "apikey",
-    "keystorePassword",
-    "clientsecret",
-    "tokencredential",
-    "blobstoragesharedkeycredential",
-    "kerberosauthticket",
-    "proxypassword",
-    "queueownerawsaccountid",
-    "token",
-    "proxyauthpassword",
-    "authorizationtoken",
-    "sharedaccesskey",
-    "apiusername",
+    "acltoken",
     "api_key",
-    "sasljaasconfig",
-    "httpproxypassword",
-    "realm",
-    "user",
     "api_secret",
-    "passcode",
+    "apikey",
+    "apipassword",
+    "apiuser",
+    "apiusername",
+    "authenticationtoken",
+    "authkey",
+    "authorizationtoken",
+    "authtoken",
+    "azureclientid",
+    "azureclientsecret",
+    "blobaccesskey",
+    "blobstoragesharedkeycredential",
+    "certresourcepassword",
+    "clientid",
+    "clientsecret",
+    "clientsecretcredential",
+    "connectionstring",
     "consumerkey",
-    "username"
+    "consumersecret",
+    "emailaddress",
+    "httpproxypassword",
+    "kerberosauthticket",
+    "keypassword",
+    "keystorePassword",
+    "keystorepassword",
+    "login",
+    "oauthclientid",
+    "oauthclientsecret",
+    "oauthtoken",
+    "oauthtokenurl",
+    "p12filename",
+    "passcode",
+    "passphrase",
+    "password",
+    "personalaccesstoken",
+    "privatekey",
+    "privatekeyfile",
+    "privatekeyname",
+    "privatekeypassword",
+    "proxyauthpassword",
+    "proxyauthusername",
+    "proxypassword",
+    "proxyuser",
+    "proxyusername",
+    "publickeyid",
+    "publishkey",
+    "queueownerawsaccountid",
+    "realm",
+    "refreshtoken",
+    "sascredential",
+    "sasljaasconfig",
+    "saslpassword",
+    "sassignature",
+    "secret",
+    "secretkey",
+    "securerandom",
+    "serviceinstanceid",
+    "sessiontoken",
+    "sharedaccesskey",
+    "sourceblobaccesskey",
+    "sslkeypassword",
+    "sslkeystorepassword",
+    "sslpassword",
+    "ssltruststorepassword",
+    "subscribekey",
+    "systemid",
+    "token",
+    "tokencredential",
+    "truststorepassword",
+    "user",
+    "userauthenticationcredentials",
+    "username",
+    "userpassword",
+    "verificationcode",
+    "webhookverifytoken",
+    "zookeeperpassword"
 ]

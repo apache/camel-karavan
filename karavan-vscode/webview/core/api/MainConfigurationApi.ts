@@ -17,12 +17,12 @@
 import { ApplicationProperty, ApplicationPropertyChange, ApplicationPropertyGroup } from '../model/MainConfigurationModel';
 
 const KaravanProperties: ApplicationProperty[] = [
-    new ApplicationProperty({name: 'camel.karavan.projectId', type: 'string', description: 'Project ID'}),
-    new ApplicationProperty({name: 'camel.karavan.projectName', type: 'string', description: 'Project Name'}),
+    // new ApplicationProperty({name: 'camel.karavan.projectId', type: 'string', description: 'Project ID'}),
+    // new ApplicationProperty({name: 'camel.karavan.projectName', type: 'string', description: 'Project Name'}),
     new ApplicationProperty({name: 'camel.context.dev-console', type: 'boolean', description: 'Enable/Disable Developer Console on CamelContext'})
 ]
 const KaravanGroup: ApplicationPropertyGroup[] = [
-    new ApplicationPropertyGroup({name: 'camel.karavan', description: 'Karavan'}),
+    // new ApplicationPropertyGroup({name: 'camel.karavan', description: 'Karavan'}),
     new ApplicationPropertyGroup({name: 'camel.context', description: 'CamelContext'})
 ]
 
