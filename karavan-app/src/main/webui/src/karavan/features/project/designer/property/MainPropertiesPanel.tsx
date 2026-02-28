@@ -17,10 +17,13 @@
 import React from 'react';
 import {Tab, Tabs, TabTitleText,} from '@patternfly/react-core';
 import '@features/project/designer/property/DslProperties.css';
+import {ErrorBoundaryWrapper} from "@shared/ui/ErrorBoundaryWrapper";
+import {DslProperties} from "@features/project/designer/property/DslProperties";
+import {ExpressionEditor} from "@features/project/designer/property/expression/ExpressionEditor";
 
 export function MainPropertiesPanel() {
 
-    const [activeTabKey, setActiveTabKey] = React.useState<string | number>();
+    const [activeTabKey, setActiveTabKey] = React.useState<string | number>("properties");
     const handleTabClick = (event: React.MouseEvent<any> | React.KeyboardEvent | MouseEvent, tabIndex: string | number) => {
         setActiveTabKey(tabIndex);
     };
@@ -54,6 +57,9 @@ export function MainPropertiesPanel() {
     return (
         <div className='main-properties'>
             {getPropertiesPanelTabs()}
+            <ErrorBoundaryWrapper onError={error => console.error(error)}>
+                {activeTabKey === 'properties' && <DslProperties expressionEditor={ExpressionEditor}/> }
+            </ErrorBoundaryWrapper>
         </div>
     )
 
