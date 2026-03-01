@@ -260,8 +260,6 @@
             "camel.health.enabled=true",
             "camel.health.exposure-level=full",
             "camel.server.enabled=true",
-            "camel.server.healthCheckEnabled=true",
-            "camel.server.devConsoleEnabled=true",
             "camel.main.tracingStandby=true",
             "camel.context.dev-console=true"
           ],
@@ -344,7 +342,7 @@
           },
           "default": [
             "# jkube properties",
-            "jkube.version=1.18.1",
+            "jkube.version=1.19.0",
             "jkube.build.strategy=s2i",
             "jkube.namespace=${NAMESPACE}",
             "jkube.generator.name=image-registry.openshift-image-registry.svc:5000/${NAMESPACE}/$NAME:${DATE}",
@@ -365,7 +363,7 @@
           },
           "default": [
             "# jkube properties",
-            "jkube.version=1.18.1",
+            "jkube.version=1.19.0",
             "jkube.build.strategy=s2i",
             "jkube.namespace=${NAMESPACE}",
             "jkube.generator.name=image-registry.openshift-image-registry.svc:5000/${NAMESPACE}/$NAME:${DATE}",
@@ -386,7 +384,7 @@
           },
           "default": [
             "# jkube properties",
-            "jkube.version=1.18.1",
+            "jkube.version=1.19.0",
             "jkube.build.strategy=docker",
             "jkube.namespace=default",
             "jkube.generator.name=default/$NAME:${DATE}",
@@ -410,7 +408,7 @@
             "label.runtime=app.kubernetes.io/runtime",
             "jib.from.image=gcr.io/distroless/java17@sha256:68e2373f7bef9486c08356bd9ffd3b40b56e6b9316c5f6885eb58b1d9093b43d",
             "jib.to.image=default/$NAME:${DATE}",
-            "jkube.version=1.18.1",
+            "jkube.version=1.19.0",
             "jkube.skip.build=true",
             "jkube.build.strategy=jib",
             "jkube.namespace=default",
@@ -490,11 +488,6 @@
       },
       {
         "command": "integrations.refresh",
-        "title": "Refresh",
-        "icon": "$(refresh)"
-      },
-      {
-        "command": "openapi.refresh",
         "title": "Refresh",
         "icon": "$(refresh)"
       },
@@ -622,11 +615,6 @@
           "command": "integrations.refresh",
           "when": "view == integrations",
           "group": "navigation@5"
-        },
-        {
-          "command": "openapi.refresh",
-          "when": "view == openapi",
-          "group": "navigation"
         }
       ],
       "view/item/context": [
@@ -639,11 +627,6 @@
           "command": "karavan.open-file",
           "when": "view == integrations && viewItem == 'integration'",
           "group": "navigation_1_open@2"
-        },
-        {
-          "command": "karavan.generate-rest",
-          "when": "view == openapi && viewItem == 'openapi'",
-          "group": "navigation_1_generate@1"
         }
       ]
     },
@@ -661,11 +644,6 @@
         {
           "id": "integrations",
           "name": "Integrations",
-          "visibility": "visible"
-        },
-        {
-          "id": "openapi",
-          "name": "Open API",
           "visibility": "visible"
         },
         {
