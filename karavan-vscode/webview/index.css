@@ -24,28 +24,319 @@ body,
   overflow: hidden;
 }
 
-.karavan .dsl-page .dsl-page-columns,
-.karavan .dsl-page .flows {
-  padding-bottom: 0;
+:root {
+    --pf-t--global--border--radius--300: 10px;
+    .pf-v6-c-text-input-group__text-input {
+        --pf-v6-c-text-input-group__text-input--OutlineOffset: -2px;
+    }
+
+    .pf-v6-c-form-control {
+        --pf-v6-c-form-control--OutlineOffset: -2px;
+    }
+
+    --pf-v6-c-content--MarginBlockEnd: var(--pf-t--global--spacer--md);
+
+    .pf-v6-c-table.pf-m-compact {
+        --pf-v6-c-table__thead--cell--FontSize: var(--pf-t--global--font--size--sm);
+        --pf-v6-c-table--cell--FontSize: var(--pf-v6-c-table__thead--cell--FontSize);
+        /*--pf-v6-c-table--BackgroundColor: transparent;*/
+
+        .pf-v6-c-table__td {
+            --pf-v6-c-table--cell--PaddingInlineStart: var(--pf-t--global--spacer--sm);
+            --pf-v6-c-table--cell--PaddingInlineEnd: var(--pf-t--global--spacer--sm);
+        }
+    }
+
+    .pf-v6-c-form-control > :is(input, select, textarea) {
+        padding-inline-start: var(--pf-t--global--spacer--sm);
+        padding-inline-end: var(--pf-t--global--spacer--sm);
+    }
+
+    .pf-v6-c-form.pf-m-horizontal .pf-v6-c-form__group-label {
+        align-self: center;
+        padding: 0;
+    }
+    --get-color: #61affe;
+    --post-color: #49cc90;
+    --put-color: #fca130;
+    --delete-color: #f93e3e;
+    --patch-color: #ff5ca7;
+    --options-color: #0d5aa7;
+    --head-color: #9012fe;
+    --trace-color: #7f8c8d;
+
+    --pf-t--color--blue--5: #f0f8ff;
+    --pf-t--color--blue--10: #e0f0ff;
+    --pf-t--color--blue--20: #b9dafc;
+    --pf-t--color--blue--30: #92c5f9;
+    --pf-t--color--blue--40: #4394e5;
+    --pf-t--color--blue--50: #0066cc;
+    --pf-t--color--blue--60: #004d99;
+    --pf-t--color--blue--70: #003366;
+    --pf-t--color--blue--75: #022a54;
+    --pf-t--color--blue--80: #032142;
+    --pf-t--color--blue--950: #011021;
 }
 
-.karavan .main-properties {
-    height: 100vh;
-    width: 100%;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    padding-bottom: 0;
+.karavan {
+    .text-field-with-prefix {
+        align-items: center;
+        gap: 0;
+        .pf-v6-c-text-input-group__text-input {
+            padding-left: 1px;
+        }
+    }
+    --pf-v6-c-content--MarginBlockEnd: 0;
+
+    .pf-v6-c-content--h1,
+    .pf-v6-c-content--h2,
+    .pf-v6-c-content--h3,
+    .pf-v6-c-content--h4,
+    .pf-v6-c-content--h5,
+    .pf-v6-c-content--h6,
+    .pf-v6-c-content--p {
+        margin: 0;
+    }
+
+    .pf-v6-c-label .pf-v6-c-label__text {
+        font-size: 13px;
+    }
 }
 
-.karavan .right-panel {
-    background-color: var(--pf-t--global--background--color--secondary--hover);
+.pf-v6-c-backdrop {
+    .pf-v6-c-label .pf-v6-c-label__text {
+        font-size: 13px;
+    }
 }
 
-.karavan .right-panel .right-panel-wrapper {
-    border-top-left-radius: 0;
+html, body, #root {
+    height: 100%;
+    margin: 0;
 }
 
-.dsl-modal .dsl-fast-card {
-  display: none;
+.karavan .container-button {
+    padding: 0 !important;
+}
+
+.karavan .karavan-labeled-button {
+    padding: 0 5px 0 5px !important;
+}
+
+.karavan .karavan-labeled-button .pf-v6-c-button__text {
+    color: var(--pf-v6-c-label--Color);
+}
+
+.karavan .pf-v6-c-button {
+    padding-inline-start: var(--pf-t--global--spacer--300);
+    padding-inline-end: var(--pf-t--global--spacer--300);
+    gap: var(--pf-t--global--spacer--xs);
+}
+
+.karavan {
+    .pf-v6-c-text-input-group__text-input {
+        padding-inline-start: var(--pf-t--global--spacer--sm);
+        padding-inline-end: var(--pf-t--global--spacer--sm);
+    }
+
+    .pf-m-icon {
+        .pf-v6-c-text-input-group__text-input {
+            padding-inline-start: var(--pf-t--global--spacer--lg);
+            padding-inline-end: var(--pf-t--global--spacer--sm);
+        }
+
+        .pf-v6-c-text-input-group__icon {
+            inset-inline-start: var(--pf-t--global--spacer--sm);
+        }
+    }
+}
+
+.karavan .pf-v6-c-form-control.pf-m-textarea > textarea {
+    padding-inline-start: var(--pf-t--global--spacer--sm);
+    padding-inline-end: var(--pf-t--global--spacer--sm);
+}
+
+.karavan .pf-v6-c-log-viewer__header {
+    margin: 0;
+}
+
+.karavan .pf-v6-c-log-viewer__main {
+    border: none;
+}
+
+.pf-v6-c-menu {
+    .pf-v6-c-menu__content {
+        row-gap: 0;
+    }
+
+    .pf-v6-c-menu__item {
+        padding-block-start: var(--pf-t--global--spacer--xs);
+        padding-block-end: var(--pf-t--global--spacer--xs);
+        padding-inline-start: var(--pf-t--global--spacer--sm);
+        padding-inline-end: var(--pf-t--global--spacer--sm);
+        border-bottom: 1px solid var(--pf-t--global--border--color--50);
+
+        .pf-v6-c-menu__item-description {
+            max-width: 300px;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+    }
+}
+
+.label-eip {
+    --pf-v6-c-badge--BackgroundColor: var(--pf-t--color--orange--40) !important;
+}
+
+.label-processor {
+    --pf-v6-c-badge--BackgroundColor: var(--pf-t--color--orange--40) !important;
+}
+
+.label-processors {
+    --pf-v6-c-badge--BackgroundColor: var(--pf-t--color--orange--40) !important;
+}
+
+.label-component {
+    --pf-v6-c-badge--BackgroundColor: var(--pf-t--color--blue--40) !important;
+}
+
+.label-components {
+    --pf-v6-c-badge--BackgroundColor: var(--pf-t--color--blue--40) !important;
+}
+
+.label-kamelets {
+    --pf-v6-c-badge--BackgroundColor: var(--pf-t--color--green--40) !important;
+}
+
+.label-kamelet {
+    --pf-v6-c-badge--BackgroundColor: var(--pf-t--color--green--40) !important;
+}
+
+.label-component-preview {
+    --pf-v6-c-badge--Color: var(--pf-t--color--blue--40) !important;
+    --pf-v6-c-badge--BackgroundColor: var(--pf-v6-c-badge--m-read--BackgroundColor) !important;
+}
+
+.label-kamelet-preview {
+    --pf-v6-c-badge--Color: var(--pf-t--color--green--40) !important;
+    --pf-v6-c-badge--BackgroundColor: var(--pf-v6-c-badge--m-read--BackgroundColor) !important;
+}
+
+svg {
+    vertical-align: middle;
+}
+
+svg.carbon {
+    stroke: currentColor;
+    stroke-width: 0.5;
+    /*paint-order: stroke fill;*/
+    width: 1em;
+    height: 1em;
+    vertical-align: -0.125em;
+}
+
+/*Animations*/
+
+@keyframes icon-flashing {
+    0% {
+        color: var(--pf-t--color--green--20);
+        border-color: var(--pf-t--global--color--status--success--100);
+    }
+    50% {
+        color: var(--pf-t--color--green--40);
+        border-color: var(--pf-t--global--color--status--success--200);
+    }
+    100% {
+        color: var(--pf-t--color--green--60);
+        border-color: var(--pf-t--global--icon--color--status--success--default);
+    }
+}
+
+@keyframes scale-icon {
+    from {
+        transform: scale(1);
+    }
+    to {
+        transform: scale(1.1);
+    }
+}
+
+@keyframes rotate-icon-forward {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes rotate-icon-backward {
+    from {
+        transform: rotate(360deg);
+    }
+    to {
+        transform: rotate(0deg);
+    }
+}
+
+@keyframes logline {
+    0% {
+        opacity: 0;
+        transform: translateX(-2px);
+    }
+    20% {
+        opacity: 1;
+        transform: translateX(0);
+    }
+    80% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+    }
+}
+
+@keyframes steam-movement {
+    0% {
+        transform: translate(0, 0) scale(1, 1);
+    }
+    25% {
+        transform: translate(0.5px, -1.5px) scale(1.1, 1.3);
+    }
+    50% {
+        transform: translate(-0.3px, -2.2px) scale(0.95, 1.1);
+    }
+    75% {
+        transform: translate(0.1px, -3px) scale(1.25, 1.15);
+    }
+    100% {
+        transform: translate(0, 0) scale(1, 1);
+    }
+}
+
+@keyframes steam-opacity {
+    0% {
+        opacity: 0.7;
+    }
+    25% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.85;
+    }
+    75% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0.7;
+    }
+}
+
+@keyframes heartbeat-pulse {
+    0% { transform: scale(1); }
+    14% { transform: scale(1.25); }
+    28% { transform: scale(1); }
+    42% { transform: scale(1.25); }
+    70% { transform: scale(1); }
+    100% { transform: scale(1); }
 }
