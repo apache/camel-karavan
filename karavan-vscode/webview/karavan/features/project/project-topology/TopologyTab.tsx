@@ -49,7 +49,6 @@ import {useFilesStore, useProjectStore} from "@stores/ProjectStore";
 import {NODE_POSITIONED_EVENT} from "@patternfly/react-topology/src/types";
 import {OPENAPI_FILE_NAME_JSON} from "@karavan-core/contants";
 import {runInAction} from "mobx";
-import {TopologyToolbar} from "@features/project/project-topology/TopologyToolbar";
 import {TopologyElkLayout} from "@features/project/project-topology/TopologyElkLayout";
 
 interface Props {
@@ -170,7 +169,6 @@ export function TopologyTab(props: Props) {
 
     return (
         <>
-            <TopologyToolbar/>
             <TopologyView
                 className="topology-panel"
                 controlBar={

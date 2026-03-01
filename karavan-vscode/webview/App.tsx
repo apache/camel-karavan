@@ -30,6 +30,8 @@ import { TopologyTab } from "@features/project/project-topology/TopologyTab";
 import { DocumentationPage } from "@features/documentation/DocumentationPage";
 import { KaravanDesigner } from "@features/project/designer/KaravanDesigner";
 import { EventBus } from "@features/project/designer/utils/EventBus";
+import {ProjectFunctionHook} from "@app/navigation/ProjectFunctionHook";
+import {ProjectProvider} from "@features/project/ProjectContext";
 
 interface Props {
 }
@@ -262,9 +264,9 @@ class App extends React.Component<Props, State> {
           <DocumentationPage />
         }
         {loaded && page === "topology" &&
-          <TopologyTab 
-            asyncApiJson={undefined}
-          />
+          <ProjectProvider useProjectHook={ProjectFunctionHook}>
+            <TopologyTab asyncApiJson={undefined}/>
+          </ProjectProvider>
         }
       </div>
     )
