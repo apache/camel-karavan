@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import {ContextMenuItem, ContextSubMenuItem, GraphElement} from '@patternfly/react-topology';
+import {ContextMenuItem, GraphElement} from '@patternfly/react-topology';
 import * as React from "react";
 
 export function getCustomMenu(element: GraphElement, groupNames: string[]) {
@@ -27,41 +27,5 @@ export function getCustomMenu(element: GraphElement, groupNames: string[]) {
             Open
         </ContextMenuItem>
     );
-    if (data?.type === 'route') {
-        result.push(
-            <ContextMenuItem key={element.getId()}
-                             onClick={() => data?.setDisabled?.(data?.fileName, data?.routeId, !(data?.autoStartup))}>
-                {data?.autoStartup === false ? 'Enable' : 'Disable'}
-            </ContextMenuItem>
-        );
-        result.push(
-            <ContextMenuItem key={element.getId() + '-delete'} onClick={() => {
-                data?.deleteRoute?.(data?.fileName, data?.step.id);
-            }}>
-                {'Delete'}
-            </ContextMenuItem>
-        );
-        if (groupNames.length > 0) {
-            result.push(
-                <ContextSubMenuItem label='Groups' key={element.getId() + '-groups'} children={
-                    groupNames.filter(g => !g.startsWith("karavan-")).map(groupName => {
-                        return (
-                            <ContextMenuItem key={`${element.getId()}-groups-${groupName}`} isSelected={data.routeGroup === groupName} onClick={() => data?.setRouteGroup?.(data?.fileName, data?.routeId, groupName)}
-                            >
-                                {groupName}
-                            </ContextMenuItem>
-                        )
-                    })
-                }/>
-            )
-        }
-    } else if (data?.type === 'step' && data?.outgoing) {
-        result.push(
-            <ContextMenuItem key={element.getId() + '-step'}
-                             onClick={() => data?.setDisabled?.(data?.fileName, data?.step.id, !(data?.disabled))}>
-                {data?.disabled ? 'Enable' : 'Disable'}
-            </ContextMenuItem>
-        );
-    }
     return result;
 }

@@ -53,7 +53,7 @@ export function getIncomingNodes(tins: TopologyIncomingNode[]): NodeModel[] {
     });
 }
 
-export function getRoutes(tins: TopologyRouteNode[], tasyncapis: TopologyAsyncApiNode, showStats?: boolean): NodeModel[] {
+export function getRoutes(tins: TopologyRouteNode[], tasyncapis?: TopologyAsyncApiNode): NodeModel[] {
     return tins.map(tin => {
         const oper = tasyncapis?.operations?.find(o => o.operationId === tin.routeId)
         const node: NodeModel = {
@@ -77,7 +77,6 @@ export function getRoutes(tins: TopologyRouteNode[], tasyncapis: TopologyAsyncAp
                 templateTitle: tin.templateTitle,
                 generatedFromAsyncApi: oper?.operationId === tin.routeId,
                 autoStartup: tin.route.autoStartup !== false,
-                showStats: showStats,
             }
         }
         return node;
@@ -337,7 +336,7 @@ export function getRestNodes(tins: TopologyRestNode[]): NodeModel[] {
     });
 }
 
-export function getOpenApiNodes(topenapis: TopologyOpenApiNode[], showStats?: boolean): NodeModel[] {
+export function getOpenApiNodes(topenapis: TopologyOpenApiNode[]): NodeModel[] {
     return topenapis.map(topenapi => {
         return {
             id: topenapi.fileName,
@@ -355,7 +354,6 @@ export function getOpenApiNodes(topenapis: TopologyOpenApiNode[], showStats?: bo
                 // step: tin.rest,
                 fileName: topenapi.fileName,
                 secondaryLabel: topenapi.title,
-                showStats: showStats,
             }
         }
     });
@@ -470,7 +468,7 @@ export function getModel(projectId: string, files: IntegrationFile[], showGroups
                          setDisabled: (fileName: string, elementId: string, disabled: boolean) => void,
                          deleteRoute: (fileName: string, routeId: string) => void,
                          setRouteGroup: (fileName: string, routeId: string, groupName: string) => void,
-                         openApiJson?: string, asyncApiJson?: string, showStats?: boolean): Model {
+                         openApiJson?: string, asyncApiJson?: string): Model {
     const tasyncapis = asyncApiJson ? [TopologyUtils.findTopologyAsyncApiNodes(asyncApiJson, projectId)] : [];
     const integrations = getIntegrations(files);
     const troutes = TopologyUtils.findTopologyRouteNodes(integrations);
@@ -486,9 +484,9 @@ export function getModel(projectId: string, files: IntegrationFile[], showGroups
     const nodes: NodeModel[] = [];
 
     nodes.push(...getRestNodes(trestns))
-    nodes.push(...getOpenApiNodes(topenapis, showStats))
+    nodes.push(...getOpenApiNodes(topenapis))
     // nodes.push(...getAsyncApiNodes(tasyncapis))
-    nodes.push(...getRoutes(troutes, tasyncapis?.at(0), showStats))
+    nodes.push(...getRoutes(troutes, tasyncapis?.at(0)))
     nodes.push(...getRouteConfigurations(trcs))
     const uriNodes = getUniqueUriNodes(tons, tins, troutes);
     if (showGroups) {

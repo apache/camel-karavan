@@ -96,7 +96,7 @@ export class TopologyIncomingNode {
     title: string;
     fileName: string;
     from: FromDefinition;
-    uniqueUri?: string;
+    uniqueUri: string;
 
 
     constructor(id: string, type: "internal" | "external", connectorType: "component" | "kamelet", routeId: string, title: string, fileName: string, from: FromDefinition, uniqueUri: string) {
@@ -157,7 +157,7 @@ export class TopologyOutgoingNode {
     title: string;
     fileName: string;
     step: CamelElement;
-    uniqueUri?: string;
+    uniqueUri: string;
 
 
     constructor(id: string, type: "internal" | "external", connectorType: "component" | "kamelet", routeId: string, title: string, fileName: string, step: CamelElement, uniqueUri: string) {

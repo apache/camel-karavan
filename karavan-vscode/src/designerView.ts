@@ -14,13 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Uri, window, commands, WebviewPanel, ExtensionContext, ViewColumn, WebviewPanelOnDidChangeViewStateEvent } from "vscode";
+import {commands, ExtensionContext, Uri, ViewColumn, WebviewPanel, WebviewPanelOnDidChangeViewStateEvent, window} from "vscode";
 import * as path from "path";
 import * as utils from "./utils";
-import { CamelDefinitionYaml } from "@karavan-core/api/CamelDefinitionYaml";
-import { Integration, KameletTypes, Metadata, MetadataLabels } from "@karavan-core/model/IntegrationDefinition";
-import { getWebviewContent } from "./webviewContent";
-import { BeanFactoryDefinition } from "@karavan-core/model/CamelDefinition";
+import {CamelDefinitionYaml} from "@karavan-core/api/CamelDefinitionYaml";
+import {Integration, KameletTypes, MetadataLabels} from "@karavan-core/model/IntegrationDefinition";
+import {getWebviewContent} from "./webviewContent";
+import {BeanFactoryDefinition} from "@karavan-core/model/CamelDefinition";
 
 const KARAVAN_LOADED = "karavan:loaded";
 const KARAVAN_PANELS: Map<string, WebviewPanel> = new Map<string, WebviewPanel>();
@@ -182,15 +182,10 @@ export class DesignerView {
             utils.readTemplates(this.context),
             // Read java classes
             utils.readJavaCode(fullPath),
-            // Read supported components
-            utils.readSupportedComponents(),
-            utils.readSupportedOnlySettings(),
             // Read property placeholders
             utils.readPropertyPlaceholders(this.context),
             // Read beans
             utils.readBeans(fullPath),
-            //Read BlockList
-            utils.readBlockTemplates(this.context),
             // // Read integration
             // utils.readCamelYamlFiles(path.dirname(fullPath))
         ]).then(results => {
@@ -202,14 +197,7 @@ export class DesignerView {
             panel.webview.postMessage({ command: 'templates', templates: Object.fromEntries(results[2]) });
             // Send java code
             panel.webview.postMessage({ command: 'javaCode', javaCode: Object.fromEntries(results[3]) });
-            // Send supported components
-            if (results[4]) panel.webview.postMessage({ command: 'supportedComponents', components: results[4] });
-            if (results[5] === true) panel.webview.postMessage({ command: 'supportedOnly' });
-            // Send integration
-            // panel.webview.postMessage({ command: 'files', files: results[8] });
-            this.sendIntegrationData(panel, filename, relativePath, fullPath, reread, yaml, tab, results[6], results[7]);
-            // Send block list
-            panel.webview.postMessage({ command: 'blockList', blockList: Object.fromEntries(results[8]) });
+            this.sendIntegrationData(panel, filename, relativePath, fullPath, reread, yaml, tab, results[4], results[5]);
 
         }).catch(err => console.log(err));
     }

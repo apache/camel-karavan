@@ -16,25 +16,21 @@
  */
 import React from "react";
 import {shallow} from "zustand/shallow";
-import {useFilesStore, useFileStore, useProjectStore} from "@stores/ProjectStore";
+import {useFilesStore, useProjectStore} from "@stores/ProjectStore";
 import {EventBus} from "@features/project/designer/utils/EventBus";
 import {CamelDefinitionYaml} from "@karavan-core/api/CamelDefinitionYaml";
 import {CamelDefinitionApiExt} from "@karavan-core/api/CamelDefinitionApiExt";
 import {RouteDefinition} from "@karavan-core/model/CamelDefinition";
 import {ModalConfirmationProps} from "@shared/ui/ModalConfirmation";
+import vscode from "@/vscode";
 
 export function useTopologyHook(setConfirmationProps?: React.Dispatch<React.SetStateAction<ModalConfirmationProps | undefined>>) {
 
-    const [setFile] = useFileStore((s) => [s.setFile], shallow);
     const [files] = useFilesStore((s) => [s.files], shallow);
-    const [setTabIndex, project] = useProjectStore((s) => [s.setTabIndex, s.project], shallow);
+    const [project] = useProjectStore((s) => [s.project], shallow);
 
     function selectFile(fileName: string) {
-        const file = files.filter(f => f.name === fileName)?.at(0);
-        if (file) {
-            setFile('select', file);
-            setTabIndex(0);
-        }
+        vscode.postMessage({ command: 'openFile', fileName: fileName })
     }
 
     function setDisabled(fileName: string, elementId: string, enable: boolean) {
@@ -82,13 +78,7 @@ export function useTopologyHook(setConfirmationProps?: React.Dispatch<React.SetS
                     btnConfirmVariant: 'danger',
                     message: `Delete route ${isEmpty ? ' and file ' + fileName : ''}`,
                     onConfirm: () => {
-                        if (isEmpty) {
-                            ProjectService.deleteFile(file);
-                        } else {
-                            file.code = CamelDefinitionYaml.integrationToYaml(newIntegration);
-                            ProjectService.updateFile(file, true);
-                        }
-                        setConfirmationProps?.(propsClose)
+
                     },
                     onCancel: () => setConfirmationProps?.(propsClose)
                 };
@@ -112,7 +102,6 @@ export function useTopologyHook(setConfirmationProps?: React.Dispatch<React.SetS
                     }
                     const newIntegration = CamelDefinitionApiExt.updateIntegrationRouteElement(integration, element);
                     file.code = CamelDefinitionYaml.integrationToYaml(newIntegration);
-                    ProjectService.updateFile(file, true);
                 }
 
             }

@@ -15,23 +15,21 @@
  * limitations under the License.
  */
 import * as React from "react";
-import {
-  Bullseye,
-  Content,
-  Page, PageSection, Spinner
-} from "@patternfly/react-core";
+import {Bullseye, Content, PageSection, Spinner} from "@patternfly/react-core";
 import vscode from "./vscode";
-import { KameletApi } from "@karavan-core/api/KameletApi";
-import { ComponentApi } from "@karavan-core/api/ComponentApi";
-import { TemplateApi } from "@karavan-core/api/TemplateApi";
-import { BeanFactoryDefinition } from "@karavan-core/model/CamelDefinition";
-import { IntegrationFile } from "@karavan-core/model/IntegrationDefinition";
-import { TopologyTab } from "@features/project/project-topology/TopologyTab";
-import { DocumentationPage } from "@features/documentation/DocumentationPage";
-import { KaravanDesigner } from "@features/project/designer/KaravanDesigner";
-import { EventBus } from "@features/project/designer/utils/EventBus";
+import {KameletApi} from "@karavan-core/api/KameletApi";
+import {ComponentApi} from "@karavan-core/api/ComponentApi";
+import {TemplateApi} from "@karavan-core/api/TemplateApi";
+import {BeanFactoryDefinition} from "@karavan-core/model/CamelDefinition";
+import {IntegrationFile} from "@karavan-core/model/IntegrationDefinition";
+import {TopologyTab} from "@features/project/project-topology/TopologyTab";
+import {DocumentationPage} from "@features/documentation/DocumentationPage";
+import {KaravanDesigner} from "@features/project/designer/KaravanDesigner";
+import {EventBus} from "@features/project/designer/utils/EventBus";
 import {ProjectFunctionHook} from "@app/navigation/ProjectFunctionHook";
 import {ProjectProvider} from "@features/project/ProjectContext";
+import {ProjectFile} from "@models/ProjectModels";
+import {useFilesStore} from "@stores/ProjectStore";
 
 interface Props {
 }
@@ -56,6 +54,8 @@ interface State {
 }
 
 class App extends React.Component<Props, State> {
+
+  setFiles = useFilesStore.getState().setFiles;
 
   public state: State = {
     filename: '',
@@ -93,7 +93,7 @@ class App extends React.Component<Props, State> {
 
   onMessage = (event) => {
     const message = event.data;
-    console.log("message.command", message.command);
+    console.log("message.command", message);
     switch (message.command) {
       case 'kamelets':
         KameletApi.saveCustomKamelets(message.kamelets, true);
@@ -109,17 +109,11 @@ class App extends React.Component<Props, State> {
           return { loadingMessages: prevState.loadingMessages }
         });
         break;
-      case 'supportedComponents':
-        ComponentApi.saveSupportedComponents(message.components);
-        this.setState((prevState: State) => {
-          prevState.loadingMessages.push("Supported Components loaded");
-          return { loadingMessages: prevState.loadingMessages }
-        });
-        break;
-      case 'supportedOnly':
-        ComponentApi.setSupportedOnly(true);
-        break;
       case 'files':
+        const fileNames = message.files ? Object.keys(message.files) : [message.files];
+        console.log("fileNames", fileNames);
+        const files = fileNames.map((fileName) => new ProjectFile(fileName, 'projectId', message.files[fileName], 0));
+        this.setFiles(files);
         this.saveIntegrationFiles(message.files);
         this.setState((prevState: State) => {
           prevState.loadingMessages.push("Integrations loaded");
@@ -169,21 +163,6 @@ class App extends React.Component<Props, State> {
       case 'downloadImage':
         EventBus.sendCommand("downloadImage");
         break;
-      case 'blockList':
-        const blockList = message.blockList;
-        const blockListMap = new Map(Object.keys(blockList).map(key => [key, blockList[key]])).forEach((list, key) => {
-          if (key === 'components-blocklist.txt') {
-            ComponentApi.saveBlockedComponentNames(list.split(/\r?\n/));
-          }
-          else if (key === 'kamelets-blocklist.txt') {
-            KameletApi.saveBlockedKameletNames(list.split(/\r?\n/));
-          }
-        });
-        this.setState((prevState: State) => {
-          prevState.loadingMessages.push("block lists loaded");
-          return { loadingMessages: prevState.loadingMessages }
-        });
-        break;
     }
   };
 
@@ -210,16 +189,6 @@ class App extends React.Component<Props, State> {
   saveIntegrationFiles(files: any) {
     const f = Object.keys(files).map(key => new IntegrationFile(key, files[key]));
     this.setState({ files: f });
-  }
-
-  onchangeBlockedList(type: string, name: string, checked: boolean) {
-    let fileContent = '';
-    if (type === "component") {
-      fileContent = ComponentApi.saveBlockedComponentName(name, checked).join('\n');
-    } else {
-      fileContent = KameletApi.saveBlockedKameletName(name, checked).join('\n');
-    }
-    vscode.postMessage({ command: 'saveBlockedList', key: type, value: fileContent });
   }
 
   public render() {

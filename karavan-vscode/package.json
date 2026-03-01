@@ -126,34 +126,6 @@
           "scope": "machine",
           "order": 60
         },
-        "Karavan.supportedComponents": {
-          "type": "string",
-          "default": "",
-          "description": "Supported Components (*.json)",
-          "scope": "machine",
-          "order": 61
-        },
-        "Karavan.supportedDataformats": {
-          "type": "string",
-          "default": "",
-          "description": "Supported Dataformats (*.json)",
-          "scope": "machine",
-          "order": 62
-        },
-        "Karavan.supportedLanguages": {
-          "type": "string",
-          "default": "",
-          "description": "Supported Expression Languages (*.json)",
-          "scope": "machine",
-          "order": 62
-        },
-        "Karavan.supportedOnly": {
-          "type": "boolean",
-          "default": false,
-          "description": "Show Supported Only",
-          "scope": "machine",
-          "order": 64
-        },
         "Karavan.kameletsPath": {
           "type": "string",
           "default": "",
@@ -454,12 +426,6 @@
           "description": "application.properties template for camel-main on Kubernetes",
           "scope": "machine",
           "order": 95
-        },
-        "Karavan.blockingComponentsPath": {
-          "type": "string",
-          "description": "Blocked kamelets/components Path",
-          "scope": "machine",
-          "order": 96
         }
       }
     },

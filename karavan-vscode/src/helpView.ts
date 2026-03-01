@@ -16,8 +16,7 @@
  */
 import * as vscode from "vscode";
 import * as utils from "./utils";
-import { ThemeIcon } from "vscode";
-import { getWebviewContent } from "./webviewContent";
+import {getWebviewContent} from "./webviewContent";
 
 const KARAVAN_PANELS: Map<string, vscode.WebviewPanel> = new Map<string, vscode.WebviewPanel>();
 
@@ -71,10 +70,6 @@ export class HelpView implements vscode.TreeDataProvider<HelpItem> {
 						case 'getData':
 							this.sendData(panel, page);
 							break;
-						
-						case 'saveBlockedList':
-							utils.saveBlockList(message.key, message.value);
-							break;
 					}
 				},
 				undefined,
@@ -106,10 +101,7 @@ export class HelpView implements vscode.TreeDataProvider<HelpItem> {
 			utils.readComponents(this.context).then(components => {
 				// Read and send Components
 				panel.webview.postMessage({ command: 'components', components: components });
-			}).finally(() => {utils.readBlockTemplates(this.context).then(list => {
-				// Read and send block lists
-				panel.webview.postMessage({ command: 'blockList', blockList: Object.fromEntries(list) });
-			}) }).finally(() => {
+			}).finally(() => {
 				// Send integration
 				panel.webview.postMessage({ command: 'open', page: page });
 			})

@@ -44,7 +44,7 @@ import {useTopologyHook} from "@features/project/project-topology/useTopologyHoo
 import {TopologyLegend} from "@features/project/project-topology/TopologyLegend";
 import {ModalConfirmation, ModalConfirmationProps} from "@shared/ui/ModalConfirmation";
 import {EyeIcon, EyeSlashIcon} from '@patternfly/react-icons';
-import {ArrayNumbers, GroupObjects, UngroupObjects} from '@carbon/icons-react';
+import {GroupObjects, UngroupObjects} from '@carbon/icons-react';
 import {useFilesStore, useProjectStore} from "@stores/ProjectStore";
 import {NODE_POSITIONED_EVENT} from "@patternfly/react-topology/src/types";
 import {OPENAPI_FILE_NAME_JSON} from "@karavan-core/contants";
@@ -60,7 +60,6 @@ export function TopologyTab(props: Props) {
     const {asyncApiJson } = props;
     const [setFileName, showGroups, setShowGroups, showBeans, setShowBeans, showLegend, setShowLegend]
         = useTopologyStore((s) => [s.setFileName, s.showGroups, s.setShowGroups, s.showBeans, s.setShowBeans, s.showLegend, s.setShowLegend]);
-    const [showStats, setShowStats] = useTopologyStore((s) => [s.showStats, s.setShowStats]);
     const [setSelectedStep] = useDesignerStore((s) => [s.setSelectedStep], shallow)
     const [files] = useFilesStore((s) => [s.files], shallow);
     const [project] = useProjectStore((s) => [s.project], shallow);
@@ -96,7 +95,7 @@ export function TopologyTab(props: Props) {
     };
 
     const controller = React.useMemo(() => {
-        const model = getModel(project.projectId, camelFiles, showGroups, selectFile, setDisabled, deleteRoute, setRouteGroup, openApiJson, asyncApiJson, showStats);
+        const model = getModel(project.projectId, camelFiles, showGroups, selectFile, setDisabled, deleteRoute, setRouteGroup, openApiJson, asyncApiJson);
         const controller = new Visualization();
 
         controller.registerLayoutFactory((type, graph) => customLayoutFactory(type, graph));
@@ -112,7 +111,7 @@ export function TopologyTab(props: Props) {
         });
         controller.fromModel(model, false);
         return controller;
-    }, [files, showGroups, asyncApiJson, showStats]);
+    }, [files, showGroups, asyncApiJson]);
 
     function getButtonTitle(title: string, icon: React.ReactNode) {
         return (
@@ -156,12 +155,6 @@ export function TopologyTab(props: Props) {
                     icon: showBeans ? getButtonTitle('Beans', <EyeIcon/>) : getButtonTitle('Beans', <EyeSlashIcon/>),
                     tooltip: 'Show/Hide Beans',
                     callback: id => setShowBeans(!showBeans)
-                },
-                {
-                    id: "stats",
-                    icon: <ArrayNumbers className='carbon'/>,
-                    tooltip: showStats ? "Hide stats" : "Show stats",
-                    callback: (id: any) => setShowStats(!showStats),
                 }
             ],
         });

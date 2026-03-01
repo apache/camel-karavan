@@ -26,8 +26,6 @@ interface TopologyState {
     setShowBeans: (showBeans: boolean) => void
     showLegend: boolean
     setShowLegend: (showLegend: boolean) => void
-    showStats: boolean
-    setShowStats: (showStats: boolean) => void
 }
 
 export const useTopologyStore = createWithEqualityFn<TopologyState>((set, get) => {
@@ -51,12 +49,6 @@ export const useTopologyStore = createWithEqualityFn<TopologyState>((set, get) =
         setShowLegend: (showLegend: boolean) => {
             set((state: TopologyState) => {
                 return {showLegend: showLegend};
-            });
-        },
-        showStats: false,
-        setShowStats: (showStats: boolean) => {
-            set((state: TopologyState) => {
-                return {showStats: showStats};
             });
         },
     }

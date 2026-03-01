@@ -15,11 +15,11 @@
  * limitations under the License.
  */
 import * as path from "path";
-import { workspace, Uri, window, ExtensionContext, FileType } from "vscode";
-import { CamelDefinitionYaml } from "@karavan-core/api/CamelDefinitionYaml";
-import { Integration, KameletTypes } from "@karavan-core/model/IntegrationDefinition";
-import { BeanFactoryDefinition } from "@karavan-core/model/CamelDefinition";
-import { TopologyUtils } from "@karavan-core/api/TopologyUtils";
+import {ExtensionContext, FileType, Uri, window, workspace} from "vscode";
+import {CamelDefinitionYaml} from "@karavan-core/api/CamelDefinitionYaml";
+import {Integration, KameletTypes} from "@karavan-core/model/IntegrationDefinition";
+import {BeanFactoryDefinition} from "@karavan-core/model/CamelDefinition";
+import {TopologyUtils} from "@karavan-core/api/TopologyUtils";
 
 export function getRoot(): string | undefined {
     return (workspace.workspaceFolders && (workspace.workspaceFolders.length > 0))
@@ -48,20 +48,6 @@ export async function savePropertyPlaceholder(key: string, value: string) {
         write(path.join(uriFolder.path, "application.properties"), text);
     }
 }
-
-export function saveBlockList(key: string, value: string) {
-    if (workspace.workspaceFolders) {
-        const uriFolder: Uri = workspace.workspaceFolders[0].uri;
-        const blockingComponentsPath: string | undefined = workspace.getConfiguration().get("Karavan.blockingComponentsPath");
-        if (blockingComponentsPath && blockingComponentsPath.trim().length > 0) {
-            const name = key+"s-blocklist.txt";
-            write(path.join(uriFolder.path, blockingComponentsPath+"/"+name), value);
-        } else {
-            window.showErrorMessage("Settings path not configured!")
-        }
-    }
-}
-
 
 export function deleteFile(fullPath: string) {
     if (workspace.workspaceFolders) {
@@ -96,20 +82,6 @@ async function readBuildInKamelets(context: ExtensionContext) {
     const code = Buffer.from(file).toString('utf8');
     code.split("\n---\n").map(c => c.trim()).forEach(z => result.push(z));
     return result;
-}
-
-export async function readSupportedComponents() {
-    const supportedComponentsPath: string | undefined = workspace.getConfiguration().get("Karavan.supportedComponents");
-    if (supportedComponentsPath && supportedComponentsPath.trim().length > 0) {
-        const filename = path.isAbsolute(supportedComponentsPath) ? supportedComponentsPath : path.resolve(supportedComponentsPath);
-        const file = await readFile(filename);
-        return Buffer.from(file).toString('utf8');
-    }
-    return undefined;
-}
-
-export async function readSupportedOnlySettings(): Promise<boolean> {
-    return workspace.getConfiguration().get("Karavan.supportedOnly") || false;
 }
 
 async function readFilesInDirByExtension(dir: string, extension: string): Promise<Map<string, string>> {
@@ -193,18 +165,6 @@ export async function readTemplates(context: ExtensionContext) {
     })
     return result;
 }
-export async function readBlockTemplates(context: ExtensionContext) {
-    const result = new Map<string, string>();
-    const blockedListDir: string | undefined = workspace.getConfiguration().get("Karavan.blockingComponentsPath");
-    if (blockedListDir && blockedListDir.trim().length > 0) {
-        const files = await readFilesInDirByExtension(blockedListDir, "txt");
-        files.forEach((v, k) => {
-                    result.set(k,v);
-            })
-    }
-    return result;
-}
-
 
 export async function readJavaCode(fullPath: string) {
     const result = new Map<string, string>();
