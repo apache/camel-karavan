@@ -36,7 +36,7 @@ export const DocumentationPage = () => {
     const [pageNames, setPageNames] = useState<string[]>(BUILD_IN_DOCUMENTATION_PAGES.map(item => capitalize(item)));
     const [filter, setFilter] = useState<string>("");
     const [customOnly, setCustomOnly] = useState<boolean>(false);
-    const [activeItem, setActiveItem] = useState<string>();
+    const [activeItem, setActiveItem] = useState<string>("processors");
 
     const onSelect = (_event: React.FormEvent<HTMLInputElement>, result: { itemId: number | string }) => {
         const item = result.itemId?.toString();
