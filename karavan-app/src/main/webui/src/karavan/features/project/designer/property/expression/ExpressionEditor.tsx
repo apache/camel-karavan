@@ -68,7 +68,10 @@ export function ExpressionEditor(props: Props) {
                     }}
                     value={customCode?.toString()}
                     className={'code-editor'}
-                    onChange={(value, _) => setCustomCode(value)}
+                    onChange={(value, _) => {
+                        setCustomCode(value);
+                        onChange(value);
+                    }}
                 />
             </div>
 
