@@ -1,0 +1,38 @@
+.dashboard-development-top-card {
+    padding: 0;
+
+    .toggle-card {
+        /* 1. Allows cards to grow and fill space */
+        flex: 1 1 auto;
+        /* 2. Set a minimum width before it forces a wrap */
+        /* Adjust 200px to whatever the "smallest" readable size is for your cards */
+        min-width: 10px;
+        /* 3. Optional: prevents cards from getting unnaturally wide on huge screens */
+        max-width: 400px;
+        /* Ensure internal content doesn't overflow during shrink */
+        overflow: hidden;
+        min-height: 51.5px;
+
+        .top-card-header .pf-v6-c-card__header-main {
+            display: flex;
+            justify-content: space-between;
+            color: var(--pf-t--global--color--brand--default);
+        }
+
+        .top-card-body {
+            flex-wrap: nowrap; /* Keep inner icons on one line */
+            .top-label {
+                min-width: 60px;
+            }
+            .top-label-disabled {
+                opacity: 0.5;
+            }
+        }
+
+        .icon-left {
+            .pf-v6-c-label__content {
+                flex-direction: row-reverse;
+            }
+        }
+    }
+}

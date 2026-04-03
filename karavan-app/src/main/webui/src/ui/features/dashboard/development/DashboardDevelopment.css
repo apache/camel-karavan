@@ -1,0 +1,225 @@
+.integration-development-panel {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: var(--pf-t--global--background--color--secondary--default);
+
+    .integration-development-grid {
+        padding: 16px;
+
+        .integration-development-panel-column {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .dashboard-development-card {
+            overflow: hidden;
+            .pf-v6-c-card__header {
+                padding: 16px;
+            }
+            .pf-v6-c-card__body {
+                padding: 16px;
+            }
+        }
+
+        .start-actions {
+            display: flex;
+            flex-flow: wrap;
+            justify-content: space-between;
+            gap: 16px;
+        }
+        .action-card {
+            overflow: hidden;
+            /*height: 100%;*/
+            flex: 1 1 120px;
+            min-width: 0;
+            .pf-v6-c-card__header {
+                padding: 8px;
+                .pf-v6-c-card__actions {
+                    padding: 0;
+                }
+                .pf-v6-c-card__clickable-action {
+                    padding: 0;
+                }
+            }
+            .action-card-header {
+                display: flex;
+                flex-direction: column;
+                justify-content: flex-start;
+                align-items: center;
+                text-align: center;
+                gap: 4px;
+                .title {
+                    font-weight: bold;
+                    /*color: var(--pf-t--global--text--color--subtle);*/
+                }
+            }
+            .header-icon {
+                color: var(--pf-t--global--text--color--link--default);
+                height: 20px;
+                width: 20px;
+            }
+            .description {
+                font-size: var(--pf-t--global--font--size--xs);
+                color: var(--pf-t--global--text--color--subtle);
+                word-break: break-word;
+            }
+        }
+
+        .project-table-wrapper {
+            .pf-v6-c-card__body {
+                padding: 0;
+            }
+        }
+
+        .projects-table {
+            .pf-v6-c-table__thead {
+                /*background-color: var(--pf-t--global--background--color--secondary--default);*/
+                border-bottom: var(--pf-t--global--border--color--default) solid 1px;
+                .pf-v6-c-table__th {
+                    padding-left: 16px;
+                    padding-top: 16px;
+                    padding-bottom: 16px;
+                }
+            }
+
+            .pf-v6-c-table__td {
+                padding: 0 8px 0 8px;
+            }
+        }
+        .project-card {
+            overflow: hidden;
+            .pf-v6-c-card__clickable-action::before {
+                border: none;
+            }
+            .project-card-body {
+                display: flex;
+                flex-direction: column;
+                justify-content: flex-start;
+                gap: 4px;
+            }
+
+            .pf-v6-c-button {
+                text-decoration: none;
+                padding: 8px;
+            }
+        }
+        .project-has-error::before {
+            border: var(--pf-v6-c-card--BorderColor) var(--pf-v6-c-card--BorderStyle) var(--pf-v6-c-card--BorderWidth);
+            border-color: var(--pf-t--global--text--color--status--danger--default);
+        }
+
+        .pf-v6-c-label__icon {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            .dashboard-icon-info {
+                fill: var(--pf-v6-c-label--m-outline__icon--Color);
+                width: 1em;
+                height: 1em;
+            }
+        }
+
+        .user-card {
+            display:flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+            position: relative;
+            padding: 8px;
+            .user-card-title {
+                flex: 1;
+                display:flex;
+                flex-direction: column;
+                justify-content: flex-start;
+                align-items: flex-start;
+                gap: 4px;
+            }
+            .beating-heart-icon {
+                /* Apply the animation to loop infinitely every 1.5 seconds */
+                animation: heartbeat-pulse 2s infinite;
+                /* Required for transforms to work correctly on SVGs */
+                display: inline-block;
+                transform-origin: center;
+            }
+        }
+
+        .user-card::before {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            content: "";
+            border: var(--pf-t--global--icon--color--disabled) var(--pf-v6-c-card--BorderStyle) var(--pf-v6-c-card--BorderWidth);
+            border-radius: 1em;
+        }
+
+        .card-alive::before {
+            border-color: var(--pf-t--color--green--40);
+        }
+        .card-working::before {
+            border-color: var(--pf-t--color--green--40);
+        }
+
+        .user-card-empty-wrapper {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: stretch;
+            gap: 8px;
+            .user-card-empty {
+                flex: 1 1 auto;
+                max-width: 60px;
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+                padding: 8px;
+                position: relative;
+                opacity: 0.7;
+            }
+            .user-card-empty::before {
+                position: absolute;
+                inset: 0;
+                pointer-events: none;
+                content: "";
+                border: var(--pf-t--global--icon--color--disabled) var(--pf-v6-c-card--BorderStyle) var(--pf-v6-c-card--BorderWidth);
+                border-radius: 1em;
+            }
+        }
+
+        .commit-progress-step {
+            .pf-v6-c-progress-stepper__step-main {
+                margin-block-end: 0.7em;
+            }
+            .pf-v6-c-clipboard-copy__actions-item .pf-v6-c-button.pf-m-plain {
+                padding: 0;
+            }
+        }
+        .commit-card {
+            font-family: monospace;
+            font-size: 12px;
+            line-height: 14px;
+            .pf-v6-c-button.pf-m-link.pf-m-inline {
+                padding: 0 4px 0 0;
+                text-decoration: none;
+            }
+        }
+
+        .commit-description {
+            display:flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+            gap: 4px;
+            p {
+                font-size: 12px;
+            }
+            .pf-v6-c-label__text {
+                font-size: 12px;
+            }
+        }
+    }
+}
