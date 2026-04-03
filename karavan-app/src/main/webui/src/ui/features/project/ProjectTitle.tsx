@@ -16,10 +16,9 @@
  */
 
 import React from 'react';
-import {Alert, ClipboardCopy, Content, Flex, FlexItem,} from '@patternfly/react-core';
+import {ClipboardCopy, Content, Flex, FlexItem,} from '@patternfly/react-core';
 import {useFileStore, useProjectStore} from "@stores/ProjectStore";
 import {shallow} from "zustand/shallow";
-import {LockedIcon} from "@patternfly/react-icons";
 
 export function ProjectTitle() {
 
@@ -61,32 +60,10 @@ export function ProjectTitle() {
         )
     }
 
-    function getGeneratedFileTitle() {
-        return (
-            <div style={{display: "flex", justifyContent: "space-between", gap: 16, alignItems: "center"}}>
-                <Flex direction={{default: "column"}} gap={{default: 'gapNone'}}>
-                    <FlexItem>
-                        <Content component="h3">{project?.name}</Content>
-                    </FlexItem>
-                    <FlexItem>
-                        <div style={{display: "flex", justifyContent: "flex-start", gap: 3, alignItems: "center"}}>
-                            <ClipboardCopy hoverTip="Copy" clickTip="Copied" variant="inline-compact">
-                                {isLog ? filename : file.name}
-                            </ClipboardCopy>
-                        </div>
-                    </FlexItem>
-                </Flex>
-                <div style={{display: "flex", justifyContent: "center", gap: 16, alignItems: "center", flex: 1}}>
-                    <Alert style={{padding: 8}} customIcon={<LockedIcon/>} isInline variant="warning" title="This file is auto-generated. Changes will be overwritten."/>
-                </div>
-            </div>
-        )
-    }
 
     return (
         <div className="dsl-title project-title">
             {isFile && getFileTitle()}
-            {isFile && getGeneratedFileTitle()}
             {!isFile && getProjectTitle()}
         </div>
     )
