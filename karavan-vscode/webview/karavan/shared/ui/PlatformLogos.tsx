@@ -3,7 +3,7 @@ import {Badge, Content, Label} from "@patternfly/react-core";
 import PlatformLogo from "@app/navigation/PlatformLogo";
 import './PlatformLogos.css'
 
-export const KARAVAN_PLATFORM_VERSION = "4.18.0";
+export const KARAVAN_PLATFORM_VERSION = "4.18.1";
 
 interface PlatformVersionProps {
     environment: string
