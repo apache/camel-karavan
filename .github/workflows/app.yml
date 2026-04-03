@@ -38,9 +38,9 @@ jobs:
 
 
       - name: Set up Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
-          node-version: '22'
+          node-version: '24'
 
       - name: Create Multi Platfrom Builder
         run: docker buildx create --use --platform=linux/arm64,linux/amd64 --name multi-platform-builder
