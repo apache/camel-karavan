@@ -9,7 +9,7 @@ import {DashboardDevelopmentDrawerPanel} from "@features/dashboard/development/D
 import {useDashboardStore} from "@stores/DashboardStore";
 import {DashboardDevelopmentCardProjects} from "@features/dashboard/development/DashboardDevelopmentCardProjects";
 import {DashboardDevelopmentCardCommits} from "@features/dashboard/development/DashboardDevelopmentCardCommits";
-import {DashboardDevelopmentCardTeam} from "./DashboardDevelopmentCardTeam";
+import {DashboardDevelopmentCardTeam} from "@features/dashboard/development/DashboardDevelopmentCardTeam";
 
 
 function DashboardDevelopmentTab() {
@@ -23,17 +23,17 @@ function DashboardDevelopmentTab() {
                         <div className="integration-development-panel">
                             <DashboardDevelopmentRefresher />
                             <Grid hasGutter className="integration-development-grid">
-                                <GridItem span={12}>
+                                <GridItem span={7}>
                                     <DashboardDevelopmentTopPanel/>
                                 </GridItem>
-                                <GridItem span={9}>
+                                <GridItem span={5}>
                                     <DashboardDevelopmentCardStart/>
-                                </GridItem>
-                                <GridItem span={3} rowSpan={2}>
-                                    <DashboardDevelopmentCardTeam/>
                                 </GridItem>
                                 <GridItem span={9} rowSpan={3}>
                                     <DashboardDevelopmentCardProjects/>
+                                </GridItem>
+                                <GridItem span={3} rowSpan={2}>
+                                    <DashboardDevelopmentCardTeam/>
                                 </GridItem>
                                 <GridItem span={3} rowSpan={1}>
                                     <DashboardDevelopmentCardCommits/>

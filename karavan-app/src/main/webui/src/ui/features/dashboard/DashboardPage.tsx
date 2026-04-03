@@ -4,7 +4,7 @@ import {DashboardToolbar} from "./DashboardToolbar";
 import {RightPanel} from "@shared/ui/RightPanel";
 import DashboardDevelopmentTab from "@features/dashboard/development/DashboardDevelopmentTab";
 
-export const DashboardMenus = ['development', 'operations'] as const;
+export const DashboardMenus = ['development'] as const;
 export type DashboardMenu = typeof DashboardMenus[number];
 
 export function DashboardPage() {

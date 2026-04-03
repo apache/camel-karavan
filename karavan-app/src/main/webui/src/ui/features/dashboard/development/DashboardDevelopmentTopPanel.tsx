@@ -20,6 +20,7 @@ export function DashboardDevelopmentTopPanel() {
         messagesFailed,
         integrationsCount,
         healthDown,
+        lastFailedTime,
     } = useDashboardHook();
 
     const className = "toggle-card";
@@ -52,7 +53,6 @@ export function DashboardDevelopmentTopPanel() {
                         {label: messagesSucceeded, tooltip: "Succeeded", status: "success", icon: <CheckCircleIcon/>},
                         {label: messagesFailed, tooltip: "Failed", status: "danger", icon: <ExclamationCircleIcon/>},
                         {label: messagesInflight, tooltip: "InFlight", status: "info", icon: <InProgressIcon/>},
-                        // {label: lastFailedTime, tooltip: "Last Failed Time", status: "info", icon: <TimesIcon/>},
                     ], className)}
                 </div>
             </CardBody>
