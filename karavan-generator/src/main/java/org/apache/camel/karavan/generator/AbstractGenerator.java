@@ -259,7 +259,7 @@ public class AbstractGenerator {
     }
 
     protected void saveFile(String folder, String fileName, String text) {
-        folder = rootPath.concat(File.separator).concat(folder);
+        folder = rootPath != null && !rootPath.trim().isEmpty() ? rootPath.concat(File.separator).concat(folder) : folder;
         Path path = Paths.get(folder);
         try {
             if (!Files.exists(path)) {
@@ -274,7 +274,8 @@ public class AbstractGenerator {
     }
 
     protected void writeFileText(String filePath, String data) throws IOException {
-        Files.writeString(Paths.get(rootPath.concat(File.separator).concat(filePath)), data);
+        var path = rootPath != null && !rootPath.trim().isEmpty() ? rootPath.concat(File.separator).concat(filePath) : filePath;
+        Files.writeString(Paths.get(path), data);
     }
 
     protected JsonObject getProperties(JsonObject definitions, String classname) {

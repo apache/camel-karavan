@@ -97,7 +97,6 @@ import {
     RouteTemplateDefinition,
     RouteTemplateParameterDefinition,
     RoutingSlipDefinition,
-    SagaActionUriDefinition,
     SagaDefinition,
     SamplingDefinition,
     ScriptDefinition,
@@ -123,6 +122,7 @@ import {
     TokenizerDefinition,
     TokenizerImplementationDefinition,
     TransactedDefinition,
+    TransformDataTypeDefinition,
     TransformDefinition,
     TryDefinition,
     UnmarshalDefinition,
@@ -154,6 +154,7 @@ import {
     FlatpackDataFormat,
     ForyDataFormat,
     GrokDataFormat,
+    GroovyXmlDataFormat,
     GzipDeflaterDataFormat,
     HL7DataFormat,
     IcalDataFormat,
@@ -164,7 +165,9 @@ import {
     JsonDataFormat,
     LZFDataFormat,
     MimeMultipartDataFormat,
+    OcsfDataFormat,
     PGPDataFormat,
+    PQCDataFormat,
     ParquetAvroDataFormat,
     ProtobufDataFormat,
     RssDataFormat,
@@ -175,14 +178,12 @@ import {
     SyslogDataFormat,
     TarFileDataFormat,
     ThriftDataFormat,
-    TidyMarkupDataFormat,
     UniVocityCsvDataFormat,
     UniVocityFixedDataFormat,
     UniVocityHeader,
     UniVocityTsvDataFormat,
     XMLSecurityDataFormat,
     YAMLDataFormat,
-    YAMLTypeFilterDefinition,
     ZipDeflaterDataFormat,
     ZipFileDataFormat,
     DeadLetterChannelDefinition,
@@ -654,6 +655,13 @@ export class CamelDefinitionYamlStep {
                def.tokenizer = CamelDefinitionYamlStep.readTokenizerDefinition(element.tokenizer[0]); 
             } else { 
                def.tokenizer = CamelDefinitionYamlStep.readTokenizerDefinition(element.tokenizer); 
+            } 
+        } 
+        if (element?.transformDataType !== undefined) { 
+            if (Array.isArray(element.transformDataType)) { 
+               def.transformDataType = CamelDefinitionYamlStep.readTransformDataTypeDefinition(element.transformDataType[0]); 
+            } else { 
+               def.transformDataType = CamelDefinitionYamlStep.readTransformDataTypeDefinition(element.transformDataType); 
             } 
         } 
         if (element?.filter !== undefined) { 
@@ -1455,11 +1463,11 @@ export class CamelDefinitionYamlStep {
                def.tarFile = CamelDefinitionYamlStep.readTarFileDataFormat(element.tarFile); 
             } 
         } 
-        if (element?.tidyMarkup !== undefined) { 
-            if (Array.isArray(element.tidyMarkup)) { 
-               def.tidyMarkup = CamelDefinitionYamlStep.readTidyMarkupDataFormat(element.tidyMarkup[0]); 
+        if (element?.pqc !== undefined) { 
+            if (Array.isArray(element.pqc)) { 
+               def.pqc = CamelDefinitionYamlStep.readPQCDataFormat(element.pqc[0]); 
             } else { 
-               def.tidyMarkup = CamelDefinitionYamlStep.readTidyMarkupDataFormat(element.tidyMarkup); 
+               def.pqc = CamelDefinitionYamlStep.readPQCDataFormat(element.pqc); 
             } 
         } 
         if (element?.csv !== undefined) { 
@@ -1530,6 +1538,13 @@ export class CamelDefinitionYamlStep {
                def.smooks = CamelDefinitionYamlStep.readSmooksDataFormat(element.smooks[0]); 
             } else { 
                def.smooks = CamelDefinitionYamlStep.readSmooksDataFormat(element.smooks); 
+            } 
+        } 
+        if (element?.ocsf !== undefined) { 
+            if (Array.isArray(element.ocsf)) { 
+               def.ocsf = CamelDefinitionYamlStep.readOcsfDataFormat(element.ocsf[0]); 
+            } else { 
+               def.ocsf = CamelDefinitionYamlStep.readOcsfDataFormat(element.ocsf); 
             } 
         } 
         if (element?.mimeMultipart !== undefined) { 
@@ -1649,6 +1664,13 @@ export class CamelDefinitionYamlStep {
                def.flatpack = CamelDefinitionYamlStep.readFlatpackDataFormat(element.flatpack[0]); 
             } else { 
                def.flatpack = CamelDefinitionYamlStep.readFlatpackDataFormat(element.flatpack); 
+            } 
+        } 
+        if (element?.groovyXml !== undefined) { 
+            if (Array.isArray(element.groovyXml)) { 
+               def.groovyXml = CamelDefinitionYamlStep.readGroovyXmlDataFormat(element.groovyXml[0]); 
+            } else { 
+               def.groovyXml = CamelDefinitionYamlStep.readGroovyXmlDataFormat(element.groovyXml); 
             } 
         } 
         if (element?.swiftMx !== undefined) { 
@@ -2207,14 +2229,6 @@ export class CamelDefinitionYamlStep {
         return def;
     }
 
-    static readSagaActionUriDefinition = (element: any): SagaActionUriDefinition => {
-        if (element && typeof element === 'string') element = {uri: element};
-        let def = element ? new SagaActionUriDefinition({...element}) : new SagaActionUriDefinition();
-        def = ComponentApi.parseElementUri(def);
-
-        return def;
-    }
-
     static readSagaDefinition = (element: any): SagaDefinition => {
         
         let def = element ? new SagaDefinition({...element}) : new SagaDefinition();
@@ -2531,6 +2545,13 @@ export class CamelDefinitionYamlStep {
         return def;
     }
 
+    static readTransformDataTypeDefinition = (element: any): TransformDataTypeDefinition => {
+        
+        let def = element ? new TransformDataTypeDefinition({...element}) : new TransformDataTypeDefinition();
+
+        return def;
+    }
+
     static readTransformDefinition = (element: any): TransformDefinition => {
         
         let def = element ? new TransformDefinition({...element}) : new TransformDefinition();
@@ -2589,11 +2610,11 @@ export class CamelDefinitionYamlStep {
                def.tarFile = CamelDefinitionYamlStep.readTarFileDataFormat(element.tarFile); 
             } 
         } 
-        if (element?.tidyMarkup !== undefined) { 
-            if (Array.isArray(element.tidyMarkup)) { 
-               def.tidyMarkup = CamelDefinitionYamlStep.readTidyMarkupDataFormat(element.tidyMarkup[0]); 
+        if (element?.pqc !== undefined) { 
+            if (Array.isArray(element.pqc)) { 
+               def.pqc = CamelDefinitionYamlStep.readPQCDataFormat(element.pqc[0]); 
             } else { 
-               def.tidyMarkup = CamelDefinitionYamlStep.readTidyMarkupDataFormat(element.tidyMarkup); 
+               def.pqc = CamelDefinitionYamlStep.readPQCDataFormat(element.pqc); 
             } 
         } 
         if (element?.csv !== undefined) { 
@@ -2664,6 +2685,13 @@ export class CamelDefinitionYamlStep {
                def.smooks = CamelDefinitionYamlStep.readSmooksDataFormat(element.smooks[0]); 
             } else { 
                def.smooks = CamelDefinitionYamlStep.readSmooksDataFormat(element.smooks); 
+            } 
+        } 
+        if (element?.ocsf !== undefined) { 
+            if (Array.isArray(element.ocsf)) { 
+               def.ocsf = CamelDefinitionYamlStep.readOcsfDataFormat(element.ocsf[0]); 
+            } else { 
+               def.ocsf = CamelDefinitionYamlStep.readOcsfDataFormat(element.ocsf); 
             } 
         } 
         if (element?.mimeMultipart !== undefined) { 
@@ -2783,6 +2811,13 @@ export class CamelDefinitionYamlStep {
                def.flatpack = CamelDefinitionYamlStep.readFlatpackDataFormat(element.flatpack[0]); 
             } else { 
                def.flatpack = CamelDefinitionYamlStep.readFlatpackDataFormat(element.flatpack); 
+            } 
+        } 
+        if (element?.groovyXml !== undefined) { 
+            if (Array.isArray(element.groovyXml)) { 
+               def.groovyXml = CamelDefinitionYamlStep.readGroovyXmlDataFormat(element.groovyXml[0]); 
+            } else { 
+               def.groovyXml = CamelDefinitionYamlStep.readGroovyXmlDataFormat(element.groovyXml); 
             } 
         } 
         if (element?.swiftMx !== undefined) { 
@@ -3091,13 +3126,6 @@ export class CamelDefinitionYamlStep {
                def.tarFile = CamelDefinitionYamlStep.readTarFileDataFormat(element.tarFile); 
             } 
         } 
-        if (element?.tidyMarkup !== undefined) { 
-            if (Array.isArray(element.tidyMarkup)) { 
-               def.tidyMarkup = CamelDefinitionYamlStep.readTidyMarkupDataFormat(element.tidyMarkup[0]); 
-            } else { 
-               def.tidyMarkup = CamelDefinitionYamlStep.readTidyMarkupDataFormat(element.tidyMarkup); 
-            } 
-        } 
         if (element?.csv !== undefined) { 
             if (Array.isArray(element.csv)) { 
                def.csv = CamelDefinitionYamlStep.readCsvDataFormat(element.csv[0]); 
@@ -3287,6 +3315,13 @@ export class CamelDefinitionYamlStep {
                def.flatpack = CamelDefinitionYamlStep.readFlatpackDataFormat(element.flatpack); 
             } 
         } 
+        if (element?.groovyXml !== undefined) { 
+            if (Array.isArray(element.groovyXml)) { 
+               def.groovyXml = CamelDefinitionYamlStep.readGroovyXmlDataFormat(element.groovyXml[0]); 
+            } else { 
+               def.groovyXml = CamelDefinitionYamlStep.readGroovyXmlDataFormat(element.groovyXml); 
+            } 
+        } 
         if (element?.swiftMx !== undefined) { 
             if (Array.isArray(element.swiftMx)) { 
                def.swiftMx = CamelDefinitionYamlStep.readSwiftMxDataFormat(element.swiftMx[0]); 
@@ -3431,6 +3466,13 @@ export class CamelDefinitionYamlStep {
         return def;
     }
 
+    static readGroovyXmlDataFormat = (element: any): GroovyXmlDataFormat => {
+        
+        let def = element ? new GroovyXmlDataFormat({...element}) : new GroovyXmlDataFormat();
+
+        return def;
+    }
+
     static readGzipDeflaterDataFormat = (element: any): GzipDeflaterDataFormat => {
         
         let def = element ? new GzipDeflaterDataFormat({...element}) : new GzipDeflaterDataFormat();
@@ -3501,9 +3543,23 @@ export class CamelDefinitionYamlStep {
         return def;
     }
 
+    static readOcsfDataFormat = (element: any): OcsfDataFormat => {
+        
+        let def = element ? new OcsfDataFormat({...element}) : new OcsfDataFormat();
+
+        return def;
+    }
+
     static readPGPDataFormat = (element: any): PGPDataFormat => {
         
         let def = element ? new PGPDataFormat({...element}) : new PGPDataFormat();
+
+        return def;
+    }
+
+    static readPQCDataFormat = (element: any): PQCDataFormat => {
+        
+        let def = element ? new PQCDataFormat({...element}) : new PQCDataFormat();
 
         return def;
     }
@@ -3578,13 +3634,6 @@ export class CamelDefinitionYamlStep {
         return def;
     }
 
-    static readTidyMarkupDataFormat = (element: any): TidyMarkupDataFormat => {
-        
-        let def = element ? new TidyMarkupDataFormat({...element}) : new TidyMarkupDataFormat();
-
-        return def;
-    }
-
     static readUniVocityCsvDataFormat = (element: any): UniVocityCsvDataFormat => {
         
         let def = element ? new UniVocityCsvDataFormat({...element}) : new UniVocityCsvDataFormat();
@@ -3626,18 +3675,10 @@ export class CamelDefinitionYamlStep {
     static readYAMLDataFormat = (element: any): YAMLDataFormat => {
         
         let def = element ? new YAMLDataFormat({...element}) : new YAMLDataFormat();
-        def.typeFilter = element && element?.typeFilter ? element?.typeFilter.map((x:any) => CamelDefinitionYamlStep.readYAMLTypeFilterDefinition(x)) :[]; 
         if (element.constructor !== undefined) {
             def._constructor = element.constructor;
             delete (def as any).constructor;
         }
-        return def;
-    }
-
-    static readYAMLTypeFilterDefinition = (element: any): YAMLTypeFilterDefinition => {
-        
-        let def = element ? new YAMLTypeFilterDefinition({...element}) : new YAMLTypeFilterDefinition();
-
         return def;
     }
 
@@ -4454,13 +4495,6 @@ export class CamelDefinitionYamlStep {
                def.tarFile = CamelDefinitionYamlStep.readTarFileDataFormat(element.tarFile); 
             } 
         } 
-        if (element?.tidyMarkup !== undefined) { 
-            if (Array.isArray(element.tidyMarkup)) { 
-               def.tidyMarkup = CamelDefinitionYamlStep.readTidyMarkupDataFormat(element.tidyMarkup[0]); 
-            } else { 
-               def.tidyMarkup = CamelDefinitionYamlStep.readTidyMarkupDataFormat(element.tidyMarkup); 
-            } 
-        } 
         if (element?.csv !== undefined) { 
             if (Array.isArray(element.csv)) { 
                def.csv = CamelDefinitionYamlStep.readCsvDataFormat(element.csv[0]); 
@@ -4648,6 +4682,13 @@ export class CamelDefinitionYamlStep {
                def.flatpack = CamelDefinitionYamlStep.readFlatpackDataFormat(element.flatpack[0]); 
             } else { 
                def.flatpack = CamelDefinitionYamlStep.readFlatpackDataFormat(element.flatpack); 
+            } 
+        } 
+        if (element?.groovyXml !== undefined) { 
+            if (Array.isArray(element.groovyXml)) { 
+               def.groovyXml = CamelDefinitionYamlStep.readGroovyXmlDataFormat(element.groovyXml[0]); 
+            } else { 
+               def.groovyXml = CamelDefinitionYamlStep.readGroovyXmlDataFormat(element.groovyXml); 
             } 
         } 
         if (element?.swiftMx !== undefined) { 
@@ -4925,6 +4966,7 @@ export class CamelDefinitionYamlStep {
             case 'toD': return CamelDefinitionYamlStep.readToDynamicDefinition(newBody);
             case 'tokenizer': return CamelDefinitionYamlStep.readTokenizerDefinition(newBody);
             case 'transacted': return CamelDefinitionYamlStep.readTransactedDefinition(newBody);
+            case 'transformDataType': return CamelDefinitionYamlStep.readTransformDataTypeDefinition(newBody);
             case 'transform': return CamelDefinitionYamlStep.readTransformDefinition(newBody);
             case 'doTry': return CamelDefinitionYamlStep.readTryDefinition(newBody);
             case 'unmarshal': return CamelDefinitionYamlStep.readUnmarshalDefinition(newBody);

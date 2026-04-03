@@ -31,6 +31,7 @@ public final class KaravanGenerator {
             System.out.println("    Generating Path: " + path);
             AbstractGenerator.clearDirectory(Paths.get(path + "/metadata").toFile());
         }
+        System.out.println("Generating Camel Definitions: " + rootPath);
         CamelDefinitionGenerator.generate(rootPath);
         CamelDefinitionApiGenerator.generate(rootPath);
         CamelDefinitionYamlStepGenerator.generate(rootPath);
