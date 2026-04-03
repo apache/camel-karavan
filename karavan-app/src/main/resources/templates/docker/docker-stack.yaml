@@ -1,0 +1,17 @@
+services:
+  ${projectId}:
+    hostname: "${projectId}-{{.Task.Slot}}"
+    image: ${projectImage}
+    restart: always
+    ports:
+      - "${projectPort}:8080"
+    networks:
+      - talisman
+    deploy:
+      restart_policy:
+        condition: 'any'
+      resources:
+        limits:
+          memory: 1gb
+        reservations:
+          memory: 250mb

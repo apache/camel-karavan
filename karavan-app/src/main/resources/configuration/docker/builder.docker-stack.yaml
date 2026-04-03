@@ -1,0 +1,22 @@
+services:
+  ${projectId}-builder:
+    hostname: "${projectId}"
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: 'none'
+    networks:
+      - talisman
+    environment:
+      - PROJECT_ID=${projectId}
+      - TAG=${tag}
+      - GIT_REPOSITORY=${karavan.git.repository}
+      - GIT_USERNAME=${karavan.git.username}
+      - GIT_PASSWORD=${karavan.git.password}
+      - GIT_BRANCH=${karavan.git.branch}
+      - IMAGE_REGISTRY=${karavan.container-image.registry}
+      - IMAGE_GROUP=${karavan.container-image.group}
+      - IMAGE_REGISTRY_PASSWORD=${karavan.container-image.registry-password}
+      - IMAGE_REGISTRY_USERNAME=${karavan.container-image.registry-username}
+      - ENVIRONMENTS=${karavan.environments}
+      - ENVIRONMENT=${karavan.environment}
