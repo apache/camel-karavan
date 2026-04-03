@@ -26,14 +26,15 @@ import {CamelModelMetadata, ElementMeta} from "@core/model/CamelMetadata";
 import {RightPanel} from "@shared/ui/RightPanel";
 import './Documentation.css'
 import {ProjectService} from "@services/ProjectService";
-import {ProjectType} from "@models/ProjectModels";
-import {useFilesStore} from "@stores/ProjectStore";
+import {Project, ProjectType} from "@models/ProjectModels";
+import {useFilesStore, useFileStore, useProjectStore} from "@stores/ProjectStore";
 import {shallow} from "zustand/shallow";
 import {extractTitleFromMarkdown} from "@util/StringUtils";
 import MarkdownPreview from "@uiw/react-markdown-preview";
 import {ErrorBoundaryWrapper} from "@shared/ui/ErrorBoundaryWrapper";
 import {useTheme} from "@app/theme/ThemeContext";
 import {SourcesTab} from "@features/project/files/SourcesTab";
+import {DeveloperManager} from "@features/project/developer/DeveloperManager";
 
 const BUILD_IN_DOCUMENTATION_PAGES = ['processors', 'components', 'kamelets', 'source']
 
@@ -41,6 +42,9 @@ export const DocumentationPage = () => {
 
     const {isDark} = useTheme();
     const [files] = useFilesStore((s) => [s.files], shallow);
+    const [setProject] = useProjectStore((s) => [s.setProject], shallow);
+    const [file, operation, setFile] = useFileStore((s) => [s.file, s.operation, s.setFile], shallow);
+    const showFilePanel = file !== undefined && operation === 'select';
     const [pages, setPages] = useState<string[]>(BUILD_IN_DOCUMENTATION_PAGES);
     const [pageNames, setPageNames] = useState<string[]>(BUILD_IN_DOCUMENTATION_PAGES.map(item => capitalize(item)));
     const [filter, setFilter] = useState<string>("");
@@ -50,11 +54,16 @@ export const DocumentationPage = () => {
 
     const onSelect = (_event: React.FormEvent<HTMLInputElement>, result: { itemId: number | string }) => {
         const item = result.itemId?.toString();
+        setFile('none', undefined);
         setActiveItem(item);
     }
 
     useEffect(() => {
-        ProjectService.refreshProjectFiles(ProjectType.documentation)
+        setProject(new Project({projectId: ProjectType.documentation, name: ProjectType.documentation, type:ProjectType.documentation}), "none");
+        ProjectService.refreshProjectFiles(ProjectType.documentation);
+        return () => {
+            setProject(new Project(), "none");
+        }
     }, []);
 
     useEffect(() => {
@@ -75,7 +84,9 @@ export const DocumentationPage = () => {
         newPageNames.push(...BUILD_IN_DOCUMENTATION_PAGES.map(item => capitalize(item)));
         setPages(newPages);
         setPageNames(newPageNames);
-        setActiveItem(newPages[0])
+        if (activeItem === undefined) {
+            setActiveItem(newPages[0])
+        }
     }, [files]);
 
     let kameletList: KameletModel[] = KameletApi.getAllKamelets().filter(kamelet =>
@@ -154,13 +165,18 @@ export const DocumentationPage = () => {
             mainPanel={
                 <div className="right-panel-card">
                     <div className="documentation-section">
-                        {activeItem === 'kamelets' && <KameletsTab kameletList={kameletList}/>}
-                        {activeItem === 'processors' && <EipTab elements={elements}/>}
-                        {activeItem === 'components' && <ComponentsTab components={components}/>}
-                        {activeItem === 'source' && <SourcesTab />}
+                        {!showFilePanel && activeItem === 'kamelets' && <KameletsTab kameletList={kameletList}/>}
+                        {!showFilePanel && activeItem === 'processors' && <EipTab elements={elements}/>}
+                        {!showFilePanel && activeItem === 'components' && <ComponentsTab components={components}/>}
+                        {!showFilePanel && activeItem === 'source' && <SourcesTab />}
+                        {showFilePanel && <DeveloperManager/>}
                         {!activeItemIsBuildIn() &&
                             <ErrorBoundaryWrapper onError={error => console.error((error))}>
-                                <MarkdownPreview key={"DocumentationMarkdownPreview"} source={markdown} wrapperElement={{'data-color-mode': isDark ? 'dark' : 'light'}}/>
+                                <MarkdownPreview key={"DocumentationMarkdownPreview"}
+                                                 source={markdown}
+                                                 className="documentation-eip-section"
+                                                 wrapperElement={{'data-color-mode': isDark ? 'dark' : 'light'}}
+                                />
                             </ErrorBoundaryWrapper>
                         }
                     </div>

@@ -18,6 +18,10 @@
 .karavan .documentation-section {
     height: 100%;
     overflow: auto;
+
+    .documentation-eip-section {
+        padding: 16px;
+    }
 }
 .karavan .documentation-section .documentation-card {
     cursor: pointer;
