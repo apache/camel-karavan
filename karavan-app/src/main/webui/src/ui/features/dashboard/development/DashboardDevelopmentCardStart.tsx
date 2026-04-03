@@ -31,11 +31,11 @@ export function DashboardDevelopmentCardStart() {
                     }}
                 />
                 <DashboardDevelopmentCardAction
-                    title={"Design OpenAPI"}
+                    title={"Design REST"}
                     description={"Start a new REST service project"}
                     icon={<OpenApiIcon width={20} height={20}/>}
                     action={() => {
-                        setShowSideBar("openAPI", "Create Project with OpenAPI Service")
+                        setShowSideBar("rest", "Create Project with OpenAPI Service")
                     }}
                 />
                 <DashboardDevelopmentCardAction

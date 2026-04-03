@@ -99,7 +99,7 @@ export function TopologyTab(props: Props) {
     };
 
     const controller = React.useMemo(() => {
-        const model = getModel(project.projectId, camelFiles, showGroups, selectFile, setDisabled, deleteRoute, setRouteGroup, openApiJson, asyncApiJson, showStats, jsonSchemas);
+        const model = getModel(project.projectId, camelFiles, showGroups, selectFile, setDisabled, deleteRoute, setRouteGroup, openApiJson);
         const controller = new Visualization();
 
         controller.registerLayoutFactory((type, graph) => customLayoutFactory(type, graph));

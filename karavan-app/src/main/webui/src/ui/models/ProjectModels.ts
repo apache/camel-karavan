@@ -71,9 +71,6 @@ export enum ProjectType {
     services = 'services',
     contracts = 'contracts',
     integration = 'integration',
-    backlog = 'backlog',
-    mcp = 'mcp',
-    mas = 'mas',
 }
 
 export const BUILD_IN_PROJECTS: string[] = [
@@ -82,7 +79,6 @@ export const BUILD_IN_PROJECTS: string[] = [
     ProjectType.configuration.toString(),
     ProjectType.services.toString(),
     ProjectType.contracts.toString(),
-    ProjectType.backlog.toString(),
     ProjectType.documentation.toString(),
 ];
 

@@ -37,7 +37,7 @@ export const useHealthStore = createWithEqualityFn<HealthState>((set) => ({
 }), shallow)
 
 
-export type DashboardSideBarType = 'integration' | 'openAPI' | 'library' | 'mcp'
+export type DashboardSideBarType = 'integration' | 'rest'
 
 interface DashboardState {
     showSideBar: DashboardSideBarType;

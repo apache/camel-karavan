@@ -335,7 +335,7 @@ export function getRestNodes(tins: TopologyRestNode[]): NodeModel[] {
     });
 }
 
-export function getOpenApiNodes(topenapis: TopologyOpenApiNode[], showStats?: boolean): NodeModel[] {
+export function getOpenApiNodes(topenapis: TopologyOpenApiNode[]): NodeModel[] {
     return topenapis.map(topenapi => {
         return {
             id: topenapi.fileName,
@@ -353,7 +353,6 @@ export function getOpenApiNodes(topenapis: TopologyOpenApiNode[], showStats?: bo
                 // step: tin.rest,
                 fileName: topenapi.fileName,
                 secondaryLabel: topenapi.title,
-                showStats: showStats,
             }
         }
     });
@@ -531,33 +530,12 @@ export function getInternalEdges(tons: TopologyOutgoingNode[], tins: TopologyInc
     return result;
 }
 
-export function getInternalMcpEdges(tons: TopologyOutgoingNode[], tins: TopologyIncomingNode[]): EdgeModel[] {
-    const result: EdgeModel[] = [];
-    const mcp = tons.find(ton => ton.type === 'internal' && ton.routeGroup === 'mcp');
-    tins.filter(tin => tin.type === 'internal' && tin.routeGroup?.startsWith("mcp-"))
-        .forEach((tin, index, array) => {
-            const node: EdgeModel = {
-                id: 'internal-' + mcp.id + '-' + index,
-                type: 'edge',
-                source: 'route-' + mcp.routeId,
-                target: 'route-' + tin.routeId,
-                edgeStyle: EdgeStyle.solid,
-                animationSpeed: EdgeAnimationSpeed.medium,
-                data: {
-                    label: tin.routeGroup?.replace("mcp-", "")
-                }
-            }
-            result.push(node);
-        })
-    return result;
-}
-
 export function getModel(projectId: string, files: IntegrationFile[], showGroups: boolean,
                          selectFile: (fileName: string) => void,
                          setDisabled: (fileName: string, elementId: string, disabled: boolean) => void,
                          deleteRoute: (fileName: string, routeId: string) => void,
                          setRouteGroup: (fileName: string, routeId: string, groupName: string) => void,
-                         openApiJson?: string, asyncApiJson?: string, showStats?: boolean, jsonSchemas?: string[]): Model {
+                         openApiJson?: string): Model {
     const nodes: NodeModel[] = [];
     const edges: EdgeModel[] = [];
     try {
@@ -573,7 +551,7 @@ export function getModel(projectId: string, files: IntegrationFile[], showGroups
         const trcons = TopologyUtils.findTopologyRouteConfigurationOutgoingNodes(integrations);
 
         nodes.push(...getRestNodes(trestns))
-        nodes.push(...getOpenApiNodes(topenapis, showStats))
+        nodes.push(...getOpenApiNodes(topenapis))
         // nodes.push(...getAsyncApiNodes(tasyncapis))
         nodes.push(...getRoutes(troutes))
         nodes.push(...getRouteConfigurations(trcs))
@@ -598,7 +576,6 @@ export function getModel(projectId: string, files: IntegrationFile[], showGroups
         edges.push(...getOpenApiEdges(topenapis, tins, trestns));
         // edges.push(...getAsyncApiEdges(tasyncapis));
         edges.push(...getInternalEdges(tons, tins));
-        edges.push(...getInternalMcpEdges(tons, tins));
         edges.push(...getInternalEdges(trcons, tins));
 
         // Groups

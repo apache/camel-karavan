@@ -24,7 +24,7 @@ export function DashboardDevelopmentDrawerPanel() {
                     <div style={{display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', padding: '16px 16px 16px 16px'}}
                          onClick={e => e.stopPropagation()}>
                         {showSideBar === 'integration' && <DashboardDevelopmentProjectPanel/>}
-                        {showSideBar === 'openAPI' && <DashboardDevelopmentProjectPanel/>}
+                        {showSideBar === 'rest' && <DashboardDevelopmentProjectPanel/>}
                     </div>
             </DrawerPanelBody>
         </DrawerPanelContent>

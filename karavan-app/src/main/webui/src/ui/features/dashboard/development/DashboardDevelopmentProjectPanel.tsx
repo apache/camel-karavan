@@ -35,7 +35,7 @@ export function DashboardDevelopmentProjectPanel() {
 
     // 2. Prepare Data
     useEffect(() => {
-        if (['integration', 'openAPI', 'mcp'].includes(showSideBar)) {
+        if (['integration', 'rest'].includes(showSideBar)) {
             const p = new Project();
             reset(p);
             setBackendError(undefined);
@@ -52,7 +52,7 @@ export function DashboardDevelopmentProjectPanel() {
     function after(result: boolean, res: AxiosResponse<Project> | any, data: Project) {
         if (result) {
             EventBus.sendAlert("Success", "Project successfully created!", "success");
-            if (showSideBar === 'openAPI') {
+            if (showSideBar === 'rest') {
                 createOpenApiForProject(data.projectId);
             }
             ProjectService.refreshProjects();
