@@ -34,7 +34,7 @@ import {CamelDefinitionApiExt} from './CamelDefinitionApiExt';
 import {v4 as uuidv4} from 'uuid';
 import {CamelDefinitionYaml} from './CamelDefinitionYaml';
 import {ProjectFile} from "@models/ProjectModels";
-import {KARAVAN_DOT_EXTENSION} from "@karavan-core/contants";
+import {KARAVAN_DOT_EXTENSION} from "../contants";
 
 export class CamelUtil {
     private constructor() {
@@ -173,7 +173,7 @@ export class CamelUtil {
             return KameletApi.findKameletByName(kameletName);
         } else if (['FromDefinition', 'ToDynamicDefinition', 'ToDefinition', 'WireTapDefinition'].includes(element.dslName)) {
             const uri: string = (element as any).uri;
-            return uri !== undefined ? KameletApi.findKameletByUri(uri) : undefined;
+            return uri !== undefined && typeof uri === "string" && uri?.startsWith("kamelet:") ? KameletApi.findKameletByUri(uri) : undefined;
         } else {
             return undefined;
         }

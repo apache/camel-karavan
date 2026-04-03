@@ -1282,6 +1282,7 @@ export class RouteDefinition extends CamelElement {
     messageHistory?: boolean;
     logMask?: boolean;
     errorHandlerRef?: string;
+    routePolicyRef?: string;
     shutdownRoute?: string;
     shutdownRunningTask?: string;
     precondition?: string;
@@ -1334,20 +1335,6 @@ export class RoutingSlipDefinition extends CamelElement {
     cacheSize?: number;
     public constructor(init?: Partial<RoutingSlipDefinition>) {
         super('RoutingSlipDefinition');
-        Object.assign(this, init);
-    }
-}
-
-export class SagaActionUriDefinition extends CamelElement {
-    stepName?: string = 'sagaActionUri';
-    description?: string;
-    disabled?: boolean;
-    id?: string = 'sagaActionUri' + uuidv4().substring(0,4);
-    note?: string;
-    parameters?: any = {};
-    uri: string = '';
-    public constructor(init?: Partial<SagaActionUriDefinition>) {
-        super('SagaActionUriDefinition');
         Object.assign(this, init);
     }
 }

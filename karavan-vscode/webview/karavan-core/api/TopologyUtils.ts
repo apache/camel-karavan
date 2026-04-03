@@ -30,8 +30,6 @@ import {
 } from '../model/CamelDefinition';
 import {CamelElement, Integration,} from '../model/IntegrationDefinition';
 import {
-    TopologyAsyncApiNode,
-    TopologyAsyncApiOperation,
     TopologyBeanNode,
     TopologyIncomingNode,
     TopologyOpenApiNode,
@@ -45,7 +43,7 @@ import {ComponentApi, INTERNAL_COMPONENTS} from './ComponentApi';
 import {CamelDefinitionApiExt} from './CamelDefinitionApiExt';
 import {CamelDisplayUtil} from './CamelDisplayUtil';
 import {CamelUtil} from './CamelUtil';
-import {LANDSCAPE_FILE_NAME_JSON, OPENAPI_FILE_NAME_JSON, X_APPLICATION_ID} from '../contants';
+import {OPENAPI_FILE_NAME_JSON} from '../contants';
 
 const outgoingDefinitions: string[] = ['ToDefinition', 'KameletDefinition', 'ToDynamicDefinition', 'PollEnrichDefinition', 'EnrichDefinition', 'WireTapDefinition', 'SagaDefinition', 'PollDefinition'];
 
@@ -221,37 +219,6 @@ export class TopologyUtils {
         return new TopologyOpenApiNode(OPENAPI_FILE_NAME_JSON, title, operations);
     };
 
-    static findTopologyAsyncApiNodes = (json: string, applicationName?: string): TopologyAsyncApiNode => {
-        const operations: TopologyAsyncApiOperation[] = [];
-        let title = 'AsyncAPI';
-
-        try {
-            const asyncapi = JSON.parse(json);
-            if (asyncapi.info && typeof asyncapi.info.title === "string") {
-                title = asyncapi.info.title;
-            }
-
-            if (asyncapi.operations) {
-                Object.keys(asyncapi.operations).forEach((operationId) => {
-                    const operation = asyncapi.operations[operationId];
-                    const xApplication: string = operation?.[X_APPLICATION_ID]
-                    if (applicationName === undefined || applicationName === xApplication) {
-                        operations.push(
-                            new TopologyAsyncApiOperation(
-                                operationId,
-                                operation.summary,
-                                operation.action,
-                                operation.channel?.$ref
-                            )
-                        );
-                    }
-                });
-            }
-        } catch (err) {
-            console.error(err);
-        }
-        return new TopologyAsyncApiNode(LANDSCAPE_FILE_NAME_JSON, title, operations);
-    };
 
     static findTopologyIncomingNodes = (integration: Integration[]): TopologyIncomingNode[] => {
         const result: TopologyIncomingNode[] = [];
@@ -265,7 +232,7 @@ export class TopologyUtils {
                     const type = TopologyUtils.isElementInternalComponent(r.from) ? 'internal' : 'external';
                     const connectorType = TopologyUtils.getConnectorType(r.from);
                     const uniqueUri = TopologyUtils.getUniqueUri(r.from);
-                    return new TopologyIncomingNode(id, type, connectorType, r.id, title, filename, r.from, uniqueUri);
+                    return new TopologyIncomingNode(id, type, connectorType, r.id, r.group, title, filename, r.from, uniqueUri);
                 }) || [];
                 result.push(...routeElements);
                 const templates = i.spec.flows?.filter(flow => flow.dslName === 'RouteTemplateDefinition');
@@ -276,7 +243,7 @@ export class TopologyUtils {
                     const type = TopologyUtils.isElementInternalComponent(r.from) ? 'internal' : 'external';
                     const connectorType = TopologyUtils.getConnectorType(r.from);
                     const uniqueUri = TopologyUtils.getUniqueUri(r.from);
-                    return new TopologyIncomingNode(id, type, connectorType, r.id, title, filename, r.from, uniqueUri);
+                    return new TopologyIncomingNode(id, type, connectorType, r.id, r.group, title, filename, r.from, uniqueUri);
                 }) || [];
                 // result.push(...templateElements);
             } catch (e) {
@@ -295,7 +262,7 @@ export class TopologyUtils {
             const connectorType = TopologyUtils.getConnectorType(r.from);
             let from = CamelUtil.cloneStep(r.from) as FromDefinition;
             let uniqueUri = TopologyUtils.getUniqueUri(r.from);
-            return new TopologyIncomingNode(id, type, connectorType, r.routeId, title, r.fileName, from, uniqueUri);
+            return new TopologyIncomingNode(id, type, connectorType, r.routeId, r.route?.group, title, r.fileName, from, uniqueUri);
         }) || [];
         result.push(...routeElements);
         return result;
@@ -309,7 +276,7 @@ export class TopologyUtils {
                 const routes = i.spec.flows?.filter(flow => flow.dslName === 'RouteDefinition');
                 const routeElements = routes?.map(r => {
                     const id = 'route-' + r.id;
-                    const title = '' + (r.description ? r.description : r.id);
+                    const title = r.note?.trim()?.length > 0 ? r.note : (r.description ? r.description : r.id);
                     return new TopologyRouteNode(id, r.id, title, filename, r.from, r);
                 }) || [];
                 result.push(...routeElements);
@@ -317,7 +284,7 @@ export class TopologyUtils {
                 const templateElements = templates?.map(t => {
                     const r = t.route;
                     const id = 'route-' + r.id;
-                    const title = '' + (r.description ? r.description : r.id);
+                    const title = r.note?.trim()?.length > 0 ? r.note : (r.description ? r.description : r.id);
                     return new TopologyRouteNode(id, r.id, title, filename, r.from, r, t.id, t.description);
                 }) || [];
                 result.push(...templateElements);
@@ -367,7 +334,7 @@ export class TopologyUtils {
                             connectorType !== 'kamelet' ||
                             CamelUtil.getKamelet(e)?.metadata.labels['camel.apache.org/kamelet.type'] !== 'action'
                         ) {
-                            result.push(new TopologyOutgoingNode(id, type, connectorType, route.id, title, filename, e, uniqueUri));
+                            result.push(new TopologyOutgoingNode(id, type, connectorType, route.id, route.group, title, filename, e, uniqueUri));
                         }
                     });
                     result.push(...TopologyUtils.findDeadLetterChannelNodes(route, filename));
@@ -397,7 +364,7 @@ export class TopologyUtils {
                         connectorType !== 'kamelet' ||
                         CamelUtil.getKamelet(e)?.metadata.labels['camel.apache.org/kamelet.type'] !== 'action'
                     ) {
-                        result.push(new TopologyOutgoingNode(id, type, connectorType, route.routeId, title, filename, step, uniqueUri));
+                        result.push(new TopologyOutgoingNode(id, type, connectorType, route.routeId, route.route.group, title, filename, step, uniqueUri));
                     }
                 });
                 result.push(...TopologyUtils.findDeadLetterChannelNodes(route.route, filename));
@@ -420,7 +387,7 @@ export class TopologyUtils {
                     const title = CamelDisplayUtil.getStepDescription(deadLetterChannel);
                     const type = 'internal';
                     const connectorType = 'component';
-                    result.push(new TopologyOutgoingNode(id, type, connectorType, route.id || '', title, filename, deadLetterChannel, deadLetterUri));
+                    result.push(new TopologyOutgoingNode(id, type, connectorType, route.id || '', route.group, title, filename, deadLetterChannel, deadLetterUri));
                 }
             }
         } catch (e) {
@@ -450,7 +417,7 @@ export class TopologyUtils {
                             const type = TopologyUtils.isElementInternalComponent(e) ? 'internal' : 'external';
                             const connectorType = TopologyUtils.getConnectorType(e);
                             const uniqueUri = TopologyUtils.getUniqueUri(e);
-                            result.push(new TopologyOutgoingNode(id, type, connectorType, rc.id || 'undefined', title, filename, e, uniqueUri));
+                            result.push(new TopologyOutgoingNode(id, type, connectorType, rc.id || 'undefined', "", title, filename, e, uniqueUri));
                         });
                     });
                     if (rc.errorHandler?.deadLetterChannel) {
@@ -461,7 +428,7 @@ export class TopologyUtils {
                         const type = INTERNAL_COMPONENTS.includes(comp) ? 'internal' : 'external';
                         const connectorType = 'component';
                         const uniqueUri = e?.deadLetterUri;
-                        result.push(new TopologyOutgoingNode(id, type, connectorType, rc.id || 'undefined', title, filename, e, uniqueUri));
+                        result.push(new TopologyOutgoingNode(id, type, connectorType, rc.id || 'undefined', "", title, filename, e, uniqueUri));
                     }
                 });
             } catch (e) {

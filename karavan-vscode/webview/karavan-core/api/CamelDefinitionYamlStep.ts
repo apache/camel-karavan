@@ -97,7 +97,6 @@ import {
     RouteTemplateDefinition,
     RouteTemplateParameterDefinition,
     RoutingSlipDefinition,
-    SagaActionUriDefinition,
     SagaDefinition,
     SamplingDefinition,
     ScriptDefinition,
@@ -2226,14 +2225,6 @@ export class CamelDefinitionYamlStep {
                 delete (def as any)[languageName];
             }
         }
-
-        return def;
-    }
-
-    static readSagaActionUriDefinition = (element: any): SagaActionUriDefinition => {
-        if (element && typeof element === 'string') element = {uri: element};
-        let def = element ? new SagaActionUriDefinition({...element}) : new SagaActionUriDefinition();
-        def = ComponentApi.parseElementUri(def);
 
         return def;
     }

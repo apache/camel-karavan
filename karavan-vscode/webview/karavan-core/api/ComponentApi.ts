@@ -14,8 +14,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Component, ComponentHeader, ComponentProperty, SupportedComponent } from '../model/ComponentModels';
-import { CamelElement } from '../model/IntegrationDefinition';
+import {Component, ComponentHeader, ComponentProperty, SupportedComponent} from '../model/ComponentModels';
+import {CamelElement} from '../model/IntegrationDefinition';
 
 const Components: Component[] = [];
 const SupportedComponents: SupportedComponent[] = [];
@@ -114,7 +114,7 @@ export class ComponentApi {
     };
 
     static getComponentTitleFromUri = (uri: string): string | undefined => {
-        if (uri !== undefined) {
+        if (uri !== undefined && typeof uri === "string") {
             const componentName = uri.split(':')[0];
             const title = ComponentApi.findByName(componentName)?.component.title;
             return title ? title : componentName;

@@ -21,8 +21,9 @@ export const KARAVAN_DOT_EXTENSION = {
 export const FILE_WORDS_SEPARATOR = '-'
 export const OPENAPI_FILE_NAME_JSON = 'openapi.json';
 export const OPENAPI_FILE_NAME_YAML = 'openapi.yaml';
+export const JSON_EXTENSION = ".json";
 export const JSON_SCHEMA_EXTENSION = ".schema.json";
-export const LANDSCAPE_FILE_NAME_JSON = "";
-export const X_APPLICATION_ID = "x-application-id";
 
 export const WIZARD_BEAN_TEMPLATE_FILENAME_PREFIX = "wizard-bean-";
+export const OPENAPI_ROUTE_TEMPLATE_FILENAME = "openapi-route.camel.yaml";
+export const REST_CONFIGURATION_FILENAME = "rest-configuration.camel.yaml";

@@ -96,7 +96,6 @@ import {
     RouteTemplateDefinition,
     RouteTemplateParameterDefinition,
     RoutingSlipDefinition,
-    SagaActionUriDefinition,
     SagaDefinition,
     SamplingDefinition,
     ScriptDefinition,
@@ -1360,15 +1359,6 @@ export class CamelDefinitionApi {
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
         def.expression = CamelDefinitionApi.createExpressionDefinition(element.expression); 
 
-        return def;
-    }
-
-    static createSagaActionUriDefinition = (element: any): SagaActionUriDefinition => { 
-        if (element && typeof element === 'string') {
-            element = {uri: element};
-        }
-        const def = element ? new SagaActionUriDefinition({...element}) : new SagaActionUriDefinition();
-        def.uuid = element?.uuid ? element.uuid : def.uuid; 
         return def;
     }
 
@@ -3177,7 +3167,6 @@ export class CamelDefinitionApi {
             case 'RouteTemplateDefinition': return CamelDefinitionApi.createRouteTemplateDefinition(newBody);
             case 'RouteTemplateParameterDefinition': return CamelDefinitionApi.createRouteTemplateParameterDefinition(newBody);
             case 'RoutingSlipDefinition': return CamelDefinitionApi.createRoutingSlipDefinition(newBody);
-            case 'SagaActionUriDefinition': return CamelDefinitionApi.createSagaActionUriDefinition(newBody);
             case 'SagaDefinition': return CamelDefinitionApi.createSagaDefinition(newBody);
             case 'SamplingDefinition': return CamelDefinitionApi.createSamplingDefinition(newBody);
             case 'ScriptDefinition': return CamelDefinitionApi.createScriptDefinition(newBody);

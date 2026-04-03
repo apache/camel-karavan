@@ -36,15 +36,12 @@ export const APPLICATION_PROPERTIES = 'application.properties';
 export const BUILD_SH = 'build.sh';
 export const BUILD_DOCKER_COMPOSE = 'builder.' + DOCKER_COMPOSE;
 export const BUILD_DOCKER_STACK = 'builder.' + DOCKER_STACK;
-export const DASHBOARD_LAYOUT_JSON = 'dashboard-layout.json';
-export const LANDSCAPE_LAYOUT_JSON = 'landscape-layout.json';
 export const BUILD_IN_FILES = [
     APPLICATION_PROPERTIES,
     DOCKER_COMPOSE,
     DOCKER_STACK,
     KUBERNETES_YAML,
     BUILD_SH,
-    DASHBOARD_LAYOUT_JSON,
     BUILD_DOCKER_COMPOSE,
     BUILD_DOCKER_STACK
 ];
@@ -263,9 +260,6 @@ export function getProjectFileTypeByName(fileName: string): ProjectFileType[] {
     if (fileName.endsWith(".camel.yaml")) return ProjectFileTypes.filter(p => p.name === "INTEGRATION")
     if (fileName.endsWith(".kamelet.yaml")) return ProjectFileTypes.filter(p => p.name === "KAMELET")
     if (fileName === "openapi.json") return ProjectFileTypes.filter(p => p.name === "OPENAPI")
-    if (fileName === "asyncapi.json") return ProjectFileTypes.filter(p => p.name === "ASYNCAPI")
-    if (fileName === "landscape-asyncapi.json") return ProjectFileTypes.filter(p => p.name === "ASYNCAPI")
-    if (fileName === "asyncapi.yaml") return ProjectFileTypes.filter(p => p.name === "ASYNCAPI")
     if (fileName.endsWith(".json")) return ProjectFileTypes.filter(p => p.name === "JSON")
     if (fileName.endsWith(".yaml")) return ProjectFileTypes.filter(p => p.name === "YAML")
     if (fileName.endsWith(".yml")) return ProjectFileTypes.filter(p => p.name === "YAML")

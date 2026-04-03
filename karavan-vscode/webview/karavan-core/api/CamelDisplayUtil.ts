@@ -14,14 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Integration, CamelElement } from '../model/IntegrationDefinition';
-import { CamelUtil } from './CamelUtil';
-import { CamelDefinitionApi } from './CamelDefinitionApi';
-import { CamelDefinitionApiExt } from './CamelDefinitionApiExt';
-import { KameletModel } from '../model/KameletModels';
-import { RouteDefinition } from '../model/CamelDefinition';
-import { ComponentApi } from './ComponentApi';
-import { CamelMetadataApi } from '../model/CamelMetadata';
+import {CamelElement, Integration} from '../model/IntegrationDefinition';
+import {CamelUtil} from './CamelUtil';
+import {CamelDefinitionApi} from './CamelDefinitionApi';
+import {CamelDefinitionApiExt} from './CamelDefinitionApiExt';
+import {KameletModel} from '../model/KameletModels';
+import {ComponentApi} from './ComponentApi';
+import {CamelMetadataApi} from '../model/CamelMetadata';
 
 export class CamelDisplayUtil {
     private constructor() {}
@@ -57,7 +56,7 @@ export class CamelDisplayUtil {
     }
 
     static getStepDescription = (element: CamelElement): string => {
-        const description = (element as any).description;
+        const description = (element as any).description?.toString();
         return description ? description : CamelDisplayUtil.getTitle(element);
     }
 
