@@ -20,10 +20,10 @@ import EyeIcon from '@patternfly/react-icons/dist/esm/icons/eye-icon';
 import EyeSlashIcon from '@patternfly/react-icons/dist/esm/icons/eye-slash-icon';
 import {AuthContext} from "@api/auth/AuthProvider";
 import {AuthApi} from "@api/auth/AuthApi";
-import {CamelIcon, KaravanIcon, OpenApiIcon} from "@features/project/designer/icons/KaravanIcons";
+import {CamelIcon, KaravanIcon} from "@features/project/designer/icons/KaravanIcons";
 import {SvgIcon} from "@shared/icons/SvgIcon";
 import jibLogo from '@shared/icons/jib.png';
-import {PlatformNameForLogin, PlatformVersion} from "@shared/ui/PlatformLogos";
+import {PlatformVersion} from "@shared/ui/PlatformLogos";
 import PlatformLogo from "@app/navigation/PlatformLogo";
 import OrbitLines from "@app/login/OrbitLines";
 import {useReadinessStore} from "@stores/ReadinessStore";
@@ -68,19 +68,8 @@ export const LoginPage: React.FunctionComponent = () => {
                 <a href="https://github.com/apache/camel-karavan" target="_blank">{KaravanIcon("logo")}</a>
             </div>,
             <div className="powered-by-logo counter-rotator">
-                <a href="https://www.openapis.org/" target="_blank"><OpenApiIcon className={"logo"}/></a>
+               <a href="https://groovy-lang.org/" target="_blank">{SvgIcon({icon: 'groovy', className: 'groovy-logo'})}</a>
             </div>,
-            <div className="powered-by-logo counter-rotator">
-                <a href="https://www.asyncapi.com/" target="_blank">{SvgIcon({icon: 'asyncapi', className: 'asyncapi-logo'})}</a>
-            </div>,
-            <div className="powered-by-logo counter-rotator">
-                <a href="https://json-schema.org/" target="_blank">
-                    {SvgIcon({icon: 'json-schema-dark', className: 'json-schema-logo'})}
-                </a>
-            </div>,
-            // <div className="powered-by-logo counter-rotator">
-            //     <a href="https://groovy-lang.org/" target="_blank">{SvgIcon({icon: 'groovy', className: 'groovy-logo'})}</a>
-            // </div>,
             <div className="powered-by-logo counter-rotator">
                 <a href="https://github.com/GoogleContainerTools/jib" target="_blank">
                     <img src={jibLogo} alt="Logo" className="jib-logo"/>
@@ -185,16 +174,11 @@ export const LoginPage: React.FunctionComponent = () => {
             <div className="karavan-brand-panel">
                 <div className="brand-content">
                     <div className="brand-name">
-                        <div className="brand-logo-container">
-                            {PlatformLogo("logo")}
-                            <span className="platform-name-text">{PlatformNameForLogin()}</span>
-                        </div>
                         <div>
-                            <div className="tagline1 gradient-text-blue">Accelerate</div>
-                            <div className="tagline1 gradient-text-blue-gold">Integration</div>
-                            <div className="tagline1 gradient-text-gold">Development</div>
+                            <div className="tagline1 gradient-text-blue">Apache</div>
+                            <div className="tagline1 gradient-text-blue-gold">Camel</div>
+                            <div className="tagline1 gradient-text-gold">Karavan</div>
                         </div>
-                        <Content component='p' className="tagline2">Unified Design and Runtime for <br/> APIs • Events • Data Pipelines</Content>
                     </div>
                 </div>
                 <div className="solar-content">
@@ -219,8 +203,6 @@ export const LoginPage: React.FunctionComponent = () => {
                                 );
                             })}
                         </div>
-                        <div className="anchor-line"></div>
-                        <p className="brand-footer">Powered by</p>
                     </div>
                 </div>
             </div>

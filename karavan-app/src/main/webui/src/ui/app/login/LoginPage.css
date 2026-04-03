@@ -36,12 +36,13 @@
         .brand-logo-container {
             display: flex;
             flex-direction: row;
+            justify-content: center;
             align-items: center;
             gap: 12px;
 
             .logo {
-                height: 40px;
-                width: 40px;
+                height: 64px;
+                width: 64px;
             }
             .platform-name-text {
                 font-size: 24px;

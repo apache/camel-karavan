@@ -85,5 +85,5 @@ export function PlatformNameForLogin() {
 }
 
 export const PlatformName = (height: number | string = 20, width: number | string = 292.797) => (
-    <Content component={'h1'}>KARAVAN</Content>
+    <Content component={'h1'} style={{ color: 'var(--pf-t--global--color--nonstatus--blue--default)'}}>Apache Camel Karavan</Content>
 )
