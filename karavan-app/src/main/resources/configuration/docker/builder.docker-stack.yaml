@@ -6,7 +6,7 @@ services:
       restart_policy:
         condition: 'none'
     networks:
-      - talisman
+      - karavan
     environment:
       - PROJECT_ID=${projectId}
       - TAG=${tag}

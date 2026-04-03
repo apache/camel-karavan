@@ -1,0 +1,12 @@
+.my-overlay-widget {
+    position: absolute;
+    margin-top: 3px;
+    margin-right: -16px;
+    z-index: 3000;
+    padding: 2px 4px;
+    border-radius: 6px;
+    background: var(--pf-t--global--background--color--secondary--default);
+    border: 1px solid var(--pf-t--global--border--color--nonstatus--gray--default);
+    /*font-size: 12px;*/
+    /*pointer-events: auto; !* allow clicks *!*/
+}

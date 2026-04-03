@@ -1,0 +1,39 @@
+.karavan .topology-panel .topology-documentation-card {
+    position: absolute;
+    top: 6px;
+    left: 6px;
+}
+
+.karavan .topology-panel .topology-documentation-card .card-body {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    padding: 10px 10px 10px 10px;
+}
+
+.karavan .topology-panel .topology-documentation-card .pf-v6-c-label {
+    display: flex;
+    justify-content: start;
+    border-color: var(--pf-t--color--orange--40);
+    border-width: 1px;
+    border-style: solid;
+}
+
+.karavan .topology-panel .topology-documentation-card .pf-v6-c-label__content::before {
+    background: var(--pf-topology__node__background--Fill);
+}
+
+.karavan .topology-panel .topology-documentation-card .requirement-button {
+    padding: 0;
+    display: flex;
+    align-items: center;
+    /*background-color: transparent;*/
+}
+
+.karavan .topology-panel .topology-documentation-card .requirement-button .pf-v6-c-button__icon {
+    /*height: 16px;*/
+    width: 16px;
+}
+.karavan .topology-panel .topology-documentation-card .requirement-button .pf-v6-c-button__text {
+    align-items: center;
+}

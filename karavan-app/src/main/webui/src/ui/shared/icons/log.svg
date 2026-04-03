@@ -1,0 +1,63 @@
+<svg width="16" height="16" viewBox="0 0 32 32"
+     xmlns="http://www.w3.org/2000/svg"
+     class="log-on">
+
+    <style>
+        /********** COLORS **********/
+        /* ON – green */
+        svg.log-on .frame,
+        svg.log-on .topbar {
+        fill: var(--pf-t--color--green--40);
+        }
+
+        svg.log-on .line {
+        fill: var(--pf-t--color--green--40);
+        opacity: 0;
+        animation: logline 4s linear infinite;
+        }
+
+        /* OFF – gray (static, no animation) */
+        svg.log-off .frame,
+        svg.log-off .topbar {
+        fill: var(--pf-t--color--gray--10);
+        }
+
+        svg.log-off .line {
+        fill: var(--pf-t--color--gray--10);
+        opacity: 1;
+        animation: none;
+        }
+
+        /********** ANIMATION **********/
+        @keyframes logline {
+        0%   { opacity: 0; transform: translateX(-2px); }
+        20%  { opacity: 1; transform: translateX(0); }
+        80%  { opacity: 1; }
+        100% { opacity: 0; }
+        }
+    </style>
+
+    <!-- Frame -->
+    <path class="frame"
+          d="M29.4,27.6H2.5V4.5H29.4Zm-25.9-1H28.4V5.5H3.5Z" />
+
+    <!-- Top bar -->
+    <rect class="topbar" x="2.5" y="5.5" width="26.9" height="1.9"/>
+
+    <!-- LEFT column -->
+    <rect class="line" style="animation-delay:0s"    x="5.5" y="9.5" width="4.333" height="1"/>
+    <rect class="line" style="animation-delay:0.3s"  x="5.5" y="12.083" width="4.333" height="1"/>
+    <rect class="line" style="animation-delay:0.6s"  x="5.5" y="14.667" width="4.333" height="1"/>
+    <rect class="line" style="animation-delay:0.9s"  x="5.5" y="17.25" width="4.333" height="1"/>
+    <rect class="line" style="animation-delay:1.2s"  x="5.5" y="20.5" width="4.333" height="1"/>
+    <rect class="line" style="animation-delay:1.5s"  x="5.5" y="23.083" width="4.333" height="1"/>
+
+    <!-- RIGHT column -->
+    <rect class="line" style="animation-delay:0.15s" x="11.333" y="9.5" width="8.167" height="1"/>
+    <rect class="line" style="animation-delay:0.45s" x="11.333" y="12.083" width="12.5" height="1"/>
+    <rect class="line" style="animation-delay:0.75s" x="11.333" y="14.75" width="10.617" height="1"/>
+    <rect class="line" style="animation-delay:1.05s" x="11.333" y="17.583" width="14.167" height="1"/>
+    <rect class="line" style="animation-delay:1.35s" x="11.333" y="20.5" width="9.834" height="1"/>
+    <rect class="line" style="animation-delay:1.65s" x="11.5" y="23.083" width="12.167" height="1"/>
+
+</svg>

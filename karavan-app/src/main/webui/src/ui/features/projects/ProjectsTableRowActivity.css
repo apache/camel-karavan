@@ -1,0 +1,9 @@
+.active-users {
+    .pf-v6-c-label-group__main {
+        .pf-v6-c-label-group__list {
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+        }
+    }
+}

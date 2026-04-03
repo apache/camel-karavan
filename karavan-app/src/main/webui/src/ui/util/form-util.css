@@ -1,0 +1,44 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+.pf-v6-c-modal-box .text-field-with-prefix {
+    gap: 0;
+}
+
+.pf-v6-c-modal-box .text-field-with-prefix .text-field-prefix {
+    margin-top: auto;
+    margin-bottom: auto;
+}
+
+.pf-v6-c-modal-box .text-field-with-prefix .pf-v6-c-text-input-group__text-input {
+    padding-left: 0;
+}
+
+.pf-v6-c-modal-box .text-field-with-suffix .text-field-suffix {
+    margin-top: auto;
+    margin-bottom: auto;
+    padding-left: 3px;
+    padding-right: 3px;
+}
+
+.form-util-text-field {
+    width: 100%;
+}
+.form-util-text-field-suffix,
+.form-util-text-field-suffix input {
+    width: 150px
+}

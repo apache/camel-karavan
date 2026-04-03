@@ -38,7 +38,7 @@ export function DashboardDevelopmentTopPanel() {
                 }}>
                     {DashboardDevelopmentTopPanelCard("Projects", <Apps />, [
                         {label: integrationsCount, tooltip: "Designed", status: "info", icon: <Idea/>},
-                        {label: healthUp, tooltip: "Started", status: "success", icon: <UpIcon className={"talisman-container-button-icon-up"}/>},
+                        {label: healthUp, tooltip: "Started", status: "success", icon: <UpIcon className={"karavan-container-button-icon-up"}/>},
                         // {label: healthDown, tooltip: "Down", status: "danger", icon: <DownIcon/>},
                     ], className)}
                     {DashboardDevelopmentTopPanelCard("Routes", <CategoryNewEach />, [

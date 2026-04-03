@@ -6,7 +6,7 @@ services:
     ports:
       - "${projectPort}:8080"
     networks:
-      - talisman
+      - karavan
     deploy:
       restart_policy:
         condition: 'any'

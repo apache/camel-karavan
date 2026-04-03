@@ -1,0 +1,102 @@
+.pf-v6-theme-dark .karavan .step-element .dsl-element {
+    .transparent-gradient-border {
+        border: 2px solid transparent;
+        border-radius: 50px;
+        background:
+                linear-gradient(var(--pf-t--global--icon--color--disabled), var(--pf-t--global--icon--color--disabled)) padding-box,
+                linear-gradient(to right,
+                rgba(0, 102, 204, 1) 0%,
+                rgba(67, 148, 229, 1) 25%,
+                rgb(67, 148, 229),
+                rgb(253, 164, 34),
+                rgb(253, 164, 34),
+                rgb(219, 91, 4)
+                ) border-box;
+    }
+}
+
+.karavan .step-element .dsl-element {
+    .transparent-gradient-border {
+        border: 2px solid transparent;
+        border-radius: 50px;
+        background:
+                linear-gradient(var(--pf-t--global--background--color--primary--default), var(--pf-t--global--background--color--primary--default)) padding-box,
+                linear-gradient(to right,
+                rgba(0, 102, 204, 1) 0%,
+                rgba(67, 148, 229, 1) 25%,
+                rgb(67, 148, 229),
+                rgb(253, 164, 34),
+                rgb(253, 164, 34),
+                rgb(219, 91, 4)
+                ) border-box;
+    }
+}
+
+
+.karavan .step-element .header-route {
+    .gems-buttons {
+        position: absolute;
+        top: 8px;
+        right: -28px;
+        padding: 1px;
+        display: flex;
+        align-items: center;
+    }
+    .gems-button {
+        line-height: 1;
+        border: 0;
+        padding: 1px;
+        background: transparent;
+        svg {
+            width: 20px;
+            height: 20px;
+            fill: url(#my-custom-gradient) !important;
+        }
+    }
+}
+
+.karavan .step-element:hover .header {
+    .gems-buttons {
+        visibility: visible;
+    }
+}
+
+.karavan .step-element .wide-element .gems-buttons {
+    /*transform: rotate(-45deg);*/
+    /*top: 30px;*/
+    /*left: -38px;*/
+    position: absolute;
+    top: 0;
+    left: 0;
+    margin-top: 16px;
+    margin-left: 16px;
+    padding: 1px;
+    display: flex;
+    align-items: center;
+    width: fit-content;
+    z-index: 1;
+}
+.karavan .step-element .header {
+    .gems-buttons {
+        position: absolute;
+        top: -12px;
+        left: 32px;
+        padding: 1px;
+        display: flex;
+        align-items: center;
+        visibility: hidden;
+        z-index: 0;
+    }
+    .gems-button {
+        line-height: 1;
+        border: 0;
+        padding: 1px;
+        background: transparent;
+        z-index: 0;
+        svg {
+            width: 20px;
+            height: 20px;
+            fill: url(#my-custom-gradient) !important;
+        }
+    }
+}

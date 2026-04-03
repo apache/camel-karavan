@@ -1,0 +1,36 @@
+
+.karavan .project-page .properties-editor {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.karavan .project-page .properties-editor .table {
+    margin-bottom: 120px;
+}
+
+.karavan .project-page .properties-editor .table .pf-v6-c-table__td{
+    /*padding-top: 0;*/
+    /*padding-bottom: 0;*/
+}
+
+.karavan .project-page .properties-editor .changed-config {
+    background-color: var(--pf-t--global--color--nonstatus--yellow--default);
+    /*width: fit-content;*/
+}
+
+.karavan .project-page .properties-editor .pf-v6-c-tabs .pf-v6-c-tabs__link .pf-v6-c-tabs__item-icon {
+    height: 24px;
+    margin-right: 0;
+}
+
+.karavan .changed-config {
+    /*background-color: var(--pf-t--global--color--nonstatus--yellow--default) !important;*/
+    /*background: var(--pf-t--global--color--nonstatus--yellow--default);*/
+    /*width: 5px !important;*/
+    /*margin-left: 3px;*/
+}
+
+.karavan .not-set-config {
+    text-decoration: var(--pf-t--global--icon--color--status--danger--default) wavy underline !important;
+}

@@ -8,13 +8,13 @@ import {createWithEqualityFn} from "zustand/traditional";
 import {shallow} from "zustand/shallow";
 
 
-type OpenApiState = {
+type ProjectInfoState = {
     projectInfos: ProjectInfo[];
     fetchProjectInfos: () => Promise<void>;
     setProjectInfos: (projectInfos: ProjectInfo[]) => void;
 }
 
-export const useOpenApiStore = createWithEqualityFn<OpenApiState>((set, get) => ({
+export const useProjectInfoStore = createWithEqualityFn<ProjectInfoState>((set, get) => ({
     projectInfos: [],
     setProjectInfos: (projectInfos: ProjectInfo[]) => {
         set({projectInfos: projectInfos});
