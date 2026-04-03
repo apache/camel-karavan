@@ -37,24 +37,3 @@
     padding-left: 0;
     padding-right: 0;
 }
-
-.karavan .main-toolbar .try-out-button {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-}
-
-.karavan .main-toolbar .try-out-button .pf-v6-c-button__icon {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-}
-
-.karavan .main-toolbar .pf-m-disabled .tryout-icon {
-    opacity: 0.5;
-}
-.karavan .main-toolbar .tryout-icon {
-    width: 1.4em;
-    height: 1.4em;
-    line-height: 1.4em;
-}
