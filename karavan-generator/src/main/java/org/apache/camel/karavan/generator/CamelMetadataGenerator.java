@@ -52,7 +52,8 @@ public final class CamelMetadataGenerator extends AbstractGenerator {
         JsonObject dataformats = getProperties(definitions, "org.apache.camel.model.dataformat.DataFormatsDefinition");
         camelModel.append("\nexport const DataFormats: [string, string, string][] = [\n");
         var keys = new ArrayList<>(dataformats.getMap().keySet());
-        keys.add("dfdl"); // Fix
+        keys.add("ocsf"); // Fix
+        keys.add("pqc"); // Fix
         keys.stream().sorted().forEach((name) -> {
             String json = getMetaDataFormat(name);
             JsonObject model = new JsonObject(json).getJsonObject("model");
@@ -173,9 +174,10 @@ public final class CamelMetadataGenerator extends AbstractGenerator {
             String stepName = getStepNameForClass(name);
 //            String json = folder.equals("model") ? getMetaModel(stepName) : (folder.equals("language") ? getMetaLanguage(stepName) : getMetaDataFormat(stepName));
             String json = null;
-            if (Objects.equals(name, "BeanFactoryDefinition")) {
-                json = getMetaModelApp("bean");
-            } else if (folder.equals("model")) {
+//            if (Objects.equals(name, "BeanFactoryDefinition")) {
+//                json = getMetaModelApp("bean");
+//            } else
+                if (folder.equals("model")) {
                 json = getMetaModel(stepName);
             } else {
                 if (folder.equals("language")) {
