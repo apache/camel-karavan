@@ -70,7 +70,9 @@ public class CodeService {
     public static final String BUILD_SCRIPT_FILENAME = "build.sh";
     public static final String JSON_EXTENSION = ".json";
     public static final String YAML_EXTENSION = ".yaml";
+    public static final String GROOVY_EXTENSION = ".groovy";
     public static final String CAMEL_YAML_EXTENSION = ".camel.yaml";
+    public static final String KAMELET_YAML_EXTENSION = ".kamelet.yaml";
     public static final String COMPOSE_FILENAME_PREFIX= "docker-compose.";
 
     @ConfigProperty(name = "karavan.environment", defaultValue = KaravanConstants.DEV)
@@ -281,10 +283,10 @@ public class CodeService {
         return (ObjectNode) mapper.readTree(openApi);
     }
 
-    private ObjectNode readNodeFromYaml(String openApi) throws FileNotFoundException {
+    private ObjectNode readNodeFromYaml(String yaml) throws FileNotFoundException {
         final ObjectMapper mapper = new ObjectMapper();
         Yaml loader = new Yaml(new SafeConstructor(new LoaderOptions()));
-        Map map = loader.load(openApi);
+        Map map = loader.load(yaml);
         return mapper.convertValue(map, ObjectNode.class);
     }
 
@@ -299,6 +301,15 @@ public class CodeService {
 
         }
         return null;
+    }
+
+    public String getProjectProperty(String projectId, String property) {
+        var file = getApplicationProperties(projectId);
+        if (file != null) {
+            return getProperty(file.getCode(), property);
+        } else  {
+            return null;
+        }
     }
 
     public static String getProperty(String file, String property) {
@@ -316,7 +327,7 @@ public class CodeService {
         return line.substring(0, parts).trim();
     }
 
-    public static String getGavPackageSuffix(String  projectId) {
+    public static String getGavPackageSuffix(String projectId) {
         return projectId.replaceAll("[^a-zA-Z0-9]", "").toLowerCase();
     }
 
@@ -469,8 +480,8 @@ public class CodeService {
     public List<String> listResources(String resourceFolder) {
         List<String> result = new ArrayList<>();
         try {
-            if (ConfigService.class.getResource(resourceFolder) != null) {
-                URI uri = ConfigService.class.getResource(resourceFolder).toURI();
+            if (CodeService.class.getResource(resourceFolder) != null) {
+                URI uri = CodeService.class.getResource(resourceFolder).toURI();
                 Path myPath;
                 FileSystem fileSystem = null;
                 if (uri.getScheme().equals("jar")) {
@@ -511,5 +522,4 @@ public class CodeService {
     public String getGav() {
         return gav.orElse("org.camel.karavan.demo") + ":%s:1";
     }
-
 }

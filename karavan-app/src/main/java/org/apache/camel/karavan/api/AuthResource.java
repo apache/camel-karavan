@@ -21,7 +21,7 @@ import static org.apache.camel.karavan.service.AuthService.SESSION_MAX_AGE;
 public class AuthResource extends AbstractApiResource {
 
     private static final Logger LOGGER = Logger.getLogger(AuthResource.class.getName());
-    private static final String SESSION_ID = "sessionId";
+    private static final String SESSION_ID = "taskId";
     private static final String CSRF = "csrf";
 
     @Inject

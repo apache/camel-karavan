@@ -8,6 +8,7 @@ import java.util.Map;
 public class ComplexityRoute {
 
     private String routeId;
+    private String routeDescription;
     private String nodePrefixId;
     private String routeTemplateRef;
     private Boolean isTemplated;
@@ -167,5 +168,13 @@ public class ComplexityRoute {
 
     public void setTemplated(Boolean templated) {
         isTemplated = templated;
+    }
+
+    public String getRouteDescription() {
+        return routeDescription;
+    }
+
+    public void setRouteDescription(String routeDescription) {
+        this.routeDescription = routeDescription;
     }
 }

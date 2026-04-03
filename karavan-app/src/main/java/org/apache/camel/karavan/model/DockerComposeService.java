@@ -110,7 +110,9 @@ public class DockerComposeService {
 
     public List<String> getEnvironmentList() {
         return environment != null
-                ? environment.entrySet().stream() .map(e -> e.getKey().concat("=").concat(e.getValue())).collect(Collectors.toList())
+                ? environment.entrySet().stream()
+                    .filter(e -> e.getKey() != null && e.getValue() != null)
+                    .map(e -> e.getKey().concat("=").concat(e.getValue())).collect(Collectors.toList())
                 : new ArrayList<>();
     }
 

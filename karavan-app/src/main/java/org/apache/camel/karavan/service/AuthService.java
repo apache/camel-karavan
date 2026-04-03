@@ -30,7 +30,6 @@ public class AuthService {
     public static final String ROLE_ADMIN = "platform-admin";
     public static final String ROLE_DEVELOPER = "platform-developer";
     public static final String ROLE_USER = "platform-user";
-    public static final String ROLE_SYSTEM_BUILDER = "platform-system-builder";
 
     public static final String USER_ADMIN = "admin";
     public static final String USER_DEVELOPER = "developer";

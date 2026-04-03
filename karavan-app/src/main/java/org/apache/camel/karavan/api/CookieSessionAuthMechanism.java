@@ -43,7 +43,7 @@ public class CookieSessionAuthMechanism implements HttpAuthenticationMechanism {
         try {
             builder.setPrincipal(() -> "anonymous");
             builder.setAnonymous(true);
-            var cookie = ctx.request().getCookie("sessionId");
+            var cookie = ctx.request().getCookie("taskId");
             if (cookie == null) {
                 return Uni.createFrom().item(builder.build());
             }

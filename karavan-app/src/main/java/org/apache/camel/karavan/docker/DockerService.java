@@ -9,6 +9,7 @@ import com.github.dockerjava.core.DockerClientImpl;
 import com.github.dockerjava.core.command.ExecStartResultCallback;
 import com.github.dockerjava.httpclient5.ApacheDockerHttpClient;
 import com.github.dockerjava.transport.DockerHttpClient;
+import io.quarkus.cache.CacheResult;
 import io.quarkus.runtime.ShutdownEvent;
 import io.quarkus.runtime.StartupEvent;
 import io.vertx.core.Vertx;
@@ -29,7 +30,6 @@ import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.eclipse.microprofile.health.HealthCheckResponse;
 import org.eclipse.microprofile.health.Readiness;
 import org.jboss.logging.Logger;
 
@@ -46,7 +46,19 @@ import static org.apache.camel.karavan.KaravanConstants.*;
 @Default
 @Readiness
 @ApplicationScoped
-public class DockerService implements org.eclipse.microprofile.health.HealthCheck {
+public class DockerService {
+
+    @CacheResult(cacheName = "docker-check")
+    public boolean checkDocker() {
+        LOGGER.debug("Checking Docker");
+        try {
+            getDockerClient().infoCmd().exec();
+            return true;
+        } catch (Exception e) {
+            LOGGER.error("Error connecting Docker: " + e.getMessage());
+            return false;
+        }
+    }
 
     public enum PULL_IMAGE {
         always, ifNotExists, never
@@ -126,17 +138,6 @@ public class DockerService implements org.eclipse.microprofile.health.HealthChec
             } finally {
                 dockerClientConnectedToRegistry = null;
             }
-        }
-    }
-
-    public boolean checkDocker() {
-        LOGGER.info("Checking Docker");
-        try {
-            getDockerClient().infoCmd().exec();
-            return true;
-        } catch (Exception e) {
-            LOGGER.error("Error connecting Docker: " + e.getMessage());
-            return false;
         }
     }
 
@@ -483,13 +484,5 @@ public class DockerService implements org.eclipse.microprofile.health.HealthChec
 
     public void createConfig(String name, String config) {
         getDockerClient().createConfigCmd().withName(name).withData(config.getBytes()).exec();
-    }
-
-    @Override
-    public HealthCheckResponse call() {
-        if (!ConfigService.inKubernetes()) {
-            return checkDocker() ? HealthCheckResponse.named("Docker").up().build() : HealthCheckResponse.named("Docker").down().build();
-        }
-        return HealthCheckResponse.named("Docker").up().build();
     }
 }

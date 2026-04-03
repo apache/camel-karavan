@@ -188,7 +188,7 @@ public class GitService {
                     boolean isFolder = treeWalk.isSubtree();
                     Iterable<RevCommit> commits = git.log().addPath(path).setMaxCount(1).call();
 
-                    if (isFolder) {
+                    if (isFolder && !path.startsWith(".")) {
                         for (RevCommit commit : commits) {
                             String commitId = commit.getName();
                             Long commitTime = Integer.valueOf(commit.getCommitTime()).longValue() * 1000;

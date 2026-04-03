@@ -482,6 +482,9 @@ public class KaravanCache {
     }
 
     public void saveUserHeartBeat(ActivityUser activityUser) {
+        if (activityUser == null || activityUser.getUserName() == null) {
+            return;
+        }
         usersHeartBeat.put(activityUser.getUserName(), activityUser);
     }
 

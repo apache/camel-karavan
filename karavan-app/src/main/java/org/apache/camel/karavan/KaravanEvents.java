@@ -22,6 +22,7 @@ public class KaravanEvents {
 
     public static final String NOTIFICATION_PROJECTS_STARTED = "NOTIFICATION_PROJECTS_STARTED";
     public static final String NOTIFICATION_PROJECTS_IMPORTED = "NOTIFICATION_PROJECTS_IMPORTED";
+    public static final String NOTIFICATION_OTHER = "NOTIFICATION_OTHER";
     public static final String COMMIT_HAPPENED = "COMMIT_HAPPENED";
     public static final String NOTIFICATION_IMAGES_LOADED = "NOTIFICATION_IMAGES_LOADED";
 

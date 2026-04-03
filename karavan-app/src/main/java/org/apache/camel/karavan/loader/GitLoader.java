@@ -26,12 +26,12 @@ import org.apache.camel.karavan.service.CodeService;
 import org.apache.camel.karavan.service.GitHistoryService;
 import org.apache.camel.karavan.service.GitService;
 import org.apache.camel.karavan.service.ProjectService;
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
 import java.time.Instant;
 import java.util.Objects;
-import java.util.regex.Pattern;
 
 import static org.apache.camel.karavan.KaravanConstants.DEV;
 
@@ -94,7 +94,7 @@ public class GitLoader {
         try {
             ProjectFolder projectFolder = karavanCache.getProject(projectId);
             if (projectFolder == null) {
-                var title = Pattern.compile("^.").matcher(projectId).replaceFirst(m -> m.group().toUpperCase());
+                var title = projectId.length() < 5 ? projectId.toUpperCase() : StringUtils.capitalize(projectId);
                 projectFolder = new ProjectFolder(projectId, title, Instant.now().getEpochSecond() * 1000L, ProjectFolder.Type.valueOf(projectId));
                 karavanCache.saveProject(projectFolder, false);
 

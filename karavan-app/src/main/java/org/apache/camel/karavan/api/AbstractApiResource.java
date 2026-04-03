@@ -17,6 +17,7 @@
 package org.apache.camel.karavan.api;
 
 import io.quarkus.security.identity.SecurityIdentity;
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import jakarta.inject.Inject;
 import org.apache.camel.karavan.cache.KaravanCache;
@@ -40,9 +41,11 @@ public class AbstractApiResource {
         String username = identity.getPrincipal().getName();
         var user = karavanCache.getUser(username);
 
+        var roles = new JsonArray(new java.util.ArrayList<>(identity.getRoles()));
+
         return JsonObject.of()
                 .put("email", user != null ? user.getEmail() : null)
                 .put("username", username)
-                .put("roles", new java.util.ArrayList<>(identity.getRoles())); // from Quarkus
+                .put("roles", roles);
     }
 }

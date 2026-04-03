@@ -39,6 +39,7 @@
         <quinoa.version>2.7.1</quinoa.version>
         <commons-text.version>1.14.0</commons-text.version>
         <resources-plugin.version>3.3.0</resources-plugin.version>
+        <json-schema-validator.version>1.5.9</json-schema-validator.version>
         <docker-java.version>3.7.0</docker-java.version>
     </properties>
 
@@ -55,6 +56,10 @@
     </dependencyManagement>
 
     <dependencies>
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-cache</artifactId>
+        </dependency>
         <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-messaging</artifactId>

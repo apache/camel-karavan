@@ -74,7 +74,6 @@ public class CamelReloadListener {
         LOGGER.debug("Reload project code " + projectId);
         try {
             PodContainerStatus podContainerStatus = karavanCache.getDevModePodContainerStatus(projectId, environment);
-            System.out.println(podContainerStatus);
             deleteRequest(podContainerStatus);
             Map<String, String> files = codeService.getProjectFilesForDevMode(projectId, true);
             files.forEach((name, code) -> putRequest(podContainerStatus, name, code, 1000));

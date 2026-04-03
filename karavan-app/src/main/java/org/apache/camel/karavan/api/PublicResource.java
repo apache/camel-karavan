@@ -24,7 +24,7 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.apache.camel.karavan.KaravanConstants;
-import org.apache.camel.karavan.docker.DockerService;
+import org.apache.camel.karavan.docker.DockerHealthCheck;
 import org.apache.camel.karavan.kubernetes.KubernetesStatusService;
 import org.apache.camel.karavan.loader.StartupLoader;
 import org.apache.camel.karavan.service.ConfigService;
@@ -45,7 +45,7 @@ public class PublicResource {
     KubernetesStatusService kubernetesStatusService;
 
     @Inject
-    DockerService dockerService;
+    DockerHealthCheck dockerHealthCheck;
 
     @ConfigProperty(name = "karavan.environment", defaultValue = KaravanConstants.DEV)
     String environment;
@@ -55,7 +55,7 @@ public class PublicResource {
     @PermitAll
     @Produces(MediaType.APPLICATION_JSON)
     public Response getConfiguration() throws Exception {
-        var infraCheck = ConfigService.inKubernetes() ? kubernetesStatusService.call() : dockerService.call();
+        var infraCheck = ConfigService.inKubernetes() ? kubernetesStatusService.call() : dockerHealthCheck.call();
 
         List<HealthCheckResponse> list = List.of(
                 infraCheck,
