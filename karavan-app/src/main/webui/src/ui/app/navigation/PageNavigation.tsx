@@ -1,5 +1,5 @@
 import React, {useContext, useState} from 'react';
-import {Badge, Button,} from '@patternfly/react-core';
+import {Button,} from '@patternfly/react-core';
 import './PageNavigation.css';
 import {useAppConfigStore, useDevModeStore, useFileStore} from "@stores/ProjectStore";
 import {shallow} from "zustand/shallow";
@@ -25,8 +25,7 @@ function PageNavigation() {
     const navigate = useNavigate();
     const location = useLocation();
     const {reload} = useContext(AuthContext);
-    const masActivated =  config?.advanced?.mas === "true";
-    const firstMenu = getNavigationFirstMenu(masActivated);
+    const firstMenu = getNavigationFirstMenu(config.environment, config.infrastructure);
     const secondMenu = getNavigationSecondMenu(config.environment, config.infrastructure);
 
     React.useEffect(() => {
@@ -104,7 +103,6 @@ function PageNavigation() {
                 {customLogo && Logo(customLogo)}
             </div>
             <div style={{alignSelf: 'center'}} className='environment-wrapper'>
-                <Badge isRead className='environment'>{config.environment}</Badge>
             </div>
             {getMenu(firstMenu)}
             <div style={{flex: 2}}/>

@@ -16,24 +16,27 @@ export class MenuItem {
     }
 }
 
-export function getNavigationFirstMenu(masActivated: boolean): MenuItem[] {
+export function getNavigationFirstMenu(environment: string, infrastructure: string): MenuItem[] {
+    const iconInfra = infrastructure === 'kubernetes' ? KubernetesIcon("infra-icon-k8s") : <DockerIcon className='infra-icon-docker'/>;
     const menus = [
         new MenuItem("dashboard", "Dashboard", SvgNavigationIcon({icon: 'dashboard'})),
         new MenuItem("projects", "Projects", SvgNavigationIcon({icon: 'apps'})),
-        new MenuItem("events", "Events", SvgNavigationIcon({icon: 'landscape'})),
-        new MenuItem("schemas", "Schemas", SvgNavigationIcon({icon: 'json-schema'})),
-        new MenuItem("apis", "APIs", SvgNavigationIcon({icon: 'api'})),
 
     ]
-    if (masActivated) {
-        menus.push(
-            new MenuItem("mcp", "MCP", SvgNavigationIcon({icon: 'mcp'})),
-            new MenuItem("agents", "Agents", SvgNavigationIcon({icon: 'agents'}))
-        )
-    }
     menus.push(
         new MenuItem("settings", "Settings", SvgNavigationIcon({icon: 'settings'}))
     )
+    if (environment === 'dev') {
+        menus.push(new MenuItem("documentation", "Learn", SvgNavigationIcon({icon: 'documentation'})));
+    }
+
+    if (getCurrentUser()?.roles?.includes('platform-admin')) {
+        menus.push(new MenuItem("system", "System", iconInfra));
+    }
+
+    if (AuthApi.authType === 'session') {
+        menus.push(new MenuItem("acl", "Access", SvgNavigationIcon({icon: 'access'})));
+    }
     return menus;
 }
 
@@ -42,19 +45,6 @@ export function getNavigationSecondMenu(environment: string, infrastructure: str
     const iconInfra = infrastructure === 'kubernetes' ? KubernetesIcon("infra-icon-k8s") : <DockerIcon className='infra-icon-docker'/>;
 
     const pages: MenuItem[] = []
-
-    if (environment === 'dev') {
-        pages.push(new MenuItem("documentation", "Learn", SvgNavigationIcon({icon: 'documentation'})));
-    }
-
-    if (getCurrentUser()?.roles?.includes('platform-admin')) {
-        pages.push(new MenuItem("system", "System", iconInfra));
-    }
-
-    if (AuthApi.authType === 'session') {
-        pages.push(new MenuItem("acl", "Access", SvgNavigationIcon({icon: 'access'})));
-    }
-
     pages.push(new MenuItem("logout", "Logout", SvgNavigationIcon({icon: 'logout'})));
 
     return pages;

@@ -56,10 +56,11 @@
 }
 
 .karavan .nav-buttons .logo {
-    margin-top: 16px;
-    margin-bottom: 16px;
-    width: 32px;
-    height: 32px;
+    margin-top: 6px;
+    margin-bottom: -6px;
+    margin-left: 12px;
+    width: 64px;
+    height: 64px;
 }
 
 .karavan .nav-buttons .pf-v6-c-button svg {
