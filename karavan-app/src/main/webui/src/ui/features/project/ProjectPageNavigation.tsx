@@ -32,7 +32,6 @@ import {BUILD_IN_PROJECTS} from '@models/ProjectModels';
 import {ProjectContainersContext} from "@features/project/ProjectContainersContextProvider";
 import {SvgIcon} from "@shared/icons/SvgIcon";
 import BuildIcon from "@patternfly/react-icons/dist/esm/icons/build-icon";
-import {TryOutIcon} from "@shared/icons/TryOutIcon";
 import {shallow} from "zustand/shallow";
 import {useIntegrationStore} from "@features/project/designer/DesignerStore";
 import {KubernetesIcon} from "@features/project/designer/icons/ComponentIcons";
@@ -141,19 +140,9 @@ export function ProjectPageNavigation(): JSX.Element {
 
     function getIcon(item: ProjectRuntimeMenu | ProjectMenu) {
         const isRunning = packagedIsRunning || devModeIsRunning;
-        if (item === 'JVM') {
-            const className = isRunning ? 'jvm-svg-steam-on' : 'jvm-svg-steam-off'
-            return <SvgIcon icon='jar' className={className}/>
-        // } else if (item === 'source' && !isBuildIn()) {
-        //     return validationIcon;
-        } else if (item === 'log') {
+        if (item === 'log') {
             const className = isRunning ? 'log-on' : 'log-off'
             return <SvgIcon icon='log' className={className}/>
-        } else if (item === 'camel') {
-            const className = camelContext?.context?.state === 'Started' ? 'camel-svg' : 'camel-svg camel-paused'
-            return <SvgIcon icon='camel' className={className}/>
-            // } else if (packagedIsRunning) {
-            //     return <RunningIcon className="project-container-package"/>
         } else if (item === 'build' && hasBuildContainers) {
             const className = buildIsRunning ? 'containers-run' : ''
             return <BuildIcon className={className}/>
@@ -176,15 +165,7 @@ export function ProjectPageNavigation(): JSX.Element {
             {projectRuntimeMenus.length > 0 &&
                 <NavList>
                     {getProjectRuntimeMenusMenu().map((item, i) => {
-                            if (item === "tryout") {
-                                const show = (devModeIsRunning || packagedIsRunning);
-                                return (show
-                                        ? <NavItem key={item} icon={<TryOutIcon/>} preventDefault itemId={item} isActive={tabIndex === item} to="#">
-                                            TryOut
-                                        </NavItem>
-                                        : <React.Fragment key={item}></React.Fragment>
-                                )
-                            } else {
+                            {
                                 return (
                                     <NavItem icon={getIcon(item)} key={item} preventDefault itemId={item} isActive={tabIndex === item} to="#">
                                         {capitalize(item)}

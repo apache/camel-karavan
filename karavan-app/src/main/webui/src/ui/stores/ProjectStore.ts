@@ -142,7 +142,7 @@ export const useProjectsStore = createWithEqualityFn<ProjectsState>((set, get) =
 
 
 export const ProjectMenus = ['architecture', 'source','readme', 'build', 'containers'] as const;
-export const ProjectRuntimeMenus = ['pod', 'JVM', 'camel', 'log', 'tryout'] as const;
+export const ProjectRuntimeMenus = ['pod', 'log'] as const;
 export type ProjectMenu = typeof ProjectMenus[number];
 export type ProjectRuntimeMenu = typeof ProjectRuntimeMenus[number];
 

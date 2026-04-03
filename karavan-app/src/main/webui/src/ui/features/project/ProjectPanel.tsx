@@ -14,9 +14,7 @@ import {SourcesTab} from '@features/project/files/SourcesTab';
 import {useProjectFunctions} from "@features/project/ProjectContext";
 import {ContainerLogTab} from "@features/project/ContainerLogTab";
 import {ProjectContainersContextProvider} from "@features/project/ProjectContainersContextProvider";
-import {JvmTab} from "@features/project/project-jvm/JvmTab";
 import {ContainersTab} from "@features/project/project-containers/ContainersTab";
-import {CamelTab} from "@features/project/project-camel/CamelTab";
 import {PodTab} from "@features/project/project-pod/PodTab";
 import "./ProjectPanel.css"
 
@@ -66,9 +64,7 @@ export function ProjectPanel() {
                 {!buildIn && tab === 'readme' && <ReadmeTab/>}
                 {!buildIn && tab === 'pod' && <ProjectContainersContextProvider><PodTab/></ProjectContainersContextProvider>}
                 {!buildIn && tab === 'log' && <ProjectContainersContextProvider><ContainerLogTab/></ProjectContainersContextProvider>}
-                {!buildIn && tab === 'JVM' && <ProjectContainersContextProvider><JvmTab/></ProjectContainersContextProvider>}
                 {!buildIn && tab === 'containers' && <ProjectContainersContextProvider><ContainersTab/></ProjectContainersContextProvider>}
-                {!buildIn && tab === 'camel' && <ProjectContainersContextProvider><CamelTab/></ProjectContainersContextProvider>}
             </div>
         )
 }

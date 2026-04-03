@@ -278,8 +278,6 @@ export function ProjectFunctionHook() {
         if (tabIndex === "build") {
             ProjectService.refreshAllDeploymentStatuses();
             ProjectService.refreshImages(project.projectId);
-        } else if (tabIndex === 'camel' && refreshTrace) {
-            ProjectService.refreshCamelTraces(project.projectId, config.environment);
         } if (tabIndex === 'architecture') {
             DashboardService.refreshAllHealth();
             DashboardService.refreshAllMetrics();
