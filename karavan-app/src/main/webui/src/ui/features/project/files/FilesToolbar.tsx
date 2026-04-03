@@ -31,13 +31,10 @@ import {FileSearchToolbarItem} from "@features/project/FileSearchToolbarItem";
 import TimeAgo from "javascript-time-ago";
 import {useCommitsStore} from "@stores/CommitsStore";
 import {BUILD_IN_PROJECTS} from "@models/ProjectModels";
-import {CheckIcon} from "@patternfly/react-icons";
-import {useValidationStore} from "@stores/ValidationStore";
 
 export function FilesToolbar() {
 
     const {fetchProjectCommits} = useCommitsStore();
-    const {validateProject} = useValidationStore();
     const [config] = useAppConfigStore((s) => [s.config], shallow);
     const [project, isPushing, isPulling] = useProjectStore((s) => [s.project, s.isPushing, s.isPulling], shallow)
     const [projectsCommited] = useProjectsStore((s) => [s.projectsCommited], shallow)
@@ -178,10 +175,6 @@ export function FilesToolbar() {
             })}
         </ToggleGroup>
 
-    function validate() {
-        validateProject(project.projectId);
-    }
-
     function onRefresh() {
         if (isCommitsTab) {
             fetchProjectCommits(project.projectId);
@@ -197,10 +190,6 @@ export function FilesToolbar() {
         <div className="project-files-toolbar">
             <ProjectTitle/>
             {toggle}
-            <Button icon={<CheckIcon/>}
-                    variant={"link"}
-                    onClick={() => validate()}
-            />
             <Button icon={<RefreshIcon/>}
                     variant={"link"}
                     onClick={() => onRefresh()}

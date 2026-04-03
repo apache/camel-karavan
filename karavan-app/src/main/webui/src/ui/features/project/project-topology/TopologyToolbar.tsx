@@ -8,16 +8,13 @@ import {useRouteDesignerHook} from "@features/project/designer/route/useRouteDes
 import {APPLICATION_PROPERTIES, DOCKER_COMPOSE, DOCKER_STACK} from "@models/ProjectModels";
 import {ProjectTitle} from "@features/project/ProjectTitle";
 import {useProjectFunctions} from "@features/project/ProjectContext";
-import {CheckIcon, CogIcon, DockerIcon, EllipsisVIcon} from "@patternfly/react-icons";
+import {CogIcon, DockerIcon, EllipsisVIcon} from "@patternfly/react-icons";
 import {AddLarge} from "@carbon/icons-react";
-import {DashboardDevelopmentHook} from "@features/dashboard/development/DashboardDevelopmentHook";
-import {useValidationStore} from "@stores/ValidationStore";
 import {KubernetesIcon} from "@features/project/designer/icons/ComponentIcons";
 
 export function TopologyToolbar() {
 
     const [config] = useAppConfigStore((s) => [s.config], shallow);
-    const {validateProject} = useValidationStore();
     const isDev = config.environment === 'dev';
 
     const {
@@ -29,10 +26,6 @@ export function TopologyToolbar() {
         project
     } = useProjectFunctions();
     const {openSelector} = useRouteDesignerHook();
-
-    const {getProjectValidationIcon, getProjectValidationStatus} = DashboardDevelopmentHook();
-    const validationStatus = getProjectValidationStatus(project.projectId)
-    const validationIcon = getProjectValidationIcon(project.projectId)
 
     const [isOpen, setIsOpen] = useState(false);
 
@@ -156,7 +149,6 @@ export function TopologyToolbar() {
                 <ProjectTitle/>
             </div>
             {primaryButtons}
-            {getButton("Validate", 'secondary', <CheckIcon/>, event => validateProject(project.projectId), validationStatus === false)}
             {dropDown}
         </div>
     )

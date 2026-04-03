@@ -11,14 +11,11 @@ import {EditorType} from "@features/project/developer/EditorConfig";
 import {APPLICATION_PROPERTIES, DOCKER_COMPOSE, DOCKER_STACK, KUBERNETES_YAML} from "@models/ProjectModels";
 import DeveloperToolbar from "@features/project/developer/DeveloperToolbar";
 import {DesignerEditor} from "@features/project/developer/DesignerEditor";
-import {DashboardDevelopmentHook} from "@features/dashboard/development/DashboardDevelopmentHook";
 
 export function DeveloperManager() {
 
     const [file] = useFileStore((s) => [s.file], shallow)
     const [designerSwitch, setDesignerSwitch] = useDesignerStore((s) => [s.designerSwitch, s.setDesignerSwitch], shallow)
-    const {getValidationInfoForFile} = DashboardDevelopmentHook();
-    const validation = getValidationInfoForFile(file.projectId, file?.name);
 
     useEffect(() => {
         if (isCamelYaml || isKameletYaml) {
@@ -43,7 +40,7 @@ export function DeveloperManager() {
     const isCamelYaml = yamlIsCamel();
     const isKameletYaml = file?.name.endsWith(".kamelet.yaml");
     const isIntegration = isCamelYaml && (file?.code && CamelDefinitionYaml.yamlIsIntegration(file.code) || file?.code?.length === 0);
-    const showDesigner = !validation?.hasErrors && designerSwitch && ((isCamelYaml && isIntegration) || isKameletYaml);
+    const showDesigner = designerSwitch && ((isCamelYaml && isIntegration) || isKameletYaml);
     const showPropertiesEditor = file?.name === APPLICATION_PROPERTIES;
     const isMarkdown = file?.name.endsWith(".md");
     const isGroovy = file?.name.endsWith(".groovy");

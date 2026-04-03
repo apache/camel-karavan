@@ -7,16 +7,14 @@ import {useDataPolling} from "@shared/polling/useDataPolling";
 import {DashboardService} from "@services/DashboardService";
 import {INTERNAL_COMPONENTS} from "@core/api/ComponentApi";
 import {useContainerStatusesStore} from "@stores/ContainerStatusesStore";
-import {useValidationStore} from "@stores/ValidationStore";
 import {useCommitsStore} from "@stores/CommitsStore";
-import {useProjectInfoStore} from "../../../stores/ProjectInfoStore";
+import {useProjectInfoStore} from "@stores/ProjectInfoStore";
 
 export function DashboardDevelopmentRefresher() {
 
     const {containers} = useContainerStatusesStore();
     const [consumers, processors] = useStatusesStore((s) => [s.consumers, s.processors]);
     const {fetchProjectsCommited} = useProjectsStore();
-    const {fetchValidations} = useValidationStore();
     const {fetchSystemCommits} = useCommitsStore();
     const [projectInfos, fetchProjectInfos] = useProjectInfoStore(s => [s.projectInfos, s.fetchProjectInfos]);
     const [count, setCount] = useState<number>(0);
@@ -27,7 +25,6 @@ export function DashboardDevelopmentRefresher() {
 
     function refreshDesign() {
         ProjectService.refreshProjects();
-        fetchValidations();
         fetchSystemCommits();
         fetchProjectsCommited();
         fetchProjectInfos();

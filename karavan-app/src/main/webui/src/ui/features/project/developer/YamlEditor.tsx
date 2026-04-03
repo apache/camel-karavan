@@ -4,13 +4,11 @@ import {MonacoEditorWrapper} from "@features/project/developer/MonacoEditorWrapp
 import {Group, Panel} from "react-resizable-panels";
 import type * as monaco from "monaco-editor";
 import {configureMonacoYaml} from 'monaco-yaml';
-import {useValidationStore} from "@stores/ValidationStore";
 import {useDeveloperStore} from "@stores/DeveloperStore";
 import camelYaml from "./schemas/camelYamlDslSimplified.json";
 import dockerYaml from "./schemas/compose-spec.json";
 import {DOCKER_COMPOSE} from "@models/ProjectModels";
 import {KARAVAN_DOT_EXTENSION} from "@core/contants";
-import {useDebounceCallback} from "usehooks-ts";
 
 export interface CodeEditorProps {
     projectId?: string;
@@ -23,16 +21,13 @@ export interface CodeEditorProps {
 export function YamlEditor(props: CodeEditorProps) {
 
     const {projectId, filename, initialCode, onChange, onLinkOpen} = props;
-    const {validateProjectFile} = useValidationStore();
     const {setValidation} = useDeveloperStore();
     const markerListenerRef = useRef<monaco.IDisposable | null>(null);
-    const debouncedValidateProjectFile = useDebounceCallback(validateProjectFile, 3000);
 
     // Cleanup the marker listener on unmount
     useEffect(() => {
         return () => {
             markerListenerRef.current?.dispose();
-            debouncedValidateProjectFile.cancel();
         };
     }, []);
 
@@ -71,14 +66,6 @@ export function YamlEditor(props: CodeEditorProps) {
                     // Get all markers currently applied to this file
                     const currentMarkers = monacoInstance.editor.getModelMarkers({ resource: model.uri });
                     setValidation(currentMarkers?.length === 0, currentMarkers);
-                    if (currentMarkers.length === 0) {
-                        // Frontend is valid: Queue the heavy backend validation
-                        debouncedValidateProjectFile(projectId, filename);
-                    } else {
-                        // Frontend is INVALID: Cancel any pending backend validation immediately
-                        // This prevents useless server load if they just broke the schema!
-                        debouncedValidateProjectFile.cancel();
-                    }
                 }
             });
         }

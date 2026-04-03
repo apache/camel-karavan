@@ -7,12 +7,10 @@ import '@features/project/project-topology/topology.css';
 import {RouteDefinition} from "@core/model/CamelDefinition";
 import {AutoStartupFalseIcon, ErrorHandlerIcon} from "@features/project/designer/icons/OtherIcons";
 import {CustomNodeMetricAttachment} from "@features/project/project-topology/CustomNodeMetricAttachment";
-import {DashboardDevelopmentHook} from "@features/dashboard/development/DashboardDevelopmentHook";
 import {runInAction} from "mobx";
 import {SvgIcon} from "@shared/icons/SvgIcon";
 import {useTopologyHook} from "@features/project/project-topology/useTopologyHook";
 import {Category, IntentRequestScaleIn, IntentRequestScaleOut} from "@carbon/icons-react";
-import {GENERATED_FILENAME_PREFIX} from "@models/CatalogModels";
 
 function getIcon(data: any) {
     if (['route'].includes(data.icon)) {
@@ -130,7 +128,6 @@ function getAttachments(data: any) {
 
 const CustomNode: React.FC<any & WithContextMenuProps> = observer(({element, onContextMenu, contextMenuOpen, selected, ...rest}) => {
     const {selectFile, project} = useTopologyHook(undefined);
-    const {getProjectFileValidationIcon} = DashboardDevelopmentHook();
     const data = element.getData();
     const badge: string = ['API', 'RT', 'TR'].includes(data.badge) ? data.badge : data.badge?.substring(0, 1).toUpperCase();
     let colorClass = 'route';
@@ -148,8 +145,6 @@ const CustomNode: React.FC<any & WithContextMenuProps> = observer(({element, onC
     }
     const disableClass = isDisable(data) ? 'disable-node' : '';
 
-    const labelIcon = data.type === 'route' ? getProjectFileValidationIcon(project.projectId, data.fileName) : undefined;
-
     const { x, y } =  getDefaultShapeDecoratorCenter("lowerRight" as TopologyQuadrant, element);
 
     const decorator = (
@@ -164,11 +159,6 @@ const CustomNode: React.FC<any & WithContextMenuProps> = observer(({element, onC
     );
 
 
-    const showDecorator = data.type === 'route' && data.fileName?.startsWith(GENERATED_FILENAME_PREFIX);
-    const isMasGenerated = data.isMasGenerated;
-    const gemsClass = isMasGenerated ? " gems-generated" : "";
-    colorClass = showDecorator ? 'gen-route' : colorClass;
-
     return (
         <g onDoubleClick={event => {
             event.stopPropagation();
@@ -176,20 +166,18 @@ const CustomNode: React.FC<any & WithContextMenuProps> = observer(({element, onC
         }}>
             <DefaultNode
                 showStatusDecorator
-                className={"common-node common-node-" + badge + " topology-color-" + colorClass + " " + disableClass + gemsClass}
+                className={"common-node common-node-" + badge + " topology-color-" + colorClass + " " + disableClass}
                 scaleLabel={true}
                 element={element}
                 onContextMenu={onContextMenu}
                 contextMenuOpen={contextMenuOpen}
                 attachments={getAttachments(data)}
                 hideContextMenuKebab={false}
-                labelIcon={labelIcon}
                 labelIconPadding={1}
                 label={label}
                 {...rest}
             >
                 {getIcon(data)}
-                {showDecorator && decorator}
             </DefaultNode>
         </g>
     )

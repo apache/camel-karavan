@@ -26,7 +26,6 @@ import {ModalConfirmation} from "@shared/ui/ModalConfirmation";
 import {EventBus} from "@features/project/designer/utils/EventBus";
 import {useSearchStore} from "@stores/SearchStore";
 import {RenameFileModal} from "@features/project/RenameFileModal";
-import {DashboardDevelopmentHook} from "@features/dashboard/development/DashboardDevelopmentHook";
 import {FileCopyForEnvModal} from "@features/project/files/FileCopyForEnvModal";
 import {CamelUtil} from "@core/api/CamelUtil";
 import {download, getIcon, sortFiles} from "@features/project/files/FilesTabUtils";
@@ -54,8 +53,6 @@ export function FilesSubTab(props: FilesSubTabProps) {
     const [showCopy, setShowCopy] = useState<boolean>(false);
     const [showRename, setShowRename] = useState<boolean>(false);
     const [missingEnvs, setMissingEnvs] = useState<string[]>([]);
-
-    const {getProjectFileValidationIcon} = DashboardDevelopmentHook();
 
     const filenames = files.map(f => f.name);
     const deletedFilenames: string[] = Object.getOwnPropertyNames(diff)
@@ -201,7 +198,6 @@ export function FilesSubTab(props: FilesSubTabProps) {
             const hasRouteTemplate = CamelUtil.hasRouteTemplateDefinitions(file);
             const missEnvs = getMissingEnvs(file.name);
             const canBeRenamed = !isInfra && !BUILD_IN_FILES.includes(file.name);
-            const validationIcon = getProjectFileValidationIcon(file.projectId, file.name);
             const commitTime = commitedFiles?.find(f => f.name === file.name)?.commitTime;
             const timeAgo = new TimeAgo('en-US')
             return (
@@ -234,7 +230,6 @@ export function FilesSubTab(props: FilesSubTabProps) {
                                     }}>
                                 {prefix[2]}
                             </Button>
-                            {validationIcon}
                         </div>
                     </Td>
                     <Td modifier={"fitContent"} style={{textAlign: "right"}}>

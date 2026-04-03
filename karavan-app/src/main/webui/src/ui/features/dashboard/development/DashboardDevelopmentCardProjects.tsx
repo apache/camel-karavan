@@ -121,7 +121,6 @@ export function DashboardDevelopmentCardProjects() {
                         <Th key='project'>
                             <Content component={'h6'}>Recent Projects</Content>
                         </Th>
-                        <Th key='validation' modifier='fitContent' textCenter>Validation</Th>
                         <Th key='timeline'>
                             <ProgressStepper isCenterAligned className={"projects-table-header-progress-stepper"}>
                                 <ProgressStep id="commited" titleId="commited">

@@ -36,7 +36,6 @@ import {TryOutIcon} from "@shared/icons/TryOutIcon";
 import {shallow} from "zustand/shallow";
 import {useIntegrationStore} from "@features/project/designer/DesignerStore";
 import {KubernetesIcon} from "@features/project/designer/icons/ComponentIcons";
-import {DashboardDevelopmentHook} from "@features/dashboard/development/DashboardDevelopmentHook";
 
 export function ProjectPageNavigation(): JSX.Element {
 
@@ -61,9 +60,6 @@ export function ProjectPageNavigation(): JSX.Element {
 
     const [buildContainerId, setBuildContainerId] = useState<string>('');
     const [hasDevMode, setHasDevMode] = useState<boolean>(false);
-
-    const {getProjectValidationIcon} = DashboardDevelopmentHook();
-    const validationIcon = getProjectValidationIcon(project?.projectId)
 
     useEffect(() => {
         selectName();

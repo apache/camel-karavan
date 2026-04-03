@@ -14,7 +14,6 @@ import TimeAgo from 'javascript-time-ago'
 import en from 'javascript-time-ago/locale/en'
 import {ROUTES} from "@app/navigation/Routes";
 import {ProjectStatusLabel} from "@features/projects/ProjectStatusLabel";
-import {DashboardDevelopmentHook} from "@features/dashboard/development/DashboardDevelopmentHook";
 import {ComplexityProject} from "@features/projects/ComplexityModels";
 import {ProjectZipApi} from "@features/projects/ProjectZipApi";
 import {ProjectsTableRowComplexity} from "@features/projects/ProjectsTableRowComplexity";
@@ -37,7 +36,6 @@ interface Props {
 function ProjectsTableRow(props: Props) {
 
     const {project, complexity, activeUsers, labels, selectedLabels, onLabelClick, projectCommited} = props;
-    const {getProjectValidationIcon} = DashboardDevelopmentHook();
     const [deployments] = useStatusesStore((state) => [state.deployments], shallow)
     const {containers} = useContainerStatusesStore();
     const {config} = useAppConfigStore();
@@ -46,7 +44,6 @@ function ProjectsTableRow(props: Props) {
     const timeAgo = new TimeAgo('en-US')
 
     const isBuildIn = BUILD_IN_PROJECTS.includes(project.projectId);
-    const validationIcon = getProjectValidationIcon(project.projectId);
 
     function getEnvironments(): string [] {
         return config.environments && Array.isArray(config.environments) ? Array.from(config.environments) : [];
@@ -69,7 +66,6 @@ function ProjectsTableRow(props: Props) {
                 }}>
                     {project.projectId}
                 </Button>
-                {validationIcon}
             </Td>
             <Td>
                 <div style={{display: 'flex', flexDirection: 'column', alignItems: 'start', justifyContent: 'start', gap: '3px'}}>

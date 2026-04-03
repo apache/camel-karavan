@@ -19,7 +19,6 @@ import React from 'react';
 import {Alert, ClipboardCopy, Content, Flex, FlexItem,} from '@patternfly/react-core';
 import {useFileStore, useProjectStore} from "@stores/ProjectStore";
 import {shallow} from "zustand/shallow";
-import {GENERATED_FILENAME_PREFIX} from "@models/CatalogModels";
 import {LockedIcon} from "@patternfly/react-icons";
 
 export function ProjectTitle() {
@@ -28,7 +27,6 @@ export function ProjectTitle() {
     const [file, setFile, operation] = useFileStore((s) => [s.file, s.setFile, s.operation], shallow);
 
     const isFile = file !== undefined && operation !== 'delete';
-    const isGenerated = isFile && file?.name?.startsWith(GENERATED_FILENAME_PREFIX);
     const isLog = file !== undefined && file.name.endsWith("log");
     const filename = file ? file.name.substring(0, file.name.lastIndexOf('.')) : "";
 
@@ -87,8 +85,8 @@ export function ProjectTitle() {
 
     return (
         <div className="dsl-title project-title">
-            {isFile && !isGenerated && getFileTitle()}
-            {isFile && isGenerated && getGeneratedFileTitle()}
+            {isFile && getFileTitle()}
+            {isFile && getGeneratedFileTitle()}
             {!isFile && getProjectTitle()}
         </div>
     )
