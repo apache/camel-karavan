@@ -51,6 +51,13 @@ export function PropertiesEditor() {
         }
     }, [code]);
 
+    useEffect(() => {
+        if (file && file.code !== code) {
+            setCode(file.code);
+        }
+    }, [file?.projectId, file?.name, file?.code]);
+
+
     function saveCode() {
         if (file && code && file.code !== code) {
             file.code = code;
