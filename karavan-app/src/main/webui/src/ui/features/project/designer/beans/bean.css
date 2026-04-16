@@ -100,3 +100,13 @@
     padding: 3px;
     color: #b1b1b7;
 }
+
+.bean-designer .gallery {
+    margin-inline-end: 90px;
+    width: auto; 
+    display: grid;
+}
+
+.bean-card {
+    overflow: hidden;
+}
