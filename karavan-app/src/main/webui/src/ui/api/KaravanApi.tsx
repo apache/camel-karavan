@@ -224,6 +224,21 @@ export class KaravanApi {
         });
     }
 
+    static async getCommitDiff(projectId: string, commitId: string, after: (diff: string) => void) {
+        instance.get(`/ui/git/commit-diff/${projectId}/${commitId}`, {
+            headers: { 'Accept': 'text/plain' },
+            responseType: 'text'
+        })
+        .then(res => {
+            if (res.status === 200) {
+                after(res.data);
+            }
+        }).catch(err => {
+            console.error(err);
+            after("Error loading diff from server.");
+        });
+    }
+
     static async loadProjectCommits(projectId: string, after: (res: any) => void) {
         instance.post(`/ui/git/commits/${projectId}`)
             .then(res => {

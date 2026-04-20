@@ -62,4 +62,11 @@ public class GitCommitResource {
             return List.of();
         }
     }
+
+    @GET
+    @Path("/commit-diff/{projectId}/{commitId}")
+    @Produces(MediaType.TEXT_PLAIN)
+    public String getCommitDiff(@PathParam("projectId") String projectId, @PathParam("commitId") String commitId) {
+        return gitHistoryService.getCommitDiff(projectId, commitId);
+    }
 }

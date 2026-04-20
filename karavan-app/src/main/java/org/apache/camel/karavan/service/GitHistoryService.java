@@ -307,4 +307,30 @@ public class GitHistoryService {
 
         return oldPath.startsWith(p) || newPath.startsWith(p) || oldPath.equals(projectId) || newPath.equals(projectId);
     }
+
+    public String getCommitDiff(String projectId, String commitId) {
+        try {
+            Git pollGit = gitService.getGit(true, vertx.fileSystem().createTempDirectoryBlocking("diff-" + commitId));
+            if (pollGit == null) return "Repository not available";
+            Repository repo = pollGit.getRepository();
+            
+            ObjectId commitObjectId = repo.resolve(commitId);
+            RevCommit commit = repo.parseCommit(commitObjectId);
+            
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            try (DiffFormatter df = new DiffFormatter(out)) {
+                df.setRepository(repo);
+                df.setDiffComparator(RawTextComparator.DEFAULT);
+                df.setDetectRenames(true);
+                df.setContext(3);
+
+                RevCommit parent = commit.getParentCount() > 0 ? repo.parseCommit(commit.getParent(0).getId()) : null;
+                df.format(parent != null ? parent.getTree() : null, commit.getTree());
+                return out.toString(StandardCharsets.UTF_8);
+            }
+        } catch (Exception e) {
+            LOGGER.error("Error getting diff", e);
+            return "Error loading diff: " + e.getMessage();
+        }
+    }
 }
