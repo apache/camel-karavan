@@ -1,15 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { SystemCommit } from "@stores/CommitsStore";
 import { 
     Button, 
     Content, 
     HelperText, 
     HelperTextItem, 
-    Label, 
     ProgressStep, 
     Modal, 
     ModalVariant,
-    Spinner 
+    Spinner
 } from "@patternfly/react-core";
 import TimeAgo from "javascript-time-ago";
 import { Commit } from "@carbon/icons-react";
@@ -20,8 +19,7 @@ interface Props {
     commit: SystemCommit
 }
 
-export function DashboardDevelopmentCardCommit(props: Props): React.ReactElement {
-    const { commit } = props;
+export function DashboardDevelopmentCardCommit({ commit }: Props): React.ReactElement {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [commitDiff, setCommitDiff] = useState<string | undefined>(undefined);
     const [isLoading, setIsLoading] = useState(false);
@@ -29,47 +27,51 @@ export function DashboardDevelopmentCardCommit(props: Props): React.ReactElement
     const { usersActivities } = useActivityStore();
     const userHeartbeat = usersActivities?.HEARTBEAT?.[commit.authorName];
     const alive = userHeartbeat !== undefined;
-    const commitId = commit.id?.substring((commit.id?.length - 6) || 0);
-    const timeAgo = new TimeAgo('en-US');
     
+    const commitIdShort = useMemo(() => commit.id?.substring(0, 7), [commit.id]);
+    const timeAgo = useMemo(() => new TimeAgo('en-US'), []);
     const rawProjectId = commit?.projectIds?.at(0) || "";
-    const projectsCount = commit?.projectIds?.length || 0;
-    const projectLabel = rawProjectId + (projectsCount > 1 ? ` (+${projectsCount - 1})` : "");
+    const projectLabel = useMemo(() => {
+        const count = commit?.projectIds?.length || 0;
+        return rawProjectId + (count > 1 ? ` (+${count - 1})` : "");
+    }, [commit.projectIds, rawProjectId]);
 
-    const handleToggleModal = () => {
-        setIsModalOpen(!isModalOpen);
-    };
+    const handleToggleModal = () => setIsModalOpen(!isModalOpen);
 
     useEffect(() => {
         if (isModalOpen && commit.id && rawProjectId) {
             setIsLoading(true);
-            KaravanApi.getCommitDiff(rawProjectId, commit.id, (diff) => {
+             KaravanApi.getCommitDiff(rawProjectId, commit.id, (diff) => {
                 setCommitDiff(diff);
                 setIsLoading(false);
             });
         }
     }, [isModalOpen, commit.id, rawProjectId]);
 
+    const getLineStyle = (line: string) => {
+        if (line.startsWith('+')) return { color: '#1a7f37', backgroundColor: '#dafbe1' };
+        if (line.startsWith('-')) return { color: '#d1242f', backgroundColor: '#ffebe9' };
+        if (line.startsWith('@@')) return { color: '#0550ae', backgroundColor: '#ddf4ff' };
+        if (line.startsWith('diff') || line.startsWith('index') || line.startsWith('---') || line.startsWith('+++')) 
+            return { color: '#6e7781', backgroundColor: '#f6f8fa' };
+        return { color: '#24292f', backgroundColor: '#ffffff' };
+    };
+
     return (
         <React.Fragment>
             <ProgressStep
-                className={"commit-progress-step"}
+                className="commit-progress-step"
                 variant={alive ? "success" : "info"}
-                icon={
-                    <div onClick={handleToggleModal} style={{ cursor: 'pointer' }}>
-                        <Commit className={"carbon"} style={{ height: "20px", width: "20px" }} />
-                    </div>
-                }
+                icon={<div onClick={handleToggleModal} style={{ cursor: 'pointer' }}><Commit size={20} /></div>}
                 id={commit.id}
-                titleId={"title-" + commit.id}
-                aria-label={"commit-" + commit.id}
+                titleId={`title-${commit.id}`}
             >
-                <HelperText className={"commit-card"}>
+                <HelperText className="commit-card">
                     <HelperTextItem>
-                        {rawProjectId && <Button variant={"link"} isInline>{projectLabel}</Button>}
+                        {rawProjectId && <Button variant="link" isInline style={{ fontSize: '0.85rem' }}>{projectLabel}</Button>}
                     </HelperTextItem>
                     <HelperTextItem>
-                        <div onClick={handleToggleModal} style={{ cursor: 'pointer', color: '#0066cc', fontWeight: 500 }}>
+                        <div onClick={handleToggleModal} style={{ cursor: 'pointer', color: '#0066cc', fontWeight: 600 }}>
                             {commit.message}
                         </div>
                     </HelperTextItem>
@@ -77,71 +79,55 @@ export function DashboardDevelopmentCardCommit(props: Props): React.ReactElement
             </ProgressStep>
 
             <Modal
-                title={`Dettagli Commit: ${commitId}`}
+                title={`Commit Details: ${commitIdShort}`}
                 isOpen={isModalOpen}
                 onClose={handleToggleModal}
                 variant={ModalVariant.medium}
             >
-                <div style={{ padding: '0 20px' }}>
-                    <Content>
-                        <div style={{ marginBottom: '10px' }}>
-                            <p><strong>Messaggio:</strong> {commit.message}</p>
-                            <p><strong>Autore:</strong> {commit.authorName} ({commit.authorEmail})</p>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                    <div style={{ padding: '0 10px' }}>
+                        <p style={{ fontSize: '1.1rem', marginBottom: '4px' }}><strong>{commit.message}</strong></p>
+                        <div style={{ color: '#666', fontSize: '0.9rem' }}>
+                            👤 {commit.authorName} • 📅 {timeAgo.format(new Date(commit.commitTime))}
+                        </div>
+                    </div>
+                    
+                    <div style={{ 
+                        border: '1px solid #d0d7de', 
+                        borderRadius: '6px', 
+                        overflow: 'hidden'
+                    }}>
+                        <div style={{ 
+                            backgroundColor: '#f6f8fa', 
+                            padding: '8px 12px', 
+                            borderBottom: '1px solid #d0d7de',
+                            fontSize: '0.8rem', color: '#57606a', fontWeight: 600
+                        }}>
+                            {isLoading ? "Fetching..." : "Unified Diff View"}
                         </div>
                         
-                        <div style={{ 
-                            backgroundColor: '#151515', 
-                            padding: '15px', 
-                            borderRadius: '4px', 
-                            marginTop: '10px',
-                            maxHeight: '450px', 
-                            overflowY: 'auto',
-                            border: '1px solid #333'
-                        }}>
+                        <div style={{ backgroundColor: '#ffffff', maxHeight: '450px', overflowY: 'auto' }}>
                             {isLoading ? (
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#39d353' }}>
-                                    <Spinner size="md" /> Fetching changes from the repository...
-                                </div>
+                                <div style={{ padding: '40px', textAlign: 'center' }}><Spinner size="lg" /></div>
                             ) : commitDiff ? (
-                                commitDiff.split('\n').map((line, i) => {
-                                    let color = '#d4d4d4'; 
-                                    let bgColor = 'transparent';
-                                    
-                                    if (line.startsWith('+')) {
-                                        color = '#3fb950'; 
-                                        bgColor = 'rgba(46, 160, 67, 0.15)'; 
-                                    } else if (line.startsWith('-')) {
-                                        color = '#f85149'; 
-                                        bgColor = 'rgba(248, 81, 73, 0.15)';
-                                    } else if (line.startsWith('@@')) {
-                                        color = '#8b949e'; 
-                                        bgColor = 'rgba(56, 139, 253, 0.15)';
-                                    }
-                                    
-                                    return (
-                                        <div key={i} style={{ 
-                                            color, 
-                                            backgroundColor: bgColor,
-                                            fontFamily: 'monospace', 
-                                            whiteSpace: 'pre-wrap', 
-                                            fontSize: '12px',
-                                            paddingLeft: '5px'
-                                        }}>
-                                            {line}
-                                        </div>
-                                    );
-                                })
+                                commitDiff.split('\n').map((line, i) => (
+                                    <div key={i} style={{ 
+                                        ...getLineStyle(line),
+                                        fontFamily: 'monospace', whiteSpace: 'pre-wrap', fontSize: '12px',
+                                        lineHeight: '1.6', padding: '0 12px'
+                                    }}>
+                                        {line || " "}
+                                    </div>
+                                ))
                             ) : (
-                                <div style={{ color: '#8b949e' }}>No changes detected or binary file.</div>
+                                <div style={{ padding: '20px', textAlign: 'center' }}>No changes detected.</div>
                             )}
                         </div>
-                    </Content>
-                </div>
-
-                <div style={{ marginTop: '20px', padding: '10px 20px', textAlign: 'right' }}>
-                    <Button key="close" variant="primary" onClick={handleToggleModal}>
-                        Chiudi
-                    </Button>
+                    </div>
+                    
+                    <div style={{ textAlign: 'right' }}>
+                        <Button variant="primary" onClick={handleToggleModal}>Chiudi</Button>
+                    </div>
                 </div>
             </Modal>
         </React.Fragment>
