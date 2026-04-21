@@ -2,7 +2,6 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { SystemCommit } from "@stores/CommitsStore";
 import { 
     Button, 
-    Content, 
     HelperText, 
     HelperTextItem, 
     ProgressStep, 
@@ -14,10 +13,13 @@ import TimeAgo from "javascript-time-ago";
 import { Commit } from "@carbon/icons-react";
 import { useActivityStore } from "@stores/ActivityStore";
 import { KaravanApi } from "../../../api/KaravanApi";
+import { CommitDiffViewer } from "./DashboardDevelopmentCardCommitDiffViewer"; 
 
 interface Props {
     commit: SystemCommit
 }
+
+const timeAgo = new TimeAgo('en-US');
 
 export function DashboardDevelopmentCardCommit({ commit }: Props): React.ReactElement {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -29,8 +31,8 @@ export function DashboardDevelopmentCardCommit({ commit }: Props): React.ReactEl
     const alive = userHeartbeat !== undefined;
     
     const commitIdShort = useMemo(() => commit.id?.substring(0, 7), [commit.id]);
-    const timeAgo = useMemo(() => new TimeAgo('en-US'), []);
     const rawProjectId = commit?.projectIds?.at(0) || "";
+    
     const projectLabel = useMemo(() => {
         const count = commit?.projectIds?.length || 0;
         return rawProjectId + (count > 1 ? ` (+${count - 1})` : "");
@@ -39,23 +41,22 @@ export function DashboardDevelopmentCardCommit({ commit }: Props): React.ReactEl
     const handleToggleModal = () => setIsModalOpen(!isModalOpen);
 
     useEffect(() => {
+        let isMounted = true;
+        
         if (isModalOpen && commit.id && rawProjectId) {
             setIsLoading(true);
-             KaravanApi.getCommitDiff(rawProjectId, commit.id, (diff) => {
-                setCommitDiff(diff);
-                setIsLoading(false);
+            KaravanApi.getCommitDiff(rawProjectId, commit.id, (diff) => {
+                if (isMounted) {
+                    setCommitDiff(diff);
+                    setIsLoading(false);
+                }
             });
         }
-    }, [isModalOpen, commit.id, rawProjectId]);
 
-    const getLineStyle = (line: string) => {
-        if (line.startsWith('+')) return { color: '#1a7f37', backgroundColor: '#dafbe1' };
-        if (line.startsWith('-')) return { color: '#d1242f', backgroundColor: '#ffebe9' };
-        if (line.startsWith('@@')) return { color: '#0550ae', backgroundColor: '#ddf4ff' };
-        if (line.startsWith('diff') || line.startsWith('index') || line.startsWith('---') || line.startsWith('+++')) 
-            return { color: '#6e7781', backgroundColor: '#f6f8fa' };
-        return { color: '#24292f', backgroundColor: '#ffffff' };
-    };
+        return () => {
+            isMounted = false;
+        };
+    }, [isModalOpen, commit.id, rawProjectId]);
 
     return (
         <React.Fragment>
@@ -92,41 +93,34 @@ export function DashboardDevelopmentCardCommit({ commit }: Props): React.ReactEl
                         </div>
                     </div>
                     
-                    <div style={{ 
-                        border: '1px solid #d0d7de', 
-                        borderRadius: '6px', 
-                        overflow: 'hidden'
-                    }}>
+                    <div style={{ border: '1px solid #d0d7de', borderRadius: '6px', overflow: 'hidden' }}>
                         <div style={{ 
                             backgroundColor: '#f6f8fa', 
                             padding: '8px 12px', 
-                            borderBottom: '1px solid #d0d7de',
-                            fontSize: '0.8rem', color: '#57606a', fontWeight: 600
+                            borderBottom: '1px solid #d0d7de', 
+                            fontSize: '0.8rem', 
+                            color: '#57606a', 
+                            fontWeight: 600 
                         }}>
                             {isLoading ? "Fetching..." : "Unified Diff View"}
                         </div>
                         
-                        <div style={{ backgroundColor: '#ffffff', maxHeight: '450px', overflowY: 'auto' }}>
-                            {isLoading ? (
-                                <div style={{ padding: '40px', textAlign: 'center' }}><Spinner size="lg" /></div>
-                            ) : commitDiff ? (
-                                commitDiff.split('\n').map((line, i) => (
-                                    <div key={i} style={{ 
-                                        ...getLineStyle(line),
-                                        fontFamily: 'monospace', whiteSpace: 'pre-wrap', fontSize: '12px',
-                                        lineHeight: '1.6', padding: '0 12px'
-                                    }}>
-                                        {line || " "}
-                                    </div>
-                                ))
-                            ) : (
-                                <div style={{ padding: '20px', textAlign: 'center' }}>No changes detected.</div>
-                            )}
-                        </div>
+                        {isLoading ? (
+                            <div style={{ padding: '40px', textAlign: 'center' }}><Spinner size="lg" /></div>
+                        ) : (
+                            <CommitDiffViewer diff={commitDiff} />
+                        )}
                     </div>
-                    
-                    <div style={{ textAlign: 'right' }}>
-                        <Button variant="primary" onClick={handleToggleModal}>Chiudi</Button>
+
+                    <div style={{ 
+                        display: 'flex', 
+                        justifyContent: 'center', 
+                        marginTop: '10px', 
+                        paddingBottom: '10px' 
+                    }}>
+                        <Button variant="primary" onClick={handleToggleModal} style={{ minWidth: '120px' }}>
+                            Close
+                        </Button>
                     </div>
                 </div>
             </Modal>
