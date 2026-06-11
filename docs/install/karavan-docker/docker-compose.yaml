@@ -28,8 +28,8 @@ services:
 
       # Database Configurations
       # Karavan requires a database (PostgreSQL here) to store application state.
-      - KARAVAN_DATASOURCE_USERNAME= # Database username
-      - KARAVAN_DATASOURCE_PASSWORD= # Database password
+      - KARAVAN_DATASOURCE_USERNAME=${KARAVAN_DATASOURCE_USERNAME} # Database username
+      - KARAVAN_DATASOURCE_PASSWORD=${KARAVAN_DATASOURCE_PASSWORD} # Database password
       - KARAVAN_DATASOURCE_URL=jdbc:postgresql://postgres:5432/karavan # Connection string for the PostgreSQL database
       - KARAVAN_DATASOURCE_SCHEMAS=public # Schema to use within the database
     volumes:
@@ -38,6 +38,20 @@ services:
       - "org.apache.camel.karavan/type=internal"    
     networks:
       - karavan
+
+  postgres:
+    image: postgres:18.4
+    container_name: postgres
+    environment:
+      POSTGRES_USER: ${KARAVAN_DATASOURCE_USERNAME}
+      POSTGRES_PASSWORD: ${KARAVAN_DATASOURCE_PASSWORD}
+      POSTGRES_DB: karavan
+    ports:
+      - "5432:5432"
+    networks:
+      - karavan
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
 
   registry:
     container_name: registry
