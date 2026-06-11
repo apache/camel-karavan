@@ -8,18 +8,32 @@ services:
     ports:
       - "8080:8080"
     environment:
-      - KARAVAN_GIT_REPOSITORY=${KARAVAN_GIT_REPOSITORY}
-      - KARAVAN_GIT_USERNAME=${KARAVAN_GIT_USERNAME}
-      - KARAVAN_GIT_PASSWORD=${KARAVAN_GIT_PASSWORD}
-      - KARAVAN_GIT_BRANCH=main
-      - KARAVAN_CONTAINER_IMAGE_REGISTRY=registry:5000
-      - KARAVAN_CONTAINER_IMAGE_REGISTRY_USERNAME=
-      - KARAVAN_CONTAINER_IMAGE_REGISTRY_PASSWORD=
-      - KARAVAN_CONTAINER_IMAGE_GROUP=karavan
-      - KARAVAN_DOCKER_NETWORK=karavan
+      # Git Repository Configurations
+      # Karavan uses a Git repository as the single source of truth for all projects.
+      # It stores Camel YAML, properties, and deployment resources here.
+      - KARAVAN_GIT_REPOSITORY= # The URL of your Git repository (e.g., https://github.com/youruser/your-repo.git)
+      - KARAVAN_GIT_USERNAME=   # Your Git username
+      - KARAVAN_GIT_PASSWORD=   # Your Git password or a Personal Access Token (PAT) with read/write access
+      - KARAVAN_GIT_BRANCH=main # The branch Karavan should use
+
+      # Image Registry Configurations
+      # Karavan needs an image registry to store the container images it builds.
+      - KARAVAN_CONTAINER_IMAGE_REGISTRY=registry:5000  # The address of the registry (points to the 'registry' service below)
+      - KARAVAN_CONTAINER_IMAGE_REGISTRY_USERNAME=      # Username for the registry (if authentication is required)
+      - KARAVAN_CONTAINER_IMAGE_REGISTRY_PASSWORD=      # Password for the registry
+      - KARAVAN_CONTAINER_IMAGE_GROUP=karavan           # The group/namespace within the registry to store images
+
+      # Docker Environment Configurations
+      - KARAVAN_DOCKER_NETWORK=karavan # The network Karavan uses to communicate with built containers
+
+      # Database Configurations
+      # Karavan requires a database (PostgreSQL here) to store application state.
+      - KARAVAN_DATASOURCE_USERNAME= # Database username
+      - KARAVAN_DATASOURCE_PASSWORD= # Database password
+      - KARAVAN_DATASOURCE_URL=jdbc:postgresql://postgres:5432/karavan # Connection string for the PostgreSQL database
+      - KARAVAN_DATASOURCE_SCHEMAS=public # Schema to use within the database
     volumes:
-      - "/var/run/docker.sock:/var/run/docker.sock"    
-      - "./karavan-cache-data:/cache-data"    
+      - "/var/run/docker.sock:/var/run/docker.sock" # Allows Karavan to build and manage Docker containers on the host
     labels:
       - "org.apache.camel.karavan/type=internal"    
     networks:
@@ -30,7 +44,7 @@ services:
     image: registry:2
     restart: always
     ports:
-      - "5555:5000"
+      - "5555:5000" # Exposes the internal registry port (5000) to the host machine on port 5555
     labels:
       - "org.apache.camel.karavan/type=internal"  
     networks:
