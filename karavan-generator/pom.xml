@@ -30,7 +30,7 @@
         <surefire-plugin.version>3.0.0-M5</surefire-plugin.version>
         <version.camel-core>4.18.1</version.camel-core>
         <version.camel-kamelet>4.18.1</version.camel-kamelet>
-        <version.vertx>4.5.22</version.vertx>
+        <version.vertx>4.5.27</version.vertx>
     </properties>
     <dependencies>
         <dependency>
