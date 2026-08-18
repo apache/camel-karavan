@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="18" height="18" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <g id="camel-yaml-icon" fill="none" fill-rule="evenodd">
+    <!-- Simplified Camel icon -->
+    <circle cx="12" cy="12" r="11" fill="#FF6B00" opacity="0.1"/>
+    <path d="M12 2 L18 6 L18 18 C18 19.1 17.1 20 16 20 L8 20 C6.9 20 6 19.1 6 18 L6 6 Z" fill="#FF6B00" stroke="#FF6B00" stroke-width="0.5"/>
+    <path d="M12 2 L12 6 M8 6 L18 6" stroke="#FF6B00" stroke-width="0.5"/>
+  </g>
+</svg>
