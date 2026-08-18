@@ -37,21 +37,24 @@
   "homepage": "https://github.com/apache/camel-karavan#readme",
   "dependencies": {
     "@types/js-yaml": "^4.0.9",
-    "@types/uuid": "^10.0.0",
+    "@types/uuid": "^11.0.0",
     "tsconfig-paths": "^4.2.0",
-    "uuid": "10.0.0"
+    "uuid": "14.0.1"
   },
   "devDependencies": {
-    "@types/chai": "^4.3.16",
-    "@types/dagre": "^0.7.52",
-    "@types/mocha": "^10.0.7",
-    "@types/node": "20.14.9",
-    "typescript": "4.9.5",
-    "chai": "^5.1.1",
-    "cross-env": "^7.0.3",
-    "fs": "^0.0.1-security",
-    "mocha": "^10.5.2",
+    "@types/chai": "^5.2.3",
+    "@types/dagre": "^0.7.54",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "^26.2.0",
+    "chai": "^6.2.2",
+    "cross-env": "^10.1.0",
+    "mocha": "^11.8.0",
     "ts-node": "^10.9.2",
-    "tsc-alias": "^1.8.10"
+    "tsc-alias": "^1.9.2",
+    "typescript": "6.0.3"
+  },
+  "overrides": {
+    "diff": "^9.0.0",
+    "serialize-javascript": "^7.1.0"
   }
 }

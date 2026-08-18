@@ -29,8 +29,8 @@ import {CamelDefinitionApiExt} from "../src/core/api/CamelDefinitionApiExt";
 import {CamelDefinitionYaml} from "../src/core/api/CamelDefinitionYaml";
 import {SimpleExpression} from "../src/core/model/CamelDefinition";
 import {Integration} from "../src/core/model/IntegrationDefinition";
-import * as fs from 'fs';
 import { OnWhenDefinition } from '../lib/model/CamelDefinition';
+import * as fs from 'node:fs';
 
 describe('Add Step', () => {
 
