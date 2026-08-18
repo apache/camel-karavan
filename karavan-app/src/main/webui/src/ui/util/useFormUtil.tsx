@@ -232,7 +232,7 @@ export function useFormUtil(formContext: UseFormReturn<any>) {
                         <Content className='text-field-prefix' component={ContentVariants.p}>{prefix}</Content>
                     </TextInputGroupMain>
                 </TextInputGroup>
-                {getHelper((errors as any)[fieldName])}
+                {getError((errors as any)[fieldName])}
             </FormGroup>
         )
     }
@@ -262,7 +262,7 @@ export function useFormUtil(formContext: UseFormReturn<any>) {
                         </TextInputGroup>
                     )}
                 />
-                {getHelper((errors as any)[fieldName])}
+                {getError((errors as any)[fieldName])}
             </FormGroup>
         )
     }
@@ -287,7 +287,7 @@ export function useFormUtil(formContext: UseFormReturn<any>) {
                         <FormSelectOption key={index} value={option[0]} label={option[1]}/>
                     ))}
                 </FormSelect>
-                {getHelper((errors as any)[fieldName])}
+                {getError((errors as any)[fieldName])}
             </FormGroup>
         )
     }
