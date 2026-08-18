@@ -25,6 +25,7 @@ import {
     DataFormatsDefinitionDeserializer,
     ErrorHandlerDeserializer,
     OutputAwareFromDefinition,
+    A2ASubTaskDefinition,
     AggregateDefinition,
     BeanDefinition,
     BeanFactoryDefinition,
@@ -134,6 +135,7 @@ import {
     BeanPropertiesDefinition,
     BeanPropertyDefinition,
     ComponentScanDefinition,
+    SSLContextParametersDefinition,
     BatchResequencerConfig,
     StreamResequencerConfig,
     ASN1DataFormat,
@@ -153,6 +155,7 @@ import {
     FlatpackDataFormat,
     ForyDataFormat,
     GrokDataFormat,
+    GroovyJSonDataFormat,
     GroovyXmlDataFormat,
     GzipDeflaterDataFormat,
     HL7DataFormat,
@@ -191,7 +194,6 @@ import {
     NoErrorHandlerDefinition,
     RefErrorHandlerDefinition,
     SpringTransactionErrorHandlerDefinition,
-    CSimpleExpression,
     ConstantExpression,
     DatasonnetExpression,
     ExchangePropertyExpression,
@@ -199,6 +201,7 @@ import {
     GroovyExpression,
     HeaderExpression,
     Hl7TerserExpression,
+    JactlExpression,
     JavaExpression,
     JavaScriptExpression,
     JqExpression,
@@ -269,6 +272,9 @@ export class CamelDefinitionApi {
     static createProcessorDefinition = (element: any): ProcessorDefinition => { 
         const def = element ? new ProcessorDefinition({...element}) : new ProcessorDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
+        if (element?.a2aSubTask !== undefined) { 
+            def.a2aSubTask = CamelDefinitionApi.createA2ASubTaskDefinition(element.a2aSubTask); 
+        }
         if (element?.aggregate !== undefined) { 
             def.aggregate = CamelDefinitionApi.createAggregateDefinition(element.aggregate); 
         }
@@ -501,6 +507,13 @@ export class CamelDefinitionApi {
         return def;
     }
 
+    static createA2ASubTaskDefinition = (element: any): A2ASubTaskDefinition => { 
+        const def = element ? new A2ASubTaskDefinition({...element}) : new A2ASubTaskDefinition();
+        def.uuid = element?.uuid ? element.uuid : def.uuid; 
+        def.steps = CamelDefinitionApi.createSteps(element?.steps);
+        return def;
+    }
+
     static createAggregateDefinition = (element: any): AggregateDefinition => { 
         const def = element ? new AggregateDefinition({...element}) : new AggregateDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
@@ -664,9 +677,6 @@ export class CamelDefinitionApi {
         if (element?.constant !== undefined) { 
             def.constant = CamelDefinitionApi.createConstantExpression(element.constant); 
         }
-        if (element?.csimple !== undefined) { 
-            def.csimple = CamelDefinitionApi.createCSimpleExpression(element.csimple); 
-        }
         if (element?.datasonnet !== undefined) { 
             def.datasonnet = CamelDefinitionApi.createDatasonnetExpression(element.datasonnet); 
         }
@@ -681,6 +691,9 @@ export class CamelDefinitionApi {
         }
         if (element?.hl7terser !== undefined) { 
             def.hl7terser = CamelDefinitionApi.createHl7TerserExpression(element.hl7terser); 
+        }
+        if (element?.jactl !== undefined) { 
+            def.jactl = CamelDefinitionApi.createJactlExpression(element.jactl); 
         }
         if (element?.java !== undefined) { 
             def.java = CamelDefinitionApi.createJavaExpression(element.java); 
@@ -934,6 +947,9 @@ export class CamelDefinitionApi {
         }
         if (element?.grok !== undefined) { 
             def.grok = CamelDefinitionApi.createGrokDataFormat(element.grok); 
+        }
+        if (element?.groovyJson !== undefined) { 
+            def.groovyJson = CamelDefinitionApi.createGroovyJSonDataFormat(element.groovyJson); 
         }
         if (element?.groovyXml !== undefined) { 
             def.groovyXml = CamelDefinitionApi.createGroovyXmlDataFormat(element.groovyXml); 
@@ -1393,6 +1409,9 @@ export class CamelDefinitionApi {
     }
 
     static createSetExchangePatternDefinition = (element: any): SetExchangePatternDefinition => { 
+        if (element && typeof element === 'string') {
+            element = {pattern: element};
+        }
         const def = element ? new SetExchangePatternDefinition({...element}) : new SetExchangePatternDefinition();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
         return def;
@@ -1637,6 +1656,9 @@ export class CamelDefinitionApi {
         if (element?.grok !== undefined) { 
             def.grok = CamelDefinitionApi.createGrokDataFormat(element.grok); 
         }
+        if (element?.groovyJson !== undefined) { 
+            def.groovyJson = CamelDefinitionApi.createGroovyJSonDataFormat(element.groovyJson); 
+        }
         if (element?.groovyXml !== undefined) { 
             def.groovyXml = CamelDefinitionApi.createGroovyXmlDataFormat(element.groovyXml); 
         }
@@ -1797,6 +1819,12 @@ export class CamelDefinitionApi {
         return def;
     }
 
+    static createSSLContextParametersDefinition = (element: any): SSLContextParametersDefinition => { 
+        const def = element ? new SSLContextParametersDefinition({...element}) : new SSLContextParametersDefinition();
+        def.uuid = element?.uuid ? element.uuid : def.uuid; 
+        return def;
+    }
+
     static createBatchResequencerConfig = (element: any): BatchResequencerConfig => { 
         const def = element ? new BatchResequencerConfig({...element}) : new BatchResequencerConfig();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
@@ -1923,6 +1951,9 @@ export class CamelDefinitionApi {
         if (element?.grok !== undefined) { 
             def.grok = CamelDefinitionApi.createGrokDataFormat(element.grok); 
         }
+        if (element?.groovyJson !== undefined) { 
+            def.groovyJson = CamelDefinitionApi.createGroovyJSonDataFormat(element.groovyJson); 
+        }
         if (element?.groovyXml !== undefined) { 
             def.groovyXml = CamelDefinitionApi.createGroovyXmlDataFormat(element.groovyXml); 
         }
@@ -1956,11 +1987,17 @@ export class CamelDefinitionApi {
         if (element?.mimeMultipart !== undefined) { 
             def.mimeMultipart = CamelDefinitionApi.createMimeMultipartDataFormat(element.mimeMultipart); 
         }
+        if (element?.ocsf !== undefined) { 
+            def.ocsf = CamelDefinitionApi.createOcsfDataFormat(element.ocsf); 
+        }
         if (element?.parquetAvro !== undefined) { 
             def.parquetAvro = CamelDefinitionApi.createParquetAvroDataFormat(element.parquetAvro); 
         }
         if (element?.pgp !== undefined) { 
             def.pgp = CamelDefinitionApi.createPGPDataFormat(element.pgp); 
+        }
+        if (element?.pqc !== undefined) { 
+            def.pqc = CamelDefinitionApi.createPQCDataFormat(element.pqc); 
         }
         if (element?.protobuf !== undefined) { 
             def.protobuf = CamelDefinitionApi.createProtobufDataFormat(element.protobuf); 
@@ -2048,6 +2085,12 @@ export class CamelDefinitionApi {
 
     static createGrokDataFormat = (element: any): GrokDataFormat => { 
         const def = element ? new GrokDataFormat({...element}) : new GrokDataFormat();
+        def.uuid = element?.uuid ? element.uuid : def.uuid; 
+        return def;
+    }
+
+    static createGroovyJSonDataFormat = (element: any): GroovyJSonDataFormat => { 
+        const def = element ? new GroovyJSonDataFormat({...element}) : new GroovyJSonDataFormat();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
         return def;
     }
@@ -2301,15 +2344,6 @@ export class CamelDefinitionApi {
         return def;
     }
 
-    static createCSimpleExpression = (element: any): CSimpleExpression => { 
-        if (element && typeof element === 'string') {
-            element = {expression: element};
-        }
-        const def = element ? new CSimpleExpression({...element}) : new CSimpleExpression();
-        def.uuid = element?.uuid ? element.uuid : def.uuid; 
-        return def;
-    }
-
     static createConstantExpression = (element: any): ConstantExpression => { 
         if (element && typeof element === 'string') {
             element = {expression: element};
@@ -2344,9 +2378,6 @@ export class CamelDefinitionApi {
         if (element?.constant !== undefined) { 
             def.constant = CamelDefinitionApi.createConstantExpression(element.constant); 
         }
-        if (element?.csimple !== undefined) { 
-            def.csimple = CamelDefinitionApi.createCSimpleExpression(element.csimple); 
-        }
         if (element?.datasonnet !== undefined) { 
             def.datasonnet = CamelDefinitionApi.createDatasonnetExpression(element.datasonnet); 
         }
@@ -2361,6 +2392,9 @@ export class CamelDefinitionApi {
         }
         if (element?.hl7terser !== undefined) { 
             def.hl7terser = CamelDefinitionApi.createHl7TerserExpression(element.hl7terser); 
+        }
+        if (element?.jactl !== undefined) { 
+            def.jactl = CamelDefinitionApi.createJactlExpression(element.jactl); 
         }
         if (element?.java !== undefined) { 
             def.java = CamelDefinitionApi.createJavaExpression(element.java); 
@@ -2439,6 +2473,15 @@ export class CamelDefinitionApi {
             element = {expression: element};
         }
         const def = element ? new Hl7TerserExpression({...element}) : new Hl7TerserExpression();
+        def.uuid = element?.uuid ? element.uuid : def.uuid; 
+        return def;
+    }
+
+    static createJactlExpression = (element: any): JactlExpression => { 
+        if (element && typeof element === 'string') {
+            element = {expression: element};
+        }
+        const def = element ? new JactlExpression({...element}) : new JactlExpression();
         def.uuid = element?.uuid ? element.uuid : def.uuid; 
         return def;
     }
@@ -2933,6 +2976,9 @@ export class CamelDefinitionApi {
         if (element?.grok !== undefined) { 
             def.grok = CamelDefinitionApi.createGrokDataFormat(element.grok); 
         }
+        if (element?.groovyJson !== undefined) { 
+            def.groovyJson = CamelDefinitionApi.createGroovyJSonDataFormat(element.groovyJson); 
+        }
         if (element?.groovyXml !== undefined) { 
             def.groovyXml = CamelDefinitionApi.createGroovyXmlDataFormat(element.groovyXml); 
         }
@@ -2966,11 +3012,17 @@ export class CamelDefinitionApi {
         if (element?.mimeMultipart !== undefined) { 
             def.mimeMultipart = CamelDefinitionApi.createMimeMultipartDataFormat(element.mimeMultipart); 
         }
+        if (element?.ocsf !== undefined) { 
+            def.ocsf = CamelDefinitionApi.createOcsfDataFormat(element.ocsf); 
+        }
         if (element?.parquetAvro !== undefined) { 
             def.parquetAvro = CamelDefinitionApi.createParquetAvroDataFormat(element.parquetAvro); 
         }
         if (element?.pgp !== undefined) { 
             def.pgp = CamelDefinitionApi.createPGPDataFormat(element.pgp); 
+        }
+        if (element?.pqc !== undefined) { 
+            def.pqc = CamelDefinitionApi.createPQCDataFormat(element.pqc); 
         }
         if (element?.protobuf !== undefined) { 
             def.protobuf = CamelDefinitionApi.createProtobufDataFormat(element.protobuf); 
@@ -3096,6 +3148,7 @@ export class CamelDefinitionApi {
             case 'DataFormatsDefinitionDeserializer': return CamelDefinitionApi.createDataFormatsDefinitionDeserializer(newBody);
             case 'ErrorHandlerDeserializer': return CamelDefinitionApi.createErrorHandlerDeserializer(newBody);
             case 'OutputAwareFromDefinition': return CamelDefinitionApi.createOutputAwareFromDefinition(newBody);
+            case 'A2ASubTaskDefinition': return CamelDefinitionApi.createA2ASubTaskDefinition(newBody);
             case 'AggregateDefinition': return CamelDefinitionApi.createAggregateDefinition(newBody);
             case 'BeanDefinition': return CamelDefinitionApi.createBeanDefinition(newBody);
             case 'BeanFactoryDefinition': return CamelDefinitionApi.createBeanFactoryDefinition(newBody);
@@ -3205,6 +3258,7 @@ export class CamelDefinitionApi {
             case 'BeanPropertiesDefinition': return CamelDefinitionApi.createBeanPropertiesDefinition(newBody);
             case 'BeanPropertyDefinition': return CamelDefinitionApi.createBeanPropertyDefinition(newBody);
             case 'ComponentScanDefinition': return CamelDefinitionApi.createComponentScanDefinition(newBody);
+            case 'SSLContextParametersDefinition': return CamelDefinitionApi.createSSLContextParametersDefinition(newBody);
             case 'BatchResequencerConfig': return CamelDefinitionApi.createBatchResequencerConfig(newBody);
             case 'StreamResequencerConfig': return CamelDefinitionApi.createStreamResequencerConfig(newBody);
             case 'ASN1DataFormat': return CamelDefinitionApi.createASN1DataFormat(newBody);
@@ -3224,6 +3278,7 @@ export class CamelDefinitionApi {
             case 'FlatpackDataFormat': return CamelDefinitionApi.createFlatpackDataFormat(newBody);
             case 'ForyDataFormat': return CamelDefinitionApi.createForyDataFormat(newBody);
             case 'GrokDataFormat': return CamelDefinitionApi.createGrokDataFormat(newBody);
+            case 'GroovyJSonDataFormat': return CamelDefinitionApi.createGroovyJSonDataFormat(newBody);
             case 'GroovyXmlDataFormat': return CamelDefinitionApi.createGroovyXmlDataFormat(newBody);
             case 'GzipDeflaterDataFormat': return CamelDefinitionApi.createGzipDeflaterDataFormat(newBody);
             case 'HL7DataFormat': return CamelDefinitionApi.createHL7DataFormat(newBody);
@@ -3262,7 +3317,6 @@ export class CamelDefinitionApi {
             case 'NoErrorHandlerDefinition': return CamelDefinitionApi.createNoErrorHandlerDefinition(newBody);
             case 'RefErrorHandlerDefinition': return CamelDefinitionApi.createRefErrorHandlerDefinition(newBody);
             case 'SpringTransactionErrorHandlerDefinition': return CamelDefinitionApi.createSpringTransactionErrorHandlerDefinition(newBody);
-            case 'CSimpleExpression': return CamelDefinitionApi.createCSimpleExpression(newBody);
             case 'ConstantExpression': return CamelDefinitionApi.createConstantExpression(newBody);
             case 'DatasonnetExpression': return CamelDefinitionApi.createDatasonnetExpression(newBody);
             case 'ExchangePropertyExpression': return CamelDefinitionApi.createExchangePropertyExpression(newBody);
@@ -3270,6 +3324,7 @@ export class CamelDefinitionApi {
             case 'GroovyExpression': return CamelDefinitionApi.createGroovyExpression(newBody);
             case 'HeaderExpression': return CamelDefinitionApi.createHeaderExpression(newBody);
             case 'Hl7TerserExpression': return CamelDefinitionApi.createHl7TerserExpression(newBody);
+            case 'JactlExpression': return CamelDefinitionApi.createJactlExpression(newBody);
             case 'JavaExpression': return CamelDefinitionApi.createJavaExpression(newBody);
             case 'JavaScriptExpression': return CamelDefinitionApi.createJavaScriptExpression(newBody);
             case 'JqExpression': return CamelDefinitionApi.createJqExpression(newBody);
@@ -3342,12 +3397,12 @@ export class CamelDefinitionApi {
        delete newBody.dslName;
        switch (name) { 
             case 'ConstantExpression': return CamelDefinitionApi.createConstantExpression(newBody);
-            case 'CSimpleExpression': return CamelDefinitionApi.createCSimpleExpression(newBody);
             case 'DatasonnetExpression': return CamelDefinitionApi.createDatasonnetExpression(newBody);
             case 'ExchangePropertyExpression': return CamelDefinitionApi.createExchangePropertyExpression(newBody);
             case 'GroovyExpression': return CamelDefinitionApi.createGroovyExpression(newBody);
             case 'HeaderExpression': return CamelDefinitionApi.createHeaderExpression(newBody);
             case 'Hl7TerserExpression': return CamelDefinitionApi.createHl7TerserExpression(newBody);
+            case 'JactlExpression': return CamelDefinitionApi.createJactlExpression(newBody);
             case 'JavaExpression': return CamelDefinitionApi.createJavaExpression(newBody);
             case 'JqExpression': return CamelDefinitionApi.createJqExpression(newBody);
             case 'JavaScriptExpression': return CamelDefinitionApi.createJavaScriptExpression(newBody);
@@ -3390,6 +3445,7 @@ export class CamelDefinitionApi {
             case 'FlatpackDataFormat': return CamelDefinitionApi.createFlatpackDataFormat(newBody);
             case 'ForyDataFormat': return CamelDefinitionApi.createForyDataFormat(newBody);
             case 'GrokDataFormat': return CamelDefinitionApi.createGrokDataFormat(newBody);
+            case 'GroovyJSonDataFormat': return CamelDefinitionApi.createGroovyJSonDataFormat(newBody);
             case 'GroovyXmlDataFormat': return CamelDefinitionApi.createGroovyXmlDataFormat(newBody);
             case 'GzipDeflaterDataFormat': return CamelDefinitionApi.createGzipDeflaterDataFormat(newBody);
             case 'HL7DataFormat': return CamelDefinitionApi.createHL7DataFormat(newBody);

@@ -24,7 +24,6 @@ describe('Templated Route', () => {
     it('Parse Templated Route', () => {
         const text = fs.readFileSync('test/templatedRoute.camel.yaml', {encoding: 'utf8', flag: 'r'});
         const i = CamelDefinitionYaml.yamlToIntegration("templatedRoute.camel.yaml", text);
-        console.log(i);
         const text2 = CamelDefinitionYaml.integrationToYaml(i);
         expect(text2).to.equal(text);
     });

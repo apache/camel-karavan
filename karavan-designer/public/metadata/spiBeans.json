@@ -10,7 +10,7 @@
     "deprecated" : false,
     "groupId" : "org.apache.camel",
     "artifactId" : "camel-support",
-    "version" : "4.18.1"
+    "version" : "4.22.0"
   }
 }
 ,
@@ -25,7 +25,7 @@
     "deprecated" : false,
     "groupId" : "org.apache.camel",
     "artifactId" : "camel-caffeine",
-    "version" : "4.18.1",
+    "version" : "4.22.0",
     "properties" : {
       "useRecovery" : {
         "index" : 0,
@@ -89,6 +89,7 @@
         "deprecated" : false,
         "autowired" : false,
         "secret" : false,
+        "security" : "insecure:serialization",
         "description" : "Whether headers on the Exchange that are Java objects and Serializable should be included and saved to the repository"
       }
     }
@@ -106,7 +107,7 @@
     "deprecated" : false,
     "groupId" : "org.apache.camel",
     "artifactId" : "camel-caffeine",
-    "version" : "4.18.1",
+    "version" : "4.22.0",
     "properties" : {
       "cacheName" : {
         "index" : 0,
@@ -136,7 +137,7 @@
     "deprecated" : false,
     "groupId" : "org.apache.camel",
     "artifactId" : "camel-cassandraql",
-    "version" : "4.18.1",
+    "version" : "4.22.0",
     "properties" : {
       "sessionHolder" : {
         "index" : 0,
@@ -313,6 +314,7 @@
         "deprecated" : false,
         "autowired" : false,
         "secret" : false,
+        "security" : "insecure:serialization",
         "description" : "Whether headers on the Exchange that are Java objects and Serializable should be included and saved to the repository"
       }
     }
@@ -330,7 +332,7 @@
     "deprecated" : false,
     "groupId" : "org.apache.camel",
     "artifactId" : "camel-cassandraql",
-    "version" : "4.18.1",
+    "version" : "4.22.0",
     "properties" : {
       "session" : {
         "index" : 0,
@@ -435,7 +437,7 @@
     "deprecated" : false,
     "groupId" : "org.apache.camel",
     "artifactId" : "camel-consul",
-    "version" : "4.18.1",
+    "version" : "4.22.0",
     "properties" : {
       "id" : {
         "index" : 0,
@@ -510,6 +512,7 @@
         "deprecated" : false,
         "autowired" : false,
         "secret" : true,
+        "security" : "secret",
         "description" : "Sets the ACL token to be used with Consul"
       },
       "userName" : {
@@ -523,6 +526,7 @@
         "deprecated" : false,
         "autowired" : false,
         "secret" : true,
+        "security" : "secret",
         "description" : "Sets the username to be used for basic authentication"
       },
       "password" : {
@@ -536,6 +540,7 @@
         "deprecated" : false,
         "autowired" : false,
         "secret" : true,
+        "security" : "secret",
         "description" : "Sets the password to be used for basic authentication"
       },
       "connectTimeout" : {
@@ -657,7 +662,7 @@
     "deprecated" : false,
     "groupId" : "org.apache.camel",
     "artifactId" : "camel-quartz",
-    "version" : "4.18.1",
+    "version" : "4.22.0",
     "properties" : {
       "routeStartTime" : {
         "index" : 0,
@@ -749,7 +754,7 @@
     "deprecated" : true,
     "groupId" : "org.apache.camel",
     "artifactId" : "camel-support",
-    "version" : "4.18.1",
+    "version" : "4.22.0",
     "properties" : {
       "inFilter" : {
         "index" : 0,
@@ -786,8 +791,8 @@
         "deprecated" : false,
         "autowired" : false,
         "secret" : false,
-        "defaultValue" : false,
-        "description" : "Whether header names should be converted to lower case before checking it with the filter Set. It does not affect filtering using regular expression pattern."
+        "defaultValue" : true,
+        "description" : "Whether header names should be converted to lower case before checking it with the filter Set. This ensures that all variations of header names will be taken into account. It does not affect filtering using regular expression pattern."
       },
       "allowNullValues" : {
         "index" : 3,
@@ -815,7 +820,7 @@
         "autowired" : false,
         "secret" : false,
         "defaultValue" : true,
-        "description" : "Sets the caseInsensitive property which is a boolean to determine whether header names should be case insensitive when checking it with the filter set. It does not affect filtering using regular expression pattern."
+        "description" : "Sets the caseInsensitive property which is a boolean to determine whether header names should be case insensitive when checking it with the filter set. This ensures that all variations of header names will be taken into account. It does not affect filtering using regular expression pattern."
       },
       "filterOnMatch" : {
         "index" : 5,
@@ -846,7 +851,7 @@
     "deprecated" : false,
     "groupId" : "org.apache.camel",
     "artifactId" : "camel-base-engine",
-    "version" : "4.18.1",
+    "version" : "4.22.0",
     "properties" : {
       "maxSeconds" : {
         "index" : 0,
@@ -901,7 +906,7 @@
     "deprecated" : false,
     "groupId" : "org.apache.camel",
     "artifactId" : "camel-base-engine",
-    "version" : "4.18.1",
+    "version" : "4.22.0",
     "properties" : {
       "fromRouteId" : {
         "index" : 0,
@@ -968,7 +973,7 @@
     "deprecated" : false,
     "groupId" : "org.apache.camel",
     "artifactId" : "camel-ehcache",
-    "version" : "4.18.1",
+    "version" : "4.22.0",
     "properties" : {
       "cacheName" : {
         "index" : 0,
@@ -993,6 +998,7 @@
         "deprecated" : false,
         "autowired" : false,
         "secret" : false,
+        "security" : "insecure:serialization",
         "description" : "Whether headers on the Exchange that are Java objects and Serializable should be included and saved to the repository"
       },
       "useRecovery" : {
@@ -1061,7 +1067,7 @@
     "deprecated" : false,
     "groupId" : "org.apache.camel",
     "artifactId" : "camel-ehcache",
-    "version" : "4.18.1",
+    "version" : "4.22.0",
     "properties" : {
       "cacheName" : {
         "index" : 0,
@@ -1087,11 +1093,11 @@
     "javaType" : "org.apache.camel.component.es.aggregation.ElasticsearchBulkRequestAggregationStrategy",
     "interfaceType" : "org.apache.camel.AggregationStrategy",
     "title" : "Elasticsearch Bulk Request Aggregation Strategy",
-    "description" : "Aggregates two ElasticSearch BulkOperation into a single BulkRequest",
+    "description" : "Aggregates two Elasticsearch BulkOperation into a single BulkRequest",
     "deprecated" : false,
     "groupId" : "org.apache.camel",
     "artifactId" : "camel-elasticsearch",
-    "version" : "4.18.1"
+    "version" : "4.22.0"
   }
 }
 ,
@@ -1106,7 +1112,7 @@
     "deprecated" : false,
     "groupId" : "org.apache.camel",
     "artifactId" : "camel-support",
-    "version" : "4.18.1",
+    "version" : "4.22.0",
     "properties" : {
       "cacheSize" : {
         "index" : 0,
@@ -1174,7 +1180,7 @@
     "deprecated" : false,
     "groupId" : "org.apache.camel",
     "artifactId" : "camel-file",
-    "version" : "4.18.1",
+    "version" : "4.22.0",
     "properties" : {
       "root" : {
         "index" : 0,
@@ -1206,8 +1212,9 @@
         "kind" : "property",
         "displayName" : "Acquire Lock Delay Unit",
         "required" : false,
-        "type" : "object",
+        "type" : "enum",
         "javaType" : "java.util.concurrent.TimeUnit",
+        "enum" : [ "NANOSECONDS", "MICROSECONDS", "MILLISECONDS", "SECONDS", "MINUTES", "HOURS", "DAYS" ],
         "deprecated" : false,
         "autowired" : false,
         "secret" : false,
@@ -1232,8 +1239,9 @@
         "kind" : "property",
         "displayName" : "Acquire Lock Interval Unit",
         "required" : false,
-        "type" : "object",
+        "type" : "enum",
         "javaType" : "java.util.concurrent.TimeUnit",
+        "enum" : [ "NANOSECONDS", "MICROSECONDS", "MILLISECONDS", "SECONDS", "MINUTES", "HOURS", "DAYS" ],
         "deprecated" : false,
         "autowired" : false,
         "secret" : false,
@@ -1284,8 +1292,9 @@
         "kind" : "property",
         "displayName" : "Cluster Data Task Timeout Unit",
         "required" : false,
-        "type" : "object",
+        "type" : "enum",
         "javaType" : "java.util.concurrent.TimeUnit",
+        "enum" : [ "NANOSECONDS", "MICROSECONDS", "MILLISECONDS", "SECONDS", "MINUTES", "HOURS", "DAYS" ],
         "deprecated" : false,
         "autowired" : false,
         "secret" : false,
@@ -1307,7 +1316,7 @@
     "deprecated" : false,
     "groupId" : "org.apache.camel",
     "artifactId" : "camel-core-processor",
-    "version" : "4.18.1"
+    "version" : "4.22.0"
   }
 }
 ,
@@ -1322,7 +1331,7 @@
     "deprecated" : false,
     "groupId" : "org.apache.camel",
     "artifactId" : "camel-core-processor",
-    "version" : "4.18.1"
+    "version" : "4.22.0"
   }
 }
 ,
@@ -1337,7 +1346,7 @@
     "deprecated" : false,
     "groupId" : "org.apache.camel",
     "artifactId" : "camel-core-processor",
-    "version" : "4.18.1"
+    "version" : "4.22.0"
   }
 }
 ,
@@ -1352,7 +1361,7 @@
     "deprecated" : false,
     "groupId" : "org.apache.camel",
     "artifactId" : "camel-hazelcast",
-    "version" : "4.18.1",
+    "version" : "4.22.0",
     "properties" : {
       "mapName" : {
         "index" : 0,
@@ -1465,6 +1474,7 @@
         "deprecated" : false,
         "autowired" : false,
         "secret" : false,
+        "security" : "insecure:serialization",
         "description" : "Whether headers on the Exchange that are Java objects and Serializable should be included and saved to the repository"
       }
     }
@@ -1482,7 +1492,7 @@
     "deprecated" : false,
     "groupId" : "org.apache.camel",
     "artifactId" : "camel-hazelcast",
-    "version" : "4.18.1",
+    "version" : "4.22.0",
     "properties" : {
       "repositoryName" : {
         "index" : 0,
@@ -1524,7 +1534,7 @@
     "deprecated" : false,
     "groupId" : "org.apache.camel",
     "artifactId" : "camel-infinispan-embedded",
-    "version" : "4.18.1",
+    "version" : "4.22.0",
     "properties" : {
       "cacheName" : {
         "index" : 0,
@@ -1612,6 +1622,7 @@
         "deprecated" : false,
         "autowired" : false,
         "secret" : false,
+        "security" : "insecure:serialization",
         "description" : "Whether headers on the Exchange that are Java objects and Serializable should be included and saved to the repository"
       }
     }
@@ -1629,7 +1640,7 @@
     "deprecated" : false,
     "groupId" : "org.apache.camel",
     "artifactId" : "camel-infinispan-embedded",
-    "version" : "4.18.1",
+    "version" : "4.22.0",
     "properties" : {
       "id" : {
         "index" : 0,
@@ -1712,8 +1723,9 @@
         "kind" : "property",
         "displayName" : "Lifespan Time Unit",
         "required" : false,
-        "type" : "object",
+        "type" : "enum",
         "javaType" : "java.util.concurrent.TimeUnit",
+        "enum" : [ "NANOSECONDS", "MICROSECONDS", "MILLISECONDS", "SECONDS", "MINUTES", "HOURS", "DAYS" ],
         "deprecated" : false,
         "autowired" : false,
         "secret" : false,
@@ -1735,7 +1747,7 @@
     "deprecated" : false,
     "groupId" : "org.apache.camel",
     "artifactId" : "camel-infinispan-embedded",
-    "version" : "4.18.1",
+    "version" : "4.22.0",
     "properties" : {
       "cacheName" : {
         "index" : 0,
@@ -1776,7 +1788,7 @@
     "deprecated" : false,
     "groupId" : "org.apache.camel",
     "artifactId" : "camel-infinispan",
-    "version" : "4.18.1",
+    "version" : "4.22.0",
     "properties" : {
       "cacheName" : {
         "index" : 0,
@@ -1864,6 +1876,7 @@
         "deprecated" : false,
         "autowired" : false,
         "secret" : false,
+        "security" : "insecure:serialization",
         "description" : "Whether headers on the Exchange that are Java objects and Serializable should be included and saved to the repository"
       }
     }
@@ -1881,7 +1894,7 @@
     "deprecated" : false,
     "groupId" : "org.apache.camel",
     "artifactId" : "camel-infinispan",
-    "version" : "4.18.1",
+    "version" : "4.22.0",
     "properties" : {
       "id" : {
         "index" : 0,
@@ -1964,8 +1977,9 @@
         "kind" : "property",
         "displayName" : "Lifespan Time Unit",
         "required" : false,
-        "type" : "object",
+        "type" : "enum",
         "javaType" : "java.util.concurrent.TimeUnit",
+        "enum" : [ "NANOSECONDS", "MICROSECONDS", "MILLISECONDS", "SECONDS", "MINUTES", "HOURS", "DAYS" ],
         "deprecated" : false,
         "autowired" : false,
         "secret" : false,
@@ -2021,6 +2035,7 @@
         "deprecated" : false,
         "autowired" : false,
         "secret" : true,
+        "security" : "secret",
         "description" : "Define the password to access the infinispan instance"
       },
       "securityServerName" : {
@@ -2090,7 +2105,7 @@
     "deprecated" : false,
     "groupId" : "org.apache.camel",
     "artifactId" : "camel-infinispan",
-    "version" : "4.18.1",
+    "version" : "4.22.0",
     "properties" : {
       "cacheName" : {
         "index" : 0,
@@ -2131,7 +2146,7 @@
     "deprecated" : false,
     "groupId" : "org.apache.camel",
     "artifactId" : "camel-jcache",
-    "version" : "4.18.1",
+    "version" : "4.22.0",
     "properties" : {
       "configuration" : {
         "index" : 0,
@@ -2168,6 +2183,7 @@
         "deprecated" : false,
         "autowired" : false,
         "secret" : false,
+        "security" : "insecure:serialization",
         "description" : "Whether headers on the Exchange that are Java objects and Serializable should be included and saved to the repository"
       }
     }
@@ -2185,7 +2201,7 @@
     "deprecated" : false,
     "groupId" : "org.apache.camel",
     "artifactId" : "camel-jcache",
-    "version" : "4.18.1",
+    "version" : "4.22.0",
     "properties" : {
       "configuration" : {
         "index" : 0,
@@ -2214,7 +2230,7 @@
     "deprecated" : false,
     "groupId" : "org.apache.camel",
     "artifactId" : "camel-jgroups-raft",
-    "version" : "4.18.1",
+    "version" : "4.22.0",
     "properties" : {
       "id" : {
         "index" : 0,
@@ -2282,7 +2298,7 @@
     "deprecated" : false,
     "groupId" : "org.apache.camel",
     "artifactId" : "camel-sql",
-    "version" : "4.18.1",
+    "version" : "4.22.0",
     "properties" : {
       "dataSource" : {
         "index" : 0,
@@ -2405,6 +2421,7 @@
         "deprecated" : false,
         "autowired" : false,
         "secret" : false,
+        "security" : "insecure:serialization",
         "description" : "Whether headers on the Exchange that are Java objects and Serializable should be included and saved to the repository"
       },
       "deserializationFilter" : {
@@ -2418,8 +2435,8 @@
         "deprecated" : false,
         "autowired" : false,
         "secret" : false,
-        "defaultValue" : "java.**;org.apache.camel.**;!*",
-        "description" : "Sets a deserialization filter while reading Object from Aggregation Repository. By default the filter will allow all java packages and subpackages and all org.apache.camel packages and subpackages, while the remaining will be blacklisted and not deserialized. This parameter should be customized if you're using classes you trust to be deserialized."
+        "defaultValue" : "!java.net.**;java.**;org.apache.camel.**;maxdepth=20;maxrefs=10000;maxbytes=10485760;!*",
+        "description" : "Sets a deserialization filter while reading Object from Aggregation Repository. By default the filter denies java.net.** (to avoid classes whose hash/equals methods perform network I/O) and otherwise allows all java packages and subpackages and all org.apache.camel packages and subpackages, while the remaining will be blacklisted and not deserialized. It also applies JEP-290 graph-shape limits (maxdepth, maxrefs, maxbytes) as defense-in-depth against resource-exhaustion payloads. This parameter should be customized if you're using classes you trust to be deserialized."
       },
       "jdbcOptimisticLockingExceptionMapper" : {
         "index" : 11,
@@ -2462,7 +2479,7 @@
     "deprecated" : false,
     "groupId" : "org.apache.camel",
     "artifactId" : "camel-sql",
-    "version" : "4.18.1",
+    "version" : "4.22.0",
     "properties" : {
       "tableName" : {
         "index" : 0,
@@ -2619,7 +2636,7 @@
     "deprecated" : true,
     "groupId" : "org.apache.camel",
     "artifactId" : "camel-kafka",
-    "version" : "4.18.1",
+    "version" : "4.22.0",
     "properties" : {
       "topic" : {
         "index" : 0,
@@ -2710,7 +2727,7 @@
     "deprecated" : true,
     "groupId" : "org.apache.camel",
     "artifactId" : "camel-kubernetes",
-    "version" : "4.18.1",
+    "version" : "4.22.0",
     "properties" : {
       "masterUrl" : {
         "index" : 0,
@@ -2754,8 +2771,9 @@
         "kind" : "property",
         "displayName" : "Lease Resource Type",
         "required" : false,
-        "type" : "object",
+        "type" : "enum",
         "javaType" : "org.apache.camel.component.kubernetes.cluster.LeaseResourceType",
+        "enum" : [ "ConfigMap", "Lease" ],
         "deprecated" : false,
         "autowired" : false,
         "secret" : false,
@@ -2903,7 +2921,7 @@
     "deprecated" : true,
     "groupId" : "org.apache.camel",
     "artifactId" : "camel-leveldb",
-    "version" : "4.18.1",
+    "version" : "4.22.0",
     "properties" : {
       "persistentFileName" : {
         "index" : 0,
@@ -3015,6 +3033,7 @@
         "deprecated" : false,
         "autowired" : false,
         "secret" : false,
+        "security" : "insecure:serialization",
         "description" : "Whether headers on the Exchange that are Java objects and Serializable should be included and saved to the repository"
       },
       "serializer" : {
@@ -3041,8 +3060,8 @@
         "deprecated" : false,
         "autowired" : false,
         "secret" : false,
-        "defaultValue" : "java.**;org.apache.camel.**;!*",
-        "description" : "Sets a deserialization filter while reading Object from Aggregation Repository. By default the filter will allow all java packages and subpackages and all org.apache.camel packages and subpackages, while the remaining will be blacklisted and not deserialized. This parameter should be customized if you're using classes you trust to be deserialized."
+        "defaultValue" : "!java.net.**;java.**;org.apache.camel.**;maxdepth=20;maxrefs=10000;maxbytes=10485760;!*",
+        "description" : "Sets a deserialization filter while reading Object from Aggregation Repository. By default the filter denies java.net.** (to avoid classes whose hash/equals methods perform network I/O) and otherwise allows all java packages and subpackages and all org.apache.camel packages and subpackages, while the remaining will be blacklisted and not deserialized. It also applies JEP-290 graph-shape limits (maxdepth, maxrefs, maxbytes) as defense-in-depth against resource-exhaustion payloads. This parameter should be customized if you're using classes you trust to be deserialized."
       }
     }
   }
@@ -3059,7 +3078,7 @@
     "deprecated" : false,
     "groupId" : "org.apache.camel",
     "artifactId" : "camel-http",
-    "version" : "4.18.1",
+    "version" : "4.22.0",
     "properties" : {
       "loggingLevel" : {
         "index" : 0,
@@ -3233,7 +3252,7 @@
     "deprecated" : false,
     "groupId" : "org.apache.camel",
     "artifactId" : "camel-core-processor",
-    "version" : "4.18.1",
+    "version" : "4.22.0",
     "properties" : {
       "optimisticLocking" : {
         "index" : 0,
@@ -3262,7 +3281,7 @@
     "deprecated" : false,
     "groupId" : "org.apache.camel",
     "artifactId" : "camel-support",
-    "version" : "4.18.1",
+    "version" : "4.22.0",
     "properties" : {
       "cacheSize" : {
         "index" : 0,
@@ -3292,7 +3311,7 @@
     "deprecated" : false,
     "groupId" : "org.apache.camel",
     "artifactId" : "camel-mongodb",
-    "version" : "4.18.1",
+    "version" : "4.22.0",
     "properties" : {
       "mongoClient" : {
         "index" : 0,
@@ -3345,7 +3364,151 @@
     "deprecated" : false,
     "groupId" : "org.apache.camel",
     "artifactId" : "camel-opensearch",
-    "version" : "4.18.1"
+    "version" : "4.22.0"
+  }
+}
+,
+{
+  "bean" : {
+    "kind" : "bean",
+    "name" : "RedisAggregationRepository",
+    "javaType" : "org.apache.camel.component.redis.processor.aggregate.RedisAggregationRepository",
+    "interfaceType" : "org.apache.camel.spi.AggregationRepository",
+    "title" : "Redis Aggregation Repository",
+    "description" : "Aggregation repository that uses Redis to store exchanges.",
+    "deprecated" : false,
+    "groupId" : "org.apache.camel",
+    "artifactId" : "camel-redis",
+    "version" : "4.22.0",
+    "properties" : {
+      "redisson" : {
+        "index" : 0,
+        "kind" : "property",
+        "displayName" : "Redisson",
+        "label" : "advanced",
+        "required" : false,
+        "type" : "object",
+        "javaType" : "org.redisson.api.RedissonClient",
+        "deprecated" : false,
+        "autowired" : false,
+        "secret" : false,
+        "description" : "To use an existing Redis client to connect to Redis server"
+      },
+      "endpoint" : {
+        "index" : 1,
+        "kind" : "property",
+        "displayName" : "Endpoint",
+        "required" : true,
+        "type" : "string",
+        "javaType" : "java.lang.String",
+        "deprecated" : false,
+        "autowired" : false,
+        "secret" : false,
+        "description" : "URL to remote Redis server"
+      },
+      "mapName" : {
+        "index" : 2,
+        "kind" : "property",
+        "displayName" : "Map Name",
+        "required" : true,
+        "type" : "string",
+        "javaType" : "java.lang.String",
+        "deprecated" : false,
+        "autowired" : false,
+        "secret" : false,
+        "description" : "Name of cache to use"
+      },
+      "persistenceMapName" : {
+        "index" : 3,
+        "kind" : "property",
+        "displayName" : "Persistence Map Name",
+        "label" : "advanced",
+        "required" : false,
+        "type" : "string",
+        "javaType" : "java.lang.String",
+        "deprecated" : false,
+        "autowired" : false,
+        "secret" : false,
+        "description" : "Name of cache to use for completed exchanges"
+      },
+      "optimistic" : {
+        "index" : 4,
+        "kind" : "property",
+        "displayName" : "Optimistic",
+        "required" : false,
+        "type" : "boolean",
+        "javaType" : "boolean",
+        "deprecated" : false,
+        "autowired" : false,
+        "secret" : false,
+        "description" : "Whether optimistic locking is in use"
+      },
+      "useRecovery" : {
+        "index" : 5,
+        "kind" : "property",
+        "displayName" : "Use Recovery",
+        "required" : false,
+        "type" : "boolean",
+        "javaType" : "boolean",
+        "deprecated" : false,
+        "autowired" : false,
+        "secret" : false,
+        "defaultValue" : true,
+        "description" : "Whether or not recovery is enabled"
+      },
+      "deadLetterUri" : {
+        "index" : 6,
+        "kind" : "property",
+        "displayName" : "Dead Letter Uri",
+        "required" : false,
+        "type" : "string",
+        "javaType" : "java.lang.String",
+        "deprecated" : false,
+        "autowired" : false,
+        "secret" : false,
+        "description" : "Sets an optional dead letter channel which exhausted recovered Exchange should be send to."
+      },
+      "recoveryInterval" : {
+        "index" : 7,
+        "kind" : "property",
+        "displayName" : "Recovery Interval",
+        "required" : false,
+        "type" : "integer",
+        "javaType" : "long",
+        "deprecated" : false,
+        "autowired" : false,
+        "secret" : false,
+        "defaultValue" : 5000,
+        "description" : "Sets the interval between recovery scans"
+      },
+      "maximumRedeliveries" : {
+        "index" : 8,
+        "kind" : "property",
+        "displayName" : "Maximum Redeliveries",
+        "required" : false,
+        "type" : "integer",
+        "javaType" : "int",
+        "deprecated" : false,
+        "autowired" : false,
+        "secret" : false,
+        "defaultValue" : 3,
+        "description" : "Sets an optional limit of the number of redelivery attempt of recovered Exchange should be attempted, before its exhausted. When this limit is hit, then the Exchange is moved to the dead letter channel."
+      },
+      "allowSerializedHeaders" : {
+        "index" : 9,
+        "kind" : "property",
+        "displayName" : "Allow Serialized Headers",
+        "label" : "advanced",
+        "required" : false,
+        "type" : "boolean",
+        "javaType" : "boolean",
+        "deprecated" : false,
+        "autowired" : false,
+        "secret" : false,
+        "security" : "insecure:serialization",
+        "description" : "Whether headers on the Exchange that are Java objects and Serializable should be included and saved to the repository"
+      }
+    }
   }
 }
 ,
@@ -3360,7 +3523,7 @@
     "deprecated" : false,
     "groupId" : "org.apache.camel",
     "artifactId" : "camel-quartz",
-    "version" : "4.18.1",
+    "version" : "4.22.0",
     "properties" : {
       "routeStartRepeatCount" : {
         "index" : 0,
@@ -3482,6 +3645,47 @@
 {
   "bean" : {
     "kind" : "bean",
+    "name" : "SpringCacheIdempotentRepository",
+    "javaType" : "org.apache.camel.spring.processor.idempotent.SpringCacheIdempotentRepository",
+    "interfaceType" : "org.apache.camel.spi.IdempotentRepository",
+    "title" : "Spring Cache Idempotent Repository",
+    "description" : "SpringCache based message id repository.",
+    "deprecated" : false,
+    "groupId" : "org.apache.camel",
+    "artifactId" : "camel-spring",
+    "version" : "4.22.0",
+    "properties" : {
+      "manager" : {
+        "index" : 0,
+        "kind" : "property",
+        "displayName" : "Manager",
+        "required" : true,
+        "type" : "object",
+        "javaType" : "org.springframework.cache.CacheManager",
+        "deprecated" : false,
+        "autowired" : false,
+        "secret" : false,
+        "description" : "The Spring Cache Manager"
+      },
+      "cacheName" : {
+        "index" : 1,
+        "kind" : "property",
+        "displayName" : "Cache Name",
+        "required" : true,
+        "type" : "string",
+        "javaType" : "java.lang.String",
+        "deprecated" : false,
+        "autowired" : false,
+        "secret" : false,
+        "description" : "The name of the cache to use"
+      }
+    }
+  }
+}
+,
+{
+  "bean" : {
+    "kind" : "bean",
     "name" : "SpringRedisIdempotentRepository",
     "javaType" : "org.apache.camel.component.redis.processor.idempotent.SpringRedisIdempotentRepository",
     "interfaceType" : "org.apache.camel.spi.IdempotentRepository",
@@ -3490,7 +3694,7 @@
     "deprecated" : false,
     "groupId" : "org.apache.camel",
     "artifactId" : "camel-spring-redis",
-    "version" : "4.18.1",
+    "version" : "4.22.0",
     "properties" : {
       "repositoryName" : {
         "index" : 0,
@@ -3544,7 +3748,7 @@
     "deprecated" : false,
     "groupId" : "org.apache.camel",
     "artifactId" : "camel-core-processor",
-    "version" : "4.18.1",
+    "version" : "4.22.0",
     "properties" : {
       "delimiter" : {
         "index" : 0,
@@ -3573,7 +3777,7 @@
     "deprecated" : false,
     "groupId" : "org.apache.camel",
     "artifactId" : "camel-tarfile",
-    "version" : "4.18.1",
+    "version" : "4.22.0",
     "properties" : {
       "filePrefix" : {
         "index" : 0,
@@ -3654,7 +3858,7 @@
     "deprecated" : false,
     "groupId" : "org.apache.camel",
     "artifactId" : "camel-support",
-    "version" : "4.18.1",
+    "version" : "4.22.0",
     "properties" : {
       "failureThreshold" : {
         "index" : 0,
@@ -3760,7 +3964,7 @@
     "deprecated" : false,
     "groupId" : "org.apache.camel",
     "artifactId" : "camel-support",
-    "version" : "4.18.1",
+    "version" : "4.22.0",
     "properties" : {
       "scope" : {
         "index" : 0,
@@ -3831,7 +4035,7 @@
     "deprecated" : false,
     "groupId" : "org.apache.camel",
     "artifactId" : "camel-core-processor",
-    "version" : "4.18.1"
+    "version" : "4.22.0"
   }
 }
 ,
@@ -3846,7 +4050,7 @@
     "deprecated" : false,
     "groupId" : "org.apache.camel",
     "artifactId" : "camel-core-processor",
-    "version" : "4.18.1"
+    "version" : "4.22.0"
   }
 }
 ,
@@ -3861,7 +4065,7 @@
     "deprecated" : false,
     "groupId" : "org.apache.camel",
     "artifactId" : "camel-xslt",
-    "version" : "4.18.1",
+    "version" : "4.22.0",
     "properties" : {
       "xslFile" : {
         "index" : 0,
@@ -3930,7 +4134,7 @@
     "deprecated" : false,
     "groupId" : "org.apache.camel",
     "artifactId" : "camel-xslt-saxon",
-    "version" : "4.18.1",
+    "version" : "4.22.0",
     "properties" : {
       "xslFile" : {
         "index" : 0,
@@ -3999,7 +4203,7 @@
     "deprecated" : false,
     "groupId" : "org.apache.camel",
     "artifactId" : "camel-zipfile",
-    "version" : "4.18.1",
+    "version" : "4.22.0",
     "properties" : {
       "filePrefix" : {
         "index" : 0,
@@ -4107,7 +4311,7 @@
     "deprecated" : false,
     "groupId" : "org.apache.camel",
     "artifactId" : "camel-zookeeper",
-    "version" : "4.18.1",
+    "version" : "4.22.0",
     "properties" : {
       "nodes" : {
         "index" : 0,

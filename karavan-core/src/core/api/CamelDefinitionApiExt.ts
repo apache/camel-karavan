@@ -21,7 +21,8 @@ import {
     ExpressionDefinition,
     RouteDefinition,
     RestDefinition,
-    RouteConfigurationDefinition, FromDefinition, RouteTemplateDefinition,
+    RouteConfigurationDefinition, FromDefinition, RouteTemplateDefinition, GetDefinition, HeadDefinition,
+    PatchDefinition, PostDefinition, PutDefinition, DeleteDefinition,
 } from '../model/CamelDefinition';
 import { Beans, CamelElement, CamelElementMeta, Integration } from '../model/IntegrationDefinition';
 import { CamelDefinitionApi } from './CamelDefinitionApi';
@@ -489,22 +490,22 @@ export class CamelDefinitionApiExt {
         const flows: any[] = [];
         const methodFunctions: { [key: string]: (rest: RestDefinition, method: CamelElement) => void } = {
             GetDefinition: (rest: RestDefinition, method: CamelElement) => {
-                rest.get = CamelDefinitionApiExt.addRestMethodToRestMethods(rest.get, method);
+                rest.get = CamelDefinitionApiExt.addRestMethodToRestMethods(rest.get, method) as GetDefinition[];
             },
             PostDefinition: (rest: RestDefinition, method: CamelElement) => {
-                rest.post = CamelDefinitionApiExt.addRestMethodToRestMethods(rest.post, method);
+                rest.post = CamelDefinitionApiExt.addRestMethodToRestMethods(rest.post, method) as PostDefinition[];
             },
             PutDefinition: (rest: RestDefinition, method: CamelElement) => {
-                rest.put = CamelDefinitionApiExt.addRestMethodToRestMethods(rest.put, method);
+                rest.put = CamelDefinitionApiExt.addRestMethodToRestMethods(rest.put, method) as PutDefinition[];
             },
             PatchDefinition: (rest: RestDefinition, method: CamelElement) => {
-                rest.patch = CamelDefinitionApiExt.addRestMethodToRestMethods(rest.patch, method);
+                rest.patch = CamelDefinitionApiExt.addRestMethodToRestMethods(rest.patch, method) as PatchDefinition[];
             },
             DeleteDefinition: (rest: RestDefinition, method: CamelElement) => {
-                rest.delete = CamelDefinitionApiExt.addRestMethodToRestMethods(rest.delete, method);
+                rest.delete = CamelDefinitionApiExt.addRestMethodToRestMethods(rest.delete, method) as DeleteDefinition[];
             },
             HeadDefinition: (rest: RestDefinition, method: CamelElement) => {
-                rest.head = CamelDefinitionApiExt.addRestMethodToRestMethods(rest.head, method);
+                rest.head = CamelDefinitionApiExt.addRestMethodToRestMethods(rest.head, method) as HeadDefinition[];
             },
         };
 
