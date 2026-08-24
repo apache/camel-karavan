@@ -32,7 +32,7 @@ fixtures/dom/public/react.js
 test/the-files-to-test.generated.js
 *.log*
 chrome-user-data
-*.sublime-project
+*.sublime-projectFolder
 *.sublime-workspace
 .idea
 *.iml
