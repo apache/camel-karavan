@@ -3,3 +3,32 @@ spec:
   template:
     spec:
       serviceAccount: karavan
+      containers:
+        - imagePullPolicy: Always
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "2048Mi"
+              cpu: "2000m"
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /observe/health
+              port: 9876
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 10
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /observe/health/ready
+              port: 9876
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 10

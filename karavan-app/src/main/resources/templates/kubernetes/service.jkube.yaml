@@ -1,0 +1,9 @@
+spec:
+  type: ClusterIP
+  clusterIP: None
+  ports:
+    - name: http
+      port: 8080
+      targetPort:
+  selector:
+    app.kubernetes.io/name: ${projectId}

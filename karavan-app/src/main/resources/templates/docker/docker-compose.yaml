@@ -1,5 +1,6 @@
 services:
   ${projectId}:
+    container_name: ${projectId}
     image: ${projectImage}
     restart: always
     ports:
