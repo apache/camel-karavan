@@ -1,9 +1,0 @@
-- route:
-    id: route-f435
-    from:
-      uri: kamelet:timer-source
-      id: from-e52c
-      steps:
-        - toD:
-            uri: kafka:${header.foo}
-            id: toD-0d39
