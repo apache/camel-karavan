@@ -33,7 +33,6 @@ import {CamelMetadataApi, SensitiveKeys} from '../model/CamelMetadata';
 import {CamelDefinitionApiExt} from './CamelDefinitionApiExt';
 import {v4 as uuidv4} from 'uuid';
 import {CamelDefinitionYaml} from './CamelDefinitionYaml';
-import {ProjectFile} from "@models/ProjectModels";
 import {KARAVAN_DOT_EXTENSION} from "../contants";
 
 export class CamelUtil {
@@ -393,10 +392,10 @@ export class CamelUtil {
         return CamelDefinitionYaml.integrationToYaml(integration);
     };
 
-    static hasRouteTemplateDefinitions = (file: ProjectFile): boolean => {
+    static hasRouteTemplateDefinitions = (fileName: string, code: string): boolean => {
         try {
-            if (file.name.endsWith(KARAVAN_DOT_EXTENSION.CAMEL_YAML)) {
-                const integration = CamelDefinitionYaml.yamlToIntegration("", file.code);
+            if (fileName.endsWith(KARAVAN_DOT_EXTENSION.CAMEL_YAML)) {
+                const integration = CamelDefinitionYaml.yamlToIntegration("", code);
                 const templates = integration.spec.flows?.filter(flow => flow.dslName === 'RouteTemplateDefinition');
                 return templates?.length !== undefined && templates?.length > 0;
             } else {

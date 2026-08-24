@@ -14,8 +14,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { v4 as uuidv4 } from 'uuid';
-import { BeanFactoryDefinition } from './CamelDefinition';
+import {v4 as uuidv4} from 'uuid';
+import {BeanFactoryDefinition} from './CamelDefinition';
 
 export class IntegrationFile {
     name: string = '';
@@ -138,7 +138,6 @@ export class Integration {
             i.spec.definition = new Definition({})
             i.spec.types = new Types();
         }
-
         return i;
     }
 }

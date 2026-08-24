@@ -27,9 +27,12 @@ import {
     RouteConfigurationDefinition,
     RouteDefinition,
     SagaDefinition,
+    TemplatedRouteDefinition,
 } from '../model/CamelDefinition';
 import {CamelElement, Integration,} from '../model/IntegrationDefinition';
 import {
+    TopologyAsyncApiNode,
+    TopologyAsyncApiOperation,
     TopologyBeanNode,
     TopologyIncomingNode,
     TopologyOpenApiNode,
@@ -38,19 +41,17 @@ import {
     TopologyRestNode,
     TopologyRouteConfigurationNode,
     TopologyRouteNode,
+    TopologyStep,
 } from '../model/TopologyDefinition';
 import {ComponentApi, INTERNAL_COMPONENTS} from './ComponentApi';
 import {CamelDefinitionApiExt} from './CamelDefinitionApiExt';
 import {CamelDisplayUtil} from './CamelDisplayUtil';
 import {CamelUtil} from './CamelUtil';
-import {OPENAPI_FILE_NAME_JSON} from '../contants';
+import {LANDSCAPE_FILE_NAME_JSON, OPENAPI_FILE_NAME_JSON, X_APPLICATION_ID} from '../contants';
+import {CamelDefinitionYaml} from "@core/api/CamelDefinitionYaml";
+import {BeanUsageData, ExchangeDataUsage} from "@core/model/ExchangeDefinitions";
 
 const outgoingDefinitions: string[] = ['ToDefinition', 'KameletDefinition', 'ToDynamicDefinition', 'PollEnrichDefinition', 'EnrichDefinition', 'WireTapDefinition', 'SagaDefinition', 'PollDefinition'];
-
-export class ChildElement {
-    constructor(public name: string = '', public className: string = '', public multiple: boolean = false) {
-    }
-}
 
 export interface IncomingLink {
     name: string;
@@ -90,29 +91,41 @@ export class TopologyUtils {
 
     static getUniqueUri = (element: CamelElement): string => {
         const uri: string = (element as any).uri || '';
-        let result = uri.startsWith('kamelet') ? TopologyUtils.cutKameletUriSuffix(uri).concat(':') : uri.concat(':');
         const className = element.dslName;
-        if (['FromDefinition', 'ToDefinition', 'ToDynamicDefinition', 'WireTapDefinition'].includes(className)) {
-            if (!CamelUtil.isKameletComponent(element)) {
-                const requiredProperties = CamelUtil.getComponentProperties(element).filter(p => p.required);
-                for (const property of requiredProperties) {
-                    const value = CamelDefinitionApiExt.getParametersValue(element, property.name, property.kind === 'path');
-                    if (value !== undefined && property.type === 'string' && value.trim().length > 0) {
-                        result = result + property.name + '=' + value + '&';
+        const isSQL = ['FromDefinition', 'ToDefinition', 'ToDynamicDefinition', 'WireTapDefinition'].includes(className)
+            && !CamelUtil.isKameletComponent(element)
+            && uri === 'sql';
+        if (isSQL) {
+            const dataSource = CamelDefinitionApiExt.getParametersValue(element, "dataSource", false);
+            return uri.concat(':').concat(dataSource);
+        } else {
+            let result = uri.startsWith('kamelet') ? TopologyUtils.cutKameletUriSuffix(uri).concat(':') : uri.concat(':');
+            const className = element.dslName;
+            if (['FromDefinition', 'ToDefinition', 'ToDynamicDefinition', 'WireTapDefinition'].includes(className)) {
+                if (!CamelUtil.isKameletComponent(element)) {
+                    const requiredProperties = CamelUtil.getComponentProperties(element).filter(p => p.required);
+                    for (const property of requiredProperties) {
+                        const value = CamelDefinitionApiExt.getParametersValue(element, property.name, property.kind === 'path');
+                        if (value !== undefined) {
+                            const valueString = property.type === 'string' ? value?.trim() : value?.toString()?.trim();
+                            if (valueString?.length > 0) {
+                                result = result + property.name + '=' + valueString + '&';
+                            }
+                        }
                     }
-                }
-            } else {
-                const requiredProperties = CamelUtil.getKameletProperties(element, true);
-                for (const property of requiredProperties) {
-                    const value = CamelDefinitionApiExt.getParametersValue(element, property.id);
-                    if (value !== undefined && property.type === 'string' && value.toString().trim().length > 0) {
-                        result = result + property.id + '=' + value + '&';
+                } else {
+                    const requiredProperties = CamelUtil.getKameletProperties(element, true);
+                    for (const property of requiredProperties) {
+                        const value = CamelDefinitionApiExt.getParametersValue(element, property.id);
+                        if (value !== undefined && property.type === 'string' && value?.toString()?.trim().length > 0) {
+                            result = result + property.id + '=' + value + '&';
+                        }
                     }
                 }
             }
+            return result.endsWith('&') ? result.substring(0, result.length - 1) : result;
         }
-        return result.endsWith('&') ? result.substring(0, result.length - 1) : result;
-    };
+    }
 
     static hasDirectUri = (element: CamelElement): boolean => {
         return this.hasUriStartWith(element, 'direct');
@@ -219,6 +232,37 @@ export class TopologyUtils {
         return new TopologyOpenApiNode(OPENAPI_FILE_NAME_JSON, title, operations);
     };
 
+    static findTopologyAsyncApiNodes = (json: string, applicationName?: string): TopologyAsyncApiNode => {
+        const operations: TopologyAsyncApiOperation[] = [];
+        let title = 'AsyncAPI';
+
+        try {
+            const asyncapi = JSON.parse(json);
+            if (asyncapi.info && typeof asyncapi.info.title === "string") {
+                title = asyncapi.info.title;
+            }
+
+            if (asyncapi.operations) {
+                Object.keys(asyncapi.operations).forEach((operationId) => {
+                    const operation = asyncapi.operations[operationId];
+                    const xApplication: string = operation?.[X_APPLICATION_ID]
+                    if (applicationName === undefined || applicationName === xApplication) {
+                        operations.push(
+                            new TopologyAsyncApiOperation(
+                                operationId,
+                                operation.summary,
+                                operation.action,
+                                operation.channel?.$ref
+                            )
+                        );
+                    }
+                });
+            }
+        } catch (err) {
+            console.error(err);
+        }
+        return new TopologyAsyncApiNode(LANDSCAPE_FILE_NAME_JSON, title, operations);
+    };
 
     static findTopologyIncomingNodes = (integration: Integration[]): TopologyIncomingNode[] => {
         const result: TopologyIncomingNode[] = [];
@@ -260,15 +304,25 @@ export class TopologyUtils {
             const title = CamelDisplayUtil.getStepDescription(r.from);
             const type = TopologyUtils.isElementInternalComponent(r.from) ? 'internal' : 'external';
             const connectorType = TopologyUtils.getConnectorType(r.from);
-            let from = CamelUtil.cloneStep(r.from) as FromDefinition;
-            let uniqueUri = TopologyUtils.getUniqueUri(r.from);
+            const from = CamelUtil.cloneStep(r.from) as FromDefinition;
+            const uniqueUri = TopologyUtils.getUniqueUri(r.from);
             return new TopologyIncomingNode(id, type, connectorType, r.routeId, r.route?.group, title, r.fileName, from, uniqueUri);
         }) || [];
         result.push(...routeElements);
         return result;
     };
 
-    static findTopologyRouteNodes = (integration: Integration[]): TopologyRouteNode[] => {
+    static getUriLabel(uniqueUri: string) {
+        const parts = uniqueUri.split(':');
+        if (parts?.at(0) === "sql") {
+            return uniqueUri.replace('sql:', '')?.replace('#bean:', '');
+        }
+        const params = parts[1];
+        const elements = params.split("&");
+        return elements.map(element => element.split("=")[1]).join(':').trim();
+    }
+
+    static findTopologyRouteNodes = (integration: Integration[], isTemplated?: boolean): TopologyRouteNode[] => {
         const result: TopologyRouteNode[] = [];
         integration.forEach(i => {
             try {
@@ -276,15 +330,15 @@ export class TopologyUtils {
                 const routes = i.spec.flows?.filter(flow => flow.dslName === 'RouteDefinition');
                 const routeElements = routes?.map(r => {
                     const id = 'route-' + r.id;
-                    const title = r.note?.trim()?.length > 0 ? r.note : (r.description ? r.description : r.id);
-                    return new TopologyRouteNode(id, r.id, title, filename, r.from, r);
+                    const title = (r.description ? r.description : r.id);
+                    return new TopologyRouteNode(id, r.id, title, filename, r.from, r, (r as any).routeTemplateRef, undefined, isTemplated);
                 }) || [];
                 result.push(...routeElements);
                 const templates = i.spec.flows?.filter(flow => flow.dslName === 'RouteTemplateDefinition');
                 const templateElements = templates?.map(t => {
                     const r = t.route;
                     const id = 'route-' + r.id;
-                    const title = r.note?.trim()?.length > 0 ? r.note : (r.description ? r.description : r.id);
+                    const title = (r.description ? r.description : r.id);
                     return new TopologyRouteNode(id, r.id, title, filename, r.from, r, t.id, t.description);
                 }) || [];
                 result.push(...templateElements);
@@ -293,6 +347,43 @@ export class TopologyUtils {
             }
         });
         return result;
+    };
+
+    static findTopologyTemplatedRouteNodes = (integrations: Integration[], routeTemplates: TopologyRouteNode[]): TopologyRouteNode[] => {
+        const templatedIntegrations: Integration[] = [];
+        const templates: any = {};
+        routeTemplates.forEach((template: TopologyRouteNode) => {
+            const i = Integration.createNew(template.templateId);
+            i.spec.flows?.push(template.route);
+            if (template.templateId) {
+                templates[template.templateId] = CamelDefinitionYaml.integrationToYaml(i);
+            }
+        })
+        integrations.forEach(integration => {
+            try {
+                const templatedRoutes = integration.spec.flows?.filter(flow => flow.dslName === 'TemplatedRouteDefinition');
+                templatedRoutes?.forEach((templatedRoute: TemplatedRouteDefinition) => {
+                    const yaml = templates[templatedRoute.routeTemplateRef];
+                    if (yaml) {
+                        const data = templatedRoute?.parameters
+                                        ? Object.fromEntries(templatedRoute.parameters.map(p => [p.name, p.value]))
+                                        : {};
+                        const code = TopologyUtils.replacePlaceholders(yaml, data);
+                        const i = CamelDefinitionYaml.yamlToIntegration(integration?.metadata.name, code);
+                        const route = i.spec.flows?.at(0) as RouteDefinition;
+                        if (route && i.spec.flows && i.spec.flows?.length > 0) {
+                            route.id = templatedRoute.routeId;
+                            (route as any).routeTemplateRef = templatedRoute.routeTemplateRef;
+                            i.spec.flows[0] = route;
+                        }
+                        templatedIntegrations.push(i);
+                    }
+                })
+            } catch (e) {
+                console.error(e);
+            }
+        });
+        return TopologyUtils.findTopologyRouteNodes(templatedIntegrations, true);
     };
 
     static findTopologyRouteConfigurationNodes = (integration: Integration[]): TopologyRouteConfigurationNode[] => {
@@ -359,7 +450,7 @@ export class TopologyUtils {
                     const title = CamelDisplayUtil.getStepDescription(step);
                     const type = TopologyUtils.isElementInternalComponent(step) ? 'internal' : 'external';
                     const connectorType = TopologyUtils.getConnectorType(step);
-                    let uniqueUri = TopologyUtils.getUniqueUri(step);
+                    const uniqueUri = TopologyUtils.getUniqueUri(step);
                     if (
                         connectorType !== 'kamelet' ||
                         CamelUtil.getKamelet(e)?.metadata.labels['camel.apache.org/kamelet.type'] !== 'action'
@@ -442,10 +533,17 @@ export class TopologyUtils {
         const result: TopologyBeanNode[] = [];
         integrations.forEach(integration => {
             const beans = TopologyUtils.getBeans(integration);
-            const topologyBeans = beans.map((bean) => new TopologyBeanNode(bean.name, bean.name, integration.metadata.name));
+            const topologyBeans = beans.map((bean) => new TopologyBeanNode('bean-' + bean.name, bean.name, integration.metadata.name));
             result.push(...topologyBeans);
         })
         return result;
+    }
+
+    static findTopologyJavaClassNodes = (fileNames: string[]): TopologyBeanNode[] => {
+        return fileNames?.filter(f => f.endsWith(".java")).map(f => {
+            const name = f?.replace(".java", "");
+            return new TopologyBeanNode('java-'+ name, name, f);
+        });
     }
 
     static getBeans = (integration: Integration): BeanFactoryDefinition[] => {
@@ -456,6 +554,72 @@ export class TopologyUtils {
         }
         return result;
     }
+
+    static getAllBeans = (integrations: Integration[]): BeanFactoryDefinition[] => {
+        const result: BeanFactoryDefinition[] = [];
+        integrations.forEach(integration => {
+            const beans = TopologyUtils.getBeans(integration);
+            result.push(...beans);
+        })
+        return result;
+    }
+
+    static findTopologyBeanUseRouteIds = (integrations: Integration[], beans: TopologyBeanNode[]): BeanUsageData[] => {
+        const result: BeanUsageData[] = [];
+
+        const routes = TopologyUtils.findTopologyRouteNodes(integrations);
+        routes.forEach(route => {
+            const i = Integration.createNew("dummy");
+            i.spec.flows?.push(route);
+            const yaml = CamelDefinitionYaml.integrationToYaml(i);
+
+            beans.forEach(bean => {
+                const beanUsage: BeanUsageData = result.find(b => b.name === bean.name) || {name: bean.name, usages: []} as BeanUsageData;
+                if (yaml.includes(bean.name)) {
+                    const usages = beanUsage.usages?.map((usage) => usage.routeId);
+                    if (!usages?.includes(route.id)) {
+                        beanUsage.usages.push({routeId: route.routeId} as ExchangeDataUsage);
+                    }
+                }
+                result.push(beanUsage);
+            });
+        });
+        return result;
+    };
+
+    static beanUsedInBean = (bean: BeanFactoryDefinition, beanName: string): boolean => {
+        if (bean.properties) {
+            for (const property of Object.keys(bean.properties)) {
+                const value: string | undefined = bean.properties[property]?.toString();
+                if (value?.startsWith("#bean:") && value?.includes(beanName)) {
+                    return true; // Exits the entire function immediately
+                }
+            }
+        }
+        return false;
+    };
+
+    static findTopologyBean2Bean = (integrations: Integration[], beans: TopologyBeanNode[]): Record<string, string[]> => {
+        const result: Record<string, string[]> = {};
+
+        beans.forEach(bean => {
+            result[bean.id] = [];
+        });
+
+        const allBeans = TopologyUtils.getAllBeans(integrations);
+        beans.forEach(bean => {
+            allBeans.forEach(beanDefinition => {
+                if (beanDefinition?.name !== bean.name) {
+                    const isUsed = TopologyUtils.beanUsedInBean(beanDefinition, bean.name);
+                    if (isUsed) {
+                        result[bean.id].push("bean-" + beanDefinition.name);
+                    }
+                }
+            });
+        });
+        return result;
+    };
+
 
     static findOutgoingInStep = (step: CamelElement, result: CamelElement[]): CamelElement[] => {
         if (step !== undefined) {
@@ -563,27 +727,32 @@ export class TopologyUtils {
         TopologyUtils.findTopologyRestNodes(integrations).forEach(t => {
             t.rest?.get?.forEach(def => {
                 if (def.to) {
-                    data.set(def.to, [{name: 'get:' + (def.path || ''), fileName: t.fileName}])
+                    data.set(def.to, [{name: 'GET:' + (def.path || ''), fileName: t.fileName}])
                 }
             })
             t.rest?.post?.forEach(def => {
                 if (def.to) {
-                    data.set(def.to, [{name: 'post:' + (def.path || ''), fileName: t.fileName}])
+                    data.set(def.to, [{name: 'POST:' + (def.path || ''), fileName: t.fileName}])
+                }
+            })
+            t.rest?.put?.forEach(def => {
+                if (def.to) {
+                    data.set(def.to, [{name: 'PUT:' + (def.path || ''), fileName: t.fileName}])
                 }
             })
             t.rest?.delete?.forEach(def => {
                 if (def.to) {
-                    data.set(def.to, [{name: 'delete:' + (def.path || ''), fileName: t.fileName}])
+                    data.set(def.to, [{name: 'DELETE:' + (def.path || ''), fileName: t.fileName}])
                 }
             })
             t.rest?.patch?.forEach(def => {
                 if (def.to) {
-                    data.set(def.to, [{name: 'patch:' + (def.path || ''), fileName: t.fileName}])
+                    data.set(def.to, [{name: 'PATCH:' + (def.path || ''), fileName: t.fileName}])
                 }
             })
             t.rest?.head?.forEach(def => {
                 if (def.to) {
-                    data.set(def.to, [{name: 'head:' + (def.path || ''), fileName: t.fileName}])
+                    data.set(def.to, [{name: 'HEAD:' + (def.path || ''), fileName: t.fileName}])
                 }
             })
         });
@@ -602,5 +771,89 @@ export class TopologyUtils {
                 })
         }
         return data;
+    }
+
+
+    static findStepChildren = (step: CamelElement): CamelElement[] => {
+        const result: CamelElement[] = [];
+        const anyStep = step as any;
+        if (anyStep?.steps?.length > 0) {
+            result.push(...anyStep.steps);
+        }
+        if (anyStep?.doCatch?.length > 0) {
+            result.push(...anyStep.doCatch);
+        }
+        if (anyStep?.when?.length > 0) {
+            result.push(...anyStep.when);
+        }
+        if (anyStep?.doFinally !== undefined) {
+            result.push(anyStep.doFinally);
+        }
+        if (anyStep?.otherwise !== undefined) {
+            result.push(anyStep.otherwise);
+        }
+        return result.map((c: any) => {
+            c.parentId = (step as any).id;
+            return c;
+        });
+    }
+    static findStepsInStep = (step: CamelElement, result: CamelElement[]): CamelElement[] => {
+        if (step !== undefined) {
+            const el = (step as any);
+            try {
+                if (el?.id !== undefined) {
+                    result.push(step);
+                }
+                const children = TopologyUtils.findStepChildren(step);
+                TopologyUtils.findStepsInSteps(children, result);
+            } catch (e) {
+                console.error(e);
+            }
+        }
+        return result;
+    };
+
+    static findStepsInSteps = (steps: CamelElement[], result: CamelElement[]): CamelElement[] => {
+        if (steps !== undefined && steps.length > 0) {
+            steps.forEach(step => TopologyUtils.findStepsInStep(step, result));
+        }
+        return result;
+    };
+
+    static findAllSteps = (integration: Integration): TopologyStep[] => {
+        const result: TopologyStep[] = [];
+        try {
+            const routes = integration.spec.flows?.filter(flow => flow.dslName === 'RouteDefinition') || [];
+            const routeFromTemplates = integration.spec.flows?.filter(flow => flow.dslName === 'RouteTemplateDefinition').map(rt => rt.route) || [];
+            routes.concat(routeFromTemplates).forEach(route => {
+                const from: FromDefinition = route.from;
+                const steps = TopologyUtils.findStepsInStep(from, []);
+                steps.forEach((step: any) => {
+                    const id = step.id;
+                    const title = CamelDisplayUtil.getStepDescription(step);
+                    const hasSteps = (step as any).steps?.length > 0 || (step as any).when?.length > 0 || (step as any).otherwise;
+                    const parentId = (step as any).parentId;
+                    const routeId = (route as any).id;
+                    result.push({id, title, hasSteps, parentId, step, routeId} as TopologyStep);
+                });
+            });
+        } catch (e) {
+            console.error(e);
+        }
+        return result;
+    };
+
+    static replacePlaceholders(template: string, data: Record<string, any>): string {
+        // Regex: matches {{ followed by word characters/dots, then }}
+        // The 'g' flag ensures all occurrences are replaced.
+        const regex = /{{(.*?)}}/g;
+
+        return template.replace(regex, (match, key) => {
+            // Trim to handle potential whitespace like {{ user.name }}
+            const cleanKey = key.trim();
+
+            // Return the value if it exists, otherwise keep the original placeholder
+            return data[cleanKey] !== undefined ? String(data[cleanKey]) : match;
+        });
     }
 }

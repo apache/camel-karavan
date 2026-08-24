@@ -31,7 +31,8 @@
       "@shared/*": ["webview/karavan/shared/*"],
       "@stores/*": ["webview/karavan/stores/*"],
       "@util/*": ["webview/karavan/util/*"],
-      "@karavan-core/*": ["webview/karavan-core/*"]
+      "@karavan-core/*": ["webview/karavan-core/*"],
+      "@core/*": ["webview/karavan-core/*"]
     },
     "importHelpers": true,
     "skipLibCheck": true

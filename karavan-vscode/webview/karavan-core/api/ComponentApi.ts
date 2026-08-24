@@ -137,6 +137,9 @@ export class ComponentApi {
         if (def.dslName === 'ToDynamicDefinition') {
             return def;
         }
+        if (def.dslName === "InterceptSendToEndpointDefinition" && def.uri?.includes('*')) {
+            return def;
+        }
         const uriParts = ComponentApi.parseUri(def.uri);
         if (uriParts.length > 1 && !def.uri.startsWith('kamelet:')) {
             const uriValues = ComponentApi.getUriParts(def.uri);

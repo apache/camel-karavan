@@ -17,9 +17,9 @@
 import {CamelMetadataApi, ElementMeta, Languages, PropertyMeta} from '../model/CamelMetadata';
 import {CamelUtil} from './CamelUtil';
 import {
-    BeanFactoryDefinition,
+    BeanFactoryDefinition, DeleteDefinition,
     ExpressionDefinition,
-    FromDefinition,
+    FromDefinition, GetDefinition, HeadDefinition, PatchDefinition, PostDefinition, PutDefinition,
     RestDefinition,
     RouteConfigurationDefinition,
     RouteDefinition,
@@ -228,9 +228,9 @@ export class CamelDefinitionApiExt {
         return CamelDefinitionApiExt.checkIfHasId(integration, id, 0);
     };
 
-    static checkIfHasId = (obj: Object, id: string, counter: number): number => {
+    static checkIfHasId = (obj: object, id: string, counter: number): number => {
         for (const propName in obj) {
-            let prop = (obj as any)[propName];
+            const prop = (obj as any)[propName];
             if (propName === 'id' && id === prop) {
                 counter++;
                 counter = CamelDefinitionApiExt.checkIfHasId(prop, id, counter);
@@ -249,9 +249,9 @@ export class CamelDefinitionApiExt {
         return CamelDefinitionApiExt.findElementsById(integration, id, [])?.at(0);
     };
 
-    static findElementsById = (obj: Object, id: string, elements: CamelElement[]): CamelElement[] => {
+    static findElementsById = (obj: object, id: string, elements: CamelElement[]): CamelElement[] => {
         for (const propName in obj) {
-            let prop = (obj as any)[propName];
+            const prop = (obj as any)[propName];
             if (propName === 'id' && id === prop) {
                 elements.push(obj as CamelElement)
                 elements = CamelDefinitionApiExt.findElementsById(prop, id, elements);
@@ -508,26 +508,26 @@ export class CamelDefinitionApiExt {
         const flows: any[] = [];
         const methodFunctions: { [key: string]: (rest: RestDefinition, method: CamelElement) => void } = {
             GetDefinition: (rest: RestDefinition, method: CamelElement) => {
-                rest.get = CamelDefinitionApiExt.addRestMethodToRestMethods(rest.get, method);
+                rest.get = CamelDefinitionApiExt.addRestMethodToRestMethods(rest.get, method) as GetDefinition[];
             },
             PostDefinition: (rest: RestDefinition, method: CamelElement) => {
-                rest.post = CamelDefinitionApiExt.addRestMethodToRestMethods(rest.post, method);
+                rest.post = CamelDefinitionApiExt.addRestMethodToRestMethods(rest.post, method) as PostDefinition[];
             },
             PutDefinition: (rest: RestDefinition, method: CamelElement) => {
-                rest.put = CamelDefinitionApiExt.addRestMethodToRestMethods(rest.put, method);
+                rest.put = CamelDefinitionApiExt.addRestMethodToRestMethods(rest.put, method) as PutDefinition[];
             },
             PatchDefinition: (rest: RestDefinition, method: CamelElement) => {
-                rest.patch = CamelDefinitionApiExt.addRestMethodToRestMethods(rest.patch, method);
+                rest.patch = CamelDefinitionApiExt.addRestMethodToRestMethods(rest.patch, method) as PatchDefinition[];
             },
             DeleteDefinition: (rest: RestDefinition, method: CamelElement) => {
-                rest.delete = CamelDefinitionApiExt.addRestMethodToRestMethods(rest.delete, method);
+                rest.delete = CamelDefinitionApiExt.addRestMethodToRestMethods(rest.delete, method) as DeleteDefinition[];
             },
             HeadDefinition: (rest: RestDefinition, method: CamelElement) => {
-                rest.head = CamelDefinitionApiExt.addRestMethodToRestMethods(rest.head, method);
+                rest.head = CamelDefinitionApiExt.addRestMethodToRestMethods(rest.head, method) as HeadDefinition[];
             },
         };
 
-        for (let flow of integration.spec.flows ?? []) {
+        for (const flow of integration.spec.flows ?? []) {
             if (flow.dslName === 'RestDefinition') {
                 if (flow.uuid !== restUuid) {
                     flows.push(flow);

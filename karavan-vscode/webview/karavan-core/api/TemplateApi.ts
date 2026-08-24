@@ -35,7 +35,7 @@ export class TemplateApi {
     };
 
     static generateCode = (name: string, beanName: string): string | undefined => {
-        let template: string | undefined = TemplateApi.getTemplate(name);
+        const template: string | undefined = TemplateApi.getTemplate(name);
         if (template) {
             return template.replaceAll('${NAME}', beanName);
         } else {

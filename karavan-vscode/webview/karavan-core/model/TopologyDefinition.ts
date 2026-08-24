@@ -93,14 +93,14 @@ export class TopologyIncomingNode {
     type: 'internal' | 'external';
     connectorType: 'component' | 'kamelet';
     routeId: string;
-    routeGroup: string;
+    routeGroup?: string;
     title: string;
     fileName: string;
     from: FromDefinition;
     uniqueUri?: string;
 
 
-    constructor(id: string, type: "internal" | "external", connectorType: "component" | "kamelet", routeId: string, routeGroup: string, title: string, fileName: string, from: FromDefinition, uniqueUri: string) {
+    constructor(id: string, type: "internal" | "external", connectorType: "component" | "kamelet", routeId: string, routeGroup: string | undefined, title: string, fileName: string, from: FromDefinition, uniqueUri: string) {
         this.id = id;
         this.type = type;
         this.connectorType = connectorType;
@@ -122,8 +122,9 @@ export class TopologyRouteNode {
     route: RouteDefinition
     templateId?: string
     templateTitle?: string
+    isTemplated?: boolean
 
-    constructor(id: string, routeId: string, title: string, fileName: string, from: FromDefinition, route: RouteDefinition, templateId?: string, templateTitle?: string) {
+    constructor(id: string, routeId: string, title: string, fileName: string, from: FromDefinition, route: RouteDefinition, templateId?: string, templateTitle?: string, isTemplated?: boolean) {
         this.id = id;
         this.routeId = routeId;
         this.title = title;
@@ -132,6 +133,7 @@ export class TopologyRouteNode {
         this.route = route;
         this.templateId = templateId;
         this.templateTitle = templateTitle;
+        this.isTemplated = isTemplated;
     }
 }
 
@@ -156,14 +158,14 @@ export class TopologyOutgoingNode {
     type: 'internal' | 'external';
     connectorType: 'component' | 'kamelet';
     routeId: string;
-    routeGroup: string;
+    routeGroup?: string;
     title: string;
     fileName: string;
     step: CamelElement;
     uniqueUri?: string;
 
 
-    constructor(id: string, type: "internal" | "external", connectorType: "component" | "kamelet", routeId: string, routeGroup: string, title: string, fileName: string, step: CamelElement, uniqueUri: string) {
+    constructor(id: string, type: "internal" | "external", connectorType: "component" | "kamelet", routeId: string, routeGroup: string | undefined, title: string, fileName: string, step: CamelElement, uniqueUri: string) {
         this.id = id;
         this.type = type;
         this.connectorType = connectorType;
@@ -186,4 +188,26 @@ export class TopologyBeanNode {
         this.name = name;
         this.fileName = fileName;
     }
+}
+
+export interface TopologyStep {
+    id: string;
+    title: string;
+    hasSteps: boolean;
+    parentId?: string;
+    routeId: string;
+    step: CamelElement;
+}
+
+export interface TopologyStepPosition {
+    id: string;
+    x: number;
+    y: number;
+    type: 'step' | 'group'
+    width?: number;
+    height?: number;
+    xWrapper?: number;
+    yWrapper?: number;
+    widthWrapper?: number;
+    heightWrapper?: number;
 }

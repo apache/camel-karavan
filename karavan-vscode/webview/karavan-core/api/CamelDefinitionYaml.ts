@@ -133,6 +133,8 @@ export class CamelDefinitionYaml {
             } else {
                 if (!CamelDefinitionYaml.isEmpty(value)) {
                     result[key] = value;
+                } else if (key === "expression"){
+                    result[key] = ""
                 }
             }
         }
@@ -174,7 +176,7 @@ export class CamelDefinitionYaml {
             const stepNameField = value.hasOwnProperty('stepName') ? 'stepName' : 'step-name';
             const stepName = value[stepNameField];
             const dslName = value.dslName;
-            let newValue: any = JSON.parse(JSON.stringify(value));
+            const newValue: any = JSON.parse(JSON.stringify(value));
             delete newValue.dslName;
             delete newValue[stepNameField];
 
