@@ -1,0 +1,15 @@
+.user-profile-tab-wrapper {
+    display: flex;
+    flex-direction: column;
+    overflow: auto;
+    .user-profile-tab {
+        padding: 16px;
+        overflow: auto;
+        .user-profile-tab-panels {
+            display: flex;
+            flex-direction: column;
+            justify-content: start;
+            gap: 16px;
+        }
+    }
+}
