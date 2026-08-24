@@ -1,0 +1,18 @@
+.karavan .system-page-toolbar {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px 8px 16px;
+    position: relative;
+}
+
+.karavan .system-page-toolbar::before {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    content: "";
+    border-bottom: var(--pf-t--global--border--color--default) solid var(--pf-t--global--border--width--box--default);
+    border-radius: inherit;
+}
