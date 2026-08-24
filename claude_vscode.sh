@@ -10,4 +10,4 @@ docker run -it --rm \
   -e ANTHROPIC_API_KEY \
   claude-sandbox \
   --dangerously-skip-permissions \
-  "Read /karavan/karavan-vscode/task.md. Execute the tasks described within, make the necessary code changes, and generate a concise summary report saved to /karavan/karavan-vscode/.task_report.md. Exit the process when you are completely finished."
+  "Read /karavan/karavan-vscode/.task.md. Execute the tasks described within, make the necessary code changes, and generate a concise summary report saved to /karavan/karavan-vscode/.task_report.md. Exit the process when you are completely finished."
