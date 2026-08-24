@@ -370,7 +370,6 @@ public class ProjectService {
             List<ProjectFile> files = karavanCache.getProjectFilesByName(PROJECT_COMPOSE_FILENAME).stream()
                     .filter(f -> !Objects.equals(f.getProjectId(), ProjectFolder.Type.templates.name()))
                     .filter(f -> !Objects.equals(f.getProjectId(), ProjectFolder.Type.kamelets.name()))
-                    .filter(f -> !Objects.equals(f.getProjectId(), ProjectFolder.Type.contracts.name()))
                     .filter(f -> !Objects.equals(f.getProjectId(), ProjectFolder.Type.configuration.name()))
                     .toList();
             if (!files.isEmpty()) {

@@ -28,9 +28,6 @@ public class ProjectFolder {
         kamelets,
         configuration,
         documentation,
-        contracts,
-        mcp,
-        sdx,
         services,
         integration
     }
@@ -106,10 +103,7 @@ public class ProjectFolder {
                 Type.configuration.name(),
                 Type.kamelets.name(),
                 Type.templates.name(),
-                Type.contracts.name(),
-                Type.documentation.name(),
-                Type.sdx.name(),
-                Type.mcp.name()
+                Type.documentation.name()
         );
     }
 
