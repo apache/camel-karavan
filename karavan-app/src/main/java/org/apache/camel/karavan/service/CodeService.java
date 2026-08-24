@@ -47,6 +47,8 @@ import java.nio.file.*;
 import java.nio.file.FileSystem;
 import java.time.Instant;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static org.apache.camel.karavan.KaravanConstants.*;
@@ -57,16 +59,16 @@ public class CodeService {
     private static final Logger LOGGER = Logger.getLogger(CodeService.class.getName());
     public static final String APPLICATION_PROPERTIES_FILENAME = "application.properties";
     public static final String PROJECT_COMPOSE_FILENAME = "docker-compose.yaml";
-    public static final String PROJECT_STACK_FILENAME = "docker-stack.yaml";
     public static final String MARKDOWN_EXTENSION = ".md";
+    public static final String PROJECT_MD_FILENAME = "PROJECT.md";
     public static final String PROJECT_JKUBE_EXTENSION = ".jkube.yaml";
     public static final String PROJECT_DEPLOYMENT_JKUBE_FILENAME = "deployment" + PROJECT_JKUBE_EXTENSION;
     private static final String DOCKER_FOLDER = "/docker/";
     private static final String KUBERNETES_FOLDER = "/kubernetes/";
     public static final int INTERNAL_PORT = 8080;
+    public static final int CAMEL_OBSERVABILITY_PORT = 9876;
     private static final String BUILDER_POD_FRAGMENT_FILENAME = "builder.pod.jkube.yaml";
     private static final String BUILDER_COMPOSE_FILENAME = "builder.docker-compose.yaml";
-    private static final String BUILDER_STACK_FILENAME = "builder.docker-stack.yaml";
     public static final String BUILD_SCRIPT_FILENAME = "build.sh";
     public static final String JSON_EXTENSION = ".json";
     public static final String YAML_EXTENSION = ".yaml";
@@ -74,6 +76,7 @@ public class CodeService {
     public static final String CAMEL_YAML_EXTENSION = ".camel.yaml";
     public static final String KAMELET_YAML_EXTENSION = ".kamelet.yaml";
     public static final String COMPOSE_FILENAME_PREFIX= "docker-compose.";
+    private static final Pattern KAMELET_PATTERN = Pattern.compile("uri:\\s*kamelet:([^\\s'\"]+)");
 
     @ConfigProperty(name = "karavan.environment", defaultValue = KaravanConstants.DEV)
     String environment;
@@ -93,15 +96,6 @@ public class CodeService {
     @Inject
     Vertx vertx;
 
-    List<String> beansTemplates = List.of("database", "messaging");
-
-    public static final Map<String, String> DEFAULT_CONTAINER_RESOURCES = Map.of(
-            "requests.memory", "256Mi",
-            "requests.cpu", "500m",
-            "limits.memory", "2048Mi",
-            "limits.cpu", "2000m"
-    );
-
     public String getProjectDevModeImage(String projectId) {
         try {
             ProjectFile appProp = getApplicationProperties(projectId);
@@ -116,7 +110,7 @@ public class CodeService {
         return karavanCache.getProjectFile(projectId, APPLICATION_PROPERTIES_FILENAME);
     }
 
-    public Map<String, String> getProjectFilesForDevMode(String projectId, Boolean withKamelets) {
+    public Map<String, String> getProjectFilesForDevMode(String projectId) {
         Map<String, String> files = karavanCache.getProjectFiles(projectId).stream()
                 .filter(f -> !f.getName().endsWith(MARKDOWN_EXTENSION))
                 .filter(f -> !Objects.equals(f.getName(), PROJECT_COMPOSE_FILENAME))
@@ -124,10 +118,12 @@ public class CodeService {
                 .filter(this::isDevFile)
                 .collect(Collectors.toMap(ProjectFile::getName, ProjectFile::getCode));
 
-        if (withKamelets) {
-            karavanCache.getProjectFiles(ProjectFolder.Type.kamelets.name())
-                    .forEach(file -> files.put(file.getName(), file.getCode()));
-        }
+        // add kamelets
+        List<String> usedKameletFilenames = extractKameletFileNames(files);
+        karavanCache.getProjectFiles(ProjectFolder.Type.kamelets.name())
+                .stream().filter(f -> usedKameletFilenames.contains(f.getName()))
+                .forEach(file -> files.put(file.getName(), file.getCode()));
+
         return files;
     }
 
@@ -167,16 +163,19 @@ public class CodeService {
         return replaceEnvWithRuntimeProperties(code2);
     }
 
-    public String getBuilderStackFragment(String projectId, String tag) {
-        ProjectFile projectFile = karavanCache.getProjectFile(ProjectFolder.Type.configuration.name(), BUILDER_STACK_FILENAME);
-        var code = projectFile != null ? projectFile.getCode() : null;
-        var code2 = substituteVariables(code, Map.of( "projectId", projectId, "tag", tag));
-        return replaceEnvWithRuntimeProperties(code2);
-    }
-
     public String substituteVariables(String template, Map<String, String> variables) {
         StringSubstitutor sub = new StringSubstitutor(variables);
         return sub.replace(template);
+    }
+
+    public ProjectFile generateProjectMd(ProjectFolder projectFolder) {
+        String template = getTemplateText(PROJECT_MD_FILENAME);
+        String code = substituteVariables(template, Map.of(
+                "projectId", projectFolder.getProjectId(),
+                "projectName", projectFolder.getName(),
+                "packageSuffix", CodeService.getGavPackageSuffix(projectFolder.getProjectId())
+        ));
+        return new ProjectFile(PROJECT_MD_FILENAME, code, projectFolder.getProjectId(), Instant.now().getEpochSecond() * 1000L);
     }
 
     public ProjectFile generateApplicationProperties(ProjectFolder projectFolder) {
@@ -367,16 +366,6 @@ public class CodeService {
         return new ProjectFile(PROJECT_COMPOSE_FILENAME, code, projectFolder.getProjectId(), Instant.now().getEpochSecond() * 1000L);
     }
 
-    public ProjectFile createInitialProjectStack(ProjectFolder projectFolder, int nextAvailablePort) {
-        String template = getTemplateText(PROJECT_STACK_FILENAME);
-        String code = substituteVariables(template, Map.of(
-                "projectId", projectFolder.getProjectId(),
-                "projectPort", String.valueOf(nextAvailablePort),
-                "projectImage", projectFolder.getProjectId()
-        ));
-        return new ProjectFile(PROJECT_STACK_FILENAME, code, projectFolder.getProjectId(), Instant.now().getEpochSecond() * 1000L);
-    }
-
     public ProjectFile createInitialDeployment(ProjectFolder projectFolder) {
         String template = getTemplateText(PROJECT_DEPLOYMENT_JKUBE_FILENAME);
         return new ProjectFile(PROJECT_DEPLOYMENT_JKUBE_FILENAME, template, projectFolder.getProjectId(), Instant.now().getEpochSecond() * 1000L);
@@ -405,18 +394,6 @@ public class CodeService {
         ProjectFile compose = karavanCache.getProjectFile(projectId, composeFileName);
         if (compose != null) {
             return compose.getCode();
-        }
-        return null;
-    }
-
-    public String getDockerStackFileForProject(String projectId) {
-        String stackFileName = PROJECT_STACK_FILENAME;
-        if (!Objects.equals(environment, DEV)) {
-            stackFileName = environment + "." + PROJECT_STACK_FILENAME;
-        }
-        ProjectFile stack = karavanCache.getProjectFile(projectId, stackFileName);
-        if (stack != null) {
-            return stack.getCode();
         }
         return null;
     }
@@ -521,5 +498,23 @@ public class CodeService {
 
     public String getGav() {
         return gav.orElse("org.camel.karavan.demo") + ":%s:1";
+    }
+
+    public static List<String> extractKameletFileNames(Map<String, String> files) {
+        return files.entrySet().stream()
+                .filter(entry -> entry.getKey() != null && entry.getKey().endsWith(CAMEL_YAML_EXTENSION))
+                .map(Map.Entry::getValue)
+                .flatMap(content -> {
+                    List<String> names = new ArrayList<>();
+                    if (content != null) {
+                        Matcher matcher = KAMELET_PATTERN.matcher(content);
+                        while (matcher.find()) {
+                            names.add(matcher.group(1));
+                        }
+                    }
+                    return names.stream();
+                })
+                .map(k -> k.concat(KAMELET_YAML_EXTENSION))
+                .collect(Collectors.toList());
     }
 }

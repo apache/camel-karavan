@@ -41,6 +41,7 @@ import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 
 import static org.apache.camel.karavan.KaravanEvents.CMD_COLLECT_CAMEL_STATUS;
+import static org.apache.camel.karavan.service.CodeService.CAMEL_OBSERVABILITY_PORT;
 
 @ApplicationScoped
 public class CamelStatusListener {
@@ -83,32 +84,32 @@ public class CamelStatusListener {
             CamelStatus cs = new CamelStatus(projectId, containerName, statuses, environment);
             karavanCache.saveCamelStatus(cs);
         } catch (Exception ex) {
-//            LOGGER.warn("collectCamelStatuses " + (ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage()));
+            LOGGER.warn("collectCamelStatuses " + (ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage()));
         }
     }
 
     public String getContainerAddressForStatus(PodContainerStatus podContainerStatus) throws Exception {
         if (ConfigService.inKubernetes()) {
-            return "http://" + podContainerStatus.getPodIP() + ":8080";
+            return "http://" + podContainerStatus.getPodIP() + ":" + CAMEL_OBSERVABILITY_PORT;
         } else if (ConfigService.inDocker()) {
-            return "http://" + podContainerStatus.getContainerName() + ":8080";
+            return "http://" + podContainerStatus.getContainerName() + ":" + CAMEL_OBSERVABILITY_PORT;
         } else if (podContainerStatus.getPorts() != null && !podContainerStatus.getPorts().isEmpty()) {
             Integer port = podContainerStatus.getPorts().get(0).getPublicPort();
             if (port != null) {
-                return "http://localhost:" + port;
+                return "http://localhost:" + CAMEL_OBSERVABILITY_PORT;
             }
         }
         throw new Exception("No port configured for project " + podContainerStatus.getContainerName());
     }
 
     public String getCamelStatus(PodContainerStatus podContainerStatus, CamelStatusValue.Name statusName) throws Exception {
-        var name = statusName.name();
+        var name = statusName.name().replace("_", "-");
         var path = "/q/dev/" + name + (Objects.equals(name, "trace") ? "?dump=true" : "");
         String url = getContainerAddressForStatus(podContainerStatus) + path;
         try {
-            return getResult(url, 500);
+            return getResult(url, 1500);
         } catch (InterruptedException | ExecutionException ex) {
-//            LOGGER.warn("getCamelStatus " + (ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage()));
+            LOGGER.warn("getCamelStatus " + (ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage()));
         }
         return null;
     }
@@ -123,7 +124,7 @@ public class CamelStatusListener {
                 return res.encodePrettily();
             }
         } catch (Exception ex) {
-//            LOGGER.warn("getResult " + (ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage()));
+            LOGGER.warn("getResult " + (ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage()));
         }
         return null;
     }

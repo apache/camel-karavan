@@ -26,21 +26,19 @@ public class KaravanConstants {
     public static final String ENV_VAR_RUN_IN_BUILD_MODE = "RUN_IN_BUILD_MODE";
     public static final String ENV_VAR_VERBOSE_OPTION_VALUE = "--verbose";
     public static final String ENV_VAR_BUILDER_SESSION_ID = "BUILDER_SESSION_ID";
+    public static final String ENV_VAR_PROJECT_ID = "PROJECT_ID";
 
     public static final String LABEL_PART_OF = "app.kubernetes.io/part-of";
     public static final String LABEL_TYPE = "org.apache.camel.karavan/type";
     public static final String LABEL_PROJECT_ID = "org.apache.camel.karavan/projectId";
     public static final String LABEL_CAMEL_RUNTIME = "org.apache.camel.karavan/runtime";
     public static final String LABEL_TAG = "org.apache.camel.karavan/tag";
-    public static final String LABEL_DOCKER_STACK_NAMESPACE = "com.docker.stack.namespace";
-    public static final String LABEL_SWARM_SERVICE_ID = "com.docker.swarm.service.id";
 
     public static final String BUILDER_SUFFIX = "-builder";
 
     public static final String CAMEL_PREFIX = "camel";
 
     public static final String BUILD_SCRIPT_VOLUME_NAME = "build-script";
-    public static final String BUILD_SCRIPT_CONFIG_MAP = "build.sh";
     public static final String BUILD_DOCKER_CONFIG_SECRET = "dockerconfigjson";
     public static final String PRIVATE_KEY_SECRET_KEY = "private-key";
     public static final String KNOWN_HOSTS_SECRET_KEY = "known-hosts";

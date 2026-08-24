@@ -1,6 +1,7 @@
 package org.apache.camel.karavan.persistence;
 
 import io.quarkus.vertx.ConsumeEvent;
+import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.json.JsonObject;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -9,21 +10,30 @@ import jakarta.persistence.Query;
 import jakarta.transaction.Transactional;
 import org.apache.camel.karavan.cache.AccessSession;
 import org.apache.camel.karavan.cache.CacheEvent;
+import org.eclipse.microprofile.health.HealthCheck;
+import org.eclipse.microprofile.health.HealthCheckResponse;
+import org.eclipse.microprofile.health.HealthCheckResponseBuilder;
 import org.jboss.logging.Logger;
 
 import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicLong;
 
 import static org.apache.camel.karavan.KaravanEvents.*;
 
 @ApplicationScoped
-public class PersistenceService {
+public class PersistenceService implements HealthCheck {
 
     private static final Logger LOGGER = Logger.getLogger(PersistenceService.class.getName());
 
     @Inject
     EntityManager entityManager;
+
+    @Inject
+    EventBus eventBus;
+
+    private final AtomicLong persistFailures = new AtomicLong(0);
 
     private static final String SAVE_SQL =
             "INSERT INTO %s (key, type, data, last_update) " +
@@ -34,7 +44,7 @@ public class PersistenceService {
                     "last_update = EXCLUDED.last_update";
 
     private static final String SAVE_SESSION_SQL =
-            "INSERT INTO session_state (key, type, data, expiry, last_update) " + // Added expiry
+            "INSERT INTO session_state (key, type, data, expiry, last_update) " +
                     "VALUES (:key, :type, CAST(:data AS jsonb), :expiry, :now) " +
                     "ON CONFLICT (key) DO UPDATE SET " +
                     "type = EXCLUDED.type, data = EXCLUDED.data, " +
@@ -85,6 +95,9 @@ public class PersistenceService {
             query.executeUpdate();
         } catch (Exception e) {
             LOGGER.errorf(e, "Failed to persist event %s in %s with key %s", event.operation(), tableName, event.key());
+            persistFailures.incrementAndGet();
+            eventBus.publish(NOTIFICATION_ERROR, JsonObject.of("error",
+                    "Failed to persist " + tableName + " " + event.key() + " — restart may lose this change"));
         }
     }
 
@@ -104,5 +117,21 @@ public class PersistenceService {
         return entityManager.createQuery(jpql, SessionCacheEntity.class)
                 .setParameter("now", Instant.now())
                 .getResultList();
+    }
+
+    @Override
+    public HealthCheckResponse call() {
+        HealthCheckResponseBuilder responseBuilder = HealthCheckResponse.named("Database Persistence Health");
+        long failures = persistFailures.get();
+
+        if (failures > 0) {
+            return responseBuilder.down()
+                    .withData("status", "DEGRADED")
+                    .withData("persistFailures", failures)
+                    .withData("reason", "In-memory cache is out of sync with the database due to failed writes.")
+                    .build();
+        }
+
+        return responseBuilder.up().build();
     }
 }

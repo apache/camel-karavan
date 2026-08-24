@@ -30,12 +30,12 @@ import org.apache.camel.karavan.cache.PodContainerStatus;
 import org.jboss.logging.Logger;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 import static org.apache.camel.karavan.KaravanConstants.*;
 import static org.apache.camel.karavan.KaravanEvents.POD_CONTAINER_DELETED;
 import static org.apache.camel.karavan.KaravanEvents.POD_CONTAINER_UPDATED;
+import static org.apache.camel.karavan.kubernetes.KubernetesService.DEFAULT_CONTAINER_RESOURCES;
 
 public class PodEventHandler implements ResourceEventHandler<Pod> {
 
@@ -43,13 +43,6 @@ public class PodEventHandler implements ResourceEventHandler<Pod> {
 
     private final KubernetesStatusService kubernetesStatusService;
     private final EventBus eventBus;
-
-    public static final Map<String, String> DEFAULT_CONTAINER_RESOURCES = Map.of(
-            "requests.memory", "256Mi",
-            "requests.cpu", "500m",
-            "limits.memory", "2048Mi",
-            "limits.cpu", "2000m"
-    );
 
     public PodEventHandler(KubernetesStatusService kubernetesStatusService, EventBus eventBus) {
         this.kubernetesStatusService = kubernetesStatusService;
@@ -160,6 +153,16 @@ public class PodEventHandler implements ResourceEventHandler<Pod> {
                 status.setState(PodContainerStatus.State.exited.name());
             } else {
                 status.setState(PodContainerStatus.State.created.name());
+            }
+            if (pod.getStatus() != null && pod.getStatus().getContainerStatuses() != null && !pod.getStatus().getContainerStatuses().isEmpty()) {
+                var containerStatus = pod.getStatus().getContainerStatuses().getFirst();
+                if (containerStatus != null) {
+                    if (containerStatus.getState().getWaiting() != null) {
+                        status.setStateMessage(containerStatus.getState().getWaiting().getMessage());
+                    } else if (containerStatus.getState().getTerminated() != null) {
+                        status.setStateMessage(containerStatus.getState().getTerminated().getMessage());
+                    }
+                }
             }
             return status;
         } catch (Exception ex) {

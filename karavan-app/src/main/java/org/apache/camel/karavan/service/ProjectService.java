@@ -25,11 +25,9 @@ import jakarta.inject.Inject;
 import org.apache.camel.karavan.cache.*;
 import org.apache.camel.karavan.docker.DockerComposeConverter;
 import org.apache.camel.karavan.docker.DockerForKaravan;
-import org.apache.camel.karavan.docker.DockerStackConverter;
 import org.apache.camel.karavan.kubernetes.KubernetesService;
 import org.apache.camel.karavan.model.CommitResult;
 import org.apache.camel.karavan.model.DockerComposeService;
-import org.apache.camel.karavan.model.DockerStackService;
 import org.apache.camel.karavan.model.PathCommitDetails;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jgit.revwalk.RevCommit;
@@ -109,7 +107,10 @@ public class ProjectService {
             if (statuses.stream().noneMatch(status -> status != RemoteRefUpdate.Status.OK)) {
                 String commitId = commit.getId().getName();
                 Long lastUpdate = commit.getCommitTime() * 1000L;
-                importProject(projectId);
+                // Only refresh the commited baseline for the files that were actually commited.
+                // Re-importing the whole project from Git would overwrite the working copy of
+                // the files the user did not select and revert their uncommited changes.
+                updateCommitedState(projectId, files, fileNames, commitId, lastUpdate);
                 return new CommitResult(p, statuses, messages, commitId, lastUpdate);
             } else {
                 return new CommitResult(p, statuses, messages, null, null);
@@ -120,6 +121,10 @@ public class ProjectService {
     }
 
     public String runProjectInDeveloperMode(String projectId, Boolean verbose, Boolean compile, Map<String, String> labels, Map<String, String> envVars, Boolean appOnly) throws Exception {
+        var extendedEnvVars = new HashMap<>(envVars);
+        var session = authService.createAndSaveSession(projectId, false, true);
+        extendedEnvVars.put(ENV_VAR_BUILDER_SESSION_ID, session.sessionId);
+        extendedEnvVars.put(ENV_VAR_PROJECT_ID, projectId);
         PodContainerStatus status = karavanCache.getDevModePodContainerStatus(projectId, environment);
         if (status == null) {
             status = PodContainerStatus.createDevMode(projectId, environment);
@@ -128,19 +133,13 @@ public class ProjectService {
             status.setInTransit(true);
             eventBus.publish(POD_CONTAINER_UPDATED, JsonObject.mapFrom(status));
 
-            Map<String, String> files = codeService.getProjectFilesForDevMode(projectId, true)
-                    .entrySet().stream().filter(e -> !appOnly || APPLICATION_PROPERTIES_FILENAME.equals(e.getKey()))
-                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
             String projectDevmodeImage = codeService.getProjectDevModeImage(projectId);
             if (ConfigService.inKubernetes()) {
                 String deploymentFragment = codeService.getDeploymentFragment(projectId);
-                kubernetesService.runDevModeContainer(projectId, verbose, compile, files, projectDevmodeImage, deploymentFragment, labels, envVars);
-            } else if (configService.inDockerSwarmMode()) {
-                DockerStackService stack = getProjectDockerStackService(projectId);
-                dockerForKaravan.runProjectInDevMode(projectId, verbose, compile, stack, projectDevmodeImage, labels, envVars);
+                kubernetesService.runDevModeContainer(projectId, verbose, compile, projectDevmodeImage, deploymentFragment, labels, extendedEnvVars);
             } else {
                 DockerComposeService compose = getProjectDockerComposeService(projectId);
-                dockerForKaravan.runProjectInDevMode(projectId, verbose, compile, compose, files, projectDevmodeImage, labels, envVars);
+                dockerForKaravan.runProjectInDevMode(projectId, verbose, compile, compose, projectDevmodeImage, labels, extendedEnvVars);
             }
             return projectId;
         } else {
@@ -153,17 +152,11 @@ public class ProjectService {
                 ? tag
                 : Instant.now().toString().substring(0, 19).replace(":", "-");
         var name = projectFolder.getProjectId() + "-builder";
-        var session = authService.createAndSaveSession(name, false);
+        var session = authService.createAndSaveSession(name, false, true);
         if (ConfigService.inKubernetes()) {
             String podFragment = codeService.getBuilderPodFragment();
             podFragment = codeService.substituteVariables(podFragment, Map.of( "projectId", projectFolder.getProjectId(), "tag", tag));
             kubernetesService.runBuildProject(projectFolder.getProjectId(), podFragment, Map.of(ENV_VAR_BUILDER_SESSION_ID, session.getSessionId()));
-        } else if (configService.inDockerSwarmMode()) {
-            String stackFragment = codeService.getBuilderStackFragment(projectFolder.getProjectId(), tag);
-            DockerStackService stack = DockerStackConverter.fromCode(stackFragment, name);
-            stack.addEnvironment(ENV_VAR_RUN_IN_BUILD_MODE, "true");
-            stack.addEnvironment(ENV_VAR_BUILDER_SESSION_ID, session.getSessionId());
-            dockerForKaravan.runBuildProject(projectFolder, stack, tag);
         } else {
             Map<String, String> sshFiles = codeService.getSshFiles();
             String script = codeService.getBuilderScript();
@@ -173,6 +166,29 @@ public class ProjectService {
             compose.addEnvironment(ENV_VAR_BUILDER_SESSION_ID, session.getSessionId());
             dockerForKaravan.runBuildProject(projectFolder, script, compose, sshFiles, tag);
         }
+    }
+
+    /**
+     * Aligns the commited state of a project with a commit that has just been pushed,
+     * without touching the working copy of the files.
+     * <p>
+     * {@code commitedFiles} is the snapshot that was written to the Git working folder,
+     * so for every selected file name its content is exactly what has been commited.
+     */
+    private void updateCommitedState(String projectId, List<ProjectFile> commitedFiles, List<String> fileNames, String commitId, Long commitTime) {
+        karavanCache.saveProjectCommited(new ProjectFolderCommited(projectId, commitId, commitTime));
+        var commitedNames = new HashSet<>(fileNames);
+        commitedFiles.stream()
+                .filter(file -> commitedNames.contains(file.getName()))
+                .forEach(file -> {
+                    var fileCommited = ProjectFileCommited.fromFile(file, commitId);
+                    fileCommited.setCommitTime(commitTime);
+                    karavanCache.saveProjectFileCommited(fileCommited);
+                });
+        // Files removed from the project are deleted from the repository by the same commit
+        karavanCache.getProjectFilesCommited(projectId).stream()
+                .filter(fileCommited -> commitedFiles.stream().noneMatch(file -> Objects.equals(file.getName(), fileCommited.getName())))
+                .forEach(fileCommited -> karavanCache.deleteProjectFileCommited(projectId, fileCommited.getName()));
     }
 
     public void importProject(String projectId) throws Exception {
@@ -222,12 +238,6 @@ public class ProjectService {
         return DockerComposeConverter.fromCode(composeCode, projectId);
     }
 
-    public DockerStackService getProjectDockerStackService(String projectId) {
-        String stackTemplate = codeService.getDockerStackFileForProject(projectId);
-        String stackCode = codeService.replaceEnvWithRuntimeProperties(stackTemplate);
-        return DockerStackConverter.fromCode(stackCode, projectId);
-    }
-
     private void modifyPropertyFileOnProjectCopy(ProjectFile propertyFile, ProjectFolder sourceProjectFolder, ProjectFolder projectFolder) {
         String fileContent = propertyFile.getCode();
 
@@ -266,14 +276,16 @@ public class ProjectService {
             throw new Exception("Project with id " + projectFolder.getProjectId() + " already exists");
         } else {
             karavanCache.saveProject(projectFolder, true);
+
             ProjectFile appProp = codeService.generateApplicationProperties(projectFolder);
             karavanCache.saveProjectFile(appProp, null, true);
+
+            ProjectFile projectMD = codeService.generateProjectMd(projectFolder);
+            karavanCache.saveProjectFile(projectMD, null, true);
+
             if (!ConfigService.inKubernetes()) {
                 var port = getMaxPortMappedInProjects() + 1;
-                ProjectFile projectCompose =
-                        configService.inDockerSwarmMode()
-                        ? codeService.createInitialProjectStack(projectFolder, port)
-                        : codeService.createInitialProjectCompose(projectFolder, port);
+                ProjectFile projectCompose = codeService.createInitialProjectCompose(projectFolder, port);
                 karavanCache.saveProjectFile(projectCompose, null, true);
             } else {
                 ProjectFile projectDeployment = codeService.createInitialDeployment(projectFolder);
@@ -298,7 +310,6 @@ public class ProjectService {
             // Copy files from the source and make necessary modifications
             Map<String, ProjectFile> filesMap = karavanCache.getProjectFiles(sourceProjectId).stream()
                     .filter(f -> !Objects.equals(f.getName(), PROJECT_COMPOSE_FILENAME))
-                    .filter(f -> !Objects.equals(f.getName(), PROJECT_STACK_FILENAME))
                     .filter(f -> !Objects.equals(f.getName(), PROJECT_DEPLOYMENT_JKUBE_FILENAME))
                     .collect(Collectors.toMap(
                             f -> GroupedKey.create(projectFolder.getProjectId(), DEV, f.getName()),

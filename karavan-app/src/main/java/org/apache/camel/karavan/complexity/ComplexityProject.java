@@ -8,16 +8,13 @@ public class ComplexityProject {
     private String projectId;
     private String type;
     private Long lastUpdateDate = 0L;
-    private Complexity complexityRoute = Complexity.easy;
-    private Complexity complexityRest = Complexity.easy;
-    private Complexity complexityJava = Complexity.easy;
-    private Complexity complexityFiles = Complexity.easy;
     private List<ComplexityFile> files = new ArrayList<>();
     private List<ComplexityRoute> routes = new ArrayList<>();
     private Integer rests = 0;
     private boolean exposesOpenApi = false;
+    private boolean mcp = false;
+    private boolean agents = false;
     private List<String> dependencies = new ArrayList<>();
-
 
     public ComplexityProject() {
     }
@@ -44,38 +41,6 @@ public class ComplexityProject {
 
     public void setLastUpdateDate(Long lastUpdateDate) {
         this.lastUpdateDate = lastUpdateDate;
-    }
-
-    public Complexity getComplexityRoute() {
-        return complexityRoute;
-    }
-
-    public void setComplexityRoute(Complexity complexityRoute) {
-        this.complexityRoute = complexityRoute;
-    }
-
-    public Complexity getComplexityRest() {
-        return complexityRest;
-    }
-
-    public void setComplexityRest(Complexity complexityRest) {
-        this.complexityRest = complexityRest;
-    }
-
-    public Complexity getComplexityJava() {
-        return complexityJava;
-    }
-
-    public void setComplexityJava(Complexity complexityJava) {
-        this.complexityJava = complexityJava;
-    }
-
-    public Complexity getComplexityFiles() {
-        return complexityFiles;
-    }
-
-    public void setComplexityFiles(Complexity complexityFiles) {
-        this.complexityFiles = complexityFiles;
     }
 
     public List<ComplexityFile> getFiles() {
@@ -122,20 +87,19 @@ public class ComplexityProject {
         this.exposesOpenApi = exposesOpenApi;
     }
 
-    @Override
-    public String toString() {
-        return "ComplexityProject{" +
-                "projectId='" + projectId + '\'' +
-                ", lastUpdateDate=" + lastUpdateDate +
-                ", complexityRoute=" + complexityRoute +
-                ", complexityRest=" + complexityRest +
-                ", complexityJava=" + complexityJava +
-                ", complexityFiles=" + complexityFiles +
-                ", files=" + files +
-                ", routes=" + routes +
-                ", rests=" + rests +
-                ", dependencies=" + dependencies +
-                '}';
+    public boolean isMcp() {
+        return mcp;
     }
 
+    public void setMcp(boolean mcp) {
+        this.mcp = mcp;
+    }
+
+    public boolean isAgents() {
+        return agents;
+    }
+
+    public void setAgents(boolean agents) {
+        this.agents = agents;
+    }
 }

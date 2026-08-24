@@ -41,7 +41,8 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
 
-import static org.apache.camel.karavan.KaravanConstants.*;
+import static org.apache.camel.karavan.KaravanConstants.LABEL_PROJECT_ID;
+import static org.apache.camel.karavan.KaravanConstants.LABEL_TYPE;
 
 @Default
 @Readiness
@@ -90,15 +91,6 @@ public class DockerService {
     private volatile DockerClient dockerClient;
     private volatile DockerClient dockerClientConnectedToRegistry;
 
-    private static Boolean IN_SWARM_MODE = null;
-
-    public boolean isInSwarmMode() {
-        if (IN_SWARM_MODE == null) {
-            IN_SWARM_MODE = checkDockerSwarm();
-        }
-        return IN_SWARM_MODE;
-    }
-
     void onStart(@Observes StartupEvent ev) {
         if (!ConfigService.inKubernetes()) {
 //            getDockerClient().eventsCmd().withEventFilter("pull", "create", "attach", "start", "stop", "kill").exec(dockerEventHandler);
@@ -141,33 +133,14 @@ public class DockerService {
         }
     }
 
-    public boolean checkDockerSwarm() {
-        try {
-            Info info = getDockerClient().infoCmd().exec();
-            var swarmInfo = info.getSwarm();
-            var nodes = (swarmInfo != null && swarmInfo.getNodes() != null) ? swarmInfo.getNodes() : 0;
-            return swarmInfo != null && nodes > 0;
-        } catch (Exception e) {
-            LOGGER.error("Error connecting Docker: " + e.getMessage());
-            return false;
-        }
-    }
-
     public JsonObject getInfo() {
         try {
             var info = getDockerClient().infoCmd().exec();
-            var swarm = info.getSwarm();
-            if (swarm != null) {
-                return JsonObject.of(
-                        "Nodes", swarm.getNodes(),
-                        "NodeId", swarm.getNodeID(),
-                        "Managers", swarm.getManagers(),
-                        "Error", swarm.getError(),
-                        "MemTotal", info.getMemTotal()
-                );
-            }
+            return JsonObject.of(
+                    "MemTotal", info.getMemTotal()
+            );
         } catch (Exception e) {
-            LOGGER.error(e.getMessage());
+//            LOGGER.error(e.getMessage());
         }
         return JsonObject.of("Nodes", 0, "Error", "Swarm or Info is unavailable");
     }
@@ -219,25 +192,11 @@ public class DockerService {
         }
     }
 
-    public List<Container> findContainersByProjectId(String projectId) {
-        return getDockerClient().listContainersCmd().withLabelFilter(Map.of(LABEL_PROJECT_ID, projectId)).exec();
-    }
-
-    public List<Container> findContainersByServiceId(String serviceId) {
-        return getDockerClient().listContainersCmd().withLabelFilter(Map.of(LABEL_SWARM_SERVICE_ID, serviceId)).exec();
-    }
-
     public List<Container> findContainers(String containerName) {
-        var isSwarm = isInSwarmMode();
         var list = getDockerClient().listContainersCmd().withShowAll(true).withNameFilter(List.of(containerName)).exec();
         return list.stream().filter(c -> {
             var contName = c.getNames()[0].replace("/", "");
-            if (Objects.equals(contName, containerName)) return true;
-            if (isSwarm) {
-                var stack = c.getLabels().get(LABEL_DOCKER_STACK_NAMESPACE);
-                return contName.startsWith(stack + "_" + containerName);
-            }
-            return false;
+            return Objects.equals(contName, containerName);
         }).toList();
     }
 
@@ -296,7 +255,7 @@ public class DockerService {
                 .withDirChildrenOnly(dirChildrenOnly).withHostResource(temp).exec();
     }
 
-    public void copyExecFile(String containerId, String containerPath, String filename, String script) {
+    public void copyFileToContainer(String containerId, String containerPath, String filename, String script, int mode) {
         String temp = vertx.fileSystem().createTempDirectoryBlocking(containerId);
         String path = temp + File.separator + filename;
         vertx.fileSystem().writeFileBlocking(path, Buffer.buffer(script));
@@ -308,7 +267,7 @@ public class DockerService {
 
             TarArchiveEntry tarEntry = new TarArchiveEntry(new File(path));
             tarEntry.setName(filename);
-            tarEntry.setMode(0755);
+            tarEntry.setMode(mode);
             tarArchive.putArchiveEntry(tarEntry);
             IOUtils.write(Files.readAllBytes(Paths.get(path)), tarArchive);
             tarArchive.closeArchiveEntry();
@@ -318,8 +277,7 @@ public class DockerService {
                     .withTarInputStream(new ByteArrayInputStream(byteArrayOutputStream.toByteArray()))
                     .withRemotePath(containerPath).exec();
         } catch (Exception e) {
-            LOGGER.error(e.getMessage());
-            e.printStackTrace();
+            LOGGER.error("Failed to copy file to container: " + e.getMessage(), e);
         }
     }
 
@@ -480,9 +438,5 @@ public class DockerService {
         if (image.isPresent()) {
             getDockerClient().removeImageCmd(image.get().getId()).exec();
         }
-    }
-
-    public void createConfig(String name, String config) {
-        getDockerClient().createConfigCmd().withName(name).withData(config.getBytes()).exec();
     }
 }

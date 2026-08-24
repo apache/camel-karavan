@@ -30,10 +30,8 @@ import org.apache.camel.karavan.cache.ContainerType;
 import org.apache.camel.karavan.cache.KaravanCache;
 import org.apache.camel.karavan.cache.PodContainerStatus;
 import org.apache.camel.karavan.docker.DockerService;
-import org.apache.camel.karavan.docker.StackToServiceSpecConverter;
 import org.apache.camel.karavan.kubernetes.KubernetesService;
 import org.apache.camel.karavan.model.DockerComposeService;
-import org.apache.camel.karavan.model.DockerStackService;
 import org.apache.camel.karavan.service.ConfigService;
 import org.apache.camel.karavan.service.ProjectService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -72,7 +70,7 @@ public class ContainerResource {
     @Authenticated
     @Produces(MediaType.APPLICATION_JSON)
     public List<PodContainerStatus> getAllContainerStatuses() throws Exception {
-        return karavanCache.getPodContainerStatuses().stream()
+        return karavanCache.getPodContainerStatusesByProject().stream()
                 .sorted(Comparator.comparing(PodContainerStatus::getProjectId, Comparator.nullsLast(String::compareTo)))
                 .collect(Collectors.toList());
     }
@@ -94,24 +92,16 @@ public class ContainerResource {
                 setContainerStatusTransit(projectId, name, type);
                 // exec docker commands
                 if (command.containsKey("command")) {
-                    if (dockerService.isInSwarmMode()) {
-                        if (command.getString("command").equalsIgnoreCase("deploy")) {
-                            deployService(projectId, type, command);
-                        } else if (command.getString("command").equalsIgnoreCase("delete")) {
-                            dockerService.deleteService(projectId);
-                        }
-                    } else {
-                        if (command.getString("command").equalsIgnoreCase("deploy")) {
-                            deployContainer(projectId, type, command);
-                        } else if (command.getString("command").equalsIgnoreCase("run")) {
-                            dockerService.runContainer(name);
-                        } else if (command.getString("command").equalsIgnoreCase("stop")) {
-                            dockerService.stopContainer(name);
-                        } else if (command.getString("command").equalsIgnoreCase("pause")) {
-                            dockerService.pauseContainer(name);
-                        } else if (command.getString("command").equalsIgnoreCase("delete")) {
-                            dockerService.deleteContainer(name);
-                        }
+                    if (command.getString("command").equalsIgnoreCase("deploy")) {
+                        deployContainer(projectId, type, command);
+                    } else if (command.getString("command").equalsIgnoreCase("run")) {
+                        dockerService.runContainer(name);
+                    } else if (command.getString("command").equalsIgnoreCase("stop")) {
+                        dockerService.stopContainer(name);
+                    } else if (command.getString("command").equalsIgnoreCase("pause")) {
+                        dockerService.pauseContainer(name);
+                    } else if (command.getString("command").equalsIgnoreCase("delete")) {
+                        dockerService.deleteContainer(name);
                     }
                     return Response.ok().build();
                 }
@@ -143,25 +133,6 @@ public class ContainerResource {
         }
     }
 
-    public void deployService(String projectId, String type, JsonObject command) throws InterruptedException {
-        if (Objects.equals(type, ContainerType.packaged.name())) {
-            DockerStackService stack = projectService.getProjectDockerStackService(projectId);
-            if (stack != null) {
-                Map<String, String> labels = new HashMap<>();
-                labels.put(LABEL_TYPE, ContainerType.packaged.name());
-                labels.put(LABEL_CAMEL_RUNTIME, CamelRuntime.CAMEL_MAIN.getValue());
-                labels.put(LABEL_PROJECT_ID, projectId);
-                stack.setLabels(labels);
-                var serviceSpec = StackToServiceSpecConverter.convertService(projectId, stack);
-                dockerService.createService(projectId, serviceSpec);
-            }
-        } else if (Objects.equals(type, ContainerType.devmode.name())) {
-//                        TODO: merge with DevMode service
-//                        dockerForKaravan.createDevmodeContainer(name, "");
-//                        dockerService.runContainer(name);
-        }
-    }
-
     private DockerService.PULL_IMAGE needPull(JsonObject command) {
         try {
             return DockerService.PULL_IMAGE.valueOf(command.getString("pullImage"));
@@ -183,17 +154,17 @@ public class ContainerResource {
     @Authenticated
     @Produces(MediaType.APPLICATION_JSON)
     public List<PodContainerStatus> getContainerStatusesByEnv(@PathParam("env") String env) throws Exception {
-        return karavanCache.getPodContainerStatuses(env).stream()
+        return karavanCache.getPodContainerStatusesByProject(env).stream()
                 .sorted(Comparator.comparing(PodContainerStatus::getProjectId))
                 .collect(Collectors.toList());
     }
 
     @GET
-    @Path("/{projectId}/{env}")
+    @Path("/{projectId}")
     @Authenticated
     @Produces(MediaType.APPLICATION_JSON)
-    public List<PodContainerStatus> getContainerStatusesByProjectAndEnv(@PathParam("projectId") String projectId, @PathParam("env") String env) throws Exception {
-        return karavanCache.getPodContainerStatuses(projectId, env).stream()
+    public List<PodContainerStatus> getContainerStatusesByProjectAndEnv(@PathParam("projectId") String projectId) throws Exception {
+        return karavanCache.getPodContainerStatusesByProject(projectId).stream()
                 .sorted(Comparator.comparing(PodContainerStatus::getContainerName))
                 .collect(Collectors.toList());
     }
@@ -219,12 +190,11 @@ public class ContainerResource {
         }
     }
 
-    // TODO: implement log watch
     @GET
-    @Path("/log/watch/{env}/{name}")
+    @Path("/log/watch/{name}")
     @Authenticated
     @Produces(MediaType.SERVER_SENT_EVENTS)
-    public Multi<String> getContainerLogWatch(@PathParam("env") String env, @PathParam("name") String name) {
+    public Multi<String> getContainerLogWatch(@PathParam("name") String name) {
         LOGGER.info("Start sourcing");
         return eventBus.<String>consumer(name + "-" + kubernetesService.getNamespace()).toMulti().map(Message::body);
     }

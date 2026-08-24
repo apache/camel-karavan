@@ -151,12 +151,12 @@ public class KubernetesStatusService implements HealthCheck {
         }
     }
 
-    public ResourceRequirements getResourceRequirements(Map<String, String> containerResources) {
+    public ResourceRequirements getResourceRequirements(Map<String, Quantity> containerResources) {
         return new ResourceRequirementsBuilder()
-                .addToRequests("cpu", new Quantity(containerResources.get("requests.cpu")))
-                .addToRequests("memory", new Quantity(containerResources.get("requests.memory")))
-                .addToLimits("cpu", new Quantity(containerResources.get("limits.cpu")))
-                .addToLimits("memory", new Quantity(containerResources.get("limits.memory")))
+                .addToRequests("cpu", containerResources.get("requests.cpu"))
+                .addToRequests("memory", containerResources.get("requests.memory"))
+                .addToLimits("cpu", containerResources.get("limits.cpu"))
+                .addToLimits("memory", containerResources.get("limits.memory"))
                 .build();
     }
 

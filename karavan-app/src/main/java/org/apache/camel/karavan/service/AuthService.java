@@ -30,6 +30,7 @@ public class AuthService {
     public static final String ROLE_ADMIN = "platform-admin";
     public static final String ROLE_DEVELOPER = "platform-developer";
     public static final String ROLE_USER = "platform-user";
+    public static final String ROLE_SERVICE_ACCOUNT = "platform-service-account";
 
     public static final String USER_ADMIN = "admin";
     public static final String USER_DEVELOPER = "developer";
@@ -127,7 +128,23 @@ public class AuthService {
         return new AccessSession(sessionId, username, csrf, createdAt.toEpochMilli(), Instant.now().plus(SESSION_MAX_AGE, ChronoUnit.SECONDS));
     }
 
-    public AccessSession createAndSaveSession(String username, boolean persist) throws Exception {
+    public void validateSession(String sessionId) throws Exception {
+        var accessSession = karavanCache.getAccessSession(sessionId);
+        if (accessSession == null) {
+            throw new Exception("Invalid session id " + sessionId);
+        } else if (accessSession.getExpiredAt().isBefore(Instant.now())){
+            throw new Exception("Session expired");
+        }
+    }
+
+    public void invalidateSession(String sessionId) {
+        karavanCache.deleteAccessSession(sessionId);
+    }
+
+    public AccessSession createAndSaveSession(String username, boolean persist, boolean unique) throws Exception {
+        if (unique) {
+            karavanCache.deleteAccessSessionByUsername(username);
+        }
         var session = createSession(username);
         karavanCache.saveAccessSession(session, persist);
         return session;
@@ -143,4 +160,3 @@ public class AuthService {
         return s.substring(0, 1).toUpperCase() + s.substring(1);
     }
 }
-

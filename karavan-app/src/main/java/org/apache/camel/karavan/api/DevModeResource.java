@@ -66,7 +66,6 @@ public class DevModeResource {
             }
         } catch (Exception e) {
             LOGGER.error(e.getMessage());
-            e.printStackTrace();
             return Response.serverError().entity(e.getMessage()).build();
         }
     }

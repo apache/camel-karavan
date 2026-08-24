@@ -34,7 +34,6 @@ import java.util.Map;
 import java.util.Objects;
 
 import static org.apache.camel.karavan.KaravanEvents.*;
-import static org.apache.camel.karavan.service.CodeService.BUILD_SCRIPT_FILENAME;
 
 @ApplicationScoped
 public class DockerListener {
@@ -77,23 +76,23 @@ public class DockerListener {
         var projectId = event.getString("projectId");
         var containerId = event.getString("containerId");
         var type = event.getString("type");
-        var statuses = karavanCache.getPodContainerStatuses(projectId, environment);
+        var statuses = karavanCache.getPodContainerStatusesByProject(projectId);
         var status = statuses != null && !statuses.isEmpty() ? statuses.getFirst() : null;
         try {
             status = status != null ? status : PodContainerStatus.createDevMode(projectId, environment);
             if (!status.getCodeLoaded()) {
                 if (Objects.equals(type, "devmode")) {
-                    Map<String, String> files = codeService.getProjectFilesForDevMode(projectId, true);
+                    Map<String, String> files = codeService.getProjectFilesForDevMode(projectId);
                     LOGGER.info("Copy files: " + files.size());
-                    dockerService.copyFiles(containerId, "/karavan/code", files, true);
-                    dockerService.copyFiles(containerId, "/tmp", Map.of(".karavan.done", "done"), true);
+//                    dockerService.copyFiles(containerId, "/karavan/code", files, true);
+//                    dockerService.copyFiles(containerId, "/tmp", Map.of(".karavan.done", "done"), true);
                 } else if (Objects.equals(type, "build")) {
                     Map<String, String> sshFiles = codeService.getSshFiles();
                     String script = codeService.getBuilderScript();
                     LOGGER.info("Copy build script: " + script.length() + " and ssh files: " + sshFiles.size());
-                    dockerService.copyExecFile(containerId, "/karavan/builder", BUILD_SCRIPT_FILENAME, script);
+//                    dockerService.copyFileToContainer(containerId, "/karavan/builder", BUILD_SCRIPT_FILENAME, script, 0755);
                     sshFiles.forEach((name, text) -> {
-                        dockerService.copyExecFile(containerId, "/karavan/.ssh", name, text);
+//                        dockerService.copyFileToContainer(containerId, "/karavan/.ssh", name, text, 0600);
                     });
                 }
                 status.setCodeLoaded(true);

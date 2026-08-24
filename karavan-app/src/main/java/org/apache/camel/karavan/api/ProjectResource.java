@@ -88,6 +88,7 @@ public class ProjectResource extends AbstractApiResource {
     }
 
     @POST
+    @Authenticated
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public Response create(ProjectFolder projectFolder) {
@@ -106,20 +107,24 @@ public class ProjectResource extends AbstractApiResource {
         String projectId = URLDecoder.decode(project, StandardCharsets.UTF_8);
         if (deleteContainers) {
             LOGGER.info("Deleting containers");
-            Response res1 = devModeResource.deleteDevMode(projectId, true);
-            Response res2 = containerResource.deleteContainer(projectId, ContainerType.devmode.name(), projectId);
-            Response res3 = containerResource.deleteContainer(projectId, ContainerType.packaged.name(), projectId);
+            devModeResource.deleteDevMode(projectId, true);
+            containerResource.deleteContainer(projectId, ContainerType.devmode.name(), projectId);
+            containerResource.deleteContainer(projectId, ContainerType.packaged.name(), projectId);
             LOGGER.info("Deleting deployments");
             Response res4 = infrastructureResource.deleteDeployment(null, projectId);
         }
         var identity = getIdentity();
         // delete from cache
         karavanCache.getProjectFiles(projectId).forEach(file -> karavanCache.deleteProjectFile(projectId, file.getName()));
-        karavanCache.getProjectFilesCommited(projectId).forEach(file -> karavanCache.deleteProjectFileCommited(projectId, file.getName()));
         karavanCache.deleteProject(projectId);
-        karavanCache.deleteProjectCommited(projectId);
-        // delete from git
-        gitService.deleteProject(projectId, identity.getString("username"), identity.getString("email"));
+
+        var commitedProject = karavanCache.getProjectCommited(projectId);
+        if (commitedProject != null) {
+            karavanCache.getProjectFilesCommited(projectId).forEach(file -> karavanCache.deleteProjectFileCommited(projectId, file.getName()));
+            karavanCache.deleteProjectCommited(projectId);
+            // delete from git
+            gitService.deleteProject(projectId, identity.getString("username"), identity.getString("email"));
+        }
         LOGGER.info("Project deleted");
     }
 
@@ -156,9 +161,9 @@ public class ProjectResource extends AbstractApiResource {
     @GET
     @Authenticated
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/status/camel/{projectId}/{env}")
-    public Response getCamelStatusForProjectAndEnv(@PathParam("projectId") String projectId, @PathParam("env") String env) {
-        List<CamelStatus> statuses = karavanCache.getCamelStatusesByProjectAndEnv(projectId, env)
+    @Path("/status/camel/{projectId}")
+    public Response getCamelStatusForProject(@PathParam("projectId") String projectId) {
+        List<CamelStatus> statuses = karavanCache.getCamelStatusesByProject(projectId)
                 .stream().filter(Objects::nonNull).peek(camelStatus -> {
                     var stats = List.copyOf(camelStatus.getStatuses()).stream().filter(s -> !Objects.equals(s.getName(), CamelStatusValue.Name.trace)).toList();
                     camelStatus.setStatuses(stats);
@@ -173,9 +178,9 @@ public class ProjectResource extends AbstractApiResource {
     @GET
     @Authenticated
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/traces/{projectId}/{env}")
-    public Response getCamelTracesForProjectAndEnv(@PathParam("projectId") String projectId, @PathParam("env") String env) {
-        List<CamelStatus> statuses = karavanCache.getCamelStatusesByProjectAndEnv(projectId, env)
+    @Path("/traces/{projectId}")
+    public Response getCamelTracesForProjectAndEnv(@PathParam("projectId") String projectId) {
+        List<CamelStatus> statuses = karavanCache.getCamelStatusesByProject(projectId)
                 .stream().peek(camelStatus -> {
                     var stats = List.copyOf(camelStatus.getStatuses()).stream().filter(s -> Objects.equals(s.getName(), CamelStatusValue.Name.trace)).toList();
                     camelStatus.setStatuses(stats);

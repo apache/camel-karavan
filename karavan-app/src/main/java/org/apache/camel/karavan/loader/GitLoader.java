@@ -69,6 +69,8 @@ public class GitLoader {
                 addBuildInProject(ProjectFolder.Type.configuration.name());
                 addBuildInProject(ProjectFolder.Type.documentation.name());
                 addBuildInProject(ProjectFolder.Type.contracts.name());
+                addBuildInProject(ProjectFolder.Type.mcp.name());
+                addBuildInProject(ProjectFolder.Type.sdx.name());
             }
             gitHistoryService.importCommits();
         } else {

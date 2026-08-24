@@ -17,18 +17,15 @@
 package org.apache.camel.karavan.api;
 
 import io.quarkus.security.Authenticated;
-import io.vertx.core.json.JsonObject;
 import io.vertx.mutiny.core.eventbus.EventBus;
 import jakarta.inject.Inject;
-import jakarta.ws.rs.*;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.apache.camel.karavan.docker.DockerService;
 import org.apache.camel.karavan.service.ConfigService;
-
-import java.util.HashMap;
-
-import static org.apache.camel.karavan.KaravanEvents.CMD_SHARE_CONFIGURATION;
 
 @Path("/ui/configuration")
 public class ConfigurationResource {
@@ -43,12 +40,14 @@ public class ConfigurationResource {
     EventBus eventBus;
 
     @GET
+    @Authenticated
     @Produces(MediaType.APPLICATION_JSON)
     public Response getConfiguration() throws Exception {
         return Response.ok(configService.getConfiguration(null)).build();
     }
 
     @GET
+    @Authenticated
     @Path("/info")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getInfo() throws Exception {
@@ -56,20 +55,6 @@ public class ConfigurationResource {
             return Response.ok().build();
         } else {
             return Response.ok(dockerService.getInfo()).build();
-        }
-    }
-
-    @POST
-    @Path("/share/")
-    @Authenticated
-    @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Response share(HashMap<String, String> params)  {
-        try {
-            eventBus.publish(CMD_SHARE_CONFIGURATION, JsonObject.mapFrom(params));
-            return Response.ok().build();
-        } catch (Exception e) {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build();
         }
     }
 }

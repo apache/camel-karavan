@@ -39,6 +39,7 @@ import java.util.concurrent.ExecutionException;
 
 import static org.apache.camel.karavan.KaravanEvents.CMD_RELOAD_PROJECT_CODE;
 import static org.apache.camel.karavan.KaravanEvents.POD_CONTAINER_UPDATED;
+import static org.apache.camel.karavan.service.CodeService.CAMEL_OBSERVABILITY_PORT;
 
 @ApplicationScoped
 public class CamelReloadListener {
@@ -75,7 +76,7 @@ public class CamelReloadListener {
         try {
             PodContainerStatus podContainerStatus = karavanCache.getDevModePodContainerStatus(projectId, environment);
             deleteRequest(podContainerStatus);
-            Map<String, String> files = codeService.getProjectFilesForDevMode(projectId, true);
+            Map<String, String> files = codeService.getProjectFilesForDevMode(projectId);
             files.forEach((name, code) -> putRequest(podContainerStatus, name, code, 1000));
             reloadRequest(podContainerStatus);
             podContainerStatus.setCodeLoaded(true);
@@ -120,9 +121,9 @@ public class CamelReloadListener {
 
      String getContainerAddressForReload(PodContainerStatus podContainerStatus) throws Exception {
          if (ConfigService.inKubernetes()) {
-             return "http://" + podContainerStatus.getPodIP() + ":8080";
+             return "http://" + podContainerStatus.getPodIP() + ":" + CAMEL_OBSERVABILITY_PORT;
          } else if (ConfigService.inDocker()) {
-             return "http://" + podContainerStatus.getContainerName() + ":8080";
+             return "http://" + podContainerStatus.getContainerName() + ":" + CAMEL_OBSERVABILITY_PORT;
          } else if (podContainerStatus.getPorts() != null && !podContainerStatus.getPorts().isEmpty()) {
              Integer port = podContainerStatus.getPorts().get(0).getPublicPort();
              if (port != null) {

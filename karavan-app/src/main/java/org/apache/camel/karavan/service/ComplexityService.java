@@ -7,7 +7,10 @@ import jakarta.inject.Inject;
 import org.apache.camel.karavan.cache.KaravanCache;
 import org.apache.camel.karavan.cache.ProjectFile;
 import org.apache.camel.karavan.cache.ProjectFolder;
-import org.apache.camel.karavan.complexity.*;
+import org.apache.camel.karavan.complexity.ComplexityComponent;
+import org.apache.camel.karavan.complexity.ComplexityFile;
+import org.apache.camel.karavan.complexity.ComplexityProject;
+import org.apache.camel.karavan.complexity.ComplexityRoute;
 import org.jboss.logging.Logger;
 import org.yaml.snakeyaml.Yaml;
 
@@ -20,68 +23,21 @@ import static org.apache.camel.karavan.service.CodeService.CAMEL_YAML_EXTENSION;
 public class ComplexityService {
 
     private static final Logger LOGGER = Logger.getLogger(ComplexityService.class.getName());
-    private static final int LIMIT_COMPLEX_ROUTES = 20;
-    private static final int LIMIT_NORMAL_ROUTES = 10;
-    private static final int LIMIT_COMPLEX_ROUTES_PER_FILE = 2;
-    private static final int LIMIT_NORMAL_ROUTES_PER_FILE = 1;
-    private static final int LIMIT_COMPLEX_PROCESSORS = 20;
-    private static final int LIMIT_NORMAL_PROCESSORS = 10;
-    private static final int LIMIT_COMPLEX_COMPONENTS_INT = 20;
-    private static final int LIMIT_NORMAL_COMPONENTS_INT = 10;
-    private static final int LIMIT_COMPLEX_COMPONENTS_EXT = 10;
-    private static final int LIMIT_NORMAL_COMPONENTS_EXT = 5;
-    private static final int LIMIT_COMPLEX_KAMELETS = 10;
-    private static final int LIMIT_NORMAL_KAMELETS = 5;
-    private static final int LIMIT_COMPLEX_RESTS = 20;
-    private static final int LIMIT_NORMAL_RESTS = 10;
-    private static final int LIMIT_COMPLEX_BEANS = 10;
-    private static final int LIMIT_NORMAL_BEANS = 5;
-    private static final int LIMIT_COMPLEX_FILES = 20;
-    private static final int LIMIT_NORMAL_FILES = 10;
-    private static final int LIMIT_COMPLEX_FILE_LENGTH = 5000;
-    private static final int LIMIT_NORMAL_FILE_LENGTH = 2000;
 
     @Inject
     KaravanCache karavanCache;
 
     @Inject
+    CamelComponentService componentService;
+
+    @Inject
     CodeService codeService;
-
-    private static JsonArray components;
-    private JsonArray getComponents() {
-        if (components == null) {
-            var json = codeService.getResourceFile("/metadata/components.json");
-            components = new JsonArray(json);
-        }
-        return components;
-    }
-
-    private Map<String,String> getComponentDefaultParameters(String name) {
-        Map<String,String> result = new HashMap<>();
-        try {
-            var comps = getComponents();
-            var comp = comps.stream().filter(o -> ((JsonObject)o).getJsonObject("component").getString("name").equals(name)).findFirst().orElse(JsonObject.of());
-            if (comp instanceof JsonObject) {
-                var properties = ((JsonObject) comp).getJsonObject("properties");
-                if (properties != null) {
-                    for (String key: properties.fieldNames()){
-                        var prop = properties.getJsonObject(key);
-                        if (Objects.equals(prop.getString("kind"), "path") || Objects.equals(prop.getBoolean("required"), true)) {
-                            result.put(key, prop.getString("defaultValue"));
-                        }
-                    }
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return result;
-    }
 
     public List<ComplexityProject> getProjectComplexities() {
         return karavanCache.getFolders().stream()
                 .filter(p -> Objects.equals(p.getType(), ProjectFolder.Type.integration)
                         || Objects.equals(p.getType(), ProjectFolder.Type.templates)
+                        || Objects.equals(p.getType(), ProjectFolder.Type.sdx)
                         || Objects.equals(p.getType(), ProjectFolder.Type.kamelets)
                         || Objects.equals(p.getType(), ProjectFolder.Type.documentation)
                         || Objects.equals(p.getType(), ProjectFolder.Type.contracts))
@@ -106,7 +62,7 @@ public class ComplexityService {
                 ComplexityFile complexityFile = new ComplexityFile();
                 try {
                     complexityFile.setFileName(file.getName());
-                    complexityFile.setChars(Long.valueOf(file.getCode().length()).intValue());
+                    complexityFile.setChars(file.getCode().length());
 
                     if (file.getName().endsWith(CAMEL_YAML_EXTENSION)) {
                         complexityFile.setType(ComplexityFile.Type.camel);
@@ -119,7 +75,13 @@ public class ComplexityService {
                         routes1.forEach(r -> r.getComponentsExt().forEach(complexityFile::addComponentExt));
                         routes1.forEach(r -> r.getComponentsInt().forEach(complexityFile::addComponentInt));
                         routes1.forEach(r -> r.getKamelets().forEach(complexityFile::addKamelet));
+                        if (file.getName().equals("mcp-route.camel.yaml")) {
+                            complexityProject.setMcp(true);
+                        }
                         routes.addAll(routes1);
+
+                    } else if (file.getName().equals("AgentConfig.java")) {
+                        complexityProject.setAgents(true);
                     } else if (file.getName().equals(APPLICATION_PROPERTIES_FILENAME)) {
                         complexityFile.setType(ComplexityFile.Type.properties);
                         complexityProject.setDependencies(getDependencies(file.getCode()));
@@ -137,146 +99,80 @@ public class ComplexityService {
                     } else {
                         complexityFile.setType(ComplexityFile.Type.other);
                     }
-                    complexityProject.addFile(calculateComplexity(complexityFile));
                 } catch (Exception e) {
                     complexityFile.setError(e.getMessage());
+                } finally {
                     complexityProject.addFile(complexityFile);
                 }
             }
-            complexityProject.setRoutes(routes);
+            var augmentedRoutes = augmentTemplatedRoutes(routes);
+            complexityProject.setRoutes(augmentedRoutes);
         } catch (Exception e) {
             LOGGER.error(e);
-            e.printStackTrace();
+//            e.printStackTrace();
         }
-        return calculateComplexity(complexityProject);
+
+        return complexityProject;
     }
 
-    public ComplexityFile calculateComplexity(ComplexityFile f) {
-        int processors = f.getProcessors().values().stream().mapToInt(Integer::intValue).sum();
-        int kamelets = f.getKamelets().values().stream().mapToInt(Integer::intValue).sum();
-        int componentsExt = f.getComponentsExt().values().stream().mapToInt(Integer::intValue).sum();
-        int componentsInt = f.getComponentsInt().values().stream().mapToInt(Integer::intValue).sum();
-        if (processors > LIMIT_COMPLEX_PROCESSORS) {
-            f.setComplexityProcessors(Complexity.complex);
-        } else if (processors > LIMIT_NORMAL_PROCESSORS) {
-            f.setComplexityProcessors(Complexity.normal);
-        }
-        if (f.getRests() > LIMIT_COMPLEX_RESTS) {
-            f.setComplexityRests(Complexity.complex);
-        } else if (f.getRests() > LIMIT_NORMAL_RESTS) {
-            f.setComplexityRests(Complexity.normal);
-        }
-        if (f.getBeans() > LIMIT_COMPLEX_BEANS) {
-            f.setComplexityBeans(Complexity.complex);
-        } else if (f.getBeans() > LIMIT_NORMAL_BEANS) {
-            f.setComplexityBeans(Complexity.normal);
-        }
-        if (kamelets > LIMIT_COMPLEX_KAMELETS) {
-            f.setComplexityKamelets(Complexity.complex);
-        } else if (kamelets > LIMIT_NORMAL_KAMELETS) {
-            f.setComplexityKamelets(Complexity.normal);
-        }
-        if (componentsExt > LIMIT_COMPLEX_COMPONENTS_EXT) {
-            f.setComplexityComponentsExt(Complexity.complex);
-        } else if (componentsExt > LIMIT_NORMAL_COMPONENTS_EXT) {
-            f.setComplexityComponentsExt(Complexity.normal);
-        }
-        if (componentsInt > LIMIT_COMPLEX_COMPONENTS_INT) {
-            f.setComplexityComponentsInt(Complexity.complex);
-        } else if (componentsInt > LIMIT_NORMAL_COMPONENTS_INT) {
-            f.setComplexityComponentsInt(Complexity.normal);
-        }
-        if (f.getChars() > LIMIT_COMPLEX_FILE_LENGTH) {
-            f.setComplexityLines(Complexity.complex);
-        } else if (f.getChars() > LIMIT_NORMAL_FILE_LENGTH) {
-            f.setComplexityLines(Complexity.normal);
-        }
-
-        if (f.getRoutes() > LIMIT_COMPLEX_ROUTES_PER_FILE) {
-            f.setComplexityRoutes(Complexity.complex);
-        } else if (f.getRoutes() > LIMIT_NORMAL_ROUTES_PER_FILE) {
-            f.setComplexityRoutes(Complexity.normal);
-        }
-
-        if (f.getComplexityLines().equals(Complexity.complex)
-                || f.getComplexityRoutes().equals(Complexity.complex)
-                || f.getComplexityRests().equals(Complexity.complex)
-                || f.getComplexityBeans().equals(Complexity.complex)
-                || f.getComplexityComponentsExt().equals(Complexity.complex)
-                || f.getComplexityComponentsInt().equals(Complexity.complex)
-                || f.getComplexityKamelets().equals(Complexity.complex)
-                || f.getComplexityProcessors().equals(Complexity.complex) ) {
-            f.setComplexity(Complexity.complex);
-        } else if (f.getComplexityLines().equals(Complexity.normal)
-                || f.getComplexityRoutes().equals(Complexity.normal)
-                || f.getComplexityRests().equals(Complexity.normal)
-                || f.getComplexityBeans().equals(Complexity.normal)
-                || f.getComplexityComponentsExt().equals(Complexity.normal)
-                || f.getComplexityComponentsInt().equals(Complexity.normal)
-                || f.getComplexityKamelets().equals(Complexity.normal)
-                || f.getComplexityProcessors().equals(Complexity.normal) ) {
-            f.setComplexity(Complexity.normal);
-        }
-
-        return f;
+    private List<ComplexityRoute> getRoutesByType(List<ComplexityRoute> routes, ComplexityRoute.Type type) {
+        return new ArrayList<>(routes.stream().filter(route -> type.equals(route.getType())).toList());
     }
 
-    public ComplexityProject calculateComplexity(ComplexityProject p) {
-        if (p.getRoutes().size() > LIMIT_COMPLEX_ROUTES) {
-            p.setComplexityRoute(Complexity.complex);
-        } else if (p.getFiles().stream().anyMatch(f -> f.getComplexityRoutes() == Complexity.complex)) {
-            p.setComplexityRoute(Complexity.complex);
-        } else if (p.getRoutes().size() > LIMIT_NORMAL_ROUTES) {
-            p.setComplexityRoute(Complexity.normal);
-        } else if (p.getFiles().stream().anyMatch(f -> f.getComplexityRoutes() == Complexity.normal)) {
-            p.setComplexityRoute(Complexity.normal);
-        }
+    private List<ComplexityRoute> augmentTemplatedRoutes(List<ComplexityRoute> routes) {
+        List<ComplexityRoute> templatedRoutes = getRoutesByType(routes, ComplexityRoute.Type.TEMPLATED_ROUTE);
+        List<ComplexityRoute> augmentedRoutes = new ArrayList<>(templatedRoutes.size());
+        List<ComplexityRoute> templates = getRoutesByType(routes, ComplexityRoute.Type.ROUTE_TEMPlATE);
+        templatedRoutes.forEach(route -> {
+            var routeTemplate = templates.stream().filter(t -> t.getRouteTemplateRef().equals(route.getRouteTemplateRef())).findFirst();
+            if (routeTemplate.isPresent()) {
+                var template = routeTemplate.get();
+                List<ComplexityComponent> consumers = new ArrayList<>();
+                template.getConsumers().forEach(c -> {
+                    var newC = c.copy();
+                    Map<String, String> params = new HashMap<>();
+                    c.getParameters().forEach((key, value) -> {
+                        if (value.startsWith("{{") && value.endsWith("}}")) {
+                            var paramName = value.substring(2, value.length() - 2);
+                            params.put(key, route.getParameters().getOrDefault(paramName, value).toString());
+                        } else {
+                            params.put(key, value);
+                        }
+                    });
+                    newC.setParameters(params);
+                    consumers.add(newC);
+                });
+                route.setConsumers(consumers);
 
-        if (p.getFiles().size() > LIMIT_COMPLEX_FILES) {
-            p.setComplexityFiles(Complexity.complex);
-        } else if (p.getFiles().size() > LIMIT_NORMAL_FILES) {
-            p.setComplexityFiles(Complexity.normal);
-        }
-
-        if (p.getFiles().stream().anyMatch(f -> f.getComplexityRests() == Complexity.complex)) {
-            p.setComplexityRest(Complexity.complex);
-        } else if (p.getFiles().stream().anyMatch(f -> f.getComplexityRests() == Complexity.normal)) {
-            p.setComplexityRest(Complexity.normal);
-        }
-
-        if (p.getFiles().stream().anyMatch(f -> f.getFileName().endsWith(".java") && f.getComplexityLines() == Complexity.complex)) {
-            p.setComplexityJava(Complexity.complex);
-        } else if (p.getFiles().stream().anyMatch(f -> f.getFileName().endsWith(".java") && f.getComplexityLines() == Complexity.normal)) {
-            p.setComplexityJava(Complexity.normal);
-        }
-
-        p.setRests(p.getFiles().stream().map(ComplexityFile::getRests).mapToInt(Integer::intValue).sum());
-
-        return p;
+                List<ComplexityComponent> producers = new ArrayList<>();
+                template.getProducers().forEach(c -> {
+                    var newC = c.copy();
+                    Map<String, String> params = new HashMap<>();
+                    c.getParameters().forEach((key, value) -> {
+                        if (value.startsWith("{{") && value.endsWith("}}")) {
+                            var paramName = value.substring(2, value.length() - 2);
+                            params.put(key, route.getParameters().getOrDefault(paramName, value).toString());
+                        } else {
+                            params.put(key, value);
+                        }
+                    });
+                    newC.setParameters(params);
+                    producers.add(newC);
+                });
+                route.setProducers(producers);
+                augmentedRoutes.add(route.copy());
+            }
+        });
+        List<ComplexityRoute> result = getRoutesByType(routes, ComplexityRoute.Type.ROUTE);
+        result.addAll(templates);
+        result.addAll(augmentedRoutes);
+        return result;
     }
 
     public List<String> getDependencies(String code) {
         List<String> result = new ArrayList<>();
         var value = codeService.getPropertyValue(code, "camel.jbang.dependencies");
         result.addAll(Arrays.stream(value.split(",")).map(String::trim).toList());
-        return result;
-    }
-
-    public Integer getFileRoutesCount(String code) {
-        int result = 0;
-        Yaml yaml = new Yaml();
-        List<Object> obj = yaml.load(code);
-        JsonArray json = JsonArray.of(obj);
-        for (Object list : json) {
-            if (list instanceof JsonArray l) {
-                for (Object obj1 : l) {
-                    var element = (JsonObject) obj1;
-                    if (element.containsKey("route")) {
-                        result++;
-                    }
-                }
-            }
-        }
         return result;
     }
 
@@ -347,7 +243,11 @@ public class ComplexityService {
                     } else if (element.containsKey("routeTemplate")) {
                         var rt = element.getJsonObject("routeTemplate");
                         var r = rt.getJsonObject("route");
-                        result.add(getRouteComplexity(r, fileName));
+                        var routeTemplateRef = rt.getString("id");
+                        var complexity = getRouteComplexity(r, fileName);
+                        complexity.setRouteTemplateRef(routeTemplateRef);
+                        complexity.setType(ComplexityRoute.Type.ROUTE_TEMPlATE);
+                        result.add(complexity);
                     } else if (element.containsKey("templatedRoute")) {
                         var tr = element.getJsonObject("templatedRoute");
                         result.add(getTemplatedRouteComplexity(tr, fileName));
@@ -371,15 +271,16 @@ public class ComplexityService {
             complexity.setRouteId(route.getString("id"));
             complexity.setNodePrefixId(route.getString("nodePrefixId"));
             complexity.setRouteDescription(route.getString("description"));
+            complexity.setType(ComplexityRoute.Type.ROUTE);
             var from = route.getJsonObject("from");
             var id = from.getString("id");
             var fromUri = from.getString("uri");
-            var parameters = getComponentDefaultParameters(fromUri);
+            var parameters = componentService.getComponentDefaultParameters(fromUri);
             var params = from.containsKey("parameters") ? from.getJsonObject("parameters") : JsonObject.of();
             for (String key: params.fieldNames()) {
                 parameters.put(key, params.getString(key));
             }
-            complexity.addConsumer(new ComplexityComponent(id, fromUri, parameters));
+            complexity.addConsumer(new ComplexityComponent(id, fromUri, componentService.isComponentRemote(fromUri), parameters));
             if (fromUri != null && fromUri.startsWith("kamelet:")) {
                 complexity.addKamelet(fromUri);
             } else if (fromUri != null && (fromUri.startsWith("direct") || fromUri.startsWith("seda") || fromUri.startsWith("vertx"))) {
@@ -404,11 +305,19 @@ public class ComplexityService {
         try {
             complexity.setRouteId(templatedRoute.getString("routeId"));
             complexity.setRouteTemplateRef(templatedRoute.getString("routeTemplateRef"));
-            complexity.setTemplated(true);
+            complexity.setType(ComplexityRoute.Type.TEMPLATED_ROUTE);
             complexity.setNodePrefixId(templatedRoute.getString("prefixId"));
+
+            Map<String, Object> parameters = new HashMap<>();
+            for (Object paramObj: templatedRoute.getJsonArray("parameters").getList()) {
+                try {
+                    Map<String, Object> param = (Map<String, Object>) paramObj;
+                    parameters.put(param.get("name").toString(), param.get("value"));
+                } catch (Exception ignored) {}
+            }
+            complexity.setParameters(parameters);
         } catch (Exception e) {
             LOGGER.error(e);
-            e.printStackTrace();
         }
         return complexity;
     }
@@ -431,12 +340,12 @@ public class ComplexityService {
                 if (stepName.equals("poll") || stepName.equals("pollEnrich")) {
                     var id = step.getString("id");
                     var uri = step.getString("uri");
-                    var parameters = getComponentDefaultParameters(uri);
+                    var parameters = componentService.getComponentDefaultParameters(uri);
                     var params = step.containsKey("parameters") ? step.getJsonObject("parameters") : JsonObject.of();
                     for (String key: params.fieldNames()) {
                         parameters.put(key, params.getString(key));
                     }
-                    complexity.addConsumer(new ComplexityComponent(id, uri, parameters));
+                    complexity.addConsumer(new ComplexityComponent(id, uri, componentService.isComponentRemote(uri), parameters));
                     if (uri != null && uri.startsWith("kamelet:")) {
                         complexity.addKamelet(uri);
                     } else if (uri != null && (uri.startsWith("direct") || uri.startsWith("seda") || uri.startsWith("vertx"))) {
@@ -448,12 +357,12 @@ public class ComplexityService {
                 } else if (stepName.equals("to")) {
                     var id = step.getString("id");
                     var uri = step.getString("uri");
-                    var parameters = getComponentDefaultParameters(uri);
+                    var parameters = componentService.getComponentDefaultParameters(uri);
                     var params = step.containsKey("parameters") ? step.getJsonObject("parameters") : JsonObject.of();
                     for (String key: params.fieldNames()) {
                         parameters.put(key, params.getString(key));
                     }
-                    complexity.addProducer(new ComplexityComponent(id, uri, parameters));
+                    complexity.addProducer(new ComplexityComponent(id, uri, componentService.isComponentRemote(uri), parameters));
                     if (uri != null && uri.startsWith("kamelet:")) {
                         complexity.addKamelet(uri);
                     } else if (uri != null && (uri.startsWith("direct") || uri.startsWith("seda") || uri.startsWith("vertx"))) {

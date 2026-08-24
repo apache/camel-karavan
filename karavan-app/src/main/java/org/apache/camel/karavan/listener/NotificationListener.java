@@ -39,7 +39,6 @@ public class NotificationListener {
 
     public static final String EVENT_ERROR = "error";
     public static final String EVENT_COMMIT = "commit";
-    public static final String EVENT_CONFIG_SHARED = "configShared";
     public static final String EVENT_IMAGES_LOADED = "imagesLoaded";
     public static final String EVENT_PROJECT_CHANGED = "projectChanged";
 
@@ -55,17 +54,6 @@ public class NotificationListener {
             send(userId, eventId, EVENT_ERROR, className, event);
         } else {
             sendSystem(eventId, EVENT_ERROR, className, event);
-        }
-    }
-
-    @ConsumeEvent(value = NOTIFICATION_CONFIG_SHARED, blocking = true, ordered = true)
-    public void onShareHappened(JsonObject event) throws Exception {
-        String userId = event.getString("userId");
-        String className = event.getString("className");
-        if (userId != null) {
-            send(userId, null, EVENT_CONFIG_SHARED, className, event);
-        } else {
-            sendSystem(null, EVENT_CONFIG_SHARED, className, event);
         }
     }
 

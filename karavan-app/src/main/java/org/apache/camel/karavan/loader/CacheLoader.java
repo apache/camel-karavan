@@ -48,6 +48,8 @@ public class CacheLoader {
                 karavanCache.saveRole(json.mapTo(AccessRole.class), false);
             } else if (AccessPassword.class.getSimpleName().equals(entity.type)) {
                 karavanCache.savePassword(json.mapTo(AccessPassword.class), false);
+            } else if (AccessToken.class.getSimpleName().equals(entity.type)) {
+                karavanCache.saveToken(json.mapTo(AccessToken.class), false);
             }
         });
 

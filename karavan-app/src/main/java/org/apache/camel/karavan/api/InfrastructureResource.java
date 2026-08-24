@@ -115,7 +115,9 @@ public class InfrastructureResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/pod-events/{containerName}")
     public List<PodEvent> getPodEvents(@PathParam("containerName")  String containerName) {
-        return kubernetesService.getPodEvents(containerName);
+        return kubernetesService.getPodEvents(containerName).stream()
+                .sorted(Comparator.comparing(PodEvent::lastTimestamp).reversed())
+                .collect(Collectors.toList());
     }
 
     @GET
@@ -159,7 +161,7 @@ public class InfrastructureResource {
         if (ConfigService.inKubernetes()) {
             return Response.ok(kubernetesService.getServices(kubernetesService.getNamespace())).build();
         } else {
-            List<String> list = karavanCache.getPodContainerStatuses(environment).stream()
+            List<String> list = karavanCache.getAllPodContainerStatuses().stream()
                     .filter(ci -> ci.getPorts() != null && !ci.getPorts().isEmpty())
                     .map(ci -> ci.getPorts().stream().map(i -> ci.getContainerName() + "|" + ci.getContainerName() + ":" + i.getPrivatePort()).collect(Collectors.toList()))
                     .flatMap(List::stream).collect(Collectors.toList());

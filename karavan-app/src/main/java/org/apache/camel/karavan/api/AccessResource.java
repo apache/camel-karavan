@@ -7,13 +7,17 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.apache.camel.karavan.cache.AccessRole;
+import org.apache.camel.karavan.cache.AccessToken;
 import org.apache.camel.karavan.cache.AccessUser;
 import org.apache.camel.karavan.cache.KaravanCache;
 import org.apache.camel.karavan.service.AuthService;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.SecureRandom;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.*;
 
 import static org.apache.camel.karavan.service.AuthService.*;
 
@@ -25,6 +29,16 @@ public class AccessResource extends AbstractApiResource {
 
     @Inject
     AuthService authService;
+
+    public record SessionInfo(String username, long createdAt, long expiredAt) {}
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/sessions")
+    @RolesAllowed({ROLE_ADMIN})
+    public List<SessionInfo> getAllSessions() {
+        return karavanCache.getAccessSessions().stream().map(s -> new SessionInfo(s.username, s.createdAtMillis, s.expiredAt.toEpochMilli())).toList();
+    }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
@@ -40,6 +54,16 @@ public class AccessResource extends AbstractApiResource {
     @RolesAllowed({ROLE_ADMIN})
     public List<AccessRole> getAllRoles() {
         return karavanCache.getRoles();
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/tokens")
+    @RolesAllowed({ROLE_ADMIN})
+    public List<AccessToken> getAllTokens() {
+        return karavanCache.getTokens().stream()
+                .map(t -> new AccessToken(t.hashedToken().substring(0, 16), t.ownerName(), t.clientName(), t.allowedProjectIds(), t.createdAt(), t.expiresAt()))
+                .toList();
     }
 
     @POST
@@ -58,6 +82,58 @@ public class AccessResource extends AbstractApiResource {
     public Response addRole(AccessRole role) {
         karavanCache.saveRole(role, true);
         return Response.ok().entity(role).build();
+    }
+
+    @POST
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    @RolesAllowed({ROLE_ADMIN, ROLE_DEVELOPER})
+    @Path("/tokens")
+    public Response generateToken(GenerateTokenRequest request) {
+        try {
+            // 1. Handle defaults if the frontend omits them
+            int expiresInDays = (request.expiresInDays() != null && request.expiresInDays() > 0)
+                    ? request.expiresInDays()
+                    : 30;
+
+            Set<String> allowedProjectIds = (request.allowedProjectIds() != null && !request.allowedProjectIds().isEmpty())
+                    ? request.allowedProjectIds()
+                    : Set.of("*"); // Default to all projects if none specified
+
+            // 2. Generate a secure random raw token
+            SecureRandom random = new SecureRandom();
+            byte[] bytes = new byte[32];
+            random.nextBytes(bytes);
+            String rawToken = "tal_" + Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
+
+            // 3. Hash the raw token via SHA-256
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] encodedhash = digest.digest(rawToken.getBytes(StandardCharsets.UTF_8));
+            String hashedToken = HexFormat.of().formatHex(encodedhash);
+
+            // 4. Extract the current user to set as the owner
+            String ownerName = getIdentity().getString("username");
+
+            // 5. Create the Metadata Record
+            AccessToken tokenMetadata = new AccessToken(
+                    hashedToken,
+                    ownerName,
+                    request.clientName(),
+                    allowedProjectIds,
+                    Instant.now(),
+                    Instant.now().plus(expiresInDays, ChronoUnit.DAYS)
+            );
+
+            // 6. Save ONLY the hashed metadata to the cache
+            karavanCache.saveToken(tokenMetadata, true);
+
+            // 7. Return the strict Response DTO
+            GenerateTokenResponse response = new GenerateTokenResponse(rawToken, tokenMetadata);
+            return Response.ok(response).build();
+
+        } catch (Exception e) {
+            return Response.serverError().entity(e.getMessage()).build();
+        }
     }
 
     @PUT
@@ -124,6 +200,19 @@ public class AccessResource extends AbstractApiResource {
     @DELETE
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed({ROLE_ADMIN})
+    @Path("/sessions/{username}")
+    public Response deleteSession(@PathParam("username") String username) {
+        try {
+            karavanCache.deleteAccessSessionByUsername(username);
+            return Response.accepted().build();
+        } catch (Exception e) {
+            return Response.notModified().build();
+        }
+    }
+
+    @DELETE
+    @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed({ROLE_ADMIN})
     @Path("/roles/{name}")
     public Response deleteRole(@PathParam("name") String name) {
         try {
@@ -135,6 +224,19 @@ public class AccessResource extends AbstractApiResource {
                 }
             }
             return Response.notModified().build();
+        } catch (Exception e) {
+            return Response.notModified().build();
+        }
+    }
+
+    @DELETE
+    @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed({ROLE_ADMIN})
+    @Path("/tokens/{hashedToken}")
+    public Response deleteToken(@PathParam("hashedToken") String hashedToken) {
+        try {
+            karavanCache.deleteToken(hashedToken);
+            return Response.accepted().build();
         } catch (Exception e) {
             return Response.notModified().build();
         }
@@ -157,4 +259,15 @@ public class AccessResource extends AbstractApiResource {
             return Response.status(Response.Status.FORBIDDEN).entity(e.getMessage()).build();
         }
     }
+
+    public record GenerateTokenRequest(
+            String clientName,
+            Set<String> allowedProjectIds,
+            Integer expiresInDays
+    ) {}
+
+    public record GenerateTokenResponse(
+            String rawToken,
+            AccessToken metadata
+    ) {}
 }

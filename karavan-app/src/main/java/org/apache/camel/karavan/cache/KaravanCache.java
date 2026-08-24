@@ -22,7 +22,6 @@ import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import org.apache.camel.karavan.model.ActivityUser;
 import org.apache.camel.karavan.service.AuthService;
-import org.jboss.logging.Logger;
 
 import java.time.Instant;
 import java.util.*;
@@ -44,8 +43,6 @@ public class KaravanCache {
     @Inject
     EventBus eventBus;
 
-    static final Logger LOGGER = Logger.getLogger(KaravanCache.class.getName());
-
     final Map<String, ProjectFolder> folders = new ConcurrentHashMap<>();
     final Map<String, ProjectFolderCommited> foldersCommited = new ConcurrentHashMap<>();
     final Map<String, ProjectFile> files = new ConcurrentHashMap<>();
@@ -60,6 +57,8 @@ public class KaravanCache {
     final Map<String, AccessPassword> passwords = new ConcurrentHashMap<>();
     final Map<String, AccessRole> roles = new ConcurrentHashMap<>();
     final Map<String, AccessSession> sessions = new ConcurrentHashMap<>();
+    // The Key is the SHA-256 Hashed Token. The Value is the Metadata.
+    final Map<String, AccessToken> tokens = new ConcurrentHashMap<>();
 
     final Map<String, Map<String, Instant>> projectActivities = new ConcurrentHashMap<>();
     final Map<String, ActivityUser> usersWorking = new ConcurrentHashMap<>();
@@ -256,9 +255,9 @@ public class KaravanCache {
 
     // --- Pod / Container Status ---
 
-    public List<PodContainerStatus> getPodContainerStatuses(String projectId, String env) {
+    public List<PodContainerStatus> getPodContainerStatusesByProject(String projectId) {
         return query(podContainerStatuses,
-                s -> Objects.equals(s.getProjectId(), projectId) && Objects.equals(s.getEnv(), env),
+                s -> Objects.equals(s.getProjectId(), projectId),
                 PodContainerStatus::copy);
     }
 
@@ -272,7 +271,7 @@ public class KaravanCache {
         return query(podContainerStatuses, s -> s.getType() == ContainerType.devmode, PodContainerStatus::copy);
     }
 
-    public List<PodContainerStatus> getPodContainerStatuses() {
+    public List<PodContainerStatus> getPodContainerStatusesByProject() {
         return new ArrayList<>(podContainerStatuses.values().stream().toList());
     }
 
@@ -281,7 +280,7 @@ public class KaravanCache {
     }
 
     public PodContainerStatus getPodContainerStatus(String containerName, String env) {
-        return getPodContainerStatuses(env).stream().filter(el -> Objects.equals(el.getContainerName(), containerName)).findFirst().orElse(null);
+        return getPodContainerStatusesByProject(env).stream().filter(el -> Objects.equals(el.getContainerName(), containerName)).findFirst().orElse(null);
     }
 
     public PodContainerStatus getPodContainerStatus(String key) {
@@ -297,10 +296,8 @@ public class KaravanCache {
                 PodContainerStatus::copy);
     }
 
-    public List<PodContainerStatus> getPodContainerStatuses(String env) {
-        return query(podContainerStatuses,
-                status -> Objects.equals(status.getEnv(), env),
-                PodContainerStatus::copy);
+    public List<PodContainerStatus> getAllPodContainerStatuses() {
+        return query(podContainerStatuses, unused -> true, PodContainerStatus::copy);
     }
 
     public List<PodContainerStatus> getAllContainerStatuses() {
@@ -321,10 +318,8 @@ public class KaravanCache {
 
     // --- Camel Status ---
 
-    public List<CamelStatus> getCamelStatusesByProjectAndEnv(String projectId, String env) {
-        return query(camelStatuses,
-                s -> Objects.equals(s.getProjectId(), projectId) && Objects.equals(s.getEnv(), env),
-                CamelStatus::copy);
+    public List<CamelStatus> getCamelStatusesByProject(String projectId) {
+        return query(camelStatuses, s -> Objects.equals(s.getProjectId(), projectId), CamelStatus::copy);
     }
 
     public List<CamelStatus> getCamelStatusesByName(CamelStatusValue.Name name) {
@@ -388,6 +383,9 @@ public class KaravanCache {
     }
     public List<AccessRole> getRoles() {
         return new ArrayList<>(roles.values().stream().toList());
+    }
+    public List<AccessToken> getTokens() {
+        return new ArrayList<>(tokens.values().stream().toList());
     }
 
     public void saveUser(AccessUser user, boolean persist) {
@@ -456,10 +454,40 @@ public class KaravanCache {
         eventBus.send(PERSIST_SESSION, new CacheEvent(sessionId, DELETE, null));
     }
 
-    public void clearAllStatuses() {
-        deploymentStatuses.clear();
-        podContainerStatuses.clear();
-        camelStatuses.clear();
+    public void deleteAccessSessionByUsername(String username) {
+        var entry = sessions.entrySet().stream().filter(e -> e.getValue().username.equals(username)).findFirst().orElse(null);
+        if (entry != null) {
+            var sessionId = entry.getKey();
+            deleteUserHeartBeat(username);
+            deleteUserWorking(username);
+            sessions.remove(sessionId);
+            eventBus.send(PERSIST_SESSION, new CacheEvent(sessionId, DELETE, null));
+        }
+    }
+
+    // API Tokens
+    public void saveToken(AccessToken metadata, boolean persist) {
+        var key = GroupedKey.create(AccessToken.class.getSimpleName(), DEV, metadata.hashedToken());
+        tokens.put(key, metadata);
+        if (persist) {
+            eventBus.send(PERSIST_ACCESS, new CacheEvent(key, SAVE, metadata));
+        }
+    }
+
+    public AccessToken getToken(String hashedToken) {
+        var key = GroupedKey.create(AccessToken.class.getSimpleName(), DEV, hashedToken);
+        return tokens.get(key);
+    }
+
+    public void deleteToken(String hashedTokenPartial) {
+        if (hashedTokenPartial.length() == 16) {
+            var partialKey = GroupedKey.create(AccessToken.class.getSimpleName(), DEV, hashedTokenPartial);
+            var key = tokens.keySet().stream().filter(k -> k.startsWith(partialKey)).findFirst().orElse(null);
+            if (key != null) {
+                tokens.remove(key);
+                eventBus.send(PERSIST_SESSION, new CacheEvent(key, DELETE, null));
+            }
+        }
     }
 
     // Activity
@@ -510,5 +538,11 @@ public class KaravanCache {
             });
             projectActivities.put(projectId, acts);
         });
+    }
+
+    public void clearAllStatuses() {
+        deploymentStatuses.clear();
+        podContainerStatuses.clear();
+        camelStatuses.clear();
     }
 }

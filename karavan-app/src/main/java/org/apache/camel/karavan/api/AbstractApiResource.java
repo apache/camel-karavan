@@ -20,9 +20,20 @@ import io.quarkus.security.identity.SecurityIdentity;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import jakarta.inject.Inject;
+import org.apache.camel.karavan.cache.AccessUser;
 import org.apache.camel.karavan.cache.KaravanCache;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.eclipse.microprofile.jwt.JsonWebToken;
+import org.jboss.logging.Logger;
+
+import java.util.Objects;
 
 public class AbstractApiResource {
+
+    private static final Logger LOGGER = Logger.getLogger(AbstractApiResource.class.getName());
+
+    @ConfigProperty(name = "platform.auth", defaultValue = "session")
+    String authStrategy;
 
     @Inject
     SecurityIdentity identity;
@@ -39,9 +50,28 @@ public class AbstractApiResource {
         }
 
         String username = identity.getPrincipal().getName();
+        var roles = new JsonArray(new java.util.ArrayList<>(identity.getRoles()));
+        var roleList = roles.stream().map(Object::toString).toList();
         var user = karavanCache.getUser(username);
 
-        var roles = new JsonArray(new java.util.ArrayList<>(identity.getRoles()));
+        if ("oidc".equalsIgnoreCase(authStrategy)) {
+            JsonWebToken jwt = (JsonWebToken) identity.getPrincipal();
+            String firstName = jwt.getClaim("given_name");
+            String lastName = jwt.getClaim("family_name");
+            String email = jwt.getClaim("email");
+            if (user == null) {
+                LOGGER.info("OIDC User not found in Talisman Database. Creating new one.");
+                user = new AccessUser(username, firstName, lastName, email, AccessUser.UserStatus.ACTIVE, roleList);
+                karavanCache.saveUser(user, true);
+            }  else if (!Objects.equals(firstName, user.getFirstName()) || !Objects.equals(lastName, user.getLastName()) || !Objects.equals(email, user.getEmail())) {
+                LOGGER.info("OIDC User found in Talisman Database. User is outdated. Updating user.");
+                user.setFirstName(firstName);
+                user.setLastName(lastName);
+                user.setEmail(email);
+                user.setRoles(roleList);
+                karavanCache.saveUser(user, true);
+            }
+        }
 
         return JsonObject.of()
                 .put("email", user != null ? user.getEmail() : null)

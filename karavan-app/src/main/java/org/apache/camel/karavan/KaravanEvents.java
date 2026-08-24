@@ -26,9 +26,6 @@ public class KaravanEvents {
     public static final String COMMIT_HAPPENED = "COMMIT_HAPPENED";
     public static final String NOTIFICATION_IMAGES_LOADED = "NOTIFICATION_IMAGES_LOADED";
 
-    public static final String CMD_SHARE_CONFIGURATION = "CMD_SHARE_CONFIGURATION";
-    public static final String NOTIFICATION_CONFIG_SHARED = "NOTIFICATION_CONFIG_SHARED";
-
     public static final String NOTIFICATION_ERROR = "NOTIFICATION_ERROR";
 
     public static final String CMD_COLLECT_CAMEL_STATUS = "CMD_COLLECT_CAMEL_STATUS";

@@ -26,7 +26,7 @@ import java.util.Set;
 public class CookieSessionAuthMechanism implements HttpAuthenticationMechanism {
 
     private static final Logger LOGGER = Logger.getLogger(CookieSessionAuthMechanism.class.getName());
-
+    private static final String SESSION_ID = "sessionId";
     @ConfigProperty(name = "platform.auth", defaultValue = "session")
     String authStrategy;
 
@@ -38,12 +38,11 @@ public class CookieSessionAuthMechanism implements HttpAuthenticationMechanism {
         if (!"session".equals(authStrategy)) {
             return Uni.createFrom().nullItem();
         }
-
         var builder = QuarkusSecurityIdentity.builder();
         try {
             builder.setPrincipal(() -> "anonymous");
             builder.setAnonymous(true);
-            var cookie = ctx.request().getCookie("taskId");
+            var cookie = ctx.request().getCookie(SESSION_ID);
             if (cookie == null) {
                 return Uni.createFrom().item(builder.build());
             }
@@ -54,14 +53,15 @@ public class CookieSessionAuthMechanism implements HttpAuthenticationMechanism {
             }
 
             var user = karavanCache.getUser(session.getUsername());
-            if (user == null) {
+            if (user == null && karavanCache.getProject(session.getUsername().replace("-builder", "")) == null) {
                 return Uni.createFrom().item(builder.build());
+            } else if (user != null && user.getRoles() != null) {
+                for (String role : user.getRoles()) {
+                    builder.addRole(role);
+                }
             }
 
             builder.setPrincipal(session::getUsername);
-            for (String role : user.getRoles()) {
-                builder.addRole(role);
-            }
             builder.addAttribute("csrf", session.getCsrfToken());
             builder.setAnonymous(false);
             return Uni.createFrom().item(builder.build());

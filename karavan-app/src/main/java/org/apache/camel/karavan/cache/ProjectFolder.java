@@ -29,9 +29,10 @@ public class ProjectFolder {
         configuration,
         documentation,
         contracts,
+        mcp,
+        sdx,
         services,
-        integration,
-        backlog,
+        integration
     }
 
     String projectId;
@@ -107,7 +108,8 @@ public class ProjectFolder {
                 Type.templates.name(),
                 Type.contracts.name(),
                 Type.documentation.name(),
-                Type.backlog.name()
+                Type.sdx.name(),
+                Type.mcp.name()
         );
     }
 

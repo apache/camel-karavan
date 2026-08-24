@@ -21,7 +21,7 @@ import static org.apache.camel.karavan.service.AuthService.SESSION_MAX_AGE;
 public class AuthResource extends AbstractApiResource {
 
     private static final Logger LOGGER = Logger.getLogger(AuthResource.class.getName());
-    private static final String SESSION_ID = "taskId";
+    private static final String SESSION_ID = "sessionId";
     private static final String CSRF = "csrf";
 
     @Inject
@@ -59,9 +59,24 @@ public class AuthResource extends AbstractApiResource {
     public Response login(JsonObject body) throws Exception {
         try {
             final AccessUser user = authService.login(body.getString("username"), body.getString("password"));
-            var session = authService.createAndSaveSession(user.username, true);
-            NewCookie sidCookie = new NewCookie.Builder(SESSION_ID).value(session.sessionId).path("/").maxAge(SESSION_MAX_AGE).secure(true).httpOnly(true).build();
-            NewCookie csrfCookie = new NewCookie.Builder(CSRF).value(session.csrfToken).path("/").maxAge(SESSION_MAX_AGE).secure(false).httpOnly(true).build();
+            var session = authService.createAndSaveSession(user.username, true, false);
+            // Session ID: Secure from interception, hidden from JavaScript
+            NewCookie sidCookie = new NewCookie.Builder(SESSION_ID)
+                    .value(session.sessionId)
+                    .path("/")
+                    .maxAge(SESSION_MAX_AGE)
+                    .secure(true)
+                    .httpOnly(true)
+                    .build();
+
+            // CSRF Token: Secure from interception, readable by JavaScript
+            NewCookie csrfCookie = new NewCookie.Builder(CSRF)
+                    .value(session.csrfToken)
+                    .path("/")
+                    .maxAge(SESSION_MAX_AGE)
+                    .secure(true)  // Protect against MitM attacks
+                    .httpOnly(false) // Allow frontend JS to read and send as a header
+                    .build();
             return Response.ok(JsonObject.of("username", user.getUsername(), "roles", user.getRoles()))
                     .cookie(sidCookie).cookie(csrfCookie).build();
         } catch (Exception e) {

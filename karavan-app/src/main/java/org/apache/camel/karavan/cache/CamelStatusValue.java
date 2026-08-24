@@ -31,7 +31,9 @@ public class CamelStatusValue {
         debug,
         thread,
         processor,
-        consumer
+        consumer,
+        producer,
+        platform_http
     }
 
     Name name;

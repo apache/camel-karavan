@@ -9,7 +9,6 @@ import jakarta.ws.rs.core.MediaType;
 import org.apache.camel.karavan.KaravanConstants;
 import org.apache.camel.karavan.cache.KaravanCache;
 import org.apache.camel.karavan.service.CodeService;
-import org.jboss.logging.Logger;
 
 import java.util.*;
 
@@ -17,8 +16,6 @@ import static org.apache.camel.karavan.service.CodeService.APPLICATION_PROPERTIE
 
 @Path("/ui/labels")
 public class LabelResource {
-
-    private static final Logger LOGGER = Logger.getLogger(LabelResource.class.getName());
 
     @Inject
     KaravanCache karavanCache;

@@ -40,33 +40,15 @@ public class MetadataResources {
     KaravanCache karavanCache;
 
     @GET
-    @Produces(MediaType.TEXT_PLAIN)
-    @Path("/kamelets")
-    @Authenticated
-    public String getKamelets() {
-        StringBuilder kamelets = new StringBuilder(codeService.getResourceFile("/metadata/kamelets.yaml"));
-//        List<ProjectFile> custom = karavanCache.getProjectFiles(Project.Type.kamelets.name());
-//        if (!custom.isEmpty()) {
-//            kamelets.append("\n---\n");
-//            kamelets.append(custom.stream()
-//                    .map(ProjectFile::getCode)
-//                    .collect(Collectors.joining("\n---\n")));
-//        }
-        return kamelets.toString();
-    }
-
-    @GET
     @Authenticated
     @Produces(MediaType.TEXT_PLAIN)
     @Path("/kamelets/{projectId}")
     public String getKameletsForProject(@PathParam("projectId") String projectId) {
-//        StringBuilder kamelets = new StringBuilder(getKamelets());
         StringBuilder kamelets = new StringBuilder();
         List<ProjectFile> projectKamelets = karavanCache.getProjectFiles(projectId).stream()
                 .filter(f -> f.getName().endsWith(".kamelet.yaml")).toList();
 
         if (!projectKamelets.isEmpty()) {
-//            kamelets.append("\n---\n");
             kamelets.append(projectKamelets.stream()
                     .map(ProjectFile::getCode)
                     .collect(Collectors.joining("\n---\n")));

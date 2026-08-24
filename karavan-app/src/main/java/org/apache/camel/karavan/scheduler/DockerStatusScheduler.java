@@ -55,18 +55,10 @@ public class DockerStatusScheduler {
     @Scheduled(every = "{karavan.container.statistics.interval:off}", concurrentExecution = Scheduled.ConcurrentExecution.SKIP)
     void collectContainersStatistics() {
         if (!ConfigService.inKubernetes()) {
-            if (configService.inDockerSwarmMode()) {
-                List<PodContainerStatus> statusesInDocker = getServicesStatuses();
-                statusesInDocker.forEach(containerStatus -> {
-                    eventBus.publish(CMD_COLLECT_CONTAINER_STATISTIC, JsonObject.mapFrom(containerStatus));
-                });
-            } else {
-                List<PodContainerStatus> statusesInDocker = getContainersStatuses();
-                statusesInDocker.forEach(containerStatus -> {
-                    eventBus.publish(CMD_COLLECT_CONTAINER_STATISTIC, JsonObject.mapFrom(containerStatus));
-                });
-            }
-
+            List<PodContainerStatus> statusesInDocker = getContainersStatuses();
+            statusesInDocker.forEach(containerStatus -> {
+                eventBus.publish(CMD_COLLECT_CONTAINER_STATISTIC, JsonObject.mapFrom(containerStatus));
+            });
         }
     }
 
@@ -86,20 +78,6 @@ public class DockerStatusScheduler {
         dockerService.getAllContainers().forEach(container -> {
             PodContainerStatus podContainerStatus = DockerUtils.getContainerStatus(container, environment);
             result.add(podContainerStatus);
-        });
-        return result;
-    }
-
-    public List<PodContainerStatus> getServicesStatuses() {
-        List<PodContainerStatus> result = new ArrayList<>();
-        dockerService.getAllServices().forEach(service -> {
-            var containers = dockerService.findContainersByServiceId(service.getId());
-            if (containers != null) {
-                containers.forEach(container -> {
-                    PodContainerStatus podContainerStatus = DockerUtils.getServiceStatus(service, container, environment);
-                    result.add(podContainerStatus);
-                });
-            }
         });
         return result;
     }

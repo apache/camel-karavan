@@ -15,15 +15,6 @@ public class ComplexityFile {
     private Integer beans = 0;
     private Integer rests = 0;
     private boolean isGenerated = false;
-    private Complexity complexity = Complexity.easy;
-    private Complexity complexityLines = Complexity.easy;
-    private Complexity complexityRoutes = Complexity.easy;
-    private Complexity complexityRests = Complexity.easy;
-    private Complexity complexityBeans = Complexity.easy;
-    private Complexity complexityProcessors = Complexity.easy;
-    private Complexity complexityComponentsInt = Complexity.easy;
-    private Complexity complexityComponentsExt = Complexity.easy;
-    private Complexity complexityKamelets = Complexity.easy;
     private Map<String, Integer> processors = new HashMap<>();
     private Map<String, Integer> componentsInt = new HashMap<>();
     private Map<String, Integer> componentsExt = new HashMap<>();
@@ -86,78 +77,6 @@ public class ComplexityFile {
 
     public void setRests(Integer rests) {
         this.rests = rests;
-    }
-
-    public Complexity getComplexity() {
-        return complexity;
-    }
-
-    public void setComplexity(Complexity complexity) {
-        this.complexity = complexity;
-    }
-
-    public Complexity getComplexityLines() {
-        return complexityLines;
-    }
-
-    public void setComplexityLines(Complexity complexityLines) {
-        this.complexityLines = complexityLines;
-    }
-
-    public Complexity getComplexityRoutes() {
-        return complexityRoutes;
-    }
-
-    public void setComplexityRoutes(Complexity complexityRoutes) {
-        this.complexityRoutes = complexityRoutes;
-    }
-
-    public Complexity getComplexityRests() {
-        return complexityRests;
-    }
-
-    public void setComplexityRests(Complexity complexityRests) {
-        this.complexityRests = complexityRests;
-    }
-
-    public Complexity getComplexityBeans() {
-        return complexityBeans;
-    }
-
-    public void setComplexityBeans(Complexity complexityBeans) {
-        this.complexityBeans = complexityBeans;
-    }
-
-    public Complexity getComplexityProcessors() {
-        return complexityProcessors;
-    }
-
-    public void setComplexityProcessors(Complexity complexityProcessors) {
-        this.complexityProcessors = complexityProcessors;
-    }
-
-    public Complexity getComplexityComponentsInt() {
-        return complexityComponentsInt;
-    }
-
-    public void setComplexityComponentsInt(Complexity complexityComponentsInt) {
-        this.complexityComponentsInt = complexityComponentsInt;
-    }
-
-    public Complexity getComplexityComponentsExt() {
-        return complexityComponentsExt;
-    }
-
-    public void setComplexityComponentsExt(Complexity complexityComponentsExt) {
-        this.complexityComponentsExt = complexityComponentsExt;
-    }
-
-    public Complexity getComplexityKamelets() {
-        return complexityKamelets;
-    }
-
-    public void setComplexityKamelets(Complexity complexityKamelets) {
-        this.complexityKamelets = complexityKamelets;
     }
 
     public Map<String, Integer> getProcessors() {
@@ -224,15 +143,6 @@ public class ComplexityFile {
                 ", routes=" + routes +
                 ", beans=" + beans +
                 ", rests=" + rests +
-                ", complexity=" + complexity +
-                ", complexityLines=" + complexityLines +
-                ", complexityRoutes=" + complexityRoutes +
-                ", complexityRests=" + complexityRests +
-                ", complexityBeans=" + complexityBeans +
-                ", complexityProcessors=" + complexityProcessors +
-                ", complexityComponentsInt=" + complexityComponentsInt +
-                ", complexityComponentsExt=" + complexityComponentsExt +
-                ", complexityKamelets=" + complexityKamelets +
                 ", processors=" + processors +
                 ", componentsInt=" + componentsInt +
                 ", componentsExt=" + componentsExt +

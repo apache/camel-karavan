@@ -26,7 +26,6 @@ import org.apache.camel.karavan.cache.ContainerType;
 import org.apache.camel.karavan.cache.KaravanCache;
 import org.apache.camel.karavan.model.CamelStatusRequest;
 import org.apache.camel.karavan.service.ConfigService;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
 import java.util.Map;
@@ -44,9 +43,6 @@ public class CamelStatusScheduler {
     @Inject
     KaravanCache karavanCache;
 
-    @ConfigProperty(name = "karavan.environment", defaultValue = KaravanConstants.DEV)
-    String environment;
-
     @Inject
     EventBus eventBus;
 
@@ -54,10 +50,11 @@ public class CamelStatusScheduler {
     public void collectCamelStatuses() {
         LOGGER.debug("Collect Camel Statuses");
          if (ConfigService.inKubernetes()) {
-             karavanCache.getPodContainerStatuses(environment).stream()
+             karavanCache.getAllPodContainerStatuses().stream()
                      .filter(cs -> Objects.equals(cs.getLabels().get(LABEL_KUBERNETES_RUNTIME), CAMEL_PREFIX))
                      .filter(cs -> Objects.equals(cs.getType(), ContainerType.devmode) || Objects.equals(cs.getType(), ContainerType.packaged))
                      .filter(cs -> Objects.equals(cs.getCamelRuntime(), KaravanConstants.CamelRuntime.CAMEL_MAIN.getValue()))
+                     .filter(cs -> Objects.equals(cs.getPhase(), "Running"))
                      .forEach(cs -> {
                          CamelStatusRequest csr = new CamelStatusRequest(cs.getProjectId(), cs.getContainerName());
                          eventBus.publish(CMD_COLLECT_CAMEL_STATUS,
@@ -65,7 +62,7 @@ public class CamelStatusScheduler {
                          );
                      });
          } else {
-             karavanCache.getPodContainerStatuses(environment).stream()
+             karavanCache.getAllPodContainerStatuses().stream()
                      .filter(Objects::nonNull)
                      .filter(cs -> Objects.equals(cs.getCamelRuntime(), KaravanConstants.CamelRuntime.CAMEL_MAIN.getValue()))
                      .filter(cs -> Objects.equals(cs.getType(), ContainerType.devmode) || Objects.equals(cs.getType(), ContainerType.packaged))

@@ -57,8 +57,6 @@ public class PodContainerCommandListener {
         setContainerStatusTransit(projectId, ContainerType.devmode.name());
         if (ConfigService.inKubernetes()) {
             kubernetesService.deletePodAndService(projectId, false);
-        } else if (dockerService.isInSwarmMode()) {
-            dockerService.deleteService(projectId);
         } else {
             dockerService.deleteContainer(projectId);
         }

@@ -22,8 +22,6 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
 import org.apache.camel.karavan.KaravanConstants;
-import org.apache.camel.karavan.cache.KaravanCache;
-import org.apache.camel.karavan.cache.ProjectFile;
 import org.apache.camel.karavan.cache.ProjectFolder;
 import org.apache.camel.karavan.docker.DockerService;
 import org.apache.camel.karavan.kubernetes.KubernetesService;
@@ -40,7 +38,6 @@ import java.util.Objects;
 import java.util.Optional;
 
 import static org.apache.camel.karavan.KaravanConstants.DEV;
-import static org.apache.camel.karavan.service.CodeService.BUILD_SCRIPT_FILENAME;
 
 @ApplicationScoped
 public class ConfigService {
@@ -59,14 +56,8 @@ public class ConfigService {
     @ConfigProperty(name = "karavan.environments")
     Optional<List<String>> environments;
 
-    @ConfigProperty(name = "karavan.shared.folder")
-    Optional<String> sharedFolder;
-
     @ConfigProperty(name = "karavan.secret.name", defaultValue = "karavan")
     String secretName;
-
-    @Inject
-    KaravanCache karavanCache;
 
     @Inject
     KubernetesService kubernetesService;
@@ -80,7 +71,6 @@ public class ConfigService {
     private Configuration configuration;
     private static Boolean inKubernetes;
     private static Boolean inDocker;
-    private static Boolean inDockerSwarmMode;
 
     void onStart(@Observes @Priority(10) StartupEvent ev) {
         getConfiguration(null);
@@ -93,7 +83,6 @@ public class ConfigService {
                     title,
                     version,
                     inKubernetes() ? "kubernetes" : "docker",
-                    inDockerSwarmMode(),
                     environment,
                     secretName,
                     secretName,
@@ -112,69 +101,11 @@ public class ConfigService {
         return inKubernetes;
     }
 
-    public boolean inDockerSwarmMode() {
-        if (inDockerSwarmMode == null) {
-            inDockerSwarmMode = dockerService.isInSwarmMode();
-        }
-        return inDockerSwarmMode;
-    }
-
     public static boolean inDocker() {
         if (inDocker == null) {
             inDocker = !inKubernetes() && Files.exists(Paths.get("/.dockerenv"));
         }
         return inDocker;
-    }
-
-    public void shareOnStartup() {
-        if (ConfigService.inKubernetes() && environment.equals(DEV)) {
-            LOGGER.info("Creating Configmap for " + BUILD_SCRIPT_FILENAME);
-            try {
-                share(BUILD_SCRIPT_FILENAME);
-            } catch (Exception e) {
-                var error = e.getCause() != null ? e.getCause() : e;
-                LOGGER.error("Error while trying to share build.sh as Configmap", error);
-            }
-        }
-    }
-
-    public void share(String filename) throws Exception {
-        if (filename != null) {
-            ProjectFile f = karavanCache.getProjectFile(ProjectFolder.Type.configuration.name(), filename);
-            if (f != null) {
-                shareFile(f);
-            }
-        } else {
-            for (ProjectFile f : karavanCache.getProjectFiles(ProjectFolder.Type.configuration.name())) {
-                shareFile(f);
-            }
-        }
-    }
-
-    private void shareFile(ProjectFile f) throws Exception {
-        var filename = f.getName();
-        var parts = filename.split("\\.");
-        var prefix = parts[0];
-        if (environment.equals(DEV) && !getEnvs().contains(prefix)) { // no prefix AND dev env
-            storeFile(f.getName(), f.getCode());
-        } else if (Objects.equals(prefix, environment)) { // with prefix == env
-            filename = f.getName().substring(environment.length() + 1);
-            storeFile(filename, f.getCode());
-        }
-    }
-
-    private void storeFile(String filename , String code) throws Exception {
-        if (inKubernetes()) {
-            kubernetesService.createConfigmap(filename, Map.of(filename, code));
-        } else if (inDockerSwarmMode()){
-            dockerService.createConfig(filename, code);
-        } else {
-            if (sharedFolder.isPresent()) {
-                Files.writeString(Paths.get(sharedFolder.get(), filename), code);
-            } else {
-                throw new Exception("Shared folder not configured");
-            }
-        }
     }
 
     protected List<String> getEnvs() {

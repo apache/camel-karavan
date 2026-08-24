@@ -67,11 +67,9 @@ public class DockerStatusListener {
     @ConsumeEvent(value = CMD_CLEAN_STATUSES, blocking = true)
     void cleanContainersStatuses(String data) {
         try {
-            List<PodContainerStatus> statusesInDocker = dockerService.isInSwarmMode()
-                ? getServicesStatuses()
-                : getContainersStatuses();
+            List<PodContainerStatus> statusesInDocker = getContainersStatuses();
             List<String> namesInDocker = statusesInDocker.stream().map(PodContainerStatus::getContainerName).toList();
-            List<PodContainerStatus> statusesInCache = karavanCache.getPodContainerStatuses(environment);
+            List<PodContainerStatus> statusesInCache = karavanCache.getAllPodContainerStatuses();
             // clean deleted
             statusesInCache.stream()
                     .filter(cs -> !checkTransit(cs))
@@ -96,20 +94,6 @@ public class DockerStatusListener {
         dockerService.getAllContainers().forEach(container -> {
             PodContainerStatus podContainerStatus = DockerUtils.getContainerStatus(container, environment);
             result.add(podContainerStatus);
-        });
-        return result;
-    }
-
-    public List<PodContainerStatus> getServicesStatuses() {
-        List<PodContainerStatus> result = new ArrayList<>();
-        dockerService.getAllServices().forEach(service -> {
-            var containers = dockerService.findContainersByServiceId(service.getId());
-            if (containers != null) {
-                containers.forEach(container -> {
-                    PodContainerStatus podContainerStatus = DockerUtils.getServiceStatus(service, container, environment);
-                    result.add(podContainerStatus);
-                });
-            }
         });
         return result;
     }

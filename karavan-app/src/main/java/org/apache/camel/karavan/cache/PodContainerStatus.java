@@ -53,6 +53,7 @@ public class PodContainerStatus {
     String finished;
     List<Command> commands;
     String state;
+    String stateMessage;
     String phase;
     Boolean codeLoaded;
     Boolean inTransit = false;
@@ -62,7 +63,7 @@ public class PodContainerStatus {
     String commit;
     Map<String, String> labels;
 
-    public PodContainerStatus(String projectId, String containerName, String containerId, String image, List<ContainerPort> ports, String env, ContainerType type, String memoryInfo, String cpuInfo, String created, String finished, List<Command> commands, String state, String phase, Boolean codeLoaded, Boolean inTransit, String initDate, String podIP, String camelRuntime, String commit, Map<String, String> labels) {
+    public PodContainerStatus(String projectId, String containerName, String containerId, String image, List<ContainerPort> ports, String env, ContainerType type, String memoryInfo, String cpuInfo, String created, String finished, List<Command> commands, String state, String stateMessage, String phase, Boolean codeLoaded, Boolean inTransit, String initDate, String podIP, String camelRuntime, String commit, Map<String, String> labels) {
         this.projectId = projectId;
         this.containerName = containerName;
         this.containerId = containerId;
@@ -76,6 +77,7 @@ public class PodContainerStatus {
         this.finished = finished;
         this.commands = commands;
         this.state = state;
+        this.stateMessage = stateMessage;
         this.phase = phase;
         this.codeLoaded = codeLoaded;
         this.inTransit = inTransit;
@@ -194,7 +196,7 @@ public class PodContainerStatus {
 
     public PodContainerStatus copy() {
         return new PodContainerStatus(
-                projectId, containerName, containerId, image, ports, env, type, memoryInfo, cpuInfo, created, finished, commands, state, phase, codeLoaded, inTransit, initDate, podIP, camelRuntime, commit, labels
+                projectId, containerName, containerId, image, ports, env, type, memoryInfo, cpuInfo, created, finished, commands, state, stateMessage, phase, codeLoaded, inTransit, initDate, podIP, camelRuntime, commit, labels
         );
     }
 
@@ -300,6 +302,14 @@ public class PodContainerStatus {
 
     public void setState(String state) {
         this.state = state;
+    }
+
+    public String getStateMessage() {
+        return stateMessage;
+    }
+
+    public void setStateMessage(String stateMessage) {
+        this.stateMessage = stateMessage;
     }
 
     public Boolean getCodeLoaded() {

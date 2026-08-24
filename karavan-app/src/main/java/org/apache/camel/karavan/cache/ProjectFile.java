@@ -17,6 +17,8 @@
 
 package org.apache.camel.karavan.cache;
 
+import java.time.Instant;
+
 public class ProjectFile {
 
     String name;
@@ -29,6 +31,9 @@ public class ProjectFile {
         this.code = code;
         this.projectId = projectId;
         this.lastUpdate = lastUpdate;
+    }
+    public ProjectFile(String name, String code, String projectId) {
+        this(name, code, projectId, Instant.now().getEpochSecond() * 1000);
     }
 
     public ProjectFile() {
