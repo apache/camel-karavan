@@ -1,0 +1,50 @@
+.command-palette-editor {
+    position: relative;
+    width: 100%;
+    padding-top: 4px;
+    border-radius: 8px;
+    overflow: hidden;
+
+    .empty-editor-overlay {
+        position: absolute;
+        top: 4px;
+        left: 12px;
+        color: var(--pf-t--global--text--color--regular);
+        pointer-events: none;
+        font-size: 12px;
+        font-family: Menlo, Monaco, "Courier New", monospace;
+        z-index: 10;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        width: 100%;
+    }
+}
+
+.command-palette-editor::after {
+    content: "";
+    position: absolute;
+    /* Added a fallback of 0px just in case the PatternFly variable is missing */
+    inset: var(--pf-v6-c-button--border--offset, 0px);
+    pointer-events: none;
+    border: 2px solid transparent;
+
+    /* Good practice to inherit border-radius so the gradient hugs the corners */
+    border-radius: 8px;
+    transition: inherit;
+
+    /* The gradient border colors */
+    background: linear-gradient(
+            to right,
+            rgba(0, 102, 204, 1) 0%,
+            rgba(67, 148, 229, 1) 25%,
+            rgb(219, 91, 4) 100%
+    ) border-box;
+
+    /* Correct Masking implementation */
+    -webkit-mask:
+            linear-gradient(#fff 0 0) padding-box,
+            linear-gradient(#fff 0 0);
+    -webkit-mask-composite: destination-out;
+    mask-composite: exclude;
+}

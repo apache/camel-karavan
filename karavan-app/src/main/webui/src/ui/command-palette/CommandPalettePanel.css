@@ -1,0 +1,191 @@
+.command-palette-modal {
+    min-height: 30%;
+    overflow: hidden;
+    border-radius: var(--pf-t--global--border--radius--medium);
+    .command-palette-modal-header {
+        padding: 6px 6px 0 16px;
+        /*height: 1.7em;*/
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        position: relative;
+        gap: 6px;
+        .filename-text-clipboard {
+            background-color: transparent;
+        }
+    }
+}
+
+.command-palette .pf-v6-c-form-control > :is(input, select, textarea) {
+    padding-inline-start: var(--pf-t--global--spacer--sm);
+    padding-inline-end: var(--pf-t--global--spacer--sm);
+}
+
+.command-palette .command-palette-body {
+    display: block;
+    padding-top: 1em;
+    padding-inline-start: 1em;
+    padding-inline-end: 1em;
+    padding-bottom: 1em;
+    flex-basis: auto;
+    flex-grow: 1;
+    flex-shrink: 1;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+.command-palette .dsl-element {
+    position: relative;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    text-wrap: nowrap;
+    gap: 16px;
+    padding: 4px 4px;
+}
+
+.command-palette .dsl-element .header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 2px;
+}
+
+.command-palette .dsl-element .icon-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 30px; /* Increased slightly to give the icon breathing room */
+    width: 30px;  /* Width MUST match height for a perfect circle */
+    border-radius: 50%; /* This creates the circle shape */
+    margin-right: 6px;
+    flex-shrink: 0; /* Prevents the circle from squishing if the container gets tight */
+}
+
+.pf-v6-theme-dark .command-palette .dsl-element .icon-wrapper {
+    background-color: var(--pf-t--global--text--color--subtle);
+}
+
+.command-palette .dsl-element .icon {
+    height: 20px;
+    width: auto;
+    border: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
+}
+
+.command-palette .dsl-element .highlight-match {
+    color: var(--platform-color);
+}
+
+.command-palette .dsl-element .dsl-element-title {
+    color: var(--pf-t--global--text--color--regular);
+    font-weight: bold;
+    text-wrap: wrap;
+}
+
+.command-palette .dsl-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    width: 100%;
+}
+.command-palette .dsl-footer {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+    padding-block-start: 1em;
+    padding-block-end: 1em;
+    padding-inline-start: 1em;
+    padding-inline-end: 1em;
+}
+
+.command-palette .command-palette-header {
+    display: flex;
+    flex-direction: column;
+    flex-basis: auto;
+    flex-shrink: 1;
+    padding-block-start: 1em;
+    padding-inline-start: 1em;
+    padding-inline-end: 1em;
+}
+
+.command-palette .pf-v6-c-modal-box__close {
+    inset-block-start: -2px;
+    inset-inline-end: -2px;
+    overflow: hidden;
+}
+
+.command-palette .dsl-card .properties .pf-v6-c-form__group-label,
+.command-palette .dsl-card .properties .pf-v6-c-form__label {
+    display: flex;
+}
+
+.command-palette .pf-chatbot__message-bar .sdx-design-button {
+    background: var(--pf-t--global--background--color--primary--default);
+    svg {
+        fill: var(--platform-color);
+    }
+}
+.command-palette .pf-chatbot__message-bar .sdx-design-button::after {
+    position: absolute;
+    inset: var(--pf-v6-c-button--border--offset);
+    pointer-events: none;
+    content: "";
+    border: 2px solid transparent;
+    border-radius: 9999px; /* Overriding the inherit to force stadium shape */
+    transition: inherit;
+
+    background-image: linear-gradient(
+            to right,
+            rgba(0, 102, 204, 1) 0%,
+            rgba(67, 148, 229, 1) 25%,
+            rgb(219, 91, 4) 100%
+    );
+    background-origin: border-box;
+
+    -webkit-mask: linear-gradient(#000 0 0) padding-box exclude, linear-gradient(#000 0 0) border-box;
+    mask: linear-gradient(#000 0 0) padding-box exclude, linear-gradient(#000 0 0) border-box;
+}
+
+.command-palette .dsl-gallery {
+    .dsl-card {
+        cursor: pointer;
+        .pf-v6-c-card__header {
+            padding: 0.5em;
+            .navigation-label {
+                position: absolute;
+                right: 4px;
+                top: 4px;
+                padding: 0;
+                margin: 0;
+                width: 8px;
+                min-width: 16px;
+            }
+            .navigation-label::after {
+                border: none;
+            }
+        }
+        .pf-v6-c-card__body {
+            .dsl-element-body-description {
+                overflow: hidden;
+                .pf-v6-c-helper-text__item-text {
+                    display: -webkit-box;
+                    -webkit-box-orient: vertical;
+                    -webkit-line-clamp: 2;
+                    color: var(--pf-t--global--text--color--subtle);
+                }
+            }
+        }
+    }
+}
+
+.command-palette .decorationsOverviewRuler {
+    visibility: hidden;
+}
