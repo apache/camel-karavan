@@ -84,3 +84,4 @@ docs/install/karavan-docker/data/*
 
 .env
 stats.html
+.task_report.md

@@ -1,0 +1,34 @@
+FROM registry.access.redhat.com/ubi9/openjdk-21-runtime:1.24
+
+# The UBI runtime image defaults to a non-root user. 
+# We switch to root to install dependencies and give Claude full execution rights in the sandbox.
+USER root
+
+# 1. Update existing packages
+RUN microdnf update -y
+
+# 2. Install packages one by one to find the culprit
+RUN microdnf install -y nodejs
+RUN microdnf install -y npm
+RUN microdnf install -y git
+RUN microdnf install -y python3
+RUN microdnf install -y jq
+RUN microdnf install -y gcc
+RUN microdnf install -y tar
+RUN microdnf install -y make
+
+# 3. Clean up
+RUN microdnf clean all
+
+# Install Claude Code globally
+RUN npm install -g @anthropic-ai/claude-code
+
+WORKDIR /karavan
+
+USER default
+
+# Set the entrypoint to the Claude CLI
+ENTRYPOINT ["claude"]
+
+# Append the permission skip flag by default
+CMD ["--dangerously-skip-permissions"]
