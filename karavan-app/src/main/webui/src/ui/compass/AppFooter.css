@@ -1,0 +1,4 @@
+.prod-environment {
+    background-color: var(--pf-t--global--icon--color--status--danger--default);
+    color: var(--pf-t--global--background--color--secondary--default);
+}

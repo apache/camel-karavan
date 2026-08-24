@@ -1,0 +1,42 @@
+.pf-v6-c-compass.pf-m-docked .pf-v6-c-compass__container {
+    grid-template-areas: "dock main";
+    grid-template-rows: auto;
+    grid-template-columns: auto 1fr;
+    row-gap: var(--pf-v6-c-compass__main--RowGap);
+    align-items: stretch;
+    padding: 0;
+}
+
+:root {
+    .pf-v6-c-compass__dock .pf-v6-c-nav__item::before {
+        background-color: var(--platform-color);
+    }
+    .pf-v6-c-compass__nav .pf-v6-c-tabs.pf-m-animate-current:not(.pf-m-box) .pf-v6-c-tabs__list::after {
+        border: 1px solid var(--platform-color);
+    }
+    .pf-v6-c-compass__logo .pf-v6-c-tabs.pf-m-animate-current:not(.pf-m-box) .pf-v6-c-tabs__list::after {
+        border: 1px solid var(--platform-color);
+    }
+    .pf-v6-c-tabs.pf-m-animate-current:not(.pf-m-box) .pf-v6-c-tabs__list::after {
+        border: 1px solid var(--platform-color);
+    }
+}
+
+.pf-v6-c-compass.pf-m-docked .pf-v6-c-compass__main {
+    padding: var(--pf-t--global--spacer--md);
+    gap: var(--pf-t--global--spacer--100);
+}
+
+.pf-v6-c-compass .pf-topology-content {
+
+}
+
+.pf-v6-c-compass .infra-icon-k8s,
+.pf-v6-c-compass .infra-icon-docker {
+    fill: #4bb9ec;
+}
+
+
+
+
+
