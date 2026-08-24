@@ -1,0 +1,17 @@
+.project-drawer-panel {
+    .pf-v6-c-drawer__head {
+        padding: 0;
+    }
+    .pf-v6-c-drawer__body {
+        padding: 0;
+    }
+    .pf-v6-c-alert__icon {
+        margin-right: 2px;
+    }
+    .pf-v6-c-form {
+        gap: 16px;
+    }
+    .pf-v6-c-tab-content {
+
+    }
+}

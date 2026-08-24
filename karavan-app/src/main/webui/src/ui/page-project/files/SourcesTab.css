@@ -1,0 +1,22 @@
+.files-update-panel {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    width: fit-content;
+
+    .pf-v6-c-content--p {
+        color: var(--pf-t--global--background--color--secondary--default);
+    }
+
+    .pf-v6-c-clipboard-copy {
+        display: flex;
+        background-color: transparent;
+        .pf-v6-c-clipboard-copy__text {
+            word-break: keep-all;
+        }
+    }
+}
+
+.commits-label {
+    line-height: 25px;
+}

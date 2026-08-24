@@ -1,0 +1,37 @@
+.karavan .topology-panel .topology-data-card {
+    position: absolute;
+    top: 6px;
+    left: 6px;
+    max-height: 70%;
+    overflow: hidden;
+}
+
+.karavan .topology-panel .topology-data-card .pf-v6-c-card__title {
+    padding: 5px;
+    display: flex;
+    justify-content: center;
+}
+
+.karavan .topology-panel .topology-data-card .card-body {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    padding: 0 10px 10px 10px;
+    overflow: auto;
+}
+
+.karavan .topology-panel .topology-data-card .topology-data-item {
+    background: var(--pf-t--global--background--color--primary--hover);
+    border-radius: var(--pf-t--global--border--radius--pill);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 6px;
+    padding: 2px 6px 3px 8px;
+    position: relative;
+    .data-button {
+        padding: 0;
+        display: flex;
+        background-color: transparent;
+    }
+}

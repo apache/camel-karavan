@@ -1,0 +1,12 @@
+.karavan .project-title {
+    flex: 1;
+    .pf-v6-l-flex.pf-m-column > * {
+        margin-bottom: 0;
+    }
+    .pf-v6-c-clipboard-copy {
+        width: fit-content;
+        .pf-v6-c-button {
+            padding: 0;
+        }
+    }
+}

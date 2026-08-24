@@ -1,0 +1,75 @@
+.karavan .topology-panel .topology-beans-card {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    max-height: 70%;
+    overflow: hidden;
+}
+
+.karavan .topology-panel .topology-beans-card .pf-v6-c-card__title {
+    padding: 5px;
+    display: flex;
+    justify-content: center;
+}
+
+.karavan .topology-panel .topology-beans-card .card-body {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    padding: 0 10px 10px 10px;
+    overflow: auto;
+}
+
+
+.karavan .topology-panel .topology-beans-card .topology-bean-item {
+    background: var(--pf-t--global--background--color--primary--hover);
+    border-radius: var(--pf-t--global--border--radius--pill);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 6px;
+    padding: 2px 6px 3px 8px;
+    position: relative;
+    .icon {
+        margin-top: auto;
+        margin-bottom: auto;
+        height: 16px;
+        width: 16px;
+    }
+    .bean-button {
+        padding: 0;
+        display: flex;
+        background-color: transparent;
+    }
+}
+
+/*.karavan .topology-panel .topology-beans-card .pf-v6-c-label {*/
+/*    display: flex;*/
+/*    justify-content: start;*/
+/*}*/
+
+/*.karavan .topology-panel .topology-beans-card .pf-v6-c-label__content::before {*/
+/*    background: var(--pf-t--global--background--color--primary--hover);*/
+/*}*/
+
+/*.karavan .topology-panel .topology-beans-card .bean-button {*/
+/*    padding: 0;*/
+/*    display: flex;*/
+/*    background-color: transparent;*/
+/*}*/
+
+/*.karavan .topology-panel .topology-beans-card .pf-v6-c-badge {*/
+/*    min-width: 32px;*/
+/*    font-weight: normal;*/
+/*}*/
+
+/*.karavan .topology-panel .topology-beans-card .pf-v6-c-label__icon {*/
+/*    height: unset;*/
+/*}*/
+
+/*.karavan .topology-panel .topology-beans-card .bean-button .pf-v6-c-button__icon {*/
+/*    margin-top: auto;*/
+/*    margin-bottom: auto;*/
+/*    height: 16px;*/
+/*    width: 16px;*/
+/*}*/
