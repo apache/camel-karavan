@@ -1,0 +1,61 @@
+.platform-name-compass-wrapper {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    .platform-name-compass {
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: flex-start;
+        gap: 1px;
+    }
+}
+.platform-name-toolbar-wrapper {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+
+    .platform-name-toolbar {
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: flex-start;
+        gap: 1px;
+    }
+}
+
+
+.platform-versions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;
+
+    .pf-v6-c-label {
+        padding: 4px;
+    }
+}
+
+.platform-versions-item {
+    display: flex;
+    flex-direction: row;
+    gap: 3px;
+    align-items: center;
+
+    .platform-version {
+        font-size: var(--pf-t--global--font--size--body--sm);
+        line-height: var(--pf-t--global--font--size--body--sm);
+        color: var(--pf-t--color--gray--30);
+    }
+
+    .platform-small-logo {
+        width: 12px;
+        height: 12px;
+    }
+
+    .icon {
+        width: 12px;
+        height: 12px;
+    }
+}
