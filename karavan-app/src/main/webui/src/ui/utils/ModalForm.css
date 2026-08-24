@@ -1,0 +1,97 @@
+.modal-90 {
+    min-height: 90%;
+}
+
+.example-editor {
+    border-bottom: 1px solid lightgray;
+    border-left: 1px solid lightgray;
+    border-right: 1px solid lightgray;
+}
+
+.example-editor .margin {
+    background-color: var(--pf-t--global--background--color--primary--default);
+}
+
+.modal-form {
+    padding-bottom: 8px;
+    gap: 10px;
+}
+
+.modal-form .form-expandable {
+    display: flex;
+    flex-direction: row;
+    justify-content: start;
+    align-items: start;
+    gap: 6px;
+    padding: 6px;
+    background-color: var(--pf-t--global--background--color--primary--default);
+    border-width: 1px;
+    border-style: solid;
+    border-color: var(--pf-t--global--border--color--default);
+    border-radius: var(--pf-t--global--border--radius--medium);
+}
+
+.modal-form .form-expandable-hidden-border:after {
+    display: none;
+}
+
+
+.modal-form .form-expandable .pf-v6-c-expandable-section__toggle {
+    display: flex;
+    flex-direction: row;
+    text-wrap: nowrap;
+    /*width: 160px;*/
+}
+
+.modal-form .form-expandable .pf-v6-c-expandable-section__content {
+    flex: 2;
+    padding-right: 0;
+    padding-left: 0;
+}
+
+.modal-form .form-expandable .enum-input input {
+    min-width: 70px;
+}
+
+.modal-form .form-expandable .pf-v6-c-table.pf-m-compact tr:where(.pf-v6-c-table__tr):not(.pf-v6-c-table__expandable-row) > *:first-child {
+    --pf-v6-c-table--cell--PaddingLeft: 0;
+
+    .pf-v6-c-button.pf-m-plain {
+        padding: 0;
+    }
+}
+
+.modal-form .form-expandable .pf-v6-c-table.pf-m-compact tr:where(.pf-v6-c-table__tr):not(.pf-v6-c-table__expandable-row) > *:last-child {
+    --pf-v6-c-table--cell--PaddingRight: 0;
+}
+
+.modal-form .form-expandable .combinations-toggle-group .pf-v6-c-toggle-group__button {
+    padding: 0;
+}
+
+.modal-form .form-expandable .combinations-toggle-group .pf-v6-c-toggle-group__button .combination-name {
+    padding: 6px 16px 6px 16px;
+}
+
+.modal-form .form-expandable .modal-table {
+
+    .modal-table-row {
+        vertical-align: middle;
+    }
+
+    .pf-v6-c-table__td {
+        padding: 8px 4px 8px 4px;
+    }
+}
+
+.modal-form .form-expandable .pf-v6-c-table.pf-m-compact tr:where(.pf-v6-c-table__tr):not(.pf-v6-c-table__expandable-row) > *:first-child {
+    padding: 0;
+}
+
+.modal-form .form-expandable .pf-v6-c-table tr:where(.pf-v6-c-table__tr) > :where(th, td) {
+    padding-block-start: var(--pf-t--global--spacer--xs);
+    padding-block-end: var(--pf-t--global--spacer--xs);
+    padding-inline-start: var(--pf-t--global--spacer--xs);
+    padding-inline-end: var(--pf-t--global--spacer--xs);
+}
+
