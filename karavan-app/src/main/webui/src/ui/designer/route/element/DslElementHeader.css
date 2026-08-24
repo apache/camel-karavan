@@ -1,0 +1,36 @@
+.pf-v6-theme-dark .karavan .step-element .dsl-element {
+    .transparent-gradient-border {
+        border: 2px solid transparent;
+        border-radius: 50px;
+        background: linear-gradient(var(--pf-t--global--icon--color--disabled), var(--pf-t--global--icon--color--disabled)) padding-box,
+        linear-gradient(to right,
+                rgba(0, 102, 204, 1) 0%,
+                rgba(67, 148, 229, 1) 25%,
+                rgb(67, 148, 229),
+                rgb(253, 164, 34),
+                rgb(253, 164, 34),
+                rgb(219, 91, 4)
+        ) border-box;
+    }
+}
+
+.karavan .step-element .dsl-element {
+    .transparent-gradient-border {
+        border: 2px solid transparent;
+        border-radius: 50px;
+        background: linear-gradient(var(--pf-t--global--background--color--primary--default), var(--pf-t--global--background--color--primary--default)) padding-box,
+        linear-gradient(to right,
+                rgba(0, 102, 204, 1) 0%,
+                rgba(67, 148, 229, 1) 25%,
+                rgb(67, 148, 229),
+                rgb(253, 164, 34),
+                rgb(253, 164, 34),
+                rgb(219, 91, 4)
+        ) border-box;
+    }
+}
+
+
+.karavan .step-element .header-route.wide-element {
+    position: relative;
+}

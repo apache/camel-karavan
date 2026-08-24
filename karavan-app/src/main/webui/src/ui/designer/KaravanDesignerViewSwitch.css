@@ -1,0 +1,6 @@
+.karavan .karavan-designer-view-switcher {
+    position: absolute;
+    left: 3px;
+    bottom: 213px;
+    z-index: 100;
+}
