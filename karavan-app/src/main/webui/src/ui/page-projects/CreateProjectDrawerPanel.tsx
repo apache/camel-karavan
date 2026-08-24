@@ -2,9 +2,9 @@ import React from 'react';
 import {Button, Content, Divider, DrawerHead, DrawerPanelContent,} from '@patternfly/react-core';
 import {useDashboardStore} from "@stores/DashboardStore";
 import {TimesIcon} from "@patternfly/react-icons";
-import {DashboardDevelopmentProjectPanel} from "./DashboardDevelopmentProjectPanel";
+import {CreateProjectPanel} from "./CreateProjectPanel";
 
-function DashboardDevelopmentDrawerPanel() {
+function CreateProjectDrawerPanel() {
 
     const {setShowSideBar, showSideBar, title} = useDashboardStore();
 
@@ -22,10 +22,10 @@ function DashboardDevelopmentDrawerPanel() {
                     </div>
                 </DrawerHead>
                 <Divider style={{marginTop: 0}}/>
-                {showSideBar === 'integration' && <DashboardDevelopmentProjectPanel/>}
+                {showSideBar === 'integration' && <CreateProjectPanel/>}
             </div>
         </DrawerPanelContent>
     )
 }
 
-export default DashboardDevelopmentDrawerPanel
+export default CreateProjectDrawerPanel

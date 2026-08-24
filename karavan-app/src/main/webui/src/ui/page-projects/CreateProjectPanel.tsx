@@ -14,29 +14,26 @@ import {useNavigate} from "react-router-dom";
 import {ROUTES} from "@compass/navigation/Routes";
 import {ProjectFunctionHook} from "@page-project/ProjectFunctionHook";
 import {KaravanApi} from "@api/KaravanApi";
-import {useCommandPaletteStore} from "@command-palette/useCommandPaletteStore";
 import {CommandPaletteFooter} from "@command-palette/CommandPaletteFooter";
 import {DslMetaModel} from "@designer/utils/DslMetaModel";
-import {useFormUtil} from "./useFormUtil";
+import {useCreateProjectFormUtil} from "./useCreateProjectFormUtil";
 
 const CommandPalettePanel = lazy(() => import("@command-palette/CommandPalettePanel").then(m => ({default: m.CommandPalettePanel})));
 
-export function DashboardDevelopmentProjectPanel() {
+export function CreateProjectPanel() {
 
     const projects = useProjectsStore((s) => s.projects);
     const fetchProjectInfos = useProjectInfoStore((s) => s.fetchProjectInfos);
     const showSideBar = useDashboardStore(state => state.showSideBar);
     const setShowSideBar = useDashboardStore(state => state.setShowSideBar);
-    const filter = useCommandPaletteStore(state => state.filter);
 
     const [isProjectIdChanged, setIsProjectIdChanged] = React.useState(false);
     const [backendError, setBackendError] = React.useState<string>();
-    const {createOpenApiForProject, createRoutesForEmptyProject, createDlqForEmptyProject} = ProjectFunctionHook();
+    const {createRoutesForEmptyProject, createDlqForEmptyProject} = ProjectFunctionHook();
     const navigate = useNavigate();
 
-    // 1. Setup Form
     const formContext = useForm<Project>({mode: "all"});
-    const {getTextField, getCheckbox} = useFormUtil(formContext);
+    const {getTextField, getCheckbox} = useCreateProjectFormUtil(formContext);
     const {reset, setValue, setFocus, handleSubmit} = formContext;
 
     // 2. Prepare Data

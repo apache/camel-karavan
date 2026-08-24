@@ -28,7 +28,7 @@ import {SimpleSelectOption} from "@patternfly/react-templates/src/components/Sel
 import {MonacoEditor} from "@shared/MonacoEditor";
 import {useAppConfig} from "@compass/useConfig";
 
-export function useFormUtil(formContext: UseFormReturn<any>) {
+export function useCreateProjectFormUtil(formContext: UseFormReturn<any>) {
 
     const [showPassword, setShowPassword] = useState<boolean>(false);
     const {isDev} = useAppConfig();
