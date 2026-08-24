@@ -13,4 +13,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-declare var acquireVsCodeApi: any;
+/**
+ * The API object injected into every VS Code webview.
+ * See https://code.visualstudio.com/api/extension-guides/webview
+ */
+interface VsCodeApi {
+    postMessage(message: unknown): void;
+    getState<T = unknown>(): T | undefined;
+    setState<T>(state: T): T;
+}
+
+declare function acquireVsCodeApi(): VsCodeApi;

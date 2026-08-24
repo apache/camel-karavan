@@ -13,16 +13,29 @@ const imageInlineSizeLimit = parseInt(
     process.env.IMAGE_INLINE_SIZE_LIMIT || "10000"
 );
 
-const baseConfig = (webpackEnv) => {
-    const isEnvDevelopment = webpackEnv === "development";
-    const isEnvProduction = webpackEnv === "production";
+// Webpack invokes an exported config function with (env, argv), where `env` holds the
+// `--env` flags - not NODE_ENV. Read the mode from NODE_ENV (set by the npm scripts) and
+// fall back to `argv.mode` / production so `mode` is never left unset.
+const resolveMode = (webpackEnv, argv) =>
+    process.env.NODE_ENV === "development" || argv?.mode === "development"
+        ? "development"
+        : "production";
+
+const baseConfig = (webpackEnv, argv) => {
+    const mode = resolveMode(webpackEnv, argv);
+    const isEnvDevelopment = mode === "development";
+    const isEnvProduction = mode === "production";
 
     return {
-        mode: isEnvProduction ? "production" : isEnvDevelopment && "development",
+        mode,
         bail: isEnvProduction,
         devtool: isEnvProduction
             ? "source-map"
-            : isEnvDevelopment && "eval-cheap-module-source-map",
+            : "eval-cheap-module-source-map",
+        cache: {
+            type: "filesystem",
+            buildDependencies: { config: [__filename] },
+        },
         resolve: {
             plugins: [new TsconfigPathsPlugin({ configFile: "./tsconfig.json" })],
             fallback: {
@@ -94,9 +107,9 @@ const baseConfig = (webpackEnv) => {
     };
 };
 
-const extensionConfig = (webpackEnv) => {
+const extensionConfig = (webpackEnv, argv) => {
     return {
-        ...baseConfig(webpackEnv),
+        ...baseConfig(webpackEnv, argv),
         target:  "node",
         entry: "./src/extension.ts",
         output: {
@@ -108,9 +121,9 @@ const extensionConfig = (webpackEnv) => {
     };
 };
 
-const webviewConfig = (webpackEnv) => {
+const webviewConfig = (webpackEnv, argv) => {
     return {
-        ...baseConfig(webpackEnv),
+        ...baseConfig(webpackEnv, argv),
         entry: "./webview/index.tsx",
         output: {
             path: path.resolve(__dirname, "dist"),
@@ -126,9 +139,9 @@ const webviewConfig = (webpackEnv) => {
     };
 };
 
-const prerenderConfig = (webpackEnv) => {
+const prerenderConfig = (webpackEnv, argv) => {
     return {
-        ...baseConfig(webpackEnv),
+        ...baseConfig(webpackEnv, argv),
         target: "node",
         entry: "./webview/prerender.tsx",
         output: {

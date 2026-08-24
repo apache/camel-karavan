@@ -39,22 +39,7 @@
     "Camel Yaml",
     "JBang"
   ],
-  "activationEvents": [
-    "onCommand:karavan.create-yaml",
-    "onCommand:karavan.create-kamelet",
-    "onCommand:karavan.create-application",
-    "onCommand:karavan.deploy",
-    "onCommand:karavan.open",
-    "onCommand:karavan.open-file",
-    "onCommand:karavan.run-project-jbang",
-    "onCommand:karavan.run-project-runtime",
-    "onCommand:karavan.jbang-export",
-    "onCommand:karavan.generate-rest",
-    "onCommand:karavan.download-image",
-    "onCommand:karavan.openKnowledgebase",
-    "onCommand:karavan.reportIssue",
-    "onView:integrations"
-  ],
+  "activationEvents": [],
   "main": "./dist/extension.js",
   "browser": "./dist/extension.js",
   "contributes": {
@@ -501,7 +486,25 @@
       }
     ],
     "menus": {
-      "explorer/context": [
+      "commandPalette": [
+      {
+        "command": "karavan.open",
+        "when": "false"
+      },
+      {
+        "command": "karavan.open-file",
+        "when": "false"
+      },
+      {
+        "command": "karavan.download-image",
+        "when": "false"
+      },
+      {
+        "command": "karavan.generate-rest",
+        "when": "false"
+      }
+    ],
+    "explorer/context": [
         {
           "command": "karavan.create-yaml",
           "when": "explorerResourceIsFolder || explorerResourceIsRoot",
@@ -514,7 +517,7 @@
         },
         {
           "command": "karavan.topology",
-          "when": "explorerResourceIsFolder || explorerResourceIsRoot || resourceFilename =~ /.camel.yaml$/",
+          "when": "explorerResourceIsFolder || explorerResourceIsRoot || resourceFilename =~ /\\.camel\\.yaml$/",
           "group": "karavan@1"
         },
         {
@@ -524,7 +527,7 @@
         },
         {
           "command": "karavan.open",
-          "when": "resourceFilename =~ /.camel.yaml$/ || resourceFilename =~ /.kamelet.yaml$/",
+          "when": "resourceFilename =~ /\\.camel\\.yaml$/ || resourceFilename =~ /\\.kamelet\\.yaml$/",
           "group": "karavan@4"
         },
         {
@@ -556,17 +559,17 @@
       "editor/title": [
         {
           "command": "karavan.open",
-          "when": "resourceFilename =~ /.camel.yaml$/ || resourceFilename =~ /.kamelet.yaml$/",
+          "when": "resourceFilename =~ /\\.camel\\.yaml$/ || resourceFilename =~ /\\.kamelet\\.yaml$/",
           "group": "navigation@1"
         },
         {
           "command": "karavan.run-project-jbang",
-          "when": "resourceFilename =~ /.camel.yaml$/ || karavan:loaded",
+          "when": "resourceFilename =~ /\\.camel\\.yaml$/ || karavan:loaded",
           "group": "navigation@4"
         },
         {
           "command": "karavan.run-project-runtime",
-          "when": "resourceFilename =~ /.camel.yaml$/ || karavan:loaded",
+          "when": "resourceFilename =~ /\\.camel\\.yaml$/ || karavan:loaded",
           "group": "navigation@5"
         },
         {
@@ -661,16 +664,18 @@
     ]
   },
   "scripts": {
-    "vscode:prepublish": "npm run && npm run package",
-    "compile": "npm run && cross-env NODE_ENV=development node --max-old-space-size=8192 ./node_modules/webpack/bin/webpack.js --progress --stats-error-details",
-    "watch": "npm run && cross-env NODE_ENV=development node --max-old-space-size=8192 ./node_modules/webpack/bin/webpack.js --progress --watch",
-    "package": "npm run && cross-env NODE_ENV=production node --max-old-space-size=8192 ./node_modules/webpack/bin/webpack.js --progress",
+    "vscode:prepublish": "npm run clean && npm run package",
+    "clean": "node -e \"require('fs').rmSync('dist', {recursive: true, force: true})\"",
+    "compile": "cross-env NODE_ENV=development node --max-old-space-size=8192 ./node_modules/webpack/bin/webpack.js --progress --stats-error-details",
+    "watch": "cross-env NODE_ENV=development node --max-old-space-size=8192 ./node_modules/webpack/bin/webpack.js --progress --watch",
+    "package": "cross-env NODE_ENV=production node --max-old-space-size=8192 ./node_modules/webpack/bin/webpack.js --progress",
     "webpack": "cross-env NODE_ENV=development node --max-old-space-size=8192 ./node_modules/webpack/bin/webpack.js --progress",
-    "test-compile": "tsc -p ./",
-    "test-watch": "tsc -watch -p ./",
-    "pretest": "npm run && npm run test-compile && npm run lint",
-    "lint": "eslint src webview --ext .ts,.tsx",
-    "lint:fix": "eslint --fix src webview --ext .ts,.tsx",
+    "typecheck": "tsc -p . --noEmit",
+    "test-compile": "tsc -p . --noEmit",
+    "test-watch": "tsc -p . --noEmit --watch",
+    "pretest": "npm run test-compile && npm run lint",
+    "lint": "eslint src webview",
+    "lint:fix": "eslint --fix src webview",
     "test": "node ./out/test/runTest.js",
     "open-in-browser": "vscode-test-web --extensionDevelopmentPath=. ../karavan-demo/hello-world/"
   },

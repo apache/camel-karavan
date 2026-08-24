@@ -1,15 +1,39 @@
+# --- Dev-only tooling and configuration -------------------------------------
 .vscode/**
 .vscode-test/**
-out/**
-node_modules/**
-src/**
+.vscode-test-web/**
+.idea/**
+.DS_Store
 .gitignore
 .yarnrc
+.prettierignore
+.task.md
+.task_report.md
+AGENT.md
 vsc-extension-quickstart.md
+webpack.config.js
+eslint.config.mjs
+package-lock.json
 **/tsconfig.json
 **/.eslintrc.json
-**/*.map
+*.vsix
+
+# --- Sources (everything ships pre-bundled in dist/) ------------------------
+out/**
+src/**
+webview/**
+node_modules/**
 **/*.ts
+**/*.tsx
+**/*.map
+
+# --- Build artifacts that are not needed at runtime -------------------------
+# prerender.js is an SSR helper used at build time only.
 dist/prerender.js
 dist/*.prerender.js
 dist/*.prerender.js.*
+# CopyPlugin duplicates metadata/ into dist/ for the prerender build; the
+# extension host reads it from <extensionPath>/metadata, so the copy is dead weight.
+dist/metadata/**
+# Emitted only because MiniCssExtractPlugin runs in the node-target configs; unused at runtime.
+dist/ignore.css

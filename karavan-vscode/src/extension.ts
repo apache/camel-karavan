@@ -24,7 +24,6 @@ import * as jbang from "./jbang";
 import * as utils from "./utils";
 import * as exec from "./exec";
 import { TopologyView } from './topologyView';
-import vscode from "webview/vscode";
 
 const KARAVAN_LOADED = "karavan:loaded";
 
@@ -37,16 +36,16 @@ export function activate(context: ExtensionContext) {
     const designer = new DesignerView(context, rootPath);
 
     const integrationView = new IntegrationView(designer, rootPath);
-    window.registerTreeDataProvider('integrations', integrationView);
-    commands.registerCommand('integrations.refresh', () => integrationView.refresh());
+    context.subscriptions.push(window.registerTreeDataProvider('integrations', integrationView));
+    context.subscriptions.push(commands.registerCommand('integrations.refresh', () => integrationView.refresh()));
 
     const openapiView = new OpenApiView(designer, rootPath);
-    window.registerTreeDataProvider('openapi', openapiView);
-    commands.registerCommand('openapi.refresh', () => openapiView.refresh());
+    context.subscriptions.push(window.registerTreeDataProvider('openapi', openapiView));
+    context.subscriptions.push(commands.registerCommand('openapi.refresh', () => openapiView.refresh()));
 
     const helpView = new HelpView(context);
-    window.registerTreeDataProvider('help', helpView);
-    commands.registerCommand('karavan.openKnowledgebase', () => helpView.openKaravanWebView("knowledgebase"));
+    context.subscriptions.push(window.registerTreeDataProvider('help', helpView));
+    context.subscriptions.push(commands.registerCommand('karavan.openKnowledgebase', () => helpView.openKaravanWebView("knowledgebase")));
 
     const topologyView = new TopologyView(context);
     const topologyCommand = commands.registerCommand("karavan.topology", (...args: any[]) => {
@@ -168,9 +167,10 @@ export function activate(context: ExtensionContext) {
     context.subscriptions.push(downloadImageCommand);
 
     // Create issue command
-    commands.registerCommand('karavan.reportIssue', () => {
+    const reportIssue = commands.registerCommand('karavan.reportIssue', () => {
         env.openExternal(Uri.parse('https://github.com/apache/camel-karavan/issues/new?title=[VS+Code]New+report&template=issue_template.md'));
     });
+    context.subscriptions.push(reportIssue);
 }
 
 /**

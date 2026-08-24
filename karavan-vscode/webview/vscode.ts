@@ -14,9 +14,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-let vscode;
-if (typeof acquireVsCodeApi !== "undefined") {
-  vscode = acquireVsCodeApi();
-}
+// `acquireVsCodeApi` only exists inside a VS Code webview. The prerender build runs the
+// same components under Node, so fall back to a no-op implementation instead of exporting
+// `undefined` (which every caller would otherwise have to null-check).
+const noopVsCodeApi: VsCodeApi = {
+  postMessage: () => undefined,
+  getState: () => undefined,
+  setState: (state) => state,
+};
+
+const vscode: VsCodeApi =
+  typeof acquireVsCodeApi !== "undefined" ? acquireVsCodeApi() : noopVsCodeApi;
 
 export default vscode;
