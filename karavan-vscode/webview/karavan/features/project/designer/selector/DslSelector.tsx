@@ -122,12 +122,11 @@ export function DslSelector(props: Props) {
 
     function setAllElements() {
         const blockedComponents = ComponentApi.getBlockedComponentNames();
-        const blockedKamelets = KameletApi.getBlockedKameletNames();
+    
         const eipE = CamelUi.getSelectorModelsForParentFiltered(parentDsl, 'eip', showSteps);
         const cE = CamelUi.getSelectorModelsForParentFiltered(parentDsl, 'component', showSteps)
             .filter(dsl => (!blockedComponents.includes(dsl.uri || dsl.name)));
-        const kE = CamelUi.getSelectorModelsForParentFiltered(parentDsl, 'kamelet', showSteps)
-            .filter(dsl => (!blockedKamelets.includes(dsl.name)));
+        const kE = CamelUi.getSelectorModelsForParentFiltered(parentDsl, 'kamelet', showSteps);
         const e: DslMetaModel[] = [];
         if (parentDsl !== undefined) {
             e.push(...eipE)
