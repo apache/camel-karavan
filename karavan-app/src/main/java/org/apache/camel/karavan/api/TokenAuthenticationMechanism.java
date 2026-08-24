@@ -65,7 +65,7 @@ public class TokenAuthenticationMechanism implements HttpAuthenticationMechanism
                     .addAttribute("clientName", metadata.clientName())
                     .setAnonymous(false);
 
-            LOGGER.infof("Trace: Authenticated MCP agent [%s] owned by [%s]", metadata.clientName(), metadata.ownerName());
+            LOGGER.infof("Trace: Authenticated", metadata.clientName(), metadata.ownerName());
             return Uni.createFrom().item(builder.build());
 
         } catch (Exception e) {

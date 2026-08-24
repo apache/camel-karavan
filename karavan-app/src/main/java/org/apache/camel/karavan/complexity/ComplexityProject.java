@@ -12,8 +12,6 @@ public class ComplexityProject {
     private List<ComplexityRoute> routes = new ArrayList<>();
     private Integer rests = 0;
     private boolean exposesOpenApi = false;
-    private boolean mcp = false;
-    private boolean agents = false;
     private List<String> dependencies = new ArrayList<>();
 
     public ComplexityProject() {
@@ -87,19 +85,4 @@ public class ComplexityProject {
         this.exposesOpenApi = exposesOpenApi;
     }
 
-    public boolean isMcp() {
-        return mcp;
-    }
-
-    public void setMcp(boolean mcp) {
-        this.mcp = mcp;
-    }
-
-    public boolean isAgents() {
-        return agents;
-    }
-
-    public void setAgents(boolean agents) {
-        this.agents = agents;
-    }
 }

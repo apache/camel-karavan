@@ -60,11 +60,11 @@ public class AbstractApiResource {
             String lastName = jwt.getClaim("family_name");
             String email = jwt.getClaim("email");
             if (user == null) {
-                LOGGER.info("OIDC User not found in Talisman Database. Creating new one.");
+                LOGGER.info("OIDC User not found in Platform Database. Creating new one.");
                 user = new AccessUser(username, firstName, lastName, email, AccessUser.UserStatus.ACTIVE, roleList);
                 karavanCache.saveUser(user, true);
             }  else if (!Objects.equals(firstName, user.getFirstName()) || !Objects.equals(lastName, user.getLastName()) || !Objects.equals(email, user.getEmail())) {
-                LOGGER.info("OIDC User found in Talisman Database. User is outdated. Updating user.");
+                LOGGER.info("OIDC User found in Platform Database. User is outdated. Updating user.");
                 user.setFirstName(firstName);
                 user.setLastName(lastName);
                 user.setEmail(email);
