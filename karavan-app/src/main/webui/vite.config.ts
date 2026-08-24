@@ -1,27 +1,38 @@
 import {defineConfig} from 'vite'
+import {fileURLToPath} from 'node:url'
 import react from '@vitejs/plugin-react'
-import viteTsconfigPaths from 'vite-tsconfig-paths'
 import svgr from 'vite-plugin-svgr';
+import yaml from '@rollup/plugin-yaml';
 
-// https://vitejs.dev/config/
 export default defineConfig({
-    base: '',
+    base: '/',
     plugins: [
-        viteTsconfigPaths(),
         svgr(),
         react(),
+        yaml()
     ],
     server: {
         open: false,
         port: 3003,
     },
     build: {
-        rollupOptions: {}
+        rolldownOptions: {},
     },
-    // CRITICAL FIX: Placed at the root level!
-    // This forces Vite to convert the old CommonJS path-browserify into an ES Module.
-    // (Do NOT include the worker.js files here, as Vite handles them natively now)
     optimizeDeps: {
         include: ['path-browserify']
+    },
+    resolve: {
+        tsconfigPaths: true,
+        alias: [
+            {
+                find: /^monaco-editor\/esm\/vs\/editor\/editor\.worker(\.js)?$/,
+                replacement: 'monaco-editor/editor/editor.worker.js',
+            },
+            {
+                find: /^monaco-worker-manager$/,
+                replacement: fileURLToPath(
+                    new URL('./src/ui/shared/monaco-worker-manager-compat.ts', import.meta.url)),
+            },
+        ],
     }
 })
