@@ -2,7 +2,7 @@ import {createWithEqualityFn} from "zustand/traditional";
 import {shallow} from "zustand/shallow";
 import {KubernetesConfigMap, KubernetesSecret} from "@models/SystemModels";
 
-export const SystemMenus = ['containers', 'deployments', 'secrets', 'configMaps', 'envVars', 'appProps', 'log'] as const;
+export const SystemMenus = ['containers', 'deployments', 'envVars', 'appProps', 'log'] as const;
 export type SystemMenu = typeof SystemMenus[number] ;
 
 interface SystemState {

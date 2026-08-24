@@ -28,9 +28,6 @@ export class AccessUser {
     }
 }
 
-/**
- * Represents the external agent metadata stored in the platform cache.
- */
 export interface AccessToken {
     hashedToken: string;
     ownerName: string;
@@ -40,9 +37,6 @@ export interface AccessToken {
     expiresAt: string; // ISO-8601 string
 }
 
-/**
- * Payload sent to the backend to generate a new agent token.
- */
 export interface GenerateTokenRequest {
     clientName: string;
     allowedProjectIds?: string[]; // Optional: if omitted, backend defaults to ["*"]

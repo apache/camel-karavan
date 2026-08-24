@@ -389,7 +389,6 @@ export class CamelDefinitionYaml {
         return properties;
     };
 
-    // add generated Integration YAML into existing Integration YAML
     static addYamlToIntegrationYaml = (
         filename: string,
         camelYaml: string | undefined,

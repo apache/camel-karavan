@@ -169,7 +169,7 @@ export const useProjectsStore = createWithEqualityFn<ProjectsState>((set, get) =
 
 
 export const ProjectMenus = ['topology', 'source', 'build', 'containers'] as const;
-export const ProjectRuntimeMenus = ['runtime', 'log', 'trace', 'tryout'] as const;
+export const ProjectRuntimeMenus = ['log'] as const;
 export type ProjectMenu = typeof ProjectMenus[number];
 export type ProjectRuntimeMenu = typeof ProjectRuntimeMenus[number];
 
@@ -252,7 +252,7 @@ export const useProjectStore = createWithEqualityFn<ProjectState>((set, get) => 
 }), shallow)
 
 
-export type FilesSideBarType = 'create' | 'upload' | 'library'
+export type FilesSideBarType = 'create' | 'upload'
 
 interface FilesState {
     files: ProjectFile[];

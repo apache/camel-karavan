@@ -43,7 +43,6 @@ export class ComplexityFile {
     componentsInt: any = {};
     componentsExt: any = {};
     kamelets: any = {};
-    generated: boolean = false;
 
     public constructor(init?: Partial<ComplexityFile>) {
         Object.assign(this, init);
@@ -58,8 +57,6 @@ export class ComplexityProject {
     dependencies: string[] = []
     rests: number = 0;
     exposesOpenApi: boolean = false;
-    mcp: boolean = false;
-    agents: boolean = false;
     type: string;
 
     public constructor(init?: Partial<ComplexityProject>) {
