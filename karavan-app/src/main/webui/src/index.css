@@ -47,6 +47,7 @@
         align-self: center;
         padding: 0;
     }
+    --platform-color: var(--pf-t--color--orange--40);
     --get-color: #61affe;
     --post-color: #49cc90;
     --put-color: #fca130;
@@ -78,6 +79,23 @@
         }
     }
     --pf-v6-c-content--MarginBlockEnd: 0;
+
+    .platform-color-fill {
+        fill: var(--platform-color);
+    }
+
+    .platform-color-node-decorator {
+        circle {
+            stroke: var(--platform-color);
+        }
+        svg {
+            fill: var(--platform-color) !important;
+        }
+    }
+
+    .platform-color-stroke {
+        stroke: var(--platform-color);
+    }
 
     .pf-v6-c-content--h1,
     .pf-v6-c-content--h2,
@@ -117,12 +135,6 @@ html, body, #root {
     color: var(--pf-v6-c-label--Color);
 }
 
-.karavan .pf-v6-c-button {
-    padding-inline-start: var(--pf-t--global--spacer--300);
-    padding-inline-end: var(--pf-t--global--spacer--300);
-    gap: var(--pf-t--global--spacer--xs);
-}
-
 .karavan {
     .pf-v6-c-text-input-group__text-input {
         padding-inline-start: var(--pf-t--global--spacer--sm);
@@ -152,6 +164,10 @@ html, body, #root {
 
 .karavan .pf-v6-c-log-viewer__main {
     border: none;
+}
+
+.karavan .pf-v6-c-table .table-button-link {
+    padding: 0;
 }
 
 .label-eip {
