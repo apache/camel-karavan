@@ -6,7 +6,9 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.jboss.logging.Logger;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 
 @ApplicationScoped
 public class CamelComponentService {
@@ -20,7 +22,7 @@ public class CamelComponentService {
 
     private JsonArray getComponents() {
         if (components == null) {
-            var json = codeService.getResourceFile("/metadata/components-full.json");
+            var json = codeService.getResourceFile("/metadata/components.json");
             components = new JsonArray(json);
         }
         return components;
