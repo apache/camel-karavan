@@ -695,7 +695,7 @@
     "elkjs": "^0.11.0",
     "path-browserify": "^1.0.1",
     "react-resizable-panels": "4.6.5",
-    "react-router-dom": "7.13.1",
+    "react-router-dom": "7.18.2",
     "rxjs": "7.8.2",
     "shelljs": "^0.10.0",
     "use-sync-external-store": "1.6.0",
