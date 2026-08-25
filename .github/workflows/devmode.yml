@@ -34,7 +34,7 @@ jobs:
           restore-keys: ${{ runner.os }}-maven-
 
       - name: Build Karavan DevMode Application
-        working-directory: ./karavan/karavan-devmode
+        working-directory: ./karavan-devmode
         run: mvn clean package
 
       - name: Set up QEMU
@@ -54,7 +54,7 @@ jobs:
         run: |
           docker buildx build \
             --platform linux/amd64,linux/arm64 \
-            --file ./karavan/karavan-devmode/Dockerfile \
+            --file ./karavan-devmode/Dockerfile \
             --tag ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TAG }} \
             --push \
             --no-cache \
