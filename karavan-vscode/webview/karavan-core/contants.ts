@@ -29,7 +29,6 @@ export const PROJECT_MD_FILE_NAME = "PROJECT.md";
 export const README_FILE_NAME = "README.md";
 export const JSON_ARGUMENTS_EXTENSION = ".arguments.json";
 export const JSON_SCHEMA_EXTENSION = ".schema.json";
-export const MCP_SERVER_EXTENSION = ".server.json";
 
 export const WIZARD_BEAN_TEMPLATE_FILENAME_PREFIX = "wizard-bean-";
 export const LANDSCAPE_TEMPLATE_FILENAME_PREFIX = "landscape-";
