@@ -60,4 +60,4 @@ jobs:
             --no-cache \
             --sbom=true \
             --provenance=mode=max \
-            ./karavan/karavan-devmode
+            .
