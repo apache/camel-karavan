@@ -1,10 +1,12 @@
+#!/bin/bash
+
 docker run -it --rm \
   --name karavan \
   --network karavan \
   -p 8080:8080 \
   -p 5005:5005 \
   -p 5173:5173 \
-  -v /m2-cache \
+  -v "$HOME/.m2":/m2-cache \
   -v "$(pwd)":/usr/src/app \
   -v /usr/src/app/target \
   -v /usr/src/app/src/main/webui/node_modules \
@@ -14,4 +16,5 @@ docker run -it --rm \
   maven:3.9-eclipse-temurin-25 \
   mvn quarkus:dev \
     -Dquarkus.http.host=0.0.0.0 \
-    -Dmaven.repo.local=/m2-cache/repository
+    -Dmaven.repo.local=/m2-cache/repository \
+    "$@"

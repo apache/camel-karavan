@@ -1,0 +1,46 @@
+name: karavan
+services:
+  karavan-postgres:
+    container_name: karavan-postgres
+    image: postgres
+    restart: always
+    environment:
+      - POSTGRES_PASSWORD=K@r@v@n422
+      - POSTGRES_USER=karavan
+      - POSTGRES_DB=karavan
+    networks:
+      - karavan
+
+  karavan-gitea:
+    container_name: karavan-gitea
+    image: docker.gitea.com/gitea:1.27.2
+    environment:
+      - USER_UID=1000
+      - USER_GID=1000
+    restart: always
+    volumes:
+      - karavan-gitea-data:/data
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    ports:
+      - "3001:3000"
+    networks:
+      - karavan
+
+  karavan-registry:
+    container_name: karavan-registry
+    restart: always
+    image: registry:3
+    labels:
+      org.apache.camel.karavan/type: 'internal'
+    ports:
+      - "6666:5000"
+    networks:
+      - karavan
+
+networks:
+  karavan:
+    name: karavan
+
+volumes:
+  karavan-gitea-data:
