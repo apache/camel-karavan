@@ -1,4 +1,4 @@
-name: DevMode container
+name: Karavan Devmode
 
 on:
   push:
@@ -12,32 +12,52 @@ env:
   TAG: 4.22.0
 
 jobs:
-  docker:
-
+  build:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Cache local Maven repository
+        uses: actions/cache@v6
+        with:
+          path: |
+            ~/.m2/repository
+            !~/.m2/repository/org/apache/camel
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-maven-
+
+      - name: Build Karavan DevMode Application
+        working-directory: ./karavan/karavan-devmode
+        run: mvn clean package
 
       - name: Set up QEMU
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y qemu-user-static
-
+        uses: docker/setup-qemu-action@v4
+        
       - name: Set up Docker Buildx
-        run: |
-          docker buildx create --use
+        uses: docker/setup-buildx-action@v4
 
       - name: Log in to the Container registry
-        run: |
-          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ${{ env.REGISTRY }} -u ${{ github.actor }} --password-stdin
+        uses: docker/login-action@v4
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push Docker image
-        run: |
-          docker buildx build \
-            --platform linux/amd64,linux/arm64 \
-            --file karavan-devmode/Dockerfile \
-            --tag ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TAG }} \
-            --push \
-            ./karavan-devmode
+      - name: Build and push Devmode image
+        uses: docker/build-push-action@v7
+        with:
+          context: ./karavan/karavan-devmode
+          platforms: linux/amd64,linux/arm64
+          file: ./karavan/karavan-devmode/Dockerfile
+          push: true
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TAG }}
+          no-cache: true
+          sbom: true
+          provenance: mode=max
