@@ -81,12 +81,6 @@ export const SystemPage = () => {
             <div className="system-page-toolbar" style={{justifyContent: "flex-end"}}>
                 <Button icon={<SyncAltIcon/>} variant='link' onClick={refresh}/>
                 {searchInput()}
-                {tabIndex === 'secrets' && isDev &&
-                    <Button onClick={event => setIsNewSecretOpen(true)}>Add Secret</Button>
-                }
-                {tabIndex === 'configMaps' &&
-                    <Button onClick={event => setIsNewConfigMapOpen(true)}>Add ConfigMap</Button>
-                }
                 {tabIndex === 'containers' && isDev &&
                     <Tooltip content="Cleanup statuses">
                         <Button className="dev-action-button"
