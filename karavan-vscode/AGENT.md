@@ -287,7 +287,7 @@ Version lives in `package.json` and is normally driven by the monorepo script
 patches `TAG:` in the workflows. `CHANGELOG.md` is maintained by hand.
 
 Current state to be aware of: `package.json` is **4.22.0** while `CHANGELOG.md`'s newest
-entry and the `camel.version` default are **4.18.1** — the bump commit
+entry and the `camel.version` default are **4.22.0** — the bump commit
 (`0a2be04c bump version fo vscode to 4.22.0`) touched only the version.
 
 ---
