@@ -1,0 +1,5 @@
+*
+!target/karavan-devmode*
+!target/lib/*
+!entrypoint.sh
+src/*
