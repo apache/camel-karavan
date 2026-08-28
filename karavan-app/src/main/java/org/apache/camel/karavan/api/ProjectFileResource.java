@@ -25,6 +25,7 @@ import jakarta.ws.rs.core.Response;
 import org.apache.camel.karavan.cache.KaravanCache;
 import org.apache.camel.karavan.cache.ProjectFile;
 import org.apache.camel.karavan.cache.ProjectFileCommited;
+import org.apache.camel.karavan.util.PathUtils;
 
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
@@ -115,6 +116,12 @@ public class ProjectFileResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public Response create(ProjectFile file) throws Exception {
+        try {
+            PathUtils.validateFileName(file.getName());
+            PathUtils.validateProjectId(file.getProjectId());
+        } catch (IllegalArgumentException e) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
+        }
         file.setLastUpdate(Instant.now().getEpochSecond() * 1000L);
         boolean projectFileExists = karavanCache.getProjectFile(file.getProjectId(), file.getName()) != null;
         if (projectFileExists) {
@@ -129,10 +136,16 @@ public class ProjectFileResource {
     @Authenticated
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public ProjectFile update(ProjectFile file) throws Exception {
+    public Response update(ProjectFile file) throws Exception {
+        try {
+            PathUtils.validateFileName(file.getName());
+            PathUtils.validateProjectId(file.getProjectId());
+        } catch (IllegalArgumentException e) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
+        }
         file.setLastUpdate(Instant.now().getEpochSecond() * 1000L);
         karavanCache.saveProjectFile(file, null, true);
-        return file;
+        return Response.ok(file).build();
     }
 
     @PATCH
@@ -145,6 +158,7 @@ public class ProjectFileResource {
                            JsonObject copy) throws Exception {
         try {
             var newName = copy.getString("newName");
+            PathUtils.validateFileName(newName);
             var fromFile = karavanCache.getProjectFile(projectId, filename);
             var toFile = karavanCache.getProjectFile(projectId, newName);
             if (toFile != null) {
@@ -161,6 +175,8 @@ public class ProjectFileResource {
                 karavanCache.deleteProjectFileCommited(projectId, filename);
                 return Response.ok(file).build();
             }
+        } catch (IllegalArgumentException e) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
         } catch (Exception e) {
             return Response.serverError().entity(e.getMessage()).build();
         }
@@ -188,6 +204,12 @@ public class ProjectFileResource {
         var toProjectId = copy.getString("toProjectId");
         var toFilename = copy.getString("toFilename");
         var overwrite = copy.getBoolean("overwrite", false);
+        try {
+            PathUtils.validateFileName(toFilename);
+            PathUtils.validateProjectId(toProjectId);
+        } catch (IllegalArgumentException e) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
+        }
         var tofile = karavanCache.getProjectFile(toProjectId, toFilename);
         if (overwrite || tofile == null) {
             var file = karavanCache.getProjectFile(fromProjectId, fromFilename);

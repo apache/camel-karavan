@@ -30,6 +30,7 @@ import org.apache.camel.karavan.cache.ProjectFolder;
 import org.apache.camel.karavan.docker.DockerComposeConverter;
 import org.apache.camel.karavan.model.DockerComposeService;
 import org.apache.camel.karavan.model.PathCommitDetails;
+import org.apache.camel.karavan.util.PathUtils;
 import org.apache.commons.text.StringSubstitutor;
 import org.apache.commons.text.lookup.StringLookup;
 import org.eclipse.microprofile.config.ConfigProvider;
@@ -196,8 +197,11 @@ public class CodeService {
 
     private void addFile(String temp, String fileName, String code) {
         try {
-            String path = temp + File.separator + fileName;
+            String path = PathUtils.resolveInside(Paths.get(temp), fileName).toString();
             vertx.fileSystem().writeFileBlocking(path, Buffer.buffer(code));
+        } catch (SecurityException e) {
+            LOGGER.error("Path traversal blocked for file " + fileName);
+            throw e;
         } catch (Exception e) {
             LOGGER.error(e.getMessage());
         }

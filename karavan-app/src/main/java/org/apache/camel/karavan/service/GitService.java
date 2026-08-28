@@ -28,6 +28,7 @@ import org.apache.camel.karavan.cache.ProjectFile;
 import org.apache.camel.karavan.cache.ProjectFolder;
 import org.apache.camel.karavan.model.GitConfig;
 import org.apache.camel.karavan.model.PathCommitDetails;
+import org.apache.camel.karavan.util.PathUtils;
 import org.eclipse.jgit.api.*;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.InvalidRemoteException;
@@ -298,12 +299,17 @@ public class GitService {
     }
 
     private void writeProjectToFolder(String folder, ProjectFolder projectFolder, List<ProjectFile> files) throws IOException {
-        Files.createDirectories(Paths.get(folder, projectFolder.getProjectId()));
+        Path projectDir = PathUtils.resolveInside(Paths.get(folder), projectFolder.getProjectId());
+        Files.createDirectories(projectDir);
         LOGGER.info("Write files for project " + projectFolder.getProjectId());
         files.forEach(file -> {
             try {
+                Path target = PathUtils.resolveInside(projectDir, file.getName());
                 LOGGER.info("Add file " + file.getName());
-                Files.writeString(Paths.get(folder, projectFolder.getProjectId(), file.getName()), file.getCode());
+                Files.writeString(target, file.getCode());
+            } catch (SecurityException e) {
+                LOGGER.error("Path traversal blocked for file " + file.getName() + " in project " + projectFolder.getProjectId());
+                throw e;
             } catch (IOException e) {
                 LOGGER.error("Error during file write", e);
             }
