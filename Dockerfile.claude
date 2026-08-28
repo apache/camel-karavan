@@ -1,29 +1,35 @@
-FROM registry.access.redhat.com/ubi9/openjdk-21-runtime:1.24
+FROM maven:3.9-eclipse-temurin-25
 
-# The UBI runtime image defaults to a non-root user. 
-# We switch to root to install dependencies and give Claude full execution rights in the sandbox.
-USER root
+RUN apt-get update && apt-get install -y \
+    nodejs \
+    npm \
+    git \
+    python3 \
+    python3-yaml \
+    jq \
+    gcc \
+    tar \
+    make \
+    curl \
+    # Clean up apt cache to keep the image small
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
-# 1. Update existing packages
-RUN microdnf update -y
-
-# 2. Install packages one by one to find the culprit
-RUN microdnf install -y nodejs
-RUN microdnf install -y npm
-RUN microdnf install -y git
-RUN microdnf install -y python3
-RUN microdnf install -y jq
-RUN microdnf install -y gcc
-RUN microdnf install -y tar
-RUN microdnf install -y make
-
-# 3. Clean up
-RUN microdnf clean all
+# Install the latest stable kubectl
+RUN curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl" \
+    && chmod +x kubectl \
+    && mv kubectl /usr/local/bin/
 
 # Install Claude Code globally
 RUN npm install -g @anthropic-ai/claude-code
 
-WORKDIR /karavan
+# Create the non-root 'default' user
+RUN useradd -m -s /bin/bash default
+
+WORKDIR /app
+
+# Ensure the new user has ownership of the working directory
+RUN chown -R default:default /app
 
 USER default
 
