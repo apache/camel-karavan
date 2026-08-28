@@ -20,7 +20,6 @@ import io.fabric8.kubernetes.api.model.*;
 import io.fabric8.kubernetes.api.model.apps.Deployment;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClientBuilder;
-import io.fabric8.kubernetes.client.dsl.ExecWatch;
 import io.fabric8.kubernetes.client.dsl.LogWatch;
 import io.fabric8.kubernetes.client.utils.Serialization;
 import io.quarkus.runtime.LaunchMode;
@@ -39,10 +38,11 @@ import org.apache.camel.karavan.service.ConfigService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
-import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.apache.camel.karavan.KaravanConstants.*;
 import static org.apache.camel.karavan.service.CodeService.CAMEL_OBSERVABILITY_PORT;
@@ -52,6 +52,10 @@ import static org.apache.camel.karavan.service.CodeService.CAMEL_OBSERVABILITY_P
 public class KubernetesService {
 
     private static final Logger LOGGER = Logger.getLogger(KubernetesService.class.getName());
+
+    // Kinds accepted in the user editable kubernetes.yaml resource file of a project.
+    // Anything else (Pod, DaemonSet, ClusterRoleBinding, ...) is rejected before reaching the API server.
+    public static final String DEFAULT_ALLOWED_DEPLOYMENT_KINDS = "Deployment,Service,ConfigMap,Secret";
 
     public static final Map<String, Quantity> DEFAULT_CONTAINER_RESOURCES = Map.of(
             "requests.memory", new Quantity("256Mi"),
@@ -96,6 +100,15 @@ public class KubernetesService {
 
     @ConfigProperty(name = "karavan.openshift")
     Optional<Boolean> isOpenShift;
+
+    // Extend only together with the matching Kubernetes RBAC permissions, e.g. "Route" on OpenShift
+    @ConfigProperty(name = "karavan.deployment.allowed-kinds", defaultValue = DEFAULT_ALLOWED_DEPLOYMENT_KINDS)
+    String allowedDeploymentKinds;
+
+    private Set<String> getAllowedDeploymentKinds() {
+        return Arrays.stream(allowedDeploymentKinds.split(","))
+                .map(String::trim).filter(s -> !s.isEmpty()).collect(Collectors.toSet());
+    }
 
     public void runBuildProject(String projectId, String podFragment, Map<String, String> envVars) {
         try (KubernetesClient client = kubernetesClient()) {
@@ -247,19 +260,103 @@ public class KubernetesService {
     }
 
     public void startDeployment(String resources, Map<String, String> labels) {
+        KubernetesList list;
+        try {
+            list = Serialization.unmarshal(resources, KubernetesList.class);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Invalid Kubernetes resources: " + e.getMessage());
+        }
+        if (list == null || list.getItems() == null || list.getItems().isEmpty()) {
+            throw new IllegalArgumentException("No Kubernetes resources to apply");
+        }
+        // The resource file is user editable, so it can not be trusted: only the resource kinds
+        // an integration is made of are accepted, and pod specs must not ask for host level access.
+        Set<String> allowedKinds = getAllowedDeploymentKinds();
+        list.getItems().forEach(item -> validateDeploymentResource(item, allowedKinds));
         try (KubernetesClient client = kubernetesClient()) {
-            KubernetesList list = Serialization.unmarshal(resources, KubernetesList.class);
             list.getItems().forEach(item -> {
-                if (labels != null ) {
-                    item.getMetadata().getLabels().putAll(labels);
-                    if (item instanceof Deployment deployment) {
-                        deployment.getSpec().getTemplate().getMetadata().getLabels().putAll(labels);
+                if (labels != null) {
+                    putLabels(item.getMetadata(), labels);
+                    if (item instanceof Deployment deployment && deployment.getSpec() != null && deployment.getSpec().getTemplate() != null) {
+                        var template = deployment.getSpec().getTemplate();
+                        if (template.getMetadata() == null) {
+                            template.setMetadata(new ObjectMeta());
+                        }
+                        putLabels(template.getMetadata(), labels);
                     }
                 }
+                // Pin the namespace: a resource must never be applied outside of Karavan's namespace
+                item.getMetadata().setNamespace(getNamespace());
                 client.resource(item).inNamespace(getNamespace()).serverSideApply();
             });
         } catch (Exception ex) {
             LOGGER.error("Failed to apply Kubernetes resources", ex);
+        }
+    }
+
+    private static void putLabels(ObjectMeta meta, Map<String, String> labels) {
+        if (meta.getLabels() == null) {
+            meta.setLabels(new HashMap<>());
+        }
+        meta.getLabels().putAll(labels);
+    }
+
+    static void validateDeploymentResource(HasMetadata item, Set<String> allowedKinds) {
+        String kind = item.getKind();
+        if (!allowedKinds.contains(kind)) {
+            throw new IllegalArgumentException("Resource kind is not allowed: " + kind
+                    + ". Allowed kinds: " + String.join(", ", allowedKinds));
+        }
+        if (item.getMetadata() == null || item.getMetadata().getName() == null) {
+            throw new IllegalArgumentException("Resource of kind " + kind + " has no metadata.name");
+        }
+        if (item instanceof Deployment deployment && deployment.getSpec() != null && deployment.getSpec().getTemplate() != null) {
+            validatePodSpec(deployment.getSpec().getTemplate().getSpec());
+        }
+    }
+
+    private static void validatePodSpec(PodSpec spec) {
+        if (spec == null) {
+            return;
+        }
+        if (Boolean.TRUE.equals(spec.getHostNetwork())) {
+            throw new IllegalArgumentException("hostNetwork is not allowed");
+        }
+        if (Boolean.TRUE.equals(spec.getHostPID())) {
+            throw new IllegalArgumentException("hostPID is not allowed");
+        }
+        if (Boolean.TRUE.equals(spec.getHostIPC())) {
+            throw new IllegalArgumentException("hostIPC is not allowed");
+        }
+        if (spec.getVolumes() != null) {
+            spec.getVolumes().stream().filter(v -> v.getHostPath() != null).findFirst().ifPresent(v -> {
+                throw new IllegalArgumentException("hostPath volume is not allowed: " + v.getName());
+            });
+        }
+        Stream.concat(
+                spec.getContainers() != null ? spec.getContainers().stream() : Stream.empty(),
+                spec.getInitContainers() != null ? spec.getInitContainers().stream() : Stream.empty()
+        ).forEach(KubernetesService::validateContainer);
+    }
+
+    private static void validateContainer(Container container) {
+        SecurityContext securityContext = container.getSecurityContext();
+        if (securityContext != null) {
+            if (Boolean.TRUE.equals(securityContext.getPrivileged())) {
+                throw new IllegalArgumentException("privileged container is not allowed: " + container.getName());
+            }
+            if (Boolean.TRUE.equals(securityContext.getAllowPrivilegeEscalation())) {
+                throw new IllegalArgumentException("allowPrivilegeEscalation is not allowed: " + container.getName());
+            }
+            if (securityContext.getCapabilities() != null && securityContext.getCapabilities().getAdd() != null
+                    && !securityContext.getCapabilities().getAdd().isEmpty()) {
+                throw new IllegalArgumentException("adding Linux capabilities is not allowed: " + container.getName());
+            }
+        }
+        if (container.getPorts() != null) {
+            container.getPorts().stream().filter(p -> p.getHostPort() != null).findFirst().ifPresent(p -> {
+                throw new IllegalArgumentException("hostPort is not allowed: " + container.getName());
+            });
         }
     }
 
@@ -730,44 +827,5 @@ public class KubernetesService {
             LOGGER.error("Error getting Pod Events" + e.getMessage());
         }
         return list;
-    }
-
-    public void execCommandInDeployment(String deploymentName, String command) {
-        try (KubernetesClient client = kubernetesClient()) {
-            Deployment deployment = client.apps().deployments().inNamespace(getNamespace()).withName(deploymentName).get();
-
-            if (deployment != null && deployment.getSpec().getSelector() != null) {
-                Map<String, String> matchLabels = deployment.getSpec().getSelector().getMatchLabels();
-                List<Pod> pods = client.pods().inNamespace(getNamespace()).withLabels(matchLabels).list().getItems();
-
-                if (!pods.isEmpty()) {
-                    Pod pod = pods.getFirst();
-                    String podName = pod.getMetadata().getName();
-                    String containerName = pod.getSpec().getContainers().getFirst().getName();
-
-                    LOGGER.info("Executing command in pod " + podName + " (container: " + containerName + ")");
-
-                    try (ExecWatch watch = client.pods().inNamespace(getNamespace()).withName(podName)
-                            .inContainer(containerName)
-                            .writingOutput(OutputStream.nullOutputStream())
-                            .writingError(OutputStream.nullOutputStream())
-                            .exec("sh", "-c", command)) {
-
-                        // Block the thread until the command finishes (or times out after 30s)
-                        // This keeps the WebSocket open long enough for the command to run.
-                        watch.exitCode().get(30, TimeUnit.SECONDS);
-
-                    } catch (Exception e) {
-                        LOGGER.error("Exec failed or timed out: " + e.getMessage());
-                    }
-                } else {
-                    LOGGER.warn("No pods found for deployment: " + deploymentName);
-                }
-            } else {
-                LOGGER.warn("Deployment not found or has no selector: " + deploymentName);
-            }
-        } catch (Exception e) {
-            LOGGER.error("Error executing command in container for deployment " + deploymentName + ": " + e.getMessage(), e);
-        }
     }
 }

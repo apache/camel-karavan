@@ -96,7 +96,12 @@ public class InfrastructureResource {
         if (resources == null) {
             return Response.status(Response.Status.NOT_FOUND).entity("Resource file " + KUBERNETES_YAML_FILENAME + " not found").build();
         }
-        kubernetesService.startDeployment(resources.getCode(), Map.of(LABEL_TYPE, ContainerType.packaged.name()));
+        try {
+            kubernetesService.startDeployment(resources.getCode(), Map.of(LABEL_TYPE, ContainerType.packaged.name()));
+        } catch (IllegalArgumentException e) {
+            LOGGER.error("Rejected " + name + " of project " + projectId + ": " + e.getMessage());
+            return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
+        }
         return Response.ok().build();
     }
 

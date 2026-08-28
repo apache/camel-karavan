@@ -4,27 +4,52 @@ kind: "Role"
 metadata:
   name: "karavan"
 rules:
+# Karavan secret/configmap management + configuration of deployed integrations
 - apiGroups: [""]
-  resources: ["secrets", "configmaps", "serviceaccounts"]
-  verbs: ["*"]
+  resources: ["secrets", "configmaps"]
+  verbs: ["get", "list", "create", "update", "patch", "delete"]
+# Read-only: resolving the ServiceAccount referenced by generated pod specs
 - apiGroups: [""]
-  resources: ["persistentvolumes", "persistentvolumeclaims"]
-  verbs: ["*"]
+  resources: ["serviceaccounts"]
+  verbs: ["get", "list"]
+# Maven cache volume for devmode pods (karavan.devmode.createm2)
 - apiGroups: [""]
-  resources: ["pods", "services", "replicationcontrollers"]
-  verbs: ["*"]
-- apiGroups: ["route.openshift.io"]
-  resources: ["routes"]
-  verbs:  ["*"]
+  resources: ["persistentvolumeclaims"]
+  verbs: ["get", "create", "patch", "delete"]
+# devmode and builder pods + pod status informer
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["get", "list", "watch", "create", "patch", "delete"]
+# Streaming container logs to the UI
+- apiGroups: [""]
+  resources: ["pods/log"]
+  verbs: ["get"]
+# Services for devmode pods and deployed integrations + service status informer
+- apiGroups: [""]
+  resources: ["services"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+# Pod events shown in the UI
+- apiGroups: ["", "events.k8s.io"]
+  resources: ["events"]
+  verbs: ["get", "list", "watch"]
+# Deployed integrations, rollout restart + deployment status informer
 - apiGroups: ["apps"]
   resources: ["deployments"]
-  verbs: ["*"]
-- apiGroups: ["networking.k8s.io"]
-  resources: ["ingresses"]
-  verbs: ["*"]
-- apiGroups: ["image.openshift.io"]
-  resources: ["imagestreams/layers"]
-  verbs: ["update", "get"]
-- apiGroups: [""]
-  resources: ["pods/exec"]
-  verbs: ["create", "get"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+
+# --- OpenShift only -------------------------------------------------------
+# Uncomment when running on OpenShift and integrations are exposed through
+# Routes and/or images are pushed to the internal image registry.
+# - apiGroups: ["route.openshift.io"]
+#   resources: ["routes"]
+#   verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+# - apiGroups: ["image.openshift.io"]
+#   resources: ["imagestreams/layers"]
+#   verbs: ["get", "update"]
+
+# --- Optional -------------------------------------------------------------
+# Uncomment only if integrations are exposed through Ingress resources
+# (JKube creates them only when -Djkube.createExternalUrls=true).
+# - apiGroups: ["networking.k8s.io"]
+#   resources: ["ingresses"]
+#   verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
