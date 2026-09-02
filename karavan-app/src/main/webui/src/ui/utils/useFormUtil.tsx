@@ -233,7 +233,7 @@ export function useFormUtil(formContext: UseFormReturn<any>) {
                         </TextInputGroup>
                     )}
                 />
-                {getHelper((errors as any)[fieldName])}
+                {getHelper((errors as any)?.[fieldName]?.message)}
             </FormGroup>
         )
     }

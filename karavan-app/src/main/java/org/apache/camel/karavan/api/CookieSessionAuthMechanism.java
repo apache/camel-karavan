@@ -15,6 +15,7 @@ import org.apache.camel.karavan.cache.KaravanCache;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
+import java.time.Instant;
 import java.util.Set;
 
 /**
@@ -52,6 +53,13 @@ public class CookieSessionAuthMechanism implements HttpAuthenticationMechanism {
                 return Uni.createFrom().item(builder.build());
             }
 
+            // Expiry has to be enforced here, not only by the periodic SessionCleanupService sweep,
+            // otherwise an expired session stays usable until the next sweep runs.
+            if (session.getExpiredAt() == null || session.getExpiredAt().isBefore(Instant.now())) {
+                karavanCache.deleteAccessSession(session.getSessionId());
+                return Uni.createFrom().item(builder.build());
+            }
+
             var user = karavanCache.getUser(session.getUsername());
             if (user == null && karavanCache.getProject(session.getUsername().replace("-builder", "")) == null) {
                 return Uni.createFrom().item(builder.build());
@@ -62,7 +70,6 @@ public class CookieSessionAuthMechanism implements HttpAuthenticationMechanism {
             }
 
             builder.setPrincipal(session::getUsername);
-            builder.addAttribute("csrf", session.getCsrfToken());
             builder.setAnonymous(false);
             return Uni.createFrom().item(builder.build());
 

@@ -356,7 +356,7 @@ public class KaravanCache {
                     && Objects.equals(status.getEnv(), env);
         });
     }
-    
+
     public void deleteAllCamelStatuses() {
         camelStatuses.clear();
     }
@@ -455,13 +455,19 @@ public class KaravanCache {
     }
 
     public void deleteAccessSessionByUsername(String username) {
-        var entry = sessions.entrySet().stream().filter(e -> e.getValue().username.equals(username)).findFirst().orElse(null);
-        if (entry != null) {
-            var sessionId = entry.getKey();
+        // A user can hold several sessions (multiple browsers), and callers ask for the username to be
+        // left with none of them - dropping only the first match would leave the others usable.
+        var sessionIds = sessions.entrySet().stream()
+                .filter(e -> Objects.equals(e.getValue().username, username))
+                .map(Map.Entry::getKey)
+                .toList();
+        if (!sessionIds.isEmpty()) {
             deleteUserHeartBeat(username);
             deleteUserWorking(username);
-            sessions.remove(sessionId);
-            eventBus.send(PERSIST_SESSION, new CacheEvent(sessionId, DELETE, null));
+            sessionIds.forEach(sessionId -> {
+                sessions.remove(sessionId);
+                eventBus.send(PERSIST_SESSION, new CacheEvent(sessionId, DELETE, null));
+            });
         }
     }
 

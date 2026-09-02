@@ -21,8 +21,7 @@ import {AxiosResponse} from "axios";
 import {AccessPassword} from "@models/AccessModels";
 import {useFormUtil} from "@utils/useFormUtil";
 import {EventBus} from "@designer/utils/EventBus";
-import {AuthApi} from "@api/auth/AuthApi";
-
+import {AuthApi, setCurrentUser} from "@api/auth/AuthApi";
 
 export function ChangePassword() {
 
@@ -67,8 +66,12 @@ export function ChangePassword() {
     }
 
     function onSuccess() {
-        const message = `Password successfully updated`;
+        const message = `Password successfully updated. Please sign in again.`;
         EventBus.sendAlert("Success", message, "success");
+        // The backend drops every session of the user on a password change, so this browser is no
+        // longer authenticated. Reload once the alert has been read to land on the login page.
+        setCurrentUser(null);
+        setTimeout(() => window.location.reload(), 2000);
     }
 
     function arePasswordsEqual() {

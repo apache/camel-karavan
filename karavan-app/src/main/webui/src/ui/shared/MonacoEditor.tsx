@@ -211,12 +211,18 @@ export const MonacoDiffEditor: React.FC<MonacoDiffEditorProps> = (props) => {
 
     useEffect(() => {
         const model = originalModelRef.current;
-        if (model && original !== undefined && model.getValue() !== original) model.setValue(original);
+        const safeOriginal = original ?? '';
+        if (model && original !== undefined && model.getValue() !== safeOriginal) {
+            model.setValue(safeOriginal);
+        }
     }, [original]);
 
     useEffect(() => {
         const model = modifiedModelRef.current;
-        if (model && modified !== undefined && model.getValue() !== modified) model.setValue(modified);
+        const safeModified = modified ?? '';
+        if (model && modified !== undefined && model.getValue() !== safeModified) {
+            model.setValue(safeModified);
+        }
     }, [modified]);
 
     useEffect(() => {

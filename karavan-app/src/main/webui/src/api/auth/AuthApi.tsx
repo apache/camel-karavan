@@ -30,12 +30,13 @@ function isNoAuth(cfg: any) {
     const method = (cfg.method || "GET").toUpperCase();
     const url = new URL(cfg.url!, cfg.baseURL || window.location.origin);
     const path = url.pathname;
-    // Endpoints where we intentionally skip CSRF/auth headers
+    // Endpoints where we intentionally skip CSRF/auth headers.
+    // Logout is NOT one of them: it is state-changing, so it needs the CSRF header like any other
+    // unsafe request - otherwise another origin can force a logout.
     return (
         cfg.headers?.["X-Skip-Auth"] === "1" ||
         method === "OPTIONS" ||
         path.endsWith("/ui/auth/login") ||
-        path.endsWith("/ui/auth/logout") ||
         path.endsWith("/health") ||
         path.endsWith("/q/health")
     );
@@ -99,18 +100,11 @@ export class AuthApi {
     }
 
     static async logout() {
-        // Tell interceptors to skip CSRF on logout
         setCurrentUser(null);
         instance
-            .post(
-                "/ui/auth/logout",
-                {},
-                { withCredentials: true, headers: { "X-Skip-Auth": "1" } }
-            )
-            .then((res) => {
-                if (res.status === 204) {
-                    setCurrentUser(null);
-                }
+            .post("/ui/auth/logout", {}, { withCredentials: true })
+            .then(() => {
+                setCurrentUser(null);
             })
             .catch((err) => {
                 console.error(err);
@@ -123,7 +117,8 @@ export class AuthApi {
         instance
             .post("/ui/auth/password", password)
             .then((res) => {
-                if (res.status === 200 || res.status === 201) after(true, res);
+                // The endpoint answers 204 No Content on success
+                if (res.status >= 200 && res.status < 300) after(true, res);
                 else after(false, res);
             })
             .catch((err) => {

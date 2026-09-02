@@ -10,7 +10,6 @@ import org.apache.camel.karavan.cache.AccessUser;
 import org.apache.camel.karavan.cache.KaravanCache;
 import org.apache.camel.karavan.service.AuthService;
 import org.eclipse.microprofile.config.ConfigProvider;
-import org.jboss.logging.Logger;
 
 import java.util.Map;
 
@@ -20,7 +19,6 @@ import static org.apache.camel.karavan.service.AuthService.SESSION_MAX_AGE;
 @Produces(MediaType.APPLICATION_JSON)
 public class AuthResource extends AbstractApiResource {
 
-    private static final Logger LOGGER = Logger.getLogger(AuthResource.class.getName());
     private static final String SESSION_ID = "sessionId";
     private static final String CSRF = "csrf";
 
@@ -67,6 +65,7 @@ public class AuthResource extends AbstractApiResource {
                     .maxAge(SESSION_MAX_AGE)
                     .secure(true)
                     .httpOnly(true)
+                    .sameSite(NewCookie.SameSite.LAX) // Explicit: do not rely on the browser default
                     .build();
 
             // CSRF Token: Secure from interception, readable by JavaScript
@@ -76,6 +75,7 @@ public class AuthResource extends AbstractApiResource {
                     .maxAge(SESSION_MAX_AGE)
                     .secure(true)  // Protect against MitM attacks
                     .httpOnly(false) // Allow frontend JS to read and send as a header
+                    .sameSite(NewCookie.SameSite.LAX)
                     .build();
             return Response.ok(JsonObject.of("username", user.getUsername(), "roles", user.getRoles()))
                     .cookie(sidCookie).cookie(csrfCookie).build();
@@ -93,23 +93,23 @@ public class AuthResource extends AbstractApiResource {
             final var username = getIdentity().getString("username");
             final var currentPassword = body.getString("currentPassword");
             final var password = body.getString("password");
-            final AccessUser user = authService.login(username, currentPassword);
+            authService.login(username, currentPassword);
             authService.changePassword(username, password, false);
-            NewCookie sidCookie = new NewCookie.Builder(SESSION_ID).path("/").maxAge(0).secure(true).httpOnly(true).sameSite(NewCookie.SameSite.LAX).build();
-            NewCookie csrfCookie = new NewCookie.Builder(CSRF).path("/").maxAge(60).secure(false).sameSite(NewCookie.SameSite.LAX).build();
-            return Response.noContent().cookie(sidCookie).cookie(csrfCookie).build();
+            // Changing a password is usually a reaction to it being compromised, so every session
+            // opened with the old one has to die - clearing the cookies of this browser is not enough.
+            karavanCache.deleteAccessSessionByUsername(username);
+            return Response.noContent().cookie(clearedCookie(SESSION_ID, true)).cookie(clearedCookie(CSRF, false)).build();
         } catch (Exception e) {
             return Response.status(Response.Status.FORBIDDEN).entity(e.getMessage()).build();
         }
     }
 
-
     @POST
-    @PermitAll
+    @Authenticated
     @Path("/logout")
     public Response logout(@CookieParam(SESSION_ID) String sessionId) throws Exception {
-        NewCookie sidCookie = new NewCookie.Builder(SESSION_ID).path("/").maxAge(0).secure(true).httpOnly(true).sameSite(NewCookie.SameSite.LAX).build();
-        NewCookie csrfCookie = new NewCookie.Builder(CSRF).path("/").maxAge(60).secure(false).sameSite(NewCookie.SameSite.LAX).build();
+        NewCookie sidCookie = clearedCookie(SESSION_ID, true);
+        NewCookie csrfCookie = clearedCookie(CSRF, false);
         try {
             if (sessionId != null) {
                 karavanCache.deleteAccessSession(sessionId);
@@ -118,6 +118,21 @@ public class AuthResource extends AbstractApiResource {
         } catch (Exception e) {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).cookie(sidCookie).cookie(csrfCookie).build();
         }
+    }
+
+    /**
+     * Expires a cookie: an empty value with maxAge 0. The flags have to match the ones the cookie was
+     * set with, or the browser keeps the original cookie alongside the replacement.
+     */
+    private static NewCookie clearedCookie(String name, boolean httpOnly) {
+        return new NewCookie.Builder(name)
+                .value("")
+                .path("/")
+                .maxAge(0)
+                .secure(true)
+                .httpOnly(httpOnly)
+                .sameSite(NewCookie.SameSite.LAX)
+                .build();
     }
 
     @GET

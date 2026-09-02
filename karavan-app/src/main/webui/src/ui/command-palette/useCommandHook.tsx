@@ -10,7 +10,6 @@ import {ComponentApi} from "@core/api/ComponentApi";
 import {ProjectFunctionHook} from "@page-project/ProjectFunctionHook";
 import {useRouteDesignerHook} from "@designer/route/useRouteDesignerHook";
 import {useUIStore} from "@stores/useUIStore";
-import {useTemplatesStore} from "@stores/SettingsStore";
 
 export function useCommandHook() {
 
@@ -24,7 +23,6 @@ export function useCommandHook() {
     const isRouteTemplate = useCommandPaletteStore((s) => s.isRouteTemplate);
     const setElements = useCommandPaletteStore((s) => s.setElements);
     const setStoreFilter = useCommandPaletteStore((state) => state.setFilter);
-    const filter = useCommandPaletteStore((state) => state.filter);
     const setFileName = useCommandPaletteStore((state) => state.setFileName);
     const selectedDsl = useCommandPaletteStore((s) => s.selectedDsl);
     const fileName = useCommandPaletteStore((state) => state.fileName);
@@ -33,7 +31,6 @@ export function useCommandHook() {
     const file = useFileStore((s) => s.file);
     const project = useProjectStore((s) => s.project);
     const tabIndex = useProjectStore(s => s.tabIndex);
-    const templateFiles = useTemplatesStore((s) => s.templateFiles);
     const pageId = useUIStore(s => s.pageId);
     const {createNewRouteFile} = ProjectFunctionHook();
     const {onAddNewRouteStep} = useRouteDesignerHook();
@@ -107,7 +104,7 @@ export function useCommandHook() {
     }
 
     const isFileSelected = file?.name !== undefined && project?.projectId !== undefined;
-    const isFileCamel = isFileSelected && file?.name.endsWith(KARAVAN_DOT_EXTENSION.CAMEL_YAML);
+    const isFileCamel = isFileSelected && (file?.name.endsWith(KARAVAN_DOT_EXTENSION.CAMEL_YAML) || file?.name.endsWith(KARAVAN_DOT_EXTENSION.KAMELET_YAML));
     const isFileGroovy = isFileSelected && file?.name.endsWith(KARAVAN_DOT_EXTENSION.GROOVY);
     const isApplicationProperties = isFileSelected && file?.name === KARAVAN_FILENAME.APP_PROPERTIES;
     const isFileMarkdown = isFileSelected && file?.name.endsWith(MARKDOWN_EXTENSION);
