@@ -12,7 +12,6 @@ import {ComplexityApi} from "@api/ComplexityApi";
 import {ProjectType} from "@models/ProjectModels";
 import {ProjectsToolbar} from "../ProjectsToolbar";
 import ProjectsTableRow from "../table/ProjectsTableRow";
-import {CreateProjectModal} from "@page-project/files/CreateProjectModal";
 import {DeleteProjectModal} from "../DeleteProjectModal";
 
 export function ProjectsTab() {
@@ -114,7 +113,6 @@ export function ProjectsTab() {
     return (
         <div className="right-panel-card">
             {getProjectsTable()}
-            {["create", "copy"].includes(operation) && <CreateProjectModal/>}
             {["delete"].includes(operation) && <DeleteProjectModal/>}
         </div>
     )

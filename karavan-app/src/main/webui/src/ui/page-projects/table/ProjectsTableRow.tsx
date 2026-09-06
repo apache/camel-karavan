@@ -10,7 +10,7 @@ import {ROUTES} from "@compass/navigation/Routes";
 import {ProjectZipApi} from "../ProjectZipApi";
 import {ProjectStatusLabel} from "./ProjectStatusLabel";
 import {CamelIcon, OpenApiIcon} from "@designer/icons/KaravanIcons";
-import {CogIcon, CopyIcon, DownloadIcon, TimesCircleIcon} from "@patternfly/react-icons";
+import {CogIcon, DownloadIcon, TimesCircleIcon} from "@patternfly/react-icons";
 import {BUILD_IN_PROJECTS, Project, ProjectCommited} from "@models/ProjectModels";
 import {ComplexityProject} from "@models/ComplexityModels";
 import {PROJECT_WITH_NO_LABELS, useProjectStore} from "@stores/ProjectStore";
@@ -114,20 +114,6 @@ function ProjectsTableRow(props: Props) {
                                         onClick={e => {
                                     setProject(project, "delete");
                                 }}></Button>
-                            </Tooltip>
-                        </FlexItem>
-                    }
-                    {!isBuildIn &&
-                        <FlexItem>
-                            <Tooltip content={"Copy"} position={"bottom"}>
-                                <Button className="dev-action-button"
-                                        isDisabled={!isDev}
-                                        isInline={!isDev}
-                                        variant={"link"}
-                                        icon={<CopyIcon/>}
-                                        onClick={e => {
-                                            setProject(project, "copy");
-                                        }}></Button>
                             </Tooltip>
                         </FlexItem>
                     }

@@ -48,7 +48,7 @@ import {CodeUtils} from "@utils/CodeUtils";
 import {FieldSelectScrollable} from "@shared/ui/FieldSelectScrollable";
 
 
-export function CreateProjectModal() {
+export function CreateKameletModal() {
 
     const [project] = useProjectStore((s) => [s.project], shallow);
     const [operation, setFile, designerTab] = useFileStore((s) => [s.operation, s.setFile, s.designerTab], shallow);
@@ -155,7 +155,7 @@ export function CreateProjectModal() {
                     </FormGroup>}
                     {getTextFieldSuffix('name', 'Name', getFileSuffix(), {
                         regex: v => isValidFileName(v) || 'Only characters, numbers and dashes allowed',
-                        length: v => v.length > 3 || 'File name should be longer that 3 characters',
+                        length: v => (v?.length > 3) || 'File name should be longer that 3 characters',
                         name: v => !RESERVED_WORDS.includes(v) || "Reserved word",
                     })}
                     {isKamelet &&

@@ -18,7 +18,6 @@ import {shallow} from "zustand/shallow";
 import {UploadFileModal} from "../files/UploadFileModal";
 import {DeleteFileModal} from "../files/DeleteFileModal";
 import {CreateFileModal} from "../files/CreateFileModal";
-import {CreateProjectModal} from "../files/CreateProjectModal";
 import {KaravanApi} from "@api/KaravanApi";
 import {ModalConfirmation} from "@shared/ui/ModalConfirmation";
 import {EventBus} from "@designer/utils/EventBus";
@@ -30,6 +29,7 @@ import {download, getIcon, sortFiles} from "../files/FilesTabUtils";
 import {ProjectService} from "@services/ProjectService";
 import {LANDSCAPE_TEMPLATE_FILENAME_PREFIX} from "@core/contants";
 import timeAgo from "@shared/timeAgo";
+import {CreateKameletModal} from "@page-project/files/CreateKameletModal";
 
 interface FilesSubTabProps {
     sortFiles?: (files: ProjectFile[]) => ProjectFile[]
@@ -339,7 +339,7 @@ export function FilesSubTab(props: FilesSubTabProps) {
             <DeleteFileModal/>
             {showCopy && <FileCopyForEnvModal show={showCopy} environments={missingEnvs} close={() => setShowCopy(false)}/>}
             {!isKameletsProject() && <CreateFileModal/>}
-            {isKameletsProject() && <CreateProjectModal/>}
+            {isKameletsProject() && <CreateKameletModal/>}
             {showRename &&
                 <RenameFileModal
                     show={showRename}
