@@ -3,16 +3,22 @@
 | | |
 | --- | --- |
 | **Project** | Apache Camel Karavan |
-| **Version / commit** | 4.22.0 — `51247d48ba95b7d3461597845d7135cf95e27e5f` |
-| **Date** | 2026-08-28 |
-| **Status** | **DRAFT — not yet reviewed by maintainers.** Produced from public artifacts only. |
-| **Author** | Drafted with the ASF Security `threat-model-producer` rubric. |
+| **Version / commit** | 4.22.0 plus post-release hardening on `main` — `677a293a` |
+| **Date** | 2026-09-08 |
+| **Status** | **Maintainer-reviewed.** Waves 1–3 answered by @mgubaidullin on 2026-09-01 (apache/camel-karavan#1642). Two questions on document ownership remain open (§4.14). |
+| **Author** | Drafted with the ASF Security `threat-model-producer` rubric; ratified by the Karavan maintainers. |
 
 ## Version binding
 
 This model is versioned alongside the project and should be tagged with releases. A
 report filed against Karavan version *N* is triaged against the model as it stood at
 *N*, not against HEAD.
+
+**This revision is bound to `main` after 4.22.0, not to the 4.22.0 release itself.**
+Three controls described here — CSRF validation (§4.8 property 13), project-file name
+validation (property 14), and Kubernetes resource validation (§4.5a, §4.9) — landed in
+`d211d71f` and `5e425249` *after* the 4.22.0 tag. A report filed against 4.22.0 or
+earlier is triaged against a model in which those three do not exist.
 
 ## Reporting cross-reference
 
@@ -28,16 +34,15 @@ Every non-trivial claim carries one of three tags:
 | Tag | Meaning |
 | --- | --- |
 | *(documented)* | Stated in the project's own artifacts — source, config, install docs, or the Apache Camel security model. Cited. |
-| *(maintainer)* | Stated by a Karavan maintainer in response to this process. |
+| *(maintainer)* | Stated by a Karavan maintainer in response to this process. Dated. |
 | *(inferred)* | Reasoned from code structure or the absence of a feature. Not yet confirmed; has a matching question in §4.14. |
 
-## Draft confidence
+## Confidence
 
-**53 documented / 0 maintainer / 28 inferred.** No claim in this draft has yet been
-ratified by a maintainer. The *(inferred)* claims concentrate in §4.5 (negative
-side-effect claims), §4.7 (adversary model), and §4.9 (disclaimed properties) — the
-three areas that are almost never written down and therefore matter most to confirm.
-Treat §4.14 wave 1 as blocking for publication.
+**57 documented / 40 maintainer / 0 inferred.** Every hypothesis in the first draft has
+been confirmed, corrected, or superseded by a maintainer answer; nothing in the body is
+unratified. The two questions still open in §4.14 concern who owns this document and how
+it is revised — neither affects a claim made here.
 
 ## What Karavan is
 
@@ -56,7 +61,7 @@ that drives either the host Docker daemon or the Kubernetes API on the user's be
 
 Karavan is designed to be run by a team as **an internal developer platform on a
 trusted network** — the same posture as a CI server or an internal PaaS console.
-*(inferred — §4.14 Q1)* It is not a multi-tenant SaaS product, and it is not an
+*(maintainer, 2026-09 — §4.14 Q1)* It is not a multi-tenant SaaS product, and it is not an
 appliance intended to face the public internet.
 
 ### Caller roles
@@ -69,7 +74,7 @@ onto the vocabulary already established by the Apache Camel security model
 | --- | --- | --- |
 | **Operator / deployer** | Fully trusted | Installs Karavan, sets `platform.auth`, supplies Git and registry credentials, mounts `docker.sock` or binds the Kubernetes `Role`. Equivalent to the Camel model's "deployment operator". |
 | **Authenticated Karavan user** | **Fully trusted** | Any account with any of `platform-user` / `platform-developer` / `platform-admin`. Equivalent to the Camel model's "route author", which that model declares fully trusted and able to execute arbitrary code by design. |
-| **Service-account token holder** | **Fully trusted** | A `platform-service-account` identity created from `/ui/access/tokens`. Functionally equivalent to an authenticated user for everything except the `/ui/access` administration surface. *(inferred — §4.14 Q4)* |
+| **Service-account token holder** | **Fully trusted** | A `platform-service-account` identity created from `/ui/access/tokens`. Functionally equivalent to an authenticated user for everything except the `/ui/access` administration surface. *(maintainer, 2026-09 — §4.14 Q4)* |
 | **Unauthenticated network peer** | **Untrusted — the primary adversary** | Anyone who can reach the Karavan HTTP port but holds no valid session or token. |
 
 The critical consequence: **the trust boundary is authentication, and nothing after
@@ -108,7 +113,7 @@ question — see §4.14 Q10.
 **Uses Karavan does not aim to support:**
 
 - **Multi-tenancy.** Karavan is not a tenancy boundary. All projects live in one Git
-  repository, one database, and one Docker network or Kubernetes namespace. *(inferred
+  repository, one database, and one Docker network or Kubernetes namespace. *(maintainer, 2026-09
   — §4.14 Q2)*
 - **Internet-facing deployment.** Nothing in the reference deployment terminates TLS,
   rate-limits, or fronts the API with a WAF. *(documented — `docs/install/karavan-helm/values.yaml`
@@ -132,12 +137,12 @@ question — see §4.14 Q10.
   surfaces".)* A header-injection or deserialization issue in a Camel component is a
   Camel report, not a Karavan report.
 - **Compromise of the Git repository or image registry.** Both are trusted inputs; see
-  §4.6. *(inferred — §4.14 Q3)*
+  §4.6. *(maintainer, 2026-09 — §4.14 Q3)*
 - **Denial of service through resource exhaustion.** Consistent with the Camel model,
   which places DoS out of scope. Karavan places no quota on how many devmode or build
-  containers a user may start. *(inferred — §4.14 Q7)*
+  containers a user may start. *(maintainer, 2026-09 — §4.14 Q7)*
 - **Transitive third-party CVEs**, absent a demonstrated path from an in-scope adversary
-  to a Karavan-claimed property. *(inferred — §4.14 Q3)*
+  to a Karavan-claimed property. *(maintainer, 2026-09 — §4.14 Q3)*
 
 **Code that ships but is not covered:**
 
@@ -209,7 +214,7 @@ Apply these before anything else when triaging a tool or AI finding:
   traffic* — not the route author — affect the container. Everything the route author
   controls is by design.
 - A finding in `karavan-vscode` is in model **only if** it is triggered by opening a
-  workspace, not by the developer's own explicit command invocation. *(inferred — §4.14 Q10)*
+  workspace, not by the developer's own explicit command invocation. *(maintainer, 2026-09 — §4.14 Q10)*
 
 ---
 
@@ -220,7 +225,7 @@ Apply these before anything else when triaging a tool or AI finding:
 - **Persistence.** A PostgreSQL instance, reachable and trusted. Flyway migrates the
   schema at startup. *(documented — `application.properties`.)* The database is
   assumed to be on a private network; Karavan does not encrypt its own rows.
-  *(inferred — §4.14 Q5)*
+  *(maintainer, 2026-09 — §4.14 Q5)*
 - **Container platform.** Exactly one of: a Docker daemon reachable at
   `/var/run/docker.sock`, or a Kubernetes API server with the `karavan` service account
   bound to the `karavan` `Role`. Karavan selects the mode at runtime.
@@ -232,26 +237,29 @@ Apply these before anything else when triaging a tool or AI finding:
   itself; the reference Helm chart offers an optional ingress TLS block that defaults
   off. *(documented — `docs/install/karavan-helm/templates/ingress.yaml`, `values.yaml`.)*
 - **Clock.** Session and API-token expiry are wall-clock comparisons against
-  `Instant.now()`. A backwards clock jump extends credential lifetime. *(inferred —
+  `Instant.now()`. A backwards clock jump extends credential lifetime. *(maintainer, 2026-09 —
   §4.14 Q5)*
 - **Concurrency.** The API is stateless per request; shared state lives in
   `KaravanCache` backed by PostgreSQL. No claim is made about behaviour under concurrent
-  writes to the same project file — last write wins. *(inferred — §4.14 Q5)*
+  writes to the same project file — last write wins. *(maintainer, 2026-09 — §4.14 Q5)*
 
 ### What Karavan does *not* do to its host
 
-These are **negative claims**, almost never written down anywhere, and therefore the
-highest-priority confirmation targets in §4.14 (Q5).
+These are **negative claims**, almost never written down anywhere. The maintainers have
+confirmed each is accurate today but have **not** committed to them as invariants — "that
+is just how it is today and we do not have any plans to change that". Treat them as an
+accurate description of the current release rather than a promise a future one will keep,
+and re-verify them whenever §4.12 is triggered. *(maintainer, 2026-09 — §4.14 Q5)*
 
 - Does **not** install signal handlers or otherwise mutate process-global state beyond
-  what Quarkus itself does. *(inferred — §4.14 Q5)*
+  what Quarkus itself does. *(maintainer, 2026-09 — §4.14 Q5)*
 - Does **not** spawn child processes on the Karavan host. All execution is delegated to
   the container platform; there is no `Runtime.exec` / `ProcessBuilder` in
-  `karavan-app`. *(inferred — §4.14 Q5; verified by absence in the source tree)*
+  `karavan-app`. *(maintainer, 2026-09 — §4.14 Q5; verified by absence in the source tree)*
 - Does **not** read arbitrary host filesystem paths. It reads only its own classpath
   resources and the two operator-configured SSH paths (`karavan.private-key-path`,
-  `karavan.known-hosts-path`), plus Vert.x temp directories for Git clones. *(inferred — §4.14 Q5)*
-- Does **not** listen on any port other than the configured HTTP port. *(inferred — §4.14 Q5)*
+  `karavan.known-hosts-path`), plus Vert.x temp directories for Git clones. *(maintainer, 2026-09 — §4.14 Q5)*
+- Does **not** listen on any port other than the configured HTTP port. *(maintainer, 2026-09 — §4.14 Q5)*
 - **Does** read environment variables and MicroProfile Config values, and **exposes both
   to authenticated callers** via `/ui/diagnostics/*` — see §4.9. *(documented —
   `DiagnosticResource`)*
@@ -267,15 +275,16 @@ These knobs change which properties in §4.8 hold.
 
 | Knob | Default | Effect on the model | Maintainer stance |
 | --- | --- | --- | --- |
-| `platform.auth` | `session` | `session` uses Karavan's own bcrypt user store and cookie sessions. `oidc` delegates to Keycloak and takes roles from the access token. *(documented — `application.properties`, `CookieSessionAuthMechanism`)* | **Unresolved — §4.14 Q1** |
-| `quarkus.oidc.tenant-enabled` | `false` | **Must be flipped to `true` when `platform.auth=oidc`.** The property file says so in a comment. If `platform.auth=oidc` is set without it, `CookieSessionAuthMechanism` returns null and OIDC is disabled — the resulting posture is undefined. *(documented — `application.properties` comment: "Important! Set `quarkus.oidc.tenant-enabled=true` for `platform.auth=oidc`")* | **Unresolved — §4.14 Q6** |
-| `platform.password` | `K@r@v@n422` | Seeds the `admin` and `developer` accounts on first start. **This is the insecure-default case.** The install docs link directly to the line in `application.properties` that holds it, and do not instruct the operator to change it. *(documented — `AuthService.loadDefaults`, `docs/WEB_DOCKER.md`, `docs/WEB_KUBERNETES.md`)* | **Unresolved — §4.14 Q1. This ruling decides whether "default admin credentials" is `VALID` or `OUT-OF-MODEL: non-default-build`.** |
-| `quarkus.security.jaxrs.deny-unannotated-endpoints` | `true` | Deny-by-default on the JAX-RS surface: an endpoint with no security annotation is refused rather than exposed. Flipping it to `false` voids the §4.8 authorization property wholesale. *(documented — `application.properties`)* | **Unresolved — §4.14 Q8** |
-| `quarkus.http.auth.permission.public.paths` | `/public/*,/static/*,/robots.txt,/favicon.ico`, GET only | The unauthenticated surface. Widening it moves the §4.4 boundary. *(documented)* | **Unresolved — §4.14 Q8** |
-| `quarkus.kubernetes-client.trust-certs` | `true` | Disables TLS certificate verification against the Kubernetes API server. Suits minikube; means Karavan will not detect a MitM on the API-server connection. *(documented — `application.properties`)* | **Unresolved — §4.14 Q6** |
-| `ingress.tls` (Helm) | `false` | Session cookies are marked `secure`, so with TLS off the browser will not send them — login effectively requires TLS or a plaintext-localhost origin. *(documented — `values.yaml`, `AuthResource`)* | **Unresolved — §4.14 Q6** |
-| `karavan.devmode.createm2` | `false` | When true, adds a named Docker volume per project for the Maven repository. Cross-project cache sharing implications. *(documented — `DockerForKaravan`)* | **Unresolved** |
-| `configuration/build.sh` | ships with `-Djib.allowInsecureRegistries=true` | Permits pushing built images to a registry over plaintext HTTP. Suits the bundled `registry:2`. *(documented — `karavan-app/src/main/resources/configuration/docker/build.sh`)* | **Unresolved — §4.14 Q6** |
+| `platform.auth` | `session` | `session` uses Karavan's own bcrypt user store and cookie sessions. `oidc` delegates to Keycloak and takes roles from the access token. *(documented — `application.properties`, `CookieSessionAuthMechanism`)* | Both are supported. *(maintainer, 2026-09)* |
+| `quarkus.oidc.tenant-enabled` | `false` | **Must be flipped to `true` when `platform.auth=oidc`.** The property file says so in a comment. If `platform.auth=oidc` is set without it, `CookieSessionAuthMechanism` returns null and OIDC is disabled — the resulting posture is undefined. *(documented — `application.properties` comment: "Important! Set `quarkus.oidc.tenant-enabled=true` for `platform.auth=oidc`")* | Operator responsibility; a deployment that sets one without the other is misconfigured, and reports against it are out of model. *(maintainer, 2026-09)* |
+| `platform.password` | `K@r@v@n422` | Seeds the `admin` and `developer` accounts on first start. Intended to be set at install time through Kubernetes secrets or Docker environment variables, and changed afterwards through the UI. *(documented — `AuthService.loadDefaults`, `docs/WEB_DOCKER.md`, `docs/WEB_KUBERNETES.md`)* | **A dev/install convenience, not a supported production posture.** A report against the shipped default is `OUT-OF-MODEL: non-default-build`. *(maintainer, 2026-09)* |
+| `quarkus.security.jaxrs.deny-unannotated-endpoints` | `true` | Deny-by-default on the JAX-RS surface: an endpoint with no security annotation is refused rather than exposed. Flipping it to `false` voids the §4.8 authorization property wholesale. *(documented — `application.properties`)* | Must stay `true`. *(maintainer, 2026-09)* |
+| `quarkus.http.auth.permission.public.paths` | `/public/*,/static/*,/robots.txt,/favicon.ico`, GET only | The unauthenticated surface. Widening it moves the §4.4 boundary. *(documented)* | The listed surface is deliberate, pre-login SSO disclosure included. *(maintainer, 2026-09)* |
+| `quarkus.kubernetes-client.trust-certs` | `true` | Disables TLS certificate verification against the Kubernetes API server. Suits minikube; means Karavan will not detect a MitM on the API-server connection. *(documented — `application.properties`)* | Operator responsibility. *(maintainer, 2026-09)* |
+| `ingress.tls` (Helm) | `false` | Session cookies are marked `secure`, so with TLS off the browser will not send them — login effectively requires TLS or a plaintext-localhost origin. *(documented — `values.yaml`, `AuthResource`)* | Operator responsibility. *(maintainer, 2026-09)* |
+| `karavan.devmode.createm2` | `false` | When true, adds a named Docker volume per project for the Maven repository. Cross-project cache sharing implications. *(documented — `DockerForKaravan`)* | Not security-relevant under §4.7 — all projects share one trust domain. *(maintainer, 2026-09)* |
+| `configuration/build.sh` | ships with `-Djib.allowInsecureRegistries=true` | Permits pushing built images to a registry over plaintext HTTP. Suits the bundled `registry:2`. *(documented — `karavan-app/src/main/resources/configuration/docker/build.sh`)* | Operator responsibility. *(maintainer, 2026-09)* |
+| `karavan.deployment.allowed-kinds` | `Deployment,Service,ConfigMap,Secret,Ingress` | Restricts which resource kinds a project's `kubernetes.yaml` may apply, and rejects pod specs asking for `hostNetwork`, `hostPID`, `hostIPC`, `hostPath` volumes, `hostPort`, `privileged`, `allowPrivilegeEscalation`, or added capabilities. Namespace is pinned to Karavan's own regardless of what the file says. Added post-4.22.0. *(documented — `KubernetesService.validateDeploymentResource`, `validatePodSpec`)* | Defence in depth, **not** a security boundary — see §4.9. Widen it only alongside the matching RBAC. *(maintainer, 2026-09)* |
 | `KARAVAN_FLYWAY_ACTIVE`, `KARAVAN_HIBERNATE_ORM_ACTIVE` | `true` | Disabling either leaves the schema unmanaged. Not security-relevant on its own. *(documented)* | n/a |
 
 ---
@@ -301,7 +310,7 @@ below means the §4.7 adversary — an **unauthenticated** peer.
 | Container image registry | images pulled for `packaged` containers | **no — trusted** | Registry access control |
 
 **Size, shape and rate:** Karavan documents no limits on project count, file size, number
-of concurrent devmode containers, or request rate. *(inferred — §4.14 Q7)*
+of concurrent devmode containers, or request rate. *(maintainer, 2026-09 — §4.14 Q7)*
 
 ---
 
@@ -309,7 +318,7 @@ of concurrent devmode containers, or request rate. *(inferred — §4.14 Q7)*
 
 **The adversary in scope is the unauthenticated network peer** who can reach Karavan's
 HTTP port. Their goal is to obtain an authenticated identity — because an authenticated
-identity is, by design, equivalent to code execution on the host. *(inferred — §4.14 Q2)*
+identity is, by design, equivalent to code execution on the host. *(maintainer, 2026-09 — §4.14 Q2)*
 
 Capabilities assumed:
 
@@ -327,7 +336,7 @@ Capabilities **not** assumed:
 - Write access to the Git repository or the image registry.
 - Ability to read the PostgreSQL database directly.
 - Precise timing side-channel measurement against bcrypt or token comparison.
-  *(inferred — §4.14 Q9)*
+  *(maintainer, 2026-09 — §4.14 Q9)*
 
 **Actors explicitly out of the model:**
 
@@ -341,7 +350,7 @@ Capabilities **not** assumed:
 - **The operator.** Misconfiguration is theirs; see §4.10.
 - **A co-tenant on the Docker host or in the Kubernetes namespace.** They already share
   Karavan's privilege domain.
-- **A compromised Git remote or image registry.** Both are trusted inputs. *(inferred —
+- **A compromised Git remote or image registry.** Both are trusted inputs. *(maintainer, 2026-09 —
   §4.14 Q3)*
 - **An authenticated user attacking another user's project.** There is no isolation to
   breach; see §4.9.
@@ -415,7 +424,10 @@ invalidates it in a `finally` block. *(documented.)*
 *Violation symptom:* the same builder session id usable a second time on that endpoint.
 *Severity:* **security-critical.**
 *Note:* the sibling route `GET /platform/internal/sources/{projectId}/{filename}` does
-**not** invalidate. Whether that is deliberate is §4.14 Q11.
+**not** invalidate its session, **by design** — the single-use guarantee is scoped to the
+whole-project route only, and a report that the per-file route reuses a session is
+`BY-DESIGN: property-disclaimed`. *(maintainer, 2026-09 — corrects the first draft, which
+proposed this was an oversight.)*
 
 **10. User, role, session and token administration is admin-only.** Every mutating
 endpoint under `/ui/access` carries `@RolesAllowed({ROLE_ADMIN})`, except token creation
@@ -439,6 +451,30 @@ through the API. *(documented — `GitService.setCredentials` reads only
 caller's choosing.
 *Severity:* **security-critical** (credential exfiltration).
 
+**13. Cookie-authenticated state-changing requests are CSRF-protected.** Every unsafe
+method (anything but `GET`/`HEAD`/`OPTIONS`/`TRACE`) carrying a `sessionId` cookie must
+also carry the session's token in an `X-CSRF-Token` header. This is the synchronizer-token
+check — the header is compared against the token held server-side on the session, not
+against the `csrf` cookie, so a token planted by an attacker controlling a sibling
+subdomain does not satisfy it. Comparison is constant-time. Logout is deliberately **not**
+exempt; only `ui/auth/login` is, having no session to bind to yet. *(documented —
+`CsrfFilter`, added post-4.22.0 in `d211d71f`.)*
+*Conditions:* `platform.auth=session` only. Bearer/API-key requests are exempt — a browser
+never attaches those on its own — as are requests whose session belongs to a builder or
+devmode container rather than a user.
+*Violation symptom:* a cross-origin page causes a state change using only the victim's
+ambient session cookie.
+*Severity:* **security-critical.**
+
+**14. Project ids and file names are validated before use as path segments.** Rejected if
+empty, containing `..`, `/`, `\`, or NUL, or not matching `^[a-zA-Z0-9_\-.]+$`. Enforced
+on file create, update, rename and copy. *(documented — `PathUtils.validateName`,
+`ProjectFileResource`; added post-4.22.0 in `5e425249`.)*
+*Conditions:* covers the `/ui/file` write paths.
+*Violation symptom:* a project id or file name that escapes its parent directory on disk
+or in the Git working copy.
+*Severity:* **security-critical.**
+
 ---
 
 ## 4.9 Security properties Karavan does *not* provide
@@ -461,11 +497,11 @@ defects; they are the shape of the product.
 - **API-token project scoping is recorded but not enforced.** `allowedProjectIds` is
   stored on the token and attached to the identity as an attribute, but no endpoint
   reads it. A token scoped to one project has the same reach as one scoped to `*`.
-  *(inferred — `grep` finds no consumer of the `allowedProjectIds` identity attribute;
-  §4.14 Q4.)*
+  *(maintainer, 2026-09 — `grep` finds no consumer of the `allowedProjectIds` identity attribute;
+  §4.14 Q4)*
 - **Username path parameters are not checked against the caller.**
   `/ui/notification/user/{username}` and `/ui/logwatch/{type}/{name}/{username}` take a
-  username from the path. *(inferred — §4.14 Q4.)*
+  username from the path. *(maintainer, 2026-09 — §4.14 Q4)*
 
 ### No confidentiality of platform configuration from authenticated users
 
@@ -492,6 +528,18 @@ already has these — but they must not be mistaken for protected surfaces.
 - `configuration/builder.pod.jkube.yaml` is likewise a user-editable pod spec applied to
   the cluster.
 
+Post-4.22.0, the **Kubernetes deployment path alone** gained a validation pass: a project's
+`kubernetes.yaml` may only carry the kinds in `karavan.deployment.allowed-kinds`, its pod
+specs may not request `hostNetwork`, `hostPID`, `hostIPC`, `hostPath`, `hostPort`,
+`privileged`, `allowPrivilegeEscalation` or added capabilities, and the namespace is pinned
+to Karavan's own. *(documented — `KubernetesService.validateDeploymentResource`.)*
+**This is defence in depth against a careless route author, not a security boundary**, and
+it must not be read as one: it does not cover the builder pod path
+(`KubernetesService.runBuildProject`), `configuration/build.sh`, or any part of the Docker
+path, where a compose file still controls image, bind mounts, ports and the shell command.
+A user who wants host access simply uses one of those instead. *(maintainer, 2026-09 —
+§4.14 Q2 confirms the trust model this sits inside.)*
+
 ### No transport or platform hardening
 
 - **Karavan does not terminate TLS.** The reference Helm chart defaults `ingress.tls` to
@@ -500,30 +548,29 @@ already has these — but they must not be mistaken for protected surfaces.
 - **No quota** on containers, builds, projects, or file sizes.
 - **No audit log of security-relevant events.** `ActivityFilter` publishes presence and
   project-touch events to an event bus for the UI's "who is working on what" display; it
-  is telemetry, not an audit trail. *(inferred — §4.14 Q12.)*
-- **No secret redaction in logs.** *(inferred — §4.14 Q12.)*
-- **No constant-time comparison** outside bcrypt's own verification. Token lookup is a
-  hash-map hit on a SHA-256 digest.
+  is telemetry, not an audit trail. *(maintainer, 2026-09 — §4.14 Q12)*
+- **No secret redaction in logs.** *(maintainer, 2026-09 — §4.14 Q12)*
+- **No constant-time comparison** outside bcrypt's own verification and the CSRF token
+  check. API-token lookup is a hash-map hit on a SHA-256 digest.
 
 ### False friends — things that look like security controls but are not
 
 | Looks like | Actually is |
 | --- | --- |
 | **`component-blocklist.txt` (344 entries)** | A **UI curation list**, not a security control. It is served to the designer to hide components, it lives in the user-editable `configuration` project *(documented — `webui/src/services/ProjectService.ts`)*, and nothing in the backend or in `karavan-devmode` refuses to *run* a blocklisted component. Do not treat it as an allow-list enforcement point. |
-| **The `csrf` cookie** | Karavan mints a CSRF token, stores it on the session, and returns it in a JS-readable cookie — but **no server-side handler was found that validates it** against an incoming header. *(inferred — §4.14 Q9.)* Its presence should not be read as evidence that CSRF is defended. |
 | **`platform-admin` / `platform-developer` / `platform-user`** | A three-tier RBAC scheme that tiers **only** `/ui/access`. It is not a functional privilege ladder; see above. |
 | **`Secure` / `HttpOnly` on the session cookie** | Cookie attributes, not TLS enforcement. Karavan will happily run without TLS; the browser then simply declines to send the cookie. |
-| **The `platform-service-account` role** | Never appears in any `@RolesAllowed`. It is a label, not a restriction; a token satisfies `@Authenticated` everywhere. *(inferred — §4.14 Q4.)* |
+| **The `platform-service-account` role** | Never appears in any `@RolesAllowed`. It is a label, not a restriction; a token satisfies `@Authenticated` everywhere. *(maintainer, 2026-09 — §4.14 Q4)* |
 | **SHA-256 hashing of API tokens** | Storage protection against database disclosure. It is a fast unsalted digest, appropriate here only because the token is 32 bytes of `SecureRandom` — it would be inadequate for anything low-entropy. |
-| **Git as "source of truth"** | An availability and history mechanism. It is not integrity verification: commits are not signed or verified, and whatever is in the repo is imported as trusted code. *(inferred — §4.14 Q3.)* |
+| **Git as "source of truth"** | An availability and history mechanism. It is not integrity verification: commits are not signed or verified, and whatever is in the repo is imported as trusted code. *(maintainer, 2026-09 — §4.14 Q3)* |
 
 ### Well-known attack classes Karavan does not defend against
 
-- **CSRF** against a logged-in operator's browser — see §4.14 Q9.
 - **Stored XSS** in the designer, if any project-file content is rendered as HTML. The
   designer's content is route-author input, so under the trust model this is
   self-inflicted; it becomes interesting only if it crosses between users, which — given
-  the absence of project isolation — it would. *(inferred — §4.14 Q9.)*
+  the absence of project isolation — it would. *(maintainer, 2026-09 — §4.14 Q9)*
+  (CSRF was on this list in the first draft. It is now defended — see §4.8 property 13.)
 - **Supply-chain substitution of `karavan.devmode.image`** — the devmode image tag is an
   operator-set config value and is pulled and run without digest pinning.
 - **SSRF via Camel components** inside a running route — Camel's model, not Karavan's.
@@ -535,9 +582,10 @@ already has these — but they must not be mistaken for protected surfaces.
 
 This is a contract, not a tutorial. For Karavan's model to hold, the operator must:
 
-1. **Change `platform.password` before first start**, or delete the seeded `admin` and
-   `developer` accounts immediately after. The install docs ship a known default and link
-   to it. *(inferred — §4.14 Q1)*
+1. **Set `platform.password` at install time** — through a Kubernetes secret or a Docker
+   environment variable — and change it afterwards through the UI. The shipped default is
+   an install convenience, not a supported production posture, so running on it is the
+   operator's own risk rather than a Karavan defect. *(maintainer, 2026-09 — §4.14 Q1)*
 2. **Put Karavan behind TLS.** Session cookies are `Secure`; without TLS, login does not
    work off `localhost` anyway. Set `ingress.tls: true` and `tlsSecretName` in the Helm
    values.
@@ -609,8 +657,9 @@ are **not** bugs given this model. Suitable for use verbatim as a suppression li
   `karavan.git.password`, `karavan.datasource.password`,
   `karavan.keycloak.backend.secret`. These are development defaults for a self-contained
   local stack, overridden by `KARAVAN_*` environment variables in every documented
-  deployment. **The one exception is `platform.password`**, whose default *is* the
-  documented first-login credential — that is §4.14 Q1 and is not settled.
+  deployment. `platform.password` is the same: an install-time convenience that operators
+  set via secret or environment variable and then change through the UI, so a report
+  against the shipped default is `OUT-OF-MODEL: non-default-build`. *(maintainer, 2026-09)*
 - **"Hardcoded credentials in `docs/install/karavan-helm/values.yaml` /
   `karavan-kubernetes/secret.yaml`"** — placeholder values in reference manifests. Out of
   scope per §4.3.
@@ -638,6 +687,16 @@ are **not** bugs given this model. Suitable for use verbatim as a suppression li
   in §4.9.
 - **"Unpinned container image `karavan.devmode.image`"** — an operator configuration
   value; §4.9.
+- **"Missing CSRF protection"** against a route that is safe (`GET`/`HEAD`/`OPTIONS`/
+  `TRACE`), token-authenticated, or `ui/auth/login` — all three are deliberately exempt
+  from `CsrfFilter`. §4.8 property 13.
+- **"Path traversal in project id / file name"** on the `/ui/file` write paths —
+  `PathUtils.validateName` rejects `..`, separators, NUL and anything outside
+  `^[a-zA-Z0-9_\-.]+$` before the value is used. §4.8 property 14.
+- **"Unrestricted Kubernetes resource application"** in `startDeployment` — kinds are
+  allow-listed and host-level pod options rejected. This is *not* claimed as a boundary
+  (§4.9), so a report that it is bypassable via the builder pod or the Docker path is
+  `OUT-OF-MODEL: adversary-not-in-scope`, not a control bypass.
 - **Third-party CVEs in transitive dependencies** with no demonstrated path from the §4.7
   adversary to a §4.8 property. §4.3.
 
@@ -655,7 +714,12 @@ Revise when any of these happens — not for internal refactors:
   `quarkus.http.auth.permission.public.paths` set is widened.
 - **`quarkus.security.jaxrs.deny-unannotated-endpoints` is changed**, or a new
   authentication mechanism is registered alongside the two in `api/`.
-- **CSRF validation is implemented**, or the `csrf` cookie is removed.
+- **The `CsrfFilter` exemption set changes** — a new exempt path, or unsafe methods no
+  longer requiring the token.
+- **`PathUtils` validation is relaxed**, or a new write path bypasses it.
+- **`karavan.deployment.allowed-kinds` is widened**, or the pod-spec restrictions in
+  `validatePodSpec` are relaxed — and note §4.9 does not treat these as a boundary, so
+  widening them is a posture change rather than a vulnerability.
 - **The default of a §4.5a knob changes** — above all `platform.password` and
   `platform.auth`.
 - **Karavan begins accepting input from a party other than an authenticated user or its
@@ -689,110 +753,25 @@ A report, tool finding, or AI analysis judged against this model receives exactl
 
 ## 4.14 Open questions for the maintainers
 
-Every question below states a **proposed answer**. Confirm, correct, or strike it. When
-a question is answered, the matching *(inferred)* tags in the body are promoted to
-*(maintainer)* and the question is deleted.
-
-### Wave 1 — scope and the insecure default (blocking)
-
-**Q1. The default admin password.** *Proposed:* `platform.password=K@r@v@n422` seeding
-`admin` and `developer` is a getting-started convenience, and operators are expected to
-override it; a report of "default credentials" is therefore `OUT-OF-MODEL:
-non-default-build`. **However**, `docs/WEB_DOCKER.md` and `docs/WEB_KUBERNETES.md`
-present it as *the* first-login credential and link straight to the source line, with no
-instruction to change it. Which is it — supported production posture (making such reports
-`VALID`), or dev-only (making them out of model, and making the docs a gap to close)?
-→ lands in §4.5a, §4.10, §4.13.
-
-**Q2. Is "any authenticated user is fully trusted" the intended model?** *Proposed:* yes.
-A Karavan account is the Camel security model's "route author", declared fully trusted
-there; Karavan therefore does not treat one user attacking another as a vulnerability,
-and the absence of per-project authorization is a scope decision rather than a gap.
-→ lands in §4.2, §4.7, §4.9.
-
-**Q3. Are the Git repository and the image registry trusted inputs?** *Proposed:* yes.
-Karavan imports whatever the repo holds as code, does not verify commit signatures, and
-pulls images by tag. A malicious repo or registry is out of the adversary model.
-→ lands in §4.3, §4.6, §4.7.
-
-**Q4. Is API-token project scoping meant to be enforced?** `allowedProjectIds` is
-persisted on the token, documented in `AccessToken` as "Scoped access limits (ABAC)", and
-attached to the identity — but no endpoint reads it, and `ROLE_SERVICE_ACCOUNT` appears in
-no `@RolesAllowed`. Likewise `/ui/notification/user/{username}` and
-`/ui/logwatch/.../{username}` take a username from the path without comparing it to the
-caller. *Proposed:* these are forward-looking scaffolding, not current guarantees, and
-§4.9 should say so plainly. → lands in §4.8 or §4.9.
-
-**Q5. The negative side-effect inventory.** *Proposed:* on its own host, `karavan-app`
-installs no signal handlers, spawns no child processes, reads no host filesystem paths
-beyond its classpath, the two configured SSH files, and Vert.x temp directories, and
-listens on no port but the configured HTTP one. Are all four deliberate guarantees, or
-merely true today? Also: is the PostgreSQL connection assumed to be on a trusted network,
-and is any behaviour claimed for concurrent edits to the same project file?
-→ lands in §4.5.
-
-### Wave 2 — configuration variants and resource limits
-
-**Q6. Which §4.5a defaults are supported production posture?** Specifically:
-`quarkus.kubernetes-client.trust-certs=true`; Helm `ingress.tls: false`;
-`-Djib.allowInsecureRegistries=true` in the shipped `build.sh`; and the requirement to
-set `quarkus.oidc.tenant-enabled=true` alongside `platform.auth=oidc`. *Proposed:* all
-four are local-development conveniences that operators are expected to change, and the
-fourth should be enforced at startup rather than left to a comment. → lands in §4.5a,
-§4.10.
-
-**Q7. Where is the line on resource consumption?** *Proposed:* consistent with the Camel
-security model, DoS through resource exhaustion is out of scope, and there is no cap on
-concurrent devmode containers, builds, projects, file sizes, or request rate. Is an
-unauthenticated request that causes unbounded allocation nonetheless a bug? → lands in
-§4.3, §4.8.
-
-**Q8. What is the intended unauthenticated surface, exactly?** *Proposed:* precisely
-`/ui/auth/type`, `/ui/auth/sso-config`, `/ui/auth/login`, `/ui/auth/logout`,
-`/public/readiness`, `/platform/internal/sources/**`, and the static SPA assets — nothing
-else, ever. Is disclosing the Keycloak URL, realm and client ID pre-authentication
-intended? → lands in §4.6, §4.8.
-
-### Wave 3 — browser-side threats and operational surface
-
-**Q9. Is the browser an adversary channel?** The `csrf` cookie is minted and stored on
-the session, but no server-side validation of it was found. *Proposed (a):* CSRF is in the
-model, the validation is simply missing, and a working CSRF proof-of-concept against a
-state-changing `/ui/*` endpoint is `VALID`. *Proposed (b):* the browser is not an adversary
-channel at all, the cookie is vestigial, and it should be removed so it stops reading as a
-control. Which? The same question decides whether stored XSS in the designer is `VALID` or
-`BY-DESIGN`, and whether timing side channels are in scope. → lands in §4.7, §4.9.
-
-**Q10. Is opening an untrusted workspace in the VS Code extension supported?**
-*Proposed:* no — the extension assumes the developer trusts the workspace they open, in
-line with VS Code's own Workspace Trust model, and crafted Camel YAML in a cloned repo is
-out of scope. → lands in §4.2.1, §4.4.
-
-**Q11. Is the non-invalidating `/platform/internal/sources/{projectId}/{filename}` route
-deliberate?** Its sibling invalidates the builder session in a `finally` block; this one
-does not. *Proposed:* an oversight rather than a design choice, and §4.8 property 9 should
-apply to both. → lands in §4.8.
-
-**Q12. Is there meant to be an audit trail?** *Proposed:* no. `ActivityFilter` is UI
-presence telemetry, not audit, and Karavan makes no claim about recording who deployed or
-deleted what, nor about redacting secrets from logs. If audit is intended, it belongs in
-§4.8. → lands in §4.9.
-
-### Wave 4 — document ownership
+Waves 1–3 were answered by @mgubaidullin on 2026-09-01 in apache/camel-karavan#1642 and
+are folded into the body above; the resolution log is Appendix B. Two questions remain,
+both about the document rather than about Karavan.
 
 **Q13. Where should this document live, and how does it relate to the Camel security
 model?** The Camel security model at `camel.apache.org/manual/security-model.html` scopes
 itself to `apache/camel` artifacts and notes that sibling subprojects have their own
-security surfaces; Karavan is not named. *Proposed:* this document becomes Karavan's own
-model, is linked from the Camel security page's subproject list, and inherits Camel's
-role vocabulary (route author / operator / external sender) without restating it.
-Karavan has no `SECURITY.md`; should one be added pointing at `security@apache.org` and
-at this file? → lands in §4.1.
+security surfaces; Karavan is not named. *Proposed:* this becomes Karavan's own model, is
+linked from the Camel security page's subproject list, and inherits Camel's role
+vocabulary without restating it. Karavan has no `SECURITY.md` — should one be added
+pointing at `security@apache.org` and at this file, and should Karavan be added to the ASF
+security site's `project-coordinates.json`? → lands in §4.1.
 
 **Q14. Who owns revisions, and does the model ship with releases?** *Proposed:* the
-Karavan committers own it; it is updated in the same PR as any change that hits §4.12's
-trigger list, and is tagged with each release so a report against 4.22.0 is triaged
-against the 4.22.0 model.
+Karavan committers own it; it is updated in the same PR as any change that trips a §4.12
+trigger, and is tagged with each release so a report against 4.22.0 is triaged against the
+4.22.0 model. This revision already spans two versions — it is bound to `main` after
+4.22.0, and three of its properties do not exist in the 4.22.0 release — which is exactly
+the drift the tagging policy is meant to prevent. → lands in §4.1, §4.12.
 
 ---
 
@@ -816,3 +795,31 @@ does not have to re-derive the roles.
 | Transitive third-party CVEs are out of scope | §4.3, §4.11a |
 | Non-default settings requiring explicit opt-in are out of scope | §4.5a, §4.13 `OUT-OF-MODEL: non-default-build` |
 | Hardening advice: explicit `prod` profile, vaults for secrets, TLS via SSLContextParameters, least privilege | §4.10 — Karavan's operator contract is the parallel list |
+
+---
+
+## Appendix B — resolution log
+
+Answers from @mgubaidullin, 2026-09-01, on apache/camel-karavan#1642. Kept so that a
+future reader can see which claims were ratified rather than assumed, and so that a
+reporter who disputes a disposition can be pointed at the ruling behind it.
+
+| # | Question | Outcome | Landed in |
+| --- | --- | --- | --- |
+| Q1 | Is the default `platform.password` a supported production posture? | **Confirmed as proposed** — install-time convenience, set via secret/env and changed through the UI. Reports against it are `OUT-OF-MODEL: non-default-build`. | §4.5a, §4.10, §4.11a |
+| Q2 | Is any authenticated user fully trusted? | **Confirmed** — yes. | §4.2, §4.7, §4.9 |
+| Q3 | Are the Git repository and image registry trusted inputs? | **Confirmed** — yes, fully trusted. | §4.3, §4.6, §4.7 |
+| Q4 | Is API-token project scoping meant to be enforced? | **Confirmed** — forward-looking scaffolding for future features, not a current guarantee. | §4.9 |
+| Q5 | Are the negative side-effect claims deliberate guarantees? | **Confirmed accurate, but not promised** — "that is just how it is today and we do not have any plans to change that". Recorded as description, not invariant. | §4.5 |
+| Q6 | Which §4.5a defaults are supported posture? | **Confirmed** — insecure defaults are operator responsibility; reports against them are out of model. | §4.5a |
+| Q7 | Where is the line on resource consumption? | **Confirmed** — DoS and resource exhaustion are out of model. | §4.3, §4.9 |
+| Q8 | What is the intended unauthenticated surface? | **Confirmed** — pre-login disclosure of Keycloak/SSO config is by design. | §4.5a, §4.6 |
+| Q9 | Is the browser an adversary channel, and is CSRF unvalidated? | **Superseded — fixed.** `CsrfFilter` (`d211d71f`) added synchronizer-token validation after 4.22.0. Promoted from a §4.9 false friend to §4.8 property 13. | §4.8, §4.9 |
+| Q10 | Is opening an untrusted workspace in the VS Code extension supported? | **Confirmed** — malicious workspaces/repos are out of model. | §4.2.1, §4.4 |
+| Q11 | Is the non-invalidating `/sources/{projectId}/{filename}` route an oversight? | **Corrected** — it is by design. The first draft's proposed answer was wrong. | §4.8 property 9 |
+| Q12 | Is there meant to be an audit trail? | **Confirmed** — no; `ActivityFilter` is telemetry, and the absence of audit is by design. | §4.9 |
+| Q13, Q14 | Document ownership and revision policy | **Open.** | §4.14 |
+
+Two changes to the code landed alongside the answers and are described in the body:
+`PathUtils` name validation (`5e425249`, §4.8 property 14) and the Kubernetes resource
+allow-list plus pod-spec restrictions (§4.5a, §4.9). Neither existed in 4.22.0.
