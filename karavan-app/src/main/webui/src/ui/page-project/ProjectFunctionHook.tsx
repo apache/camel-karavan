@@ -159,7 +159,8 @@ export function ProjectFunctionHook() {
                 const paramsUri = generateParamUri(dsl);
                 const fullUri = `${FILE_WORDS_SEPARATOR}${paramsUri}`
                 const name = toSpecialRouteId(`from${FILE_WORDS_SEPARATOR}${fullUri}`);
-                const fName = (fileName != undefined ? fileName : name) + KARAVAN_DOT_EXTENSION.CAMEL_YAML;
+                const extension = fileName?.endsWith(KARAVAN_DOT_EXTENSION.CAMEL_YAML) ? '' : KARAVAN_DOT_EXTENSION.CAMEL_YAML;
+                const fName = (fileName != undefined ? fileName : name) + extension;
                 const route = CamelUi.createRouteFromComponent(name, dsl.uri, dsl.properties, '');
                 const integration = Integration.createNew(fName);
                 let i;
