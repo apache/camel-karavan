@@ -62,9 +62,13 @@ public class InfrastructureResource {
     @Path("/deployment")
     @Authenticated
     public List<DeploymentStatus> getAllDeploymentStatuses() throws Exception {
-        return karavanCache.getDeploymentStatuses().stream()
-                .sorted(Comparator.comparing(DeploymentStatus::getProjectId))
-                .collect(Collectors.toList());
+        if (ConfigService.inKubernetes()) {
+            return karavanCache.getDeploymentStatuses().stream()
+                    .sorted(Comparator.comparing(DeploymentStatus::getProjectId))
+                    .collect(Collectors.toList());
+        } else {
+            return List.of();
+        }
     }
 
     @GET
@@ -72,9 +76,13 @@ public class InfrastructureResource {
     @Path("/deployment/{env}")
     @Authenticated
     public List<DeploymentStatus> getDeploymentStatusesByEnv(@PathParam("env") String env) throws Exception {
-        return karavanCache.getDeploymentStatuses(env).stream()
+        if (ConfigService.inKubernetes()) {
+            return karavanCache.getDeploymentStatuses(env).stream()
                 .sorted(Comparator.comparing(DeploymentStatus::getProjectId))
                 .collect(Collectors.toList());
+        } else {
+            return List.of();
+        }
     }
 
     @POST
@@ -96,6 +104,7 @@ public class InfrastructureResource {
         if (resources == null) {
             return Response.status(Response.Status.NOT_FOUND).entity("Resource file " + KUBERNETES_YAML_FILENAME + " not found").build();
         }
+        kubernetesService.startDeployment(resources.getCode(), Map.of(LABEL_TYPE, ContainerType.packaged.name()));
         try {
             kubernetesService.startDeployment(resources.getCode(), Map.of(LABEL_TYPE, ContainerType.packaged.name()));
         } catch (IllegalArgumentException e) {

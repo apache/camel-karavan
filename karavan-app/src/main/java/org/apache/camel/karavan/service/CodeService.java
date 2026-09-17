@@ -92,7 +92,7 @@ public class CodeService {
     KaravanCache karavanCache;
 
     @Inject
-    GitService gitService;
+    GitServiceAuth gitServiceAuth;
 
     @Inject
     Vertx vertx;
@@ -147,7 +147,7 @@ public class CodeService {
 
     public Map<String, String> getSshFiles() {
         Map<String, String> sshFiles = new HashMap<>(2);
-        Tuple2<String,String> sshFileNames = gitService.getSShFiles();
+        Tuple2<String,String> sshFileNames = gitServiceAuth.getSShFiles();
         if (sshFileNames.getItem1() != null) {
             sshFiles.put("id_rsa", getFileString(sshFileNames.getItem1()));
         }
@@ -239,7 +239,7 @@ public class CodeService {
     public Map<String, String> getBuildInProjectFiles(String projectId) {
         Map<String, String> result = new HashMap<>();
 
-        var path = "/" + projectId + (ConfigService.inKubernetes() ? KUBERNETES_FOLDER : DOCKER_FOLDER);
+        var path = getBuildInProjectPath(projectId);
 
         listResources(path).forEach(filename -> {
             if (!filename.startsWith(".")) {
@@ -254,8 +254,12 @@ public class CodeService {
     }
 
     public List<String> getBuildInProjectFileList(String projectId) {
-        var path = "/" + projectId  + (ConfigService.inKubernetes() ? KUBERNETES_FOLDER : DOCKER_FOLDER);
-        return listResources(path);
+        return listResources(getBuildInProjectPath(projectId));
+    }
+
+    private String getBuildInProjectPath(String projectId) {
+        var runtimeFolder = ConfigService.inKubernetes() ? KUBERNETES_FOLDER : DOCKER_FOLDER;
+        return "/" + projectId + runtimeFolder;
     }
 
     public String getResourceFile(String path) {

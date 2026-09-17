@@ -22,6 +22,8 @@ import org.apache.camel.karavan.cache.ContainerPort;
 import org.apache.camel.karavan.cache.ContainerType;
 import org.apache.camel.karavan.cache.PodContainerStatus;
 import org.apache.camel.karavan.model.DockerHealthCheckDefinition;
+import org.apache.camel.karavan.model.DockerResourceLimits;
+import org.jboss.logging.Logger;
 
 import java.text.DecimalFormat;
 import java.time.Duration;
@@ -35,34 +37,182 @@ import static org.apache.camel.karavan.KaravanConstants.*;
 
 public class DockerUtils {
 
+    private static final Logger LOGGER = Logger.getLogger(DockerUtils.class.getName());
+
     protected static final DecimalFormat formatCpu = new DecimalFormat("0.00");
     protected static final DecimalFormat formatMiB = new DecimalFormat("0.0");
     protected static final DecimalFormat formatGiB = new DecimalFormat("0.00");
     protected static final Map<String, Tuple2<Long, Long>> previousStats = new ConcurrentHashMap<>();
 
-    private static final Map<String, Long> UNIT_MULTIPLIERS = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);;
+    private static final Map<String, Long> UNIT_MULTIPLIERS = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
     static {
+        UNIT_MULTIPLIERS.put("", 1L);
         UNIT_MULTIPLIERS.put("b", 1L);
         UNIT_MULTIPLIERS.put("k", 1024L);
+        UNIT_MULTIPLIERS.put("kb", 1024L);
+        UNIT_MULTIPLIERS.put("kib", 1024L);
         UNIT_MULTIPLIERS.put("m", 1024L * 1024);
+        UNIT_MULTIPLIERS.put("mb", 1024L * 1024);
+        UNIT_MULTIPLIERS.put("mib", 1024L * 1024);
         UNIT_MULTIPLIERS.put("g", 1024L * 1024 * 1024);
-        // Add more units if needed
+        UNIT_MULTIPLIERS.put("gb", 1024L * 1024 * 1024);
+        UNIT_MULTIPLIERS.put("gib", 1024L * 1024 * 1024);
+        UNIT_MULTIPLIERS.put("t", 1024L * 1024 * 1024 * 1024);
+        UNIT_MULTIPLIERS.put("tb", 1024L * 1024 * 1024 * 1024);
+        UNIT_MULTIPLIERS.put("tib", 1024L * 1024 * 1024 * 1024);
     }
 
-    static Long parseMemory(String memory) {
+    private static final Pattern MEMORY_PATTERN = Pattern.compile("^(\\d+(?:\\.\\d+)?)\\s*([a-zA-Z]*)$");
 
-        if (memory != null && !memory.isEmpty()) {
-            memory = memory.trim();
-            String numericPart = memory.replaceAll("[^\\d.]", "");
-            double numericValue = Double.parseDouble(numericPart);
-            String unitPart = memory.replaceAll("[\\d.]", "").toLowerCase();
-            Long multiplier = UNIT_MULTIPLIERS.get(unitPart);
-            if (multiplier == null) {
-                throw new IllegalArgumentException("Invalid unit in memory: " + unitPart);
-            }
-            return (long) (numericValue * multiplier);
+    // Docker refuses a memory limit below 6MiB.
+    static final long MIN_MEMORY = 6L * 1024 * 1024;
+    static final long NANO = 1_000_000_000L;
+    // 1e6 nanoCPUs (0.001 CPU) is the smallest value the Daemon accepts.
+    static final long MIN_NANO_CPUS = 1_000_000L;
+    // Relative CPU weight the Linux scheduler gives to a container asking for a single CPU.
+    static final int CPU_SHARES_PER_CPU = 1024;
+    // Relative CPU weight accepted by the Linux scheduler.
+    static final int MIN_CPU_SHARES = 2;
+    static final int MAX_CPU_SHARES = 262_144;
+
+    /**
+     * Parses a Compose byte value ("512m", "1gb", "1024") into bytes. Compose byte units are
+     * powers of 1024, so "1kb" and "1kib" are both 1024 bytes.
+     */
+    static Long parseMemory(String memory) {
+        if (memory == null || memory.isBlank()) {
+            return null;
         }
-        return null;
+        var matcher = MEMORY_PATTERN.matcher(memory.trim());
+        if (!matcher.matches()) {
+            throw new IllegalArgumentException("Invalid memory value: " + memory);
+        }
+        double numericValue = Double.parseDouble(matcher.group(1));
+        Long multiplier = UNIT_MULTIPLIERS.get(matcher.group(2));
+        if (multiplier == null) {
+            throw new IllegalArgumentException("Invalid unit in memory: " + matcher.group(2));
+        }
+        return (long) (numericValue * multiplier);
+    }
+
+    /**
+     * Parses a Compose {@code cpus} value: a fractional number of CPUs, i.e. "1.5".
+     */
+    static Double parseCpus(String key, String cpus) {
+        if (cpus == null || cpus.isBlank()) {
+            return null;
+        }
+        double value;
+        try {
+            value = Double.parseDouble(cpus.trim());
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Invalid " + key + " value: " + cpus);
+        }
+        return value > 0 ? value : null;
+    }
+
+    /**
+     * Converts a Compose {@code cpus} value into nanoCPUs, which is what the Docker Daemon expects.
+     */
+    static Long parseNanoCpus(String key, String cpus) {
+        Double value = parseCpus(key, cpus);
+        if (value == null) {
+            return null;
+        }
+        long nanoCpus = Math.round(value * NANO);
+        if (nanoCpus < MIN_NANO_CPUS) {
+            LOGGER.warnf("%s %s is below the minimum supported by Docker, using %s nanoCPUs", key, cpus, MIN_NANO_CPUS);
+            return MIN_NANO_CPUS;
+        }
+        return nanoCpus;
+    }
+
+    /**
+     * A CPU reservation cannot be granted by a standalone Daemon, the closest it offers is the
+     * relative CPU weight, which is what Compose itself falls back to. One CPU is 1024 shares.
+     */
+    static Integer toCpuShares(double cpus) {
+        long shares = Math.round(cpus * CPU_SHARES_PER_CPU);
+        if (shares < MIN_CPU_SHARES) {
+            return MIN_CPU_SHARES;
+        }
+        if (shares > MAX_CPU_SHARES) {
+            return MAX_CPU_SHARES;
+        }
+        return (int) shares;
+    }
+
+    /**
+     * Parses a Compose {@code pids} limit. {@code -1} means unlimited.
+     */
+    static Long parsePidsLimit(String pids) {
+        if (pids == null || pids.isBlank()) {
+            return null;
+        }
+        long value;
+        try {
+            value = Long.parseLong(pids.trim());
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Invalid pids value: " + pids);
+        }
+        if (value < 0) {
+            return -1L; // unlimited
+        }
+        return value;
+    }
+
+    /**
+     * Applies the {@code deploy.resources} limits and reservations to the HostConfig so that the
+     * Daemon actually enforces them. Values that are not set are left untouched instead of being
+     * sent as 0, which the Daemon reads as "no limit".
+     */
+    public static void applyResourceLimits(HostConfig hostConfig, DockerResourceLimits limits) {
+        if (limits == null) {
+            return;
+        }
+
+        Long memory = parseMemory(limits.memLimit());
+        if (memory != null && memory > 0) {
+            if (memory < MIN_MEMORY) {
+                LOGGER.warnf("memory limit %s is below the minimum supported by Docker, using %s bytes", limits.memLimit(), MIN_MEMORY);
+                memory = MIN_MEMORY;
+            }
+            hostConfig.withMemory(memory);
+            // Without an explicit swap limit the Daemon grants twice the memory limit as swap,
+            // which lets the container exceed the configured limit. Pin swap to the limit.
+            hostConfig.withMemorySwap(memory);
+        } else {
+            memory = null;
+        }
+
+        Long reservation = parseMemory(limits.memReservation());
+        if (reservation != null && reservation > 0) {
+            if (memory != null && reservation > memory) {
+                LOGGER.warnf("memory reservation %s is greater than the memory limit, using the limit", limits.memReservation());
+                reservation = memory;
+            }
+            hostConfig.withMemoryReservation(reservation);
+        }
+
+        Double cpuLimit = parseCpus("cpus limit", limits.cpuLimit());
+        Long nanoCpus = parseNanoCpus("cpus limit", limits.cpuLimit());
+        if (nanoCpus != null) {
+            hostConfig.withNanoCPUs(nanoCpus);
+        }
+
+        Double cpuReservation = parseCpus("cpus reservation", limits.cpuReservation());
+        if (cpuReservation != null) {
+            if (cpuLimit != null && cpuReservation > cpuLimit) {
+                LOGGER.warnf("cpus reservation %s is greater than the cpus limit, using the limit", limits.cpuReservation());
+                cpuReservation = cpuLimit;
+            }
+            hostConfig.withCpuShares(toCpuShares(cpuReservation));
+        }
+
+        Long pidsLimit = parsePidsLimit(limits.pidsLimit());
+        if (pidsLimit != null && pidsLimit != 0) {
+            hostConfig.withPidsLimit(pidsLimit);
+        }
     }
 
     static HealthCheck getHealthCheck(DockerHealthCheckDefinition config) {

@@ -17,52 +17,13 @@
 
 package org.apache.camel.karavan.model;
 
-public class ContainerImage {
+import java.util.List;
+import java.util.Map;
 
-    private String id;
-    private String tag;
-    private Long created;
-    private Long size;
-
-    public ContainerImage() {
-    }
-
-    public ContainerImage(String id, String tag, Long created, Long size) {
-        this.id = id;
-        this.tag = tag;
-        this.created = created;
-        this.size = size;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getTag() {
-        return tag;
-    }
-
-    public void setTag(String tag) {
-        this.tag = tag;
-    }
-
-    public Long getCreated() {
-        return created;
-    }
-
-    public void setCreated(Long created) {
-        this.created = created;
-    }
-
-    public Long getSize() {
-        return size;
-    }
-
-    public void setSize(Long size) {
-        this.size = size;
-    }
-}
+public record ContainerImage(
+        String id,
+        List<String> tags,
+        Map<String, String> labels,
+        Long created,
+        Long size
+) {}

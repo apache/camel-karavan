@@ -98,13 +98,9 @@ public class ProjectFolder {
         this.type = type;
     }
 
+
     public static List<String> getBuildInNames(){
-        return List.of(
-                Type.configuration.name(),
-                Type.kamelets.name(),
-                Type.templates.name(),
-                Type.documentation.name()
-        );
+        return Arrays.stream(Type.values()).filter(v -> !Type.integration.equals(v)).map(Type::name).toList();
     }
 
     @Override

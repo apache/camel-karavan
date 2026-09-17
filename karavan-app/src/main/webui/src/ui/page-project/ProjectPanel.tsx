@@ -4,7 +4,6 @@ import {useFilesStore, useProjectStore} from '@stores/ProjectStore';
 import {ProjectService} from '@services/ProjectService';
 import {BUILD_IN_PROJECTS, ProjectType} from '@models/ProjectModels';
 import {TopologyTab} from './project-topology/TopologyTab';
-import {CreateProjectModal} from './files/CreateProjectModal';
 import {BeanWizard} from './beans/BeanWizard';
 import {BuildTab} from './project-build/BuildTab';
 import {SourcesTab} from './files/SourcesTab';
@@ -13,6 +12,7 @@ import {ProjectContainersContextProvider} from "./ProjectContainersContextProvid
 import {ContainersTab} from "./project-containers/ContainersTab";
 import "./ProjectPanel.css"
 import {ProjectFunctionHook} from "./ProjectFunctionHook";
+import {CreateKameletModal} from "./files/CreateKameletModal";
 
 function ProjectPanel() {
 
@@ -45,7 +45,7 @@ function ProjectPanel() {
     return isTopology
         ? (<div className="project-architecture-page">
                 <TopologyTab/>
-                <CreateProjectModal/>
+                <CreateKameletModal/>
                 <BeanWizard/>
             </div>
         )

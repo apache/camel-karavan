@@ -10,6 +10,7 @@ import org.apache.camel.karavan.cache.AccessUser;
 import org.apache.camel.karavan.cache.KaravanCache;
 import org.apache.camel.karavan.service.AuthService;
 import org.eclipse.microprofile.config.ConfigProvider;
+import org.jboss.logging.Logger;
 
 import java.util.Map;
 
@@ -19,6 +20,7 @@ import static org.apache.camel.karavan.service.AuthService.SESSION_MAX_AGE;
 @Produces(MediaType.APPLICATION_JSON)
 public class AuthResource extends AbstractApiResource {
 
+    private static final Logger LOGGER = Logger.getLogger(AuthResource.class.getName());
     private static final String SESSION_ID = "sessionId";
     private static final String CSRF = "csrf";
 

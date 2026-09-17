@@ -38,7 +38,8 @@ public class ComplexityService {
                 .filter(p -> Objects.equals(p.getType(), ProjectFolder.Type.integration)
                         || Objects.equals(p.getType(), ProjectFolder.Type.templates)
                         || Objects.equals(p.getType(), ProjectFolder.Type.kamelets)
-                        || Objects.equals(p.getType(), ProjectFolder.Type.documentation))
+                        || Objects.equals(p.getType(), ProjectFolder.Type.documentation)
+                        )
                 .map(this::getProjectComplexity).toList();
     }
 

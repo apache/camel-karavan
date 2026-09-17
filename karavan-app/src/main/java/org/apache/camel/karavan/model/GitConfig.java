@@ -17,58 +17,15 @@
 
 package org.apache.camel.karavan.model;
 
-public class GitConfig {
-    private String uri;
-    private String username;
-    private String password;
-    private String branch;
-    private String privateKeyPath;
+import java.util.Optional;
 
-    public GitConfig(String uri, String username, String password, String branch, String privateKeyPath) {
-        this.uri = uri;
-        this.username = username;
-        this.password = password;
-        this.branch = branch;
-        this.privateKeyPath = privateKeyPath;
-    }
-
-    public String getUri() {
-        return uri;
-    }
-
-    public void setUri(String uri) {
-        this.uri = uri;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public String getBranch() {
-        return branch;
-    }
-
-    public void setBranch(String branch) {
-        this.branch = branch;
-    }
-
-    public String getPrivateKeyPath() {
-        return privateKeyPath;
-    }
-
-    public void setPrivateKeyPath(String privateKeyPath) {
-        this.privateKeyPath = privateKeyPath;
-    }
+public record GitConfig(
+        String repository,
+        Optional<String> username,
+        Optional<String> password,
+        String branch,
+        Optional<Integer> sshPort,
+        Optional<String> privateKeyPath,
+        Optional<String> knownHostsPath,
+        boolean ephemeral) {
 }

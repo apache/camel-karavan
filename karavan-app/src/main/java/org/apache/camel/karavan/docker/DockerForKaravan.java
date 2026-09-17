@@ -25,6 +25,7 @@ import jakarta.inject.Inject;
 import org.apache.camel.karavan.cache.ContainerType;
 import org.apache.camel.karavan.cache.ProjectFolder;
 import org.apache.camel.karavan.model.DockerComposeService;
+import org.apache.camel.karavan.model.DockerResourceLimits;
 import org.apache.camel.karavan.model.DockerVolumeDefinition;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
@@ -32,7 +33,6 @@ import org.jboss.logging.Logger;
 import java.util.*;
 
 import static org.apache.camel.karavan.KaravanConstants.*;
-import static org.apache.camel.karavan.service.CodeService.BUILD_SCRIPT_FILENAME;
 
 @ApplicationScoped
 public class DockerForKaravan {
@@ -88,17 +88,16 @@ public class DockerForKaravan {
                 env, compose.getPortsMap(), healthCheck,
                 containerLabels,
                 compose.getVolumes(), null, RestartPolicy.noRestart(), DockerService.PULL_IMAGE.ifNotExists,
-                compose.getCpus(), compose.getCpu_percent(), compose.getMem_limit(), compose.getMem_reservation(), compose.getCommand());
+                DockerResourceLimits.from(compose), compose.getCommand());
     }
 
-    public void runBuildProject(ProjectFolder projectFolder, String script, DockerComposeService compose, Map<String, String> sshFiles, String tag) throws Exception {
+    public void runBuildProject(ProjectFolder projectFolder, DockerComposeService compose, Map<String, String> sshFiles, String tag) throws Exception {
         String containerName = projectFolder.getProjectId() + BUILDER_SUFFIX;
         dockerService.deleteContainer(containerName);
         if (createM2.orElse(false)) {
             compose.getVolumes().add(new DockerVolumeDefinition(MountType.VOLUME.name(), projectFolder.getProjectId() + "-build-m2-repository", "/karavan/.m2/repository"));
         }
         Container c = createBuildContainer(containerName, projectFolder, compose.getEnvironmentList(), compose.getVolumes(), tag);
-        dockerService.copyFileToContainer(c.getId(), "/karavan/builder", BUILD_SCRIPT_FILENAME, script, 0755);
         sshFiles.forEach((name, text) -> {
             dockerService.copyFileToContainer(c.getId(), "/karavan/.ssh", name, text, 0600);
         });
@@ -116,7 +115,7 @@ public class DockerForKaravan {
                         LABEL_TAG, tag
                 ),
                 volumes, null, RestartPolicy.noRestart(), DockerService.PULL_IMAGE.ifNotExists,
-                null, null, null, null,
+                DockerResourceLimits.NONE,
                 "/karavan/builder/build.sh");
     }
 }

@@ -57,6 +57,38 @@ public final class PathUtils {
     }
 
     /**
+     * Compiles a file name glob (only <code>*</code> and <code>?</code> wildcards are supported) into a regex.
+     * Every other character is matched literally, so a pattern can never escape a single path segment.
+     *
+     * @throws IllegalArgumentException if the pattern is empty or contains path separators
+     */
+    public static Pattern compileFileNameGlob(String glob) {
+        if (glob == null || glob.isBlank()) {
+            throw new IllegalArgumentException("Pattern cannot be empty");
+        }
+        if (glob.contains("/") || glob.contains("\\") || glob.indexOf('\0') >= 0) {
+            throw new IllegalArgumentException("Pattern contains path traversal characters: " + glob);
+        }
+        StringBuilder regex = new StringBuilder();
+        StringBuilder literal = new StringBuilder();
+        for (char c : glob.toCharArray()) {
+            if (c == '*' || c == '?') {
+                if (!literal.isEmpty()) {
+                    regex.append(Pattern.quote(literal.toString()));
+                    literal.setLength(0);
+                }
+                regex.append(c == '*' ? ".*" : ".");
+            } else {
+                literal.append(c);
+            }
+        }
+        if (!literal.isEmpty()) {
+            regex.append(Pattern.quote(literal.toString()));
+        }
+        return Pattern.compile(regex.toString());
+    }
+
+    /**
      * Resolves a name against a base directory and guarantees that the result stays inside it.
      *
      * @throws SecurityException if the resolved path escapes the base directory

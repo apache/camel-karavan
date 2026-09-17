@@ -17,9 +17,12 @@
 
 package org.apache.camel.karavan.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import java.util.HashMap;
 import java.util.Map;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class DockerCompose {
     private String version;
     private Map<String, DockerComposeService> services;

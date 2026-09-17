@@ -22,6 +22,7 @@ import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import org.apache.camel.karavan.model.ActivityUser;
 import org.apache.camel.karavan.service.AuthService;
+import org.apache.camel.karavan.util.PathUtils;
 
 import java.time.Instant;
 import java.util.*;
@@ -160,6 +161,18 @@ public class KaravanCache {
                 ProjectFile::copy);
     }
 
+    /**
+     * Files of a project whose name matches a glob like {@code *-task-template.md}. Keeps the large files of a
+     * project (agent prompts, organization context) out of the response when only a few small ones are wanted.
+     */
+    public List<ProjectFile> getProjectFilesByPattern(String projectId, String pattern) {
+        var matcher = PathUtils.compileFileNameGlob(pattern);
+        return query(files,
+                f -> Objects.equals(f.getProjectId(), projectId) && f.getName() != null
+                        && matcher.matcher(f.getName()).matches(),
+                ProjectFile::copy);
+    }
+
     public List<ProjectFile> getProjectFilesByName(String filename) {
         return query(files, f -> Objects.equals(f.getName(), filename), ProjectFile::copy);
     }
@@ -280,7 +293,9 @@ public class KaravanCache {
     }
 
     public PodContainerStatus getPodContainerStatus(String containerName, String env) {
-        return getPodContainerStatusesByProject(env).stream().filter(el -> Objects.equals(el.getContainerName(), containerName)).findFirst().orElse(null);
+        return queryFirst(podContainerStatuses,
+                status -> Objects.equals(status.getContainerName(), containerName) && Objects.equals(status.getEnv(), env),
+                PodContainerStatus::copy);
     }
 
     public PodContainerStatus getPodContainerStatus(String key) {
@@ -356,7 +371,7 @@ public class KaravanCache {
                     && Objects.equals(status.getEnv(), env);
         });
     }
-
+    
     public void deleteAllCamelStatuses() {
         camelStatuses.clear();
     }

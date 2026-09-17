@@ -62,6 +62,23 @@ public class ProjectFileResource {
     @GET
     @Authenticated
     @Produces(MediaType.APPLICATION_JSON)
+    @Path("/pattern/{projectId}")
+    public Response getProjectFilesByPattern(@PathParam("projectId") String projectId, @QueryParam("pattern") String pattern) {
+        try {
+            PathUtils.validateProjectId(projectId);
+            var files = karavanCache.getProjectFilesByPattern(projectId, pattern).stream()
+                    .filter(Objects::nonNull)
+                    .sorted(Comparator.comparing(ProjectFile::getName))
+                    .collect(Collectors.toList());
+            return Response.ok(files).build();
+        } catch (IllegalArgumentException e) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
+        }
+    }
+
+    @GET
+    @Authenticated
+    @Produces(MediaType.APPLICATION_JSON)
     public List<ProjectFile> getFileByName(@QueryParam("filename") String filename) {
         return karavanCache.getProjectFilesByName(filename);
     }

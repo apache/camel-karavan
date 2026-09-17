@@ -17,21 +17,24 @@
 
 package org.apache.camel.karavan.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * A service of the Compose Specification. Compose keys that Karavan does not model, among them
+ * the legacy top-level resource keys replaced by {@code deploy.resources}, are ignored.
+ */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class DockerComposeService {
 
     private String container_name;
     private String image;
     private String restart;
-    private String cpus;
-    private String cpu_percent;
-    private String mem_limit;
-    private String mem_reservation;
     private String command;
     private List<String> ports = new ArrayList<>();
     private List<DockerVolumeDefinition> volumes = new ArrayList<>();
@@ -40,6 +43,7 @@ public class DockerComposeService {
     private List<String> networks = new ArrayList<>();
     private Map<String,String> environment = new HashMap<>();
     private DockerHealthCheckDefinition healthcheck;
+    private DockerDeployDefinition deploy;
     private Map<String,String> labels = new HashMap<>();
 
     public DockerComposeService() {
@@ -142,36 +146,12 @@ public class DockerComposeService {
         this.networks = networks;
     }
 
-    public String getCpu_percent() {
-        return cpu_percent;
+    public DockerDeployDefinition getDeploy() {
+        return deploy;
     }
 
-    public void setCpu_percent(String cpu_percent) {
-        this.cpu_percent = cpu_percent;
-    }
-
-    public String getCpus() {
-        return cpus;
-    }
-
-    public void setCpus(String cpus) {
-        this.cpus = cpus;
-    }
-
-    public String getMem_limit() {
-        return mem_limit;
-    }
-
-    public void setMem_limit(String mem_limit) {
-        this.mem_limit = mem_limit;
-    }
-
-    public String getMem_reservation() {
-        return mem_reservation;
-    }
-
-    public void setMem_reservation(String mem_reservation) {
-        this.mem_reservation = mem_reservation;
+    public void setDeploy(DockerDeployDefinition deploy) {
+        this.deploy = deploy;
     }
 
     public List<DockerVolumeDefinition> getVolumes() {
@@ -204,10 +184,7 @@ public class DockerComposeService {
                 "container_name='" + container_name + '\'' +
                 ", image='" + image + '\'' +
                 ", restart='" + restart + '\'' +
-                ", cpus='" + cpus + '\'' +
-                ", cpu_percent='" + cpu_percent + '\'' +
-                ", mem_limit='" + mem_limit + '\'' +
-                ", mem_reservation='" + mem_reservation + '\'' +
+                ", deploy=" + deploy +
                 ", ports=" + ports +
                 ", networks=" + networks +
                 ", expose=" + expose +

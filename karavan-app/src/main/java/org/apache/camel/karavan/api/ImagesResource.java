@@ -27,13 +27,11 @@ import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.SecurityContext;
 import org.apache.camel.karavan.docker.DockerService;
 import org.apache.camel.karavan.model.ContainerImage;
-import org.apache.camel.karavan.model.RegistryConfig;
 import org.apache.camel.karavan.service.ConfigService;
 import org.apache.camel.karavan.service.ProjectService;
-import org.apache.camel.karavan.service.RegistryService;
+import org.apache.camel.karavan.service.RegistryImageService;
 import org.jose4j.base64url.Base64;
 
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 
@@ -46,7 +44,7 @@ public class ImagesResource extends AbstractApiResource {
     DockerService dockerService;
 
     @Inject
-    RegistryService registryService;
+    RegistryImageService registryImageService;
 
     @Inject
     ProjectService projectService;
@@ -59,16 +57,9 @@ public class ImagesResource extends AbstractApiResource {
     @Path("/project/{projectId}")
     @Authenticated
     public List<ContainerImage> getImagesForProject(@PathParam("projectId") String projectId) {
-        if (ConfigService.inKubernetes()) {
-            return List.of();
-        } else {
-            RegistryConfig registryConfig = registryService.getRegistryConfig();
-            String pattern = registryConfig.getGroup() + "/" + projectId + ":";
-            return dockerService.getImages()
-                    .stream().filter(s -> s.getTag().contains(pattern))
-                    .sorted(Comparator.comparing(ContainerImage::getCreated).reversed().thenComparing(ContainerImage::getTag))
-                    .toList();
-        }
+        // Images are read from the container image registry with the OCI Distribution API, so the
+        // same list is returned in Docker and in Kubernetes
+        return registryImageService.getImagesForProject(projectId);
     }
 
     @POST

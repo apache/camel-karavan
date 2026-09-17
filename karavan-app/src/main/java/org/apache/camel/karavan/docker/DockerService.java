@@ -22,13 +22,13 @@ import jakarta.inject.Inject;
 import org.apache.camel.karavan.cache.ContainerType;
 import org.apache.camel.karavan.model.ContainerImage;
 import org.apache.camel.karavan.model.DockerComposeService;
+import org.apache.camel.karavan.model.DockerResourceLimits;
 import org.apache.camel.karavan.model.DockerVolumeDefinition;
 import org.apache.camel.karavan.service.CodeService;
 import org.apache.camel.karavan.service.ConfigService;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.math.NumberUtils;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.health.Readiness;
 import org.jboss.logging.Logger;
@@ -186,7 +186,7 @@ public class DockerService {
 
             return createContainer(compose.getContainer_name(), compose.getImage(),
                     env, compose.getPortsMap(), healthCheck, labels, compose.getVolumes(), networkName, restartPolicy, pullImage,
-                    compose.getCpus(), compose.getCpu_percent(), compose.getMem_limit(), compose.getMem_reservation(), compose.getCommand());
+                    DockerResourceLimits.from(compose), compose.getCommand());
         } else {
             return containers.getFirst();
         }
@@ -212,7 +212,7 @@ public class DockerService {
     public Container createContainer(String name, String image, List<String> env, Map<Integer, Integer> ports,
                                      HealthCheck healthCheck, Map<String, String> labels,
                                      List<DockerVolumeDefinition> volumes, String network, RestartPolicy restartPolicy,
-                                     PULL_IMAGE pullImage, String cpus, String cpu_percent, String mem_limit, String mem_reservation,
+                                     PULL_IMAGE pullImage, DockerResourceLimits resourceLimits,
                                      String dockerCommand) throws InterruptedException {
 
         if (Objects.equals(labels.get(LABEL_TYPE), ContainerType.devmode.name()) || Objects.equals(labels.get(LABEL_TYPE), ContainerType.build.name())) {
@@ -234,11 +234,11 @@ public class DockerService {
         }
         if (dockerCommand != null) createContainerCmd.withCmd("/bin/sh", "-c", dockerCommand);
 
-        createContainerCmd.withHostConfig(new HostConfig()
+        HostConfig hostConfig = new HostConfig()
                 .withRestartPolicy(restartPolicy).withPortBindings(portBindings).withMounts(mounts)
-                .withMemory(DockerUtils.parseMemory(mem_limit)).withMemoryReservation(DockerUtils.parseMemory(mem_reservation))
-                .withCpuPercent(NumberUtils.toLong(cpu_percent)).withNanoCPUs(NumberUtils.toLong(cpus))
-                .withNetworkMode(network != null ? network : networkName));
+                .withNetworkMode(network != null ? network : networkName);
+        DockerUtils.applyResourceLimits(hostConfig, resourceLimits);
+        createContainerCmd.withHostConfig(hostConfig);
 
         CreateContainerResponse response = createContainerCmd.exec();
         return getContainer(response.getId());
@@ -428,7 +428,7 @@ public class DockerService {
     public List<ContainerImage> getImages() {
         return getDockerClient().listImagesCmd().withShowAll(true).exec().stream()
                 .filter(i -> i.getRepoTags() != null && i.getRepoTags().length > 0)
-                .map(i -> new ContainerImage(i.getId(), i.getRepoTags()[0], i.getCreated(), i.getSize()))
+                .map(i -> new ContainerImage(i.getId(), List.of(i.getRepoTags()), i.getLabels(), i.getCreated(), i.getSize()))
                 .toList();
     }
 

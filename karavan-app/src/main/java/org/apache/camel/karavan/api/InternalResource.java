@@ -52,10 +52,9 @@ public class InternalResource {
             authService.validateSession(sessionId);
             return getProjectFilesZipResponse(projectId, null);
         } catch (Exception e) {
-            LOGGER.error("Error retrieving files for project: " + projectId, e);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity(e.getMessage())
-                    .build();
+            var message = "Error retrieving files for project " + projectId + ": " + e.getMessage();
+            LOGGER.error(message);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(message).build();
         } finally {
             authService.invalidateSession(sessionId);
         }
@@ -72,10 +71,9 @@ public class InternalResource {
             return getProjectFilesZipResponse(projectId, filename);
 
         } catch (Exception e) {
-            LOGGER.error("Error retrieving file " + filename + " for project: " + projectId, e);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity(e.getMessage())
-                    .build();
+            var message = "Error retrieving file " + filename + " for project " + projectId + ": " + e.getMessage();
+            LOGGER.error(message);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(message).build();
         }
     }
 

@@ -22,12 +22,14 @@ import io.vertx.core.json.JsonObject;
 import org.apache.camel.karavan.model.DockerCompose;
 import org.apache.camel.karavan.model.DockerComposeService;
 import org.apache.camel.karavan.model.DockerVolumeDefinition;
+import org.jboss.logging.Logger;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.introspector.Property;
 import org.yaml.snakeyaml.nodes.*;
 import org.yaml.snakeyaml.representer.Representer;
 
+import java.util.List;
 import java.util.Map;
 
 import static com.github.dockerjava.api.model.MountType.BIND;
@@ -38,6 +40,11 @@ public class DockerComposeConverter {
     private static final String ENVIRONMENT = "environment";
     private static final String LABELS = "labels";
     private static final String VOLUMES = "volumes";
+    // Resource keys of the legacy Compose file formats, superseded by deploy.resources
+    private static final List<String> LEGACY_RESOURCE_KEYS = List.of("cpus", "cpu_percent", "cpu_shares",
+            "mem_limit", "mem_reservation", "memswap_limit");
+
+    private static final Logger LOGGER = Logger.getLogger(DockerComposeConverter.class.getName());
 
     public static DockerCompose fromCode(String code) {
         Yaml yaml = new Yaml();
@@ -110,6 +117,9 @@ public class DockerComposeConverter {
             });
             service.put(VOLUMES, volumes);
         }
+
+        LEGACY_RESOURCE_KEYS.stream().filter(service::containsKey).forEach(key ->
+                LOGGER.warnf("Service %s: '%s' belongs to a legacy compose format and is ignored, declare it under deploy.resources instead", name, key));
 
         DockerComposeService ds = service.mapTo(DockerComposeService.class);
         if (ds.getContainer_name() == null) {

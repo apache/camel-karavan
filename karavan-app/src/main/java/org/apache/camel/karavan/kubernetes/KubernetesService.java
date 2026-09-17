@@ -20,6 +20,7 @@ import io.fabric8.kubernetes.api.model.*;
 import io.fabric8.kubernetes.api.model.apps.Deployment;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClientBuilder;
+import io.fabric8.kubernetes.client.dsl.ExecWatch;
 import io.fabric8.kubernetes.client.dsl.LogWatch;
 import io.fabric8.kubernetes.client.utils.Serialization;
 import io.quarkus.runtime.LaunchMode;
@@ -27,17 +28,16 @@ import io.smallrye.mutiny.tuples.Tuple2;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Default;
 import jakarta.enterprise.inject.Produces;
-import jakarta.inject.Inject;
 import org.apache.camel.karavan.KaravanConstants;
 import org.apache.camel.karavan.cache.ContainerType;
 import org.apache.camel.karavan.model.KubernetesConfigMap;
 import org.apache.camel.karavan.model.KubernetesSecret;
 import org.apache.camel.karavan.model.PodEvent;
-import org.apache.camel.karavan.service.CodeService;
 import org.apache.camel.karavan.service.ConfigService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
+import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -66,9 +66,6 @@ public class KubernetesService {
 
     @ConfigProperty(name = "karavan.environment", defaultValue = KaravanConstants.DEV)
     private String environment;
-
-    @Inject
-    CodeService codeService;
 
     private String namespace;
 
@@ -187,7 +184,6 @@ public class KubernetesService {
                 .withPorts(port, observabilityPort)
                 .withImagePullPolicy(devmodeImagePullPolicy.orElse("IfNotPresent"))
                 .withEnv(pod.getSpec().getContainers().getFirst().getEnv())
-//                .withCommand("/bin/sh", "-c", "/karavan/builder/build.sh")
                 .withVolumeMounts(volumeMounts)
                 .build();
 
@@ -196,17 +192,17 @@ public class KubernetesService {
             volumes.add(new VolumeBuilder().withName(BUILD_DOCKER_CONFIG_SECRET)
                     .withSecret(new SecretVolumeSourceBuilder().withSecretName(BUILD_DOCKER_CONFIG_SECRET).withItems(
                             new KeyToPathBuilder().withKey(".dockerconfigjson").withPath("config.json").build()
-                    ).withDefaultMode(511).build()).build());
+                    ).withDefaultMode(600).build()).build());
         }
         if (privateKeyPath.isPresent()) {
             volumes.add(new VolumeBuilder().withName(PRIVATE_KEY_SECRET_KEY)
                     .withSecret(new SecretVolumeSourceBuilder().withSecretName(secretName).withItems(
                             new KeyToPathBuilder().withKey(PRIVATE_KEY_SECRET_KEY).withPath("id_rsa").build()
-                    ).withDefaultMode(511).build()).build());
+                    ).withDefaultMode(600).build()).build());
             volumes.add(new VolumeBuilder().withName(KNOWN_HOSTS_SECRET_KEY)
                     .withSecret(new SecretVolumeSourceBuilder().withSecretName(secretName).withItems(
                             new KeyToPathBuilder().withKey(KNOWN_HOSTS_SECRET_KEY).withPath("known_hosts").build()
-                    ).withDefaultMode(511).build()).build());
+                    ).withDefaultMode(600).build()).build());
         }
 
         PodSpec spec = new PodSpecBuilder()
@@ -285,7 +281,6 @@ public class KubernetesService {
                         putLabels(template.getMetadata(), labels);
                     }
                 }
-                // Pin the namespace: a resource must never be applied outside of Karavan's namespace
                 item.getMetadata().setNamespace(getNamespace());
                 client.resource(item).inNamespace(getNamespace()).serverSideApply();
             });
@@ -652,6 +647,51 @@ public class KubernetesService {
         return null;
     }
 
+    /**
+     * Contents of the `kubernetes.io/dockerconfigjson` pull secrets available to Talisman: the ones
+     * referenced by this pod and its ServiceAccount, the builder secret, and any other docker config
+     * secret of the namespace as a fallback. Legacy `.dockercfg` payloads are wrapped in `auths`.
+     */
+    public List<String> getDockerConfigJsons() {
+        List<String> result = new ArrayList<>();
+        try (KubernetesClient client = kubernetesClient()) {
+            Set<String> names = new LinkedHashSet<>();
+            String podName = System.getenv("HOSTNAME");
+            Pod pod = podName != null ? client.pods().inNamespace(getNamespace()).withName(podName).get() : null;
+            if (pod != null && pod.getSpec() != null) {
+                if (pod.getSpec().getImagePullSecrets() != null) {
+                    pod.getSpec().getImagePullSecrets().forEach(ref -> names.add(ref.getName()));
+                }
+                String serviceAccountName = pod.getSpec().getServiceAccountName();
+                if (serviceAccountName != null) {
+                    ServiceAccount serviceAccount = client.serviceAccounts().inNamespace(getNamespace()).withName(serviceAccountName).get();
+                    if (serviceAccount != null && serviceAccount.getImagePullSecrets() != null) {
+                        serviceAccount.getImagePullSecrets().forEach(ref -> names.add(ref.getName()));
+                    }
+                }
+            }
+            names.add(BUILD_DOCKER_CONFIG_SECRET);
+            client.secrets().inNamespace(getNamespace()).list().getItems().stream()
+                    .filter(secret -> Objects.equals(secret.getType(), "kubernetes.io/dockerconfigjson"))
+                    .forEach(secret -> names.add(secret.getMetadata().getName()));
+            for (String name : names) {
+                Secret secret = client.secrets().inNamespace(getNamespace()).withName(name).get();
+                Map<String, String> data = secret != null ? secret.getData() : null;
+                if (data == null) {
+                    continue;
+                }
+                if (data.get(".dockerconfigjson") != null) {
+                    result.add(decodeSecret(data.get(".dockerconfigjson")));
+                } else if (data.get(".dockercfg") != null) {
+                    result.add("{\"auths\":" + decodeSecret(data.get(".dockercfg")) + "}");
+                }
+            }
+        } catch (Exception e) {
+            LOGGER.warn("Failed to read image pull secrets: " + e.getMessage());
+        }
+        return result;
+    }
+
     public ConfigMap getConfigMap(String name) {
         try (KubernetesClient client = kubernetesClient()) {
             return client.configMaps().inNamespace(getNamespace()).withName(name).get();
@@ -827,5 +867,44 @@ public class KubernetesService {
             LOGGER.error("Error getting Pod Events" + e.getMessage());
         }
         return list;
+    }
+
+    public void execCommandInDeployment(String deploymentName, String command) {
+        try (KubernetesClient client = kubernetesClient()) {
+            Deployment deployment = client.apps().deployments().inNamespace(getNamespace()).withName(deploymentName).get();
+
+            if (deployment != null && deployment.getSpec().getSelector() != null) {
+                Map<String, String> matchLabels = deployment.getSpec().getSelector().getMatchLabels();
+                List<Pod> pods = client.pods().inNamespace(getNamespace()).withLabels(matchLabels).list().getItems();
+
+                if (!pods.isEmpty()) {
+                    Pod pod = pods.getFirst();
+                    String podName = pod.getMetadata().getName();
+                    String containerName = pod.getSpec().getContainers().getFirst().getName();
+
+                    LOGGER.info("Executing command in pod " + podName + " (container: " + containerName + ")");
+
+                    try (ExecWatch watch = client.pods().inNamespace(getNamespace()).withName(podName)
+                            .inContainer(containerName)
+                            .writingOutput(OutputStream.nullOutputStream())
+                            .writingError(OutputStream.nullOutputStream())
+                            .exec("sh", "-c", command)) {
+
+                        // Block the thread until the command finishes (or times out after 30s)
+                        // This keeps the WebSocket open long enough for the command to run.
+                        watch.exitCode().get(30, TimeUnit.SECONDS);
+
+                    } catch (Exception e) {
+                        LOGGER.error("Exec failed or timed out: " + e.getMessage());
+                    }
+                } else {
+                    LOGGER.warn("No pods found for deployment: " + deploymentName);
+                }
+            } else {
+                LOGGER.warn("Deployment not found or has no selector: " + deploymentName);
+            }
+        } catch (Exception e) {
+            LOGGER.error("Error executing command in container for deployment " + deploymentName + ": " + e.getMessage(), e);
+        }
     }
 }

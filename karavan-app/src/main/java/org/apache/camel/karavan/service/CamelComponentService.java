@@ -4,28 +4,68 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import org.jboss.logging.Logger;
+import org.apache.camel.karavan.util.CamelComponentMetadata;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 @ApplicationScoped
 public class CamelComponentService {
-
-    private static final Logger LOGGER = Logger.getLogger(CamelComponentService.class.getName());
 
     @Inject
     CodeService codeService;
 
     private static JsonArray components;
+    private static List<CamelComponentMetadata> componentsMetadata;
 
     private JsonArray getComponents() {
         if (components == null) {
-            var json = codeService.getResourceFile("/metadata/components.json");
+            var json = codeService.getResourceFile("/metadata/components-full.json");
             components = new JsonArray(json);
         }
         return components;
+    }
+
+    public List<CamelComponentMetadata> getMetadata() {
+        if (componentsMetadata == null) {
+            componentsMetadata = new ArrayList<>();
+            JsonArray jsonComponents = getComponents();
+
+            for (int i = 0; i < jsonComponents.size(); i++) {
+                JsonObject jsonObject = jsonComponents.getJsonObject(i);
+                // Vert.x JsonObject seamlessly maps to Java Records using Jackson under the hood
+                CamelComponentMetadata metadata = jsonObject.mapTo(CamelComponentMetadata.class);
+                componentsMetadata.add(metadata);
+            }
+        }
+        return componentsMetadata;
+    }
+
+    public CamelComponentMetadata getMetadata(String name) {
+        return getMetadata().stream().filter(m -> Objects.equals(name, m.component().name())).findFirst().orElse(null);
+    }
+
+    public List<String> getPropertyNames(String name) {
+        var component = getMetadata(name);
+        if (component != null && component.properties() != null) {
+            return new ArrayList<>(component.properties().keySet());
+        }
+        return List.of();
+    }
+
+    public List<String> getPathPropertyNames(String name) {
+        var component = getMetadata(name);
+        return component.properties().entrySet().stream()
+                .filter(e -> Objects.equals(e.getValue().kind(), "path"))
+                .map(Map.Entry::getKey)
+                .toList();
+    }
+
+    public List<String> getComponentPropertyNames(String name) {
+        var component = getMetadata(name);
+        if (component != null && component.componentProperties() != null) {
+            return new ArrayList<>(component.componentProperties().keySet());
+        }
+        return List.of();
     }
 
     public boolean isComponentRemote(String name) {
