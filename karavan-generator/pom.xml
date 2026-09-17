@@ -30,7 +30,7 @@
         <surefire-plugin.version>3.0.0-M5</surefire-plugin.version>
         <version.camel-core>4.22.1</version.camel-core>
         <version.camel-kamelet>4.22.0</version.camel-kamelet>
-        <version.vertx>4.5.22</version.vertx>
+        <version.vertx>5.1.6</version.vertx>
     </properties>
     <dependencies>
         <dependency>
@@ -46,7 +46,7 @@
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-            <version>2.16.1</version>
+            <version>2.18.8</version>
         </dependency>
         <dependency>
             <groupId>org.apache.camel</groupId>
@@ -108,13 +108,29 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>3.4.1</version>
+                <version>3.5.1</version>
                 <executions>
                     <execution>
                         <phase>package</phase>
                         <goals>
                             <goal>shade</goal>
                         </goals>
+                        <configuration>
+                            <createDependencyReducedPom>false</createDependencyReducedPom>
+                            <transformers>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+                            </transformers>
+                            <filters>
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/*.SF</exclude>
+                                        <exclude>META-INF/*.DSA</exclude>
+                                        <exclude>META-INF/*.RSA</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
