@@ -4,7 +4,7 @@
   "displayName": "Karavan",
   "icon": "icons/karavan.png",
   "description": "Integration Toolkit for Apache Camel",
-  "version": "4.22.0",
+  "version": "4.22.1",
   "license": "Apache-2.0",
   "preview": false,
   "bugs": {
@@ -487,24 +487,24 @@
     ],
     "menus": {
       "commandPalette": [
-      {
-        "command": "karavan.open",
-        "when": "false"
-      },
-      {
-        "command": "karavan.open-file",
-        "when": "false"
-      },
-      {
-        "command": "karavan.download-image",
-        "when": "false"
-      },
-      {
-        "command": "karavan.generate-rest",
-        "when": "false"
-      }
-    ],
-    "explorer/context": [
+        {
+          "command": "karavan.open",
+          "when": "false"
+        },
+        {
+          "command": "karavan.open-file",
+          "when": "false"
+        },
+        {
+          "command": "karavan.download-image",
+          "when": "false"
+        },
+        {
+          "command": "karavan.generate-rest",
+          "when": "false"
+        }
+      ],
+      "explorer/context": [
         {
           "command": "karavan.create-yaml",
           "when": "explorerResourceIsFolder || explorerResourceIsRoot",

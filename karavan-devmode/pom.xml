@@ -6,7 +6,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.apache.camel.karavan</groupId>
     <artifactId>karavan-devmode</artifactId>
-    <version>4.22.0</version>
+    <version>4.22.1</version>
     
     <properties>
         <compiler-plugin.version>3.14.0</compiler-plugin.version>
@@ -16,7 +16,7 @@
         <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <camel.version>4.22.0</camel.version>
+        <camel.version>4.22.1</camel.version>
     </properties>
 
     <dependencyManagement>

@@ -19,8 +19,9 @@ package org.apache.camel.karavan.generator;
 import io.vertx.core.json.JsonObject;
 import org.apache.camel.builder.RouteBuilder;
 
-import java.io.*;
-import java.nio.file.Paths;
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -38,11 +39,12 @@ public final class CamelComponentsGenerator extends AbstractGenerator {
     public static void generate(String rootPath, String... paths) throws Exception {
         CamelComponentsGenerator g = new CamelComponentsGenerator(rootPath);
         for (String path : paths) {
-            g.createCreateComponents(path + "/metadata", true);
+            g.createCreateComponents(path + "/metadata", "components.json", true);
+            g.createCreateComponents(path + "/metadata", "components-full.json", false);
         }
     }
 
-    private void createCreateComponents(String path, boolean singleFile) {
+    private void createCreateComponents(String path, String fileName, boolean removeComponentProperties) {
         List<String> components = getComponents();
         StringBuilder list = new StringBuilder();
         StringBuilder sources = new StringBuilder("[\n");
@@ -51,21 +53,17 @@ public final class CamelComponentsGenerator extends AbstractGenerator {
             String name = components.get(i);
             String json = getComponent(name);
             JsonObject obj = new JsonObject(json);
-            obj.remove("componentProperties");
+            if (removeComponentProperties) {
+                obj.remove("componentProperties");
+            }
             if (!obj.getJsonObject("component").getBoolean("deprecated")
                     && !obj.getJsonObject("component").getString("name").equals("kamelet")) {
-                if (singleFile) {
-                    sources.append(obj).append( i != components.size() - 1 ? "\n,\n" : "\n");
-                } else {
-                    saveFile(path, name + ".json", obj.toString());
-                }
+                sources.append(obj).append( i != components.size() - 1 ? "\n,\n" : "\n");
                 list.append(name).append("\n");
             }
         }
-        if (singleFile) {
-            sources.append("]");
-            saveFile(path, "components.json", sources.toString());
-        }
+        sources.append("]");
+        saveFile(path, fileName, sources.toString());
     }
 
     public List<String> getComponents() {

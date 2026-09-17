@@ -265,6 +265,8 @@ import {
     EndpointValidatorDefinition,
     PredicateValidatorDefinition,
     ValidatorsDefinition,
+    OutputAwareFromDefinition$Inline,
+    ExpressionDefinition$Inline,
 } from '../model/CamelDefinition';
 import {CamelUtil} from './CamelUtil';
 import {CamelMetadataApi} from '../model/CamelMetadata';
@@ -4986,6 +4988,190 @@ export class CamelDefinitionYamlStep {
                def.customValidator = CamelDefinitionYamlStep.readCustomValidatorDefinition(element.customValidator[0]); 
             } else { 
                def.customValidator = CamelDefinitionYamlStep.readCustomValidatorDefinition(element.customValidator); 
+            } 
+        } 
+
+        return def;
+    }
+
+    static readOutputAwareFromDefinition$Inline = (element: any): OutputAwareFromDefinition$Inline => {
+        
+        let def = element ? new OutputAwareFromDefinition$Inline({...element}) : new OutputAwareFromDefinition$Inline();
+        def = ComponentApi.parseElementUri(def);
+        def.steps = CamelDefinitionYamlStep.readSteps(element?.steps);
+
+        return def;
+    }
+
+    static readExpressionDefinition$Inline = (element: any): ExpressionDefinition$Inline => {
+        
+        let def = element ? new ExpressionDefinition$Inline({...element}) : new ExpressionDefinition$Inline();
+        if (element?.python !== undefined) { 
+            if (Array.isArray(element.python)) { 
+               def.python = CamelDefinitionYamlStep.readPythonExpression(element.python[0]); 
+            } else { 
+               def.python = CamelDefinitionYamlStep.readPythonExpression(element.python); 
+            } 
+        } 
+        if (element?.constant !== undefined) { 
+            if (Array.isArray(element.constant)) { 
+               def.constant = CamelDefinitionYamlStep.readConstantExpression(element.constant[0]); 
+            } else { 
+               def.constant = CamelDefinitionYamlStep.readConstantExpression(element.constant); 
+            } 
+        } 
+        if (element?.mvel !== undefined) { 
+            if (Array.isArray(element.mvel)) { 
+               def.mvel = CamelDefinitionYamlStep.readMvelExpression(element.mvel[0]); 
+            } else { 
+               def.mvel = CamelDefinitionYamlStep.readMvelExpression(element.mvel); 
+            } 
+        } 
+        if (element?.method !== undefined) { 
+            if (Array.isArray(element.method)) { 
+               def.method = CamelDefinitionYamlStep.readMethodCallExpression(element.method[0]); 
+            } else { 
+               def.method = CamelDefinitionYamlStep.readMethodCallExpression(element.method); 
+            } 
+        } 
+        if (element?.xquery !== undefined) { 
+            if (Array.isArray(element.xquery)) { 
+               def.xquery = CamelDefinitionYamlStep.readXQueryExpression(element.xquery[0]); 
+            } else { 
+               def.xquery = CamelDefinitionYamlStep.readXQueryExpression(element.xquery); 
+            } 
+        } 
+        if (element?.datasonnet !== undefined) { 
+            if (Array.isArray(element.datasonnet)) { 
+               def.datasonnet = CamelDefinitionYamlStep.readDatasonnetExpression(element.datasonnet[0]); 
+            } else { 
+               def.datasonnet = CamelDefinitionYamlStep.readDatasonnetExpression(element.datasonnet); 
+            } 
+        } 
+        if (element?.jactl !== undefined) { 
+            if (Array.isArray(element.jactl)) { 
+               def.jactl = CamelDefinitionYamlStep.readJactlExpression(element.jactl[0]); 
+            } else { 
+               def.jactl = CamelDefinitionYamlStep.readJactlExpression(element.jactl); 
+            } 
+        } 
+        if (element?.jq !== undefined) { 
+            if (Array.isArray(element.jq)) { 
+               def.jq = CamelDefinitionYamlStep.readJqExpression(element.jq[0]); 
+            } else { 
+               def.jq = CamelDefinitionYamlStep.readJqExpression(element.jq); 
+            } 
+        } 
+        if (element?.js !== undefined) { 
+            if (Array.isArray(element.js)) { 
+               def.js = CamelDefinitionYamlStep.readJavaScriptExpression(element.js[0]); 
+            } else { 
+               def.js = CamelDefinitionYamlStep.readJavaScriptExpression(element.js); 
+            } 
+        } 
+        if (element?.language !== undefined) { 
+            if (Array.isArray(element.language)) { 
+               def.language = CamelDefinitionYamlStep.readLanguageExpression(element.language[0]); 
+            } else { 
+               def.language = CamelDefinitionYamlStep.readLanguageExpression(element.language); 
+            } 
+        } 
+        if (element?.simple !== undefined) { 
+            if (Array.isArray(element.simple)) { 
+               def.simple = CamelDefinitionYamlStep.readSimpleExpression(element.simple[0]); 
+            } else { 
+               def.simple = CamelDefinitionYamlStep.readSimpleExpression(element.simple); 
+            } 
+        } 
+        if (element?.hl7terser !== undefined) { 
+            if (Array.isArray(element.hl7terser)) { 
+               def.hl7terser = CamelDefinitionYamlStep.readHl7TerserExpression(element.hl7terser[0]); 
+            } else { 
+               def.hl7terser = CamelDefinitionYamlStep.readHl7TerserExpression(element.hl7terser); 
+            } 
+        } 
+        if (element?.tokenize !== undefined) { 
+            if (Array.isArray(element.tokenize)) { 
+               def.tokenize = CamelDefinitionYamlStep.readTokenizerExpression(element.tokenize[0]); 
+            } else { 
+               def.tokenize = CamelDefinitionYamlStep.readTokenizerExpression(element.tokenize); 
+            } 
+        } 
+        if (element?.spel !== undefined) { 
+            if (Array.isArray(element.spel)) { 
+               def.spel = CamelDefinitionYamlStep.readSpELExpression(element.spel[0]); 
+            } else { 
+               def.spel = CamelDefinitionYamlStep.readSpELExpression(element.spel); 
+            } 
+        } 
+        if (element?.ref !== undefined) { 
+            if (Array.isArray(element.ref)) { 
+               def.ref = CamelDefinitionYamlStep.readRefExpression(element.ref[0]); 
+            } else { 
+               def.ref = CamelDefinitionYamlStep.readRefExpression(element.ref); 
+            } 
+        } 
+        if (element?.xpath !== undefined) { 
+            if (Array.isArray(element.xpath)) { 
+               def.xpath = CamelDefinitionYamlStep.readXPathExpression(element.xpath[0]); 
+            } else { 
+               def.xpath = CamelDefinitionYamlStep.readXPathExpression(element.xpath); 
+            } 
+        } 
+        if (element?.groovy !== undefined) { 
+            if (Array.isArray(element.groovy)) { 
+               def.groovy = CamelDefinitionYamlStep.readGroovyExpression(element.groovy[0]); 
+            } else { 
+               def.groovy = CamelDefinitionYamlStep.readGroovyExpression(element.groovy); 
+            } 
+        } 
+        if (element?.java !== undefined) { 
+            if (Array.isArray(element.java)) { 
+               def.java = CamelDefinitionYamlStep.readJavaExpression(element.java[0]); 
+            } else { 
+               def.java = CamelDefinitionYamlStep.readJavaExpression(element.java); 
+            } 
+        } 
+        if (element?.wasm !== undefined) { 
+            if (Array.isArray(element.wasm)) { 
+               def.wasm = CamelDefinitionYamlStep.readWasmExpression(element.wasm[0]); 
+            } else { 
+               def.wasm = CamelDefinitionYamlStep.readWasmExpression(element.wasm); 
+            } 
+        } 
+        if (element?.exchangeProperty !== undefined) { 
+            if (Array.isArray(element.exchangeProperty)) { 
+               def.exchangeProperty = CamelDefinitionYamlStep.readExchangePropertyExpression(element.exchangeProperty[0]); 
+            } else { 
+               def.exchangeProperty = CamelDefinitionYamlStep.readExchangePropertyExpression(element.exchangeProperty); 
+            } 
+        } 
+        if (element?.jsonpath !== undefined) { 
+            if (Array.isArray(element.jsonpath)) { 
+               def.jsonpath = CamelDefinitionYamlStep.readJsonPathExpression(element.jsonpath[0]); 
+            } else { 
+               def.jsonpath = CamelDefinitionYamlStep.readJsonPathExpression(element.jsonpath); 
+            } 
+        } 
+        if (element?.variable !== undefined) { 
+            if (Array.isArray(element.variable)) { 
+               def.variable = CamelDefinitionYamlStep.readVariableExpression(element.variable[0]); 
+            } else { 
+               def.variable = CamelDefinitionYamlStep.readVariableExpression(element.variable); 
+            } 
+        } 
+        if (element?.header !== undefined) { 
+            if (Array.isArray(element.header)) { 
+               def.header = CamelDefinitionYamlStep.readHeaderExpression(element.header[0]); 
+            } else { 
+               def.header = CamelDefinitionYamlStep.readHeaderExpression(element.header); 
+            } 
+        } 
+        if (element?.xtokenize !== undefined) { 
+            if (Array.isArray(element.xtokenize)) { 
+               def.xtokenize = CamelDefinitionYamlStep.readXMLTokenizerExpression(element.xtokenize[0]); 
+            } else { 
+               def.xtokenize = CamelDefinitionYamlStep.readXMLTokenizerExpression(element.xtokenize); 
             } 
         } 
 

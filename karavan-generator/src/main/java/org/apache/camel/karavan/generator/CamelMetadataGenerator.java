@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 public final class CamelMetadataGenerator extends AbstractGenerator {
 
     final static String modelHeader = "karavan-generator/src/main/resources/CamelMetadata.header.ts";
-    final static String targetModel = "karavan-core/src/core/model/CamelMetadata.ts";
+    final static String targetModel = "/model/CamelMetadata.ts";
 
     public CamelMetadataGenerator(String rootPath) {
         super(rootPath);
@@ -52,8 +52,6 @@ public final class CamelMetadataGenerator extends AbstractGenerator {
         JsonObject dataformats = getProperties(definitions, "org.apache.camel.model.dataformat.DataFormatsDefinition");
         camelModel.append("\nexport const DataFormats: [string, string, string][] = [\n");
         var keys = new ArrayList<>(dataformats.getMap().keySet());
-        keys.add("ocsf"); // Fix
-        keys.add("pqc"); // Fix
         keys.stream().sorted().forEach((name) -> {
             String json = getMetaDataFormat(name);
             JsonObject model = new JsonObject(json).getJsonObject("model");
@@ -272,63 +270,5 @@ public final class CamelMetadataGenerator extends AbstractGenerator {
         return "";
     }
 
-    private PropertyMeta getAttributeType(String pname, JsonObject attribute) {
-        if (attribute.containsKey("$ref")) {
-            String classFullName = attribute.getString("$ref");
-            String className = classSimple(classFullName);
-            if (className.equals("SagaActionUriDefinition"))
-                return new PropertyMeta("string", false, false);  // exception for SagaActionUriDefinition
-            if (className.equals("ToDefinition"))
-                return new PropertyMeta("string", false, false);  // exception for ToDefinition (in REST Methods)
-            if (className.equals("ToDynamicDefinition"))
-                return new PropertyMeta("string", false, false);  // exception for ToDynamicDefinition (in REST Methods)
-            return new PropertyMeta(className, false, true);
-        } else if (attribute.containsKey("type") && attribute.getString("type").equals("array")) {
-            JsonObject items = attribute.getJsonObject("items");
-            if (items.containsKey("properties") && items.getJsonObject("properties").containsKey(pname)) {
-                String t = items.getJsonObject("properties").getJsonObject(pname).getString("$ref");
-                if (t.equals("#/items/definitions/org.apache.camel.model.ProcessorDefinition")) {
-                    return new PropertyMeta("CamelElement", true, true);
-                } else {
-                    String className = classSimple(t);
-                    return new PropertyMeta(className, true, true);
-                }
-            } else if (items.containsKey("$ref")) {
-                String t = items.getString("$ref");
-                if (t.equals("#/items/definitions/org.apache.camel.model.ProcessorDefinition")) {
-                    return new PropertyMeta("CamelElement", true, true);
-                } else {
-                    String className = classSimple(t);
-                    return new PropertyMeta(className, true, true);
-                }
-            } else {
-                return new PropertyMeta(items.getString("type"), true, false);
-            }
-        } else if (attribute.containsKey("type") && attribute.getString("type").equals("object")) {
-            return new PropertyMeta(attribute.getString("type"), false, false);
-        } else {
-            return new PropertyMeta(attribute.getString("type"), false, false);
-        }
-    }
 
-    class PropertyMeta {
-        public String type;
-        public Boolean isArray;
-        public Boolean isObject;
-
-        public PropertyMeta(String type, Boolean isArray, Boolean isObject) {
-            this.type = type;
-            this.isArray = isArray;
-            this.isObject = isObject;
-        }
-
-        @Override
-        public String toString() {
-            return "PropertyMeta{" +
-                    "type='" + type + '\'' +
-                    ", isArray=" + isArray +
-                    ", isObject=" + isObject +
-                    '}';
-        }
-    }
 }

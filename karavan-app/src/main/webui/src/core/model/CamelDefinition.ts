@@ -2602,6 +2602,7 @@ export class PGPDataFormat extends CamelElement {
     compressionAlgorithm?: number;
     hashAlgorithm?: number;
     signatureVerificationOption?: string;
+    requireIntegrityProtection?: boolean;
     public constructor(init?: Partial<PGPDataFormat>) {
         super('PGPDataFormat');
         Object.assign(this, init);
@@ -2678,6 +2679,7 @@ export class SmooksDataFormat extends CamelElement {
     dataFormatName?: string = 'smooks';
     id?: string = 'smooks' + uuidv4().substring(0,4);
     smooksConfig: string = '';
+    allowExternalEntities?: boolean;
     public constructor(init?: Partial<SmooksDataFormat>) {
         super('SmooksDataFormat');
         Object.assign(this, init);
@@ -4148,6 +4150,51 @@ export class ValidatorsDefinition extends CamelElement {
     predicateValidator?: PredicateValidatorDefinition;
     public constructor(init?: Partial<ValidatorsDefinition>) {
         super('ValidatorsDefinition');
+        Object.assign(this, init);
+    }
+}
+
+export class OutputAwareFromDefinition$Inline extends CamelElement {
+    description?: string;
+    id?: string = 'outputAwareFromDefinition$Inline' + uuidv4().substring(0,4);
+    note?: string;
+    parameters?: any = {};
+    steps: CamelElement[] = [];
+    uri: string = '';
+    variableReceive?: string;
+    public constructor(init?: Partial<OutputAwareFromDefinition$Inline>) {
+        super('OutputAwareFromDefinition$Inline');
+        Object.assign(this, init);
+    }
+}
+
+export class ExpressionDefinition$Inline extends CamelElement {
+    constant?: ConstantExpression | string;
+    datasonnet?: DatasonnetExpression | string;
+    exchangeProperty?: ExchangePropertyExpression | string;
+    groovy?: GroovyExpression | string;
+    header?: HeaderExpression | string;
+    hl7terser?: Hl7TerserExpression | string;
+    jactl?: JactlExpression | string;
+    java?: JavaExpression | string;
+    jq?: JqExpression | string;
+    js?: JavaScriptExpression | string;
+    jsonpath?: JsonPathExpression | string;
+    language?: LanguageExpression;
+    method?: MethodCallExpression | string;
+    mvel?: MvelExpression | string;
+    python?: PythonExpression | string;
+    ref?: RefExpression | string;
+    simple?: SimpleExpression | string;
+    spel?: SpELExpression | string;
+    tokenize?: TokenizerExpression | string;
+    variable?: VariableExpression | string;
+    wasm?: WasmExpression | string;
+    xpath?: XPathExpression | string;
+    xquery?: XQueryExpression | string;
+    xtokenize?: XMLTokenizerExpression | string;
+    public constructor(init?: Partial<ExpressionDefinition$Inline>) {
+        super('ExpressionDefinition$Inline');
         Object.assign(this, init);
     }
 }

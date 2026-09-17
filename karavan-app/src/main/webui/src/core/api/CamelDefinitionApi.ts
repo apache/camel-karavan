@@ -264,6 +264,8 @@ import {
     EndpointValidatorDefinition,
     PredicateValidatorDefinition,
     ValidatorsDefinition,
+    OutputAwareFromDefinition$Inline,
+    ExpressionDefinition$Inline,
 } from '../model/CamelDefinition';
 import {CamelUtil} from './CamelUtil';
 
@@ -3140,6 +3142,91 @@ export class CamelDefinitionApi {
         return def;
     }
 
+    static createOutputAwareFromDefinition$Inline = (element: any): OutputAwareFromDefinition$Inline => { 
+        const def = element ? new OutputAwareFromDefinition$Inline({...element}) : new OutputAwareFromDefinition$Inline();
+        def.uuid = element?.uuid ? element.uuid : def.uuid; 
+        def.steps = CamelDefinitionApi.createSteps(element?.steps);
+        return def;
+    }
+
+    static createExpressionDefinition$Inline = (element: any): ExpressionDefinition$Inline => { 
+        const def = element ? new ExpressionDefinition$Inline({...element}) : new ExpressionDefinition$Inline();
+        def.uuid = element?.uuid ? element.uuid : def.uuid; 
+        if (element?.constant !== undefined) { 
+            def.constant = CamelDefinitionApi.createConstantExpression(element.constant); 
+        }
+        if (element?.datasonnet !== undefined) { 
+            def.datasonnet = CamelDefinitionApi.createDatasonnetExpression(element.datasonnet); 
+        }
+        if (element?.exchangeProperty !== undefined) { 
+            def.exchangeProperty = CamelDefinitionApi.createExchangePropertyExpression(element.exchangeProperty); 
+        }
+        if (element?.groovy !== undefined) { 
+            def.groovy = CamelDefinitionApi.createGroovyExpression(element.groovy); 
+        }
+        if (element?.header !== undefined) { 
+            def.header = CamelDefinitionApi.createHeaderExpression(element.header); 
+        }
+        if (element?.hl7terser !== undefined) { 
+            def.hl7terser = CamelDefinitionApi.createHl7TerserExpression(element.hl7terser); 
+        }
+        if (element?.jactl !== undefined) { 
+            def.jactl = CamelDefinitionApi.createJactlExpression(element.jactl); 
+        }
+        if (element?.java !== undefined) { 
+            def.java = CamelDefinitionApi.createJavaExpression(element.java); 
+        }
+        if (element?.jq !== undefined) { 
+            def.jq = CamelDefinitionApi.createJqExpression(element.jq); 
+        }
+        if (element?.js !== undefined) { 
+            def.js = CamelDefinitionApi.createJavaScriptExpression(element.js); 
+        }
+        if (element?.jsonpath !== undefined) { 
+            def.jsonpath = CamelDefinitionApi.createJsonPathExpression(element.jsonpath); 
+        }
+        if (element?.language !== undefined) { 
+            def.language = CamelDefinitionApi.createLanguageExpression(element.language); 
+        }
+        if (element?.method !== undefined) { 
+            def.method = CamelDefinitionApi.createMethodCallExpression(element.method); 
+        }
+        if (element?.mvel !== undefined) { 
+            def.mvel = CamelDefinitionApi.createMvelExpression(element.mvel); 
+        }
+        if (element?.python !== undefined) { 
+            def.python = CamelDefinitionApi.createPythonExpression(element.python); 
+        }
+        if (element?.ref !== undefined) { 
+            def.ref = CamelDefinitionApi.createRefExpression(element.ref); 
+        }
+        if (element?.simple !== undefined) { 
+            def.simple = CamelDefinitionApi.createSimpleExpression(element.simple); 
+        }
+        if (element?.spel !== undefined) { 
+            def.spel = CamelDefinitionApi.createSpELExpression(element.spel); 
+        }
+        if (element?.tokenize !== undefined) { 
+            def.tokenize = CamelDefinitionApi.createTokenizerExpression(element.tokenize); 
+        }
+        if (element?.variable !== undefined) { 
+            def.variable = CamelDefinitionApi.createVariableExpression(element.variable); 
+        }
+        if (element?.wasm !== undefined) { 
+            def.wasm = CamelDefinitionApi.createWasmExpression(element.wasm); 
+        }
+        if (element?.xpath !== undefined) { 
+            def.xpath = CamelDefinitionApi.createXPathExpression(element.xpath); 
+        }
+        if (element?.xquery !== undefined) { 
+            def.xquery = CamelDefinitionApi.createXQueryExpression(element.xquery); 
+        }
+        if (element?.xtokenize !== undefined) { 
+            def.xtokenize = CamelDefinitionApi.createXMLTokenizerExpression(element.xtokenize); 
+        }
+        return def;
+    }
+
     static createStep = (name: string, body: any, clone: boolean = false): CamelElement => {
        const newBody = CamelUtil.camelizeBody(name, body, clone);
        switch (name) { 
@@ -3387,6 +3474,8 @@ export class CamelDefinitionApi {
             case 'EndpointValidatorDefinition': return CamelDefinitionApi.createEndpointValidatorDefinition(newBody);
             case 'PredicateValidatorDefinition': return CamelDefinitionApi.createPredicateValidatorDefinition(newBody);
             case 'ValidatorsDefinition': return CamelDefinitionApi.createValidatorsDefinition(newBody);
+            case 'OutputAwareFromDefinition$Inline': return CamelDefinitionApi.createOutputAwareFromDefinition$Inline(newBody);
+            case 'ExpressionDefinition$Inline': return CamelDefinitionApi.createExpressionDefinition$Inline(newBody);
             default: return new CamelElement('');
         }
     }

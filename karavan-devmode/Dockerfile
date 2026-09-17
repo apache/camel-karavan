@@ -18,7 +18,7 @@ LABEL "org.opencontainers.image.title"="karavan-devmode"
 LABEL "org.opencontainers.image.description"="Apache Camel Karavan DevMode"
 LABEL "org.opencontainers.image.url"="https://camel.apache.org"
 LABEL "org.opencontainers.image.licenses"="Apache 2.0"
-LABEL "org.opencontainers.image.version"="4.22.0"
+LABEL "org.opencontainers.image.version"="4.22.1"
 
 ENV MAVEN_HOME=/opt/maven
 ENV PATH=$MAVEN_HOME/bin:$PATH

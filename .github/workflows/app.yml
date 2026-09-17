@@ -14,7 +14,7 @@ concurrency:
 
 env:
   REGISTRY: ghcr.io
-  TAG: 4.22.0
+  TAG: 4.22.1
 
 jobs:
   build:

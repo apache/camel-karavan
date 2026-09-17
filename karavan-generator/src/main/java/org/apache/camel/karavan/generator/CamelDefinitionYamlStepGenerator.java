@@ -29,7 +29,7 @@ public final class CamelDefinitionYamlStepGenerator extends AbstractGenerator {
     final static String modelHeader = "karavan-generator/src/main/resources/CamelDefinitionYamlStep.header.ts";
     final static String modelFooter = "karavan-generator/src/main/resources/CamelDefinitionYamlStep.footer.ts";
     final static String modelTemplate = "karavan-generator/src/main/resources/CamelDefinitionYamlStep.ts";
-    final static String targetModel = "karavan-core/src/core/api/CamelDefinitionYamlStep.ts";
+    final static String targetModel = "api/CamelDefinitionYamlStep.ts";
 
     public CamelDefinitionYamlStepGenerator(String rootPath) {
         super(rootPath);

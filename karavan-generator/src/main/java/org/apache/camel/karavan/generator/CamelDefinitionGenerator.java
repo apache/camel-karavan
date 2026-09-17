@@ -18,13 +18,16 @@ package org.apache.camel.karavan.generator;
 
 import io.vertx.core.json.JsonObject;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 public final class CamelDefinitionGenerator extends AbstractGenerator {
 
     final static String modelHeader = "karavan-generator/src/main/resources/CamelDefinition.header.ts";
     final static String modelTemplate = "karavan-generator/src/main/resources/CamelDefinition.ts";
-    final static String targetModel = "karavan-core/src/core/model/CamelDefinition.ts";
+    final static String targetModel = "model/CamelDefinition.ts";
 
     public CamelDefinitionGenerator(String rootPath) {
         super(rootPath);

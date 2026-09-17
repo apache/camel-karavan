@@ -16,25 +16,13 @@
  */
 package org.apache.camel.karavan.generator;
 
-import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.kamelets.catalog.KameletsCatalog;
-import org.apache.camel.v1.Kamelet;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.URI;
-import java.net.URISyntaxException;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class KameletGenerator extends AbstractGenerator {

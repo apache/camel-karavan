@@ -16,29 +16,22 @@
  */
 package org.apache.camel.karavan.generator;
 
-import java.nio.file.Paths;
-
 public final class KaravanGenerator {
 
+    public static final String resourcesPath = "karavan-app/src/main/resources";
+    public static final String appCorePath = "karavan-app/src/main/webui/src/core/";
+    public static final String coreTestPath = "karavan-app/src/main/webui/test";
+    public static final String[] metadataPaths = new String[] {resourcesPath, coreTestPath};
+
     public static void main(String[] args) throws Exception {
-        String rootPath = args.length > 0 ? args[0] : "";
-        boolean all = args.length == 0;
-        String[] paths = all
-                ? new String[] {"karavan-core/test", "karavan-app/src/main/resources", "karavan-designer/public", "karavan-vscode"}
-                : new String[] {"karavan-core/test", "karavan-app/src/main/resources"};
-        System.out.println("Generating Root Path: " + rootPath);
-        for (String path : paths) {
-            System.out.println("    Generating Path: " + path);
-            AbstractGenerator.clearDirectory(Paths.get(path + "/metadata").toFile());
-        }
-        System.out.println("Generating Camel Definitions: " + rootPath);
-        CamelDefinitionGenerator.generate(rootPath);
-        CamelDefinitionApiGenerator.generate(rootPath);
-        CamelDefinitionYamlStepGenerator.generate(rootPath);
-        CamelMetadataGenerator.generate(rootPath);
-        KameletGenerator.generate(rootPath, paths);
-        CamelComponentsGenerator.generate(rootPath, paths);
-        CamelSpiBeanGenerator.generate(rootPath, paths);
+        KameletGenerator.generate(".", coreTestPath);
+        CamelComponentsGenerator.generate(".", metadataPaths);
+        CamelSpiBeanGenerator.generate(".", metadataPaths);
+
+        CamelDefinitionGenerator.generate(appCorePath);
+        CamelDefinitionApiGenerator.generate(appCorePath);
+        CamelDefinitionYamlStepGenerator.generate(appCorePath);
+        CamelMetadataGenerator.generate(appCorePath);
         System.exit(0);
     }
 

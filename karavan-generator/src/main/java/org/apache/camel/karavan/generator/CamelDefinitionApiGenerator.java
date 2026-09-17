@@ -18,9 +18,11 @@ package org.apache.camel.karavan.generator;
 
 import io.vertx.core.json.JsonObject;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 
@@ -29,7 +31,7 @@ public final class CamelDefinitionApiGenerator extends AbstractGenerator {
     final static String modelHeader = "karavan-generator/src/main/resources/CamelDefinitionApi.header.ts";
     final static String modelFooter = "karavan-generator/src/main/resources/CamelDefinitionApi.footer.ts";
     final static String modelTemplate = "karavan-generator/src/main/resources/CamelDefinitionApi.ts";
-    final static String targetModel = "karavan-core/src/core/api/CamelDefinitionApi.ts";
+    final static String targetModel = "api/CamelDefinitionApi.ts";
 
     public CamelDefinitionApiGenerator(String rootPath) {
         super(rootPath);

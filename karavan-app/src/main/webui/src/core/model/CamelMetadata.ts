@@ -591,6 +591,7 @@ export const CamelDataFormatMetadata: ElementMeta[] = [
         new PropertyMeta('compressionAlgorithm', 'Compression Algorithm', "Compression algorithm; possible values are defined in org.bouncycastle.bcpg.CompressionAlgorithmTags. Only relevant for encrypting.", 'number', '', '', false, false, false, false, '', ''),
         new PropertyMeta('hashAlgorithm', 'Hash Algorithm', "Signature hash algorithm; possible values are defined in org.bouncycastle.bcpg.HashAlgorithmTags. Only relevant for signing.", 'number', '', '', false, false, false, false, '', ''),
         new PropertyMeta('signatureVerificationOption', 'Signature Verification Option', "Controls the behavior for verifying the signature during unmarshaling. Possible values: optional, required, ignore, no_signature_allowed.", 'string', '', '', false, false, false, false, '', ''),
+        new PropertyMeta('requireIntegrityProtection', 'Require Integrity Protection', "Whether a message must be integrity protected in order to be decrypted. The legacy symmetrically encrypted data packet carries no modification detection code, and the packet type is chosen by whoever produced the message, so accepting it lets the sender decide whether the integrity check applies. Set to false only to interoperate with a sender that still emits the legacy packet.", 'boolean', '', 'true', false, false, false, false, '', ''),
     ], [
     ]),
     new ElementMeta('pqc', 'PQCDataFormat', 'PQC (Post-Quantum Cryptography)', "Encrypt and decrypt messages using Post-Quantum Cryptography Key Encapsulation Mechanisms (KEM)", 'dataformat,transformation,security', [
@@ -642,6 +643,7 @@ export const CamelDataFormatMetadata: ElementMeta[] = [
     new ElementMeta('smooks', 'SmooksDataFormat', 'Smooks', "Transform and bind XML as well as non-XML data, including EDI, CSV, JSON, and YAML using Smooks", 'dataformat,transformation', [
         new PropertyMeta('id', 'Id', "The id of this node", 'string', '', '', false, false, false, false, '', ''),
         new PropertyMeta('smooksConfig', 'Smooks Config', "Path to the Smooks configuration file.", 'string', '', '', true, false, false, false, '', ''),
+        new PropertyMeta('allowExternalEntities', 'Allow External Entities', "Whether to allow the XML reader used by Smooks to resolve external XML entities (external general and parameter entities) when parsing XML input. This is disabled by default so that external entities in the message body are not resolved; enable it only for trusted legacy configurations that rely on external entity resolution.", 'boolean', '', 'false', false, false, false, false, 'security', ''),
     ], [
     ]),
     new ElementMeta('soap', 'SoapDataFormat', 'SOAP', "Marshal Java objects to SOAP messages and back", 'dataformat,transformation,xml', [
@@ -1109,6 +1111,8 @@ export const CamelModelMetadata: ElementMeta[] = [
         new ExchangePropertyMeta('CamelExceptionCaught', 'Exception Caught', 'producer', 'java.lang.Exception', "Stores the caught exception due to a processing error of the current Exchange"),
         new ExchangePropertyMeta('CamelFailureEndpoint', 'Failure Endpoint', 'producer', 'String', "Endpoint URI where the Exchange failed during processing"),
         new ExchangePropertyMeta('CamelFailureRouteId', 'Failure Route Id', 'producer', 'String', "Route ID where the Exchange failed during processing"),
+        new ExchangePropertyMeta('CamelFailureNodeId', 'Failure Node Id', 'producer', 'String', "Node ID where the Exchange failed during processing"),
+        new ExchangePropertyMeta('CamelFailureLocation', 'Failure Location', 'producer', 'String', "Source code location where the Exchange failed during processing"),
     ]),
     new ElementMeta('choice', 'ChoiceDefinition', 'Choice', "Routes messages to different steps based on a series of conditions (predicates), similar to if-elseif-else in Java. Each condition is evaluated in order until one matches.", 'eip,routing', [
         new PropertyMeta('id', 'Id', "The id of this node", 'string', '', '', false, false, false, false, '', ''),
@@ -1249,6 +1253,8 @@ export const CamelModelMetadata: ElementMeta[] = [
         new ExchangePropertyMeta('CamelExceptionCaught', 'Exception Caught', 'producer', 'java.lang.Exception', "Stores the caught exception due to a processing error of the current Exchange"),
         new ExchangePropertyMeta('CamelFailureEndpoint', 'Failure Endpoint', 'producer', 'String', "Endpoint URI where the Exchange failed during processing"),
         new ExchangePropertyMeta('CamelFailureRouteId', 'Failure Route Id', 'producer', 'String', "Route ID where the Exchange failed during processing"),
+        new ExchangePropertyMeta('CamelFailureNodeId', 'Failure Node Id', 'producer', 'String', "Node ID where the Exchange failed during processing"),
+        new ExchangePropertyMeta('CamelFailureLocation', 'Failure Location', 'producer', 'String', "Source code location where the Exchange failed during processing"),
     ]),
     new ElementMeta('idempotentConsumer', 'IdempotentConsumerDefinition', 'Idempotent Consumer', "Filters out duplicate messages based on a unique message identifier and an idempotent repository that tracks previously seen IDs", 'eip,flowcontrol,routing', [
         new PropertyMeta('id', 'Id', "The id of this node", 'string', '', '', false, false, false, false, '', ''),
@@ -2011,6 +2017,8 @@ export const CamelModelMetadata: ElementMeta[] = [
         new ExchangePropertyMeta('CamelExceptionCaught', 'Exception Caught', 'producer', 'java.lang.Exception', "Stores the caught exception due to a processing error of the current Exchange"),
         new ExchangePropertyMeta('CamelFailureEndpoint', 'Failure Endpoint', 'producer', 'String', "Endpoint URI where the Exchange failed during processing"),
         new ExchangePropertyMeta('CamelFailureRouteId', 'Failure Route Id', 'producer', 'String', "Route ID where the Exchange failed during processing"),
+        new ExchangePropertyMeta('CamelFailureNodeId', 'Failure Node Id', 'producer', 'String', "Node ID where the Exchange failed during processing"),
+        new ExchangePropertyMeta('CamelFailureLocation', 'Failure Location', 'producer', 'String', "Source code location where the Exchange failed during processing"),
     ]),
     new ElementMeta('routeConfiguration', 'RouteConfigurationDefinition', 'Route Configuration', "Defines reusable configuration that is automatically applied to matching routes, such as shared error handling or interceptors", 'configuration', [
         new PropertyMeta('id', 'Id', "The id of this node", 'string', '', '', false, false, false, false, '', ''),
@@ -2176,6 +2184,8 @@ export const CamelModelMetadata: ElementMeta[] = [
         new ExchangePropertyMeta('CamelExceptionCaught', 'Exception Caught', 'producer', 'java.lang.Exception', "Stores the caught exception due to a processing error of the current Exchange"),
         new ExchangePropertyMeta('CamelFailureEndpoint', 'Failure Endpoint', 'producer', 'String', "Endpoint URI where the Exchange failed during processing"),
         new ExchangePropertyMeta('CamelFailureRouteId', 'Failure Route Id', 'producer', 'String', "Route ID where the Exchange failed during processing"),
+        new ExchangePropertyMeta('CamelFailureNodeId', 'Failure Node Id', 'producer', 'String', "Node ID where the Exchange failed during processing"),
+        new ExchangePropertyMeta('CamelFailureLocation', 'Failure Location', 'producer', 'String', "Source code location where the Exchange failed during processing"),
     ]),
     new ElementMeta('faultToleranceConfiguration', 'FaultToleranceConfigurationDefinition', 'Fault Tolerance Configuration', "Configures MicroProfile Fault Tolerance settings for the Circuit Breaker EIP, such as timeout, bulkhead, and retry parameters", 'configuration,eip,error,resilience', [
         new PropertyMeta('id', 'Id', "The id of this node", 'string', '', '', false, false, false, false, '', ''),
@@ -3022,6 +3032,7 @@ export const SensitiveKeys: string[] = [
     "oauthtokenurl",
     "clientid",
     "sassignature",
+    "sastoken",
     "connectionstring",
     "sslpassword",
     "keypassword",

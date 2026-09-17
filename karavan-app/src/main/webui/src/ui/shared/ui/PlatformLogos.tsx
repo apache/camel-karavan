@@ -4,8 +4,8 @@ import PlatformLogo from "@compass/navigation/PlatformLogo";
 import {CamelIcon, KaravanIcon} from "@designer/icons/KaravanIcons";
 import './PlatformLogos.css'
 
-export const KARAVAN_PLATFORM_VERSION = "4.22.0";
-export const CAMEL_VERSION = "4.22.0";
+export const KARAVAN_PLATFORM_VERSION = "4.22.1";
+export const CAMEL_VERSION = "4.22.1";
 
 interface PlatformVersionProps {
     environment: string

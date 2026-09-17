@@ -25,16 +25,12 @@ import org.apache.camel.catalog.DefaultCamelCatalog;
 import org.apache.camel.catalog.VersionHelper;
 import org.apache.camel.dsl.yaml.YamlRoutesBuilderLoader;
 
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
+import java.nio.file.FileSystem;
 import java.util.*;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -348,6 +344,17 @@ public class AbstractGenerator {
         }
     }
 
+    protected String getCatalogResource(String name) {
+        try {
+            InputStream inputStream = CamelCatalog.class.getResourceAsStream("/org/apache/camel/catalog/" + name);
+            String data = new BufferedReader(new InputStreamReader(inputStream))
+                    .lines().collect(Collectors.joining(System.lineSeparator()));
+            return data;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
     protected String readBean(String name) {
         InputStream inputStream = DefaultCamelCatalog.class.getResourceAsStream("/org/apache/camel/catalog/beans/" + name + ".json");
         return new BufferedReader(
@@ -612,6 +619,66 @@ public class AbstractGenerator {
             for (File file : allContents) {
                 if (!file.getName().endsWith("gitignore")) file.delete();
             }
+        }
+    }
+
+    protected PropertyMeta getAttributeType(String pname, JsonObject attribute) {
+        if (attribute.containsKey("$ref")) {
+            String classFullName = attribute.getString("$ref");
+            String className = classSimple(classFullName);
+            if (className.equals("SagaActionUriDefinition"))
+                return new PropertyMeta("string", false, false);  // exception for SagaActionUriDefinition
+            if (className.equals("ToDefinition"))
+                return new PropertyMeta("string", false, false);  // exception for ToDefinition (in REST Methods)
+            if (className.equals("ToDynamicDefinition"))
+                return new PropertyMeta("string", false, false);  // exception for ToDynamicDefinition (in REST Methods)
+            return new PropertyMeta(className, false, true);
+        } else if (attribute.containsKey("type") && attribute.getString("type").equals("array")) {
+            JsonObject items = attribute.getJsonObject("items");
+            if (items.containsKey("properties") && items.getJsonObject("properties").containsKey(pname)) {
+                String t = items.getJsonObject("properties").getJsonObject(pname).getString("$ref");
+                if (t.equals("#/items/definitions/org.apache.camel.model.ProcessorDefinition")) {
+                    return new PropertyMeta("CamelElement", true, true);
+                } else {
+                    String className = classSimple(t);
+                    return new PropertyMeta(className, true, true);
+                }
+            } else if (items.containsKey("$ref")) {
+                String t = items.getString("$ref");
+                if (t.equals("#/items/definitions/org.apache.camel.model.ProcessorDefinition")) {
+                    return new PropertyMeta("CamelElement", true, true);
+                } else {
+                    String className = classSimple(t);
+                    return new PropertyMeta(className, true, true);
+                }
+            } else {
+                return new PropertyMeta(items.getString("type"), true, false);
+            }
+        } else if (attribute.containsKey("type") && attribute.getString("type").equals("object")) {
+            return new PropertyMeta(attribute.getString("type"), false, false);
+        } else {
+            return new PropertyMeta(attribute.getString("type"), false, false);
+        }
+    }
+
+    public static class PropertyMeta {
+        public String type;
+        public Boolean isArray;
+        public Boolean isObject;
+
+        public PropertyMeta(String type, Boolean isArray, Boolean isObject) {
+            this.type = type;
+            this.isArray = isArray;
+            this.isObject = isObject;
+        }
+
+        @Override
+        public String toString() {
+            return "PropertyMeta{" +
+                    "type='" + type + '\'' +
+                    ", isArray=" + isArray +
+                    ", isObject=" + isObject +
+                    '}';
         }
     }
 }
