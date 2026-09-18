@@ -21,7 +21,8 @@ public final class KaravanGenerator {
     public static final String resourcesPath = "karavan-app/src/main/resources";
     public static final String appCorePath = "karavan-app/src/main/webui/src/core/";
     public static final String coreTestPath = "karavan-app/src/main/webui/test";
-    public static final String[] metadataPaths = new String[] {resourcesPath, coreTestPath};
+    public static final String vscodePath = "karavan-vscode";
+    public static final String[] metadataPaths = new String[] {resourcesPath, coreTestPath, vscodePath};
 
     public static void main(String[] args) throws Exception {
         KameletGenerator.generate(".", coreTestPath);
