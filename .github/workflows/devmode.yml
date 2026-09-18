@@ -3,7 +3,7 @@ name: Karavan Devmode
 on:
   push:
     branches: [ main ]
-    paths: ['karavan-devmode/Dockerfile', '.github/workflows/docker-devmode.yml']
+    paths: ['karavan-devmode/*', '.github/workflows/devmode.yml']
   workflow_dispatch:
 
 env:
