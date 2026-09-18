@@ -1,5 +1,7 @@
 *
-!target/karavan-devmode*
+!target/talisman-devmode*
 !target/lib/*
+!settings.xml
 !entrypoint.sh
+!scripts/utils-*.sh
 src/*
