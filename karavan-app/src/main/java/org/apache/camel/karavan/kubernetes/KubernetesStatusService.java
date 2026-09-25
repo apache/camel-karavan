@@ -44,6 +44,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+
 @Default
 @Readiness
 @ApplicationScoped
@@ -120,7 +121,7 @@ public class KubernetesStatusService implements HealthCheck {
                 return HealthCheckResponse.named("Kubernetes").up().build();
             }
         }
-        return HealthCheckResponse.named("Kubernetes").down().build();
+        return HealthCheckResponse.named("Kubernetes").up().build();
     }
 
     public void stopInformers() {

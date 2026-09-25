@@ -30,6 +30,7 @@ public class AuthService {
     public static final String ROLE_ADMIN = "platform-admin";
     public static final String ROLE_DEVELOPER = "platform-developer";
     public static final String ROLE_USER = "platform-user";
+    public static final String ROLE_OPERATOR = "platform-operator";
     public static final String ROLE_SERVICE_ACCOUNT = "platform-service-account";
 
     public static final String USER_ADMIN = "admin";
@@ -37,7 +38,7 @@ public class AuthService {
     public static final String DEFAULT_EMAIL_SUFFIX = "@platform.platform";
 
     public static List<String> getAllRoles(){
-        return List.of(ROLE_ADMIN, ROLE_DEVELOPER, ROLE_USER);
+        return List.of(ROLE_ADMIN, ROLE_DEVELOPER, ROLE_USER, ROLE_OPERATOR);
     }
 
     private static final int COST = 12;

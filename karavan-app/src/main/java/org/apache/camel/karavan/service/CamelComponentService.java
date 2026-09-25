@@ -5,11 +5,14 @@ import io.vertx.core.json.JsonObject;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.apache.camel.karavan.util.CamelComponentMetadata;
+import org.jboss.logging.Logger;
 
 import java.util.*;
 
 @ApplicationScoped
 public class CamelComponentService {
+
+    private static final Logger LOGGER = Logger.getLogger(CamelComponentService.class.getName());
 
     @Inject
     CodeService codeService;

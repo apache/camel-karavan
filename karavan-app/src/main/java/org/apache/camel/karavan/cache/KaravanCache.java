@@ -93,6 +93,12 @@ public class KaravanCache {
         return query(folders, f -> true, ProjectFolder::copy);
     }
 
+    public List<ProjectFolder> getIntegrationProjects() {
+        return query(folders, f -> true, ProjectFolder::copy)
+                .stream().filter(p -> Objects.equals(p.type, ProjectFolder.Type.integration))
+                .collect(Collectors.toList());
+    }
+
     public void saveProject(ProjectFolder projectFolder, boolean persist) {
         var key = GroupedKey.create(projectFolder.getProjectId(), DEV, projectFolder.getProjectId());
         if (projectFolder.lastUpdate == 0) {
@@ -185,6 +191,7 @@ public class KaravanCache {
         }
         if (persist) {
             eventBus.publish(PERSIST_PROJECT, new CacheEvent(key, SAVE, file));
+            eventBus.publish(FILE_CHANGED, new CacheEvent(key, SAVE, file));
         }
     }
 
@@ -200,6 +207,7 @@ public class KaravanCache {
         var key = GroupedKey.create(projectId, DEV, filename);
         files.remove(key);
         eventBus.publish(PERSIST_PROJECT, new CacheEvent(key, DELETE, null));
+        eventBus.publish(FILE_CHANGED, new CacheEvent(key, SAVE, filename));
     }
 
     // --- Committed Files ---

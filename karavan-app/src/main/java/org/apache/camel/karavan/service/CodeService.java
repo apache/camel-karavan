@@ -107,7 +107,7 @@ public class CodeService {
         }
     }
 
-    private ProjectFile getApplicationProperties(String projectId) {
+    public ProjectFile getApplicationProperties(String projectId) {
         return karavanCache.getProjectFile(projectId, APPLICATION_PROPERTIES_FILENAME);
     }
 
@@ -222,6 +222,23 @@ public class CodeService {
             LOGGER.error(e.getMessage());
         }
         return null;
+    }
+
+    public String getEnvSpecificConfigurationText(String fileName) {
+        return getConfigurationText(envFileName(fileName));
+    }
+
+    /** Every environment except {@code dev} works on {@code <env>.}-prefixed files, inputs and outputs alike. */
+    public String envFileName(String fileName) {
+        return envFileName(fileName, environment);
+    }
+
+    /**
+     * The same, for an environment other than this instance's. Dev renders the artifacts every environment
+     * deploys from, so it has to name files for environments it is not running in.
+     */
+    public static String envFileName(String fileName, String env) {
+        return Objects.equals(env, KaravanConstants.DEV) ? fileName : env + "." + fileName;
     }
 
     public String getTemplateText(String fileName) {

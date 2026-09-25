@@ -37,9 +37,10 @@ public class ComplexityService {
         return karavanCache.getFolders().stream()
                 .filter(p -> Objects.equals(p.getType(), ProjectFolder.Type.integration)
                         || Objects.equals(p.getType(), ProjectFolder.Type.templates)
+                        || Objects.equals(p.getType(), ProjectFolder.Type.sdx)
                         || Objects.equals(p.getType(), ProjectFolder.Type.kamelets)
                         || Objects.equals(p.getType(), ProjectFolder.Type.documentation)
-                        )
+                        || Objects.equals(p.getType(), ProjectFolder.Type.contracts))
                 .map(this::getProjectComplexity).toList();
     }
 
@@ -74,8 +75,13 @@ public class ComplexityService {
                         routes1.forEach(r -> r.getComponentsExt().forEach(complexityFile::addComponentExt));
                         routes1.forEach(r -> r.getComponentsInt().forEach(complexityFile::addComponentInt));
                         routes1.forEach(r -> r.getKamelets().forEach(complexityFile::addKamelet));
+                        if (file.getName().equals("mcp-route.camel.yaml")) {
+                            complexityProject.setMcp(true);
+                        }
                         routes.addAll(routes1);
 
+                    } else if (file.getName().equals("AgentConfig.java")) {
+                        complexityProject.setAgents(true);
                     } else if (file.getName().equals(APPLICATION_PROPERTIES_FILENAME)) {
                         complexityFile.setType(ComplexityFile.Type.properties);
                         complexityProject.setDependencies(getDependencies(file.getCode()));

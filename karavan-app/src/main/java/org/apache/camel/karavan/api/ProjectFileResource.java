@@ -59,6 +59,10 @@ public class ProjectFileResource {
         }
     }
 
+    /**
+     * Files of a project matching a glob such as {@code *-task-template.md}, so a client after a handful of small
+     * files does not have to download every file of the project to filter them itself.
+     */
     @GET
     @Authenticated
     @Produces(MediaType.APPLICATION_JSON)

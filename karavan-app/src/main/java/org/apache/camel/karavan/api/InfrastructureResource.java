@@ -23,7 +23,10 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.apache.camel.karavan.KaravanConstants;
-import org.apache.camel.karavan.cache.*;
+import org.apache.camel.karavan.cache.DeploymentStatus;
+import org.apache.camel.karavan.cache.KaravanCache;
+import org.apache.camel.karavan.cache.ProjectFile;
+import org.apache.camel.karavan.cache.ServiceStatus;
 import org.apache.camel.karavan.kubernetes.KubernetesService;
 import org.apache.camel.karavan.model.PodEvent;
 import org.apache.camel.karavan.service.ConfigService;
@@ -32,12 +35,10 @@ import org.jboss.logging.Logger;
 
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static org.apache.camel.karavan.KaravanConstants.KUBERNETES_YAML_FILENAME;
-import static org.apache.camel.karavan.KaravanConstants.LABEL_TYPE;
 import static org.apache.camel.karavan.KaravanEvents.CMD_RESTART_INFORMERS;
 
 @Path("/ui/infrastructure")
@@ -104,9 +105,8 @@ public class InfrastructureResource {
         if (resources == null) {
             return Response.status(Response.Status.NOT_FOUND).entity("Resource file " + KUBERNETES_YAML_FILENAME + " not found").build();
         }
-        kubernetesService.startDeployment(resources.getCode(), Map.of(LABEL_TYPE, ContainerType.packaged.name()));
         try {
-            kubernetesService.startDeployment(resources.getCode(), Map.of(LABEL_TYPE, ContainerType.packaged.name()));
+            kubernetesService.startDeployment(resources.getCode());
         } catch (IllegalArgumentException e) {
             LOGGER.error("Rejected " + name + " of project " + projectId + ": " + e.getMessage());
             return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();

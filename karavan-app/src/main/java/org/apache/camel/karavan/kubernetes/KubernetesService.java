@@ -255,7 +255,7 @@ public class KubernetesService {
         }
     }
 
-    public void startDeployment(String resources, Map<String, String> labels) {
+    public void startDeployment(String resources) {
         KubernetesList list;
         try {
             list = Serialization.unmarshal(resources, KubernetesList.class);
@@ -271,16 +271,16 @@ public class KubernetesService {
         list.getItems().forEach(item -> validateDeploymentResource(item, allowedKinds));
         try (KubernetesClient client = kubernetesClient()) {
             list.getItems().forEach(item -> {
-                if (labels != null) {
-                    putLabels(item.getMetadata(), labels);
-                    if (item instanceof Deployment deployment && deployment.getSpec() != null && deployment.getSpec().getTemplate() != null) {
-                        var template = deployment.getSpec().getTemplate();
-                        if (template.getMetadata() == null) {
-                            template.setMetadata(new ObjectMeta());
-                        }
-                        putLabels(template.getMetadata(), labels);
-                    }
-                }
+//                if (labels != null) {
+//                    putLabels(item.getMetadata(), labels);
+//                    if (item instanceof Deployment deployment && deployment.getSpec() != null && deployment.getSpec().getTemplate() != null) {
+//                        var template = deployment.getSpec().getTemplate();
+//                        if (template.getMetadata() == null) {
+//                            template.setMetadata(new ObjectMeta());
+//                        }
+//                        putLabels(template.getMetadata(), labels);
+//                    }
+//                }
                 item.getMetadata().setNamespace(getNamespace());
                 client.resource(item).inNamespace(getNamespace()).serverSideApply();
             });
@@ -360,6 +360,7 @@ public class KubernetesService {
             LOGGER.info("Delete deployment: " + name + " in the namespace: " + getNamespace());
             client.apps().deployments().inNamespace(getNamespace()).withName(name).delete();
             client.services().inNamespace(getNamespace()).withName(name).delete();
+            client.configMaps().inNamespace(getNamespace()).withName(name).delete();
         } catch (Exception ex) {
             LOGGER.error(ex.getMessage());
         }
@@ -599,16 +600,26 @@ public class KubernetesService {
     }
 
     public void createConfigMap(String name, Map<String, String> data, Map<String, String> labels) {
+        createConfigMap(name, data, labels, Map.of());
+    }
+
+    public void createConfigMap(String name, Map<String, String> data, Map<String, String> labels,
+                                Map<String, String> annotations) {
         try (KubernetesClient client = kubernetesClient()) {
             ConfigMap configMap = new ConfigMapBuilder()
                     .withNewMetadata()
                     .withName(name)
                     .withNamespace(getNamespace())
                     .withLabels(labels)
+                    .withAnnotations(annotations)
                     .endMetadata()
                     .withData(data)
                     .build();
-            client.resource(configMap).serverSideApply();
+            // forceConflicts: these ConfigMaps are seeded by a manifest applied with kubectl, which records
+            // itself as the field manager of the keys it wrote. A later server-side apply from here is then
+            // a 409 FieldManagerConflict, and the operator sees a deploy that simply fails. Writing these
+            // keys is exactly what this method is for, so it takes ownership rather than asking.
+            client.resource(configMap).forceConflicts().serverSideApply();
         }
     }
 
@@ -780,6 +791,28 @@ public class KubernetesService {
                     .forEach(secret -> result.add(new KubernetesConfigMap(secret.getMetadata().getName(), new HashMap<>(secret.getData()))));
         } catch (Exception e) {
             LOGGER.error(e);
+        }
+        return result;
+    }
+
+    /**
+     * ConfigMaps of the namespace carrying the label, whatever its value - the selector is applied server side so
+     * the API server does the filtering. Callers that care about the value read it from the returned metadata.
+     */
+    public List<ConfigMap> getConfigMapsByLabel(String labelKey) {
+        try (KubernetesClient client = kubernetesClient()) {
+            return client.configMaps().inNamespace(getNamespace()).withLabel(labelKey).list().getItems();
+        } catch (Exception e) {
+            LOGGER.error("getConfigMapsByLabel " + labelKey + ": " + e.getMessage());
+            return List.of();
+        }
+    }
+
+    public Map<String, ConfigMap> getProjectConfigMaps() {
+        Map<String, ConfigMap> result = new HashMap<>();
+        for (var configMap: getConfigMapsByLabel(LABEL_PROJECT_ID)) {
+            var name = configMap.getMetadata().getName();
+            result.put(name, configMap);
         }
         return result;
     }

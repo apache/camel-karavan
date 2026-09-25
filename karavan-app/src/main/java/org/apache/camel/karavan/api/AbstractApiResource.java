@@ -78,4 +78,32 @@ public class AbstractApiResource {
                 .put("username", username)
                 .put("roles", roles);
     }
+
+    /**
+     * An error body that says what went wrong, not only what was being attempted.
+     *
+     * <p>"Could not deploy the gateway configuration" tells an operator nothing they did not already know,
+     * and the reason - a rejected apply, an unreachable API server, a conflict - is then only in a log line
+     * they may not be able to read. The cause is appended so the UI can show it.
+     *
+     * <p>The deepest cause is used because the outer frame is usually the least specific: a client library
+     * wraps "conflict with kubectl-client-side-apply on .data.apisix.yaml" in its own generic failure.
+     */
+    protected static String withCause(String message, Throwable throwable) {
+        var cause = deepestMessage(throwable);
+        return cause == null ? message : message + ": " + cause;
+    }
+
+    private static String deepestMessage(Throwable throwable) {
+        String message = null;
+        for (var current = throwable; current != null; current = current.getCause()) {
+            if (current.getMessage() != null && !current.getMessage().isBlank()) {
+                message = current.getMessage();
+            }
+            if (current.getCause() == current) {
+                break;
+            }
+        }
+        return message;
+    }
 }
