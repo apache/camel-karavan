@@ -11,18 +11,18 @@ log_step() {
 }
 export -f log_step
 
-# Function to determine KARAVAN_HOST based on the environment (K8s vs Docker)
+# Function to determine PLATFORM_HOST based on the environment (K8s vs Docker)
 determine_host() {
     log_step "🌐 Determining Platform Host Environment"
     local k8s_namespace_file="/var/run/secrets/kubernetes.io/serviceaccount/namespace"
 
     if [[ -f "$k8s_namespace_file" ]]; then
         export NAMESPACE=$(cat "$k8s_namespace_file")
-        export KARAVAN_HOST="karavan.$NAMESPACE"
-        echo "✅ Kubernetes environment detected. KARAVAN_HOST set to: $KARAVAN_HOST"
+        export PLATFORM_HOST="karavan.$NAMESPACE"
+        echo "✅ Kubernetes environment detected. PLATFORM_HOST set to: $PLATFORM_HOST"
     else
-        export KARAVAN_HOST="karavan:8080"
-        echo "🐳 Docker environment detected. KARAVAN_HOST set to: $KARAVAN_HOST"
+        export PLATFORM_HOST="karavan:8080"
+        echo "🐳 Docker environment detected. PLATFORM_HOST set to: $PLATFORM_HOST"
     fi
 }
 export -f determine_host
