@@ -51,6 +51,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.function.Function;
 import java.util.regex.Pattern;
 
 @ApplicationScoped
@@ -62,20 +63,7 @@ public class GitService {
     @Inject
     Vertx vertx;
 
-    private Git gitForImport;
-
     private static final Logger LOGGER = Logger.getLogger(GitService.class.getName());
-
-    public Git getGitForImport() {
-        if (gitForImport == null) {
-            try {
-                gitForImport = getGit(true, vertx.fileSystem().createTempDirectoryBlocking("import"));
-            } catch (Exception e) {
-                LOGGER.error("Error", e);
-            }
-        }
-        return gitForImport;
-    }
 
     public Tuple3<RevCommit, List<RemoteRefUpdate.Status>, List<String>> commitAndPushProject(ProjectFolder projectFolder, List<ProjectFile> files, String message, String authorName, String authorEmail, List<String> fileNames) throws GitAPIException, IOException, URISyntaxException {
         LOGGER.info("Commit and push project " + projectFolder.getProjectId());
@@ -83,28 +71,24 @@ public class GitService {
         String uuid = UUID.randomUUID().toString();
         String folder = vertx.fileSystem().createTempDirectoryBlocking(uuid);
         LOGGER.info("Temp folder created " + folder);
-        Git git = getGit(true, folder);
-        writeProjectToFolder(folder, projectFolder, files);
-        addDeletedFilesToIndex(git, folder, projectFolder, files);
-        return commitAddedAndPush(git, gitConfig.branch(), message, authorName, authorEmail, fileNames, projectFolder.getProjectId());
-    }
-
-    public List<PathCommitDetails> readProjectsToImport() {
-        Git importGit = getGitForImport();
-        if (importGit != null) {
-            return readProjectsFromRepository(importGit);
+        Git git = null;
+        try {
+            git = getGit(true, folder);
+            writeProjectToFolder(folder, projectFolder, files);
+            addDeletedFilesToIndex(git, folder, projectFolder, files);
+            return commitAddedAndPush(git, gitConfig.branch(), message, authorName, authorEmail, fileNames, projectFolder.getProjectId());
+        } finally {
+            closeAndDelete(git, folder);
         }
-        return new ArrayList<>(0);
     }
 
-    public List<PathCommitDetails> readProjectFromRepository(String projectId) throws GitAPIException, IOException, URISyntaxException {
-        Git git = getGit(true, vertx.fileSystem().createTempDirectoryBlocking(UUID.randomUUID().toString()));
-        return readProjectsFromRepository(git).stream().filter(d -> Objects.equals(d.projectId(), projectId)).toList();
+    public List<PathCommitDetails> readAllProjectsFromRepository() {
+        return withFreshClone("allProject", List.of(), this::readProjectsFromRepository);
     }
 
-    public List<PathCommitDetails> readAllProjectsFromRepository() throws GitAPIException, IOException, URISyntaxException {
-        Git git = getGit(true, vertx.fileSystem().createTempDirectoryBlocking(UUID.randomUUID().toString()));
-        return readProjectsFromRepository(git);
+    public List<PathCommitDetails> readProjectFromRepository(String projectId) {
+        return withFreshClone("project", List.of(), git -> readProjectsFromRepository(git).stream()
+                .filter(d -> Objects.equals(d.projectId(), projectId)).toList());
     }
 
     public List<PathCommitDetails> getLastCommitForEachFile(Git git) throws IOException, GitAPIException {
@@ -360,23 +344,51 @@ public class GitService {
         GitConfig gitConfig = gitServiceAuth.getGitConfig();
         String uuid = UUID.randomUUID().toString();
         String folder = vertx.fileSystem().createTempDirectoryBlocking(uuid);
-        try (Git git = clone(folder, gitConfig.repository(), gitConfig.branch())) {
+        Git git = null;
+        try {
+            git = clone(folder, gitConfig.repository(), gitConfig.branch());
             LOGGER.info("Git is ready");
+            return true;
         } catch (Exception e) {
-            LOGGER.info("Error connecting git: " + (e.getCause() != null ? e.getCause().getMessage() : e.getMessage()));
+            LOGGER.error("Error connecting git: " + (e.getCause() != null ? e.getCause().getMessage() : e.getMessage()));
+            return false;
+        } finally {
+            closeAndDelete(git, folder);
         }
-        return true;
+    }
+
+    private <T> T withFreshClone(String prefix, T fallback, Function<Git, T> reader) {
+        String folder = vertx.fileSystem().createTempDirectoryBlocking(prefix);
+        Git git = null;
+        try {
+            git = getGit(true, folder);
+            return git != null ? reader.apply(git) : fallback;
+        } catch (Exception e) {
+            LOGGER.error("Error", e);
+            return fallback;
+        } finally {
+            closeAndDelete(git, folder);
+        }
+    }
+
+    private void closeAndDelete(Git git, String folder) {
+        if (git != null) {
+            git.close();                                        // JGit holds pack files open
+        }
+        try {
+            vertx.fileSystem().deleteRecursiveBlocking(folder);
+        } catch (Exception e) {
+            LOGGER.warn("Could not delete temp folder " + folder, e);
+        }
     }
 
     public List<PathCommitDetails> getStateForCommit(String projectId, String commitId) {
+        return withFreshClone("commit", List.of(), git -> readStateForCommit(git, projectId, commitId));
+    }
+
+    private List<PathCommitDetails> readStateForCommit(Git git, String projectId, String commitId) {
         List<PathCommitDetails> result = new ArrayList<>();
         try {
-            // Obtain the Git instance (reusing the import cache for read operations)
-            Git git = getGitForImport();
-            if (git == null) {
-                return result;
-            }
-
             Repository repository = git.getRepository();
             // Resolve the specific commit ID
             ObjectId commitObjectId = repository.resolve(commitId);

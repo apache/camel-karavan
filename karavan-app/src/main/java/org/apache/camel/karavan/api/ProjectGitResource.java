@@ -63,7 +63,7 @@ public class ProjectGitResource extends AbstractApiResource {
     @Path("/")
     public Response pullAll() {
         try {
-            projectService.importProjects(true);
+            projectService.importProjects();
             return Response.ok().build();
         } catch (Exception e) {
             LOGGER.error(e.getMessage());

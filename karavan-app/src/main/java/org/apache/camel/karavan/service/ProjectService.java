@@ -382,12 +382,11 @@ public class ProjectService {
         }
     }
 
-    public void importProjects(boolean onlyNew) {
+    public void importProjects() {
         boolean isDev = "dev".equalsIgnoreCase(environment);
-        boolean effectiveOnlyNew = isDev ? onlyNew : false;
-        LOGGER.info("Import " + (effectiveOnlyNew ? "Only New" : "All") + " projects from git: " + gitServiceAuth.getGitConfig().repository());
+        LOGGER.info("Import projects for " + environment + " from git: " + gitServiceAuth.getGitConfig().repository());
         try {
-            List<PathCommitDetails> pathCommitDetails = effectiveOnlyNew ? gitService.readAllProjectsFromRepository() : gitService.readProjectsToImport();
+            List<PathCommitDetails> pathCommitDetails = gitService.readAllProjectsFromRepository();
             List<PathCommitDetails> projectPaths = pathCommitDetails.stream().filter(PathCommitDetails::isFolder).toList();
             List<String> gitProjectIds = projectPaths.stream().map(PathCommitDetails::projectId).toList();
 
@@ -418,7 +417,8 @@ public class ProjectService {
 
                 // In test/prod, add only projects that contain the respective {environment}.kubernetes.yaml
                 if (!isDev && !isBuiltIn) {
-                    boolean hasEnvDeploymentFile = hadEnvironmentSpecificDeploymentFile(folderFiles.stream().map(PathCommitDetails::fileName).collect(Collectors.toList()));
+                    List<String> fileNames = folderFiles.stream().map(PathCommitDetails::fileName).toList();
+                    boolean hasEnvDeploymentFile = hadEnvironmentSpecificDeploymentFile(fileNames);
 
                     if (!hasEnvDeploymentFile) {
                         LOGGER.info("Project " + folderName + " skipped! (Missing " + environment + " deployment resource)");
@@ -426,37 +426,41 @@ public class ProjectService {
                     }
                 }
 
-                boolean needImport = !effectiveOnlyNew || karavanCache.getProject(folderName) == null;
-                LOGGER.info("Project " + folderName + " " + (needImport ? "is loading!" : "skipped!"));
-
-                if (needImport) {
-                    if (folderName.equals(ProjectFolder.Type.templates.name())) {
-                        projectFolder = new ProjectFolder(ProjectFolder.Type.templates.name(), "Templates", folderDetails.commitTime(), ProjectFolder.Type.templates);
-                    } else if (folderName.equals(ProjectFolder.Type.kamelets.name())) {
-                        projectFolder = new ProjectFolder(ProjectFolder.Type.kamelets.name(), "Custom Kamelets",  folderDetails.commitTime(), ProjectFolder.Type.kamelets);
-                    } else if (folderName.equals(ProjectFolder.Type.configuration.name())) {
-                        projectFolder = new ProjectFolder(ProjectFolder.Type.configuration.name(), "Configuration",  folderDetails.commitTime(), ProjectFolder.Type.configuration);
-                    } else if (folderName.equals(ProjectFolder.Type.documentation.name())) {
-                        projectFolder = new ProjectFolder(ProjectFolder.Type.documentation.name(), "Documentation",  folderDetails.commitTime(), ProjectFolder.Type.documentation);
-                    } else {
-                        projectFolder = getProjectFromRepo(folderDetails, folderFiles);
-                    }
-                    karavanCache.saveProject(projectFolder, true);
-                    projectFolderCommited = new ProjectFolderCommited(projectFolder.getProjectId(), folderDetails.commitId(), folderDetails.commitTime());
-                    karavanCache.saveProjectCommited(projectFolderCommited);
-
-                    folderFiles.forEach(fileDetails -> {
-                        var file = new ProjectFile(fileDetails.fileName(), fileDetails.content(), folderName, fileDetails.commitTime());
-                        var commitedFile = ProjectFileCommited.fromFile(file, fileDetails.commitId());
-                        karavanCache.saveProjectFileCommited(commitedFile);
-                        var fileInCache = karavanCache.getProjectFile(file.getProjectId(), file.getName());
-
-                        // Enforce overwrites: Always rewrite files in test/prod environments (bypass timestamp checks)
-                        if (fileInCache == null || !isDev || fileInCache.getLastUpdate() < file.getLastUpdate()) {
-                            karavanCache.saveProjectFile(file, null, false);
-                        }
-                    });
+                // import projects
+                if (folderName.equals(ProjectFolder.Type.templates.name())) {
+                    projectFolder = new ProjectFolder(ProjectFolder.Type.templates.name(), "Templates", folderDetails.commitTime(), ProjectFolder.Type.templates);
+                } else if (folderName.equals(ProjectFolder.Type.kamelets.name())) {
+                    projectFolder = new ProjectFolder(ProjectFolder.Type.kamelets.name(), "Custom Kamelets",  folderDetails.commitTime(), ProjectFolder.Type.kamelets);
+                } else if (folderName.equals(ProjectFolder.Type.configuration.name())) {
+                    projectFolder = new ProjectFolder(ProjectFolder.Type.configuration.name(), "Configuration",  folderDetails.commitTime(), ProjectFolder.Type.configuration);
+                } else if (folderName.equals(ProjectFolder.Type.documentation.name())) {
+                    projectFolder = new ProjectFolder(ProjectFolder.Type.documentation.name(), "Documentation",  folderDetails.commitTime(), ProjectFolder.Type.documentation);
+                } else {
+                    projectFolder = getProjectFromRepo(folderDetails, folderFiles);
                 }
+
+                var projectInCache = karavanCache.getProject(folderName);
+                boolean isNotExisting = projectInCache == null;
+                LOGGER.info("Project " + folderName + (isNotExisting ? " is creating!" : " updating!"));
+
+                projectFolderCommited = new ProjectFolderCommited(projectFolder.getProjectId(), folderDetails.commitId(), folderDetails.commitTime());
+                karavanCache.saveProjectCommited(projectFolderCommited);
+
+                if (isNotExisting || !isDev || projectInCache.getLastUpdate() < projectFolder.getLastUpdate()) {
+                    karavanCache.saveProject(projectFolder, true);
+                }
+
+                folderFiles.forEach(fileDetails -> {
+                    var file = new ProjectFile(fileDetails.fileName(), fileDetails.content(), folderName, fileDetails.commitTime());
+                    var commitedFile = ProjectFileCommited.fromFile(file, fileDetails.commitId());
+                    karavanCache.saveProjectFileCommited(commitedFile);
+                    var fileInCache = karavanCache.getProjectFile(file.getProjectId(), file.getName());
+
+                    // Enforce overwrites: Always rewrite files in test/prod environments (bypass timestamp checks)
+                    if (fileInCache == null || !isDev || fileInCache.getLastUpdate() < file.getLastUpdate()) {
+                        karavanCache.saveProjectFile(file, null, false);
+                    }
+                });
             });
         } catch (Exception e) {
             LOGGER.error("Error during project import", e);
@@ -479,6 +483,12 @@ public class ProjectService {
 
     public void revertProjectToCommit(String projectId, String commitId) {
         var filesInGit = gitService.getStateForCommit(projectId, commitId);
+
+        // nothing was read: commit not found, or git unreachable. Do not wipe the cache.
+        if (filesInGit.isEmpty()) {
+            LOGGER.error("Revert of project " + projectId + " to commit " + commitId + " skipped: no files read from git");
+            return;
+        }
 
         // remove files from cache
         var fileNames = karavanCache.getProjectFiles(projectId).stream().map(ProjectFile::getName).toList();
