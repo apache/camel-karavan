@@ -62,11 +62,11 @@ public class KaravanFileFetcher {
                     if (entry.getName().endsWith(".sh")) {
                         boolean success = resolvedPath.toFile().setExecutable(true, false); // true = executable, false = for all users (not just owner)
                         if (!success) {
-                            System.out.printf("Failed to set executable permission on: %s", resolvedPath.toAbsolutePath());
+                            System.out.printf("Failed to set executable permission on: %s \n", resolvedPath.toAbsolutePath());
                         }
                     }
 
-                    System.out.printf("Extracted file: %s", resolvedPath.toAbsolutePath());
+                    System.out.printf("Extracted file: %s \n", resolvedPath.toAbsolutePath());
                 }
                 zis.closeEntry();
             }

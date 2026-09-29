@@ -47,7 +47,8 @@ RUN mkdir -p $MAVEN_REPO \
     && mkdir -p $BUILDER_PATH
 
 COPY target/lib/*.jar $KARAVAN_LIB/
-COPY target/karavan-devmode-*.jar $KARAVAN_LIB
+COPY target/karavan-devmode-*.jar $KARAVAN_LIB/
+COPY target/karavan-devmode-*.jar $KARAVAN_LIB/
 COPY entrypoint.sh $KARAVAN/
 RUN chmod +x $KARAVAN/entrypoint.sh
 

@@ -247,7 +247,7 @@ export function FilesSubTab(props: FilesSubTabProps) {
                         }
                     </Td>
                     <Td modifier={"fitContent"} style={{textAlign: "right"}}>
-                        {file?.code.length}
+                        {file?.code?.length}
                     </Td>
                     <Td modifier={"fitContent"}>
                         <Flex direction={{default: "row"}} justifyContent={{default: "justifyContentFlexEnd"}} spaceItems={{default: 'spaceItemsNone'}}

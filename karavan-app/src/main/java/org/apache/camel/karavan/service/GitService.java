@@ -197,8 +197,9 @@ public class GitService {
         files.forEach(file -> {
             try {
                 Path target = PathUtils.resolveInside(projectDir, file.getName());
+                String code = file.getCode() != null ? file.getCode() : "";
                 LOGGER.info("Add file " + file.getName());
-                Files.writeString(target, file.getCode());
+                Files.writeString(target, code);
             } catch (SecurityException e) {
                 LOGGER.error("Path traversal blocked for file " + file.getName() + " in project " + projectFolder.getProjectId());
                 throw e;
