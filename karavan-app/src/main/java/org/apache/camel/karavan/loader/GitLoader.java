@@ -61,7 +61,7 @@ public class GitLoader {
     public void load() throws Exception {
         boolean git = gitService.checkGit();
         LOGGER.info("Starting Project service: git is " + (git ? "ready" : "not ready"));
-        if (gitService.checkGit()) {
+        if (git) {
             projectService.importProjects();
             if (Objects.equals(environment, DEV)) {
                 addKameletsProject();
