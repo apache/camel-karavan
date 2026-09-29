@@ -50,7 +50,6 @@ if [[ "$RUN_IN_COMPILE_MODE" == "true" ]]; then
     java $JAVA_OPTS -cp ".export/target/lib/*:.export/target/classes" "$BASE_PACKAGE_SCAN".CamelApplication
 elif [[ "$RUN_IN_BUILD_MODE" == "true" ]]; then
     log_step "📦 Packaging..."
-    secure_ssh_keys
     log_step "🗂️ Preparing build.sh script"
     java $JAVA_OPTS -cp "$KARAVAN_LIB/*" KaravanDevMode fetchBuildScriptFromPlatform
     /karavan/builder/build.sh
