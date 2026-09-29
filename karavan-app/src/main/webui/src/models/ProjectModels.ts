@@ -233,7 +233,8 @@ export class ProjectFileType {
 
 export class ContainerImage {
     id: string = '';
-    tag: string = '';
+    tags: string[] = [];
+    labels: Record<string, string> = {};
     size: number = 0;
     created: number = 0;
 }

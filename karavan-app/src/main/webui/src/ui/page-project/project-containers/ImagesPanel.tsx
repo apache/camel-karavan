@@ -19,6 +19,7 @@ import React, {useState} from 'react';
 import {
     Bullseye,
     Button,
+    ClipboardCopy,
     Content,
     Divider,
     EmptyState,
@@ -39,7 +40,7 @@ import {
 import {useFilesStore, useProjectStore} from "@stores/ProjectStore";
 import {shallow} from "zustand/shallow";
 import {InnerScrollContainer, OuterScrollContainer, Table, Tbody, Td, Th, Thead, Tr} from "@patternfly/react-table";
-import {CheckIcon, CloudDownloadAltIcon, TimesIcon} from '@patternfly/react-icons';
+import {CheckIcon, TimesIcon} from '@patternfly/react-icons';
 import {KaravanApi} from "@api/KaravanApi";
 import {ProjectService} from "@services/ProjectService";
 import {ServicesYaml} from "@models/ServiceModels";
@@ -50,7 +51,8 @@ import {useAppConfig} from "@compass/useConfig";
 
 export function ImagesPanel() {
 
-    const [project, images] = useProjectStore((s) => [s.project, s.images], shallow);
+    const project = useProjectStore((s) => s.project);
+    const images = useProjectStore((s) => s.images);
     const [files] = useFilesStore((s) => [s.files], shallow);
     const [showSetConfirmation, setShowSetConfirmation] = useState<boolean>(false);
     const [showDeleteConfirmation, setShowDeleteConfirmation] = useState<boolean>(false);
@@ -58,7 +60,7 @@ export function ImagesPanel() {
     const [imageName, setImageName] = useState<string>();
     const [commitChanges, setCommitChanges] = useState<boolean>(false);
     const [commitMessage, setCommitMessage] = useState('');
-    const {isDev} = useAppConfig();
+    const {isDev, isKubernetes} = useAppConfig();
 
     function setProjectImage() {
         if (imageName) {
@@ -200,12 +202,12 @@ export function ImagesPanel() {
         <>
             <div style={{display: "flex", justifyContent: "space-between", alignItems: "center", paddingRight: "16px"}}>
                 <Content component='h6' style={{padding: '16px'}}>Images</Content>
-                <Tooltip content="Pull all images from registry" position={"bottom-end"}>
-                    <Button variant={"secondary"} className="dev-action-button" icon={<CloudDownloadAltIcon/>}
-                            onClick={() => setShowPullConfirmation(true)}>
-                        Pull
-                    </Button>
-                </Tooltip>
+                {/*{!isKubernetes && <Tooltip content="Pull all images from registry" position={"bottom-end"}>*/}
+                {/*    <Button variant={"secondary"} className="dev-action-button" icon={<CloudDownloadAltIcon/>}*/}
+                {/*            onClick={() => setShowPullConfirmation(true)}>*/}
+                {/*        Pull*/}
+                {/*    </Button>*/}
+                {/*</Tooltip>}*/}
             </div>
             <Divider/>
             <OuterScrollContainer>
@@ -214,29 +216,64 @@ export function ImagesPanel() {
                         <Thead>
                             <Tr>
                                 <Th key='status' modifier={"fitContent"}>Active</Th>
-                                <Th key='image' width={20}>Image</Th>
-                                <Th key='tag' width={10}>Tag</Th>
-                                <Th key='size' width={10}>Size</Th>
-                                <Th key='created' width={10}>Created</Th>
+                                <Th key='image' modifier={"nowrap"}>Image</Th>
+                                <Th key='tag' modifier={"nowrap"}>Tag</Th>
+                                <Th key='labels'>Commit</Th>
+                                <Th key='size' modifier={"nowrap"}>
+                                    <Tooltip content="Compressed size reported by the registry" position={"bottom"}>
+                                        <span>Size (compressed)</span>
+                                    </Tooltip>
+                                </Th>
+                                <Th key='created' modifier={"nowrap"}>Created</Th>
                                 <Th key='actions' aria-label='actions' modifier={"fitContent"} textCenter>Actions</Th>
                             </Tr>
                         </Thead>
                         <Tbody>
                             {images.map(image => {
-                                    const fullName = image.tag;
-                                    const index = fullName.lastIndexOf(":");
-                                    const name = fullName.substring(0, index);
-                                    const tag = fullName.substring(index + 1);
-                                    const created = new Date(image.created * 1000);
-                                    const size = getMegabytes(image.size)?.toFixed(0);
-                                    const isDisabled = fullName === projectImage || !isDev;
-                                    const variant = isDisabled ? "plain" : "link";
-                                    return <Tr key={image.id} style={{verticalAlign: "middle"}}>
+                                const digest = image.id;
+                                const fullName = image.tags?.[0];
+                                const index = fullName.lastIndexOf(":");
+                                const name = fullName.substring(0, index);
+                                const tag = fullName.substring(index + 1);
+                                const created = new Date(image.created * 1000);
+                                const size = getMegabytes(image.size)?.toFixed(0);
+                                const isDisabled = fullName === projectImage || !isDev;
+                                // Registry images are read only on Kubernetes: deletion goes through the
+                                // Docker Engine and the project image is set in docker-compose.yaml
+                                const isReadOnly = isDisabled || isKubernetes;
+                                const readOnlyVariant = isReadOnly ? "plain" : "link";
+                                const commit = image.labels?.['org.opencontainers.image.revision'];
+                                return (
+                                    <Tr key={image.id} style={{verticalAlign: "middle"}}>
                                         <Td modifier={"fitContent"}>
                                             {fullName === projectImage ? <CheckIcon/> : <div/>}
                                         </Td>
-                                        <Td>{name}</Td>
-                                        <Td>{tag}</Td>
+                                        <Td>
+                                            <div style={{display: "flex", flexDirection: "column", alignItems: 'flex-start', gap: 3}}>
+                                                {name}
+                                                <ClipboardCopy isCode variant={'inline-compact'} truncation={{maxCharsDisplayed: 32, position: 'end'}}>
+                                                    {digest}
+                                                </ClipboardCopy>
+                                            </div>
+                                        </Td>
+                                        <Td>
+                                            <div style={{display: "flex", flexDirection: "column", alignItems: 'flex-start', gap: 3}}>
+                                                {image?.tags?.map(tag => {
+                                                    const index = tag.lastIndexOf(":");
+                                                    const tagString = tag.substring(index + 1);
+                                                    return (
+                                                        <ClipboardCopy key={tagString} isCode variant={'inline-compact'}>
+                                                            {tagString}
+                                                        </ClipboardCopy>
+                                                    )
+                                                })}
+                                            </div>
+                                        </Td>
+                                        <Td>
+                                            <ClipboardCopy isCode variant={'inline-compact'} truncation={{maxCharsDisplayed: 16, position: 'end'}}>
+                                                {commit}
+                                            </ClipboardCopy>
+                                        </Td>
                                         <Td>{size} MB</Td>
                                         <Td>{created.toISOString()}</Td>
                                         <Td modifier={"fitContent"} isActionCell>
@@ -246,10 +283,10 @@ export function ImagesPanel() {
                                                   spaceItems={{default: 'spaceItemsNone'}}>
                                                 <FlexItem>
                                                     <Tooltip content={"Delete image"} position={"bottom"}>
-                                                        <Button variant={variant}
+                                                        <Button variant={readOnlyVariant}
                                                                 className='dev-action-button'
                                                                 icon={<TimesIcon/>}
-                                                                isDisabled={isDisabled}
+                                                                isDisabled={isReadOnly}
                                                                 onClick={e => {
                                                                     setImageName(fullName);
                                                                     setShowDeleteConfirmation(true);
@@ -259,9 +296,9 @@ export function ImagesPanel() {
                                                 </FlexItem>
                                                 <FlexItem>
                                                     <Tooltip content="Set project image" position={"bottom"}>
-                                                        <Button icon={<CheckIcon/>} variant={variant}
+                                                        <Button icon={<CheckIcon/>} variant={readOnlyVariant}
                                                                 className='dev-action-button'
-                                                                isDisabled={isDisabled}
+                                                                isDisabled={isReadOnly}
                                                                 onClick={e => {
                                                                     setImageName(fullName);
                                                                     setCommitMessage(commitMessage === '' ? `Set tag ${tag} for ${project.projectId}` : commitMessage);
@@ -274,8 +311,9 @@ export function ImagesPanel() {
                                             </Flex>
                                         </Td>
                                     </Tr>
-                                })}
-                            {images.length === 0 &&
+                                )
+                            })}
+                            {images?.length === 0 &&
                                 <Tr>
                                     <Td colSpan={8}>
                                         <Bullseye>
