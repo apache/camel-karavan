@@ -274,7 +274,7 @@ function DslElementHeader(props: Props) {
                     {hasWideChildrenElement && <div className="spacer"/>}
                     {getHeaderTextWithTooltip(step, hasWideChildrenElement)}
                 </div>
-                {isRoute  && isDev && getHeaderButtons()}
+                {isDev && getHeaderButtons()}
             </div>
         )
     }
