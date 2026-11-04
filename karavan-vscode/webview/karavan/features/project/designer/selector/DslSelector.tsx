@@ -326,7 +326,7 @@ export function DslSelector(props: Props) {
             else if (selectedToggles.includes('components') && d.navigation === 'component') return true
             else if (selectedToggles.includes('kamelets') && d.navigation === 'kamelet') {
                 if (customOnly) {
-                    return KameletApi.getCustomKameletNames().includes(d.name) || KameletApi.getProjectKameletNames().includes(d.name);
+                    return KameletApi.getCustomKameletNames().includes(d.name);
                 } else {
                     return true;
                 }

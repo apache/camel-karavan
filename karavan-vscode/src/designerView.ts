@@ -199,7 +199,10 @@ export class DesignerView {
             panel.webview.postMessage({ command: 'javaCode', javaCode: Object.fromEntries(results[3]) });
             this.sendIntegrationData(panel, filename, relativePath, fullPath, reread, yaml, tab, results[4], results[5]);
 
-        }).catch(err => console.log(err));
+        }).catch(err => {
+            console.error(err);
+            window.showErrorMessage(`Karavan: failed to load designer data: ${err?.message ?? err}`);
+        });
     }
 
     sendIntegrationData(panel: WebviewPanel, filename: string, relativePath: string,

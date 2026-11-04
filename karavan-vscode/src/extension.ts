@@ -18,7 +18,7 @@ import { ExtensionContext, Uri, window, workspace, commands, QuickPickItem, env}
 import { DesignerView } from "./designerView";
 import { IntegrationView } from "./integrationView";
 import { HelpView } from "./helpView";
-import { selectFileName, inputFileName, OpenApiView, OpenApiItem } from "./openapiView";
+import { selectFileName, inputFileName, OpenApiItem } from "./openapiView";
 import * as path from "path";
 import * as jbang from "./jbang";
 import * as utils from "./utils";
@@ -38,10 +38,6 @@ export function activate(context: ExtensionContext) {
     const integrationView = new IntegrationView(designer, rootPath);
     context.subscriptions.push(window.registerTreeDataProvider('integrations', integrationView));
     context.subscriptions.push(commands.registerCommand('integrations.refresh', () => integrationView.refresh()));
-
-    const openapiView = new OpenApiView(designer, rootPath);
-    context.subscriptions.push(window.registerTreeDataProvider('openapi', openapiView));
-    context.subscriptions.push(commands.registerCommand('openapi.refresh', () => openapiView.refresh()));
 
     const helpView = new HelpView(context);
     context.subscriptions.push(window.registerTreeDataProvider('help', helpView));

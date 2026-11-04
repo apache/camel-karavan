@@ -77,11 +77,15 @@ export async function readKamelets(context: ExtensionContext) {
 
 async function readBuildInKamelets(context: ExtensionContext) {
     const kameletsPath = path.join(context.extensionPath, 'metadata', "kamelets.yaml");
-    const result: string[] = [];
-    const file = await readFile(kameletsPath);
-    const code = Buffer.from(file).toString('utf8');
-    code.split("\n---\n").map(c => c.trim()).forEach(z => result.push(z));
-    return result;
+    try {
+        const file = await readFile(kameletsPath);
+        const code = Buffer.from(file).toString('utf8');
+        return code.split("\n---\n").map(c => c.trim()).filter(c => c.length > 0);
+    } catch (err) {
+        // Built-in Kamelets are optional: a missing catalog must not block the designer from loading.
+        console.error(`Karavan: built-in Kamelets not found at ${kameletsPath}`, err);
+        return [];
+    }
 }
 
 async function readFilesInDirByExtension(dir: string, extension: string): Promise<Map<string, string>> {

@@ -48,7 +48,6 @@ export function DslCard(props: Props) {
     const navigation = dsl.navigation === 'eip' ? 'Processor' : capitalize(dsl.navigation);
     const labels = dsl.labels !== undefined ? dsl.labels.split(",").filter(label => label !== 'eip') : [];
     const isCustom = KameletApi.getCustomKameletNames().includes(dsl.name);
-    const isProject = KameletApi.getProjectKameletNames().includes(dsl.name);
     const isRemote = dsl.remote;
     const classNameBadge = "navigation-label label-" + dsl.navigation + ((dsl.navigation === 'eip' || dsl?.supportLevel.toLowerCase() === 'stable') ? '' : '-preview');
     const componentProperties = showProperties && dsl?.uri
@@ -103,7 +102,6 @@ export function DslCard(props: Props) {
                 </div>
                 {dsl.navigation === 'component' && <Badge isRead className="labels">{isRemote ? 'remote' : 'internal'}</Badge>}
                 {isCustom && <Badge className="custom">custom</Badge>}
-                {isProject && <Badge className="project">project</Badge>}
             </CardFooter>
         </Card>
     )
