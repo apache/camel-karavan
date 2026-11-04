@@ -26,11 +26,20 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const [isDark, setIsDark] = useState(false);
 
     useEffect(() => {
-        const dark = document.body.className.includes('vscode-dark');
-        setIsDark(dark);
-        if (dark) {
-            document.documentElement.classList.add('pf-v6-theme-dark');
-        }
+        // VS Code sets vscode-light | vscode-dark | vscode-high-contrast | vscode-high-contrast-light
+        // on <body> and swaps it live when the user changes the color theme.
+        const applyTheme = () => {
+            const body = document.body.classList;
+            const dark = body.contains('vscode-dark') || body.contains('vscode-high-contrast');
+            const highContrast = body.contains('vscode-high-contrast') || body.contains('vscode-high-contrast-light');
+            document.documentElement.classList.toggle('pf-v6-theme-dark', dark);
+            document.documentElement.classList.toggle('pf-v6-theme-high-contrast', highContrast);
+            setIsDark(dark);
+        };
+        applyTheme();
+        const observer = new MutationObserver(applyTheme);
+        observer.observe(document.body, {attributes: true, attributeFilter: ['class']});
+        return () => observer.disconnect();
     }, []);
 
     return (

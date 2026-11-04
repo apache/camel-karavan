@@ -1,0 +1,640 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/*
+ * VS Code native look for the Karavan webview.
+ *
+ * PatternFly 6 is fully driven by design tokens (--pf-t--*). This file re-points those
+ * tokens to the theme variables VS Code injects into every webview (--vscode-*), so the
+ * designer, property forms, menus and modals follow the active VS Code color theme
+ * (light, dark and high contrast) and react to live theme switches without a reload.
+ *
+ * Must be imported AFTER patternfly.css. `html:root` has a higher specificity than
+ * PatternFly's `:root` and `:root:where(.pf-v6-theme-dark)` token blocks.
+ * Every var() carries a fallback so the UI still renders outside VS Code.
+ */
+
+html:root {
+    /* ---------- Typography ---------- */
+    --pf-t--global--font--family--body: var(--vscode-font-family, system-ui, -apple-system, "Segoe UI", Ubuntu, sans-serif);
+    --pf-t--global--font--family--heading: var(--vscode-font-family, system-ui, -apple-system, "Segoe UI", Ubuntu, sans-serif);
+    --pf-t--global--font--family--mono: var(--vscode-editor-font-family, Menlo, Monaco, Consolas, "Courier New", monospace);
+    --pf-t--global--font--size--body--default: var(--vscode-font-size, 13px);
+    --pf-t--global--font--size--body--sm: 12px;
+    --pf-t--global--font--size--body--lg: 14px;
+    --pf-t--global--font--size--sm: var(--vscode-font-size, 13px);
+    --pf-t--global--font--size--xs: 11px;
+    --pf-t--global--font--size--heading--h1: 18px;
+    --pf-t--global--font--size--heading--h2: 16px;
+    --pf-t--global--font--size--heading--h3: 14px;
+    --pf-t--global--font--size--heading--h4: 13px;
+    --pf-t--global--font--size--heading--h5: 13px;
+    --pf-t--global--font--size--heading--h6: 13px;
+    --pf-t--global--font--weight--heading--default: 600;
+    --pf-t--global--font--weight--body--bold: 600;
+
+    /* ---------- Shape: VS Code uses square-ish controls ---------- */
+    --pf-t--global--border--radius--tiny: 2px;
+    --pf-t--global--border--radius--small: 2px;
+    --pf-t--global--border--radius--medium: 4px;
+    --pf-t--global--border--radius--large: 6px;
+    --pf-t--global--border--radius--300: 4px;
+
+    /* ---------- Backgrounds ---------- */
+    --pf-t--global--background--color--primary--default: var(--vscode-editor-background, #ffffff);
+    --pf-t--global--background--color--primary--hover: var(--vscode-list-hoverBackground, rgba(128, 128, 128, 0.1));
+    --pf-t--global--background--color--primary--clicked: var(--vscode-list-activeSelectionBackground, rgba(128, 128, 128, 0.2));
+    --pf-t--global--background--color--secondary--default: var(--vscode-sideBar-background, var(--vscode-editor-background, #f8f8f8));
+    --pf-t--global--background--color--secondary--hover: var(--vscode-list-hoverBackground, rgba(128, 128, 128, 0.1));
+    --pf-t--global--background--color--secondary--clicked: var(--vscode-list-activeSelectionBackground, rgba(128, 128, 128, 0.2));
+    --pf-t--global--background--color--tertiary--default: var(--vscode-editorWidget-background, #f3f3f3);
+    --pf-t--global--background--color--floating--default: var(--vscode-menu-background, var(--vscode-editorWidget-background, #ffffff));
+    --pf-t--global--background--color--floating--hover: var(--vscode-list-hoverBackground, rgba(128, 128, 128, 0.1));
+    --pf-t--global--background--color--floating--clicked: var(--vscode-list-activeSelectionBackground, rgba(128, 128, 128, 0.2));
+    --pf-t--global--background--color--control--default: var(--vscode-input-background, #ffffff);
+    --pf-t--global--background--color--control--read-only: var(--vscode-editor-background, #f8f8f8);
+    --pf-t--global--background--color--disabled--default: var(--vscode-input-background, #f3f3f3);
+    --pf-t--global--background--color--action--plain--default: transparent;
+    --pf-t--global--background--color--action--plain--hover: var(--vscode-toolbar-hoverBackground, rgba(128, 128, 128, 0.15));
+    --pf-t--global--background--color--action--plain--clicked: var(--vscode-toolbar-activeBackground, rgba(128, 128, 128, 0.25));
+    --pf-t--global--background--color--action--plain--alt--hover: var(--vscode-toolbar-hoverBackground, rgba(128, 128, 128, 0.15));
+    --pf-t--global--background--color--action--plain--alt--clicked: var(--vscode-toolbar-activeBackground, rgba(128, 128, 128, 0.25));
+    --pf-t--global--background--color--backdrop--default: rgba(0, 0, 0, 0.4);
+    --pf-t--global--background--color--highlight--default: var(--vscode-editor-findMatchHighlightBackground, rgba(234, 92, 0, 0.33));
+    --pf-t--global--background--color--highlight--clicked: var(--vscode-editor-findMatchBackground, rgba(234, 92, 0, 0.5));
+
+    /* ---------- Text & icons ---------- */
+    --pf-t--global--text--color--regular: var(--vscode-foreground, #3b3b3b);
+    --pf-t--global--text--color--subtle: var(--vscode-descriptionForeground, #717171);
+    --pf-t--global--text--color--placeholder: var(--vscode-input-placeholderForeground, #767676);
+    --pf-t--global--text--color--disabled: var(--vscode-disabledForeground, rgba(97, 97, 97, 0.5));
+    --pf-t--global--text--color--on-disabled: var(--vscode-disabledForeground, rgba(97, 97, 97, 0.5));
+    --pf-t--global--text--color--link--default: var(--vscode-textLink-foreground, #005fb8);
+    --pf-t--global--text--color--link--hover: var(--vscode-textLink-activeForeground, #005fb8);
+    --pf-t--global--text--color--link--visited: var(--vscode-textLink-foreground, #005fb8);
+    --pf-t--global--text--color--brand--default: var(--vscode-textLink-foreground, #005fb8);
+    --pf-t--global--text--color--brand--hover: var(--vscode-textLink-activeForeground, #005fb8);
+    --pf-t--global--text--color--brand--clicked: var(--vscode-textLink-activeForeground, #005fb8);
+    --pf-t--global--text--color--on-brand--default: var(--vscode-button-foreground, #ffffff);
+    --pf-t--global--text--color--on-brand--hover: var(--vscode-button-foreground, #ffffff);
+    --pf-t--global--text--color--on-brand--clicked: var(--vscode-button-foreground, #ffffff);
+    --pf-t--global--icon--color--regular: var(--vscode-icon-foreground, var(--vscode-foreground, #424242));
+    --pf-t--global--icon--color--subtle: var(--vscode-descriptionForeground, #717171);
+    --pf-t--global--icon--color--disabled: var(--vscode-disabledForeground, rgba(97, 97, 97, 0.5));
+    --pf-t--global--icon--color--brand--default: var(--vscode-textLink-foreground, #005fb8);
+    --pf-t--global--icon--color--brand--hover: var(--vscode-textLink-activeForeground, #005fb8);
+    --pf-t--global--icon--color--brand--clicked: var(--vscode-textLink-activeForeground, #005fb8);
+
+    /* ---------- Brand / accent = VS Code primary button ---------- */
+    --pf-t--global--color--brand--default: var(--vscode-button-background, #005fb8);
+    --pf-t--global--color--brand--hover: var(--vscode-button-hoverBackground, #0258a8);
+    --pf-t--global--color--brand--clicked: var(--vscode-button-hoverBackground, #0258a8);
+
+    /* ---------- Borders & focus ---------- */
+    --pf-t--global--border--color--default: var(--vscode-input-border, var(--vscode-widget-border, var(--vscode-panel-border, rgba(128, 128, 128, 0.35))));
+    --pf-t--global--border--color--hover: var(--vscode-focusBorder, #0090f1);
+    --pf-t--global--border--color--clicked: var(--vscode-focusBorder, #0090f1);
+    --pf-t--global--border--color--brand--default: var(--vscode-focusBorder, #0090f1);
+    --pf-t--global--border--color--brand--hover: var(--vscode-focusBorder, #0090f1);
+    --pf-t--global--border--color--brand--clicked: var(--vscode-focusBorder, #0090f1);
+    --pf-t--global--border--color--control--read-only: var(--vscode-input-border, rgba(128, 128, 128, 0.35));
+    --pf-t--global--border--color--disabled: var(--vscode-disabledForeground, rgba(128, 128, 128, 0.35));
+    --pf-t--global--border--color--alt: var(--vscode-editor-background, #ffffff);
+    --pf-t--global--border--color--on-secondary: var(--vscode-panel-border, rgba(128, 128, 128, 0.35));
+    --pf-t--global--border--color--main--default: var(--vscode-panel-border, rgba(128, 128, 128, 0.35));
+    --pf-t--global--focus-ring--color--default: var(--vscode-focusBorder, #0090f1);
+    --pf-t--global--border--width--control--default: 1px;
+    --pf-t--global--border--width--control--hover: 1px;
+    --pf-t--global--border--width--control--clicked: 1px;
+
+    /* ---------- Status ---------- */
+    --pf-t--global--color--status--danger--default: var(--vscode-errorForeground, #e51400);
+    --pf-t--global--color--status--danger--hover: var(--vscode-errorForeground, #e51400);
+    --pf-t--global--color--status--danger--clicked: var(--vscode-errorForeground, #e51400);
+    --pf-t--global--color--status--warning--default: var(--vscode-editorWarning-foreground, #bf8803);
+    --pf-t--global--color--status--warning--hover: var(--vscode-editorWarning-foreground, #bf8803);
+    --pf-t--global--color--status--warning--clicked: var(--vscode-editorWarning-foreground, #bf8803);
+    --pf-t--global--color--status--success--default: var(--vscode-testing-iconPassed, #388a34);
+    --pf-t--global--color--status--success--hover: var(--vscode-testing-iconPassed, #388a34);
+    --pf-t--global--color--status--success--clicked: var(--vscode-testing-iconPassed, #388a34);
+    --pf-t--global--color--status--info--default: var(--vscode-editorInfo-foreground, #1a85ff);
+    --pf-t--global--color--status--info--hover: var(--vscode-editorInfo-foreground, #1a85ff);
+    --pf-t--global--color--status--info--clicked: var(--vscode-editorInfo-foreground, #1a85ff);
+    --pf-t--global--icon--color--status--danger--default: var(--vscode-errorForeground, #e51400);
+    --pf-t--global--icon--color--status--warning--default: var(--vscode-editorWarning-foreground, #bf8803);
+    --pf-t--global--icon--color--status--success--default: var(--vscode-testing-iconPassed, #388a34);
+    --pf-t--global--icon--color--status--info--default: var(--vscode-editorInfo-foreground, #1a85ff);
+    --pf-t--global--text--color--status--danger--default: var(--vscode-errorForeground, #e51400);
+    --pf-t--global--text--color--status--warning--default: var(--vscode-editorWarning-foreground, #bf8803);
+    --pf-t--global--text--color--status--success--default: var(--vscode-testing-iconPassed, #388a34);
+    --pf-t--global--text--color--status--info--default: var(--vscode-editorInfo-foreground, #1a85ff);
+
+    /* ---------- Shadows: VS Code widgets are flat with a single soft shadow ---------- */
+    --pf-t--global--box-shadow--color--sm--default: var(--vscode-widget-shadow, rgba(0, 0, 0, 0.16));
+    --pf-t--global--box-shadow--color--sm--directional: var(--vscode-widget-shadow, rgba(0, 0, 0, 0.16));
+    --pf-t--global--box-shadow--color--md--default: var(--vscode-widget-shadow, rgba(0, 0, 0, 0.16));
+    --pf-t--global--box-shadow--color--md--directional: var(--vscode-widget-shadow, rgba(0, 0, 0, 0.16));
+    --pf-t--global--box-shadow--color--lg--default: var(--vscode-widget-shadow, rgba(0, 0, 0, 0.16));
+    --pf-t--global--box-shadow--color--lg--directional: var(--vscode-widget-shadow, rgba(0, 0, 0, 0.16));
+
+    /* ---------- Karavan designer specific ---------- */
+    --step-border-color: var(--vscode-descriptionForeground, #717171);
+    --step-border-color-selected: var(--vscode-focusBorder, #0090f1);
+}
+
+/* ================= Base ================= */
+
+html, body {
+    background-color: var(--vscode-editor-background);
+    color: var(--vscode-foreground);
+    font-family: var(--vscode-font-family);
+    font-size: var(--vscode-font-size, 13px);
+    font-weight: var(--vscode-font-weight, normal);
+}
+
+.App,
+.karavan,
+.karavan .pf-v6-c-page,
+.karavan .pf-v6-c-page__main,
+.karavan .pf-v6-c-page__main-section {
+    background-color: var(--vscode-editor-background);
+}
+
+.karavan code,
+.karavan pre,
+.karavan .pf-v6-c-code-block {
+    font-family: var(--vscode-editor-font-family);
+    font-size: var(--vscode-editor-font-size, 12px);
+}
+
+/* Scrollbars like the editor: square, overlay style */
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+::-webkit-scrollbar-track,
+::-webkit-scrollbar-corner {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: var(--vscode-scrollbarSlider-background, rgba(100, 100, 100, 0.4));
+    border-radius: 0;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background-color: var(--vscode-scrollbarSlider-hoverBackground, rgba(100, 100, 100, 0.7));
+}
+
+::-webkit-scrollbar-thumb:active {
+    background-color: var(--vscode-scrollbarSlider-activeBackground, rgba(191, 191, 191, 0.4));
+}
+
+/* Single, crisp focus ring - same as VS Code */
+.karavan :focus-visible,
+.pf-v6-c-modal-box :focus-visible,
+.pf-v6-c-menu :focus-visible {
+    outline: 1px solid var(--vscode-focusBorder) !important;
+    outline-offset: -1px !important;
+}
+
+/* ================= Buttons ================= */
+
+.pf-v6-c-button {
+    --pf-v6-c-button--BorderRadius: 2px;
+    --pf-v6-c-button--m-control--BorderRadius: 2px;
+    --pf-v6-c-button--m-plain--BorderRadius: 4px;
+    --pf-v6-c-button--m-link--BorderRadius: 2px;
+    --pf-v6-c-button--FontSize: var(--vscode-font-size, 13px);
+    --pf-v6-c-button--PaddingBlockStart: 4px;
+    --pf-v6-c-button--PaddingBlockEnd: 4px;
+
+    --pf-v6-c-button--m-primary--BackgroundColor: var(--vscode-button-background);
+    --pf-v6-c-button--m-primary--Color: var(--vscode-button-foreground);
+    --pf-v6-c-button--m-primary--hover--BackgroundColor: var(--vscode-button-hoverBackground);
+    --pf-v6-c-button--m-primary--hover--Color: var(--vscode-button-foreground);
+    --pf-v6-c-button--m-primary--m-clicked--BackgroundColor: var(--vscode-button-hoverBackground);
+    --pf-v6-c-button--m-primary--m-clicked--Color: var(--vscode-button-foreground);
+
+    --pf-v6-c-button--m-secondary--Color: var(--vscode-button-secondaryForeground);
+    --pf-v6-c-button--m-secondary--BorderColor: var(--vscode-button-border, transparent);
+    --pf-v6-c-button--m-secondary--hover--Color: var(--vscode-button-secondaryForeground);
+    --pf-v6-c-button--m-secondary--hover--BorderColor: var(--vscode-button-border, transparent);
+    --pf-v6-c-button--m-secondary--m-clicked--Color: var(--vscode-button-secondaryForeground);
+    --pf-v6-c-button--m-secondary--m-clicked--BorderColor: var(--vscode-button-border, transparent);
+
+    --pf-v6-c-button--m-tertiary--Color: var(--vscode-foreground);
+    --pf-v6-c-button--m-tertiary--BorderColor: var(--vscode-button-border, var(--vscode-input-border, rgba(128, 128, 128, 0.35)));
+    --pf-v6-c-button--m-tertiary--hover--Color: var(--vscode-foreground);
+    --pf-v6-c-button--m-tertiary--hover--BorderColor: var(--vscode-focusBorder);
+
+    --pf-v6-c-button--m-link--Color: var(--vscode-textLink-foreground);
+    --pf-v6-c-button--m-link--hover--Color: var(--vscode-textLink-activeForeground);
+
+    --pf-v6-c-button--m-plain--Color: var(--vscode-icon-foreground, var(--vscode-foreground));
+    --pf-v6-c-button--m-plain--hover--Color: var(--vscode-icon-foreground, var(--vscode-foreground));
+
+    --pf-v6-c-button--m-control--BackgroundColor: var(--vscode-input-background);
+    --pf-v6-c-button--m-control--BorderColor: var(--vscode-input-border, rgba(128, 128, 128, 0.35));
+    --pf-v6-c-button--m-control--Color: var(--vscode-icon-foreground, var(--vscode-foreground));
+
+    --pf-v6-c-button--m-danger--BackgroundColor: var(--vscode-errorForeground);
+}
+
+/* PatternFly has no background variable for secondary/tertiary buttons - set it directly */
+.pf-v6-c-button.pf-m-secondary:not(.pf-m-danger) {
+    --pf-v6-c-button--BackgroundColor: var(--vscode-button-secondaryBackground);
+    --pf-v6-c-button--hover--BackgroundColor: var(--vscode-button-secondaryHoverBackground);
+    --pf-v6-c-button--m-clicked--BackgroundColor: var(--vscode-button-secondaryHoverBackground);
+}
+
+.pf-v6-c-button.pf-m-tertiary {
+    --pf-v6-c-button--hover--BackgroundColor: var(--vscode-toolbar-hoverBackground);
+    --pf-v6-c-button--m-clicked--BackgroundColor: var(--vscode-toolbar-activeBackground);
+}
+
+/* ================= Inputs (text, textarea, select, typeahead, number) ================= */
+
+.pf-v6-c-form-control,
+.pf-v6-c-text-input-group,
+.pf-v6-c-menu-toggle:not(.pf-m-plain):not(.pf-m-primary),
+.pf-v6-c-number-input .pf-v6-c-input-group {
+    --pf-v6-c-form-control--BackgroundColor: var(--vscode-input-background);
+    --pf-v6-c-form-control--Color: var(--vscode-input-foreground);
+    --pf-v6-c-form-control--FontSize: var(--vscode-font-size, 13px);
+    --pf-v6-c-form-control--before--BorderColor: var(--vscode-input-border, var(--vscode-settings-textInputBorder, rgba(128, 128, 128, 0.35)));
+    --pf-v6-c-form-control--hover--after--BorderColor: var(--vscode-input-border, rgba(128, 128, 128, 0.35));
+    --pf-v6-c-form-control--BorderRadius: 2px;
+
+    --pf-v6-c-text-input-group--BackgroundColor: var(--vscode-input-background);
+    --pf-v6-c-text-input-group--Color: var(--vscode-input-foreground);
+    --pf-v6-c-text-input-group--BorderColor: var(--vscode-input-border, rgba(128, 128, 128, 0.35));
+    --pf-v6-c-text-input-group--m-hover--BorderColor: var(--vscode-input-border, rgba(128, 128, 128, 0.35));
+    --pf-v6-c-text-input-group__text--BorderRadius--base: 2px;
+    --pf-v6-c-text-input-group__text-input--Color: var(--vscode-input-foreground);
+    --pf-v6-c-text-input-group__text-input--placeholder--Color: var(--vscode-input-placeholderForeground);
+
+    --pf-v6-c-menu-toggle--BackgroundColor: var(--vscode-dropdown-background, var(--vscode-input-background));
+    --pf-v6-c-menu-toggle--Color: var(--vscode-dropdown-foreground, var(--vscode-input-foreground));
+    --pf-v6-c-menu-toggle--BorderColor: var(--vscode-dropdown-border, var(--vscode-input-border, rgba(128, 128, 128, 0.35)));
+    --pf-v6-c-menu-toggle--hover--BorderColor: var(--vscode-dropdown-border, var(--vscode-input-border, rgba(128, 128, 128, 0.35)));
+    --pf-v6-c-menu-toggle--expanded--BorderColor: var(--vscode-focusBorder);
+    --pf-v6-c-menu-toggle--BorderRadius: 2px;
+    --pf-v6-c-menu-toggle--FontSize: var(--vscode-font-size, 13px);
+}
+
+.pf-v6-c-form-control > input,
+.pf-v6-c-form-control > textarea,
+.pf-v6-c-form-control > select,
+.pf-v6-c-text-input-group__text-input {
+    color: var(--vscode-input-foreground);
+    font-family: var(--vscode-font-family);
+}
+
+.pf-v6-c-form-control > textarea,
+.karavan .properties .text-area {
+    font-family: var(--vscode-editor-font-family);
+}
+
+.pf-v6-c-form-control:focus-within,
+.pf-v6-c-text-input-group:focus-within,
+.pf-v6-c-menu-toggle.pf-m-expanded:not(.pf-m-plain) {
+    --pf-v6-c-form-control--after--BorderColor: var(--vscode-focusBorder);
+    --pf-v6-c-form-control--before--BorderColor: var(--vscode-focusBorder);
+    --pf-v6-c-text-input-group--BorderColor: var(--vscode-focusBorder);
+    --pf-v6-c-text-input-group--m-hover--BorderColor: var(--vscode-focusBorder);
+    --pf-v6-c-menu-toggle--BorderColor: var(--vscode-focusBorder);
+}
+
+.pf-v6-c-form-control.pf-m-error,
+.pf-v6-c-form-control[aria-invalid="true"] {
+    --pf-v6-c-form-control--before--BorderColor: var(--vscode-inputValidation-errorBorder, var(--vscode-errorForeground));
+    --pf-v6-c-form-control--after--BorderColor: var(--vscode-inputValidation-errorBorder, var(--vscode-errorForeground));
+}
+
+.pf-v6-c-form-control.pf-m-warning {
+    --pf-v6-c-form-control--before--BorderColor: var(--vscode-inputValidation-warningBorder, var(--vscode-editorWarning-foreground));
+    --pf-v6-c-form-control--after--BorderColor: var(--vscode-inputValidation-warningBorder, var(--vscode-editorWarning-foreground));
+}
+
+input::placeholder,
+textarea::placeholder {
+    color: var(--vscode-input-placeholderForeground);
+    opacity: 1;
+}
+
+/* ================= Checkbox / switch / radio ================= */
+
+.pf-v6-c-switch {
+    --pf-v6-c-switch--FontSize: var(--vscode-font-size, 13px);
+    --pf-v6-c-switch__toggle--BackgroundColor: var(--vscode-checkbox-background, var(--vscode-input-background));
+    --pf-v6-c-switch__toggle--BorderColor: var(--vscode-checkbox-border, var(--vscode-input-border, rgba(128, 128, 128, 0.5)));
+    --pf-v6-c-switch__toggle-icon--Color: var(--vscode-button-foreground);
+    --pf-v6-c-switch__input--not-checked__toggle--before--BackgroundColor: var(--vscode-descriptionForeground);
+    --pf-v6-c-switch__input--checked__toggle--BorderColor: var(--vscode-button-background);
+    --pf-v6-c-switch__input--checked__toggle--BackgroundColor: var(--vscode-button-background);
+    --pf-v6-c-switch__input--checked__toggle--before--BackgroundColor: var(--vscode-button-foreground);
+    --pf-v6-c-switch__input--focus__toggle--OutlineColor: var(--vscode-focusBorder);
+}
+
+input[type="checkbox"],
+input[type="radio"] {
+    accent-color: var(--vscode-button-background);
+}
+
+/* ================= Form layout - mimic the Settings editor ================= */
+
+.pf-v6-c-form {
+    --pf-v6-c-form__label--FontSize: var(--vscode-font-size, 13px);
+    --pf-v6-c-form__label-text--FontWeight: 600;
+    --pf-v6-c-form__label-required--Color: var(--vscode-errorForeground);
+    --pf-v6-c-helper-text__item-text--Color: var(--vscode-descriptionForeground);
+    --pf-v6-c-helper-text--FontSize: 12px;
+}
+
+.pf-v6-c-form__label {
+    color: var(--vscode-settings-headerForeground, var(--vscode-foreground));
+}
+
+.karavan .properties .pf-v6-c-form__group {
+    padding: 4px 6px;
+    border-radius: 2px;
+}
+
+.karavan .properties .pf-v6-c-form__group:hover {
+    background-color: var(--vscode-settings-rowHoverBackground, var(--vscode-list-hoverBackground));
+}
+
+.karavan .properties .pf-v6-c-form__group:focus-within {
+    background-color: var(--vscode-settings-focusedRowBackground, var(--vscode-list-inactiveSelectionBackground, transparent));
+    outline: 1px solid var(--vscode-settings-focusedRowBorder, transparent);
+    outline-offset: -1px;
+}
+
+.karavan .properties .expression .pf-v6-c-form__group-label,
+.karavan .properties .object .pf-v6-c-form__group-label,
+.karavan .properties .dataformat .pf-v6-c-form__group-label,
+.karavan .properties .parameters .pf-v6-c-form__group-label {
+    font-weight: normal;
+}
+
+.karavan .properties .expression-title {
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--vscode-settings-headerForeground, var(--vscode-foreground));
+}
+
+.karavan .properties .number .clear-button,
+.karavan .properties .object-key-value .delete-button {
+    color: var(--vscode-icon-foreground, var(--vscode-descriptionForeground));
+}
+
+.karavan .properties .main-properties,
+.karavan .main-properties {
+    background-color: var(--vscode-sideBar-background, var(--vscode-editor-background));
+    border-left-color: var(--vscode-sideBar-border, var(--vscode-panel-border, transparent));
+}
+
+.karavan .properties .object-value,
+.karavan .properties .component-selector {
+    border-color: var(--vscode-widget-border, var(--vscode-panel-border, rgba(128, 128, 128, 0.35)));
+}
+
+.karavan .properties .value-changed-label {
+    background-color: transparent;
+    color: inherit;
+    box-shadow: inset 2px 0 0 var(--vscode-settings-modifiedItemIndicator, var(--vscode-editorGutter-modifiedBackground, #66afe0));
+    padding-left: 6px;
+}
+
+/* Expandable sections look like Settings / Explorer section headers */
+.pf-v6-c-expandable-section {
+    --pf-v6-c-expandable-section__toggle-icon--Color: var(--vscode-icon-foreground, var(--vscode-foreground));
+}
+
+.pf-v6-c-expandable-section__toggle .pf-v6-c-button {
+    --pf-v6-c-button--m-link--Color: var(--vscode-foreground);
+    --pf-v6-c-button--m-link--hover--Color: var(--vscode-foreground);
+}
+
+/* ================= Tabs - like the panel title tabs ================= */
+
+.pf-v6-c-tabs {
+    --pf-v6-c-tabs--before--BorderColor: var(--vscode-panel-border, var(--vscode-widget-border, rgba(128, 128, 128, 0.35)));
+    --pf-v6-c-tabs__link--Color: var(--vscode-panelTitle-inactiveForeground, var(--vscode-descriptionForeground));
+    --pf-v6-c-tabs__link--FontSize: 11px;
+    --pf-v6-c-tabs__link--BackgroundColor: transparent;
+    --pf-v6-c-tabs__link--hover--BackgroundColor: transparent;
+    --pf-v6-c-tabs__link--after--BorderColor: transparent;
+    --pf-v6-c-tabs__item--m-current__link--Color: var(--vscode-panelTitle-activeForeground, var(--vscode-foreground));
+    --pf-v6-c-tabs__item--m-current__link--after--BorderColor: var(--vscode-panelTitle-activeBorder, var(--vscode-focusBorder));
+    --pf-v6-c-tabs__link--BorderRadius: 0;
+    --pf-v6-c-tabs__item--m-current__link--BackgroundColor: transparent;
+    --pf-v6-c-tabs__link-toggle-icon--Color: var(--vscode-icon-foreground);
+}
+
+.pf-v6-c-tabs .pf-v6-c-tabs__link:hover {
+    color: var(--vscode-panelTitle-activeForeground, var(--vscode-foreground));
+}
+
+.pf-v6-c-tabs .pf-v6-c-tabs__item-text {
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+/* ================= Menus, selects, dropdowns ================= */
+
+.pf-v6-c-menu {
+    --pf-v6-c-menu--BackgroundColor: var(--vscode-menu-background, var(--vscode-dropdown-background));
+    --pf-v6-c-menu--Color: var(--vscode-menu-foreground, var(--vscode-foreground));
+    --pf-v6-c-menu--BorderRadius: 4px;
+    --pf-v6-c-menu--BorderColor: var(--vscode-menu-border, var(--vscode-widget-border, transparent));
+    --pf-v6-c-menu--BorderWidth: 1px;
+    --pf-v6-c-menu--BoxShadow: 0 2px 8px var(--vscode-widget-shadow, rgba(0, 0, 0, 0.16));
+    --pf-v6-c-menu__item--FontSize: var(--vscode-font-size, 13px);
+    --pf-v6-c-menu__item-description--Color: var(--vscode-descriptionForeground);
+    --pf-v6-c-menu__list-item--hover--BackgroundColor: var(--vscode-menu-selectionBackground, var(--vscode-list-activeSelectionBackground));
+    --pf-v6-c-menu__item-select-icon--Color: var(--vscode-textLink-foreground);
+    --pf-v6-c-menu__group-title--Color: var(--vscode-descriptionForeground);
+}
+
+.pf-v6-c-menu__list-item:hover .pf-v6-c-menu__item,
+.pf-v6-c-menu__list-item:hover .pf-v6-c-menu__item-description {
+    color: var(--vscode-menu-selectionForeground, var(--vscode-list-activeSelectionForeground, inherit));
+}
+
+/* ================= Modal / popover / tooltip ================= */
+
+.pf-v6-c-modal-box {
+    --pf-v6-c-modal-box--BackgroundColor: var(--vscode-editorWidget-background);
+    --pf-v6-c-modal-box--BorderRadius: 6px;
+    --pf-v6-c-modal-box--BorderColor: var(--vscode-widget-border, var(--vscode-contrastBorder, transparent));
+    --pf-v6-c-modal-box--BorderWidth: 1px;
+    --pf-v6-c-modal-box--BoxShadow: 0 4px 16px var(--vscode-widget-shadow, rgba(0, 0, 0, 0.3));
+    --pf-v6-c-modal-box__title--FontSize: 14px;
+    color: var(--vscode-editorWidget-foreground, var(--vscode-foreground));
+}
+
+.pf-v6-c-popover {
+    --pf-v6-c-popover__content--BackgroundColor: var(--vscode-editorHoverWidget-background, var(--vscode-editorWidget-background));
+    --pf-v6-c-popover__arrow--BackgroundColor: var(--vscode-editorHoverWidget-background, var(--vscode-editorWidget-background));
+    --pf-v6-c-popover__content--BorderRadius: 3px;
+    --pf-v6-c-popover--BoxShadow: 0 2px 8px var(--vscode-widget-shadow, rgba(0, 0, 0, 0.16));
+    --pf-v6-c-popover--FontSize: var(--vscode-font-size, 13px);
+    color: var(--vscode-editorHoverWidget-foreground, var(--vscode-foreground));
+}
+
+.pf-v6-c-popover__content {
+    border: 1px solid var(--vscode-editorHoverWidget-border, var(--vscode-widget-border, transparent));
+}
+
+.pf-v6-c-tooltip {
+    --pf-v6-c-tooltip__content--BackgroundColor: var(--vscode-editorHoverWidget-background, var(--vscode-editorWidget-background));
+    --pf-v6-c-tooltip__content--Color: var(--vscode-editorHoverWidget-foreground, var(--vscode-foreground));
+    --pf-v6-c-tooltip__arrow--BackgroundColor: var(--vscode-editorHoverWidget-background, var(--vscode-editorWidget-background));
+    --pf-v6-c-tooltip__content--BorderRadius: 3px;
+    --pf-v6-c-tooltip__content--FontSize: 12px;
+    --pf-v6-c-tooltip--BoxShadow: 0 2px 8px var(--vscode-widget-shadow, rgba(0, 0, 0, 0.16));
+}
+
+.pf-v6-c-tooltip__content {
+    border: 1px solid var(--vscode-editorHoverWidget-border, var(--vscode-widget-border, transparent));
+}
+
+/* ================= Badges, labels, cards, toolbars ================= */
+
+.pf-v6-c-badge {
+    --pf-v6-c-badge--m-unread--BackgroundColor: var(--vscode-badge-background);
+    --pf-v6-c-badge--m-unread--Color: var(--vscode-badge-foreground);
+    --pf-v6-c-badge--m-read--BackgroundColor: var(--vscode-badge-background);
+    --pf-v6-c-badge--m-read--Color: var(--vscode-badge-foreground);
+    --pf-v6-c-badge--FontSize: 11px;
+}
+
+.karavan .main-properties .main-tabs-wrapper .main-tabs .top-menu-item .count {
+    background: var(--vscode-badge-background);
+    color: var(--vscode-badge-foreground);
+}
+
+.pf-v6-c-label {
+    --pf-v6-c-label--BorderRadius: 2px;
+    --pf-v6-c-label--FontSize: 12px;
+}
+
+.pf-v6-c-card {
+    --pf-v6-c-card--BackgroundColor: var(--vscode-editorWidget-background, var(--vscode-editor-background));
+    --pf-v6-c-card--BorderColor: var(--vscode-widget-border, var(--vscode-panel-border, rgba(128, 128, 128, 0.35)));
+    --pf-v6-c-card--BorderRadius: 4px;
+}
+
+.pf-v6-c-toolbar {
+    --pf-v6-c-toolbar--BackgroundColor: transparent;
+}
+
+.pf-v6-c-divider {
+    --pf-v6-c-divider--Color: var(--vscode-panel-border, var(--vscode-widget-border, rgba(128, 128, 128, 0.35)));
+}
+
+.pf-v6-c-alert {
+    --pf-v6-c-alert--BackgroundColor: var(--vscode-notifications-background, var(--vscode-editorWidget-background));
+    --pf-v6-c-alert__title--Color: var(--vscode-notifications-foreground, var(--vscode-foreground));
+    --pf-v6-c-alert--BorderRadius: 4px;
+    --pf-v6-c-alert--BoxShadow: 0 2px 8px var(--vscode-widget-shadow, rgba(0, 0, 0, 0.16));
+    color: var(--vscode-notifications-foreground, var(--vscode-foreground));
+}
+
+.pf-v6-c-table {
+    --pf-v6-c-table--BackgroundColor: transparent;
+    --pf-v6-c-table--BorderColor: var(--vscode-panel-border, var(--vscode-widget-border, rgba(128, 128, 128, 0.35)));
+    --pf-v6-c-table__tr--m-clickable--hover--BackgroundColor: var(--vscode-list-hoverBackground);
+}
+
+/* ================= Designer canvas ================= */
+
+.karavan .karavan-designer-page,
+.karavan .dsl-page {
+    background-color: var(--vscode-editor-background);
+}
+
+.karavan .tools-section-wrapper,
+.karavan .tools-section-tabs {
+    background-color: var(--vscode-editor-background);
+    border-bottom-color: var(--vscode-panel-border, var(--vscode-widget-border, rgba(128, 128, 128, 0.35)));
+}
+
+.karavan .step-element .header-icon {
+    background-color: var(--vscode-editor-background);
+    border-color: var(--step-border-color);
+}
+
+/* Dark themes: keep step icons on the editor background instead of a gray disc */
+.pf-v6-theme-dark .karavan .step-element .header-icon {
+    background-color: var(--vscode-editorWidget-background, var(--vscode-editor-background));
+}
+
+.karavan .step-element .selected .header-icon {
+    background-color: var(--vscode-list-inactiveSelectionBackground, var(--vscode-editor-background));
+}
+
+.karavan .step-element .header-route .delete-button,
+.karavan .step-element .header .delete-button,
+.element-builder .header .delete-button {
+    color: var(--vscode-icon-foreground, var(--vscode-descriptionForeground));
+}
+
+.karavan .step-element .header-route .delete-button:hover,
+.karavan .step-element .header .delete-button:hover,
+.element-builder .header .delete-button:hover {
+    color: var(--vscode-errorForeground);
+}
+
+/* Split-pane separator like the sash between editor groups */
+.karavan .resize-handler {
+    background-color: var(--vscode-panel-border, var(--vscode-editorGroup-border, rgba(128, 128, 128, 0.35)));
+    transition: background-color 0.1s ease-out;
+}
+
+.karavan .resize-handler:hover,
+.karavan .resize-handler[data-separator="active"] {
+    background-color: var(--vscode-sash-hoverBorder, var(--vscode-focusBorder));
+}
+
+/* ================= High contrast ================= */
+
+body.vscode-high-contrast .pf-v6-c-form-control,
+body.vscode-high-contrast-light .pf-v6-c-form-control,
+body.vscode-high-contrast .pf-v6-c-menu-toggle,
+body.vscode-high-contrast-light .pf-v6-c-menu-toggle {
+    --pf-v6-c-form-control--before--BorderColor: var(--vscode-contrastBorder);
+    --pf-v6-c-menu-toggle--BorderColor: var(--vscode-contrastBorder);
+}
+
+body.vscode-high-contrast .pf-v6-c-menu,
+body.vscode-high-contrast-light .pf-v6-c-menu,
+body.vscode-high-contrast .pf-v6-c-modal-box,
+body.vscode-high-contrast-light .pf-v6-c-modal-box {
+    outline: 1px solid var(--vscode-contrastBorder);
+}
+
+body.vscode-high-contrast .pf-v6-c-menu__list-item:hover,
+body.vscode-high-contrast-light .pf-v6-c-menu__list-item:hover {
+    outline: 1px dashed var(--vscode-contrastActiveBorder);
+    outline-offset: -1px;
+}
