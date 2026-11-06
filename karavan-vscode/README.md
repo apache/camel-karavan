@@ -65,6 +65,9 @@ Build-in catalogues:
 
 # Run integration
 
+The **Camel version** extension setting controls the version passed to Camel JBang.
+Leave it empty to omit `-Dcamel.jbang.version` and let Camel JBang select its default version.
+
 ## Run integration locally
 * Run in UI: click `Run` button 
 
