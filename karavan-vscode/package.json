@@ -49,7 +49,7 @@
         "camel.version": {
           "type": "string",
           "default": "4.22.2",
-          "description": "Camel version",
+          "description": "Camel version. Leave empty to use the default version selected by Camel JBang.",
           "scope": "machine",
           "order": 10
         },
