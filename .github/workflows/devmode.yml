@@ -37,11 +37,14 @@ jobs:
         working-directory: ./karavan-devmode
         run: mvn clean package
 
+      # Ubuntu 26.04+ (ubuntu-latest) turned qemu-user-static into a virtual package;
+      # the arm64 emulator and its binfmt_misc registration now come from qemu-user-binfmt.
       - name: Set up QEMU
         run: |
           sudo apt-get update
-          sudo apt-get install -y qemu-user-static
-        
+          sudo apt-get install -y qemu-user-binfmt
+          cat /proc/sys/fs/binfmt_misc/qemu-aarch64
+
       - name: Set up Docker Buildx
         run: |
           docker buildx create --use
