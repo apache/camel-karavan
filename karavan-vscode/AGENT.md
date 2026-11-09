@@ -2,7 +2,7 @@
 
 Operating guide for an AI agent working on the **Karavan VS Code extension**.
 Everything below was verified against the code in this checkout at extension version
-**4.22.0**. Paths are relative to `karavan-vscode/` unless stated otherwise.
+**4.22.2**. Paths are relative to `karavan-vscode/` unless stated otherwise.
 
 ---
 
@@ -287,9 +287,10 @@ Version lives in `package.json` and is normally driven by the monorepo script
 `camel.jbang.version=…` in `karavan-vscode/README.md` and `docs/VSCODE_HOWTO.md`, and
 patches `TAG:` in the workflows. `CHANGELOG.md` is maintained by hand.
 
-Current state to be aware of: `package.json` is **4.22.0** while `CHANGELOG.md`'s newest
-entry and the `camel.version` default are **4.22.0** — the bump commit
-(`0a2be04c bump version fo vscode to 4.22.0`) touched only the version.
+Current state: `package.json` version, the `camel.version` default, the
+`camel.jbang.version` application-properties default, and `CHANGELOG.md`'s newest entry are
+all **4.22.2**. When bumping, update all four — `change_version.sh` does not touch the
+`package.json` defaults or the changelog.
 
 ---
 

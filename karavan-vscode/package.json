@@ -48,8 +48,8 @@
       "properties": {
         "camel.version": {
           "type": "string",
-          "default": "4.18.1",
-          "description": "Camel version. Leave empty to use the default version selected by Camel JBang.",
+          "default": "4.22.2",
+          "description": "Camel version",
           "scope": "machine",
           "order": 10
         },
@@ -194,7 +194,7 @@
             "camel.karavan.project-name=$NAME",
             "camel.karavan.target=$TARGET",
             "camel.jbang.gav=$GAV",
-            "camel.jbang.quarkusVersion=3.15.3",
+            "camel.jbang.quarkusVersion=3.39.5",
             "camel.jbang.runtime=$RUNTIME",
             "camel.jbang.exportDir=.export"
           ],
@@ -215,8 +215,8 @@
             "camel.karavan.project-name=$NAME",
             "camel.karavan.target=$TARGET",
             "camel.jbang.gav=$GAV",
-            "camel.jbang.camelSpringBootVersion=4.14.0",
-            "camel.jbang.springBootVersion=3.3.0",
+            "camel.jbang.camelSpringBootVersion=4.22.2",
+            "camel.jbang.springBootVersion=4.1.1",
             "camel.jbang.runtime=$RUNTIME",
             "camel.jbang.exportDir=.export",
             "management.endpoints.web.exposure.include=health",
@@ -238,7 +238,7 @@
             "camel.karavan.project-name=$NAME",
             "camel.karavan.target=$TARGET",
             "camel.jbang.gav=$GAV",
-            "camel.jbang.version=4.18.1",
+            "camel.jbang.version=4.22.2",
             "camel.jbang.runtime=camel-main",
             "camel.jbang.dependencies=camel-console,camel-platform-http-main",
             "camel.jbang.exportDir=.export",
