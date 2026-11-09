@@ -195,6 +195,7 @@ line**. `${NAMESPACE}` and `${DATE}` are resolved later as **terminal env vars**
   value `.export`. `readCamelYamlFiles()` filters exported copies out of the file list.
 - **JBang command shape** (`jbang.prepareCommand`):
   `jbang "-Dcamel.jbang.version=<camel.version>" camel@apache/camel <cmd>`.
+  The version option is omitted when `camel.version` is unset, empty, or whitespace-only.
 - **Run** = `run * [--max-messages=N] [--local-kamelet-dir=…] [--dev]`.
   **Export** = `export --fresh --directory=<path> [--local-kamelet-dir=…]`.
   **Runtime run** appends `&& mvn clean compile <quarkus:dev|spring-boot:run|camel:run> -f <path>`.

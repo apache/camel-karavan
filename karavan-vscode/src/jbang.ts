@@ -45,8 +45,9 @@ export async function camelJbangGenerate(rootPath: string, openApiFullPath: stri
 }
 
 function prepareCommand(command: string): string {
-    const version = workspace.getConfiguration().get("camel.version");
-    return "jbang \"-Dcamel.jbang.version=" + version + "\" camel@apache/camel " + command;
+    const version = workspace.getConfiguration().get<string>("camel.version");
+    const versionOption = version && version.trim().length > 0 ? " \"-Dcamel.jbang.version=" + version + "\"" : "";
+    return "jbang" + versionOption + " camel@apache/camel " + command;
 }
 
 export function camelJbangRun() {
@@ -83,5 +84,4 @@ function executeJbangCommand(rootPath: string, command: string, callback: (code:
         window.showErrorMessage("JBang not found!");
     }    
 }
-
 
