@@ -80,6 +80,23 @@ directory, a single YAML file, or an HTTP(S) URL serving raw YAML:
 ```
 
 Alternatively, use a URL such as `https://example.com/kamelets.yaml`.
+URLs and local paths can reference extension-host environment variables using
+`${env:NAME}` or `${NAME}`, including a variable containing the entire URL:
+
+```json
+{
+  "Karavan.kameletsPath": "https://${env:KAMELET_HOST}/catalog.yaml?token=${env:KAMELET_TOKEN}"
+}
+```
+
+Values are substituted literally, once, without URL encoding; use URL-encoded
+values where required. Undefined variables report an error and leave the built-in
+catalog available. Empty values are allowed. Variables come from the VS Code
+extension host's environment (the remote host for remote workspaces), not from
+`.env` files or terminal-only exports. Restart VS Code after changing its
+environment. Browser-hosted extensions do not have access to OS environment
+variables.
+
 Each non-empty YAML document must have `kind: Kamelet`. A file can contain
 multiple Kamelets separated by `---`; LF and CRLF line endings are supported.
 Custom Kamelets are loaded alongside the built-in catalog when the designer

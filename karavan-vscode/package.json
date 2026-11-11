@@ -114,7 +114,7 @@
         "Karavan.kameletsPath": {
           "type": "string",
           "default": "",
-          "description": "Custom Kamelets Path for the editor only: local directory, YAML file (including multiple documents), or HTTP(S) YAML URL. Does not affect Camel JBang run/export.",
+          "description": "Custom Kamelets Path for the editor only: local directory, YAML file (including multiple documents), or HTTP(S) YAML URL. Supports ${env:NAME} and ${NAME} environment variables from the extension host. Does not affect Camel JBang run/export.",
           "scope": "machine",
           "order": 65
         },

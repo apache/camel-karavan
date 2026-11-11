@@ -69,7 +69,13 @@ export async function readKamelets(context: ExtensionContext) {
     const kameletsPath: string | undefined = workspace.getConfiguration().get("Karavan.kameletsPath");
     if (kameletsPath && kameletsPath.trim().length > 0) {
         try {
-            const source = kameletsPath.trim();
+            const source = kameletsPath.trim().replace(/\$\{(?:env:)?([A-Za-z_][A-Za-z0-9_]*)\}/g, (_match, name: string) => {
+                const value = typeof process !== "undefined" ? process.env[name] : undefined;
+                if (value === undefined) {
+                    throw new Error(`Environment variable "${name}" is not defined in the extension host`);
+                }
+                return value;
+            });
             let sources: string[];
             if (/^https?:\/\//i.test(source)) {
                 const controller = new AbortController();

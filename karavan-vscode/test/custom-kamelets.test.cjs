@@ -230,6 +230,69 @@ test("supports HTTPS sources and reports network failures", async t => {
     assert.match(errors[0], /Network failure/);
 });
 
+function setEnvironment(t, values) {
+    for (const [name, value] of Object.entries(values)) {
+        const previous = process.env[name];
+        t.after(() => {
+            if (previous === undefined) delete process.env[name];
+            else process.env[name] = previous;
+        });
+        if (value === undefined) delete process.env[name];
+        else process.env[name] = value;
+    }
+}
+
+test("expands both environment syntaxes throughout a URL without encoding or recursive expansion", async t => {
+    setEnvironment(t, {
+        KARAVAN_TEST_HOST: "example.invalid",
+        KARAVAN_TEST_PATH: "catalog.yaml",
+        KARAVAN_TEST_TOKEN: "encoded%2Fvalue$&",
+        KARAVAN_TEST_LITERAL: "${KARAVAN_TEST_HOST}",
+        KARAVAN_TEST_EMPTY: "",
+    });
+    source = "https://${env:KARAVAN_TEST_HOST}/${KARAVAN_TEST_PATH}?token=${env:KARAVAN_TEST_TOKEN}&host=${KARAVAN_TEST_HOST}&literal=${KARAVAN_TEST_LITERAL}${KARAVAN_TEST_EMPTY}";
+    t.mock.method(globalThis, "fetch", async url => {
+        assert.equal(url, "https://example.invalid/catalog.yaml?token=encoded%2Fvalue$&&host=example.invalid&literal=${KARAVAN_TEST_HOST}");
+        return new Response(kamelet("expanded"));
+    });
+    assert.deepEqual(names(await utils.readKamelets(context)), ["builtin", "expanded"]);
+    assert.deepEqual(errors, []);
+});
+
+test("supports an environment variable containing the entire catalog URL", async t => {
+    setEnvironment(t, {KARAVAN_TEST_URL: "https://example.invalid/catalog.yaml"});
+    t.mock.method(globalThis, "fetch", async url => {
+        assert.equal(url, "https://example.invalid/catalog.yaml");
+        return new Response(kamelet("expanded"));
+    });
+    for (const value of ["${env:KARAVAN_TEST_URL}", "${KARAVAN_TEST_URL}"]) {
+        source = value;
+        assert.deepEqual(names(await utils.readKamelets(context)), ["builtin", "expanded"]);
+    }
+    assert.deepEqual(errors, []);
+});
+
+test("reports missing environment variables before fetching without exposing resolved values", async t => {
+    setEnvironment(t, {KARAVAN_TEST_MISSING: undefined, KARAVAN_TEST_TOKEN: "test-secret-value"});
+    const fetch = t.mock.method(globalThis, "fetch", async () => { throw new Error("Must not fetch"); });
+    source = "https://example.invalid/${KARAVAN_TEST_TOKEN}/${env:KARAVAN_TEST_MISSING}";
+    assert.deepEqual(names(await utils.readKamelets(context)), ["builtin"]);
+    assert.equal(fetch.mock.callCount(), 0);
+    assert.equal(errors.length, 1);
+    assert.match(errors[0], /Environment variable "KARAVAN_TEST_MISSING" is not defined in the extension host/);
+    assert.equal(errors[0].includes("test-secret-value"), false);
+    assert.equal(logs.length, 1);
+    assert.equal(logs[0][1].message.includes("test-secret-value"), false);
+});
+
+test("resolves environment variables in local paths as well as URLs", async t => {
+    setEnvironment(t, {KARAVAN_TEST_FILE: path.resolve("custom.yaml")});
+    source = "${env:KARAVAN_TEST_FILE}";
+    files.set(process.env.KARAVAN_TEST_FILE, kamelet("local"));
+    assert.deepEqual(names(await utils.readKamelets(context)), ["builtin", "local"]);
+    assert.deepEqual(errors, []);
+});
+
 test("aborts remote loading after 30 seconds", async t => {
     source = "https://example.invalid/catalog.yaml";
     t.mock.timers.enable({apis: ["setTimeout"]});
