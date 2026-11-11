@@ -274,10 +274,6 @@ export function DslSelector(props: Props) {
                         isChecked={customOnly}
                         onChange={(_event, checked) => {
                             setCustomOnly(checked);
-                            if (checked) {
-                                deleteSelectedToggle('eip');
-                                deleteSelectedToggle('components');
-                            }
                         }}
                     />}
             </div>
@@ -322,15 +318,11 @@ export function DslSelector(props: Props) {
     const filteredElements: DslMetaModel[] = selectedDsl
         ? [selectedDsl]
         : elements.filter(d => {
+            if (customOnly && (d.navigation !== 'kamelet' || !KameletApi.getCustomKameletNames().includes(d.name))) return false;
             if (selectedToggles.includes('eip') && d.navigation === 'eip') return true
             else if (selectedToggles.includes('components') && d.navigation === 'component') return true
-            else if (selectedToggles.includes('kamelets') && d.navigation === 'kamelet') {
-                if (customOnly) {
-                    return KameletApi.getCustomKameletNames().includes(d.name);
-                } else {
-                    return true;
-                }
-            } else return false;
+            else if (selectedToggles.includes('kamelets') && d.navigation === 'kamelet') return true
+            else return false;
         })
             .filter(d => CamelUi.checkFilter(d, filter));
 
@@ -343,16 +335,15 @@ export function DslSelector(props: Props) {
 
     const fastElements: DslMetaModel[] = selectedDsl
         ? [selectedDsl]
-        : elements.filter((d: DslMetaModel) => {
-            if (selectedToggles.includes('eip') && d.navigation === 'eip') {
+        : filteredElements.filter((d: DslMetaModel) => {
+            if (d.navigation === 'eip') {
                 return preferredElements.includes(d.dsl);
-            } else if (d.navigation === 'component' && d.navigation === 'component') {
+            } else if (d.navigation === 'component') {
                 return d.uri && preferredElements.includes(d.uri)
             } else {
                 return preferredElements.includes(d.name)
             }
         })
-            .filter(d => CamelUi.checkFilter(d, filter))
             .filter((_, i) => i < 7);
 
     function onKeyDown(event: React.KeyboardEvent<HTMLDivElement>): void {
