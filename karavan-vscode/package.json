@@ -114,7 +114,7 @@
         "Karavan.kameletsPath": {
           "type": "string",
           "default": "",
-          "description": "Custom Kamelets Path",
+          "description": "Custom Kamelets Path for the editor only: local directory, YAML file (including multiple documents), or HTTP(S) YAML URL. Supports ${env:NAME} and ${NAME} environment variables from the extension host. Does not affect Camel JBang run/export.",
           "scope": "machine",
           "order": 65
         },
@@ -677,6 +677,7 @@
     "lint": "eslint src webview",
     "lint:fix": "eslint --fix src webview",
     "test": "node ./out/test/runTest.js",
+    "test:custom-kamelets": "node --test test/custom-kamelets.test.cjs",
     "open-in-browser": "vscode-test-web --extensionDevelopmentPath=. ../karavan-demo/hello-world/"
   },
   "dependencies": {

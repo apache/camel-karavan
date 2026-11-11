@@ -68,6 +68,53 @@ Build-in catalogues:
 The **Camel version** extension setting controls the version passed to Camel JBang.
 Leave it empty to omit `-Dcamel.jbang.version` and let Camel JBang select its default version.
 
+## Custom Kamelets
+
+Set **Karavan: Custom Kamelets Path** (`Karavan.kameletsPath`) to a local
+directory, a single YAML file, or an HTTP(S) URL serving raw YAML:
+
+```json
+{
+  "Karavan.kameletsPath": "C:\\camel\\kamelets.yaml"
+}
+```
+
+Alternatively, use a URL such as `https://example.com/kamelets.yaml`.
+URLs and local paths can reference extension-host environment variables using
+`${env:NAME}` or `${NAME}`, including a variable containing the entire URL:
+
+```json
+{
+  "Karavan.kameletsPath": "https://${env:KAMELET_HOST}/catalog.yaml?token=${env:KAMELET_TOKEN}"
+}
+```
+
+Values are substituted literally, once, without URL encoding; use URL-encoded
+values where required. Undefined variables report an error and leave the built-in
+catalog available. Empty values are allowed. Variables come from the VS Code
+extension host's environment (the remote host for remote workspaces), not from
+`.env` files or terminal-only exports. Restart VS Code after changing its
+environment. Browser-hosted extensions do not have access to OS environment
+variables.
+
+Each non-empty YAML document must have `kind: Kamelet`. A file can contain
+multiple Kamelets separated by `---`; LF and CRLF line endings are supported.
+Custom Kamelets are loaded alongside the built-in catalog when the designer
+loads. Reopen the designer after changing the setting.
+Both built-in and custom catalogs support LF and CRLF line endings.
+
+Directory loading remains non-recursive and reads filenames ending in `yaml`.
+Relative local paths retain their existing resolution against the extension
+host's working directory; absolute paths are recommended.
+
+`Karavan.kameletsPath` is **editor-only**, including directory sources: it is
+never passed to Camel JBang run/export or downloaded into the integration project.
+Remote loading has a 30-second timeout and reports HTTP, network, and YAML errors.
+Browser-hosted extensions also require the server to allow cross-origin requests.
+
+If you previously relied on `Karavan.kameletsPath` for runtime Kamelets, supply
+`--local-kamelet-dir` explicitly when running or exporting with the CLI.
+
 ## Run integration locally
 * Run in UI: click `Run` button 
 
