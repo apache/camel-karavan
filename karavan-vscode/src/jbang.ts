@@ -50,22 +50,26 @@ function prepareCommand(command: string): string {
     return "jbang" + versionOption + " camel@apache/camel " + command;
 }
 
-export function camelJbangRun() {
+export async function camelJbangRun() {
     const maxMessages: number = workspace.getConfiguration().get("camel.maxMessages") || -1;
-    const kameletsPath: string | undefined = workspace.getConfiguration().get("Karavan.kameletsPath");
     const dev: boolean = workspace.getConfiguration().get("camel.dev") || false;
-    const cmd = "run * "
-        + (maxMessages > -1 ? " --max-messages=" + maxMessages : "")
-        + (kameletsPath && kameletsPath.trim().length > 0 ? " --local-kamelet-dir=" + kameletsPath : "");
-    const command = prepareCommand(cmd) + (dev === true ? " --dev" : "");
-    exec.execTerminalCommand("jbang-run", command);
+    try {
+        const kameletsPath = await utils.getLocalKameletsDirectory();
+        const cmd = "run * "
+            + (maxMessages > -1 ? " --max-messages=" + maxMessages : "")
+            + (kameletsPath ? ` --local-kamelet-dir="${kameletsPath}"` : "");
+        const command = prepareCommand(cmd) + (dev === true ? " --dev" : "");
+        exec.execTerminalCommand("jbang-run", command);
+    } catch (err) {
+        window.showErrorMessage(`Karavan: failed to run project: ${err instanceof Error ? err.message : String(err)}`);
+    }
 }
 
-export function createExportCommand(fullPath: string, runtime: string) {
-    const kameletsPath: string | undefined = workspace.getConfiguration().get("Karavan.kameletsPath");
+export async function createExportCommand(fullPath: string, runtime: string) {
+    const kameletsPath = await utils.getLocalKameletsDirectory();
     const cmd = "export --fresh " 
         + (fullPath ? " --directory=" + fullPath : '')
-        + (kameletsPath && kameletsPath.trim().length > 0 ? " --local-kamelet-dir=" + kameletsPath : "");
+        + (kameletsPath ? ` --local-kamelet-dir="${kameletsPath}"` : "");
     return prepareCommand(cmd);
 }
 
@@ -84,4 +88,3 @@ function executeJbangCommand(rootPath: string, command: string, callback: (code:
         window.showErrorMessage("JBang not found!");
     }    
 }
-

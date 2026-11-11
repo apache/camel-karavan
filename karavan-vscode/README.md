@@ -68,6 +68,23 @@ Build-in catalogues:
 The **Camel version** extension setting controls the version passed to Camel JBang.
 Leave it empty to omit `-Dcamel.jbang.version` and let Camel JBang select its default version.
 
+## Runtime Kamelets directory
+
+Set **Camel: Local Kamelet Dir** (`camel.localKameletDir`) to pass
+`--local-kamelet-dir` to Camel JBang run/export (including runtime run and deploy):
+
+```json
+{
+  "camel.localKameletDir": "C:\\camel\\runtime-kamelets"
+}
+```
+
+This must be an existing local directory, not a YAML file or URL. Leave it empty
+to omit the JBang option. It does not affect the editor's Kamelet catalog.
+`Karavan.kameletsPath` is now editor-only and is never passed to Camel JBang.
+If you previously used `Karavan.kameletsPath` for runtime Kamelets, also set
+`camel.localKameletDir` to that directory.
+
 ## Run integration locally
 * Run in UI: click `Run` button 
 

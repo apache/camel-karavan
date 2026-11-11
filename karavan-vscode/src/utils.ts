@@ -75,6 +75,21 @@ export async function readKamelets(context: ExtensionContext) {
     return yamls;
 }
 
+export async function getLocalKameletsDirectory(): Promise<string | undefined> {
+    const source = workspace.getConfiguration().get<string>("camel.localKameletDir")?.trim();
+    if (!source) {
+        return undefined;
+    }
+    if (/^https?:\/\//i.test(source)) {
+        throw new Error("camel.localKameletDir must point to a local directory, not a URL");
+    }
+    const fileStat = await stat(path.resolve(source));
+    if (!(fileStat.type & FileType.Directory)) {
+        throw new Error("camel.localKameletDir must point to a directory, not a file");
+    }
+    return source;
+}
+
 async function readBuildInKamelets(context: ExtensionContext) {
     const kameletsPath = path.join(context.extensionPath, 'metadata', "kamelets.yaml");
     try {

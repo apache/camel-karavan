@@ -45,14 +45,17 @@ export function execTerminalCommand(terminalId: string, command: string, env?: {
 }
 
 export async function runWithRuntime(fullPath: string, run?: boolean) {
-    const runtime = await utils.getRuntime();
-    let command = jbang.createExportCommand(fullPath, runtime);
-    if (run) {
+    try {
         const runtime = await utils.getRuntime();
-        const mvn = runtime === 'quarkus' ? "quarkus:dev" : (runtime === 'spring-boot' ? "spring-boot:run" : "camel:run");
-        command = command.concat(" && mvn clean compile ").concat(mvn).concat(" -f ").concat(fullPath);
+        let command = await jbang.createExportCommand(fullPath, runtime);
+        if (run) {
+            const mvn = runtime === 'quarkus' ? "quarkus:dev" : (runtime === 'spring-boot' ? "spring-boot:run" : "camel:run");
+            command = command.concat(" && mvn clean compile ").concat(mvn).concat(" -f ").concat(fullPath);
+        }
+        execTerminalCommand("runtime-run", command);
+    } catch (err) {
+        window.showErrorMessage(`Karavan: failed to export project: ${err instanceof Error ? err.message : String(err)}`);
     }
-    execTerminalCommand("runtime-run", command);
 }
 
 export function camelDeploy(directory: string) {
@@ -61,7 +64,7 @@ export function camelDeploy(directory: string) {
         utils.getTarget(),
         utils.getExportFolder(),
         execCommand("oc project -q"), // get namespace 
-    ]).then(val => {
+    ]).then(async val => {
         const runtime = val[0] || '';
         const target = val[1] || '';
         const exportFolder = val[2] || '';
@@ -72,7 +75,7 @@ export function camelDeploy(directory: string) {
             window.showErrorMessage("Namespace not set \n" + val[3].error);
         }
         const deployCommand: string = workspace.getConfiguration().get("Karavan.".concat(runtime.replaceAll("-", "")).concat(utils.capitalize(target)).concat("Deploy")) || '';
-        const command = jbang.createExportCommand(directory, runtime).concat(" && ").concat(deployCommand).concat(" -f ").concat(exportFolder);
+        const command = (await jbang.createExportCommand(directory, runtime)).concat(" && ").concat(deployCommand).concat(" -f ").concat(exportFolder);
         execTerminalCommand("deploy", command, env);
     }).catch((reason: any) => {
         window.showErrorMessage("Error: \n" + reason.message);

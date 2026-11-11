@@ -111,10 +111,17 @@
           "scope": "machine",
           "order": 60
         },
+        "camel.localKameletDir": {
+          "type": "string",
+          "default": "",
+          "description": "Local Kamelet directory for Camel JBang run/export (--local-kamelet-dir). Does not affect the editor catalog.",
+          "scope": "machine",
+          "order": 64
+        },
         "Karavan.kameletsPath": {
           "type": "string",
           "default": "",
-          "description": "Custom Kamelets Path",
+          "description": "Custom Kamelets directory for the editor only. Does not affect Camel JBang run/export.",
           "scope": "machine",
           "order": 65
         },
@@ -677,6 +684,7 @@
     "lint": "eslint src webview",
     "lint:fix": "eslint --fix src webview",
     "test": "node ./out/test/runTest.js",
+    "test:runtime-kamelets": "node --test test/runtime-kamelets.test.cjs",
     "open-in-browser": "vscode-test-web --extensionDevelopmentPath=. ../karavan-demo/hello-world/"
   },
   "dependencies": {
