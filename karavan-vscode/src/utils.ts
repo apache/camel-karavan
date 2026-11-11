@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 import * as path from "path";
+import * as yaml from "js-yaml";
 import {ExtensionContext, FileType, Uri, window, workspace} from "vscode";
 import {CamelDefinitionYaml} from "@karavan-core/api/CamelDefinitionYaml";
 import {Integration, KameletTypes} from "@karavan-core/model/IntegrationDefinition";
@@ -64,15 +65,53 @@ export function getRalativePath(fullPath: string): string {
 }
 
 export async function readKamelets(context: ExtensionContext) {
-   const yamls: string[] = await readBuildInKamelets(context);
+    const yamls: string[] = await readBuildInKamelets(context);
     const kameletsPath: string | undefined = workspace.getConfiguration().get("Karavan.kameletsPath");
     if (kameletsPath && kameletsPath.trim().length > 0) {
-        const kameletsDir = path.isAbsolute(kameletsPath) ? kameletsPath : path.resolve(kameletsPath);
-        const files = await readFilesInDirByExtension(kameletsDir, "yaml");
-        const customKamelets: string[] = Array.from(files.values());
-        if (customKamelets && customKamelets.length > 0) yamls.push(...customKamelets);
+        try {
+            const source = kameletsPath.trim();
+            let sources: string[];
+            if (/^https?:\/\//i.test(source)) {
+                const controller = new AbortController();
+                const timeout = setTimeout(() => controller.abort(), 30000);
+                try {
+                    const response = await fetch(source, {signal: controller.signal});
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status} ${response.statusText}`);
+                    }
+                    sources = [await response.text()];
+                } finally {
+                    clearTimeout(timeout);
+                }
+            } else {
+                const fullPath = path.resolve(source);
+                const fileStat = await stat(fullPath);
+                if (fileStat.type & FileType.Directory) {
+                    const files = await readFilesInDirByExtension(fullPath, "yaml");
+                    sources = Array.from(files.values());
+                } else {
+                    sources = [Buffer.from(await readFile(fullPath)).toString('utf8')];
+                }
+            }
+            const customKamelets = sources.flatMap(parseKamelets);
+            yamls.push(...customKamelets);
+        } catch (err) {
+            console.error("Karavan: failed to load custom Kamelets", err);
+            window.showErrorMessage(`Karavan: failed to load custom Kamelets: ${err instanceof Error ? err.message : String(err)}`);
+        }
     }
     return yamls;
+}
+
+function parseKamelets(code: string): string[] {
+    return yaml.loadAll(code)
+        .filter(document => document !== null && document !== undefined)
+        .map(document => {
+            if (typeof document !== "object" || !("kind" in document) || document.kind !== "Kamelet") {
+                throw new Error("Each YAML document must be a Kamelet (kind: Kamelet)");
+            }
+            return yaml.dump(document);
+        });
 }
 
 async function readBuildInKamelets(context: ExtensionContext) {
@@ -80,10 +119,10 @@ async function readBuildInKamelets(context: ExtensionContext) {
     try {
         const file = await readFile(kameletsPath);
         const code = Buffer.from(file).toString('utf8');
-        return code.split("\n---\n").map(c => c.trim()).filter(c => c.length > 0);
+        return parseKamelets(code);
     } catch (err) {
         // Built-in Kamelets are optional: a missing catalog must not block the designer from loading.
-        console.error(`Karavan: built-in Kamelets not found at ${kameletsPath}`, err);
+        console.error(`Karavan: failed to load built-in Kamelets at ${kameletsPath}`, err);
         return [];
     }
 }
