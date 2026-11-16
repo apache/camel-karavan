@@ -52,20 +52,16 @@ function prepareCommand(command: string): string {
 
 export function camelJbangRun() {
     const maxMessages: number = workspace.getConfiguration().get("camel.maxMessages") || -1;
-    const kameletsPath: string | undefined = workspace.getConfiguration().get("Karavan.kameletsPath");
     const dev: boolean = workspace.getConfiguration().get("camel.dev") || false;
     const cmd = "run * "
-        + (maxMessages > -1 ? " --max-messages=" + maxMessages : "")
-        + (kameletsPath && kameletsPath.trim().length > 0 ? " --local-kamelet-dir=" + kameletsPath : "");
+        + (maxMessages > -1 ? " --max-messages=" + maxMessages : "");
     const command = prepareCommand(cmd) + (dev === true ? " --dev" : "");
     exec.execTerminalCommand("jbang-run", command);
 }
 
 export function createExportCommand(fullPath: string, runtime: string) {
-    const kameletsPath: string | undefined = workspace.getConfiguration().get("Karavan.kameletsPath");
     const cmd = "export --fresh " 
-        + (fullPath ? " --directory=" + fullPath : '')
-        + (kameletsPath && kameletsPath.trim().length > 0 ? " --local-kamelet-dir=" + kameletsPath : "");
+        + (fullPath ? " --directory=" + fullPath : '');
     return prepareCommand(cmd);
 }
 
@@ -84,4 +80,3 @@ function executeJbangCommand(rootPath: string, command: string, callback: (code:
         window.showErrorMessage("JBang not found!");
     }    
 }
-
