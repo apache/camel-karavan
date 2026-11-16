@@ -678,6 +678,7 @@
     "lint:fix": "eslint --fix src webview",
     "test": "node ./out/test/runTest.js",
     "test:kamelets": "node --test test/kamelets.test.cjs",
+    "test:dsl-selector": "node --test test/dsl-selector.test.cjs",
     "open-in-browser": "vscode-test-web --extensionDevelopmentPath=. ../karavan-demo/hello-world/"
   },
   "dependencies": {
