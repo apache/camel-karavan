@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 import * as path from "path";
+import * as yaml from "js-yaml";
 import {ExtensionContext, FileType, Uri, window, workspace} from "vscode";
 import {CamelDefinitionYaml} from "@karavan-core/api/CamelDefinitionYaml";
 import {Integration, KameletTypes} from "@karavan-core/model/IntegrationDefinition";
@@ -80,10 +81,12 @@ async function readBuildInKamelets(context: ExtensionContext) {
     try {
         const file = await readFile(kameletsPath);
         const code = Buffer.from(file).toString('utf8');
-        return code.split("\n---\n").map(c => c.trim()).filter(c => c.length > 0);
+        return yaml.loadAll(code)
+            .filter(document => document !== null && document !== undefined)
+            .map(document => yaml.dump(document));
     } catch (err) {
         // Built-in Kamelets are optional: a missing catalog must not block the designer from loading.
-        console.error(`Karavan: built-in Kamelets not found at ${kameletsPath}`, err);
+        console.error(`Karavan: failed to load built-in Kamelets at ${kameletsPath}`, err);
         return [];
     }
 }
